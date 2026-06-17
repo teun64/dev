@@ -1,0 +1,31 @@
+<apex:page showHeader="false" sidebar="false" standardController="Account" extensions="Ctrl_Voucher">
+	<apex:pageMessages />
+	<apex:pageBlock title="{!$Label.VoucherPageTitle}: {!account.Name}" >
+		<apex:pageBlockTable value="{!voucherList}" var="v" id="vTable">
+			<apex:column headerValue="{!$Label.ExternalId}" value="{!v.id}"/>
+			<apex:column headerValue="{!$Label.VoucherCode}" value="{!v.voucherCode}"/>
+			<apex:column headerValue="{!$Label.CreatedDate}" value="{!v.convertedCreatedDate}"/>
+			<apex:column headerValue="{!$Label.EndDate}" value="{!v.convertedEndDate}"/>
+			<apex:column headerValue="{!$Label.CreatedById}">
+				<apex:outputLink value="/{!v.createdByContactSFId}">{!v.createdByContactSFId.Name}</apex:outputLink>
+			</apex:column>
+			<apex:column headerValue="{!$Label.RequestedById}">
+				<apex:outputLink value="/{!v.requestedByContactSFId}">{!v.requestedByContactSFId.Name}</apex:outputLink>
+			</apex:column>
+			<apex:column headerValue="{!$Label.Value}" value="{!v.value}"/>
+			<apex:column headerValue="{!$Label.Spent}" value="{!v.spent}"/>
+			<apex:column headerValue="{!$Label.AccountId}">
+				<apex:outputLink value="/{!v.accountSFId}">{!v.accountSFId.Name}</apex:outputLink>
+			</apex:column>
+			<apex:column headerValue="{!$Label.InstallationId}">
+				<apex:outputLink value="/{!v.installationSFId}">{!v.installationSFId.Name}</apex:outputLink>
+			</apex:column>
+			<apex:column headerValue="{!$Label.HardwareId}">
+				<apex:outputLink value="/{!v.hardwareSFId}">{!v.hardwareSFId.Name}</apex:outputLink>
+			</apex:column>
+			<apex:column headerValue="{!$Label.DealerTaskType}" value="{!v.dealerTaskType}"/>
+			<apex:column headerValue="{!$Label.Reason}" value="{!v.reason}"/>
+			<apex:column headerValue="{!$Label.Status}" value="{!v.status}"/>
+		</apex:pageBlockTable>
+	</apex:pageBlock>
+</apex:page>

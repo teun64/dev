@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Receiving_Limit_Day_Order__c</fullName>
+    <description>Calculation based on the reset date minus</description>
+    <formula>IF(ISBLANK(Receiving_Limit_Day_Reset__c),  (CreatedDate -2 )  ,((Receiving_Limit_Day_Reset__c - 1) + ( BLANKVALUE(Receiving_Limit_Day_Used__c,0) / BLANKVALUE(Receiving_Limit_Day_Total__c,1))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Daily Limit Order (Receiver)</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

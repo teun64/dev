@@ -1,0 +1,4 @@
+<apex:page standardController="Account" extensions="Ctrl_SyncAccountToMI" action="{!callMiSync}" lightningStylesheets="true">
+	<apex:slds />
+	<apex:pageMessages />
+</apex:page>

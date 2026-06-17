@@ -1,0 +1,93 @@
+<apex:page showHeader="false" sidebar="true" standardController="Asset" extensions="Ctrl_Location" action="{!callLocation}" lightningStylesheets="true" wizard="true">
+	<apex:slds />
+    <apex:pageBlock rendered="{!displayLocation}">
+         <apex:outputPanel >
+            <table style="witdh: 100%;">
+                <tr style="Background-color :rgb(228,3,44); color:white; font-weight: bold; font-size: 1.5em; height: 3em;">
+                    <th colspan="2" style="witdh: 20%; padding-left: 1em;">
+                        <apex:outputText value="Current location: {!Asset.Name}"/>&nbsp;
+                    </th>
+                </tr>
+                <td style="witdh: 20%; padding-left: 1em;">
+                    &nbsp; 
+                </td>
+                <td>
+                    &nbsp;
+                </td>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        Street: 
+                    </td>
+                    <td>
+                        <apex:outputText value="{!location.road}"/> &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        House number: 
+                    </td>
+                    <td>
+                        <apex:outputText value="{!location.houseNumber}"/>&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        Postal code: 
+                    </td>
+                    <td>
+                        <apex:outputText value="{!location.postalCode}"/> &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        City: 
+                    </td>
+                    <td>
+                        <apex:outputText value="{!location.city}"/> &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        Country: 
+                    </td>
+                    <td>
+                        <apex:outputText value="{!location.country}"/> &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        &nbsp; 
+                    </td>
+                    <td>
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        GPS-Date:
+                    </td>
+                    <td>
+                        <apex:outputText value="{!location.ConvertedGpsDateTime}"/>&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="witdh: 20%; padding-left: 1em;">
+                        &nbsp; 
+                    </td>
+                    <td>
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <apex:map id="currentLocation" width="100%" height="400px" mapType="roadmap" zoomLevel="15" center="{!jsonCoordinates}">
+                            <apex:mapMarker title="{!Asset.Name}" position="{!jsonCoordinates}"/>
+                        </apex:map> 
+                    </td>
+                </tr>
+
+            </table>
+        </apex:outputPanel>
+    </apex:pageblock>
+    <apex:pageMessages />
+</apex:page>

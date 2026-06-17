@@ -1,0 +1,109 @@
+/* Ensure the parent grid never forces wrap on desktop */
+.main-grid {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+/* Light gap between columns when side-by-side */
+.slds-gutters_medium {
+    gap: 1rem;
+}
+
+.column-box {
+  background: var(--slds-canvas-background-color, #fff);
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  min-width: 0;  /* Important: avoids overflow → wrap */
+  min-height: 100%;
+}
+
+/* Left column is clean*/
+.column-left {
+    margin-right: 1rem; /* 16px space */
+}
+
+/* Right column is clean */
+.column-right {
+    margin-left: 1rem; /* 16px space */
+}
+
+/* Provider logo styled like Salesforce icons (rounded) */
+.provider-logo-header {
+  height: 48px;
+  width: 48px;
+  border-radius: 0.25rem;
+  background: var(--slds-canvas-background-color, #f3f3f3);
+  border: 1px solid #d8dde6;
+  padding: 4px;
+  object-fit: contain;
+}
+
+/* Header */
+.checkout-header {
+  border-bottom: 1px solid #d8dde6;
+  background: transparent;
+}
+
+/* Title */
+.checkout-title {
+  font-weight: 700;
+}
+
+/* Section headers */
+.section-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* Order labels and values */
+.order-label {
+  font-weight: 600;
+  color: #333;
+}
+.order-value {
+  color: #111;
+}
+
+/* language selector width */
+.language-selector {
+  min-width: 120px;
+}
+.amount-value {
+    text-align: right;         /* Align right */
+}
+/* responsive equal heights on larger screens */
+@media screen and (min-width: 768px) {
+  .main-content {
+    display: flex;
+    gap: 1rem;
+  }
+  .slds-col {
+    display: flex;
+    flex-direction: column;
+  }
+  .column-box {
+    margin-bottom: 1rem;
+  }
+  .column-left {
+      margin-right: 0;
+  }
+  .column-right {
+      margin-left: 0;
+  }
+}
+/* Force stacking in portrait mode (mobile + tablet) */
+@media (orientation: portrait) {
+    .main-grid {
+        display: block !important;
+    }
+    .column-box {
+        width: 100% !important;
+    }
+    .column-left {
+        margin-right: 0 !important;
+    }
+    .column-right {
+        margin-left: 0 !important;
+    }
+}

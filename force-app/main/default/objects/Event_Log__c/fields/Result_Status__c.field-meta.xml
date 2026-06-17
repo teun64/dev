@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Result_Status__c</fullName>
+    <description>The Result status for the requested action</description>
+    <inlineHelpText>The Result status for the requested action</inlineHelpText>
+    <label>Result (Status)</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>COMPLETED</fullName>
+                <default>false</default>
+                <label>Completed</label>
+            </value>
+            <value>
+                <fullName>WARNING</fullName>
+                <default>false</default>
+                <label>Warning</label>
+            </value>
+            <value>
+                <fullName>ERROR</fullName>
+                <default>false</default>
+                <label>Error</label>
+            </value>
+            <value>
+                <fullName>UNHANDLED_EXCEPTION</fullName>
+                <default>false</default>
+                <label>Unhandled exception</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

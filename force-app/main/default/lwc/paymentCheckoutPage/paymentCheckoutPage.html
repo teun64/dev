@@ -1,0 +1,128 @@
+<template>
+    <lightning-card class="checkout-card">
+        <!-- Header Section -->
+        <div class="slds-grid slds-grid_align-spread slds-align-center slds-p-around_small checkout-header" style="width:100%">
+            <!-- Left: Provider Logo + Checkout Title -->
+            <div class="slds-grid slds-align-center">
+                <img src={providerLogo} alt="Provider Logo" class="provider-logo-header" />
+                <h1 class="slds-text-heading_large checkout-title slds-m-left_small">{labelPageTitle}</h1>
+            </div>
+
+            <!-- RIGHT: LOCALE SELECTOR (NO LABEL) -->
+            <div class="slds-col slds-size_auto slds-grid slds-align-end">
+                <lightning-combobox
+                    name="locale"
+                    value={locale}
+                    options={localeOptions}
+                    onchange={handleLocaleChange}
+                    variant="label-hidden"
+                    class="slds-text-body_small"
+                ></lightning-combobox>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="slds-grid slds-gutters_medium slds-p-around_medium main-grid">
+
+             <!-- LEFT COLUMN: ORDER SUMMARY -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-around_small column-box column-left">
+                <h2 class="slds-text-heading_small slds-p-bottom_small section-title">
+                    {labelColumnOrder}
+                </h2>
+
+                <!-- General Payment Text (full width) -->
+                <p class="slds-text-body_regular slds-p-bottom_medium general-payment-text">
+                    {paymentPageText}
+                </p>
+
+                <div class="slds-grid slds-wrap">
+
+                    <div class="slds-col slds-size_1-of-3 slds-p-vertical_x-small order-label">
+                        <span class="slds-text-heading_small slds-text-bold">
+                            {labelCustomer}
+                        </span>         
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-p-vertical_x-small order-value">
+                        <span class="slds-text-heading_small slds-text-bold">
+                            {customer}
+                        </span>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-3 slds-p-vertical_x-small order-label">
+                        {labelReference}
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-p-vertical_x-small order-value">
+                        {reference}
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-3 slds-p-vertical_x-small order-label">
+                        {labelDescription}
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-p-vertical_x-small order-value">
+                        {description}
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-3 slds-p-vertical_x-small order-label">
+                        {labelBeneficiary}
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-p-vertical_x-small order-value">
+                        {beneficiary}
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-3 slds-p-vertical_x-small order-label">
+                        {labelCurrency}
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-p-vertical_x-small order-value">
+                        {currency}
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-3 slds-p-vertical_x-small order-label">
+                        {labelDate}
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-p-vertical_x-small order-value">
+                        {orderDateFormatted}
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-3 slds-p-vertical_x-small order-label">
+                        <span class="slds-text-heading_small slds-text-bold">
+                            {labelAmount}
+                        </span>         
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-p-vertical_x-small order-value amount-value">
+                        <span class="slds-text-heading_small slds-text-bold">
+                            {amountTotalFormatted}
+                        </span>
+                    </div>
+
+                    <!-- template for:each={summaryItems} for:item="item">
+                        <div key={item.label} class="slds-grid slds-wrap order-row">
+                            <div class="slds-col slds-size_1-of-3 order-label">{item.label}</div>
+                            <div class="slds-col slds-size_2-of-3 order-value">{item.value}</div>
+                        </div>
+                    </template -->
+                </div>
+            </div>
+
+
+            <!-- RIGHT COLUMN: SECURE PAYMENT -->
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-around_small column-box column-right">
+                <h2 class="slds-text-heading_small slds-p-bottom_small section-title">
+                    {labelColumnProvider}
+                </h2>
+
+                <!-- child component (iframe wrapper) -->
+                <template if:true={isCheckout}>
+                    <c-payment-checkout
+                        publishable-key={publishableKey}
+                        client-secret={clientSecret}
+                        mode={mode}
+                        theme={theme}
+                        locale={locale}
+                        amount={amountTotalFormatted}
+                        oncheckoutresult={handleCheckoutResult}
+                    ></c-payment-checkout>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

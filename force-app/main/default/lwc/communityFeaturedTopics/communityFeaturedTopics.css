@@ -1,0 +1,55 @@
+/* Container box styling */
+.slds-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    height: 100%; /* Ensures all boxes are equal height */
+    padding: 1rem; /* Optional: adds padding to the box for better visual spacing */
+    box-sizing: border-box;
+}
+
+/* Ensures description takes up available space and pushes "Read More" link down */
+.topic-description {
+    flex-grow: 1;
+    margin-bottom: 1rem; /* Space between description and "Read More" link */
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* Badge icon */
+.badge-icon {
+    height: 40px;
+    margin-bottom: 0.5rem;
+    align-self: start;
+}
+
+/* Topic title */
+.topic-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+/* Read more link styling */
+.read-more-link {
+    color: rgb(15, 23, 42);
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center; /* Centers arrow icon vertically with text */
+    text-align: left;
+}
+
+.read-more-link:hover {
+    text-decoration: underline;
+}
+
+/* Arrow icon styling */
+.arrow-icon {
+    margin-left: 0.25rem;
+    height: 12px;
+}

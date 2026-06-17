@@ -1,0 +1,23 @@
+<aura:component description="Trigger synchronisation" implements="force:hasRecordId,force:lightningQuickActionWithoutHeader" controller="Ctrl_SyncWithExact">
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<aura:attribute access="private" type="String" name="message" default="Please wait... loading..." />
+
+	<header class="modal-header slds-modal__header">
+		<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate" style="text-align: center">Synchronise with Exact</h2>
+	</header>
+	<div class="modal-body slds-modal__content slds-var-p-around_medium" id="modal-content-id-1" style="text-align: center">
+		<p>
+			&nbsp;
+		</p>
+		<p>
+				<aura:unescapedHtml value="{!v.message}" /><br/>
+		</p>
+		<p>
+			&nbsp;
+		</p>
+	</div>
+
+	<ui:button class="slds-button slds-button_brand" label="Synchronise" press="{!c.sync}" />
+	<ui:button class="slds-button slds-button_neutral" label="Close" press="{!c.close}" />
+</aura:component>

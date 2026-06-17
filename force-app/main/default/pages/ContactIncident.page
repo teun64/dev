@@ -1,0 +1,15 @@
+<apex:page showHeader="false" sidebar="true" standardController="Contact" extensions="Ctrl_ContactIncident">
+	<apex:pageblock title="Mails for contact: {!contact.Name}" >
+		<apex:pageblocktable value="{!miMsgs}" var="m" id="mTable">
+			<apex:column headerValue="id" value="{!m.id}"/>
+ 			<apex:column headerValue="To Contact Id" value="{!m.toContactId}"/>
+			<apex:column headerValue="To Address" value="{!m.toAddress}"/>
+			<apex:column headerValue="cc Addresses" value="{!m.ccAddresses}"/>
+			<apex:column headerValue="Subject" value="{!m.subject}"/>
+			<apex:column headerValue="Body">
+				<apex:outputText value="{!m.body}" escape="false"/>
+			</apex:column>
+			<apex:column headerValue="Sent date" value="{!m.convertedDate}"/>
+		</apex:pageblocktable>
+	</apex:pageblock>
+</apex:page>

@@ -1,0 +1,95 @@
+<template>
+    <article class="slds-card slds-theme_default">
+
+        <!-- SECTION HEADER -->
+        <div class="slds-section slds-is-open">
+            <h3 class="slds-section__title slds-theme_shade slds-p-vertical_x-small slds-m-horizontal_small">
+                <button
+                    class="slds-button slds-section__title-action"
+                    onclick={toggleSection}
+                    aria-expanded={isOpen}>
+                    <lightning-icon
+                        icon-name="utility:switch"
+                        size="x-small"
+                        class="slds-section__title-action-icon slds-m-right_x-small">
+                    </lightning-icon>
+                    <span class="slds-truncate" title="Pricing (List Price)">
+                        Pricing (List Price)
+                    </span>
+                </button>
+            </h3>
+
+            <!-- SECTION CONTENT -->
+            <div class="slds-section__content slds-p-horizontal_medium slds-p-vertical_x-small">
+
+                <!-- GRID WRAPPER (important!) -->
+                <div class="slds-grid slds-gutters">
+
+                    <!-- COLUMN 1 -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-horizontal_small slds-p-vertical_x-small">
+                        <div class="slds-form-element slds-form-element_horizontal align-center">
+                            <span class="slds-form-element__label">
+                                Current Price
+                            </span>
+                            <div class="slds-form-element__control">
+                                <span class="slds-form-element__static">
+                                    <lightning-formatted-number
+                                        value={oldPrice}
+                                        format-style="currency"
+                                        currency-code={currencyIsoCode}>
+                                    </lightning-formatted-number>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 2 -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-horizontal_small slds-p-vertical_x-small">
+                        <div class="slds-form-element slds-form-element_horizontal align-center">
+                            <span class="slds-form-element__label">
+                                {newLabel}
+                            </span>
+                            <lightning-helptext
+                                    content="Please supply the new (changed) list price">
+                            </lightning-helptext>
+                            <div class="slds-form-element__control">
+                                <lightning-input
+                                    type="number"
+                                    step="0.01"
+                                    value={newPrice}
+                                    onchange={handleChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- FOOTER ACTION -->
+                <div class="slds-m-top_medium slds-text-align_right">
+
+                    <template if:true={showSuccess}>
+                        <div class="slds-notify slds-notify_inline slds-theme_success slds-text-align_center slds-m-bottom_small slds-p-vertical_medium align-center">
+                            <h2>List price succesfully updated and update fixed prices on Price Agreements started</h2>
+                        </div>
+                    </template>
+
+                    <template if:true={errorMessage}>
+                        <div class="slds-notify slds-notify_inline slds-theme_error slds-text-align_center slds-m-bottom_small slds-p-vertical_medium align-center">
+                            <h2>{errorMessage}</h2>
+                        </div>
+                    </template>
+
+                    <lightning-button
+                        variant="brand"
+                        label="Update"
+                        onclick={handleUpdate}
+                        disabled={isUpdateDisabled}>
+                    </lightning-button>
+                </div>
+
+            </div>
+        </div>
+
+    </article>
+</template>

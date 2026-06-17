@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Parent__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>GS 15Dec2023: The main event.</description>
+    <label>Parent Integration Transaction</label>
+    <referenceTo>IntegrationTransaction__c</referenceTo>
+    <relationshipLabel>Integration Transactions</relationshipLabel>
+    <relationshipName>Parent_IntegrationTransactions</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

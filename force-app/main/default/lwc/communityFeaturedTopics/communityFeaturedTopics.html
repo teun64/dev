@@ -1,0 +1,39 @@
+<template>
+ <lightning-card>
+    <div class="slds-grid slds-wrap slds-gutters">
+        <template if:true={featuredTopics}>
+            <template for:each={featuredTopics} for:item="topic">
+                <div key={topic.id} class="slds-col slds-size_1-of-3 slds-p-around_small">
+                    <div class="slds-box slds-theme_default slds-m-bottom_small">
+                        <!-- Icon row -->
+                        <div class="slds-col">
+                            <img class="badge-icon" src={topic.iconUrl} alt="Topic Icon" />
+                        </div>
+
+                        <!-- Title row -->
+                        <div class="slds-col">
+                            <h2 class="topic-title">{topic.name}</h2>
+                        </div>
+
+                        <!-- Description row -->
+                        <div class="slds-col">
+                            <p class="topic-description">{topic.description}</p>
+                        </div>
+
+                        <!-- Read More link row -->
+                        <div class="slds-col">
+                            <a href={topic.Url} class="read-more-link" target="_self">
+                                Lees Meer
+                                <img src={redarrowIconUrl} alt="Arrow Icon" class="arrow-icon" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+        <template if:true={error}>
+            <p>{error}</p>
+        </template>
+    </div>
+</lightning-card>
+</template>

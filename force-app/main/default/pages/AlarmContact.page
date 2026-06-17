@@ -1,0 +1,18 @@
+<apex:page showHeader="false" sidebar="false" lightningStylesheets="true" standardController="Asset" extensions="Ctrl_AlarmContact">
+    <apex:pageMessages />
+    <apex:pageBlock title="{!$Label.AlarmContactPageTitle}: {!Asset.Name}" >
+        <apex:pageBlockTable value="{!miAlarmCont}" var="ac" id="acTable">
+            <apex:column headerValue="{!$Label.ContactId}">
+                <apex:outputLink value="/{!ac.ContactSFId}">{!ac.ContactSFId.Name}</apex:outputLink>
+            </apex:column>
+            <apex:column headerValue="{!$Label.FirstName}" value="{!ac.firstName }"/>
+            <apex:column headerValue="{!$Label.Insertion}" value="{!ac.insertion }"/>
+            <apex:column headerValue="{!$Label.SurName}" value="{!ac.surName }"/>
+            <apex:column headerValue="{!$Label.PhoneNumber1}" value="{!ac.phoneNumber1 }"/>
+            <apex:column headerValue="{!$Label.PhoneNumber2}" value="{!ac.phoneNumber2 }"/>
+            <apex:column headerValue="{!$Label.AlarmCode}" value="{!ac.alarmCode }"/>
+            <apex:column headerValue="{!$Label.AlarmCodeHint}" value="{!ac.alarmCodeHint }"/>
+            <apex:column headerValue="{!$Label.LastModificationDate}" value="{!ac.ConvertedDate  }"/>
+        </apex:pageBlockTable>
+    </apex:pageBlock>       
+</apex:page>

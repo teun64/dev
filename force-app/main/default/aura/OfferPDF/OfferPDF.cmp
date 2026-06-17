@@ -1,0 +1,11 @@
+<aura:component controller="Ctrl_OfferPreview" implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global">
+    <ltng:require styles="{!$Resource.ModalWidthCSS}"/>
+    <aura:attribute name="hideSignButton" type="Boolean" default="false"/>
+    <aura:attribute name="inAction" type="Boolean" default="false"/>
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="renderType" type="String" default="PDF" />
+    <lightning:button aura:Id="SaveButton" label="Save PDF" onclick="{!v.inAction ? c.getAlert : c.doSave}"/>
+    <lightning:button aura:Id="SignButton" label="Save PDF &amp; Sign" onclick="{!v.inAction ? c.getAlert : c.doSign}" disabled="{!v.hideSignButton}"/>
+    <lightning:button aura:Id="CancelButton" label="Cancel" onclick="{!v.inAction ? c.getAlert : c.doCancel}"/>
+    <iframe src="{! '/apex/OfferPDF?renderType=' + v.renderType + '&amp;id=' + v.recordId}" width="100%" height="1000px" frameBorder="0"/>
+</aura:component>

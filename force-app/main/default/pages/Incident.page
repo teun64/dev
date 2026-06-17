@@ -1,0 +1,15 @@
+<apex:page showHeader="false" sidebar="true" lightningStylesheets="true" standardController="Asset" extensions="Ctrl_Incident">
+    <apex:pageMessages />
+    <apex:pageblock title="{!$Label.IncidentPageTitle}: {!Asset.Name}" >
+        <apex:pageblocktable value="{!miIncs}" var="m" id="mTable">
+            <apex:column headerValue="{!$Label.StartDate}" value="{!m.ConvertedStartDate}"/>
+            <apex:column headerValue="{!$Label.EndDate}" value="{!m.ConvertedEndDate}"/>
+            <apex:column headerValue="{!$Label.DescriptionDetected}" value="{!m.descriptionDetected}"/>
+            <apex:column headerValue="{!$Label.DescriptionSolved}" value="{!m.descriptionSolved}"/>
+            <apex:column headerValue="{!$Label.ExternalId}" value="{!m.id}"/>
+            <apex:column headerValue="{!$Label.TestControle}" value="{!m.test}"/>
+            <apex:column headerValue="{!$Label.HardwareId}" value="{!m.hardwareId}"/>
+            <apex:column headerValue="{!$Label.InstallationId}" value="{!m.installationId}"/>
+        </apex:pageblocktable>
+    </apex:pageblock>
+</apex:page>

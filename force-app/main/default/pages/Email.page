@@ -1,0 +1,16 @@
+<apex:page showHeader="false" sidebar="true" standardController="Contact" extensions="Ctrl_Email">
+	<apex:pageMessages />
+	<apex:pageblock title="{!$Label.MailPageTitle}: {!contact.Name}" >
+		<apex:pageblocktable value="{!miMsgs}" var="m" id="mTable">
+			<apex:column headerValue="{!$Label.ExternalId}" value="{!m.id}"/>
+ 			<apex:column headerValue="{!$Label.ToContactId}" value="{!m.toContactId}"/>
+			<apex:column headerValue="{!$Label.ToAddress}" value="{!m.toAddress}"/>
+			<apex:column headerValue="{!$Label.CcAddresses}" value="{!m.ccAddresses}"/>
+			<apex:column headerValue="{!$Label.Subject}" value="{!m.subject}"/>
+			<apex:column headerValue="{!$Label.Body}">
+				<apex:outputText value="{!m.body}" escape="false"/>
+			</apex:column>
+			<apex:column headerValue="{!$Label.SentDate}" value="{!m.convertedDate}"/>
+		</apex:pageblocktable>
+	</apex:pageblock>
+</apex:page>

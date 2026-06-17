@@ -1,0 +1,682 @@
+<apex:page controller="Ctrl_Invoice" language="{!language}"  renderAs="{!isPdf}" sidebar="false" showHeader="false" standardStylesheets="false" applyBodyTag="false" showQuickActionVfHeader="false" applyHtmlTag="false">
+<!-- apex:page standardController="Subscription25__Invoice__c" extensions="Ctrl_Invoice" language="{!language}"  renderAs="{!isPdf}" sidebar="false" showHeader="false" standardStylesheets="false" applyBodyTag="false" showQuickActionVfHeader="false" applyHtmlTag="false"-->
+<html>
+    
+    <head>
+        <!-- link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display&family=Sofia&display=swap" rel="stylesheet" / -->
+        <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.CSS, 'CSS/invoice.css')}" />
+    </head>
+
+    <body>
+        <apex:variable value="{!'bcEven'}" var="bcClass" />
+        <apex:variable value="{!IF(OR((invoice.Sales_Channel__c = '4'),(invoice.Sales_Channel__c = 'Echoes')),'Blue','Red')}" var="stClass" />
+        <div class="graphics w210">              
+            <apex:outputPanel rendered="{!NOT(invoice.New_Branding__c)}" layout="none">
+                <div class="sectionTopCenter wm180">
+                    <apex:outputPanel rendered="{!OR((invoice.Sales_Channel__c = '1'),(invoice.Sales_Channel__c = 'Moving Intelligence'))}" layout="none">
+                        <img class="center wm072" src="{!URLFOR($Resource.Branding, 'Branding/2008/img/mi-logo_black.png')}" />
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!OR((invoice.Sales_Channel__c = '2'),(invoice.Sales_Channel__c = 'Europetrack'))}" layout="none">
+                        <img class="center wm072"  src="{!URLFOR($Resource.InvoiceLayout, 'InvoiceLayout/img/europetrack-logo.png')}"/>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!OR((invoice.Sales_Channel__c = '3'),(invoice.Sales_Channel__c = 'SlimmGPS'))}" layout="none">
+                        <img class="center wm072"  src="{!URLFOR($Resource.InvoiceLayout, 'InvoiceLayout/img/slimmgps-logo.png')}"/>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!OR((invoice.Sales_Channel__c = '4'),(invoice.Sales_Channel__c = 'Echoes'))}" layout="none">
+                        <img class="centerEchoes wm064"  src="{!URLFOR($Resource.Branding, 'Branding/2024/img/echoes-logo-black-blue-rgb.png')}"/>
+                    </apex:outputPanel>
+                </div>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!invoice.New_Branding__c}" layout="none">
+                <div class="sectionTopLeft wm180">
+                    <apex:outputPanel rendered="{!(stClass = 'Red')}" layout="none">
+                        <img class="left wm032" src="{!URLFOR($Resource.Branding, 'Branding/2024/img/mi-logo-black-red-rgb.png')}"/>
+                    </apex:outputPanel> 
+                    <apex:outputPanel rendered="{!(stClass = 'Blue')}" layout="none">
+                        <img class="leftEchoes wm048" src="{!URLFOR($Resource.Branding, 'Branding/2026/img/echoes-logo-black-blue-rgb.png')}"/>
+                    </apex:outputPanel>                  
+                </div>
+            </apex:outputPanel> 
+            <apex:outputPanel rendered="{!invoice.New_Branding__c}" layout="none">
+                <div class="sectionLeft wm020">
+                    <apex:outputPanel rendered="{!NOT(OR((invoice.Sales_Channel__c = '4'),(invoice.Sales_Channel__c = 'Echoes')))}" layout="none">
+                        <img  class="arrow wm014" src="{!URLFOR($Resource.Branding, 'Branding/2024/img/arrow-short-red-rbg.png')}"/>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!OR((invoice.Sales_Channel__c = '4'),(invoice.Sales_Channel__c = 'Echoes'))}" layout="none">
+                        <img  class="arrow wm014" src="{!URLFOR($Resource.Branding, 'Branding/2026/img/arrow-short-blue-rbg.png')}"/>
+                    </apex:outputPanel>                    
+                </div>
+            </apex:outputPanel> 
+        </div>
+        <div class="headerFirst">
+            <div class="sectionHeader wm180">
+            </div>
+        </div>
+        <div class="header wm180">
+            <div class="sectionHeader wm180">
+                <table class="overview wm180" >
+                    <thead>
+                        <tr class="invoiceHeaderRow">
+                            <th class="invoiceHeaderGeneralCell" colspan="5">
+                                {!$Label.InvoiceNumber}&nbsp;:
+                            </th>
+                            <th class="invoiceHeaderGeneralCell" colspan="10">
+                                <apex:outputField value="{!invoice.Subscription25__Invoice_Number__c}" />
+                            </th>
+                            <th class="invoiceHeaderGeneralCell" colspan="5">
+                                <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Cost_Center_invoicing__c))}" layout="none">
+                                    {!$Label.InvoiceReference}&nbsp;:
+                                </apex:outputPanel>&nbsp;   
+                            </th>
+                            <th class="invoiceHeaderGeneralCell" colspan="10">
+                                <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Cost_Center_invoicing__c))}" layout="none">
+                                    <apex:outputText value="{!invoice.Cost_Center_invoicing__c}" />
+                                </apex:outputPanel>&nbsp;
+                            </th>
+                        </tr>
+                        <tr class="invoiceHeaderRow">
+                            <th class="invoiceHeaderGeneralCell" colspan="5">
+                                <span >{!$Label.InvoiceDate}&nbsp;:</span>
+                            </th>
+                            <th class="invoiceHeaderGeneralCell" colspan="10">
+                                <apex:outputText value="{0, date, d-M-yyyy}">
+                                    <apex:param value="{!invoice.Subscription25__Invoice_Date__c}" />
+                                </apex:outputText>
+                            </th>
+                            <th class="invoiceHeaderGeneralCell" colspan="5">
+                                {!$Label.InvoicePage}&nbsp;:
+                            </th>
+                            <th class="invoiceHeaderGeneralCell" colspan="10">
+                                <span class="invoicePageNumbers"><span class="pageNumber" />&nbsp;{!$Label.InvoicePageOf}&nbsp;<span class="pageNumbers" /></span>
+                            </th>
+                        </tr>
+                        <tr class="invoiceHeaderRow hm002">
+                            <th class="invoiceHeaderBaseCell wm006">
+                                01&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                02&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                03&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                04&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                05&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                06&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                07&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                08&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                09&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                10&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                11&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                12&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                13&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                14&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                15&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                16&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                17&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                18&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                19&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                20&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                21&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                22&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                23&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                24&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                25&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                26&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                27&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                28&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                29&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                30&nbsp;
+                            </th>
+                        </tr>
+                        <tr class="invoiceHeaderItemRow hm007">
+                            <th id="itemCode" class="invoiceHeaderItemCell pLeft tLeft" colspan="5">
+                                {!$Label.ItemCode}
+                            </th>
+                            <th id="itemLabel" class="invoiceHeaderItemCell tLeft" colspan="15">
+                                {!$Label.ItemDescription}
+                            </th>
+                            <th id="itemVatCode" class="invoiceHeaderItemCell tCenter" colspan="1">
+                                {!$Label.ItemVatCode}
+                            </th>
+                            <th id="itemQuantity" class="invoiceHeaderItemCell tRight" colspan="2">
+                                {!$Label.ItemQuantity}
+                            </th>
+                            <th id="itemUnitPrice" class="invoiceHeaderItemCell tRight" colspan="3">
+                                {!$Label.ItemPrice}
+                            </th>
+                            <th id="itemAmountNet" class="invoiceHeaderItemCell pRight tRight" colspan="4">
+                                {!$Label.ItemAmount}
+                            </th>
+                        </tr>
+                        <apex:variable value="{!IF((bcClass='bcOdd'),'bcEven','bcOdd')}" var="bcClass" />
+                        <tr class="invoiceHeaderRow hm002 {!bcClass}">
+                            <th class="invoiceHeaderBaseCell" colspan="30">
+                                &nbsp;
+                            </th>
+                        </tr>
+                        <apex:variable value="{!IF((bcClass='bcOdd'),'bcEven','bcOdd')}" var="bcClass" />
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="footer w210">
+            <div class="sectionBottomLeft wm180">
+                <div class="footerLine hm002 wp100">
+                    <div class="line{!stClass} wm005">
+                        &nbsp;
+                    </div>  
+                </div>
+                <div class="companyInfo wp100">
+                    <span class="name">{!admin.billingName}</span>
+                    <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                    {!admin.street}
+                    <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                    {!admin.postalCode}&nbsp;{!admin.city}
+                    <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                    {!admin.country}
+                    <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                    {!admin.phone}
+                    <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                    {!admin.email}
+                    <br />
+                    <span style="font-weight: bold;">{!$Label.InvoiceCoC}:</span>&nbsp;{!admin.CoCNumber}
+                    <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                    <span style="font-weight: bold;">{!$Label.InvoiceVAT}:</span>&nbsp;{!admin.VATNumber}
+                    <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                    <apex:outputPanel rendered="{!NOT((admin.reseller = '6'))}" layout="none">
+                        <span style="font-weight: bold;">{!$Label.InvoiceBankIBAN}:</span>&nbsp;{!admin.IBAN}
+                        <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                        <span style="font-weight: bold;">{!$Label.InvoiceBankBIC}:</span>&nbsp;{!admin.BIC}
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!(admin.reseller = '6')}" layout="none">
+                        <span style="font-weight: bold;">{!$Label.InvoiceBankUKAccountNumber}:</span>&nbsp;{!admin.bankAccountNumber}
+                        <span class="separator{!stClass}">&nbsp;|&nbsp;</span>
+                        <span style="font-weight: bold;">{!$Label.InvoiceBankUKSortCode}:</span>&nbsp;{!admin.bankSortCode}
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!AND((admin.reseller = '5'),NOT(ISBLANK(admin.managingDirectors)))}" layout="none">
+                        <br />
+                        <span style="font-weight: bold;">{!$Label.InvoiceManagingDirectors}:</span>&nbsp;{!admin.managingDirectors}
+                    </apex:outputPanel>
+                </div> 
+            </div>
+        </div>
+        <div class="mainbody wm180">
+            <div class="container wm180">
+                <table class="overview wm180" >
+                    <caption>
+                        <div class="sectionInvoice wm180">
+                            <table class="caption wm180">
+                                <tr class="captionRow">
+                                    <td class="captionCell wm180">
+                                        <table class="addressHeader wm180">
+                                            <tr>
+                                                <apex:outputPanel rendered="{!NOT(invoice.New_Branding__c)}" layout="none">
+                                                    <td class="invoiceTypeCell wm090 tLeft">
+                                                        <apex:outputPanel rendered="{!(invoice.Subscription25__Total_Amount__c >= 0)}" layout="none">
+                                                            {!$Label.Invoice}
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!(invoice.Subscription25__Total_Amount__c < 0)}" layout="none">
+                                                            {!$Label.Credit}
+                                                        </apex:outputPanel>
+                                                    </td>
+                                                </apex:outputPanel>
+                                                <td class="invoiceAddressCell wm090 tLeft">
+                                                    <apex:outputPanel rendered="{!OR((invoice.Subscription25__Account__r.RecordType.Developername='B2C'), AND(NOT(invoice.Subscription25__Account__r.RecordType.Developername='B2C'),NOT(invoice.IsPrivate__c)))}" layout="none">
+                                                        <span class="invoiceTo" >{!invoice.Subscription25__Account__r.Name}</span><br/>
+                                                    </apex:outputPanel>
+                                                    <apex:outputPanel rendered="{!AND((invoice.Subscription25__Contact_Person__c != null),NOT(invoice.Subscription25__Account__r.RecordType.Developername='B2C'))}" layout="none">
+                                                        <apex:outputPanel rendered="{!NOT(invoice.IsPrivate__c)}" layout="none">{!$Label.InvoiceAttn}&nbsp;</apex:outputPanel> {!invoice.Subscription25__Contact_Person__r.Name}<br/>
+                                                    </apex:outputPanel>
+                                                    {!invoice.Subscription25__Billing_Street__c}<br/>
+                                                    {!invoice.Subscription25__Billing_Postal_Code__c} {!invoice.Subscription25__Billing_City__c}<br/>
+                                                    <apex:outputPanel rendered="{!AND(NOT(ISBLANK(invoice.Subscription25__Billing_Country__c)),(UPPER(admin.country) <> UPPER(invoice.Subscription25__Billing_Country__c))) }" layout="none">
+                                                        {!invoice.Subscription25__Billing_Country__c}<br/>
+                                                    </apex:outputPanel>
+                                                </td>
+                                                <apex:outputPanel rendered="{!invoice.New_Branding__c}" layout="none">
+                                                    <td class="invoiceTypeCell wm090 tRight">
+                                                        <apex:outputPanel rendered="{!(invoice.Subscription25__Total_Amount__c >= 0)}" layout="none">
+                                                            {!TRIM($Label.Invoice)}
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!(invoice.Subscription25__Total_Amount__c < 0)}" layout="none">
+                                                            {!TRIM($Label.Credit)}
+                                                        </apex:outputPanel>
+                                                    </td>
+                                                </apex:outputPanel>
+                                            </tr>
+                                            <tr class="invoiceHeaderRow hm005">
+                                                <td class="invoiceHeaderEmptyCell" colspan="2">
+                                                    &nbsp;
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="addressHeader wm180">
+                                            <tr class="subHeaderRow hm005">
+                                                <td class="invoiceHeaderEmptyCell wm030">
+                                                    &nbsp;
+                                                </td>
+                                                <td class="invoiceHeaderEmptyCell wm060">
+                                                    &nbsp;
+                                                </td>
+                                                <td class="invoiceHeaderEmptyCell wm030">
+                                                    &nbsp;
+                                                </td>
+                                                <td class="invoiceHeaderEmptyCell wm060">
+                                                    &nbsp;
+                                                </td>
+                                            </tr>
+                                            <tr class="addressHeader">
+                                                <td class="subHeaderLabelCell wm030 tLeft">
+                                                    {!$Label.DebtorNumber}&nbsp;:
+                                                </td>
+                                                <td class="subHeaderContentCell wm060 pLeft tLeft">
+                                                    {!debtorNumber.Subscription25__Debtor_Number__c}&nbsp;
+                                                </td>
+                                                <td class="subHeaderLabelCell wm030 tLeft" rowspan="2">
+                                                    <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Invoice_Description__c))}" layout="none">
+                                                        {!$Label.InvoiceDescription}&nbsp;:
+                                                    </apex:outputPanel>
+                                                </td>
+                                                <td class="subHeaderContentCell wm060 pLeft tLeft" rowspan="2">
+                                                    <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Invoice_Description__c))}" layout="none">
+                                                        <apex:outputText value="{!invoice.Invoice_Description__c}" />
+                                                    </apex:outputPanel>
+                                                </td>
+                                            </tr>
+                                            <tr class="subHeaderRow">
+                                                <td class="subHeaderLabelCell wm030 tLeft">
+                                                    {!$Label.InvoiceVATNumber}&nbsp;:
+                                                </td>
+                                                <td class="subHeaderContentCell wm060 pLeft tLeft">
+                                                    {!invoice.Subscription25__VAT_Number__c}&nbsp;
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <apex:outputPanel rendered="{!OR(NOT(ISBLANK(invoice.Subscription25__Account__r.Invoice_Payment_Remark__c)),NOT(ISBLANK(invoice.Account_Contract__r.Invoice_Payment_Remark__c)))}" layout="none" >
+                                    <tr>
+                                        <td>    
+                                            <table>
+                                                <tr class="subHeaderRow">
+                                                    <td class="subHeaderLabelCell wm030 tLeft">
+                                                        {!$Label.InvoiceSpecification}&nbsp;:
+                                                    </td>
+                                                    <td class="subHeaderContentCell wm150 pLeft tLeft">
+                                                        <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Subscription25__Account__r.Invoice_Payment_Remark__c))}" layout="none">
+                                                            <apex:outputtext value="{!invoice.Subscription25__Account__r.Invoice_Payment_Remark__c}" />
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Account_Contract__r.Invoice_Payment_Remark__c))}" layout="none">
+                                                            <apex:outputtext value="{!invoice.Account_Contract__r.Invoice_Payment_Remark__c}" />
+                                                        </apex:outputPanel>
+                                                    </td>
+                                                </tr>
+                                                <!-- tr class="subHeaderRow hm005">
+                                                    <td class="invoiceHeaderEmptyCell" colspan="2">
+                                                        &nbsp;
+                                                    </td>
+                                                </tr -->
+                                            </table>                                       
+                                        </td>
+                                    </tr>
+                                </apex:outputPanel>
+                            </table>
+                        </div>
+                    </caption>
+                    <thead>
+                        <tr class="invoiceHeaderRow">
+                            <th class="invoiceHeaderGeneralCell tLeft" colspan="5">
+                                {!$Label.InvoiceNumber}&nbsp;:
+                            </th>
+                            <th class="invoiceHeaderGeneralCell pLeft tLeft" colspan="10">
+                                <apex:outputField value="{!invoice.Subscription25__Invoice_Number__c}" />
+                            </th>
+                            <th class="invoiceHeaderGeneralCell tLeft" colspan="5">
+                                <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Cost_Center_invoicing__c))}" layout="none">
+                                    {!$Label.InvoiceReference}&nbsp;:
+                                </apex:outputPanel>&nbsp;   
+                            </th>
+                            <th class="invoiceHeaderGeneralCell pLeft tLeft" colspan="10">
+                                <apex:outputPanel rendered="{!NOT(ISBLANK(invoice.Cost_Center_invoicing__c))}" layout="none">
+                                    <apex:outputText value="{!invoice.Cost_Center_invoicing__c}" />
+                                </apex:outputPanel>&nbsp;
+                            </th>
+                        </tr>
+                        <tr class="invoiceHeaderRow">
+                            <th class="invoiceHeaderGeneralCell tLeft" colspan="5">
+                                {!$Label.InvoiceDate}&nbsp;:
+                            </th>
+                            <th class="invoiceHeaderGeneralCell pLeft tLeft" colspan="10">
+                                <apex:outputText value="{0, date, d-M-yyyy}">
+                                    <apex:param value="{!invoice.Subscription25__Invoice_Date__c}" />
+                                </apex:outputText>&nbsp;
+                            </th>
+                            <th class="invoiceHeaderGeneralCell tLeft" colspan="5">
+                                {!$Label.InvoicePage}&nbsp;:
+                            </th>
+                            <th class="invoiceHeaderGeneralCell pLeft tLeft" colspan="10">
+                                <span class="invoicePageNumbers"><span class="pageNumber" />&nbsp;{!$Label.InvoicePageOf}&nbsp;<span class="pageNumbers" /></span>
+                            </th>
+                        </tr>
+                        <tr class="invoiceHeaderRow hm002">
+                            <th class="invoiceHeaderBaseCell wm006">
+                                01&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                02&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                03&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                04&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                05&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                06&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                07&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                08&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                09&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                10&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                11&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                12&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                13&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                14&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                15&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                16&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                17&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                18&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                19&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                20&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                21&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                22&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                23&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                24&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                25&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                26&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                27&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                28&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                29&nbsp;
+                            </th>
+                            <th class="invoiceHeaderBaseCell wm006">
+                                30&nbsp;
+                            </th>
+                        </tr>
+                        <tr class="invoiceHeaderItemRow hm007">
+                            <th id="itemCode" class="invoiceHeaderItemCell pLeft tLeft" colspan="5">
+                                {!$Label.ItemCode}
+                            </th>
+                            <th id="itemLabel" class="invoiceHeaderItemCell pLeft tLeft" colspan="15">
+                                {!$Label.ItemDescription}
+                            </th>
+                            <th id="itemVatCode" class="invoiceHeaderItemCell tCenter" colspan="1">
+                                {!$Label.ItemVatCode}
+                            </th>
+                            <th id="itemQuantity" class="invoiceHeaderItemCell tRight" colspan="2">
+                                {!$Label.ItemQuantity}
+                            </th>
+                            <th id="itemUnitPrice" class="invoiceHeaderItemCell tRight" colspan="3">
+                                {!$Label.ItemPrice}
+                            </th>
+                            <th id="itemAmountNet" class="invoiceHeaderItemCell pRight tRight" colspan="4">
+                                {!$Label.ItemAmount}
+                            </th>
+                        </tr>
+                        <tr class="invoiceHeaderRow hm002 bcOdd">
+                            <th class="invoiceHeaderBaseCell" colspan="30">
+                                &nbsp;
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <apex:repeat value="{!items}" var="splitItems">
+                            <apex:repeat value="{!splitItems}" var="item">
+                                <apex:variable value="{!IF((bcClass='bcOdd'),'bcEven','bcOdd')}" var="bcClass" />
+                                <tr class="invoiceItemRow {!bcClass}">
+                                    <td class="invoiceItemCell pLeft tLeft" header="itemCode" colspan="5">
+                                        <apex:outputText value="{!item.productNumber}" />
+                                    </td>
+                                    <td class="invoiceItemCell pLeft tLeft" header="itemLabel" colspan="15" >
+                                        <apex:outputText value="{!item.label}" escape="false" />
+                                    </td>
+                                    <td class="invoiceItemCell tCenter" header="itemVATCode" colspan="1">
+                                        <apex:outputText value="({!item.vatCode})" />
+                                    </td>
+                                    <td class="invoiceItemCell tRight" header="itemQuantity" colspan="2">
+                                        <apex:outputText value="{0, number,###,###,##0}">
+                                            <apex:param value="{!item.quantity}" />
+                                        </apex:outputText> 
+                                    </td>
+                                    <td class="invoiceItemCell tRight" header="itemUnitPrice" colspan="3">
+                                        <apex:outputText value="{!BLANKVALUE(admin.currencySymbol,'€')} {0, number,###,###,##0.00}">
+                                            <apex:param value="{!item.price}" />
+                                        </apex:outputText>
+                                    </td>
+                                    <td class="invoiceItemCell pRight tRight" header="itemAmountNet" colspan="4">
+                                        <apex:outputText value="{!BLANKVALUE(admin.currencySymbol,'€')} {0, number,###,###,##0.00}">
+                                            <apex:param value="{!item.amountNet}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </apex:repeat>
+                        <tr class="invoiceItemRow hm002 {!bcClass}">
+                            <td class="invoiceFooterEmptyCell" colspan="30">
+                                &nbsp;
+                             </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="invoiceFooterRow hm002">
+                            <td class="invoiceFooterEmptyCell" colspan="30">
+                               &nbsp;
+                            </td>
+                        </tr>
+                        <tr class="invoiceFooterRow">
+                            <td class="invoiceFooterCell pLeft tLeft" header="itemCode" colspan="26">
+                                {!$Label.InvoiceTotalNet}
+                            </td>
+                            <td class="invoiceFooterCell pRight tRight" header="itemAmountNet" colspan="4">
+                                <apex:outputText value="{!BLANKVALUE(admin.currencySymbol,'€')} {0, number,###,###,##0.00}">
+                                    <apex:param value="{!amountNet}" />
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                        <apex:repeat value="{!vatItems}" var="vatItem">
+                            <tr class="invoiceFooterRow">
+                                <td class="invoiceFooterCell pLeft tLeft" header="itemCode" colspan="26">
+                                    <apex:outputText value="({0}) {!$Label.InvoiceVAT} {1, number, #0}%">
+                                        <apex:param value="{!vatItem.code}" />
+                                        <apex:param value="{!(vatItem.percentage * IF((ABS(vatItem.percentage) > 1),1,100))}" />
+                                    </apex:outputText> 
+                                    &nbsp;
+                                    <apex:outputText value="{!$Label.InvoiceVATOn} {!BLANKVALUE(admin.currencySymbol,'€')} {0, number,###,###,##0.00}" rendered="{!vatMethodTotal}">
+                                        <apex:param value="{!vatItem.amountNet}" />
+                                    </apex:outputText>
+                                </td>
+                                <td class="invoiceFooterCell pRight tRight" header="itemAmountNet" colspan="4">
+                                    <apex:outputText value="{!BLANKVALUE(admin.currencySymbol,'€')} {0, number,###,###,##0.00}">
+                                        <apex:param value="{!vatItem.amountVAT}" />
+                                    </apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                        <tr class="invoiceFooterRow hm002">
+                            <td class="invoiceFooterEmptyCell" colspan="30">
+                               &nbsp;
+                            </td>
+                        </tr>
+                        <tr class="invoiceFooterTotalRow hm009">
+                            <td class="invoiceFooterTotalCell pLeft tLeft" colspan="26">
+                                {!$Label.InvoiceTotalGross}
+                            </td>
+                            <td class="invoiceFooterTotalCell pRight tRight" colspan="4">
+                                <apex:outputText value="{!BLANKVALUE(admin.currencySymbol,'€')} {0, number,###,###,##0.00}">
+                                    <apex:param value="{!amountGross}" />
+                                </apex:outputText>
+                            </td>
+                        </tr>        
+                        <tr class="invoiceFooterAdditonalRow hm005">
+                            <td class="invoiceFooterEmptyCell tLeft" colspan="30">
+                                &nbsp;
+                            </td>
+                        </tr>
+                        <apex:outputPanel rendered="{!showPaymentRemark}" layout="none">
+                            <tr class="invoiceFooterAdditonalRow">
+                                <td class="invoiceFooterPaymentRemarkCell tLeft" colspan="30">
+                                    <apex:outputText value="{!paymentRemark}">
+                                        <apex:param value="{!invoice.Subscription25__Due_Date__c}" />
+                                    </apex:outputText>
+                                </td>
+                            </tr>
+                            <tr class="invoiceFooterAdditonalRow hm002">
+                                <td class="invoiceFooterEmptyCell tLeft" colspan="30">
+                                    &nbsp;
+                                </td>
+                            </tr>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!showRemarkGeneral}" layout="none" >
+                            <tr class="invoiceFooterAdditonalRow">
+                                <td class="invoiceFooterRemarkCell tLeft" colspan="30">
+                                    <apex:outputText value="{!remarkGeneral}">
+                                        <!-- apex:param value="{!invoice.Subscription25__Due_Date__c}" / -->
+                                    </apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!showRemarkEU}" layout="none" >
+                            <tr class="invoiceFooterAdditonalRow">
+                                <td class="invoiceFooterRemarkCell tLeft" colspan="30">
+                                    <apex:outputText value="{!remarkEU}">
+                                        <!-- apex:param value="{!invoice.Subscription25__Due_Date__c}" / -->
+                                    </apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!showRemarkNonEU}" layout="none" >
+                            <tr class="invoiceFooterAdditonalRow">
+                                <td class="invoiceFooterRemarkCell tLeft" colspan="30">
+                                    <apex:outputText value="{!remarkNonEU}">
+                                        <!-- apex:param value="{!invoice.Subscription25__Due_Date__c}" / -->
+                                    </apex:outputText>
+                                </td>
+                            </tr>
+                        </apex:outputPanel>          
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </body>
+
+    <apex:outputText value="{!invoice.Subscription25__Account__r.Subscription25__Payment_Term__c}" rendered="false" />
+    <apex:outputText value="{!invoice.Payment_Method_Result__c}" rendered="false" />
+    <apex:outputText value="{!invoice.Subscription25__Total_Amount__c}" rendered="false" />
+</html>
+
+</apex:page>

@@ -1,0 +1,69 @@
+<template>
+    <lightning-card title="Communication Preferences">
+
+        <template if:true={isLoading}>
+            <lightning-spinner></lightning-spinner>
+        </template>
+
+        <template if:false={isLoading}>
+
+            <!-- ADMIN BANNER -->
+            <template if:true={isAdminMode}>
+                <div class="slds-box slds-theme_warning slds-m-bottom_medium">
+                    Admin mode – changes will override customer preferences
+                </div>
+            </template>
+
+            <!-- PREFERENCES -->
+            <template for:each={preferences} for:item="pref">
+                <div key={pref.Id} class="slds-p-around_small slds-border_bottom">
+
+                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+
+                        <div>
+                            <div class="slds-text-heading_small">
+                                {pref.CommunicationType__c}
+                            </div>
+                            <div class="slds-text-body_small slds-text-color_weak">
+                                {pref.Category__c} • {pref.Channel__c}
+                            </div>
+                        </div>
+
+                        <lightning-input
+                            type="toggle"
+                            checked={pref.Is_Enabled__c}
+                            data-id={pref.Id}
+                            onchange={handleToggle}>
+                        </lightning-input>
+
+                    </div>
+
+                </div>
+            </template>
+
+            <!-- ADMIN REASON -->
+            <template if:true={isAdminMode}>
+                <div class="slds-p-around_medium">
+                    <lightning-textarea
+                        label="Override Reason"
+                        value={overrideReason}
+                        onchange={handleReasonChange}
+                        required>
+                    </lightning-textarea>
+                </div>
+            </template>
+
+            <!-- SAVE -->
+            <div class="slds-p-around_medium slds-align_absolute-center">
+                <lightning-button
+                    label="Save"
+                    variant="brand"
+                    onclick={handleSave}
+                    disabled={isSaveDisabled}>
+                </lightning-button>
+            </div>
+
+        </template>
+
+    </lightning-card>
+</template>

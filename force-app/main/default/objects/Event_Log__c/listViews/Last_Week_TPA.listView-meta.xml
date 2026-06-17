@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Last_Week_TPA</fullName>
+    <columns>NAME</columns>
+    <columns>Type__c</columns>
+    <columns>Object__c</columns>
+    <columns>Action__c</columns>
+    <columns>Integration_Status__c</columns>
+    <columns>StatusCode__c</columns>
+    <columns>Result_Status__c</columns>
+    <columns>Message__c</columns>
+    <columns>Context__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>OWNER.ALIAS</columns>
+    <columns>GUID__c</columns>
+    <columns>Calling_System__c</columns>
+    <columns>extId__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>LAST_N_DAYS:7</value>
+    </filters>
+    <filters>
+        <field>Calling_System__c</field>
+        <operation>equals</operation>
+        <value>2</value>
+    </filters>
+    <label>Last Week (TPA)</label>
+</ListView>

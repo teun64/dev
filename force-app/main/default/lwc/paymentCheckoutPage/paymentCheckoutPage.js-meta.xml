@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Payment Checkout Page (Stripe)</masterLabel>
+    <description>Displays a two-column layout with Stripe payment iframe and order summary. Flow-compatible with output result.</description>
+    <targets>
+        <!-- Flow -->
+        <target>lightning__FlowScreen</target>
+        <!-- Experience Cloud -->
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <!-- Optional (internal use) -->
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <!-- Flow Inputs - Provider Requirement-->
+            <property name="publishableKey" type="String" label="Stripe Publishable Key" role="inputOnly"/>
+            <property name="clientSecret" type="String" label="Stripe Client Secret" role="inputOnly"/>
+            <property name="mode" type="String" label="Element mode" role="inputOnly"/>
+            <property name="theme" type="String" label="Stripe Theme" default="stripe" role="inputOnly"/>
+            <property name="themeVariant" type="String" label="Theme Variant (light/dark/auto)" default="auto" role="inputOnly"/>
+            <property name="locale" type="String" label="Locale" default="auto" role="inputOnly"/>
+            <!-- Flow Inputs - Payment Info -->
+            <property name="customer" type="String" label="Name off the Customer" role="inputOnly"/>
+            <property name="reference" type="String" label="Payment Reference" role="inputOnly"/>
+            <property name="description" type="String" label="Payment Description" role="inputOnly"/>
+            <property name="beneficiary" type="String" label="Name Financial Entity (reseller)" role="inputOnly"/>
+            <property name="orderDate" type="String" label="Order Date (as yyyy-mm-dd)" role="inputOnly"/>
+            <property name="amount" type="String" label="Amount (in cents)" role="inputOnly"/>
+            <property name="currency" type="String" label="Currency (ISO code)" role="inputOnly"/>
+            <!-- Flow Output -->
+            <property name="intentStatus" type="String" label="Intent Status" role="outputOnly" />
+            <property name="intentType" type="String" label="Intent Objec (Old)" role="outputOnly" />
+            <property name="intentMode" type="String" label="Intent Mode" role="outputOnly" />
+            <property name="intentId" type="String" label="Intent Id" role="outputOnly" />
+            <property name="intentMessage" type="String" label="Intent Message" role="outputOnly" />
+            <property name="paymentMethodId" type="String" label="Payment method id" role="outputOnly" />
+            <property name="mandateId" type="String" label="Mandate id" role="outputOnly" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

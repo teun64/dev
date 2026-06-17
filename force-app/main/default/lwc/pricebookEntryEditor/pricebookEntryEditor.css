@@ -1,0 +1,18 @@
+/* Perfect vertical alignment like Salesforce Details tab */
+.align-center {
+    align-items: center;
+}
+
+.align-center .slds-form-element__label {
+    margin-bottom: 0;
+}
+
+/* Smooth collapse animation */
+.slds-section__content {
+    padding-top: 0.25rem;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+
+.slds-notify_inline {
+    transition: opacity 0.2s ease;
+}

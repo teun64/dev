@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Provider Checkout</title>
+        <script src="https://js.stripe.com/v3/"></script>
+        <style>
+            :root {
+                --provider-element-border: 1px solid #ccd0d5;
+                --provider-element-radius: 6px;
+                --provider-element-padding: 12px;
+                --provider-font-size: 16px;
+                --provider-primary-color: #635bff;
+                --provider-primary-hover: #5146ff;
+            }
+
+            body {
+                font-family: "Helvetica Neue", Arial, sans-serif;
+                margin: 0;
+                padding: 16px;
+                background: transparent;
+            }
+
+            #cancel-btn {
+                background-color: #e0e0e0;
+                color: #333;
+            }
+
+            #cancel-btn:hover {
+                background-color: #d5d5d5;
+            }
+
+            #payment-element {
+                margin-bottom: 16px;
+            }
+
+            /* Payment error styling */
+            #payment-error {
+                color: #fa755a;
+                margin-top: 12px;
+                font-size: 14px;
+                min-height: 20px;
+            }
+
+            #submit-btn, #cancel-btn {
+                flex: 1;
+                font-size: var(--provider-font-size);
+                font-weight: 500;
+                border-radius: var(--provider-element-radius);
+                padding: var(--provider-element-padding);
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+                border: none;
+                text-align: center;
+            }
+
+
+            #submit-btn {
+                background-color: var(--provider-primary-color);
+                color: #fff;
+            }
+
+            #submit-btn:hover:not(:disabled) {
+                background-color: var(--provider-primary-hover);
+            }
+
+            #submit-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            #cancel-btn {
+                background-color: #e0e0e0;
+                color: #333;
+            }
+
+            #cancel-btn:hover {
+                background-color: #d5d5d5;
+            }
+            
+            .buttons-container {
+                display: flex;
+                gap: 8px;
+                margin-top: 16px;
+            }
+
+            .spinner {
+                border: 2px solid rgba(255, 255, 255, 0.6);
+                border-top-color: white;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+                animation: spin 1s linear infinite;
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 8px;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .buttons-container {
+                    flex-direction: column;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Payment container -->
+        <div id="payment-element"></div>
+        <!-- Button container -->
+        <div class="buttons-container">
+            <button id="submit-btn" type="button">Pay Now</button>
+            <button id="cancel-btn" type="button">Cancel</button>
+        </div>
+        <!-- Error container -->
+        <div id="payment-error" role="alert"></div>
+        <script>
+            let provider;
+            let elements;
+            let intent;
+            let theme;
+            let locale;
+            let cs;
+            let mode;
+            let modeElement;
+            let amount = '';
+            let submitPaymentLabel = '';
+            let submitSetupLabel = '';
+            let submitLabel = '';
+            let cancelLabel = '';
+            let cancelConfirmLabel = '';
+            let processingLabel = '';
+
+            const postHeight = () => {
+                const height = document.body.scrollHeight;
+                parent.postMessage({ type: 'resizeIframe', height }, '*');
+            };
+
+            const observeResize = () => {
+                const observer = new ResizeObserver(postHeight);
+                observer.observe(document.body);
+            };
+
+            const submitBtn = document.getElementById('submit-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const elementContainer = document.getElementById('payment-element');
+            const errorContainer = document.getElementById('payment-error');
+
+            function buildElements() {
+                if (!cs) return;
+
+                //console.log("✅ paymentCheckoutHtml - (re)buildElements):");
+                if (intent) {
+                    try { intent.unmount(); } catch (err) {}
+                }
+                elements = provider.elements({
+                    clientSecret: cs,
+                    locale: locale,
+                    appearance: {
+                        theme: theme
+                    }
+                });
+                intent = elements.create("payment");
+                intent.mount(elementContainer);
+
+                observeResize();
+                postHeight();
+            }
+
+            function setLocale(newLocale) {
+                if (newLocale === locale) return;
+                locale = newLocale;
+                //console.log("✅ paymentCheckoutHtml - Locale changed:", locale);
+                buildElements();
+            }
+
+            function setTheme(newTheme) {
+                if (newTheme === theme) return;
+                theme = newTheme;
+                //console.log("✅ paymentCheckoutHtml - Theme changed:", theme);
+                buildElements();
+            }
+
+            window.addEventListener('message', async (event) => {
+                const data = event.data;
+                if (!data || !data.type) return;
+
+                if (data.type === 'initProvider') {
+                    const { publishableKey, clientSecret, mode, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, amount: formattedAmount } = data;
+                    theme = themeSet || 'none';
+                    cancelLabel = cancelLbl || 'Cancel';
+                    cancelConfirmLabel = cancelConfirmLbl || 'Are you sure you want to cancel this checkout session?';
+                    processingLabel = processingLbl || 'Processing';
+                    submitPaymentLabel = submitPaymentLbl || 'Pay';
+                    submitSetupLabel = submitSetupLbl || 'Validate';
+                    amount = formattedAmount || '(?)';
+                    cs = clientSecret;
+
+                    if (!mode) {
+                        mode = 'payment';
+                    }
+                    
+                    if (mode === 'both') {
+                        modeElement = 'payment';
+                        submitLabel = submitSetupLabel.concat(' & ', submitPaymentLabel);
+                    } else {
+                        modeElement = mode;
+                        submitLabel = (modeElement === 'setup') ? submitSetupLabel : submitPaymentLabel;
+                    }
+
+                    // Initialize Provider
+                    provider = Stripe(publishableKey);
+
+                    setLocale (localeSet || 'auto');
+
+                    // --- Display dynamic (translation)label and amount on Submit button ---
+                    /*if (locale == 'de') {
+                        submitBtn.textContent = `${amount} ${submitLabel}`;
+                    } else {
+                        submitBtn.textContent = `${submitLabel} ${amount}`;
+                    }*/
+                    submitBtn.textContent = submitLabel;
+                    // --- Display dynamic (translation)label on cancel button ---
+                    cancelBtn.textContent = cancelLabel;
+
+                    submitBtn.addEventListener('click', async () => {
+                        // 🔒 Prevent double submit
+                        if (window.__stripeSubmitting) return;
+                        window.__stripeSubmitting = true;
+
+                        submitBtn.disabled = true;
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = `<span class="spinner"></span>${processingLabel}...`;
+
+                        // Helper to normalize ALL responses
+                        const buildResult = ({
+                            intentStatus = 'unknown',
+                            intentMode = null,
+                            intentMessage = null,
+                            intentId = null,
+                            paymentMethodId = null,
+                            mandateId = null
+                        }) => ({
+                            intentStatus,
+                            intentMode,
+                            intentMessage,
+                            intentId,
+                            paymentMethodId,
+                            mandateId
+                        });
+
+                        try {
+                            // ❌ Elements missing
+                            if (!elements) {
+                                throw new Error('Payment form not initialized');
+                            }
+
+                            // ✅ 1. Validate + collect data (IMPORTANT)
+                            const { error: submitError } = await elements.submit();
+
+                            // 🔥 Treat submitError as a FULL response
+                            if (submitError) {
+                                const result = buildResult({
+                                    intentStatus: 'failed',
+                                    intentMode: modeElement,
+                                    intentMessage: submitError.message || 'Invalid payment details'
+                                });
+
+                                parent.postMessage(
+                                    { type: 'providerResult', result },
+                                    window.location.origin
+                                );
+
+                                return; // ⛔ stop flow here
+                            }
+
+                            // ✅ 2. Confirm intent
+                            let response;
+                            if (modeElement === 'setup') {
+                                response = await provider.confirmSetup({
+                                    elements,
+                                    redirect: 'if_required'
+                                });
+                            } else {
+                                response = await provider.confirmPayment({
+                                    elements,
+                                    redirect: 'if_required'
+                                });
+                            }
+
+                            const { error, paymentIntent, setupIntent } = response;
+                            const intent = paymentIntent || setupIntent;
+
+                            let result;
+
+                            // ❌ Stripe error AFTER confirm
+                            if (error) {
+                                console.warn('Stripe confirm error:', error);
+
+                                const succeededIntent = error.payment_intent || error.setup_intent;
+
+                                // ⚠️ Edge: already succeeded
+                                if (succeededIntent?.status === 'succeeded') {
+                                    result = buildResult({
+                                        intentStatus: 'succeeded',
+                                        intentMode:
+                                            succeededIntent.object === 'setup_intent'
+                                                ? 'setup'
+                                                : 'payment',
+                                        intentMessage: 'Already completed',
+                                        intentId: succeededIntent.id,
+                                        paymentMethodId: succeededIntent.payment_method || null,
+                                        mandateId:
+                                            succeededIntent.mandate ||
+                                            succeededIntent.latest_charge?.payment_method_details?.sepa_debit?.mandate ||
+                                            null
+                                    });
+                                } else {
+                                    result = buildResult({
+                                        intentStatus: 'failed',
+                                        intentMode: modeelement,
+                                        intentMessage: error.message || 'Operation failed'
+                                    });
+                                }
+
+                            // ✅ Normal success / async flow
+                            } else if (intent) {
+                                const resolvedMode =
+                                    intent.object === 'setup_intent'
+                                        ? 'setup'
+                                        : intent.object === 'payment_intent'
+                                        ? 'payment'
+                                        : modeElement;
+
+                                result = buildResult({
+                                    intentStatus: intent.status, // succeeded | processing | requires_action
+                                    intentMode: resolvedMode,
+                                    intentMessage:
+                                        intent.status === 'processing'
+                                            ? 'Processing (asynchronous confirmation)'
+                                            : null,
+                                    intentId: intent.id,
+                                    paymentMethodId: intent.payment_method || null,
+                                    mandateId:
+                                        intent.mandate ||
+                                        intent.latest_charge?.payment_method_details?.sepa_debit?.mandate ||
+                                        null
+                                });
+
+                            // ❓ Unexpected fallback
+                            } else {
+                                result = buildResult({
+                                    intentStatus: 'unknown',
+                                    intentMode: modeElement,
+                                    intentMessage: 'No intent returned'
+                                });
+                            }
+
+                            // 📤 Always return via providerResult (even failures)
+                            parent.postMessage(
+                                { type: 'providerResult', result },
+                                window.location.origin
+                            );
+
+                        } catch (e) {
+                            console.error('Unexpected error:', e);
+
+                            result = buildResult({
+                                intentStatus: 'error',
+                                intentMode: modeElement,
+                                intentMessage: e.message || 'Unexpected error',
+                                intentId: null,
+                                paymentMethodId: null,
+                                mandateId: null
+                            });
+
+                            parent.postMessage(
+                                { type: 'providerResult', result },
+                                window.location.origin
+                            );
+
+                        } finally {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                            window.__stripeSubmitting = false;
+                        }
+                    });
+                    // --- Cancel button ---
+                    cancelBtn.addEventListener('click', () => {
+                        console.log("✅ paymentCheckoutHtml - cancelBtn.addEventListener - Click");
+                        // ✅ Use configurable label
+                        const confirmed = window.confirm(cancelConfirmLabel);
+
+                        if (!confirmed) {
+                            return;
+                        }
+                        console.log("✅ paymentCheckoutHtml - cancelBtn.addEventListener - Click");
+
+                        try {
+                            errorContainer.textContent = '';
+
+                            const paymentEl = elements.getElement('payment');
+                            if (paymentEl) {
+                                try {
+                                    paymentEl.clear();
+                                } catch (e) {
+                                    console.warn('Could not clear payment element:', e);
+                                }
+                            }
+
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = submitBtn.dataset.originalText || submitBtn.innerHTML;
+
+                            const result = {
+                                intentStatus: 'cancelled',
+                                intentMode: modeElement,
+                                intentMessage: 'User cancelled the operation',
+                                intentId: null,
+                                paymentMethodId: null,
+                                mandateId: null
+                            };
+
+                            console.log("✅ paymentCheckoutHtml - cancelBtn.addEventListener - postMessage", result);
+
+                            parent.postMessage(
+                                {
+                                    type: 'providerResult',
+                                    result
+                                },
+                                window.location.origin
+                            );
+
+                        } catch (e) {
+                            console.error('Unexpected error:', e);
+
+                            const result = {
+                                intentStatus: 'error',
+                                intentMode: modeElement,
+                                intentMessage: e.message || 'Cancel action failed',
+                                intentId: null,
+                                paymentMethodId: null,
+                                mandateId: null
+                            };
+
+                            parent.postMessage(
+                                { 
+                                    type: 'providerResult', 
+                                    result 
+                                },
+                                window.location.origin
+                            );
+
+                        } finally {
+                            cancelBtn.disabled = false;
+                        }
+                    });
+                } else if (data.type === 'localeUpdate') {
+                    const { locale: localeUpd, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl} = data;
+
+                    cancelLabel = cancelLbl || cancelLabel;
+                    cancelConfirmLabel = cancelConfirmLbl || cancelConfirmLabel;
+                    processingLabel = processingLbl || processingLabel;
+                    submitPaymentLabel = submitPaymentLbl || submitPaymentLabel;
+                    submitSetupLabel = submitSetupLbl || submitSetupLabel;
+                    
+                    if (locale !== localeUpd) {
+                        setLocale(localeUpd);
+                    }
+
+                    if (mode === 'both') {
+                        submitLabel = submitSetupLabel.concat(' & ', submitPaymentLabel);
+                    } else {
+                        submitLabel = (modeElement === 'setup') ? submitSetupLabel : submitPaymentLabel;
+                    }
+
+                    // --- Display dynamic (translation)label on submit button ---
+                    submitBtn.textContent = submitLabel;  
+                    // --- Display dynamic (translation)label on cancel button ---
+                    cancelBtn.textContent = cancelLabel;                    
+                }
+            });
+        </script>
+    </body>
+</html>

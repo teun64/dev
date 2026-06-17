@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Receiving_Limit_Day_Used__c</fullName>
+    <description>Number of dailiy Limits Used</description>
+    <externalId>false</externalId>
+    <formula>BLANKVALUE( Receiving_Limit_Day_Total__c ,0) - BLANKVALUE( Receiving_Limit_Day_Remaining__c ,0)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Daily Limit Used (Receiver)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

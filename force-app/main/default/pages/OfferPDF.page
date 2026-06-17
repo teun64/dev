@@ -1,0 +1,635 @@
+<apex:page showHeader="false" standardStylesheets="false" standardController="Opportunity" extensions="Ctrl_OfferPDF" readOnly="true" renderAs="{!$CurrentPage.parameters.renderType}" language="{!language}">
+    <!-- {!$CurrentPage.parameters.renderType} -->
+    <head>
+        <apex:stylesheet value="{!URLFOR($Resource.CSS, 'CSS/offer.css')}" />
+        <apex:stylesheet value="{!URLFOR($Resource.CSS, 'CSS/base.css')}" />
+    </head>
+    <body>
+        <apex:outputPanel layout="none" rendered="{!NOT(curOpp.Option_Show_Compressed__c)}">
+            <apex:variable var="coverImage" value="OfferPDF/img/{!curOpp.Segment__c}"/>
+            <div class="full-page-container page-break-after">
+                <apex:variable var="coverImage" value="OfferPDF/img/{!curOpp.Segment__c}"/>
+                <apex:image styleClass="image_header" value="{!URLFOR($Resource.OfferPDF, coverImage)}"  width="8.27in" height="11.68in" alt=""/>
+                <table class="flag-heder-image-headline-wrapper">
+                    <tr>
+                        <td class="flag-header" valign="middle">
+                            <div class="flag-header-wrapper">
+                                <div class="flag_header_headline m--{!longestNameLength}">{!curOpp.Name}</div>
+                                <div class="flag_header_headline m--{!longestNameLength}">{!curOpp.Account.Name}</div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <apex:outputPanel layout="none" rendered="{!NOT(curOpp.New_Branding__c)}">
+                    <apex:image styleClass="mi_logo" value="{!URLFOR($Resource.Branding, 'Branding/2008/img/mi-logo_white.png')}"  width="300px" alt=""/>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!curOpp.New_Branding__c}">
+                    <apex:image styleClass="mi_logo" value="{!URLFOR($Resource.Branding, 'Branding/2024/img/mi-logo-white-red-rgb.png')}"  height="20mm" alt=""/>
+                </apex:outputPanel>
+            </div>
+            <div class="footer container">
+                <div class="footer_logo">
+                    <apex:outputPanel layout="none" rendered="{!NOT(curOpp.New_Branding__c)}">
+                        <div style="padding-top: 6mm">
+                            <apex:image value="{!URLFOR($Resource.Branding, 'Branding/2008/img/mi-logo_footer.png')}"  height="15px" alt=""/>
+                        </div>
+                    </apex:outputPanel> 
+                    <apex:outputPanel layout="none" rendered="{!curOpp.New_Branding__c}">
+                        <apex:image value="{!URLFOR($Resource.Branding, 'Branding/2024/img/mi-logo-black-red-rgb.png')}"  height="11mm" alt=""/>
+                    </apex:outputPanel>         
+                </div>
+                <div class="icon-pagenumber-wrapper">
+                    <div class="footer_icon-wrapper">
+                        <apex:image styleClass="footer-icon" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/car.png')}"  height="9mm" alt=""/>
+                        <apex:image styleClass="footer-icon" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/van.png')}"  height="9mm" alt=""/>
+                        <apex:image styleClass="footer-icon" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/camper.png')}"  height="9mm" alt=""/>
+                        <apex:image styleClass="footer-icon" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/motorbike.png')}"  height="9mm" alt=""/>
+                        <apex:image styleClass="footer-icon" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/retro.png')}"  height="9mm" alt=""/>
+                        <apex:image styleClass="footer-icon m--last-icon" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/speedboat.png')}"  height="9mm" alt=""/>
+                    </div>
+                </div>
+            </div>
+            <div class="container page-break-after">
+                <h1 class="headline-4 m--red mb-20">{!curOfferMDT.Slogan_Content__c}</h1>
+                <div class="headline-underline-wrapper mb-10">
+                    <h3 class="headline-3">Moving Intelligence</h3>
+                    <div class="headline-underline m--red"></div>
+                </div>
+                <div class="column-text-wrapper text-justify">
+
+                    <div class="text-justify">
+                        <p class="mb-20">
+                            <apex:outputText escape="false" value="{!curOfferMDT.Intro_1_Content__c}"/>
+                        </p>
+                        <p class="mb-20">
+                            <apex:outputText escape="false" value="{!curOfferMDT.Intro_2_Content__c}"/>
+                        </p>
+                        <p class="mb-40">
+                            <apex:outputText escape="false" value="{!curOfferMDT.Intro_3_Content__c}"/>
+                        </p>
+                    </div>
+
+                    <table class="container mb-40">
+                        <tr>
+                            <td>
+                                <table style="width:100%;">
+                                    <tr>
+                                        <td style="width:30%;text-align: center;background-color:#ecece7;padding-top:15px;padding-bottom:40px;padding-left:15px;padding-right:15px;">
+                                            <div class="mb-20">
+                                                <apex:image value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/security2.png')}"  height="50px" alt=""/>
+                                            </div>
+                                            <p class="mb-20" style="font-weight:bold;">{!UPPER(curOfferMDT.Topic_1_Label__c)}</p>
+                                            <p>
+                                                <apex:outputText escape="false" value="{!curOfferMDT.Topic_1_Content__c}"/>
+                                            </p>
+                                        </td>
+                                        <td style="width:5%;">
+                                            &nbsp;
+                                        </td>
+                                        <td style="width:30%;text-align: center;background-color:#ecece7;padding-top:15px;padding-bottom:40px;padding-left:15px;padding-right:15px;">
+                                            <div class="mb-20">
+                                                <apex:image value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/triplogging.png')}"  height="50px" alt=""/>
+                                            </div>
+                                            <p class="mb-20" style="font-weight:bold;">{!UPPER(curOfferMDT.Topic_2_Label__c)}</p>
+
+                                            <p>
+                                                <apex:outputText escape="false" value="{!curOfferMDT.Topic_2_Content__c}"/>
+                                            </p>
+                                        </td>
+                                        <td style="width:5%;">
+                                            &nbsp;
+                                        </td>
+                                        <td style="width:30%;text-align: center;background-color:#ecece7;padding-top:15px;padding-bottom:40px;padding-left:15px;padding-right:15px;">
+                                            <div class="mb-20">
+                                                <apex:image value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/fleetmanagement.png')}"  height="50px" alt=""/>
+                                            </div>
+                                            <p class="mb-20" style="font-weight:bold;">{!UPPER(curOfferMDT.Topic_3_Label__c)}</p>
+                                            <p>
+                                                <apex:outputText escape="false" value="{!curOfferMDT.Topic_3_Content__c}"/>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="text-justify">
+                        <p class="mb-20">
+                            <apex:outputText escape="false" value="{!curOfferMDT.MiApp_Content__c}"/>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="page-break-after"></div>       
+        </apex:outputPanel>
+        <div class="page-break-inside-avoid mb-20">&nbsp;</div>
+        <div class="footer">
+                <div class="address-footer-wrapper">
+                    {!curAdmin.street} {!curAdmin.postalCode} {!curAdmin.city}&nbsp;<span>|</span>&nbsp;{!curAdmin.phone}&nbsp;<span>|</span>&nbsp;{!curAdmin.emailSales}&nbsp;<span>|</span>&nbsp;{!curAdmin.website}<br/>
+                    {!curOfferMDT.COC_Label__c}&nbsp;{!curAdmin.CoCNumber}&nbsp;<span>|</span>&nbsp;{!curOfferMDT.VAT_Label__c}&nbsp;{!curAdmin.VATNumber}
+                    <apex:outputPanel rendered="{!AND((curAdmin.reseller = '5'),NOT(ISBLANK(curAdmin.managingDirectors)))}" layout="none">
+                        &nbsp;<span>|</span>&nbsp;{!$Label.InvoiceManagingDirectors}:&nbsp;{!curAdmin.managingDirectors}
+                    </apex:outputPanel>
+                </div>
+        </div>
+        <div class="page-break-inside-avoid mb-20">
+            <div class="headline-flag-logo-wrapper mb-30">
+                <div class="headline-flag-wrapper">
+                    <apex:image styleClass="headline-flag-image" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/red_flag_headline.png')}" width="470px" height="70px" alt=""/>
+                    <h2 class="headline-flag-title headline-2">{!curOfferMDT.Quotation_Label__c}</h2>
+                </div>
+                <div class="headline-logo-wrapper">
+                    <apex:outputPanel layout="none" rendered="{!NOT(curOpp.New_Branding__c)}">
+                        <img class="prevBranding" src="{!URLFOR($Resource.Branding, 'Branding/2008/img/mi-logo_black.png')}"/>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="none" rendered="{!curOpp.New_Branding__c}">
+                        <img class="newBranding" src="{!URLFOR($Resource.Branding, 'Branding/2024/img/mi-logo-black-red-rgb.png')}" />
+                    </apex:outputPanel>
+                </div>
+            </div>
+            <table class="container mb-40">
+                <tr>
+                    <td>
+                        <table class="account-detail-table m--contact">
+                            <apex:outputPanel layout="none" rendered="{!AND(NOT(ISBLANK(curOpp.Account.Name)),(curOpp.Account.RecordType.DeveloperName = 'B2B'),(TRIM(curOpp.SignerName__c) != TRIM(curOpp.Account.Name)))}">
+                                <tr>
+                                    <td class="account-detail-table-cell m--last-cell">
+                                        <p>{!curOpp.Account.Name}</p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.SignerName__c))}">
+                                <tr>
+                                    <td class="account-detail-table-cell m--last-cell">
+                                        <p>{!curOpp.SignerSalutation__c} {!curOpp.SignerName__c}</p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.Account.VisitingAddress__Street__s))}">
+                                <tr>
+                                    <td class="account-detail-table-cell m--last-cell">
+                                        <p>{!curOpp.Account.VisitingAddress__Street__s}</p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!AND(NOT(ISBLANK(curOpp.Account.VisitingAddress__PostalCode__s)), NOT(ISBLANK(curOpp.Account.VisitingAddress__City__s)))}">
+                                <tr>
+                                    <td class="account-detail-table-cell m--last-cell">
+                                        <p>{!curOpp.Account.VisitingAddress__PostalCode__s} {!curOpp.Account.VisitingAddress__City__s} </p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!OR(NOT(ISBLANK(curOpp.SignerEmail__c)), NOT(ISBLANK(curOpp.SignerPhone__c)))}">
+                                <tr>
+                                    <td class="account-detail-table-cell m--last-cell">
+                                        <p>&nbsp;</p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.SignerEmail__c))}">
+                                <tr>
+                                    <td class="account-detail-table-cell m--last-cell">
+                                        <p>{!curOpp.SignerEmail__c}</p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.SignerPhone__c))}">
+                                <tr>
+                                    <td class="account-detail-table-cell m--last-cell">
+                                        <p>{!curOpp.SignerPhone__c}</p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                        </table>
+                    </td>
+                    <td>
+                        <table class="account-detail-table m--detail">
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.OpportunityNumber__c))}">
+                                <tr>
+                                    <td class="account-detail-table-cell">
+                                        <p>{!curOfferMDT.Quote_Number_Label__c}</p>
+                                    </td>
+                                    <td class="account-detail-table-cell m--last-cell m--align-right">
+                                        <p><strong>{!curOpp.OpportunityNumber__c}</strong></p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.CreatedDate))}">
+                                <tr>
+                                    <td class="account-detail-table-cell">
+                                        <p>{!curOfferMDT.Date_Label__c}</p>
+                                    </td>
+                                    <td class="account-detail-table-cell m--last-cell m--align-right">
+                                        <p>
+                                            <strong>
+                                                <apex:outputText value="{0,date,dd'-'MM'-'yyyy}">
+                                                    <apex:param value="{!curOpp.CreatedDate}" />
+                                                </apex:outputText>
+                                            </strong>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.CloseDate))}">
+                                <tr>
+                                    <td class="account-detail-table-cell">
+                                        <p>{!curOfferMDT.Valid_until_Label__c}</p>
+                                    </td>
+                                    <td class="account-detail-table-cell m--last-cell m--align-right">
+                                        <p>
+                                            <strong>
+                                                <apex:outputText value="{0,date,dd'-'MM'-'yyyy}">
+                                                    <apex:param value="{!curOpp.CloseDate}" />
+                                                </apex:outputText>
+                                            </strong>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!AND(NOT(ISBLANK(curOpp.Customer_Reference__c)),NOT(ISBLANK(curOpp.OpportunityNumber__c)),NOT(TRIM(curOpp.OpportunityNumber__c)=TRIM(curOpp.Customer_Reference__c)))}">
+                                <tr>
+                                    <td class="account-detail-table-cell">
+                                        <p>{!curOfferMDT.Reference_Label__c}</p>
+                                    </td>
+                                    <td class="account-detail-table-cell m--last-cell m--align-right">
+                                        <p><strong>{!curOpp.Customer_Reference__c}</strong></p>
+                                    </td>
+                                </tr>
+                            </apex:outputPanel>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <apex:outputPanel layout="none" rendered="{!OR(NOT(ISBLANK(curOpp.Offer_Description__c)),NOT(ISBLANK(curOpp.Description)))}">
+                <div class="container m--full-width m--b-grey mb-40 page-break-inside-avoid" style="display:block;">
+                    <div class="small-flag-wrapper mb-20">
+                        <apex:image styleClass="small-flag" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/red_flag_header-small.png')}" width="400px" height="40px" alt=""/>
+                        <h3 class=" headline-3 small-flag-headline">{!curOfferMDT.Your_inquiry_Label__c}</h3>
+                    </div>
+
+                    <div class="container">
+                        <div class="container-grey-text text-justify" style="display:block;">
+                            <apex:outputText value="{!HTMLENCODE(curOpp.Description)}" style="white-space:pre;" escape="false"/>
+                            <apex:outputText value="{!curOpp.Offer_Description__c}" style="white-space:pre;" escape="false"/>
+                        </div>
+                    </div>
+                </div>
+            </apex:outputPanel>
+            <apex:repeat value="{!offerSections}" var="offerSection" id="offerSections">
+                <div class="page-break-inside-avoid mb-20">
+                    <div class="headline-3-wrapper mb-20">
+                        <h3 class=" headline-3">{!offerSection.label}</h3>
+                    </div>
+                    <div class="container">
+                        <table class="mi-table">
+                            <thead>
+                                <tr>
+                                    <th class="mi-table-th m--first-cell" style="width: 20px">
+                                        {!curOfferMDT.Amount_Label__c }
+                                    </th>
+                                    <apex:outputpanel layout="none" rendered="{!curOpp.Option_Show_Customer_Product_Code__c}">
+                                        <th class="mi-table-th">
+                                            {!curOfferMDT.Article_Number_Label__c}
+                                        </th>
+                                    </apex:outputpanel>
+                                    <th class="mi-table-th">
+                                            {!curOfferMDT.Description_Label__c }
+                                    </th>
+                                    <apex:outputpanel layout="none" rendered="{!curOpp.Option_Show_ListPrice__c}">
+                                        <th class="mi-table-th  m--align-right">
+                                            {!curOfferMDT.ListPrice_Label__c}
+                                        </th>
+                                    </apex:outputpanel>
+                                    <apex:outputpanel layout="none" rendered="{!curOpp.Option_Show_UnitPrice__c}">
+                                        <th class="mi-table-th  m--align-right">
+                                            {!curOfferMDT.UnitPrice_Label__c}
+                                        </th>
+                                    </apex:outputpanel>
+                                    <th class="mi-table-th m--last-cell  m--align-right">
+                                        {!curOfferMDT.Subtotal_Label__c}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <apex:variable var="lineCount" value="{!0}" />
+                                <apex:repeat value="{!lineItemMap[offerSection.code]}" var="oli" id="olitems">
+                                    <apex:variable value="{!lineCount+1}" var="lineCount"/>
+                                    <tr>
+                                        <td class="mi-table-td m--first-cell m--last-cell-last-row {!IF(lineCount == 1, 'pt-10', '')}">
+                                            <apex:outputText value="{0, number, ###,##0}" lang="{!language}">
+                                                <apex:param value="{!oli.Quantity}"/>
+                                            </apex:outputText>
+                                        </td>
+                                        <apex:outputpanel layout="none" rendered="{!curOpp.Option_Show_Customer_Product_Code__c}">
+                                            <td class="mi-table-td m--last-cell-last-row {!IF(lineCount == 1, 'pt-10', '')}">
+                                                {!oli.Product2.ProductCode}
+                                            </td>
+                                        </apex:outputpanel>
+                                        <td class="mi-table-td m--last-cell-last-row {!IF(lineCount == 1, 'pt-10', '')}">
+                                            {!oli.Product2.Name}&nbsp;{!oli.Description}
+                                        </td>
+                                        <apex:outputpanel layout="none" rendered="{!curOpp.Option_Show_ListPrice__c}">
+                                            <td class="mi-table-td m--align-right m--last-cell-last-row {!IF(lineCount == 1, 'pt-10', '')}">
+                                                <apex:outputText value="{0, number, ###,##0.00}" lang="{!language}">
+                                                    <apex:param value="{!oli.ListPrice}"/>
+                                                </apex:outputText>
+                                            </td>
+                                        </apex:outputpanel>
+                                        <apex:outputpanel layout="none" rendered="{!curOpp.Option_Show_UnitPrice__c}">
+                                            <td class="mi-table-td m--align-right m--last-cell-last-row {!IF(lineCount == 1, 'pt-10', '')}">
+                                                <apex:outputText value="{0, number, ###,##0.00}" lang="{!language}">
+                                                    <apex:param value="{!oli.UnitPrice}"/>
+                                                </apex:outputText>
+                                            </td>
+                                        </apex:outputpanel>
+                                        <td class="mi-table-td m--last-cell m--align-right m--last-cell-last-row {!IF(lineCount == 1, 'pt-10', '')}">
+                                            <apex:outputText value="{0, number, ###,##0.00}" lang="{!language}">
+                                                <apex:param value="{!oli.Amount_Net__c}"/>
+                                            </apex:outputText>
+                                        </td>
+                                    </tr>
+                                </apex:repeat>
+                            </tbody>
+                        </table>
+                        <table class="mi-table mt-10">
+                            <tfoot>
+                                <tr>
+                                    <td class="mi-table-tf m--first-cell mi-table-td-result m--align-right pt-10 pr-5">
+                                        <strong>
+                                            <apex:outputText value="{!curOfferMDT.Total_excluding_VAT_Label__c}">
+                                                <apex:param value="{!offerSection.label}" />
+                                                <apex:param value="{!curOfferMDT.VAT_Label__c}" />
+                                            </apex:outputText>&nbsp;{!curAdmin.currencySymbol}
+                                        </strong>
+                                    </td>
+                                    <td class="mi-table-tf m--last-cell mi-table-td-result m--align-right pt-10" style="width : 32mm;">
+                                        <strong>
+                                            <apex:outputText value="{0, number, ###,##0.00}" lang="{!language}">
+                                                <apex:param value="{!offerSection.amountNET}"/>
+                                            </apex:outputText>
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="m--first-cell mi-table-td-result m--align-right pt-10 pb-10 pr-5">
+                                        <strong>
+                                            {!curOfferMDT.VAT_Label__c}&nbsp;
+                                            <apex:outputText value=" {0,number,0}" lang="{!language}">
+                                                <apex:param value="{!(offerSection.percentage * IF((ABS(offerSection.percentage) > 1),1,100))}"/>
+                                            </apex:outputText>
+                                            %&nbsp;{!curAdmin.currencySymbol}
+                                        </strong>
+                                    </td>
+                                    <td class="m--last-cell mi-table-td-result m--align-right pt-10 pb-10" style="width : 32mm;">
+                                        <strong>
+                                            <apex:outputText value="{0, number, ###,##0.00}" lang="{!language}">
+                                                <apex:param value="{!offerSection.amountVAT}"/>
+                                            </apex:outputText>
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="m--first-cell mi-table-td-result m--align-right pt-10 pr-5">
+                                        <strong>
+                                            <apex:outputText value="{!curOfferMDT.Total_including_VAT_Label__c}">
+                                                <apex:param value="{!offerSection.label}" />
+                                                <apex:param value="{!curOfferMDT.VAT_Label__c}" />
+                                            </apex:outputText>&nbsp;{!curAdmin.currencySymbol}
+                                        </strong>
+                                    </td>
+                                    <td class="mi-table-tf m--last-cell mi-table-td-result m--align-right pt-10" style="width : 32mm;">
+                                        <strong>
+                                            <apex:outputText value="{0, number, ###,##0.00}" lang="{!language}">
+                                                <apex:param value="{!offerSection.amountGross}"/>
+                                            </apex:outputText>
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>              
+                </div>
+            </apex:repeat>
+        </div>
+        <div class="page-break-inside-avoid page-break-after">
+            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.Subscriptions__c))}">
+                <div class="headline-3-wrapper mb-20">
+                    <h3 class=" headline-3">{!curOfferMDT.Service_Label__c }</h3>
+                </div>
+                <div class="container mb-40">
+                    <table class="mi-table">
+                        <tr>
+                            <th class="mi-table-th m--first-cell" style="width: 20%;">{!curOfferMDT.Name_Label__c}</th>
+                            <th class="mi-table-th m--last-cell" style="width: 80%;">{!curOfferMDT.Description_Label__c}</th>
+                        </tr>
+                        <apex:repeat value="{!offerSubscriptions}" var="offerSubscription" id="offerSubscriptions">
+                            <apex:variable value="{!offerSubscription}_Label" var="osLabel" />
+                            <apex:variable value="{!offerSubscription}_Content" var="osContent" />
+                            <tr>
+                                <td class="mi-table-td m--first-cell m--mw125">
+                                    <apex:outputText value="{!$Label[osLabel]}" lang="{!language}" />
+                                </td>
+                                <td class="mi-table-td m--last-cell table-line-height">
+                                    <apex:outputText value="{!$Label[osContent]}" lang="{!language}" />
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+                </div>
+            </apex:outputPanel>
+            <apex:outputPanel layout="none" rendered="{!OR(NOT(ISBLANK(curOpp.Subscription_Description__c)),curOpp.Option_Show_Activation_Fee_Remark__c)}">
+                <div class="container m--full-width m--b-grey mb-40">
+                    <div class="small-flag-wrapper mb-20">
+                        <apex:image styleClass="small-flag" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/red_flag_header-small.png')}" width="400px" height="40px" alt=""/>
+                        <h3 class=" headline-3 small-flag-headline">{!curOfferMDT.Explanation_Label__c}</h3>
+                    </div>
+                    <div class="container">
+                        <p class="container-grey-text  text-left">
+                            <!-- strong>{!curOpp.Subscription__c}</strong><br/ -->
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.Subscription_Description__c))}">
+                                <span>{!curOpp.Subscription_Description__c}</span>                                
+                                <apex:outputPanel layout="none" rendered="{!curOpp.Option_Show_Activation_Fee_Remark__c}">
+                                    <br/><br/>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                            <apex:outputPanel layout="none" rendered="{!curOpp.Option_Show_Activation_Fee_Remark__c}">
+                                <span style="font-weight:bold;">{!curOfferMDT.Activation_Fee_Content__c}</span>
+                            </apex:outputPanel>
+                        </p>
+                    </div>
+                </div>
+            </apex:outputPanel>
+        </div>
+        <div class="headline-flag-logo-wrapper mb-30">
+            <div class="headline-flag-wrapper">
+                <apex:image styleClass="headline-flag-image" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/red_flag_headline.png')}" width="470px" height="70px" alt=""/>
+                <h2 class="headline-flag-title headline-2">{!curOfferMDT.Terms_Label__c}</h2>
+            </div>
+            <div class="headline-logo-wrapper">
+                <apex:outputPanel layout="none" rendered="{!NOT(curOpp.New_Branding__c)}">
+                    <img class="prevBranding" src="{!URLFOR($Resource.Branding, 'Branding/2008/img/mi-logo_black.png')}"/>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!curOpp.New_Branding__c}">
+                    <img class="newBranding" src="{!URLFOR($Resource.Branding, 'Branding/2024/img/mi-logo-black-red-rgb.png')}" />
+                </apex:outputPanel>
+            </div>
+        </div>
+        <div class="container">
+            <apex:repeat value="{!offerTerms}" var="offerTerm" id="offerTerms">
+                <apex:variable value="Terms_{!offerTerm}_Label__c" var="otLabel" />
+                <apex:variable value="Terms_{!offerTerm}_Content__c" var="otContent" />
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(offerTerm))}">
+                    <div style="page-break-inside: avoid;">
+                        <p class="text-justify" style="font-weight:bold;">
+                            <apex:outputText escape="false" value="{!offerTermsLabel[offerTerm]}" rendered="{!NOT(ISBLANK(offerTermsLabel[offerTerm]))}" />
+                        </p>
+                        <p class="mb-20 text-justify">
+                            <apex:outputText escape="false" value="{!offerTermsContent[offerTerm]}">
+                                <apex:param value="{!IF((offerTerm='1'),BLANKVALUE(curOpp.Subscriptions_StartDate__c,curOpp.CloseDate),IF((offerTerm='2'),BLANKVALUE(curOpp.Subscriptions_ContractTerm__c,36),null))}"/>
+                            </apex:outputText>
+                        </p>
+                    </div>
+                </apex:outputPanel>
+            </apex:repeat>
+            
+            <!-- p class="text-justify" style="font-weight:bold;">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_1_Label__c}" />
+            </p>
+            <p class="mb-20 text-justify">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_1_Content__c}">
+                </apex:outputText>
+            </p>
+            <p class="text-justify" style="font-weight:bold;">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_2_Label__c}"/>
+            </p>
+            <p class="mb-20 text-justify">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_2_Content__c}"/>
+            </p>
+            <p class="text-justify" style="font-weight:bold;">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_3_Label__c}"/>
+            </p>
+            <p class="mb-20">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_3_Content__c}"/>
+            </p>
+            <p class="text-justify" style="font-weight:bold;">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_4_Label__c}"/>
+            </p>
+            <p class="mb-20 text-justify">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_4_Content__c}"/>
+            </p>
+            <p class="text-justify" style="font-weight:bold;">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_5_Label__c}"/>
+            </p>
+            <p class="mb-20 text-justify">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_5_Content__c}"/>
+            </p>
+            <p class="text-justify" style="font-weight:bold;">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_6_Label__c}"/>
+            </p>
+            <p class="mb-20">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_6_Content__c}"/>
+            </p>
+            <p class="text-justify" style="font-weight:bold;">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_7_Label__c}"/>
+            </p>
+            <p class="mb-20">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_7_Content__c}"/>
+            </p -->
+            <p class="mb-20">
+                <apex:outputText escape="false" value="{!curOfferMDT.Terms_Wind_up_Content__c}"/>
+            </p>
+            <p class="mb-20">
+                {!curOfferMDT.Closing_Greeting_Label__c},<br/>
+                Moving Intelligence
+            </p>
+            <ul class="contact-list mb-30">
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.ReceiverName__c))}">
+                    <li>{!curOpp.ReceiverName__c}</li>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.ReceiverTitle__c))}">
+                    <li>{!curOpp.ReceiverTitle__c}</li>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.ReceiverPhone__c))}">
+                    <li>Work {!curOpp.ReceiverPhone__c} </li>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.ReceiverMobile__c))}">
+                    <li>Mobile {!curOpp.ReceiverMobile__c}</li>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.ReceiverEmail__c))}">
+                    <li>Email {!curOpp.ReceiverEmail__c}</li>
+                </apex:outputPanel>
+            </ul>
+        </div>
+        <div class="container m--full-width m--b-grey pb-30" style="page-break-inside: avoid;" >
+            <div class="small-flag-wrapper mb-20">
+                <apex:image styleClass="small-flag" value="{!URLFOR($Resource.OfferPDF, 'OfferPDF/img/red_flag_header-small.png')}" width="400px" height="40px" alt=""/>
+                <h3 class=" headline-3 small-flag-headline">{!curOfferMDT.Approval_Label__c}</h3>
+            </div>
+            <div class="container pt-60">
+                <p class="mb-10">
+                    <apex:outputText escape="false" value="{!curOfferMDT.Approval_Content__c}"/>
+                </p>
+                <table class="mi-table mb-20 m--w275">
+                    <tr>
+                        <td class="mi-table-td m--no-padding">{!curOfferMDT.Quote_Number_Label__c}</td>
+                        <td class="mi-table-td m--no-padding m--align-right"><strong>{!curOpp.OpportunityNumber__c}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="mi-table-td m--no-padding">{!curOfferMDT.Date_Label__c}</td>
+                        <td class="mi-table-td m--no-padding m--align-right">
+                            <strong>
+                                <apex:outputText value="{0,date,dd'-'MM'-'yyyy}">
+                                    <apex:param value="{!curOpp.CreatedDate}" />
+                                </apex:outputText>
+                            </strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="mi-table-td m--no-padding">{!curOfferMDT.Valid_until_Label__c}</td>
+                        <td class="mi-table-td m--no-padding m--align-right">
+                            <strong>
+                                <apex:outputText value="{0,date,dd'-'MM'-'yyyy}">
+                                    <apex:param value="{!curOpp.CloseDate}" />
+                                </apex:outputText>
+                            </strong>
+                        </td>
+                    </tr>
+                </table>
+                <table class="mi-table">
+                    <tr class="mb-10 mt-30">
+                        <td class="mi-table-td m--w50 m--pr40">{!curOfferMDT.Place_and_Date_Label__c}:</td>
+                        <td class="mi-table-td m--w50 m--pl40">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="mi-table-td">&nbsp;</td>
+                    </tr>
+                    <tr class="mb-10">
+                        <td class="mi-table-td m--w50 m--pr40">
+                            <strong>{!curOpp.Account.Name}</strong>
+                        </td>
+                        <td class="mi-table-td m--w50 m--pl40">&nbsp;</td>
+                    </tr>
+                    <apex:outputPanel layout="none" rendered="{!AND((curOpp.Account.RecordType.DeveloperName = 'B2B'),(TRIM(curOpp.SignerName__c) != TRIM(curOpp.Account.Name)))}">
+                        <tr class="mb-20">
+                            <td class="mi-table-td m--w50  m--pr40">{!curOpp.SignerName__c}</td>
+                            <td class="mi-table-td m--w50 m--pl40">&nbsp;</td>
+                        </tr>
+                    </apex:outputPanel>
+                    <tr class="mt-30">
+                        <td class="mi-table-td pt-20 m--w50 m--pr40">
+                            <div class="sign-field">
+                                <apex:outputPanel layout="none" rendered="{!curOpp.Option_Require_Signature__c}">
+                                    <apex:image styleClass="sign-image" value="{!URLFOR($Resource.SignaturePlaceholders, 'SignaturePlaceholders/SIG001.png')}" width="95%" height="95%" alt="SIG001"/>
+                                    <!-- apex:image styleClass="small-flag" value="{!URLFOR($Resource.SignaturePlaceholders, 'SignaturePlaceholders/SIG010.png')}" width="400px" height="40px" alt="SIG010"/ -->
+                                </apex:outputPanel>
+                            </div>
+                        </td>
+                        <td class="mi-table-td pt-20 m--w50 m--pl40">
+                            &nbsp;
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
+</apex:page>
