@@ -43,3 +43,7 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Nested repos (tracked separately)
+byo-demo-connector/
+salesforce-stripe-integration/
