@@ -324,7 +324,7 @@ public without sharing class Ctrl_DealerShop {
                 WHERE IsActive = true
                   AND Is_Public__c = true
                   AND Category_Platform__c = :category
-                WITH USER_MODE
+                WITH SYSTEM_MODE
             ];
         } else {
             total = [
@@ -332,7 +332,7 @@ public without sharing class Ctrl_DealerShop {
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
-                WITH USER_MODE
+                WITH SYSTEM_MODE
             ];
         }
 
@@ -348,7 +348,7 @@ public without sharing class Ctrl_DealerShop {
                 WHERE IsActive = true
                   AND Is_Public__c = true
                   AND Category_Platform__c = :category
-                WITH USER_MODE
+                WITH SYSTEM_MODE
                 ORDER BY Name
                 LIMIT :safePageSize
                 OFFSET :offsetVal
@@ -361,7 +361,7 @@ public without sharing class Ctrl_DealerShop {
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
-                WITH USER_MODE
+                WITH SYSTEM_MODE
                 ORDER BY Name
                 LIMIT :safePageSize
                 OFFSET :offsetVal
@@ -382,7 +382,7 @@ public without sharing class Ctrl_DealerShop {
                 WHERE Pricebook2Id = :pricebookId
                   AND Product2Id IN :productIds
                   AND IsActive = true
-                WITH USER_MODE
+                WITH SYSTEM_MODE
             ]) {
                 entryByProduct.put(pbe.Product2Id, pbe);
             }
@@ -437,7 +437,7 @@ public without sharing class Ctrl_DealerShop {
             WHERE Id = :productId
               AND IsActive = true
               AND Is_Public__c = true
-            WITH USER_MODE
+            WITH SYSTEM_MODE
             LIMIT 1
         ];
         if (prods.isEmpty()) throw new AuraHandledException('Product not found.');
@@ -456,7 +456,7 @@ public without sharing class Ctrl_DealerShop {
                 WHERE Pricebook2Id = :pricebookId
                   AND Product2Id = :productId
                   AND IsActive = true
-                WITH USER_MODE
+                WITH SYSTEM_MODE
                 LIMIT 1
             ];
             if (!entries.isEmpty()) entry = entries[0];
@@ -511,7 +511,7 @@ public without sharing class Ctrl_DealerShop {
             WHERE Pricebook2Id = :pricebookId
               AND Product2Id IN :productIds
               AND IsActive = true
-            WITH USER_MODE
+            WITH SYSTEM_MODE
         ]) {
             entryByProduct.put(pbe.Product2Id, pbe);
         }
