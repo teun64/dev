@@ -1,5 +1,24 @@
 public without sharing class Ctrl_DealerShop {
 
+    // ── Data_Translation__c (base record type) ────────────────────────────────
+
+    private static Id baseTranslationRtId {
+        get {
+            if (baseTranslationRtId == null) {
+                List<RecordType> rts = [
+                    SELECT Id FROM RecordType
+                    WHERE SObjectType = 'Data_Translation__c'
+                      AND DeveloperName = 'base'
+                    WITH SYSTEM_MODE
+                    LIMIT 1
+                ];
+                baseTranslationRtId = rts.isEmpty() ? null : rts[0].Id;
+            }
+            return baseTranslationRtId;
+        }
+        set;
+    }
+
     // ── Pricebook resolution ──────────────────────────────────────────────────
 
     private static Id resolvePricebookId(Account acct) {
@@ -156,13 +175,19 @@ public without sharing class Ctrl_DealerShop {
         PricebookEntry entry,
         Product_Discount__c disc
     ) {
+        Data_Translation__c trans = (prod.Data_Translations__r != null && !prod.Data_Translations__r.isEmpty())
+            ? prod.Data_Translations__r[0]
+            : null;
+
         ProductDTO dto      = new ProductDTO();
         dto.id              = prod.Id;
         dto.name            = prod.Name;
-        dto.displayName     = String.isNotBlank(prod.Shop_Display_Name__c)
-                                ? prod.Shop_Display_Name__c
-                                : prod.Name;
-        dto.shortDescription = prod.Shop_Short_Description__c;
+        dto.displayName     = trans != null && String.isNotBlank(trans.Name__c)
+                                ? trans.Name__c
+                                : (String.isNotBlank(prod.Shop_Display_Name__c) ? prod.Shop_Display_Name__c : prod.Name);
+        dto.shortDescription = trans != null && String.isNotBlank(trans.Description__c)
+                                ? trans.Description__c
+                                : prod.Shop_Short_Description__c;
         dto.description     = prod.Shop_Description__c;
         dto.category        = prod.Shop_Category__c;
         dto.productCode     = prod.ProductCode;
@@ -220,12 +245,15 @@ public without sharing class Ctrl_DealerShop {
         }
 
         // Page query
+        Id baseRtId = baseTranslationRtId;
         List<Product2> products;
         if (String.isNotBlank(category)) {
             products = [
                 SELECT Id, Name, ProductCode, Family, Shop_Display_Name__c,
                        Shop_Short_Description__c, Shop_Description__c, Shop_Category__c,
-                       Shop_Image_URL__c, webkul_wws__ContentDocumentId__c
+                       Shop_Image_URL__c, webkul_wws__ContentDocumentId__c,
+                       (SELECT Id, Name__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
@@ -239,7 +267,9 @@ public without sharing class Ctrl_DealerShop {
             products = [
                 SELECT Id, Name, ProductCode, Family, Shop_Display_Name__c,
                        Shop_Short_Description__c, Shop_Description__c, Shop_Category__c,
-                       Shop_Image_URL__c, webkul_wws__ContentDocumentId__c
+                       Shop_Image_URL__c, webkul_wws__ContentDocumentId__c,
+                       (SELECT Id, Name__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
@@ -308,10 +338,13 @@ public without sharing class Ctrl_DealerShop {
     public static ProductDTO getProductDetail(Id productId) {
         if (productId == null) throw new AuraHandledException('productId is required.');
 
+        Id baseRtId = baseTranslationRtId;
         List<Product2> prods = [
             SELECT Id, Name, ProductCode, Family, Shop_Display_Name__c,
                    Shop_Short_Description__c, Shop_Description__c, Shop_Category__c,
-                   Shop_Image_URL__c, webkul_wws__ContentDocumentId__c
+                   Shop_Image_URL__c, webkul_wws__ContentDocumentId__c,
+                   (SELECT Id, Name__c, Description__c FROM Data_Translations__r
+                    WHERE RecordTypeId = :baseRtId LIMIT 1)
             FROM Product2
             WHERE Id = :productId
               AND IsActive = true
