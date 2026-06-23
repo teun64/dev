@@ -53,7 +53,23 @@ public without sharing class Ctrl_DealerShop {
         return fallback.isEmpty() ? null : fallback[0].Id;
     }
 
-    private static Account getDealerAccount() {
+    // ── Language resolution ───────────────────────────────────────────────────
+
+    private static String resolveLanguage(String contactLang) {
+        if (String.isBlank(contactLang)) return 'en';
+        Map<String, String> mapping = new Map<String, String>{
+            'EN' => 'en', 'GB' => 'en',
+            'NL' => 'nl', 'AN' => 'nl', 'BE' => 'nl',
+            'DE' => 'de', 'AT' => 'de', 'CH' => 'de',
+            'FR' => 'fr', 'LU' => 'fr', 'MC' => 'fr',
+            'ES' => 'es', 'AD' => 'es',
+            'PL' => 'pl', 'RO' => 'ro'
+        };
+        String lang = mapping.get(contactLang.toUpperCase());
+        return lang != null ? lang : 'en';
+    }
+
+    private static DealerContext getDealerContext() {
         List<User> users = [
             SELECT ContactId
             FROM User
@@ -64,31 +80,33 @@ public without sharing class Ctrl_DealerShop {
         if (users.isEmpty() || users[0].ContactId == null) {
             throw new AuraHandledException('No contact linked to current user.');
         }
-        Id contactId = users[0].ContactId;
 
         List<Contact> contacts = [
-            SELECT AccountId
+            SELECT AccountId, Language__c
             FROM Contact
-            WHERE Id = :contactId
+            WHERE Id = :users[0].ContactId
             WITH SYSTEM_MODE
             LIMIT 1
         ];
         if (contacts.isEmpty() || contacts[0].AccountId == null) {
             throw new AuraHandledException('No account linked to current user contact.');
         }
-        Id accountId = contacts[0].AccountId;
 
         List<Account> accounts = [
             SELECT Id, BillingCountryCode, Dealer_category__c
             FROM Account
-            WHERE Id = :accountId
+            WHERE Id = :contacts[0].AccountId
             WITH SYSTEM_MODE
             LIMIT 1
         ];
         if (accounts.isEmpty()) {
             throw new AuraHandledException('Dealer account not found.');
         }
-        return accounts[0];
+
+        DealerContext ctx = new DealerContext();
+        ctx.account  = accounts[0];
+        ctx.language = resolveLanguage(contacts[0].Language__c);
+        return ctx;
     }
 
     // ── Price tier helpers ────────────────────────────────────────────────────
@@ -221,11 +239,15 @@ public without sharing class Ctrl_DealerShop {
         ProductDTO dto           = new ProductDTO();
         dto.id                   = prod.Id;
         dto.name                 = prod.Name;
-        dto.displayName          = trans != null && String.isNotBlank(trans.Name__c)
-                                     ? trans.Name__c
-                                     : prod.Name;
-        dto.shortDescription     = prod.Description;
-        dto.description          = trans != null ? trans.Description__c : null;
+        dto.displayName      = trans != null && String.isNotBlank(trans.Name__c)
+                                 ? trans.Name__c
+                                 : prod.Name;
+        dto.shortDescription = trans != null && String.isNotBlank(trans.Short_Description__c)
+                                 ? trans.Short_Description__c
+                                 : prod.Description;
+        dto.longDescription  = trans != null && String.isNotBlank(trans.Description__c)
+                                 ? trans.Description__c
+                                 : prod.longDescription__c;
         dto.category             = prod.Category_Platform__c;
         dto.productCode          = prod.ProductCode;
         dto.family               = prod.Family;
@@ -256,7 +278,9 @@ public without sharing class Ctrl_DealerShop {
         Integer safePageSize = (pageSize != null && pageSize > 0) ? pageSize : 20;
         Integer offsetVal    = (safePageNum - 1) * safePageSize;
 
-        Account acct      = getDealerAccount();
+        DealerContext ctx  = getDealerContext();
+        Account acct      = ctx.account;
+        String lang       = ctx.language;
         Id pricebookId    = resolvePricebookId(acct);
 
         // Total count query
@@ -285,9 +309,9 @@ public without sharing class Ctrl_DealerShop {
         List<Product2> products;
         if (String.isNotBlank(category)) {
             products = [
-                SELECT Id, Name, ProductCode, Family, Description, Category_Platform__c,
-                       (SELECT Id, Name__c, Description__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = 'en' LIMIT 1)
+                SELECT Id, Name, ProductCode, Family, Description, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
@@ -299,9 +323,9 @@ public without sharing class Ctrl_DealerShop {
             ];
         } else {
             products = [
-                SELECT Id, Name, ProductCode, Family, Description, Category_Platform__c,
-                       (SELECT Id, Name__c, Description__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = 'en' LIMIT 1)
+                SELECT Id, Name, ProductCode, Family, Description, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
@@ -370,11 +394,13 @@ public without sharing class Ctrl_DealerShop {
     public static ProductDTO getProductDetail(Id productId) {
         if (productId == null) throw new AuraHandledException('productId is required.');
 
-        Id baseRtId = baseTranslationRtId;
+        DealerContext ctx = getDealerContext();
+        String lang    = ctx.language;
+        Id baseRtId    = baseTranslationRtId;
         List<Product2> prods = [
             SELECT Id, Name, ProductCode, Family, Description, Category_Platform__c,
-                   (SELECT Id, Name__c, Description__c FROM Data_Translations__r
-                    WHERE RecordTypeId = :baseRtId AND Language__c = 'en' LIMIT 1)
+                   (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                    WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
             FROM Product2
             WHERE Id = :productId
               AND IsActive = true
@@ -385,7 +411,7 @@ public without sharing class Ctrl_DealerShop {
         if (prods.isEmpty()) throw new AuraHandledException('Product not found.');
         Product2 prod = prods[0];
 
-        Account acct   = getDealerAccount();
+        Account acct   = ctx.account;
         Id pricebookId = resolvePricebookId(acct);
 
         PricebookEntry entry = null;
@@ -436,7 +462,7 @@ public without sharing class Ctrl_DealerShop {
         }
         if (items == null || items.isEmpty()) throw new AuraHandledException('Cart is empty.');
 
-        Account acct   = getDealerAccount();
+        Account acct   = getDealerContext().account;
         Id pricebookId = resolvePricebookId(acct);
         if (pricebookId == null) throw new AuraHandledException('No dealer pricebook found for your account.');
 
@@ -505,13 +531,18 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String          name;
         @AuraEnabled public String          displayName;
         @AuraEnabled public String          shortDescription;
-        @AuraEnabled public String          description;
+        @AuraEnabled public String          longDescription;
         @AuraEnabled public String          category;
         @AuraEnabled public String          productCode;
         @AuraEnabled public String          family;
         @AuraEnabled public String          imageUrl;
         @AuraEnabled public Decimal         unitPrice;
         @AuraEnabled public List<PriceTierDTO> priceTiers;
+    }
+
+    public class DealerContext {
+        public Account account;
+        public String  language;
     }
 
     public class PriceTierDTO {

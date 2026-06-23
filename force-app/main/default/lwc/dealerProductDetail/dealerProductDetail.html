@@ -100,10 +100,10 @@
                     </div>
                 </div>
 
-                <template if:true={product.description}>
+                <template if:true={product.longDescription}>
                     <div class="description-section">
                         <h2 class="description-heading">Productomschrijving</h2>
-                        <lightning-formatted-rich-text value={product.description}></lightning-formatted-rich-text>
+                        <lightning-formatted-rich-text value={product.longDescription}></lightning-formatted-rich-text>
                     </div>
                 </template>
             </template>
