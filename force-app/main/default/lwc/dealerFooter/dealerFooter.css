@@ -1,0 +1,83 @@
+:host {
+    display: block;
+    --brand-primary: #cc0000;
+}
+
+.dealer-footer {
+    background: #1a1a1a;
+    color: #ccc;
+    padding: 2.5rem 1.5rem 0;
+    margin-top: auto;
+}
+
+.footer-inner {
+    display: flex;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.footer-brand { flex: 1; min-width: 160px; }
+
+.footer-logo {
+    height: 32px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.footer-brand-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.footer-contact { flex: 1; min-width: 180px; }
+
+.footer-company {
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.5rem;
+}
+
+.footer-item { margin: 0.25rem 0; }
+
+.footer-link {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.15s;
+}
+
+.footer-link:hover { color: var(--brand-primary); }
+
+.footer-links {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.footer-nav-link {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.15s;
+}
+
+.footer-nav-link:hover { color: var(--brand-primary); }
+
+.footer-bottom {
+    border-top: 1px solid #333;
+    padding: 1rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-copyright {
+    color: #666;
+    font-size: 0.8125rem;
+    margin: 0;
+}

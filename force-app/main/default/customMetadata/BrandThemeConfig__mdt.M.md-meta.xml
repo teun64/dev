@@ -32,4 +32,26 @@
         <field>TagLine__c</field>
         <value xsi:type="xsd:string">Manage how Moving Intelligence contacts you</value>
     </values>
+    <values>
+        <field>ResellerCodes__c</field>
+        <value xsi:type="xsd:string">1,2,3,5,6</value>
+    </values>
+    <values>
+        <field>PortalHomeTitle__c</field>
+        <value xsi:type="xsd:string">Welcome to the Moving Intelligence Dealer Portal</value>
+    </values>
+    <values>
+        <field>PortalHomeWelcome__c</field>
+        <value xsi:type="xsd:string">As a Moving Intelligence dealer you are in the right place for all the products you need. Order them with the push of a button and have them delivered in no time.
+
+Access to the webshop requires an account. In your personal account you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.</value>
+    </values>
+    <values>
+        <field>PortalShopCtaText__c</field>
+        <value xsi:type="xsd:string">Go to the shop</value>
+    </values>
+    <values>
+        <field>PortalSignupTitle__c</field>
+        <value xsi:type="xsd:string">Request a dealer account</value>
+    </values>
 </CustomMetadata>

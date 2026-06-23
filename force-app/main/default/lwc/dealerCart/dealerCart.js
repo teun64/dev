@@ -7,6 +7,10 @@ export default class DealerCart extends LightningElement {
     @track isLoading = false;
     @track errorMessage = null;
 
+    get cartClass() {
+        return 'cart-wrapper';
+    }
+
     get hasError() {
         return this.errorMessage !== null;
     }
@@ -52,7 +56,7 @@ export default class DealerCart extends LightningElement {
 
     handleRemove(event) {
         const productId = event.currentTarget.dataset.productId;
-        this.dispatchEvent(new CustomEvent('cartitemremoved', {
+        this.dispatchEvent(new CustomEvent('removefromcart', {
             detail: { productId }
         }));
     }

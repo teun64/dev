@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ResellerCodes__c</fullName>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Reseller Codes</label>
+    <type>Text</type>
+    <length>50</length>
+    <description>Comma-separated Account.Reseller_Name__c values that map to this brand (e.g. "1,2,3,5,6").</description>
+</CustomField>

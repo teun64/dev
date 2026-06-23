@@ -1,6 +1,6 @@
 {
   "type" : "sfdc_cms__view",
-  "title" : "Home",
+  "title" : "Shop",
   "contentBody" : {
     "component" : {
       "children" : [ {
@@ -15,29 +15,27 @@
             "layoutDirectionTablet" : "column",
             "maxContentWidth" : "",
             "sectionColumnGutterWidth" : "",
-            "sectionConfig" : "{\"UUID\":\"a1b2c3d4-e5f6-4789-abcd-ef1234567890\",\"columns\":[{\"UUID\":\"b2c3d4e5-f6a7-4890-bcde-f12345678901\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionConfig" : "{\"UUID\":\"69eea922-22b7-480e-af3d-75b3a3d5b7ea\",\"columns\":[{\"UUID\":\"c89ca54b-cdf9-429d-8b0e-391e60e06d80\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
             "sectionMinHeight" : "",
             "sectionVerticalAlign" : "flex-start"
           },
           "children" : [ {
             "children" : [ {
-              "attributes" : {
-                "dxpStyle" : { }
-              },
-              "definition" : "c:dealerHome",
-              "id" : "c3d4e5f6-a7b8-4901-cdef-234567890abc",
+              "attributes" : { },
+              "definition" : "c:dealerShop",
+              "id" : "a1ee7404-8690-407f-b657-62e7778eb6fc",
               "type" : "component"
             } ],
-            "id" : "b2c3d4e5-f6a7-4890-bcde-f12345678901",
+            "id" : "c89ca54b-cdf9-429d-8b0e-391e60e06d80",
             "name" : "col1",
             "title" : "Column 1",
             "type" : "region"
           } ],
           "definition" : "community_layout:section",
-          "id" : "a1b2c3d4-e5f6-4789-abcd-ef1234567890",
+          "id" : "69eea922-22b7-480e-af3d-75b3a3d5b7ea",
           "type" : "component"
         } ],
-        "id" : "d4e5f6a7-b8c9-4012-def0-345678901234",
+        "id" : "258663f6-0593-445e-8386-60a68d177826",
         "name" : "content",
         "title" : "Content",
         "type" : "region"
@@ -45,27 +43,27 @@
         "children" : [ {
           "attributes" : {
             "customHeadTags" : "",
-            "description" : "Moving Intelligence dealer portal",
+            "description" : "",
             "dxpStyle" : { },
-            "pageTitle" : "Dealer Portal - Moving Intelligence",
+            "pageTitle" : "Shop",
             "recordId" : "{!recordId}"
           },
           "definition" : "community_builder:seoAssistant",
-          "id" : "e5f6a7b8-c9d0-4123-ef01-456789012345",
+          "id" : "3e417ac1-fe1b-4b8b-9e11-f2d6cf710244",
           "type" : "component"
         } ],
-        "id" : "f6a7b8c9-d0e1-4234-f012-567890123456",
+        "id" : "0482f92e-4189-46b4-b926-cfe368b5dd91",
         "name" : "sfdcHiddenRegion",
         "title" : "sfdcHiddenRegion",
         "type" : "region"
       } ],
       "definition" : "community_layout:sldsFlexibleLayout",
-      "id" : "a7b8c9d0-e1f2-4345-0123-678901234567",
+      "id" : "2bb09218-64b0-4931-9599-d5647c49d4d6",
       "type" : "component"
     },
     "dataProviders" : [ ],
     "themeLayoutType" : "Inner",
-    "viewType" : "home"
+    "viewType" : "custom-shop"
   },
-  "urlName" : "home"
+  "urlName" : "shop"
 }

@@ -1,0 +1,33 @@
+<template>
+    <nav class="dealer-nav" style={navStyle}>
+        <div class="nav-inner">
+            <a href="/dealer" class="nav-logo-link">
+                <template if:true={config.logoPath}>
+                    <img src={logoUrl} alt={config.brandName} class="nav-logo" />
+                </template>
+                <template if:false={config.logoPath}>
+                    <span class="nav-brand-text">{config.brandName}</span>
+                </template>
+            </a>
+
+            <ul class="nav-links">
+                <li>
+                    <a href="/dealer" class={homeClass}>Home</a>
+                </li>
+                <li>
+                    <a href="/dealer/shop" class={shopClass}>Shop</a>
+                </li>
+            </ul>
+
+            <div class="nav-user">
+                <template if:true={config.isAuthenticated}>
+                    <span class="user-name">{userName}</span>
+                    <a href="/dealer/logout" class="logout-link">Log out</a>
+                </template>
+                <template if:false={config.isAuthenticated}>
+                    <a href="/dealer/login" class="login-link" style={ctaStyle}>Log in</a>
+                </template>
+            </div>
+        </div>
+    </nav>
+</template>

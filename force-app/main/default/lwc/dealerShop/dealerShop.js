@@ -1,6 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import BRANDING_URL               from '@salesforce/resourceUrl/Branding';
-import getBrandTheme               from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
+import getBrandConfig              from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 
 const VIEW_GRID         = 'grid';
 const VIEW_DETAIL       = 'detail';
@@ -12,12 +12,12 @@ export default class DealerShop extends LightningElement {
     @track selectedProductId = null;
     @track cartItems         = [];
     @track cartOpen          = false;
-    @track activeCategory    = 'All';
+    @track activeCategory    = '';
     @track _brandTheme       = null;
 
     connectedCallback() {
-        getBrandTheme({ brand: 'M' })
-            .then(theme => { this._brandTheme = theme; })
+        getBrandConfig()
+            .then(config => { this._brandTheme = config; })
             .catch(() => {});
     }
 
@@ -31,18 +31,14 @@ export default class DealerShop extends LightningElement {
     }
 
     get brandStyle() {
-        const parts = [];
         const primary = this._brandTheme?.primaryColor || '#cc0000';
         const accent  = this._brandTheme?.accentColor  || '#fdf0f0';
-        parts.push(`--brand-primary: ${primary}`);
-        parts.push(`--brand-accent: ${accent}`);
-        parts.push(`--brand-font-url: url('${BRANDING_URL}/2024/fonts')`);
-        return parts.join('; ');
+        return `--brand-primary: ${primary}; --brand-accent: ${accent}`;
     }
 
     get logoUrl() {
-        if (this._brandTheme?.logoStaticResource) {
-            return `${BRANDING_URL}/${this._brandTheme.logoStaticResource}`;
+        if (this._brandTheme?.logoPath) {
+            return `${BRANDING_URL}/${this._brandTheme.logoPath}`;
         }
         return `${BRANDING_URL}/2024/img/mi-logo-black-black-rgb.png`;
     }
@@ -77,20 +73,19 @@ export default class DealerShop extends LightningElement {
         this.cartItems   = this.cartItems.filter(i => i.productId !== productId);
     }
 
+    handleCartItemChanged(event) {
+        const { productId, quantity } = event.detail;
+        this.cartItems = this.cartItems.map(i =>
+            i.productId === productId ? { ...i, quantity } : i
+        );
+    }
+
     handleOpenCart() {
         this.cartOpen = true;
     }
 
     handleCloseCart() {
         this.cartOpen = false;
-    }
-
-    handleOverlayClick() {
-        this.cartOpen = false;
-    }
-
-    handleSidebarClick(event) {
-        event.stopPropagation();
     }
 
     handleOrderPlaced() {

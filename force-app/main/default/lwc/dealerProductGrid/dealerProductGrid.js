@@ -9,7 +9,7 @@ export default class DealerProductGrid extends LightningElement {
         return this._category;
     }
     set category(value) {
-        this._category = value || 'All';
+        this._category = value != null ? value : '';
         this._currentPage = 1;
         this.loadProducts();
     }
@@ -19,7 +19,7 @@ export default class DealerProductGrid extends LightningElement {
     @track _currentPage = 1;
     @track _total = 0;
 
-    _category = 'All';
+    _category = '';
 
     connectedCallback() {
         this.loadProducts();

@@ -1,0 +1,101 @@
+<template>
+    <!-- Hero banner -->
+    <div class="hero-banner" style={heroStyle}></div>
+
+    <!-- Main content -->
+    <div class="home-content">
+        <div class="content-inner">
+            <div class="welcome-col">
+                <h1 class="welcome-title">{config.homeTitle}</h1>
+                <template for:each={welcomeParagraphs} for:item="para">
+                    <p key={para} class="welcome-para">{para}</p>
+                </template>
+            </div>
+
+            <div class="cta-col">
+                <template if:true={config.isAuthenticated}>
+                    <div class="cta-card">
+                        <h2 class="cta-heading">Dealer Shop</h2>
+                        <p class="cta-text">{config.shopCtaText}</p>
+                        <a href="/dealer/shop" class="cta-btn" style={ctaBtnStyle}>
+                            Shop &#8250;
+                        </a>
+                    </div>
+                </template>
+                <template if:false={config.isAuthenticated}>
+                    <div class="cta-card">
+                        <h2 class="cta-heading">Dealer login</h2>
+                        <a href="/dealer/login" class="cta-btn" style={ctaBtnStyle}>
+                            Login &#8250;
+                        </a>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account signup section (guests only) -->
+    <template if:false={config.isAuthenticated}>
+        <div class="signup-section">
+            <div class="signup-inner">
+                <h2 class="signup-title">{config.signupTitle}</h2>
+
+                <template if:true={signupSuccess}>
+                    <div class="signup-success">
+                        Your request has been submitted. We will contact you shortly.
+                    </div>
+                </template>
+
+                <template if:false={signupSuccess}>
+                    <template if:true={signupError}>
+                        <div class="signup-error">{signupError}</div>
+                    </template>
+
+                    <div class="signup-form">
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label class="form-label">Company name *</label>
+                                <input type="text" class="form-input" data-field="companyName"
+                                    value={form.companyName} onchange={handleFormChange} />
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Contact name</label>
+                                <input type="text" class="form-input" data-field="contactName"
+                                    value={form.contactName} onchange={handleFormChange} />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label class="form-label">Email address *</label>
+                                <input type="email" class="form-input" data-field="email"
+                                    value={form.email} onchange={handleFormChange} />
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" class="form-input" data-field="phone"
+                                    value={form.phone} onchange={handleFormChange} />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label class="form-label">Country</label>
+                                <input type="text" class="form-input" data-field="country"
+                                    value={form.country} onchange={handleFormChange} />
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Message</label>
+                                <input type="text" class="form-input" data-field="message"
+                                    value={form.message} onchange={handleFormChange} />
+                            </div>
+                        </div>
+                        <button class="signup-btn" onclick={handleSignupSubmit}
+                            disabled={signupLoading} style={ctaBtnStyle}>
+                            <template if:true={signupLoading}>Submitting...</template>
+                            <template if:false={signupLoading}>Submit request &#8250;</template>
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+</template>

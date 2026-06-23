@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Shop",
+  "contentBody" : {
+    "activeViewId" : "Shop",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-shop",
+    "urlPrefix" : "shop"
+  },
+  "urlName" : "shop"
+}

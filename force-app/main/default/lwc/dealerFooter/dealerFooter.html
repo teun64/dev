@@ -1,0 +1,44 @@
+<template>
+    <footer class="dealer-footer" style={footerStyle}>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <template if:true={logoUrl}>
+                    <img src={logoUrl} alt={brandName} class="footer-logo" />
+                </template>
+                <template if:false={logoUrl}>
+                    <span class="footer-brand-name">{brandName}</span>
+                </template>
+            </div>
+
+            <div class="footer-contact">
+                <template if:true={footer.companyName}>
+                    <p class="footer-company">{footer.companyName}</p>
+                </template>
+                <template if:true={footer.phone}>
+                    <p class="footer-item">
+                        <a href={phoneHref} class="footer-link">{footer.phone}</a>
+                    </p>
+                </template>
+                <template if:true={footer.email}>
+                    <p class="footer-item">
+                        <a href={emailHref} class="footer-link">{footer.email}</a>
+                    </p>
+                </template>
+                <template if:true={footer.website}>
+                    <p class="footer-item">
+                        <a href={websiteHref} target="_blank" class="footer-link">{footer.website}</a>
+                    </p>
+                </template>
+            </div>
+
+            <div class="footer-links">
+                <a href="/dealer" class="footer-nav-link">Home</a>
+                <a href="/dealer/shop" class="footer-nav-link">Shop</a>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="footer-copyright">&copy; {currentYear} {footer.companyName}. All rights reserved.</p>
+        </div>
+    </footer>
+</template>

@@ -1,0 +1,50 @@
+<template>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <template if:true={logoUrl}>
+                <img src={logoUrl} alt="Moving Intelligence" class="login-logo" />
+            </template>
+
+            <h1 class="login-heading">Dealer Portal</h1>
+
+            <template if:true={errorMessage}>
+                <div class="login-error" role="alert">{errorMessage}</div>
+            </template>
+
+            <div class="login-field">
+                <label for="username" class="login-label">Username</label>
+                <input
+                    id="username"
+                    type="email"
+                    autocomplete="username"
+                    value={username}
+                    onchange={handleUsernameChange}
+                    onkeydown={handleKeyDown}
+                    class="login-input"
+                    disabled={isLoading}
+                />
+            </div>
+
+            <div class="login-field">
+                <label for="password" class="login-label">Password</label>
+                <input
+                    id="password"
+                    type="password"
+                    autocomplete="current-password"
+                    value={password}
+                    onchange={handlePasswordChange}
+                    onkeydown={handleKeyDown}
+                    class="login-input"
+                    disabled={isLoading}
+                />
+            </div>
+
+            <button class="login-btn" onclick={handleLogin} disabled={isLoading}>
+                <template if:true={isLoading}>Logging in...</template>
+                <template if:false={isLoading}>Log In</template>
+            </button>
+
+            <a href="/dealer/ForgotPassword" class="forgot-link">Forgot your password?</a>
+        </div>
+    </div>
+</template>

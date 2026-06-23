@@ -55,30 +55,42 @@ public without sharing class Ctrl_DealerShop {
 
     // ── Language resolution ───────────────────────────────────────────────────
 
-    private static String resolveLanguage(String contactLang) {
-        if (String.isBlank(contactLang)) return 'en';
+    private static final Set<String> SUPPORTED_LANGUAGES = new Set<String>{
+        'en', 'nl', 'de', 'fr', 'es'
+    };
+
+    // Maps Contact.Language__c country codes (uppercase) to ISO 639-1 language codes.
+    // Returns null when no mapping exists so callers can fall through to the next source.
+    private static String resolveLanguage(String countryCode) {
+        if (String.isBlank(countryCode)) return null;
         Map<String, String> mapping = new Map<String, String>{
             'EN' => 'en', 'GB' => 'en',
             'NL' => 'nl', 'AN' => 'nl', 'BE' => 'nl',
             'DE' => 'de', 'AT' => 'de', 'CH' => 'de',
             'FR' => 'fr', 'LU' => 'fr', 'MC' => 'fr',
-            'ES' => 'es', 'AD' => 'es',
-            'PL' => 'pl', 'RO' => 'ro'
+            'ES' => 'es', 'AD' => 'es'
         };
-        String lang = mapping.get(contactLang.toUpperCase());
-        return lang != null ? lang : 'en';
+        return mapping.get(countryCode.toUpperCase());
+    }
+
+    // Validates a lowercase ISO 639-1 code against SUPPORTED_LANGUAGES.
+    // Returns the code (lowercased) or null when unsupported.
+    private static String normalizeLang(String isoCode) {
+        if (String.isBlank(isoCode)) return null;
+        String lower = isoCode.toLowerCase();
+        return SUPPORTED_LANGUAGES.contains(lower) ? lower : null;
     }
 
     private static DealerContext getDealerContext() {
         List<User> users = [
-            SELECT ContactId
+            SELECT ContactId, DefaultLanguage__c
             FROM User
             WHERE Id = :UserInfo.getUserId()
             WITH SYSTEM_MODE
             LIMIT 1
         ];
         if (users.isEmpty() || users[0].ContactId == null) {
-            throw new AuraHandledException('No contact linked to current user.');
+            return fallbackContext(normalizeLang(users.isEmpty() ? null : users[0].DefaultLanguage__c));
         }
 
         List<Contact> contacts = [
@@ -89,23 +101,43 @@ public without sharing class Ctrl_DealerShop {
             LIMIT 1
         ];
         if (contacts.isEmpty() || contacts[0].AccountId == null) {
-            throw new AuraHandledException('No account linked to current user contact.');
+            String lang = normalizeLang(users[0].DefaultLanguage__c);
+            if (lang == null && !contacts.isEmpty()) lang = resolveLanguage(contacts[0].Language__c);
+            return fallbackContext(lang);
         }
 
         List<Account> accounts = [
-            SELECT Id, BillingCountryCode, Dealer_category__c
+            SELECT Id, BillingCountryCode, Dealer_category__c, Sales_Language__c
             FROM Account
             WHERE Id = :contacts[0].AccountId
             WITH SYSTEM_MODE
             LIMIT 1
         ];
         if (accounts.isEmpty()) {
-            throw new AuraHandledException('Dealer account not found.');
+            String lang = normalizeLang(users[0].DefaultLanguage__c);
+            if (lang == null) lang = resolveLanguage(contacts[0].Language__c);
+            return fallbackContext(lang);
         }
 
         DealerContext ctx = new DealerContext();
-        ctx.account  = accounts[0];
-        ctx.language = resolveLanguage(contacts[0].Language__c);
+        ctx.account = accounts[0];
+
+        // Priority: User.DefaultLanguage__c → Contact.Language__c → Account.Sales_Language__c → 'en'
+        String lang = normalizeLang(users[0].DefaultLanguage__c);
+        if (lang == null) lang = resolveLanguage(contacts[0].Language__c);
+        if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
+        ctx.language = lang != null ? lang : 'en';
+        return ctx;
+    }
+
+    // Returns a context with a stub Account (no Id) — used for preview/admin and unlinked users.
+    // Pricebook resolution will fall back to any Dealer pricebook; no discounts are applied.
+    private static DealerContext fallbackContext(String language) {
+        DealerContext ctx = new DealerContext();
+        ctx.language = language != null ? language : 'en';
+        Account stub = new Account();
+        stub.BillingCountryCode = 'NL';
+        ctx.account = stub;
         return ctx;
     }
 
@@ -358,7 +390,7 @@ public without sharing class Ctrl_DealerShop {
 
         // Account-level discounts
         Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
-        if (!productIds.isEmpty()) {
+        if (acct.Id != null && !productIds.isEmpty()) {
             for (Product_Discount__c disc : [
                 SELECT Id, Product__c, IsActive__c, Discount_percentage__c,
                        isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,

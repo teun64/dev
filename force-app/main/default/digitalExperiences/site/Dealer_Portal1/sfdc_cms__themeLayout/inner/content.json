@@ -24,6 +24,12 @@
             "sectionVerticalAlign" : "flex-start"
           },
           "children" : [ {
+            "children" : [ {
+              "attributes" : { },
+              "definition" : "c:dealerNav",
+              "id" : "a1b2c3d4-e5f6-4789-abcd-111111111101",
+              "type" : "component"
+            } ],
             "id" : "e2f3a4b5-c6d7-4890-bcde-123456789012",
             "name" : "headerSection",
             "title" : "Theme Header",
@@ -53,6 +59,12 @@
             "sectionVerticalAlign" : "flex-start"
           },
           "children" : [ {
+            "children" : [ {
+              "attributes" : { },
+              "definition" : "c:dealerFooter",
+              "id" : "b1b2c3d4-e5f6-4789-abcd-222222222202",
+              "type" : "component"
+            } ],
             "id" : "b5c6d7e8-f9a0-4123-ef01-456789012345",
             "name" : "footerSection",
             "title" : "Theme Footer",

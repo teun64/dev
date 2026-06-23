@@ -47,16 +47,13 @@
         </main>
 
         <template if:true={cartOpen}>
-            <div class="cart-overlay" onclick={handleOverlayClick}>
-                <div class="cart-sidebar" onclick={handleSidebarClick}>
-                    <c-dealer-cart
-                        cart-items={cartItems}
-                        onremovefromcart={handleRemoveFromCart}
-                        onclosecart={handleCloseCart}
-                        onorderplaced={handleOrderPlaced}>
-                    </c-dealer-cart>
-                </div>
-            </div>
+            <c-dealer-cart
+                cart-items={cartItems}
+                onremovefromcart={handleRemoveFromCart}
+                oncartitemchanged={handleCartItemChanged}
+                onclosecart={handleCloseCart}
+                onorderplaced={handleOrderPlaced}>
+            </c-dealer-cart>
         </template>
     </div>
 </template>
