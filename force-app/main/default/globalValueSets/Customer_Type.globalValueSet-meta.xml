@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Auto Importer</fullName>
+        <default>false</default>
+        <label>Auto Importer</label>
+    </customValue>
+    <customValue>
+        <fullName>Brand dealer</fullName>
+        <default>false</default>
+        <label>Brand dealer</label>
+    </customValue>
+    <customValue>
+        <fullName>Build-in station</fullName>
+        <default>false</default>
+        <label>Build-in station</label>
+    </customValue>
+    <customValue>
+        <fullName>Business / Fleet Owner</fullName>
+        <default>false</default>
+        <label>Business / Fleet Owner</label>
+    </customValue>
+    <customValue>
+        <fullName>Classic car dealer</fullName>
+        <default>false</default>
+        <label>Classic car dealer</label>
+    </customValue>
+    <customValue>
+        <fullName>Greece</fullName>
+        <default>false</default>
+        <label>Greece</label>
+    </customValue>
+    <customValue>
+        <fullName>Insurance company</fullName>
+        <default>false</default>
+        <label>Insurance company</label>
+    </customValue>
+    <customValue>
+        <fullName>Insurance intermediary</fullName>
+        <default>false</default>
+        <label>Insurance intermediary</label>
+    </customValue>
+    <customValue>
+        <fullName>Leasing company</fullName>
+        <default>false</default>
+        <label>Leasing company</label>
+    </customValue>
+    <customValue>
+        <fullName>Motorbikes</fullName>
+        <default>false</default>
+        <label>Motorbikes</label>
+    </customValue>
+    <customValue>
+        <fullName>Nautical</fullName>
+        <default>false</default>
+        <label>Nautical</label>
+    </customValue>
+    <customValue>
+        <fullName>Private</fullName>
+        <default>false</default>
+        <label>Private</label>
+    </customValue>
+    <customValue>
+        <fullName>Proxy holder</fullName>
+        <default>false</default>
+        <label>Proxy holder</label>
+    </customValue>
+    <customValue>
+        <fullName>Recreation</fullName>
+        <default>false</default>
+        <label>Recreation</label>
+    </customValue>
+    <customValue>
+        <fullName>Rental company</fullName>
+        <default>false</default>
+        <label>Rental company</label>
+    </customValue>
+    <customValue>
+        <fullName>Universal car company</fullName>
+        <default>false</default>
+        <label>Universal car company</label>
+    </customValue>
+    <customValue>
+        <fullName>Wholesaler</fullName>
+        <default>false</default>
+        <label>Wholesaler</label>
+    </customValue>
+    <customValue>
+        <fullName>Work equipment</fullName>
+        <default>false</default>
+        <label>Work equipment</label>
+    </customValue>
+    <description>Classificatie 2 Klant in Exact (type Klant)</description>
+    <masterLabel>Customer Type</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

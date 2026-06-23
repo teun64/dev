@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Approval_Status</name>
+        <label>Approval Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Approval_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Draft</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>ass_01_Account_Financial_Ready</name>
+        <label>1. Account Financial Ready</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.isAccountFinancialReady__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fAccountFinancialReady</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Subscriptions</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Licence_Plate</name>
+        <label>1. Licence Plate</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Licence_Plate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fLicencePlate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Owner</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Options</name>
+        <label>1. Options</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Option_Show_Activation_Fee_Remark__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fOptionActivationFeeRemark</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Stage</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_Gross_Amount</name>
+        <label>1. Payment Gross Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Amount_Gross__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentAmountGross</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_Method</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_Method</name>
+        <label>1. Payment Method</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Method__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethod</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Account_Financial_Ready</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_Net_Amount</name>
+        <label>1. Payment Net Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Amount_Net__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentAmountNet</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_VAT_Amount</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_VAT_Amount</name>
+        <label>1. Payment VAT Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Amount_VAT__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentAmountVAT</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_Gross_Amount</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_PreviousStage</name>
+        <label>1. PreviousStage</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.StageName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record__Prior.StageName</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>em_01_Account_not_Financilal_Ready</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_02_Owner</name>
+        <label>2. Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Account.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_NET_Amounts</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>dec_01_Closed_Date</name>
+        <label>1. Closed Date</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Close_Date_Estimated__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fClosedDateEstimated</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.CloseDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Licence_Plate</targetReference>
+        </connector>
+    </assignments>
+    <customErrors>
+        <name>em_01_Account_not_Financilal_Ready</name>
+        <label>Account not Financial Ready</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <customErrorMessages>
+            <errorMessage>You can not put this opportunity on closed won, the account {!$Record.Account.Name} is not ready in the financial system. Please solve this first before processing orders. The opportunity remains on the {!$Record__Prior.StageName}-stage.</errorMessage>
+            <isFieldError>false</isFieldError>
+        </customErrorMessages>
+        <customErrorMessages>
+            <errorMessage>account {!$Record.Account.Name} is not ready in the financial system. Please solve this first before processing orders. The opportunity remains on the {!$Record__Prior.StageName}-stage.</errorMessage>
+            <fieldSelection>AccountId</fieldSelection>
+            <isFieldError>true</isFieldError>
+        </customErrorMessages>
+    </customErrors>
+    <decisions>
+        <name>dec_01_Account</name>
+        <label>1. Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Closed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Acoount_Changed_or_Empty_Administration</name>
+            <conditionLogic>(1 AND 2) OR (3 OR 4)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.AccountId</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AccountId</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Administration__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Administration__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dgr_01_Administration</targetReference>
+            </connector>
+            <label>Changed or Empty Administration</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_AccountFinancialReady</name>
+        <label>1. Account Financial Ready</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_PreviousStage</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Rollback</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_AccountFinancialReady_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.isAccountFinancialReady__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Closed</name>
+        <label>1. Closed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Licence_Plate</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.IsClosed</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dec_01_Closed_Date</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Licence_Plate</name>
+        <label>1. Licence Plate</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Owner</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_License_Plate_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Licence_Plate__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Licence_Plate__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Licence_Plate__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Licence_Plate</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Owner</name>
+        <label>1. Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_NET_Amounts</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Owner_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$User.Integration_User__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_02_Owner</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Payment_Gross_Amount</name>
+        <label>1. Payment Gross Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_Method</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_Gross_Amount_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Amount_Gross__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_Gross_Amount</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Payment_Method</name>
+        <label>1. Payment Method</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_Account_Financial_Ready</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_Method_Set</name>
+            <conditionLogic>((1 AND 2) OR 3 ) AND (4 OR 5)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.StageName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Administration</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.StageName</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AccountId</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Reference_Manual_Input__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Reference_Manual_Input__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_Method</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Payment_NET_Amounts</name>
+        <label>1. Payment NET Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_VAT_Amount</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_Amounts_NET_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Amount_Net__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_Net_Amount</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Payment_VAT_Amount</name>
+        <label>1. Payment VAT Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_Gross_Amount</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_VAT_Amount_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Amount_VAT__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_VAT_Amount</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Recordtype</name>
+        <label>1. Recordtype</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Account</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Recordtype_Changed_or_Empty_Pricebook</name>
+            <conditionLogic>(1 AND 2) OR 3</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.RecordTypeId</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.RecordTypeId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Pricebook2Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dgr_01_PriceBook</targetReference>
+            </connector>
+            <label>Changed or Empty Pricebook</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Stage</name>
+        <label>1. Stage</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Stage_Draft</name>
+            <conditionLogic>(1 OR  2 OR 3 ) AND 4 AND ( 5 OR 6)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.StageName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Preparation</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.StageName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>New</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.StageName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Webshop</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Approval_Status__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Draft</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Reference__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Reference__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Approval_Status</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Draft</label>
+        </rules>
+        <rules>
+            <name>dec_01_Stage_Closed_Won</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.StageName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Closed Won</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dec_01_AccountFinancialReady</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Closed Won</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Subscriptions</name>
+        <label>1. Subscriptions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Stage</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Subscriptions_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscriptions__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.Reseller_Name__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>6</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Options</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>fAccountFinancialReady</name>
+        <dataType>Boolean</dataType>
+        <expression>NOT(
+	OR(
+		/* Account requirements */
+		OR( 
+			ISBLANK( {!$Record.AccountId} ), 
+			ISBLANK( {!$Record.Account.FinancialDebtorNumber__c})
+		),
+		/* Bank Details*/
+		AND(
+			OR(
+				(LEFT(UPPER(TEXT( {!$Record.Payment_Method__c} )),1) = &apos;I&apos;), 
+				(UPPER(TEXT( {!$Record.Payment_Method__c} )) = &apos;P0&apos;)
+			), 
+			OR (
+				ISBLANK( {!$Record.Account.Bank_Account_Number__c} ), 
+				ISBLANK( {!$Record.Account.Bank_Account__c} )
+			)
+		),
+		/* Billing Address */
+		OR (
+			ISBLANK( {!$Record.Account.BillingStreet} ), 
+			ISBLANK( {!$Record.Account.BillingPostalCode} ), 
+			ISBLANK( {!$Record.Account.BillingCity} )
+		), 
+		/* Shipping Address */
+		OR (
+			ISBLANK( {!$Record.Account.ShippingStreet} ), 
+			ISBLANK( {!$Record.Account.ShippingPostalCode} ), 
+			ISBLANK( {!$Record.Account.ShippingCity} )
+		)
+	)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fClosedDateEstimated</name>
+        <dataType>Date</dataType>
+        <expression>BLANKVALUE({!$Record.Close_Date_Estimated__c}, {!$Record__Prior.CloseDate})</expression>
+    </formulas>
+    <formulas>
+        <name>fLicencePlate</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(UPPER(TRIM({!$Record.Licence_Plate__c}) ) ,&apos;-&apos;, &apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fMarket</name>
+        <dataType>String</dataType>
+        <expression>&apos;&apos;
+/*IF(OR(ISPICKVAL($Record.Account.Reseller_Name__c,&apos;1&apos;),ISPICKVAL($Record.Account.Reseller_Name__c,&apos;5&apos;)),&apos;&apos;,Text($Record.Account.Market__c))*/</expression>
+    </formulas>
+    <formulas>
+        <name>fOptionActivationFeeRemark</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(
+INCLUDES({!$Record.Subscriptions__c},&apos;etAllinOne&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;etFiscalReports&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;etLiveTracking&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;etReporting&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiBlack&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiBlackR&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiOrange&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiOrangeR&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiWhite&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiBlue&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiRoyalBlue&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiAzure&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiGreen&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;MiRed&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;tpBasic&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;tpEnterprise&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;tpPremium&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;tpProfessional&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;tpRemoteTachoDownload&apos;)
+,INCLUDES({!$Record.Subscriptions__c},&apos;tpTemperature&apos;)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fPaymentAmountGross</name>
+        <dataType>Currency</dataType>
+        <expression>ROUND(BLANKVALUE({!$Record.Payment_Amount_Gross__c},0),2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fPaymentAmountNet</name>
+        <dataType>Currency</dataType>
+        <expression>ROUND(BLANKVALUE({!$Record.Payment_Amount_Net__c},0),2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fPaymentAmountVAT</name>
+        <dataType>Currency</dataType>
+        <expression>ROUND(BLANKVALUE({!$Record.Payment_Amount_VAT__c},0),2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fPaymentMethod</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE(IF(ISCHANGED({!$Record.AccountId}),&apos;&apos;,TEXT({!$Record.Payment_Method__c})),BLANKVALUE(TEXT({!$Record.Account.Payment_Method_Opportunities__c}), IF(ISBLANK({!$Record.Account.Bank_Account_Number__c}),&apos;08&apos;, IF((BLANKVALUE(TEXT({!$Record.Account.Reseller_Name__c}),BLANKVALUE({!$User.DefaultReseller__c},&apos;1&apos;))=&apos;6&apos;),&apos;I0&apos;,&apos;I8&apos;))
+))</expression>
+    </formulas>
+    <formulas>
+        <name>fPriceBookType</name>
+        <dataType>String</dataType>
+        <expression>CASE(text({!$Record.Account.Relation_type__c})
+,&apos;Distributor&apos;,  &apos;Distributors&apos;
+,&apos;Dealer&apos;,&apos;Dealers&apos;
+,&apos;Intercompany&apos;,&apos;Intercompany&apos;
+,&apos;Leasing Company&apos;,&apos;Leasing Companies&apos;
+,&apos;High Volume&apos;,&apos;High Volume (Consumer &amp; Business Users)&apos;
+,&apos;End User&apos;,IF(({!$Record.RecordType.DeveloperName} = &apos;Insurance_Opportunity&apos;), &apos;Insurance Companies&apos;,&apos;Consumer &amp; Business Users&apos;)
+,&apos;Consumer &amp; Business Users&apos;)</expression>
+    </formulas>
+    <interviewLabel>rbu - Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbu - Opportunity</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>dgr_01_Administration</name>
+        <label>1. Administration</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_Closed</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Account.Reseller_Name__c</elementReference>
+            </value>
+        </filters>
+        <object>Subscription25__Administration__c</object>
+        <outputAssignments>
+            <assignToReference>$Record.Administration__c</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_01_PriceBook</name>
+        <label>1. PriceBook</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_Account</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>fPriceBookType</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Account.Reseller_Name__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Market__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>fMarket</elementReference>
+            </value>
+        </filters>
+        <object>Pricebook2</object>
+        <outputAssignments>
+            <assignToReference>$Record.Pricebook2Id</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+        <sortField>CreatedDate</sortField>
+        <sortOrder>Desc</sortOrder>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Recordtype</targetReference>
+        </connector>
+        <object>Opportunity</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+    <triggerOrder>2</triggerOrder>
+    <variables>
+        <name>delete</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vAccountFinancialReady</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+</Flow>

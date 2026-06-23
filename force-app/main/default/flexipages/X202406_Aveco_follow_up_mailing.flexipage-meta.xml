@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>allowChanges</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>alternativeText</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>Center</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>imgPath</name>
+                    <value>https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCUVG5XJAAUZBFHPCLAUX7NURY7M?oid=00Dbd000001yPEHEAU&amp;channelId=0ap3W0000004C9DQAU</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>linkUrl</name>
+                    <value>https://movingintelligence.nl</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginBottom</name>
+                    <value>23</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginLeft</name>
+                    <value>0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginRight</name>
+                    <value>0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginTop</name>
+                    <value>0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>objectFit</name>
+                    <value>fill</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>width</name>
+                    <value>100</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:image</componentName>
+                <identifier>contentbuilder_image</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-a36d6753-325e-4453-9fd4-7d54af3e8247</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columnBody</name>
+                    <value>Facet-a36d6753-325e-4453-9fd4-7d54af3e8247</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnCount</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnIndex</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnSpacer</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>padding</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>verticalAlign</name>
+                    <value>top</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>width</name>
+                    <value>100%</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:column</componentName>
+                <identifier>contentbuilder_column</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-d2ca493e-3874-44e4-9db0-8734ede0285c</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>allowChanges</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>linkedToDesignKit</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginBottom</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginLeft</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginRight</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginTop</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;div style=&quot;font-weight: 400; font-size: 14px; line-height: 20px; color: #OE0F0E; margin-bottom: 10px;&quot;&gt;&lt;span style=&quot;font-size:16px; color: #000000;&quot;&gt;&lt;strong&gt;Beste relatie,&lt;/strong&gt;&lt;/span&gt;&lt;/div&gt;</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:richText</componentName>
+                <identifier>contentbuilder_richText</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>allowChanges</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>linkedToDesignKit</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginBottom</name>
+                    <value>0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginLeft</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginRight</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginTop</name>
+                    <value>0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;div style=&quot;font-weight: 400; font-size: 14px; line-height: 20px; color: #0E0F0E; margin-bottom: 0px;&quot;&gt;
+&lt;p&gt;&lt;span style=&quot;font-size:11pt&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:black&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Onlangs heeft Aveco u ge&amp;iuml;nformeerd over de MI Retreever peilzender. Een unieke, draadloze oplossing, ontwikkeld door Moving Intelligence en Aveco Verzekeringen, waardoor de Aveco-klant geen aanvullend maandabonnement meer hoeft af te sluiten na aanschaf en u deze zelf kunt installeren als Aveco-partner. Ook wanneer uw bedrijf geen SCM-inbouwerkenning Voertuigbeveiliging heeft. &amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:11pt&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:11pt&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;b&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:black&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Wie zijn wij?&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/b&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+
+&lt;div style=&quot;font-weight: 400; font-size: 14px; line-height: 20px; color: #0E0F0E; margin-bottom: 0px;&quot;&gt;
+&lt;p&gt;&lt;span style=&quot;font-size:11pt&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:black&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Moving Intelligence is vooraanstaand leverancier van opsporingssystemen voor waardevolle en bijzondere voertuigen, waaronder campers. Inmiddels zijn we al ruim 24 jaar actief en uitgegroeid tot marktleider in Nederland en ver daarbuiten. We zijn premium partner van BMW en Audi en hechten veel waarde aan maatwerk zodat we de klant een optimale ervaring kunnen bieden &amp;eacute;n het gestolen object na diefstal zo snel mogelijk kunnen opsporen.&amp;nbsp;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+
+&lt;div style=&quot;font-weight: 400; font-size: 14px; line-height: 20px; color: #0E0F0E; margin-bottom: 0px;&quot;&gt;
+&lt;p&gt;&lt;span style=&quot;font-size:11pt&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:black&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;In samenwerking met Aveco hebben wij de MI Retreever peilzender ontwikkeld. De Aveco-klant kan, zoals door Aveco in de eerder verzonden e-mail aangegeven, een Moving Intelligence Retreever peilzender aanschaffen voor slechts &lt;span style=&quot;color:black&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;&lt;strong&gt;&amp;euro; 545,-&lt;/strong&gt; inclusief btw, zonder aanvullend maandabonnement en met 5-jarige levensduur! Heeft u het bericht van Aveco niet ontvangen? Deze kunt u terugzien in de bijlage van deze e-mail.&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+
+&lt;div style=&quot;font-weight: 400; font-size: 14px; line-height: 20px; color: #0E0F0E; margin-bottom: 0px;&quot;&gt;
+&lt;p&gt;&lt;span style=&quot;font-size:11pt&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:black&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Graag maken we binnenkort een afspraak met u om verder kennis te maken en om u te informeren over de MI Retreever peilzender. Heeft u nu al vragen? Neem contact op met accountmanagers Rob van den Bogaert of Paul Schuttevaer.&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&amp;nbsp;&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:richText</componentName>
+                <identifier>contentbuilder_richText2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>allowChanges</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>linkedToDesignKit</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginBottom</name>
+                    <value>0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginLeft</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginRight</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginTop</name>
+                    <value>0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;div style=&quot;font-weight: 400; font-size: 14px; line-height: 20px; color: #0E0F0E; margin-bottom: 0px;&quot;&gt;
+&lt;p style=&quot;margin-left: 40px;&quot;&gt;&lt;span style=&quot;font-size:16px&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;b&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Rob van den Bogaert&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/b&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:16px&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Accountmanager Moving Intelligence&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:16px&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;06-11252465&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:16px&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:16px&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;b&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Paul Schuttevaer&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/b&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:16px&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;Accountmanager Moving Intelligence&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br /&gt;
+&lt;span style=&quot;font-size:16px&quot;&gt;&lt;span style=&quot;font-style:normal&quot;&gt;&lt;span style=&quot;font-weight:400&quot;&gt;&lt;span style=&quot;white-space:normal&quot;&gt;&lt;span style=&quot;text-decoration:none&quot;&gt;&lt;span style=&quot;font-family:Aptos, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span lang=&quot;NL&quot; style=&quot;font-size:10pt&quot;&gt;&lt;span style=&quot;font-family:Arial, sans-serif&quot;&gt;&lt;span style=&quot;color:#212121&quot;&gt;&lt;span style=&quot;line-height:1.2&quot;&gt;06-52083599&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;/div&gt;</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:richText</componentName>
+                <identifier>contentbuilder_richText3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>allowChanges</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>linkedToDesignKit</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginBottom</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginLeft</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginRight</name>
+                    <value>20</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>marginTop</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;div style=&quot;font-weight: 400; font-size: 14px; line-height: 20px; color: #0E0F0E; margin-bottom: 10px;&quot;&gt;
+&lt;p&gt;Met vriendelijke groet,&lt;/p&gt;
+&lt;br /&gt;
+&lt;img alt=&quot;Logo_Moving intelligence_Black_Red_RGB.png&quot; class=&quot;&quot; src=&quot;https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCAZY3XCZD5NH5NPGSA5VUNRU54I?oid=00Dbd000001yPEHEAU&amp;channelId=0ap3W0000004C9DQAU&quot; style=&quot;max-width: 100%; width: 151.858px; height: 58.9931px;&quot; title=&quot;Logo_Moving intelligence_Black_Red_RGB.png&quot; /&gt;&lt;br /&gt;
+&lt;br /&gt;
+&lt;strong&gt;T&lt;/strong&gt;&amp;nbsp; +31 88 99 00 000&lt;br /&gt;
+&lt;strong&gt;E&lt;/strong&gt;&amp;nbsp; sales@movingintelligence.nl
+
+&lt;hr style=&quot;width: 20px; border-color:#FF0000; border-width: 1px; margin-left:0;&quot; /&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;{{{Case.Thread_Id}}}&lt;/span&gt;&lt;br /&gt;
+&lt;strong&gt;knowledge in motion&lt;/strong&gt;&lt;/div&gt;</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:richText</componentName>
+                <identifier>contentbuilder_richText4</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-8dce976f-94b7-4572-8c73-cbf051a2dafa</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columnBody</name>
+                    <value>Facet-8dce976f-94b7-4572-8c73-cbf051a2dafa</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnCount</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnIndex</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnSpacer</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>padding</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>verticalAlign</name>
+                    <value>top</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>width</name>
+                    <value>100%</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:column</componentName>
+                <identifier>contentbuilder_column2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-4b0af063-0da9-42f5-83e7-43ba57a2794f</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>allowChanges</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>htmlValue</name>
+                    <value>&lt;div style=&quot;width: 100%;&quot;&gt;
+	&lt;div style=&quot;padding-top: 50px; padding-bottom: 50px; text-align: center; font-family:Arial, sans-serif;&quot;&gt;
+		&lt;span style=&quot;font-weight: 700; font-size: 16px; color: #EAEAEA;&quot;&gt;
+		Hulp nodig?
+		&lt;/span&gt;
+		&lt;div style=&quot;padding-bottom: 20px;&quot;&gt;
+			&lt;span style=&quot;color: #EAEAEA; font-weight: 500; font-size: 12px; line-height: 20px;&quot;&gt;
+				Bekijk onze &lt;a href=&quot;https://movingintelligence.nl/support&quot; rel=&quot;nofollow,noreferrer&quot; style=&quot;color: #EAEAEA;&quot;&gt;veelgestelde vragen&lt;/a&gt;.
+			&lt;/span&gt;
+		&lt;/div&gt;
+		&lt;span style=&quot;font-weight: 700; font-size: 16px; color: #EAEAEA;&quot;&gt;
+			Volg Moving Intelligence
+		&lt;/span&gt;
+		&lt;div style=&quot;margin-top: 10px;&quot;&gt;
+			&lt;a href=&quot;https://www.facebook.com/movingintelligence/&quot; target=&quot;_blank&quot;&gt;
+				&lt;img alt=&quot;&quot; border=&quot;0&quot; height=&quot;33&quot; src=&quot;https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCXX7T4FFBSZDCDCEM3OWQANHXFY?oid=00Dbd000001yPEHEAU&amp;amp;channelId=0ap3W0000004C9DQAU&quot; style=&quot;width: 33px; height: 33px; border-width: 0px; border-style: solid;&quot; width=&quot;33&quot;&gt;
+			&lt;/a&gt;
+			&amp;nbsp;&amp;nbsp;
+			&lt;a href=&quot;https://www.instagram.com/movingintelligence/&quot; target=&quot;_blank&quot;&gt;
+				&lt;img alt=&quot;&quot; border=&quot;0&quot; height=&quot;33&quot; src=&quot;https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCTQEQLN4HBFFZFNFYH5XEH3F2O4?oid=00Dbd000001yPEHEAU&amp;amp;channelId=0ap3W0000004C9DQAU&quot; style=&quot;width: 33px; height: 33px; border-width: 0px; border-style: solid;&quot; width=&quot;33&quot;&gt;
+			&lt;/a&gt;
+			&amp;nbsp;&amp;nbsp;
+			&lt;a href=&quot;https://www.youtube.com/@MovingIntelligenceNL&quot; target=&quot;_blank&quot;&gt;
+				&lt;img alt=&quot;&quot; border=&quot;0&quot; height=&quot;33&quot; src=&quot;https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCW57WM3EFTZDSDPWMUQOHSOOQ5E?oid=00Dbd000001yPEHEAU&amp;amp;channelId=0ap3W0000004C9DQAU&quot; style=&quot;width: 32px; height: 33px; border-width: 0px; border-style: solid;&quot; width=&quot;32&quot;&gt;
+			&lt;/a&gt;
+			&amp;nbsp;&amp;nbsp;
+			&lt;a href=&quot;https://www.linkedin.com/company/movingintelligence&quot; target=&quot;_blank&quot;&gt;
+				&lt;img alt=&quot;&quot; border=&quot;0&quot; height=&quot;33&quot; src=&quot;https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCVQUDDLF7FJG5JHHHMVWXYPV77A?oid=00Dbd000001yPEHEAU&amp;amp;channelId=0ap3W0000004C9DQAU&quot; style=&quot;width: 33px; height: 33px; border-width: 0px; border-style: solid;&quot; width=&quot;33&quot;&gt;
+			&lt;/a&gt;
+		&lt;/div&gt;
+	&lt;/div&gt;
+	&lt;div style=&quot;border-top: 2px #EAEAEA solid;font-family:Arial, sans-serif; text-align: center; width: 100%;&quot;&gt;
+		&lt;div style=&quot;padding: 20px;&quot;&gt;
+			&lt;div style=&quot;color: #EAEAEA; font-weight: 700; font-size: 14px; line-height: 18px;&quot;&gt;
+				&lt;a href=&quot;https://www.movingintelligence.nl&quot; style=&quot;text-decoration: none;color: #EAEAEA;&quot;&gt;movingintelligence.nl&lt;/a&gt;&lt;br&gt;
+				&lt;a href=&quot;tel:0031889900000&quot; style=&quot;text-decoration: none;color: #EAEAEA;&quot;&gt;+31 88 99 000 00&lt;/a&gt;&lt;br&gt;
+				Ma. - Vrij. : 8:30 - 17:30
+			&lt;/div&gt;
+		&lt;/div&gt;
+		&lt;div style=&quot;padding-bottom: 30px;&quot;&gt;
+			&lt;span style=&quot;color: #EAEAEA; font-weight: 500; font-size: 11px; line-height: 20px;&quot;&gt;&lt;div style=&quot;color: #FFFFFF; font-weight: 700; text-align: center; font-family:Arial, sans-serif;&quot;&gt;
+  &lt;div style=&quot;padding-bottom: 50px;&quot;&gt;&lt;span style=&quot;color: #EAEAEA; font-weight: 500; font-size: 12px;&quot;&gt;Wil je deze mails niet meer ontvangen? &lt;a href=&quot;{{{Unsubscribe}}}&quot; rel=&quot;nofollow,noreferrer&quot; style=&quot;color: #EAEAEA;&quot;&gt;Meld je hier af&lt;/a&gt;&lt;/span&gt;</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:html</componentName>
+                <identifier>contentbuilder_html</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-def12f9d-4dd3-4562-8ac2-348c3cd1e898</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columnBody</name>
+                    <value>Facet-def12f9d-4dd3-4562-8ac2-348c3cd1e898</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnCount</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnIndex</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columnSpacer</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>padding</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>verticalAlign</name>
+                    <value>top</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>width</name>
+                    <value>100%</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:column</componentName>
+                <identifier>contentbuilder_column3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-5f6a14ed-51e1-496e-93a8-42a12a045378</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>backgroundColor</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImagePosition</name>
+                    <value>left_top</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImageRepeat</name>
+                    <value>no-repeat</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImageSize</name>
+                    <value>cover</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImageUrl</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-d2ca493e-3874-44e4-9db0-8734ede0285c</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>verticalAlignment</name>
+                    <value>top</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:row</componentName>
+                <identifier>contentbuilder_row</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>backgroundColor</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImagePosition</name>
+                    <value>left_top</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImageRepeat</name>
+                    <value>no-repeat</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImageSize</name>
+                    <value>cover</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImageUrl</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-4b0af063-0da9-42f5-83e7-43ba57a2794f</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>verticalAlignment</name>
+                    <value>top</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:row</componentName>
+                <identifier>contentbuilder_row2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>backgroundColor</name>
+                    <value>#0E0F0E</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>backgroundImageUrl</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-5f6a14ed-51e1-496e-93a8-42a12a045378</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>verticalAlignment</name>
+                    <value>top</value>
+                </componentInstanceProperties>
+                <componentName>contentbuilder:row</componentName>
+                <identifier>contentbuilder_row3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>main</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <masterLabel>X202406_Aveco_follow_up_mailing</masterLabel>
+    <template>
+        <name>contentpage:defaultEmailTemplatePageTemplate</name>
+        <properties>
+            <name>backgroundColor</name>
+            <value>#E9EAEC</value>
+        </properties>
+        <properties>
+            <name>backgroundImageUrl</name>
+        </properties>
+        <properties>
+            <name>bodyColor</name>
+            <value>#FFFFFF</value>
+        </properties>
+        <properties>
+            <name>paddingBottom</name>
+            <value>0</value>
+        </properties>
+        <properties>
+            <name>paddingLeft</name>
+            <value>0</value>
+        </properties>
+        <properties>
+            <name>paddingRight</name>
+            <value>0</value>
+        </properties>
+        <properties>
+            <name>paddingTop</name>
+            <value>0</value>
+        </properties>
+        <properties>
+            <name>preheader</name>
+        </properties>
+    </template>
+    <type>EmailTemplatePage</type>
+</FlexiPage>

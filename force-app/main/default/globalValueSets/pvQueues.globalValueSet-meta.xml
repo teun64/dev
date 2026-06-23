@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>gqPlatformDevelopment1</fullName>
+        <default>false</default>
+        <label>Development (Platform 1 - Technology)</label>
+    </customValue>
+    <customValue>
+        <fullName>gqPlatformDevelopment5</fullName>
+        <default>false</default>
+        <label>Development (Platform 5 - Europetrack)</label>
+    </customValue>
+    <customValue>
+        <fullName>gqPlatformDevices1</fullName>
+        <default>false</default>
+        <label>Devices (Platform 1 - Hardware)</label>
+    </customValue>
+    <customValue>
+        <fullName>gqPlatformDevices5</fullName>
+        <default>false</default>
+        <label>Devices (Platform 5 - Europetrack)</label>
+    </customValue>
+    <customValue>
+        <fullName>gqPlatform1</fullName>
+        <default>false</default>
+        <label>Platform 1 (miPlatform)</label>
+    </customValue>
+    <customValue>
+        <fullName>gqPlatform5</fullName>
+        <default>false</default>
+        <label>Platform 5 (Europetrack)</label>
+    </customValue>
+    <description>Transfer Queues (standardised list)</description>
+    <masterLabel>Queues</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

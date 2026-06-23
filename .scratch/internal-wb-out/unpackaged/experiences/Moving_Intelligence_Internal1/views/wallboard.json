@@ -1,0 +1,72 @@
+{
+  "appPageId" : "cc3933a0-a80b-4f73-a5b0-39c53ed1f434",
+  "componentName" : "siteforce:dynamicLayout",
+  "dataProviders" : [ ],
+  "id" : "0289af6c-7f1f-48a3-b114-f3a416d0d292",
+  "label" : "Wallboard",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "a48006e8-22b8-420a-b3f0-c674f59fa3e5",
+          "columns" : [ {
+            "UUID" : "05772555-158a-47f0-8f2a-b0748dede1ba",
+            "columnKey" : "1",
+            "columnName" : "Column 1",
+            "columnWidth" : "12",
+            "seedComponents" : [ ]
+          } ]
+        },
+        "sectionHeight" : 32
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "a48006e8-22b8-420a-b3f0-c674f59fa3e5",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : {
+            "height" : "2160",
+            "pageName" : "Wallboard",
+            "recordId" : "{!recordId}"
+          },
+          "componentName" : "forceCommunity:visualforcePage",
+          "id" : "70a2cf7b-34ae-4f2a-a78d-0588818cc94f",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "05772555-158a-47f0-8f2a-b0748dede1ba",
+        "regionLabel" : "Column 1",
+        "regionName" : "1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "1a1362c7-4935-478a-af16-70410e063d41",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "Wallboard"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "db4c76ef-6573-4ab9-87d9-c93f8f70a0fe",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "8dc7d8d4-fdff-4de2-a943-c00ca947af30",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "custom-wallboard"
+}

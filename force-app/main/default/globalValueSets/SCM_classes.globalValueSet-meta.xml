@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Ik weet niet of ik een SCM/VbV beveiligingsklasse nodig heb</fullName>
+        <default>false</default>
+        <label>I don&apos;t know if I need a SCM/VbV security class</label>
+    </customValue>
+    <customValue>
+        <fullName>Ik heb geen specifieke beveiligingsklasse nodig</fullName>
+        <default>false</default>
+        <label>I don&apos;t need a specific security class</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse Voertuigvolgsysteem (voorheen Klasse 4/5)</fullName>
+        <default>false</default>
+        <label>Class Vehicle Tracking System (formerly Class 4/5)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse Terugvindsysteem (TV01)</fullName>
+        <default>false</default>
+        <label>Class Retrieval System (TV01)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse Startonderbreker  (voorheen Klasse 1)</fullName>
+        <default>false</default>
+        <label>Class Immobilizer (formerly Class 1)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse Alarmsysteem (voorheen Klasse 2)</fullName>
+        <default>false</default>
+        <label>Class Alarm System (formerly Class 2)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse Alarmsysteem met hellingshoekdetectie (voorheen Klasse 3)</fullName>
+        <default>false</default>
+        <label>Class Alarm system with tilt detection (formerly Class 3)</label>
+    </customValue>
+    <masterLabel>SCM classes</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

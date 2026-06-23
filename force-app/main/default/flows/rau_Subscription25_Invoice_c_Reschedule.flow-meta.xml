@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Reschedules sync to the Financial System when a XML error ocures</description>
+    <environments>Default</environments>
+    <interviewLabel>rau - Subscription25_Invoice_c - Reschedule {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rau - Subscription25_Invoice_c - Reschedule</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>dur_01_Invoice</name>
+        <label>1. Invoice</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Subscription25__Administration_Message__c</field>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subscription25__Sync_State__c</field>
+            <value>
+                <stringValue>RESCHEDULE</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>(1 OR 2) AND 3</filterLogic>
+        <filters>
+            <field>Subscription25__Administration_Message__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Encountered premature end of XML: input contained no data</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Subscription25__Administration_Message__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Authentication error, invalid access token.</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Subscription25__Sync_State__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>PENDING</stringValue>
+            </value>
+        </filters>
+        <object>Subscription25__Invoice__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>dur_01_Invoice</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <triggerOrder>602</triggerOrder>
+</Flow>

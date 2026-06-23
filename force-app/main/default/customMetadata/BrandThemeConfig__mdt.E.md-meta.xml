@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Echoes</label>
+    <protected>false</protected>
+    <values>
+        <field>Brand__c</field>
+        <value xsi:type="xsd:string">E</value>
+    </values>
+    <values>
+        <field>BrandName__c</field>
+        <value xsi:type="xsd:string">Echoes</value>
+    </values>
+    <values>
+        <field>PrimaryColor__c</field>
+        <value xsi:type="xsd:string">#1a6fc4</value>
+    </values>
+    <values>
+        <field>AccentColor__c</field>
+        <value xsi:type="xsd:string">#e8f0fb</value>
+    </values>
+    <values>
+        <field>LogoStaticResource__c</field>
+        <value xsi:type="xsd:string">2026/img/echoes-logo-black-blue-rgb.png</value>
+    </values>
+    <values>
+        <field>McBrandId__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>TagLine__c</field>
+        <value xsi:type="xsd:string">Manage how Echoes contacts you</value>
+    </values>
+</CustomMetadata>

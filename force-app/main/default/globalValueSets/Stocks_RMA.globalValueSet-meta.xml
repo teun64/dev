@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Moving Intelligence</fullName>
+        <default>false</default>
+        <label>Reparatiemagazijn Moving Intelligence</label>
+    </customValue>
+    <customValue>
+        <fullName>Bestronics</fullName>
+        <default>false</default>
+        <label>Reparatiemagazijn Bestronics</label>
+    </customValue>
+    <customValue>
+        <fullName>Laserline</fullName>
+        <default>false</default>
+        <label>Reparatiemagazijn Laserline</label>
+    </customValue>
+    <customValue>
+        <fullName>Flextrack</fullName>
+        <default>false</default>
+        <label>Reparatiemagazijn Flextrack</label>
+    </customValue>
+    <customValue>
+        <fullName>Nader onderzoek</fullName>
+        <default>false</default>
+        <label>Voor nader onderzoek bij Hans</label>
+    </customValue>
+    <customValue>
+        <fullName>Afschrijven</fullName>
+        <default>false</default>
+        <label>Afschrijven</label>
+    </customValue>
+    <description>All RMA Stocks</description>
+    <masterLabel>Stocks(RMA)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

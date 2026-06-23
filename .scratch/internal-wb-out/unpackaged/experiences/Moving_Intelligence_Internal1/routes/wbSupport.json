@@ -1,0 +1,12 @@
+{
+  "activeViewId" : "0842dd4b-de2d-407e-943c-77d10f7f5ace",
+  "appPageId" : "cc3933a0-a80b-4f73-a5b0-39c53ed1f434",
+  "configurationTags" : [ ],
+  "devName" : "wbSupport__c",
+  "id" : "1b3af21f-99d4-4ad2-933d-605c4b5290d9",
+  "label" : "wbSupport",
+  "pageAccess" : "Public",
+  "routeType" : "custom-wbsupport",
+  "type" : "route",
+  "urlPrefix" : "wbsupport"
+}

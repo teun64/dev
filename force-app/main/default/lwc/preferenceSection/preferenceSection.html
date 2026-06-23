@@ -1,0 +1,67 @@
+<template>
+    <div class="section-wrapper slds-m-top_small">
+
+        <!-- Header -->
+        <div class="slds-media slds-media_center section-header slds-p-around_small">
+            <div class="slds-media__figure">
+                <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+            </div>
+            <div class="slds-media__body">
+                <div class="slds-grid slds-grid_vertical-align-center">
+                    <p class="slds-text-title_caps">{label}</p>
+                    <template if:true={brandLabel}>
+                        <lightning-badge label={brandLabel} class="slds-var-m-left_x-small"></lightning-badge>
+                    </template>
+                </div>
+                <p class="slds-text-body_small slds-text-color_weak">{description}</p>
+            </div>
+            <template if:false={isEssential}>
+                <div class="slds-media__figure slds-media__figure_reverse">
+                    <button class="slds-button slds-button_icon slds-button_icon-border-filled"
+                        onclick={toggleSection} title={toggleTitle} aria-label={toggleTitle}>
+                        <lightning-icon icon-name={toggleIcon} size="xx-small"></lightning-icon>
+                    </button>
+                </div>
+            </template>
+        </div>
+
+        <!-- Items -->
+        <div class="slds-p-horizontal_small slds-p-bottom_x-small">
+            <template for:each={items} for:item="item">
+                <div key={item.compositeKey}
+                     class="slds-grid slds-grid_vertical-align-center check-row slds-p-vertical_xx-small">
+
+                    <!-- Essential: lock icon + label only -->
+                    <template if:true={item.isEssential}>
+                        <lightning-icon icon-name="utility:lock" size="xx-small"
+                            class="slds-m-right_x-small"></lightning-icon>
+                        <span class="slds-text-body_small slds-text-color_weak">{item.label}</span>
+                        <span class="slds-m-left_x-small">
+                            <lightning-badge label={item.channel}></lightning-badge>
+                        </span>
+                    </template>
+
+                    <!-- Opt-in: checkbox -->
+                    <template if:false={item.isEssential}>
+                        <lightning-input
+                            type="checkbox"
+                            label={item.label}
+                            checked={item.checked}
+                            data-key={item.compositeKey}
+                            onchange={handleCheckboxChange}
+                            class="slds-col">
+                        </lightning-input>
+                        <div class="slds-m-left_x-small badge-group">
+                            <lightning-badge label={item.channel}></lightning-badge>
+                            <template if:true={item.legalBasis}>
+                                <lightning-badge label={item.legalBasis}
+                                    class="slds-m-left_xx-small badge-legal"></lightning-badge>
+                            </template>
+                        </div>
+                    </template>
+
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

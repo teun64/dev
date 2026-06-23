@@ -1,0 +1,5 @@
+{
+  "apiName" : "cr_CommunicationPreferences",
+  "type" : "sfdc_cms__route",
+  "path" : "routes"
+}

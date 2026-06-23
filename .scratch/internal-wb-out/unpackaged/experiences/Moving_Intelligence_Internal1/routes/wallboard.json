@@ -1,0 +1,12 @@
+{
+  "activeViewId" : "0289af6c-7f1f-48a3-b114-f3a416d0d292",
+  "appPageId" : "cc3933a0-a80b-4f73-a5b0-39c53ed1f434",
+  "configurationTags" : [ ],
+  "devName" : "Wallboard__c",
+  "id" : "447a1964-35cb-431d-b9f4-2e1e511b6caa",
+  "label" : "Wallboard",
+  "pageAccess" : "Public",
+  "routeType" : "custom-wallboard",
+  "type" : "route",
+  "urlPrefix" : "wallboard"
+}

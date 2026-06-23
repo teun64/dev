@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Mollie</fullName>
+        <default>false</default>
+        <label>Mollie</label>
+    </customValue>
+    <customValue>
+        <fullName>Stripe</fullName>
+        <default>false</default>
+        <label>Stripe</label>
+    </customValue>
+    <customValue>
+        <fullName>Bank</fullName>
+        <default>false</default>
+        <label>Bank</label>
+    </customValue>
+    <customValue>
+        <fullName>None</fullName>
+        <default>false</default>
+        <label>None</label>
+    </customValue>
+    <customValue>
+        <fullName>Bottomline</fullName>
+        <default>false</default>
+        <label>Bottomline</label>
+    </customValue>
+    <customValue>
+        <fullName>Opayo</fullName>
+        <default>false</default>
+        <label>Opayo</label>
+    </customValue>
+    <description>See Also Payment_Setting_mdt in custom metadata</description>
+    <masterLabel>Payment Processor</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

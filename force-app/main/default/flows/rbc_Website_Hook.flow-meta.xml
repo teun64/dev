@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Currency</name>
+        <label>1. Currency</label>
+        <locationX>182</locationX>
+        <locationY>803</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.CurrencyIsoCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fCurrency</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>ass_01_extId</name>
+        <label>1. extId</label>
+        <locationX>50</locationX>
+        <locationY>395</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.extId__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.URL__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Source</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Reseller</name>
+        <label>1. Reseller</label>
+        <locationX>182</locationX>
+        <locationY>695</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Reseller__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fReseller</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Currency</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Source</name>
+        <label>1. Source</label>
+        <locationX>182</locationX>
+        <locationY>587</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Source__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fSourceStrip</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Reseller</targetReference>
+        </connector>
+    </assignments>
+    <constants>
+        <name>cURLDelimiter</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>/</stringValue>
+        </value>
+    </constants>
+    <decisions>
+        <name>dec_01_extId</name>
+        <label>1. extId</label>
+        <locationX>182</locationX>
+        <locationY>287</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_Source</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_extId_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.URL__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.extId__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_extId</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>fCurrency</name>
+        <dataType>String</dataType>
+        <expression>IF(ISPICKVAL({!$Record.Reseller__c},&apos;6&apos;),&apos;GBP&apos;,&apos;EUR&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fReseller</name>
+        <dataType>String</dataType>
+        <expression>if((right({!$Record.Source__c},6)=&apos;.co.uk&apos;),&apos;6&apos;,if((right({!$Record.Source__c},3)=&apos;.de&apos;),&apos;5&apos;,if((right({!$Record.Source__c},3)=&apos;.fr&apos;),&apos;4&apos;,if((right({!$Record.Source__c},3)=&apos;.be&apos;),&apos;3&apos;,if((right({!$Record.Source__c},3)=&apos;.gr&apos;),&apos;2&apos;,&apos;1&apos;)))))</expression>
+    </formulas>
+    <formulas>
+        <name>fSourceBase</name>
+        <dataType>String</dataType>
+        <expression>IF((FIND(SUBSTITUTE(SUBSTITUTE({!$Record.extId__c}, &apos;https://&apos;, &apos;&apos;), &apos;http://&apos;, &apos;&apos;),&apos;/&apos;) &gt; 2)
+,
+LEFT(SUBSTITUTE(SUBSTITUTE({!$Record.extId__c}, &apos;https://&apos;, &apos;&apos;), &apos;http://&apos;, &apos;&apos;),(FIND(SUBSTITUTE(SUBSTITUTE({!$Record.extId__c}, &apos;https://&apos;, &apos;&apos;), &apos;http://&apos;, &apos;&apos;),&apos;/&apos;) - 1))
+,
+SUBSTITUTE(SUBSTITUTE({!$Record.extId__c}, &apos;https://&apos;, &apos;&apos;), &apos;http://&apos;, &apos;&apos;)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fSourceStrip</name>
+        <dataType>String</dataType>
+        <expression>IF((FIND({!cURLDelimiter},{!vSource}) &gt; 2)
+,
+LEFT({!vSource},(FIND({!cURLDelimiter},{!vSource}) - 1))
+,
+{!vSource}
+)</expression>
+    </formulas>
+    <interviewLabel>rbc - Website Hook {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbc - Website Hook</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_extId</targetReference>
+        </connector>
+        <object>Website_Hooks__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>vSource</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <elementReference>fSourceBase</elementReference>
+        </value>
+    </variables>
+</Flow>

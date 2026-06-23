@@ -1,0 +1,62 @@
+{
+  "appPageId" : "cc3933a0-a80b-4f73-a5b0-39c53ed1f434",
+  "componentName" : "siteforce:sldsTwoCol84SidebarFeaturedLayout",
+  "dataProviders" : [ ],
+  "id" : "0a7dcbb8-c0bf-4d1e-ba89-2a6e33016d91",
+  "label" : "Home",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "bannerText" : "A place where you can easily find solutions and ask questions",
+        "bannerTextWithKnowledge" : "Explore other <a href=\"javascript:void(0)\" class=\"headlineArticles\">articles</a> and <a href=\"javascript:void(0)\" class=\"headlineDiscussions\">discussions</a> on this topic.",
+        "bannerTextWithoutKnowledge" : "Explore other <a href=\"javascript:void(0)\" class=\"headlineDiscussions\">discussions</a> on this topic.",
+        "pageType" : "",
+        "showSubTopics" : true,
+        "title" : "Welcome!",
+        "uniqueNameOrId" : ""
+      },
+      "componentName" : "forceCommunity:headline",
+      "id" : "2da31d70-0933-452a-9928-93696dc6ccd9",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "ccb3068f-9903-4d90-8dde-07738ed06b62",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "id" : "1102019c-d0d0-4680-8bf6-0c3ac333ed4d",
+    "regionName" : "featured",
+    "type" : "region"
+  }, {
+    "id" : "5b33b823-35cf-437b-80d2-f5b3c443a4d5",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "id" : "0be5a565-13a1-430d-a153-d014254f4350",
+    "regionName" : "sidebar",
+    "type" : "region"
+  }, {
+    "id" : "84673389-2c33-4f54-a74c-3e0cece812e0",
+    "regionName" : "footer",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "Home"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "136cc8a5-2ed4-4723-9f49-22d51054e3a9",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "64eeb110-2f0d-46d2-a164-20d20e7eee33",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "home"
+}

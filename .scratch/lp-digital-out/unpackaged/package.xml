@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>site/Marketing_Landing_Pages1</members>
+        <members>site/Marketing_Landing_Pages1.sfdc_cms__appPage/mainAppPage</members>
+        <members>site/Marketing_Landing_Pages1.sfdc_cms__route/Home</members>
+        <members>site/Marketing_Landing_Pages1.sfdc_cms__route/Landing_Page</members>
+        <members>site/Marketing_Landing_Pages1.sfdc_cms__site/Marketing_Landing_Pages1</members>
+        <members>site/Marketing_Landing_Pages1.sfdc_cms__themeLayout/headerAndFooter</members>
+        <members>site/Marketing_Landing_Pages1.sfdc_cms__view/home</members>
+        <members>site/Marketing_Landing_Pages1.sfdc_cms__view/landingpage</members>
+        <name>DigitalExperienceBundle</name>
+    </types>
+    <version>59.0</version>
+</Package>

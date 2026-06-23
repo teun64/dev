@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Strange send a mail to create a case</description>
+        <name>act_01_Send_Mail_to_After_Sales</name>
+        <label>1. Send Mail to After Sales</label>
+        <locationX>308</locationX>
+        <locationY>276</locationY>
+        <actionName>Asset.Request_Moving_Intelligence_Certificate</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>Asset.Request_Moving_Intelligence_Certificate</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Temporary solution, to replace proces builder &apos;Request a MiCertificate&apos;</description>
+    <environments>Default</environments>
+    <interviewLabel>rab - Asset - Entity - MiCertificate Request (Temporary) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rab - Asset - Entity - MiCertificate Request (Temporary)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterFormula>AND(({!$Record.RecordType.DeveloperName} = &apos;Entity&apos;), {!$Record.Mi_Certificate__c},ISBLANK({!$Record.Mi_SCM_Certificate_sent_on__c}))</filterFormula>
+        <object>Asset</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>act_01_Send_Mail_to_After_Sales</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

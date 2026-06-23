@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>NEWSLETTER</fullName>
+        <default>false</default>
+        <label>Newsletter</label>
+    </customValue>
+    <customValue>
+        <fullName>PROMOTIONS</fullName>
+        <default>false</default>
+        <label>Promotions</label>
+    </customValue>
+    <customValue>
+        <fullName>PRODUCT_ANNOUNCEMENTS</fullName>
+        <default>false</default>
+        <label>Product Announcements</label>
+    </customValue>
+    <customValue>
+        <fullName>WEBINAR_INVITATIONS</fullName>
+        <default>false</default>
+        <label>Webinar Invitations</label>
+    </customValue>
+    <customValue>
+        <fullName>CUSTOMER_EVENTS</fullName>
+        <default>false</default>
+        <label>Customer Events</label>
+    </customValue>
+    <customValue>
+        <fullName>SERVICE_NOTIFICATION</fullName>
+        <default>false</default>
+        <label>Service Notifications</label>
+    </customValue>
+    <customValue>
+        <fullName>PLATFORM_REMINDERS</fullName>
+        <default>false</default>
+        <label>Platform Reminders</label>
+    </customValue>
+    <customValue>
+        <fullName>SECURITY_ALERTS</fullName>
+        <default>false</default>
+        <label>Security Alerts</label>
+    </customValue>
+    <customValue>
+        <fullName>THEFT_RECOVERY_ALERTS</fullName>
+        <default>false</default>
+        <label>Theft Recovery Alerts</label>
+    </customValue>
+    <customValue>
+        <fullName>INSURANCE_NEWSLETTER</fullName>
+        <default>false</default>
+        <label>Insurance Newsletter</label>
+    </customValue>
+    <customValue>
+        <fullName>INSTALLER_UPDATES</fullName>
+        <default>false</default>
+        <label>Installer Updates</label>
+    </customValue>
+    <customValue>
+        <fullName>DEALER  EVENTS</fullName>
+        <default>false</default>
+        <label>Dealer Events</label>
+    </customValue>
+    <customValue>
+        <fullName>DEALER UPDATES</fullName>
+        <default>false</default>
+        <label>Dealer Updates</label>
+    </customValue>
+    <customValue>
+        <fullName>DEALER PROMOTIONS</fullName>
+        <default>false</default>
+        <label>Dealer Promotions</label>
+    </customValue>
+    <customValue>
+        <fullName>PRODUCT_UPDATE</fullName>
+        <default>false</default>
+        <label>Product Updates</label>
+    </customValue>
+    <customValue>
+        <fullName>APP_UPDATES</fullName>
+        <default>false</default>
+        <label>App Updates</label>
+    </customValue>
+    <customValue>
+        <fullName>PLATFORM_UPDATES</fullName>
+        <default>false</default>
+        <label>Platform Updates</label>
+    </customValue>
+    <customValue>
+        <fullName>FEATURE_RELEASES</fullName>
+        <default>false</default>
+        <label>Feature Releases</label>
+    </customValue>
+    <customValue>
+        <fullName>CUSTOMER_SURVEYS</fullName>
+        <default>false</default>
+        <label>Customer Surveys</label>
+    </customValue>
+    <customValue>
+        <fullName>FEEDBACK_REQUESTS</fullName>
+        <default>false</default>
+        <label>Product/Service Feedback Requests</label>
+    </customValue>
+    <masterLabel>Communication Type (Com. Pref.)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

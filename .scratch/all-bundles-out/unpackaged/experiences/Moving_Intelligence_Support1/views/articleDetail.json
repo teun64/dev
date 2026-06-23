@@ -1,0 +1,104 @@
+{
+  "appPageId" : "f7000acc-e201-47f5-91bd-101b570e5d0f",
+  "componentName" : "siteforce:sldsTwoCol84SidebarFeaturedLayout",
+  "dataProviders" : [ ],
+  "id" : "91fef86e-50df-4705-98e9-dc6485070726",
+  "label" : "Article Detail",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "richTextValue" : "<p>\n    <a href=\"https://movingintelligence.nl\" rel=\"noopener noreferrer\" target=\"_self\" style=\"color: rgb(0, 0, 0);\">movingintelligence.nl</a>\n    <span style=\"color: rgb(0, 0, 0);\"> / </span>\n    <a href=\"/support/s/\" rel=\"noopener noreferrer\" target=\"_self\" style=\"color: rgb(0, 0, 0); font-size: 13px;\">Support</a>\n    <span style=\"color: rgb(0, 0, 0); font-size: 13px;\"> /</span> \n    <span style=\"color: rgb(163, 159, 159); font-size: 13px;\"> {!urlName}</span>\n</p>"
+      },
+      "componentName" : "forceCommunity:htmlBlock",
+      "id" : "fe8b8644-8002-4dc2-a84f-015666ce5023",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    }, {
+      "componentAttributes" : {
+        "backgroundColor" : "#fe0000",
+        "buttonText" : "Terug naar Movingintelligence.nl",
+        "buttonUrl" : "https://movingintelligence.nl"
+      },
+      "componentName" : "c:communityButton",
+      "id" : "7eeb5c04-5541-47fa-a1c8-c8954193a953",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "487f9046-f4b9-41b7-ae8f-a3595dca0820",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "articleAPIName" : "Knowledge__kav",
+        "articleBodyAPIName" : "Question__c",
+        "articleBodyAPIName2" : "External_Answer__c",
+        "articleNumber" : "",
+        "articleNumberStyle" : "",
+        "articleNumberText" : "",
+        "articlePageUrl" : "article",
+        "articleViewsStyle" : "",
+        "articleViewsText" : "",
+        "body1CssClassesInput" : "",
+        "body2CssClassesInput" : "",
+        "hideFirstBodyField" : false,
+        "queryBy" : "recordId",
+        "recordId" : "{!recordId}",
+        "replaceSmartLinks" : false,
+        "showArticleNumber" : false,
+        "showArticleViews" : false,
+        "showSecondBodyField" : true,
+        "showTitle" : true,
+        "showTopics" : true,
+        "showVoting" : false,
+        "smartLinksUrlPath" : "",
+        "titleStyle" : "",
+        "urlName" : "{!urlName}"
+      },
+      "componentName" : "articleBody:articleBody",
+      "id" : "b3590724-f8cb-4bab-be57-259fd59c88f9",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "d2998099-07dd-4431-849b-ff6f208d67ff",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "numberOfItems" : 5,
+        "showViewCounts" : true,
+        "title" : "Gerelateerde artikelen"
+      },
+      "componentName" : "selfService:similarArticles42",
+      "id" : "63190d9b-14b5-4f7c-9956-c118434a3141",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "3ab0fd80-f62e-4c47-beb9-617da2341813",
+    "regionName" : "sidebar",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "{!Record.Summary}",
+        "title" : "Moving Intelligence Support | {!Record._Title}"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "2292c0e6-85a3-4cf5-a5eb-4a0824360f33",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "9c7ad893-cf3f-421f-9746-7370cc1a2231",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "article"
+}

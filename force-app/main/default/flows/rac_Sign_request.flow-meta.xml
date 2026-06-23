@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>dec_01_Object_Type</name>
+        <label>1. Object Type</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Object_Type_Opportunity</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Opportunity__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dur_01_Opportunity</targetReference>
+            </connector>
+            <label>Opportunity</label>
+        </rules>
+    </decisions>
+    <description>Generic after create flow, on opportunity the stage will be update to request to</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fByPassValidation</name>
+        <dataType>Number</dataType>
+        <expression>(BLANKVALUE({!$Record.Opportunity__r.byPassValidation__c},0) + 1)</expression>
+        <scale>0</scale>
+    </formulas>
+    <interviewLabel>rac - Sign request {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rac - Sign request</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Update the opportunity stage</description>
+        <name>dur_01_Opportunity</name>
+        <label>1. Opportunity</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>OfferSignRequestCreated__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <stringValue>Request to sign</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>byPassValidation__c</field>
+            <value>
+                <elementReference>fByPassValidation</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record.Opportunity__r</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Object_Type</targetReference>
+        </connector>
+        <object>cadmus_sign2__Sign_request__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <triggerOrder>401</triggerOrder>
+</Flow>

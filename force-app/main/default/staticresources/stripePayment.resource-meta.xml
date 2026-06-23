@@ -2,5 +2,5 @@
 <StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
     <cacheControl>Public</cacheControl>
     <contentType>application/zip</contentType>
-    <description>Static resource StripePayment</description>
+    <description>Static resource for sites sample pages</description>
 </StaticResource>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Record</name>
+        <label>1. Record</label>
+        <locationX>176</locationX>
+        <locationY>287</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fDisplay</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Composite_Key__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fCompositeKey</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>Generic flow for Exact Relation Setting</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fClassification</name>
+        <dataType>String</dataType>
+        <expression>TEXT({!$Record.Classification__c})</expression>
+    </formulas>
+    <formulas>
+        <name>fCompositeKey</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Administration__c}+&apos;-&apos;+Text({!$Record.Classification__c})+&apos;-&apos;+{!$Record.Exact_ID__c} + IF(ISPICKVAL({!$Record.Classification__c},&apos;WH&apos;),(&apos;-&apos; + LEFT(Text({!$Record.Sales_Channel__c}),1)),&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fDisplay</name>
+        <dataType>String</dataType>
+        <expression>IF(NOT(ISBLANK({!fClassification})),{!fClassification} + &apos; - &apos; + {!fName},null)</expression>
+    </formulas>
+    <formulas>
+        <name>fName</name>
+        <dataType>String</dataType>
+        <expression>CASE(TEXT({!$Record.Classification__c})
+,&apos;C1&apos;,IF(OR(ISBLANK(TEXT({!$Record.Market__c})),ISBLANK(TEXT({!$Record.Relation_Type__c}))), null , (TRIM(TEXT({!$Record.Market__c})) + &apos; - &apos; + TRIM(TEXT({!$Record.Relation_Type__c}))))
+,&apos;C2&apos;,BLANKVALUE(TEXT({!$Record.Market__c}),null)
+,&apos;C3&apos;,BLANKVALUE(TEXT({!$Record.Sales_Channel__c}),null)
+,&apos;SC&apos;,BLANKVALUE(TEXT({!$Record.Sales_Channel__c}),null)
+,&apos;WH&apos;,BLANKVALUE(TEXT({!$Record.Sales_Channel__c}),null)
+,null)</expression>
+    </formulas>
+    <interviewLabel>rbb - Exact Relation Setting {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbb - Exact Relation Setting</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ass_01_Record</targetReference>
+        </connector>
+        <object>Exact_Relation_Setting__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

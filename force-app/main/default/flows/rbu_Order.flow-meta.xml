@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Description</name>
+        <label>1. Description</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fDescription</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Synced_to_Exact</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Update status to Activated, when Exact Id is provided</description>
+        <name>ass_01_Status</name>
+        <label>1. Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Activated</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>dec_01_Contracts</name>
+        <label>1. Contracts (Sub25)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Synced_to_Exact</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Contracts_Yes</name>
+            <conditionLogic>1 AND 2 AND (3 OR 4) AND (5 OR 6)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Recurring_Order__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Recurring_Order__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Contract</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Subscription</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Contract__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$User.isSysAdmin__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Description</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Synced_to_Exact</name>
+        <label>1. Synced to Exact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Synced_to_Exact_Done</name>
+            <conditionLogic>(1 OR 2) AND 3 AND 4 AND 5</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Type</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Opportunity</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Hardware</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Exact_Id__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Exact_Id__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Activated</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Status</targetReference>
+            </connector>
+            <label>Done</label>
+        </rules>
+    </decisions>
+    <description>Generic Flow to run before update order</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fDescription</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Subscription25__Recurring_Order__c})
+,&apos;&apos;
+,IF({!$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Is_Base_Service__c},
+({!fObject} + IF(AND(NOT(ISBLANK({!fObject})),({!fObject}={!fDevice})),&apos;&apos;,(&apos; / &apos; + {!fDevice})))
+, 
+&apos;&apos;
+)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fDevice</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(BLANKVALUE({!$Record.Contract__r.Hardware__r.Name},&apos;&apos;),&apos; &apos;,&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fObject</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(BLANKVALUE({!$Record.Contract__r.Entity__r.Name},BLANKVALUE({!$Record.Contract__r.Hardware__r.Object__c},{!$Record.Contract__r.Hardware__r.Object__c})),&apos; &apos;,&apos;&apos;)</expression>
+    </formulas>
+    <interviewLabel>rbu - Order {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbu - Order</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Contracts</targetReference>
+        </connector>
+        <object>Order</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+    <triggerOrder>201</triggerOrder>
+</Flow>

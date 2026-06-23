@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>MARKETING</fullName>
+        <default>false</default>
+        <label>Marketing communications</label>
+    </customValue>
+    <customValue>
+        <fullName>SERVICE</fullName>
+        <default>false</default>
+        <label>Service &amp; operational notifications</label>
+    </customValue>
+    <customValue>
+        <fullName>PARTNER</fullName>
+        <default>false</default>
+        <label>Partner Network</label>
+    </customValue>
+    <customValue>
+        <fullName>PRODUCT</fullName>
+        <default>false</default>
+        <label>Product updates</label>
+    </customValue>
+    <customValue>
+        <fullName>RESEARCH</fullName>
+        <default>false</default>
+        <label>Surveys and feedback</label>
+    </customValue>
+    <masterLabel>Catergory (Com. Preferences)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

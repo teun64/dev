@@ -1,0 +1,14 @@
+{
+  "type" : "sfdc_cms__trustedDomainsForInlineFrames",
+  "title" : "sites.ui.security.ClickjackTrustedDomains",
+  "contentBody" : {
+    "trustedDomainsForInlineFrames" : [ {
+      "source" : "https://movingintelligence.nl"
+    }, {
+      "source" : "https://movingintelligence.de"
+    }, {
+      "source" : "https://movingintelligence.com"
+    } ]
+  },
+  "urlName" : "sites-ui-security-clickjacktrusteddomains"
+}

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>800.050.0010 - Mi50 set</fullName>
+        <default>false</default>
+        <label>800.050.0010 - Mi50 Package</label>
+    </customValue>
+    <customValue>
+        <fullName>800.061.0020 - MiBlock Startonderbreker</fullName>
+        <default>false</default>
+        <label>800.061.0020 - MiBlock Immobilizer</label>
+    </customValue>
+    <customValue>
+        <fullName>800.040.0010 - Mi40 set</fullName>
+        <default>false</default>
+        <label>800.040.0010 - Mi40 Package</label>
+    </customValue>
+    <customValue>
+        <fullName>800.001.0000 - Mi01 Peilzender</fullName>
+        <default>false</default>
+        <label>800.001.0000 - Mi01 Tracer</label>
+    </customValue>
+    <customValue>
+        <fullName>800.013.0010 - Mi13 Peilzender Trailer</fullName>
+        <default>false</default>
+        <label>800.013.0010 - Mi13 Tracer Trailer</label>
+    </customValue>
+    <customValue>
+        <fullName>800.058.0004 - MiReader set</fullName>
+        <default>false</default>
+        <label>800.058.0004 - MiReader Package</label>
+    </customValue>
+    <customValue>
+        <fullName>800.059.0001 - MiClassify</fullName>
+        <default>false</default>
+        <label>800.059.0001 - MiClassify</label>
+    </customValue>
+    <customValue>
+        <fullName>800.051.0001 - Voedingskabel 3-aderig</fullName>
+        <default>false</default>
+        <label>800.051.0001 - Power cable 3-wire</label>
+    </customValue>
+    <customValue>
+        <fullName>800.051.0002 - Voedingskabel 8-aderig</fullName>
+        <default>false</default>
+        <label>800.051.0002 - Power cable 8-wire</label>
+    </customValue>
+    <customValue>
+        <fullName>800.052.0004 - Antenne GPS tbv Mi40/ Mi50</fullName>
+        <default>false</default>
+        <label>800.052.0004 - Antenna GPS for Mi40/ Mi50</label>
+    </customValue>
+    <customValue>
+        <fullName>800.052.0001 - Antenne GSM tbv Mi40/Mi50</fullName>
+        <default>false</default>
+        <label>800.052.0001 - Antenna GPS for Mi40/ Mi50</label>
+    </customValue>
+    <customValue>
+        <fullName>800.052.0002 - Antenne combi GPS/GSM tbv Mi40/Mi50</fullName>
+        <default>false</default>
+        <label>800.052.0002 - Antenna combi GPS/GSM tbv Mi40/Mi50</label>
+    </customValue>
+    <customValue>
+        <fullName>800.058.0003 - Keyfob tbv MiReader</fullName>
+        <default>false</default>
+        <label>800.058.0003 - Keyfob for MiReader</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 1 - MiBlock (CCV/SCM Startonderbreker)</fullName>
+        <default>false</default>
+        <label>Class 1 - MiBlock (CCV/SCM Immobilizer)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 3 - Alarmsysteem met hellingshoekdetectie (CCV/SCM Alarmsysteem)</fullName>
+        <default>false</default>
+        <label>Class 3 - Alarm system with tilt detection (CCV/SCM Alarm system)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 4 - Mi50/MiBlock (CCV/SCM Voertuigvolgsysteem)</fullName>
+        <default>false</default>
+        <label>Class 4 - Mi50/MiBlock (CCV/SCM Vehicle tracking system)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 5 - Mi50/MiBlock (CCV/SCM Voertuigvolgsysteem)</fullName>
+        <default>false</default>
+        <label>Class 5 - Mi50/MiBlock (CCV/SCM Vehicle tracking system)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse TV - Mi01 peilzender (CCV/SCM Terugvindsysteem TV01)</fullName>
+        <default>false</default>
+        <label>Class TV - Mi01 Tracer (CCV/SCM Retrieval system TV01)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 1 + Klasse TV - MiBlock + Mi01 peilzender (CCV/SCM gecertificeerd)</fullName>
+        <default>false</default>
+        <label>Class 1 + Class TV - MiBlock + Mi01 Tracer (CCV/SCM certified)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 3 + Klasse TV - Alarmsysteem + Mi01 peilzender (CCV/SCM gecertificeerd)</fullName>
+        <default>false</default>
+        <label>Class 3 + Class TV - Alarm system + Mi01 level Tracer (CCV/SCM certified)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 4 + Klasse 3 en/of Klasse TV - Mi50/MiBlock + Alarmsysteem + Mi01 peilzender (CCV/SCM gecertificeerd)</fullName>
+        <default>false</default>
+        <label>Class 4 + Class 3 and/or Class TV - Mi50/MiBlock + Alarm system + Mi01 Tracer (CCV/SCM certified)</label>
+    </customValue>
+    <customValue>
+        <fullName>Klasse 5 + Klasse 3 en/of Klasse TV - Mi50/MiBlock + Alarmsysteem + Mi01 peilzender (CCV/SCM gecertificeerd)</fullName>
+        <default>false</default>
+        <label>Class 5 + Class 3 and/or Class TV - Mi50/MiBlock + Alarm system + Mi01 Tracer (CCV/SCM certified)</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50/MiBlock (CCV/SCM Voertuigvolgsysteem)</fullName>
+        <default>false</default>
+        <label>Mi50/MiBlock (CCV/SCM Vehicle Tracking System)</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi01 peilzender (CCV/SCM Terugvindsysteem TV01)</fullName>
+        <default>false</default>
+        <label>Mi01 Tracer (CCV/SCM Retrieval System TV01)</label>
+    </customValue>
+    <customValue>
+        <fullName>MiBlock (CCV/SCM Startonderbreker)</fullName>
+        <default>false</default>
+        <label>MiBlock (CCV/SCM Immobilizer)</label>
+    </customValue>
+    <customValue>
+        <fullName>Alarmsysteem met hellingshoekdetectie (CCV/SCM Alarmsysteem)</fullName>
+        <default>false</default>
+        <label>Alarm System with Tilt Detection  (CCV/SCM Alarm System)</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50/MiBlock + Mi01 peilzender (CCV/SCM gecertificeerd)</fullName>
+        <default>false</default>
+        <label>Mi50/MiBlock + Mi01 Tracer (CCV/SCM certified)</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50/MiBlock + Mi01 + Alarmsysteem (CCV/SCM gecertificeerd)</fullName>
+        <default>false</default>
+        <label>Mi50/MiBlock + Mi01 + Alarm system (CCV/SCM certified)</label>
+    </customValue>
+    <customValue>
+        <fullName>800.009.0010 - Mi9 Peilzender</fullName>
+        <default>false</default>
+        <label>800.009.0010 - Mi9 Tracer</label>
+    </customValue>
+    <customValue>
+        <fullName>- Maak hier uw keuze indien u nog een artikel wenst te bestellen</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>- Maak hier uw keuze indien u nog een artikel wenst te bestellen</label>
+    </customValue>
+    <customValue>
+        <fullName>{Insurance Hardware:53:value}</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>{Insurance Hardware:53:value}</label>
+    </customValue>
+    <masterLabel>Hardware</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

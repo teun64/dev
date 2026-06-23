@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Price</fullName>
+        <default>false</default>
+        <label>Price</label>
+    </customValue>
+    <customValue>
+        <fullName>Duration</fullName>
+        <default>false</default>
+        <label>Duration</label>
+    </customValue>
+    <masterLabel>Reason Lost</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

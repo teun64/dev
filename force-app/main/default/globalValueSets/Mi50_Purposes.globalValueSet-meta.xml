@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Beveiliging</fullName>
+        <default>false</default>
+        <label>Security</label>
+    </customValue>
+    <customValue>
+        <fullName>Rittenregistratie</fullName>
+        <default>false</default>
+        <label>Trip registration</label>
+    </customValue>
+    <customValue>
+        <fullName>Wagenparkbeheer</fullName>
+        <default>false</default>
+        <label>Fleet management</label>
+    </customValue>
+    <customValue>
+        <fullName>Beveiliging en rittenregistratie</fullName>
+        <default>false</default>
+        <label>Security and trip registration</label>
+    </customValue>
+    <masterLabel>Mi50 Purposes</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

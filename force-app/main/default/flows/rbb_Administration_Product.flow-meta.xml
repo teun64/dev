@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>54.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>dec_01_Defaults</name>
+        <label>1. Defaults</label>
+        <locationX>176</locationX>
+        <locationY>311</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Ledger_Account__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fLedgerAccount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Ledger_Account_EU__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fLedgerAccountEU</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Ledger_Account_Non_EU__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fLedgerAccountNonEU</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__VATRate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fVATRate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__VATRate_EU__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fVATRate_EU</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__VATRate_Non_EU__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fVATRate_Non_EU</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__VATRate_Exempt__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fVATRate_Exempt</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <environments>Default</environments>
+    <formulas>
+        <name>fLedgerAccount</name>
+        <dataType>String</dataType>
+        <expression>IF(
+ISBLANK({!$Record.Subscription25__Ledger_Account__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__c}))
+,
+IF(
+ISBLANK({!$Record.Subscription25__Product__r.Ledger_Account__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__r.Base_Product__c}))
+,
+{!$Record.Subscription25__Product__r.Base_Product__r.Ledger_Account__c}
+,
+null
+)
+,
+{!$Record.Subscription25__Product__r.Ledger_Account__c}
+)
+,
+null
+)
+,
+{!$Record.Subscription25__Ledger_Account__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fLedgerAccountEU</name>
+        <dataType>String</dataType>
+        <expression>IF(
+ISBLANK({!$Record.Subscription25__Ledger_Account_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__c}))
+,
+IF(
+ISBLANK({!$Record.Subscription25__Product__r.Ledger_Account_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__r.Base_Product__c}))
+,
+{!$Record.Subscription25__Product__r.Base_Product__r.Ledger_Account_EU__c}
+,
+null
+)
+,
+{!$Record.Subscription25__Product__r.Ledger_Account_EU__c}
+)
+,
+null
+)
+,
+{!$Record.Subscription25__Ledger_Account_EU__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fLedgerAccountNonEU</name>
+        <dataType>String</dataType>
+        <expression>IF(
+ISBLANK({!$Record.Subscription25__Ledger_Account_Non_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__c}))
+,
+IF(
+ISBLANK({!$Record.Subscription25__Product__r.Ledger_Account_Non_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__r.Base_Product__c}))
+,
+{!$Record.Subscription25__Product__r.Base_Product__r.Ledger_Account_Non_EU__c}
+,
+null
+)
+,
+{!$Record.Subscription25__Product__r.Ledger_Account_Non_EU__c}
+)
+,
+null
+)
+,
+{!$Record.Subscription25__Ledger_Account_Non_EU__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fVATRate</name>
+        <dataType>String</dataType>
+        <expression>IF(
+ISBLANK({!$Record.Subscription25__VATRate__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__c}))
+,
+IF(
+ISBLANK({!$Record.Subscription25__Product__r.VAT_Rate__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__r.Base_Product__c}))
+,
+{!$Record.Subscription25__Product__r.Base_Product__r.VAT_Rate__c}
+,
+null
+)
+,
+{!$Record.Subscription25__Product__r.VAT_Rate__c}
+)
+,
+null
+)
+,
+{!$Record.Subscription25__VATRate__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fVATRate_EU</name>
+        <dataType>String</dataType>
+        <expression>IF(
+ISBLANK({!$Record.Subscription25__VATRate_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__c}))
+,
+IF(
+ISBLANK({!$Record.Subscription25__Product__r.VAT_Rate_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__r.Base_Product__c}))
+,
+{!$Record.Subscription25__Product__r.Base_Product__r.VAT_Rate_EU__c}
+,
+null
+)
+,
+{!$Record.Subscription25__Product__r.VAT_Rate_EU__c}
+)
+,
+null
+)
+,
+{!$Record.Subscription25__VATRate_EU__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fVATRate_Exempt</name>
+        <dataType>String</dataType>
+        <expression>IF(
+ISBLANK({!$Record.Subscription25__VATRate_Exempt__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__c}))
+,
+IF(
+ISBLANK({!$Record.Subscription25__Product__r.VAT_Rate_Exempt__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__r.Base_Product__c}))
+,
+{!$Record.Subscription25__Product__r.Base_Product__r.VAT_Rate_Exempt__c}
+,
+null
+)
+,
+{!$Record.Subscription25__Product__r.VAT_Rate_Exempt__c}
+)
+,
+null
+)
+,
+{!$Record.Subscription25__VATRate_Exempt__c}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fVATRate_Non_EU</name>
+        <dataType>String</dataType>
+        <expression>IF(
+ISBLANK({!$Record.Subscription25__VATRate_Non_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__c}))
+,
+IF(
+ISBLANK({!$Record.Subscription25__Product__r.VAT_Rate_Non_EU__c})
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Product__r.Base_Product__c}))
+,
+{!$Record.Subscription25__Product__r.Base_Product__r.VAT_Rate_Non_EU__c}
+,
+null
+)
+,
+{!$Record.Subscription25__Product__r.VAT_Rate_Non_EU__c}
+)
+,
+null
+)
+,
+{!$Record.Subscription25__VATRate_Non_EU__c}
+)</expression>
+    </formulas>
+    <interviewLabel>rbb - Administration Product {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbb - Administration Product</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Defaults</targetReference>
+        </connector>
+        <object>Subscription25__Administration_Product__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

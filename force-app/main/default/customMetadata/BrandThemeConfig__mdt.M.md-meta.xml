@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Moving Intelligence</label>
+    <protected>false</protected>
+    <values>
+        <field>Brand__c</field>
+        <value xsi:type="xsd:string">M</value>
+    </values>
+    <values>
+        <field>BrandName__c</field>
+        <value xsi:type="xsd:string">Moving Intelligence</value>
+    </values>
+    <values>
+        <field>PrimaryColor__c</field>
+        <value xsi:type="xsd:string">#cc0000</value>
+    </values>
+    <values>
+        <field>AccentColor__c</field>
+        <value xsi:type="xsd:string">#fdf0f0</value>
+    </values>
+    <values>
+        <field>LogoStaticResource__c</field>
+        <value xsi:type="xsd:string">2024/img/mi-logo-black-black-rgb.png</value>
+    </values>
+    <values>
+        <field>McBrandId__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>TagLine__c</field>
+        <value xsi:type="xsd:string">Manage how Moving Intelligence contacts you</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>scheeffer</fullName>
+        <default>false</default>
+        <label>scheeffer</label>
+    </customValue>
+    <customValue>
+        <fullName>schreuder verzekert</fullName>
+        <default>false</default>
+        <label>schreuder verzekert</label>
+    </customValue>
+    <customValue>
+        <fullName>abcassurantien</fullName>
+        <default>false</default>
+        <label>abcassurantien</label>
+    </customValue>
+    <masterLabel>Form Source</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

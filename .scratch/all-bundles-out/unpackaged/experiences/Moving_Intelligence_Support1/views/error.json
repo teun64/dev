@@ -1,0 +1,60 @@
+{
+  "appPageId" : "f7000acc-e201-47f5-91bd-101b570e5d0f",
+  "componentName" : "siteforce:sldsOneColLayout",
+  "dataProviders" : [ ],
+  "id" : "e77ff4d2-d89e-471c-a6ea-efc73bfaa347",
+  "label" : "Error",
+  "regions" : [ {
+    "id" : "ba246f15-77a2-49a6-9d24-f8c36d793906",
+    "regionName" : "header",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "richTextValue" : "<div style='text-align: center;'>Invalid Page</div>"
+      },
+      "componentName" : "forceCommunity:richTextInline",
+      "id" : "bee6dbc7-61dc-4b56-bee3-b0748f212187",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "96f5be6c-f501-450d-bb7c-385dece685a4",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "backgroundColor" : "#fe0000",
+        "buttonText" : "Terug naar Movingintelligence.nl",
+        "buttonUrl" : "https://movingintelligence.nl"
+      },
+      "componentName" : "c:communityButton",
+      "id" : "f6be62d8-e701-4dd1-bd5d-f2db60ba6c37",
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "5e5d2d19-9bc1-45fd-91ab-a8463a2e930e",
+    "regionName" : "footer",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "Error"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "6aefce52-bc15-4d5a-9996-6021a2288c1b",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "edb594c9-bfe2-4bf2-bc7e-e6de0d30b91e",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "error"
+}

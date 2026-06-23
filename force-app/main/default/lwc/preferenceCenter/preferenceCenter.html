@@ -1,0 +1,202 @@
+<template>
+    <div class={brandCssClass} style={brandContainerStyle}>
+
+        <!-- Loading -->
+        <template if:true={isLoading}>
+            <div class="slds-p-around_medium slds-align_absolute-center">
+                <lightning-spinner alternative-text="Loading preferences" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Error -->
+        <template if:true={hasError}>
+            <div class="slds-p-around_medium">
+                <lightning-icon icon-name="utility:error" variant="error" size="small"
+                    class="slds-var-m-right_x-small"></lightning-icon>
+                <span class="slds-text-color_error">{errorMessage}</span>
+            </div>
+        </template>
+
+        <!-- Main -->
+        <template if:true={isReady}>
+            <div class="pc-inner">
+
+                <!-- Brand logo header (Experience Cloud only) -->
+                <template if:true={isExperienceCloud}>
+                    <div class="pc-brand-header slds-grid slds-grid_vertical-align-center slds-var-p-bottom_medium">
+                        <template if:true={brandLogoUrl}>
+                            <img src={brandLogoUrl} alt={activeBrandLabel} class="pc-brand-logo" />
+                        </template>
+                        <template if:false={brandLogoUrl}>
+                            <p class="slds-text-heading_medium">{activeBrandLabel}</p>
+                        </template>
+                    </div>
+                    <hr class="pc-divider slds-var-m-bottom_medium" />
+                </template>
+
+                <!-- Internal header (support console) -->
+                <template if:false={isExperienceCloud}>
+                    <div class="slds-media slds-media_center slds-var-p-vertical_small border-bottom">
+                        <div class="slds-media__figure">
+                            <lightning-avatar fallback-icon-name="standard:contact"
+                                size="medium" alternative-text="Contact"></lightning-avatar>
+                        </div>
+                        <div class="slds-media__body">
+                            <p class="slds-text-heading_small">{contactName}</p>
+                            <p class="slds-text-body_small slds-text-color_weak">{contactEmail}</p>
+                            <template if:true={lastAuditLabel}>
+                                <p class="slds-text-body_small slds-text-color_weak slds-var-m-top_xx-small">
+                                    {lastAuditLabel}
+                                </p>
+                            </template>
+                        </div>
+                        <div class="slds-media__figure slds-media__figure_reverse">
+                            <lightning-badge label={optInLabel}></lightning-badge>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Page title (Experience Cloud) -->
+                <template if:true={isExperienceCloud}>
+                    <div class="pc-page-title">
+                        <h1 class="slds-text-heading_medium">Preferences</h1>
+                        <p class="slds-text-body_small slds-text-color_weak slds-var-m-top_xx-small">
+                            {brandTagLine}
+                        </p>
+                    </div>
+                </template>
+
+                <!-- Success toast -->
+                <template if:true={showToast}>
+                    <div class="slds-notify slds-notify_toast slds-theme_success slds-var-m-top_small pc-toast slds-grid_align-center" role="status">
+                        <lightning-icon icon-name="utility:success" variant="inverse"
+                            size="small" class="slds-var-m-right_small"></lightning-icon>
+                        <div class="slds-notify__content pc-toast__content slds-grow-none slds-text-align_center">
+                            <p>Your preferences have been saved.</p>
+                        </div>
+                        <button class="slds-button slds-button_icon slds-button_icon-inverse slds-notify__close"
+                            onclick={dismissToast} title="Close">
+                            <lightning-icon icon-name="utility:close" variant="inverse" size="x-small"></lightning-icon>
+                        </button>
+                    </div>
+                </template>
+
+                <!-- Brand tabs (support console / multi-brand mode) -->
+                <template if:false={hasBrandProp}>
+                    <div class="slds-tabs_default slds-var-m-top_small">
+                        <ul class="slds-tabs_default__nav" role="tablist">
+                            <template for:each={brandTabs} for:item="tab">
+                                <li key={tab.brand} class={tab.cssClass} role="presentation">
+                                    <a class="slds-tabs_default__link" role="tab" tabindex="0"
+                                       data-brand={tab.brand} onclick={handleBrandTab}
+                                       aria-selected={tab.isActive}>
+                                        {tab.label}
+                                    </a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+
+                <!-- Select / Deselect all -->
+                <div class="slds-grid slds-grid_align-spread slds-var-p-vertical_small">
+                    <div>
+                        <lightning-button label="Select all"   variant="neutral" size="small"
+                            onclick={handleSelectAll} class="slds-var-m-right_x-small"></lightning-button>
+                        <lightning-button label="Deselect all" variant="neutral" size="small"
+                            onclick={handleDeselectAll}></lightning-button>
+                    </div>
+                    <template if:true={isExperienceCloud}>
+                        <lightning-badge label={optInLabel}></lightning-badge>
+                    </template>
+                </div>
+
+                <!-- Preference sections (active brand only) -->
+                <template for:each={visibleSections} for:item="section">
+                    <c-preference-section
+                        key={section.key}
+                        section-key={section.key}
+                        label={section.label}
+                        description={section.description}
+                        icon-name={section.iconName}
+                        items={section.items}
+                        is-essential={section.isEssential}
+                        onpreferencechange={handleChange}>
+                    </c-preference-section>
+                </template>
+
+                <!-- Save -->
+                <div class="slds-var-p-top_medium">
+                    <lightning-button
+                        variant="brand"
+                        label={saveLabel}
+                        onclick={handleSave}
+                        disabled={isSaving}
+                        class="full-width-btn slds-show slds-size_1-of-1">
+                    </lightning-button>
+                </div>
+
+                <!-- Audit trail toggle — internal only -->
+                <template if:false={isExperienceCloud}>
+                <div class="slds-var-p-top_small">
+                    <lightning-button
+                        variant="base"
+                        label={auditToggleLabel}
+                        icon-name="utility:clock"
+                        icon-position="left"
+                        onclick={toggleAuditTrail}>
+                    </lightning-button>
+                </div>
+                </template>
+
+                <!-- Audit trail panel -->
+                <template if:true={showAudit}>
+                    <div class="audit-panel slds-var-m-top_small slds-var-p-around_small">
+                        <p class="slds-text-title_caps slds-var-m-bottom_x-small">Audit trail (last 50)</p>
+                        <template if:true={auditRows.length}>
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered
+                                          slds-table_striped audit-table">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th scope="col">Timestamp</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Channel</th>
+                                        <th scope="col">Brand</th>
+                                        <th scope="col">Old</th>
+                                        <th scope="col">New</th>
+                                        <th scope="col">Changed by</th>
+                                        <th scope="col">Source</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={auditRows} for:item="row">
+                                        <tr key={row.id}>
+                                            <td>{row.timestamp}</td>
+                                            <td>{row.type}</td>
+                                            <td>{row.channel}</td>
+                                            <td>{row.brand}</td>
+                                            <td class={row.oldVal}>{row.oldVal}</td>
+                                            <td class={row.newVal}>{row.newVal}</td>
+                                            <td>{row.changed}</td>
+                                            <td>{row.source}</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </template>
+                        <template if:false={auditRows.length}>
+                            <p class="slds-text-color_weak slds-text-body_small">No audit records found.</p>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Privacy -->
+                <p class="slds-text-body_small slds-text-color_weak slds-var-p-top_small">
+                    For information about how we process personal data, please review the
+                    <a href="/privacy" target="_blank">Privacy Statement</a>.
+                </p>
+
+            </div>
+        </template>
+    </div>
+</template>

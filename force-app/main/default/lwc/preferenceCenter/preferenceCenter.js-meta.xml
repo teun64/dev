@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <property name="recordId" type="String" label="Record Id"
+                description="Auto-provided by the platform on Contact and Case pages." />
+            <property name="brand" type="String" label="Brand (optional)"
+                description="Fix to a single brand (E, M or T). Leave empty to auto-detect from the account primary brand." />
+            <supportedFormFactors>
+                <supportedFormFactor type="Large" />
+            </supportedFormFactors>
+        </targetConfig>
+        <!-- App/Home pages: paste a Contact or Case Id manually -->
+        <targetConfig targets="lightning__AppPage,lightning__HomePage">
+            <property name="recordId" type="String" label="Contact or Case Id"
+                description="Paste a Contact or Case Id. On Case pages the linked contact is resolved automatically." />
+            <property name="brand" type="String" label="Brand (optional)"
+                description="Fix to a single brand (E, M or T). Leave empty to auto-detect from the account primary brand." />
+        </targetConfig>
+        <!-- Experience Cloud: brand is read from the ?brand= URL query parameter at runtime. -->
+    </targetConfigs>
+</LightningComponentBundle>

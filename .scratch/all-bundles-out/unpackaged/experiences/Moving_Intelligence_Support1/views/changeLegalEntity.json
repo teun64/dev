@@ -1,0 +1,71 @@
+{
+  "appPageId" : "f7000acc-e201-47f5-91bd-101b570e5d0f",
+  "componentName" : "siteforce:dynamicLayout",
+  "dataProviders" : [ ],
+  "id" : "82c34b20-b8e0-4165-a442-e2e5a83ae5b0",
+  "label" : "Change Legal Entity",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "061c88c1-aad8-499b-bd56-89b46241e19d",
+          "columns" : [ {
+            "UUID" : "742f88ea-c8a0-46c8-abad-75af5b923a29",
+            "columnKey" : "1",
+            "columnName" : "Column 1",
+            "columnWidth" : "12",
+            "seedComponents" : [ ]
+          } ]
+        },
+        "sectionHeight" : 300
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "061c88c1-aad8-499b-bd56-89b46241e19d",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : {
+            "flowArguments" : "[{\"label\":\"email\",\"dataType\":\"String\",\"supportsRecordId\":false,\"value\":\"{!varT_email}\"},{\"label\":\"id1\",\"dataType\":\"String\",\"supportsRecordId\":false,\"value\":\"{!id1}\"},{\"label\":\"id2\",\"dataType\":\"String\",\"supportsRecordId\":false,\"value\":\"{!id2}\"},{\"label\":\"id3\",\"dataType\":\"String\",\"supportsRecordId\":false,\"value\":\"{!id3}  \"},{\"label\":\"language\",\"dataType\":\"String\",\"supportsRecordId\":false,\"value\":\"{!language}  \"},{\"label\":\"mode\",\"dataType\":\"String\",\"supportsRecordId\":false,\"value\":\"{!mode}  \"}]",
+            "flowName" : "scr_Change_Legal_Entity"
+          },
+          "componentName" : "forceCommunity:flowCommunity",
+          "id" : "03bf1465-da71-45d6-8b6c-23b0e79aa870",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "742f88ea-c8a0-46c8-abad-75af5b923a29",
+        "regionLabel" : "Column 1",
+        "regionName" : "1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "892f1561-0b99-41b8-9bb5-609f0fe8c640",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "Change Legal Entity"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "e09e5d62-10ec-4bf6-988b-5c2d8b91b595",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "0ffafa78-21f7-4d7d-b28b-56ff6e1bddf5",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "custom-change-legal-entity"
+}

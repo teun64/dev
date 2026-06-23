@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Car mechanic / sales</fullName>
+        <default>false</default>
+        <label>Car mechanic / sales</label>
+    </customValue>
+    <customValue>
+        <fullName>Car rental / leasing</fullName>
+        <default>false</default>
+        <label>Car rental / leasing</label>
+    </customValue>
+    <customValue>
+        <fullName>Carpenter</fullName>
+        <default>false</default>
+        <label>Carpenter</label>
+    </customValue>
+    <customValue>
+        <fullName>Chemicals/mining</fullName>
+        <default>false</default>
+        <label>Chemicals/mining</label>
+    </customValue>
+    <customValue>
+        <fullName>Cleaning</fullName>
+        <default>false</default>
+        <label>Cleaning</label>
+    </customValue>
+    <customValue>
+        <fullName>Construction</fullName>
+        <default>false</default>
+        <label>Construction</label>
+    </customValue>
+    <customValue>
+        <fullName>Distribution</fullName>
+        <default>false</default>
+        <label>Distribution</label>
+    </customValue>
+    <customValue>
+        <fullName>Electronics</fullName>
+        <default>false</default>
+        <label>Electronics</label>
+    </customValue>
+    <customValue>
+        <fullName>Engineer / architect / R&amp;D</fullName>
+        <default>false</default>
+        <label>Engineer / architect / R&amp;D</label>
+    </customValue>
+    <customValue>
+        <fullName>Gardening / Agri</fullName>
+        <default>false</default>
+        <label>Gardening / Agri</label>
+    </customValue>
+    <customValue>
+        <fullName>Healthcare</fullName>
+        <default>false</default>
+        <label>Healthcare</label>
+    </customValue>
+    <customValue>
+        <fullName>Heavy machinery rental / sales</fullName>
+        <default>false</default>
+        <label>Heavy machinery rental / sales</label>
+    </customValue>
+    <customValue>
+        <fullName>Holding / consulting / admin / finance</fullName>
+        <default>false</default>
+        <label>Holding / consulting / admin / finance</label>
+    </customValue>
+    <customValue>
+        <fullName>Hospitality / leisure</fullName>
+        <default>false</default>
+        <label>Hospitality / leisure</label>
+    </customValue>
+    <customValue>
+        <fullName>HVAC / plumbing</fullName>
+        <default>false</default>
+        <label>HVAC / plumbing</label>
+    </customValue>
+    <customValue>
+        <fullName>Industry/manufacturing</fullName>
+        <default>false</default>
+        <label>Industry/manufacturing</label>
+    </customValue>
+    <customValue>
+        <fullName>Infra / ground works</fullName>
+        <default>false</default>
+        <label>Infra / ground works</label>
+    </customValue>
+    <customValue>
+        <fullName>Interim</fullName>
+        <default>false</default>
+        <label>Interim</label>
+    </customValue>
+    <customValue>
+        <fullName>IT</fullName>
+        <default>false</default>
+        <label>IT</label>
+    </customValue>
+    <customValue>
+        <fullName>Logistics</fullName>
+        <default>false</default>
+        <label>Logistics</label>
+    </customValue>
+    <customValue>
+        <fullName>Media</fullName>
+        <default>false</default>
+        <label>Media</label>
+    </customValue>
+    <customValue>
+        <fullName>Painting</fullName>
+        <default>false</default>
+        <label>Painting</label>
+    </customValue>
+    <customValue>
+        <fullName>Public</fullName>
+        <default>false</default>
+        <label>Public</label>
+    </customValue>
+    <customValue>
+        <fullName>Real estate</fullName>
+        <default>false</default>
+        <label>Real estate</label>
+    </customValue>
+    <customValue>
+        <fullName>Retail</fullName>
+        <default>false</default>
+        <label>Retail</label>
+    </customValue>
+    <customValue>
+        <fullName>Services</fullName>
+        <default>false</default>
+        <label>Services</label>
+    </customValue>
+    <customValue>
+        <fullName>Utilities / environment</fullName>
+        <default>false</default>
+        <label>Utilities / environment</label>
+    </customValue>
+    <masterLabel>Volpi Classification</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

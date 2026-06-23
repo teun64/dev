@@ -1,0 +1,372 @@
+.full-page-container {
+  position: relative;
+  width: 818px;
+    height: 1055px; }
+
+.full-page-container-white {
+  position: relative;
+  width: 8.27in;
+    height: 11.68in; }
+
+.mi_logo {
+  position: absolute;
+  z-index: 100;
+  bottom: -20px;
+  left: 40px; }
+
+.image_header {
+  position: absolute; }
+
+.flag-bottom-text {
+    position: absolute;
+    bottom: 0;
+    height: 8.50in; 
+    width:100%;
+    display: block;
+    background-color: #ffffff;
+}
+
+.flag-heder-image-headline-wrapper {
+  position: relative;
+  margin-top: 155px;
+  width: 100%;
+  background-color: #ff0000; }
+
+.flag-header-image-headline-wrapper {
+  position: relative;
+  margin-top: 100; !155px;
+  width: 100%;
+  background-color: #ff0000; }
+
+.flag_header {
+  background-color: #ff0000; }
+
+.flag-header-wrapper {
+  margin-left: 50px;
+  margin-right: 50px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  z-index: 1101; }
+
+.flag_header_headline {
+  position: relative;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 45px;
+  line-height: 60px; }
+  .flag_header_headline.m--50 {
+    font-size: 43px;
+    line-height: 57px; }
+  .flag_header_headline.m--60, .flag_header_headline.m--70, .flag_header_headline.m--80, .flag_header_headline.m--90, .flag_header_headline.m--100 {
+    font-size: 38px;
+    line-height: 53px; }
+
+.column-text-wrapper {
+  display: block;
+  position: relative;
+  width: 100%;
+  page-break-after: always;
+  overflow: hidden; }
+
+.column-text-1 {
+  position: relative;
+  float: left;
+  display: block;
+  width: 48%;
+  overflow: auto; }
+
+.column-text-2 {
+  position: relative;
+  display: block;
+  float: right;
+  width: 48%;
+  overflow: auto; }
+
+.container-header-image-text {
+  position: relative; }
+
+.header-image {
+  position: relative; }
+
+.header-image-headline {
+  position: absolute;
+  top: 50px;
+  right: 50px; }
+
+.headline-flag-logo-wrapper {
+    position: relative;
+    width: 210mm;
+    padding: 0;
+    margin-top: 2px;
+    margin-left: auto;
+    margin-right: auto; 
+    height: 18mm;
+ }
+
+.headline-flag-wrapper {
+  position: relative;
+  float : left;
+  width : 125mm;
+  height: 18mm;
+  margin: 0;
+  padding: inherit;
+}
+.headline-logo-wrapper {
+  position: relative;
+  float : right;
+  width : 85mm;
+  height: 18mm;
+  margin: 0;
+  padding: inherit;
+  line-height: 68px;
+}
+
+.headline-logo-wrapper img.newBranding {
+    position: absolute;
+    right: 60px;
+    top: 12px; 
+    width: 37mm;
+}
+
+.headline-logo-wrapper img.prevBranding {
+    position: absolute;
+    right: 60px;
+    top: 9px; 
+    width: 220px;
+    height: auto;
+}
+
+.headline-mi-logo-black {
+  position: absolute;
+  right: 60px;
+  top: 15px; }
+
+.headline-flag-image {
+  position: absolute;
+  top: 0;
+  left: 0; }
+
+.headline-flag-title {
+  position: relative;
+  z-index: 20; }
+
+.account-detail-table.m--detail {
+  margin-left: auto;
+  margin-right: 0; }
+
+.account-detail-table-cell {
+  padding-right: 20px;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0; }
+  .account-detail-table-cell.m--last-cell {
+    padding-right: 0; }
+  .account-detail-table-cell.m--align-right {
+    text-align: right; }
+  .account-detail-table-cell > p {
+    line-height: 18px; }
+  .account-detail-table-cell > ul > li {
+    font-size: 14px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-family: Arial, sans-serif; }
+
+.account-detail-li {
+  font-family: Arial, sans-serif; !important;
+  font-weight: normal; }
+
+.small-flag-wrapper, .small-flag {
+  position: absolute;
+  top: 0;
+  left: 0; }
+
+.small-flag-headline {
+  line-height: 40px;
+  padding-left: 60px;
+  z-index: 1000;
+  font-size: 18px;
+  position: relative;
+  color: #ffffff !important; }
+
+.container-grey-text {
+  padding-top: 55px;
+  padding-bottom: 25px;
+  position: relative; 
+  }
+
+.container-grey-text p {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 200;
+  color: #0e0f0e; 
+}
+    
+.container-grey-text ul {
+  list-style-type: square;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 200;
+  color: #0e0f0e; 
+}
+   
+
+.container-grey-text ol {
+  list-style-type: lower-alpha;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 200;
+  color: #0e0f0e; 
+}
+   
+.container-grey-text li {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 200;
+  color: #0e0f0e; 
+}
+
+.mi-table {
+  position: relative;
+  font-size: 14px;
+  line-height: 17px;
+  color: #0e0f0e;
+  page-break-inside: avoid;
+  width: 100%; }
+  .mi-table.m--w275 {
+    width: 275px; }
+
+.mi-table-th {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  border-bottom: 2px solid #ff0000;
+  padding-bottom: 7px;
+  padding-left: 20px;
+  padding-right: 20px; }
+  .mi-table-th.m--first-cell {
+    padding-left: 0;
+    padding-right: 10px; }
+  .mi-table-th.m--last-cell {
+    padding-right: 0; }
+  .mi-table-th.m--align-right {
+    text-align: right; }
+  .mi-table-th.m--mw125 {
+    min-width: 115px; }
+
+.mi-table-td {
+  font-family: Arial, sans-serif;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 20px;
+  padding-right: 20px; }
+  .mi-table-td.m--first-cell {
+    padding-left: 0;
+    padding-right: 10px; }
+  .mi-table-td.m--last-cell {
+    padding-right: 0; }
+  .mi-table-td.m--align-right {
+    text-align: right; }
+  .mi-table-td.m--w50 {
+    width: 50%;
+    padding-left: 0px;
+    padding-right: 0px; }
+  .mi-table-td.m--100 {
+    width: 100px; }
+  .mi-table-td.m--no-padding {
+    padding: 0; }
+  .mi-table-td.m--pl40 {
+    padding-left: 30px; }
+  .mi-table-td.m--pr40 {
+    padding-right: 30px; }
+.mt-007 {
+    margin-top: 7px;
+}
+.mi-table-tf {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  border-top: 2px solid #ff0000;
+  padding-top: 7px;
+  padding-left: 20px;}
+  .mi-table-tf.m--first-cell {
+    padding-left: 0;
+    padding-right: 5px; }
+  .mi-table-tf.m--last-cell {
+    padding-right: 0; }
+  .mi-table-tf.m--align-right {
+    text-align: right; }
+  .mi-table-tf.m--mw125 {
+    min-width: 115px; }
+
+.table-line-height {
+  line-height: 24px; }
+
+.mi-table-td-result {
+  font-family: Arial, sans-serif;
+  padding-left: 0;
+  padding-right: 0; }
+  .mi-table-td-result.m--align-right {
+    text-align: right; }
+
+.table-result-div {
+  position: relative;
+  text-align: right;
+  display: inline-block;
+  float: right; }
+  .table-result-div.first-result:before {
+    content: " ";
+    width: 100%;
+    height: 100px;
+    position: absolute;
+    height: 100%;
+    top: -10px;
+    right: 0;
+    border-top: 2px solid #ff0000; }
+
+.table-totalCaluclation-currency {
+  float: left; }
+
+.table-totalCaluclation-wrapper {
+  float: right; }
+
+.table-totalCaluclation-description {
+  float: left;
+  width: 176px;
+  text-align: right; }
+
+.table-totalCaluclation {
+  float: right;
+  width: 54px;
+  margin-left: 10px; }
+  .table-totalCaluclation.strong {
+    font-weight: bold; }
+
+.contact-list {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  list-style: none; }
+  .contact-list > li {
+    padding-top: 3px;
+    padding-bottom: 3px; }
+
+.sign-field {
+  height: 100px;
+  width: 90%;
+  padding-top: 5px;
+  background-color: #ffffff;
+  border: 1px solid #ff0000;
+}
+
+.sign-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 95%;
+}
+.not-use {
+  clear: left; }

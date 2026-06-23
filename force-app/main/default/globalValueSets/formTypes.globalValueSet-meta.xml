@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>contactForm</fullName>
+        <default>false</default>
+        <label>contactForm</label>
+    </customValue>
+    <customValue>
+        <fullName>whitePaper</fullName>
+        <default>false</default>
+        <label>whitePaper</label>
+    </customValue>
+    <customValue>
+        <fullName>newsLetter</fullName>
+        <default>false</default>
+        <label>newsLetter</label>
+    </customValue>
+    <customValue>
+        <fullName>insuranceForm</fullName>
+        <default>false</default>
+        <label>insuranceForm</label>
+    </customValue>
+    <customValue>
+        <fullName>productForm</fullName>
+        <default>false</default>
+        <label>productForm</label>
+    </customValue>
+    <description>The forms linked by 123Formbuilder</description>
+    <masterLabel>Form Types</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

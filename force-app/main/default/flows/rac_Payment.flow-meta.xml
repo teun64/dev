@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>After create actions on Payment, for Stripe Setup a Direct debit process, for a payment intent and stripe customer, call the payment - direct debit setup</description>
+    <environments>Default</environments>
+    <interviewLabel>rac - Payment {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rac - Payment</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>(1 AND (2 OR 3 OR 4))</filterLogic>
+        <filters>
+            <field>Processor__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Stripe</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Method__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>I8</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Method__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>I4</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Method__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>I3</stringValue>
+            </value>
+        </filters>
+        <object>Payment__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>act_01_afl_Payment_Direct_Debit_Setup</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+    <subflows>
+        <name>act_01_afl_Payment_Direct_Debit_Setup</name>
+        <label>1. afl - Payment - Direct Debit Setup</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>afl_Payment_Direct_Debit_Setup</flowName>
+        <inputAssignments>
+            <name>paymentRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+</Flow>

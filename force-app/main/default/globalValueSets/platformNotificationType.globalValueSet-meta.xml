@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>BatteryAlmostEmpty</fullName>
+        <default>false</default>
+        <label>BatteryAlmostEmpty</label>
+    </customValue>
+    <customValue>
+        <fullName>NoGsmSignal</fullName>
+        <default>false</default>
+        <label>NoGsmSignal</label>
+    </customValue>
+    <customValue>
+        <fullName>BadGpsSignal</fullName>
+        <default>false</default>
+        <label>BadGpsSignal</label>
+    </customValue>
+    <customValue>
+        <fullName>UserDoesNotHaveImmobilizerAuthorization</fullName>
+        <default>false</default>
+        <label>UserDoesNotHaveImmobilizerAuthorization</label>
+    </customValue>
+    <customValue>
+        <fullName>CertificateActivatedWithoutSubscription</fullName>
+        <default>false</default>
+        <label>CertificateActivatedWithoutSubscription</label>
+    </customValue>
+    <customValue>
+        <fullName>FirstSubscriptionNotBlackWithScm</fullName>
+        <default>false</default>
+        <label>FirstSubscriptionNotBlackWithScm</label>
+    </customValue>
+    <description>Platform Notification Types</description>
+    <masterLabel>Platform Notification Type</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

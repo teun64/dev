@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>NL_Middle</fullName>
+        <default>false</default>
+        <label>NL_Middle</label>
+    </customValue>
+    <customValue>
+        <fullName>NL_North</fullName>
+        <default>false</default>
+        <label>NL_North</label>
+    </customValue>
+    <customValue>
+        <fullName>NL_South</fullName>
+        <default>false</default>
+        <label>NL_South</label>
+    </customValue>
+    <customValue>
+        <fullName>DE_East</fullName>
+        <default>false</default>
+        <label>DE_East</label>
+    </customValue>
+    <customValue>
+        <fullName>DE_West</fullName>
+        <default>false</default>
+        <label>DE_West</label>
+    </customValue>
+    <customValue>
+        <fullName>BE_Belgium</fullName>
+        <default>false</default>
+        <label>BE_Belgium</label>
+    </customValue>
+    <customValue>
+        <fullName>LU_Luxembourg</fullName>
+        <default>false</default>
+        <label>LU_Luxembourg</label>
+    </customValue>
+    <customValue>
+        <fullName>GB_United_Kingdom</fullName>
+        <default>false</default>
+        <label>GB_United_Kingdom</label>
+    </customValue>
+    <masterLabel>Sales Region</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

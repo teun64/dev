@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Change_Reason__c</fullName>
+    <label>Change Reason</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>USER_ACTION</fullName>
+                <label>User Action</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>ADMIN_OVERRIDE</fullName>
+                <label>Admin Override</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>SYSTEM_SYNC</fullName>
+                <label>System Sync</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>LEGAL_REQUIREMENT</fullName>
+                <label>Legal Requirement</label>
+                <default>false</default>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <required>false</required>
+</CustomField>

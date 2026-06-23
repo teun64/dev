@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>EMAIL</fullName>
+        <default>false</default>
+        <label>EMAIL</label>
+    </customValue>
+    <customValue>
+        <fullName>SMS</fullName>
+        <default>false</default>
+        <label>SMS</label>
+    </customValue>
+    <customValue>
+        <fullName>PUSH</fullName>
+        <default>false</default>
+        <label>PUSH</label>
+    </customValue>
+    <customValue>
+        <fullName>PHONE</fullName>
+        <default>false</default>
+        <label>PHONE</label>
+    </customValue>
+    <customValue>
+        <fullName>INAPP</fullName>
+        <default>false</default>
+        <label>Notifications in portal/app</label>
+    </customValue>
+    <customValue>
+        <fullName>POSTAL</fullName>
+        <default>false</default>
+        <label>Physical mail</label>
+    </customValue>
+    <masterLabel>Channel (Com. Preference)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

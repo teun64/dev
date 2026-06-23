@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>etAllinOne</fullName>
+        <default>false</default>
+        <label>All-in-one (fleet)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpBasic</fullName>
+        <default>false</default>
+        <label>Basic (tp)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpEnterprise</fullName>
+        <default>false</default>
+        <label>Enterprise (tp)</label>
+    </customValue>
+    <customValue>
+        <fullName>etFiscalReports</fullName>
+        <default>false</default>
+        <label>Fiscal reports (fleet)</label>
+    </customValue>
+    <customValue>
+        <fullName>etLiveTracking</fullName>
+        <default>false</default>
+        <label>Live Tracking (fleet)</label>
+    </customValue>
+    <customValue>
+        <fullName>miAzure</fullName>
+        <default>false</default>
+        <label>MiAzure (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miBlack</fullName>
+        <default>false</default>
+        <label>MiBlack (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miBlackR</fullName>
+        <default>false</default>
+        <label>MiBlackR (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miBlue</fullName>
+        <default>false</default>
+        <label>MiBlue (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miGreen</fullName>
+        <default>false</default>
+        <label>MiGreen (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miGrey</fullName>
+        <default>false</default>
+        <label>MiGrey (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miOrange</fullName>
+        <default>false</default>
+        <label>MiOrange (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miOrangeR</fullName>
+        <default>false</default>
+        <label>MiOrangeR (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miRed</fullName>
+        <default>false</default>
+        <label>MiRed (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miRoyalBlue</fullName>
+        <default>false</default>
+        <label>MiRoyalBlue (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miWhite</fullName>
+        <default>false</default>
+        <label>MiWhite (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>miYellow</fullName>
+        <default>false</default>
+        <label>MiYellow (security)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpPremium</fullName>
+        <default>false</default>
+        <label>Premium (tp)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpProfessional</fullName>
+        <default>false</default>
+        <label>Professional (tp)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpRemoteTachoDownload</fullName>
+        <default>false</default>
+        <label>Remote Tacho Download (tp)</label>
+    </customValue>
+    <customValue>
+        <fullName>etReporting</fullName>
+        <default>false</default>
+        <label>Reporting (fleet)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpTemperature</fullName>
+        <default>false</default>
+        <label>Temperature Module (tp)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpTourPlanning</fullName>
+        <default>false</default>
+        <label>Tour Planning (tp)</label>
+    </customValue>
+    <customValue>
+        <fullName>tpTrackPilotApp</fullName>
+        <default>false</default>
+        <label>TrackPilot App (tp)</label>
+    </customValue>
+    <masterLabel>Subscription (Offer)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

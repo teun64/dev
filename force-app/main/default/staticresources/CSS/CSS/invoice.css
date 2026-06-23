@@ -1,0 +1,481 @@
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display&display=swap';
+/* reset.scss */
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+body {
+    box-sizing: border-box; 
+}
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+    display: block;
+}
+@page { 
+    size: A4 portrait;
+    margin-top: 55mm;
+    --marginTop: 55mm;
+    margin-left: 20mm;
+    margin-right: 10mm;
+    margin-bottom: 25mm;
+    @top-left-corner {
+        content: element(graphics);
+    }
+    @top-left {
+        content: element(header);
+    }
+    @bottom-left-corner{ 
+        content: element(footer);  
+    }
+}
+@page :first { 
+    size: A4 portrait;
+    margin-top: 35mm;
+    --marginTop: 35mm;
+    margin-left: 20mm;
+    margin-right: 10mm;
+    margin-bottom: 25mm;
+    @top-left-corner {
+        content: element(graphics);
+    }
+    @top-left {
+        content: element(headerFirst);
+    }
+    @bottom-left-corner{ 
+        content: element(footer);  
+    }
+}
+body {
+    font-family: 'Red Hat Display', Arial, sans-serif;
+    font-weight: normal;
+    font-size: 13px;
+    color: #0e0f0e; 
+    line-height: 1.4; 
+    box-sizing: border-box;
+}
+table, th, td {
+    border-collapse: collapse;
+    border-spacing: 0;
+    vertical-align: middle;
+}
+table.caption {
+    table-layout : fixed;
+    vertical-align: top;               
+}
+table.addressHeader {
+    table-layout : fixed;
+}
+table.overview {
+    -fs-table-paginate: paginate;
+    table-layout : fixed;     
+}
+thead {
+    display: table-header-group;
+    page-break-inside: avoid;
+}
+tfoot {
+    line-height: 1.2;
+    page-break-inside: avoid;
+}
+.pLeft {
+    padding-left: 1mm;
+}
+div.header {
+    display: block;
+    position: running(header);
+}
+.pRight {
+    padding-right: 1mm;
+}
+.tLeft {
+    text-align: left;
+}
+.tRight {
+    text-align: right;
+}
+.tCenter {
+    text-align: center;
+}
+.tJustify {
+    text-align: justify;
+}
+.hm002 {
+    height: 2mm;    
+}
+.hm005 {
+    height: 5mm;
+}
+.hm007 {
+    height: 7mm;
+}
+.hm009 {
+    height: 9mm;
+}
+.wm005 {
+    width: 5mm;
+}
+.wm006 {
+    width: 6mm;
+}
+.wm014 {
+    width: 14mm;
+}
+.wm020 {
+    width: 20mm;
+}
+.wm030 {
+    width: 30mm;
+}
+.wm032 {
+    width: 32mm;
+}
+.wm048 {
+    width: 48mm;
+}
+.wm060 {
+    width: 60mm;
+}
+.wm064 {
+    width: 64mm;
+}
+.wm072 {
+    width: 72mm; 
+}
+.wm150 {
+    width: 150mm;
+}
+.wm180 {
+    width: 180mm;
+}
+.w210 {
+    width: 210mm;
+}
+.wp100 {
+    width: 100%;
+}
+.bcOdd {
+    background-color: inherit; 
+}
+.bcEven {
+    background-color: #ECECE7; /*E5DFCE*/
+}
+.graphics {
+    position: running(graphics);
+}
+.header>.sectionHeader {
+    position: absolute;
+    top: 35mm;
+}
+.graphics>.sectionTopLeft {
+    display: block;    
+    position: absolute;
+    top: 0;
+    left: 20mm;
+}        
+.graphics>.sectionTopLeft img.left { 
+    display: block;
+    margin-top: 15mm;
+    left: 0; 
+}
+.graphics>.sectionTopLeft img.leftEchoes { 
+    display: block;
+    left: 0;
+    margin-top: 10mm;
+    margin-left: -1mm;
+}
+.graphics>.sectionTopCenter {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 20mm;
+}        
+.graphics>.sectionTopCenter img.center { 
+    display: block;
+    margin-top: 7mm;
+    margin-left: 50mm;
+}
+.graphics>.sectionTopCenter img.centerEchoes { 
+    display: block;
+    margin-top: 4mm;
+    margin-left: 54mm;
+}
+.graphics>.sectionLeft {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}             
+.graphics>.sectionLeft img.arrow { 
+    display: block;
+    left: 0;
+    margin-top: 49mm;
+}
+.footer {
+    position: running(footer);
+    margin-top: 5mm;
+    margin-left: 20mm;
+} 
+.sectionBottomLeft {
+    display: block;    
+    position: relative;
+    float: left;
+    align-items: left;
+    justify-content: left;
+    page-break-after: always;
+}
+.footerLine {
+    display: block;    
+    position: relative;
+    float: left;
+}
+.lineRed {
+    display: block;    
+    position: relative;
+    float: left;
+    border-top: 2px solid #ff0000;
+    font-size: 2px;
+}
+.lineBlue {
+    display: block;    
+    position: relative;
+    float: left;
+    border-top: 2px solid #2ba9df;
+    font-size: 2px;
+}
+.companyInfo {
+    display: block;    
+    position: relative;
+    float: left;
+    font-size: 9px;
+}
+.companyInfo span.name {
+    font-weight: bold;
+}
+.companyInfo span.separatorRed{
+    color: #ff0000;
+}
+.companyInfo span.separatorBlue{
+    color: #2ba9df;
+}
+.sectionInvoice {
+    display: block;
+    page-break-inside: avoid;
+}
+.captionRow {
+}
+.captionCell {
+}
+.subHeaderRow {
+}
+.subHeaderLabelCell {
+    vertical-align: top;
+    font-weight: medium;
+    font-size: 14px;             
+}
+.subHeaderContentCell {
+    vertical-align: top;
+    font-weight: medium;
+    font-size: 14px;            
+}
+.mainBody {
+    position: running(mainBody);      
+}
+.container {
+    position: relative;
+    float : left;     
+}
+.invoiceHeaderRow {
+}
+.invoiceHeaderGeneralCell {
+    font-weight: medium;
+    font-size: 14px;     
+}
+.invoiceHeaderItemRow {
+    background-color: #0e0f0e;   
+}
+.invoiceHeaderItemCell {
+    font-weight: bold;
+    font-size: 13px;   
+    color: white;   
+}
+.invoiceHeaderBaseCell {
+    vertical-align: top;
+    font-size: 2px;
+    color: white;     
+}
+.invoiceHeaderEmptyCell {
+    vertical-align: top;
+    font-size: 1px;
+    color: white;     
+}
+.invoiceTypeCell {
+    vertical-align: top;
+    font-size: 24px; 
+    font-weight: bold;
+}
+.invoiceAddressCell {
+    vertical-align: top;
+    font-size: 14px;            
+}
+.invoiceAddressCell span.invoiceTo {
+    font-size: 16px;
+    font-weight: bold;
+}
+.invoicePageNumbers .pageNumber:before {
+    content: counter(page); 
+}
+.invoicePageNumbers .pageNumbers:before {
+    content: counter(pages); 
+}
+.invoiceItemRow {
+    line-height: 1.2; 
+    page-break-inside: avoid;
+}
+.invoiceItemCell {
+    vertical-align: top;
+    padding-top: 1mm;
+    padding-bottom: 1mm;
+}
+.invoiceFooterEmptyCell {
+    vertical-align: top;
+    font-size: 1px;
+    color: white;     
+}
+.invoiceFooterRow {
+    background-color: #E5DFCE; 
+    line-height: 1.2; 
+    page-break-inside: avoid;
+}
+.invoiceFooterCell {
+    vertical-align: top;
+    padding-top: 1mm;
+    padding-bottom: 1mm;
+    font-size: 14px;
+    font-weight: bold;
+}
+.invoiceFooterTotalRow {
+    background-color: #0e0f0e; 
+    page-break-inside: avoid;
+}
+.invoiceFooterTotalCell {
+    vertical-align: middle;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+.invoiceFooterAdditonalRow {
+    line-height: 1.2; 
+    page-break-inside: avoid;
+}
+.invoiceFooterPaymentRemarkCell {
+    vertical-align: top;
+    padding-top: 1mm;
+    padding-bottom: 1mm;
+    font-size: 14px;
+    font-weight: bold;
+}
+.invoiceFooterRemarkCell {
+    vertical-align: top;
+    padding-top: 1mm;
+    padding-bottom: 1mm;
+    font-size: 14px;
+    font-weight: medium;
+}

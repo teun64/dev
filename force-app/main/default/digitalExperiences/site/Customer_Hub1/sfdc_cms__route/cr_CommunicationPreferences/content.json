@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Preferences",
+  "contentBody" : {
+    "activeViewId" : "cv_CommunicationPreferences",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "standard",
+    "urlPrefix" : "communication-preferences"
+  },
+  "urlName" : "communication-preferences"
+}

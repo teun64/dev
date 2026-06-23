@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Commit</name>
+        <label>1. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Sales_Channel_Discription</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Contract</name>
+        <label>1. Contract</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Contract__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Subscription25__Contract__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Sales_Channel_Discription</name>
+        <label>1. Sales Channel / Description</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fDescription</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Sales_Channel__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fSalesChannel</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_02_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_02_Commit</name>
+        <label>2. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_Reference_Conditions</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_02_Order_Payment_Reference</name>
+        <label>1. Order - Payment Reference</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Reference__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Contract__r.Payment_Processor_Reference__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Is_Paid__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>dec_01_Payment_Reference_Conditions</name>
+        <label>1. Payment Reference Conditions</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_Reference_Conditions_Set</name>
+            <conditionLogic>1 AND 2 AND 3 AND (4 OR 5)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Contract__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.EffectiveDate</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Contract__r.StartDate</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Payment_Method__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>p0</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>p1</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_02_Order_Payment_Reference</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>fContract</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Subscription25__Recurring_Order__c}),&apos;&apos;,{!$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Subscription25__Contract__c})</expression>
+    </formulas>
+    <formulas>
+        <name>fDescription</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Subscription25__Recurring_Order__c})
+,&apos;&apos;
+,IF({!$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Is_Base_Service__c},
+({!fObject} + IF(AND(NOT(ISBLANK({!fObject})),({!fObject}={!fDevice})),&apos;&apos;,(&apos; / &apos; + {!fDevice})))
+, 
+&apos;&apos;
+)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fDevice</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(BLANKVALUE({!$Record.Contract__r.Hardware__r.Name},&apos;&apos;),&apos; &apos;,&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fObject</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(BLANKVALUE({!$Record.Contract__r.Entity__r.Name},BLANKVALUE({!$Record.Contract__r.Hardware__r.Object__c},{!$Record.Contract__r.Hardware__r.Object__c})),&apos; &apos;,&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fPaymentReference</name>
+        <dataType>String</dataType>
+        <expression>&apos;&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>fPONumber</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Subscription25__Recurring_Order__c}),&apos;&apos;,BLANKVALUE({!$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Subscription25__Contract__r.Subscription25__Purchase_Order_Number__c},&apos;&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>fSalesChannel</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE(TEXT({!$Record.Contract__r.Sales_Channel__c}),IF(ISBLANK({!$Record.AccountId}),&apos;Moving Intelligence&apos;,BLANKVALUE(TEXT({!$Record.Account.Sales_Channel__c}),&apos;Moving Intelligence&apos;)))</expression>
+    </formulas>
+    <interviewLabel>rbc - Order - Package - Subscription25 {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbc - Order - Package - Subscription25</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ass_01_Contract</targetReference>
+        </connector>
+        <filterFormula>AND(
+OR(ISPICKVAL({!$Record.Type}, &apos;Subscription&apos;),ISPICKVAL({!$Record.Type}, &apos;Contract&apos;))
+,NOT(ISBLANK({!$Record.Subscription25__Recurring_Order__c}))
+)</filterFormula>
+        <object>Order</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+    <triggerOrder>101</triggerOrder>
+    <variables>
+        <name>vCommit</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>

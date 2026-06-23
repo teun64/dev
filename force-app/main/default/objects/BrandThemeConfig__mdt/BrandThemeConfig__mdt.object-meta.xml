@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Brand-specific theming for the Preference Center: colors, logo path, Marketing Cloud brand ID.</description>
+    <label>Brand Theme Config</label>
+    <pluralLabel>Brand Theme Configs</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

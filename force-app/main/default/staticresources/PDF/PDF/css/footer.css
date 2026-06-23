@@ -1,0 +1,36 @@
+@page {
+  @bottom-left {
+    content: -moz-element(footer);
+    content: element(footer); } }
+
+@page :first {
+  @bottom-left {
+    content: ""; } }
+
+.footer {
+  display: block;
+  padding: 5px;
+  height: 100px;
+  position: running(footer); }
+
+.footer_logo {
+  float: left; }
+
+.icon-pagenumber-wrapper {
+  float: right; }
+
+.footer_icon-wrapper {
+  float: left;
+  margin-right: 20px; }
+
+.footer_pagenumber-wrapper {
+  float: right; }
+
+.footer-icon {
+  margin-right: 10px; }
+
+.pagenumber:before {
+  content: counter(page); }
+
+.pagecount:before {
+  content: counter(pages); }

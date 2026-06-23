@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Voertuig</fullName>
+        <default>false</default>
+        <label>Vehicle</label>
+    </customValue>
+    <customValue>
+        <fullName>Werkmaterieel</fullName>
+        <default>false</default>
+        <label>Work Equipment</label>
+    </customValue>
+    <customValue>
+        <fullName>Vaartuig</fullName>
+        <default>false</default>
+        <label>Vessel</label>
+    </customValue>
+    <customValue>
+        <fullName>Trailers</fullName>
+        <default>false</default>
+        <label>Trailer</label>
+    </customValue>
+    <customValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+        <label>Other</label>
+    </customValue>
+    <masterLabel>Type of Transport</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

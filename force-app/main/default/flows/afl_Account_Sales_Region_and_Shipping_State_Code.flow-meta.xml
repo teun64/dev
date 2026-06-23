@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Update_Sales_Region</name>
+        <label>1. Update Sales Region</label>
+        <locationX>176</locationX>
+        <locationY>278</locationY>
+        <assignmentItems>
+            <assignToReference>rAccount.Update_Sales_Region__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dur_01_Account</targetReference>
+        </connector>
+    </assignments>
+    <description>Updates the account shipining state code and the sales region (NL- Version)</description>
+    <environments>Default</environments>
+    <interviewLabel>afl - Account - Sales Region and Shipping State Code {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>afl - Account - Sales Region and Shipping State Code</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>dur_01_Account</name>
+        <label>1. Account</label>
+        <locationX>176</locationX>
+        <locationY>398</locationY>
+        <inputReference>rAccount</inputReference>
+    </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>asf_General_Get_Province_Code_and_Sales_Region</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>asf_General_Get_Province_Code_and_Sales_Region</name>
+        <label>asf - General - Get Province Code and Sales Region</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <connector>
+            <targetReference>ass_01_Update_Sales_Region</targetReference>
+        </connector>
+        <flowName>asf_General_Get_Province_Code_and_Sales_Region</flowName>
+        <inputAssignments>
+            <name>vCountryCode</name>
+            <value>
+                <elementReference>rAccount.ShippingCountryCode</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>vZipPostalCode</name>
+            <value>
+                <elementReference>rAccount.ShippingPostalCode</elementReference>
+            </value>
+        </inputAssignments>
+        <outputAssignments>
+            <assignToReference>rAccount.Sales_Region__c</assignToReference>
+            <name>vSalesRegion</name>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>rAccount.ShippingStateCode</assignToReference>
+            <name>vStateCode</name>
+        </outputAssignments>
+    </subflows>
+    <variables>
+        <description>The account record as input</description>
+        <name>rAccount</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+</Flow>

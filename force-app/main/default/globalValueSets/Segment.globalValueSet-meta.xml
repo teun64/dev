@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>cover_standard.jpg</fullName>
+        <default>true</default>
+        <label>Standard</label>
+    </customValue>
+    <customValue>
+        <fullName>cover_green.jpg</fullName>
+        <default>false</default>
+        <label>Green</label>
+    </customValue>
+    <customValue>
+        <fullName>cover_trips.jpg</fullName>
+        <default>false</default>
+        <label>Trips</label>
+    </customValue>
+    <customValue>
+        <fullName>cover_security.jpg</fullName>
+        <default>false</default>
+        <label>Security</label>
+    </customValue>
+    <customValue>
+        <fullName>cover_work_equipment.jpg</fullName>
+        <default>false</default>
+        <label>Work Equipment</label>
+    </customValue>
+    <customValue>
+        <fullName>cover_marine.jpg</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Marine</label>
+    </customValue>
+    <masterLabel>Segment</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

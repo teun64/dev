@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Customer__c</fullName>
+    <label>Customer</label>
+    <type>Text</type>
+    <formula><![CDATA[HYPERLINK(
+LEFT($Api.Partner_Server_URL_670, FIND( '/services', $Api.Partner_Server_URL_670)) + '/lightning/r/' + IF(ISBLANK(Contact__c),('Lead/' + Lead__c),('Contact/' + Contact__c)) + '/view'
+,
+IF(ISBLANK(Contact__c),TRIM(Lead__r.FirstName + ' ' + Lead__r.MiddleName + ' ' + Lead__r.LastName),TRIM(Contact__r.FirstName + ' ' + Contact__r.MiddleName + ' ' + Contact__r.LastName))
+)]]></formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <required>false</required>
+</CustomField>

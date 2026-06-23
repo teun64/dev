@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Mi01</fullName>
+        <default>false</default>
+        <label>Mi01</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi04</fullName>
+        <default>false</default>
+        <label>Mi04</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi6</fullName>
+        <default>false</default>
+        <label>Mi6</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi7</fullName>
+        <default>false</default>
+        <label>Mi7</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi8</fullName>
+        <default>false</default>
+        <label>Mi8</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi9</fullName>
+        <default>false</default>
+        <label>Mi9</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi10</fullName>
+        <default>false</default>
+        <label>Mi10</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi13</fullName>
+        <default>false</default>
+        <label>Mi13</label>
+    </customValue>
+    <customValue>
+        <fullName>MiRock</fullName>
+        <default>false</default>
+        <label>MiRock L</label>
+    </customValue>
+    <customValue>
+        <fullName>MiRock XL</fullName>
+        <default>false</default>
+        <label>MiRock XL</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi30</fullName>
+        <default>false</default>
+        <label>Mi30</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi40</fullName>
+        <default>false</default>
+        <label>Mi40</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50</fullName>
+        <default>false</default>
+        <label>Mi50 (3 aderige kabelset)</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50 (8 aderige kabelset)</fullName>
+        <default>false</default>
+        <label>Mi50 (8 aderige kabelset)</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50 (Y-cable)</fullName>
+        <default>false</default>
+        <label>Mi50 (Y-cable)</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi100</fullName>
+        <default>false</default>
+        <label>Mi100</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi120</fullName>
+        <default>false</default>
+        <label>Mi120</label>
+    </customValue>
+    <customValue>
+        <fullName>MiTacho</fullName>
+        <default>false</default>
+        <label>MiTacho</label>
+    </customValue>
+    <customValue>
+        <fullName>MiBlock</fullName>
+        <default>false</default>
+        <label>MiBlock</label>
+    </customValue>
+    <customValue>
+        <fullName>MiBlock Active Tag</fullName>
+        <default>false</default>
+        <label>MiBlock Active Tag</label>
+    </customValue>
+    <customValue>
+        <fullName>MiBlock Active Tag (Y-cable)</fullName>
+        <default>false</default>
+        <label>MiBlock Active Tag (Y-cable)</label>
+    </customValue>
+    <customValue>
+        <fullName>MiReader</fullName>
+        <default>false</default>
+        <label>MiReader</label>
+    </customValue>
+    <customValue>
+        <fullName>MiClassify</fullName>
+        <default>false</default>
+        <label>MiClassify</label>
+    </customValue>
+    <customValue>
+        <fullName>Europetracker mini/iotracker</fullName>
+        <default>false</default>
+        <label>Europetracker mini/iotracker</label>
+    </customValue>
+    <customValue>
+        <fullName>FMB122</fullName>
+        <default>false</default>
+        <label>FMB122</label>
+    </customValue>
+    <customValue>
+        <fullName>FMB640</fullName>
+        <default>false</default>
+        <label>FMB640</label>
+    </customValue>
+    <customValue>
+        <fullName>FMC640</fullName>
+        <default>false</default>
+        <label>FMC640</label>
+    </customValue>
+    <customValue>
+        <fullName>FMM130</fullName>
+        <default>false</default>
+        <label>FMM130</label>
+    </customValue>
+    <customValue>
+        <fullName>FMM230</fullName>
+        <default>false</default>
+        <label>FMM230</label>
+    </customValue>
+    <customValue>
+        <fullName>FMM940</fullName>
+        <default>false</default>
+        <label>FMM940</label>
+    </customValue>
+    <customValue>
+        <fullName>FMT100</fullName>
+        <default>false</default>
+        <label>FMT100</label>
+    </customValue>
+    <description>All RMA Articles</description>
+    <masterLabel>Articles (RMA)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

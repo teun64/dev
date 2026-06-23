@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <constants>
+        <description>Correct Queue name = &lt;cQueueNameBase&gt; + &lt;Service Entity&gt;</description>
+        <name>cQueueNameBase</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>gqCasePlatform</stringValue>
+        </value>
+    </constants>
+    <description>Generic After Create Notification</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fQueueName</name>
+        <dataType>String</dataType>
+        <expression>{!cQueueNameBase} + {!fServiceEntity}</expression>
+    </formulas>
+    <formulas>
+        <name>fServiceEntity</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE(TEXT({!$Record.Account__r.Reseller_Name__c}),&apos;1&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fSubject</name>
+        <dataType>String</dataType>
+        <expression>&apos;Notification&apos; + IF(ISBLANK(TEXT({!$Record.Type__c})),&apos;&apos;,(&apos; - &apos; + TEXT({!$Record.Type__c}))) + &apos; - &apos; + BLANKVALUE(TEXT({!$Record.Action__c}),&apos;Start&apos;) + &apos; - &apos; + BLANKVALUE({!$Record.Asset__r.Name},&apos;&lt;No Hardware&gt;&apos;)</expression>
+    </formulas>
+    <interviewLabel>rac - Notifications {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rac - Notification</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterFormula>AND(({!$Record.NotificationStep__r.Period__c} = 0))</filterFormula>
+        <object>Notification__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>afl_01_Notification_Step_Execution</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>afl_01_Notification_Step_Execution</name>
+        <label>1. Notification - Step Execution</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>afl_Notification_Step_Execution</flowName>
+        <inputAssignments>
+            <name>rNotification</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <variables>
+        <name>rCase</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Case</objectType>
+    </variables>
+    <variables>
+        <name>vCommit</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>

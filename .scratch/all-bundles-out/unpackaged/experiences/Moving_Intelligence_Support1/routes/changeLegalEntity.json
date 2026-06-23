@@ -1,0 +1,11 @@
+{
+  "activeViewId" : "82c34b20-b8e0-4165-a442-e2e5a83ae5b0",
+  "appPageId" : "f7000acc-e201-47f5-91bd-101b570e5d0f",
+  "configurationTags" : [ ],
+  "devName" : "Change_Legal_Entity__c",
+  "id" : "cd36d66a-c6d1-4ce0-bbc7-8ee6628f31e2",
+  "label" : "Change Legal Entity",
+  "routeType" : "custom-change-legal-entity",
+  "type" : "route",
+  "urlPrefix" : "change-legal-entity"
+}

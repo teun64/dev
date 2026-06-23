@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Moving Intelligence</fullName>
+        <default>false</default>
+        <label>Moving Intelligence</label>
+    </customValue>
+    <customValue>
+        <fullName>Europetrack</fullName>
+        <default>false</default>
+        <label>Europetrack</label>
+    </customValue>
+    <customValue>
+        <fullName>Echoes</fullName>
+        <default>false</default>
+        <label>Echoes</label>
+    </customValue>
+    <description>Sales Channels used, Moving Intelligence, Europetrack, SlimGPS</description>
+    <masterLabel>Sales Channel</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

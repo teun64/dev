@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Mi01 Peilzender</fullName>
+        <default>false</default>
+        <label>Mi01 Tracer</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi7 Peilzender</fullName>
+        <default>false</default>
+        <label>Mi7 Tracer</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi8 Peilzender</fullName>
+        <default>false</default>
+        <label>Mi8 Tracer</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi9 Peilzender</fullName>
+        <default>false</default>
+        <label>Mi9 Tracer</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi12 Container tracker</fullName>
+        <default>false</default>
+        <label>Mi12 Container Tracer</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi13 Trailer volgsysteem</fullName>
+        <default>false</default>
+        <label>Mi13 Trailer tracking system</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi40 Rittenregistratiesysteem</fullName>
+        <default>false</default>
+        <label>Mi40 Trip registration system</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50 - Voertuigvolgsysteem</fullName>
+        <default>false</default>
+        <label>Mi50 - Vehicle Tracking System</label>
+    </customValue>
+    <customValue>
+        <fullName>MiBlock - Startonderbreker</fullName>
+        <default>false</default>
+        <label>MiBlock - Immobilizer</label>
+    </customValue>
+    <customValue>
+        <fullName>Mi50 + MiBlock</fullName>
+        <default>false</default>
+        <label>Mi50 + MiBlock</label>
+    </customValue>
+    <masterLabel>System Types</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

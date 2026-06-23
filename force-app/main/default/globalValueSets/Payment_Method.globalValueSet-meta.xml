@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>14</fullName>
+        <default>false</default>
+        <label>On account 14 days after invoice date</label>
+    </customValue>
+    <customValue>
+        <fullName>30</fullName>
+        <default>false</default>
+        <label>On account 30 days after invoice date</label>
+    </customValue>
+    <customValue>
+        <fullName>60</fullName>
+        <default>false</default>
+        <label>On account 60 days after invoice date</label>
+    </customValue>
+    <customValue>
+        <fullName>08</fullName>
+        <default>false</default>
+        <label>On account 08 days after invoice date</label>
+    </customValue>
+    <customValue>
+        <fullName>I4</fullName>
+        <default>false</default>
+        <label>Direct debit 14 days</label>
+    </customValue>
+    <customValue>
+        <fullName>I3</fullName>
+        <default>false</default>
+        <label>Direct debit 30 days</label>
+    </customValue>
+    <customValue>
+        <fullName>I8</fullName>
+        <default>false</default>
+        <label>Direct debit 8 days</label>
+    </customValue>
+    <customValue>
+        <fullName>p0</fullName>
+        <default>false</default>
+        <label>Payment provider</label>
+    </customValue>
+    <customValue>
+        <fullName>C</fullName>
+        <default>false</default>
+        <label>Free of charge</label>
+    </customValue>
+    <customValue>
+        <fullName>p1</fullName>
+        <default>false</default>
+        <label>Payment by (credit)Card (Opayo - UK Only)</label>
+    </customValue>
+    <customValue>
+        <fullName>I0</fullName>
+        <default>false</default>
+        <label>Direct Debit (Bottomline - UK Only)</label>
+    </customValue>
+    <customValue>
+        <fullName>GR</fullName>
+        <default>false</default>
+        <label>G4S Greece</label>
+    </customValue>
+    <customValue>
+        <fullName>O8</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>O8</label>
+    </customValue>
+    <description>Payment Methods for Exact.</description>
+    <masterLabel>Payment Method</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

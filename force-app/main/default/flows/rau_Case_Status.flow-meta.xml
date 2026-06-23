@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <environments>Default</environments>
+    <interviewLabel>rau - Case - Status {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rau - Case - Status</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Queue_Based_on_Skill_Assignment</name>
+        <label>Get Queue Based on Skill Assignment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Reset_Preferred_Case_Owner</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Last_Queue__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Group</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Clears the Preferred Case Owner field.</description>
+        <name>Reset_Preferred_Case_Owner</name>
+        <label>Reset Preferred Case Owner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>Get_Queue_Based_on_Skill_Assignment.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Preferred_Case_Owner_01__c</field>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>1 AND (2 OR 3)</filterLogic>
+        <filters>
+            <field>Preferred_Case_Owner_01__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Response Received</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Reopened</stringValue>
+            </value>
+        </filters>
+        <object>Case</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <scheduledPaths>
+            <name>sp_Reset_Preferred_Case_Owner</name>
+            <connector>
+                <targetReference>Get_Queue_Based_on_Skill_Assignment</targetReference>
+            </connector>
+            <label>Reset Preferred Case Owner</label>
+            <offsetNumber>4</offsetNumber>
+            <offsetUnit>Hours</offsetUnit>
+            <recordField>Last_Status_Change__c</recordField>
+            <timeSource>RecordField</timeSource>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>tCustomNotificationBody</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>The last activity on Case {!$Record.CaseNumber} under Investigation is over 7 days ago. Please take action accordingly.</text>
+    </textTemplates>
+    <textTemplates>
+        <name>tCustomNotificationTitle</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>No activity for over 7 days on Case {!$Record.CaseNumber}</text>
+    </textTemplates>
+    <triggerOrder>502</triggerOrder>
+    <variables>
+        <name>vCustomNotificationType</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>CustomNotificationType</objectType>
+    </variables>
+    <variables>
+        <name>vRecipientIDs</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Newsletter</label>
+    <protected>false</protected>
+    <values>
+        <field>CommunicationType__c</field>
+        <value xsi:type="xsd:string">NEWSLETTER</value>
+    </values>
+    <values>
+        <field>Category__c</field>
+        <value xsi:type="xsd:string">MARKETING</value>
+    </values>
+</CustomMetadata>

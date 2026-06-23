@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>E</fullName>
+        <default>false</default>
+        <label>Echoes</label>
+    </customValue>
+    <customValue>
+        <fullName>M</fullName>
+        <default>false</default>
+        <label>Moving Intelligence</label>
+    </customValue>
+    <customValue>
+        <fullName>T</fullName>
+        <default>false</default>
+        <label>TDS Ultra</label>
+    </customValue>
+    <description>All Brands in the  Moving Intelligence Group</description>
+    <masterLabel>Brand (Com. Prefercence)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

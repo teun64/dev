@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>1</fullName>
+        <default>false</default>
+        <label>NL - Moving Intelligence B.V.</label>
+    </customValue>
+    <customValue>
+        <fullName>2</fullName>
+        <default>false</default>
+        <label>GR - G4S Greece</label>
+    </customValue>
+    <customValue>
+        <fullName>3</fullName>
+        <default>false</default>
+        <label>BE - Moving Intelligence B.V.</label>
+    </customValue>
+    <customValue>
+        <fullName>4</fullName>
+        <default>false</default>
+        <label>FR - Echoes Solutions</label>
+    </customValue>
+    <customValue>
+        <fullName>5</fullName>
+        <default>false</default>
+        <label>DE - Moving Intelligence GmbH</label>
+    </customValue>
+    <customValue>
+        <fullName>6</fullName>
+        <default>false</default>
+        <label>GB - Moving Intelligence ltd</label>
+    </customValue>
+    <customValue>
+        <fullName>0</fullName>
+        <default>false</default>
+        <label>0 - None</label>
+    </customValue>
+    <description>The Business Entities (Resellers) we have, used to determine the Customer- and Service Entity</description>
+    <masterLabel>Business Entities</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

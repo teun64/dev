@@ -1,0 +1,12 @@
+{
+  "activeViewId" : "a98efe62-cb62-4924-9c36-8e1413a8e210",
+  "appPageId" : "d2fab8a4-acad-43dc-adfa-acc01e179d21",
+  "configurationTags" : [ ],
+  "devName" : "Search",
+  "id" : "ccf385de-8de8-41a3-9ab9-062062f50d16",
+  "label" : "Search",
+  "pageAccess" : "UseParent",
+  "routeType" : "global-search",
+  "type" : "route",
+  "urlPrefix" : "global-search"
+}

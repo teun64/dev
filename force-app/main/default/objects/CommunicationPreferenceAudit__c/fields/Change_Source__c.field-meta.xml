@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Change_Source__c</fullName>
+    <label>Change Source</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>PREFERENCE_CENTER</fullName>
+                <label>Preference Center</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>SUPPORT_CONSOLE</fullName>
+                <label>Support Console</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>IMPORT</fullName>
+                <label>Import</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>API</fullName>
+                <label>API</label>
+                <default>false</default>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <required>false</required>
+</CustomField>

@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Base_Fixed_Prices</name>
+        <label>1. Base &amp; Fixed Prices</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_1__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fFixedPrice1</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_2__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fFixedPrice2</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_3__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fFixedPrice3</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_4__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fFixedPrice4</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.BasePrice__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>vUnitPrice</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>ass_01_Compound_Key</name>
+        <label>1. Compound Key</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Compound_Key__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Account__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Compound_Key__c</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Record.Product__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Currency</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Currency</name>
+        <label>1. Currency</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.CurrencyIsoCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fCurrency</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_DoFixedPrices</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Defaults</name>
+        <label>1. Defaults</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.IsActive__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Preparation</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Compound_Key</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_02_Fixed_Prices</name>
+        <label>2. Fixed Prices</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_1__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>cNumberNull</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_2__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>cNumberNull</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_3__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>cNumberNull</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.FixedPrice_4__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>cNumberNull</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.BasePrice__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>cNumberNull</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.isFixedPrice__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <constants>
+        <name>cNumberNull</name>
+        <dataType>Number</dataType>
+    </constants>
+    <decisions>
+        <name>dec_01_Compound_Key</name>
+        <label>1. Compound Key</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_Currency</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Compound_Key_Set</name>
+            <conditionLogic>((1 OR 2 OR 3) AND (4 AND 5))</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Product__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Product__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Compound_Key</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_DoFixedPrices</name>
+        <label>1. FixedPrices</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_02_Fixed_Prices</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_DoFixedPrices_Yes</name>
+            <conditionLogic>((1 OR 2 OR 3 OR 4) AND (5 AND 6 AND 7)) OR ((8 AND 9) AND (10 OR 11 OR 12 OR 13))</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.isFixedPrice__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Product__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.isFixedPrice__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Product__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Reset_Discount__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.isFixedPrice__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.From_Discount_1__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.From_Discount_2__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.From_Discount_3__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.From_Discount_4__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dgr_01_PriceBook</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+        <rules>
+            <name>dec_01_DoFixedPrices_Skip</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.isFixedPrice__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Product__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Skip</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_New</name>
+        <label>1. New</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Compound_Key</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_New_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Defaults</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_PriceBook</name>
+        <label>1. PriceBook</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_02_Fixed_Prices</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Oeps</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_PriceBook_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>dgr_01_PriceBook</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dgr_01_Pricebook_Entry</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_vUnitPrice</name>
+        <label>1. vUnitPrice</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_02_Fixed_Prices</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Oeps</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_vUnitPrice_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>vUnitPrice</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Base_Fixed_Prices</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <description>Generic Flow before create and update on Product Discount</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fCurrency</name>
+        <dataType>String</dataType>
+        <expression>IF(ISPICKVAL({!$Record.Account__r.Reseller_Name__c},&apos;6&apos;),&apos;GBP&apos;,&apos;EUR&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fFixedPrice1</name>
+        <dataType>Number</dataType>
+        <expression>IF(
+(BLANKVALUE({!$Record.From_Quantity_1__c},0)&gt;=1)
+,
+ROUND (
+(
+( 1 - (BLANKVALUE({!$Record.From_Discount_1__c},0) /  IF(OR((BLANKVALUE({!$Record.From_Discount_1__c},0)&gt;1),(BLANKVALUE({!$Record.From_Discount_1__c},0)&lt;-1)),100,1))) 
+*
+{!vUnitPrice} 
+)
+,
+2
+)
+,
+{!cNumberNull}
+)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fFixedPrice2</name>
+        <dataType>Number</dataType>
+        <expression>IF(
+(BLANKVALUE({!$Record.From_Quantity_2__c},0)&gt;=1)
+,
+ROUND (
+(
+( 1 - (BLANKVALUE({!$Record.From_Discount_2__c},0) /  IF(OR((BLANKVALUE({!$Record.From_Discount_2__c},0)&gt;1),(BLANKVALUE({!$Record.From_Discount_2__c},0)&lt;-1)),100,1))) 
+*
+{!vUnitPrice} 
+)
+,
+2
+)
+,
+{!cNumberNull}
+)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fFixedPrice3</name>
+        <dataType>Number</dataType>
+        <expression>IF(
+(BLANKVALUE({!$Record.From_Quantity_3__c},0)&gt;=1)
+,
+ROUND (
+(
+( 1 - (BLANKVALUE({!$Record.From_Discount_3__c},0) /  IF(OR((BLANKVALUE({!$Record.From_Discount_3__c},0)&gt;1),(BLANKVALUE({!$Record.From_Discount_3__c},0)&lt;-1)),100,1))) 
+*
+{!vUnitPrice} 
+)
+,
+2
+)
+,
+{!cNumberNull}
+)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fFixedPrice4</name>
+        <dataType>Number</dataType>
+        <expression>IF(
+(BLANKVALUE({!$Record.From_Quantity_4__c},0)&gt;=1)
+,
+ROUND (
+(
+( 1 - (BLANKVALUE({!$Record.From_Discount_4__c},0) /  IF(OR((BLANKVALUE({!$Record.From_Discount_4__c},0)&gt;1),(BLANKVALUE({!$Record.From_Discount_4__c},0)&lt;-1)),100,1))) 
+*
+{!vUnitPrice} 
+)
+,
+2
+)
+,
+{!cNumberNull}
+)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fMarket</name>
+        <dataType>String</dataType>
+        <expression>&apos;&apos;
+/*IF(OR(ISPICKVAL($Record.Account__c.Reseller_Name__c,&apos;1&apos;),ISPICKVAL($Record.Account__c.Reseller_Name__c,&apos;5&apos;)),&apos;&apos;,Text($Record.Account__c.Market__c))*/</expression>
+    </formulas>
+    <formulas>
+        <name>fPriceBookType</name>
+        <dataType>String</dataType>
+        <expression>CASE({!$Record.Product__r.RecordType.DeveloperName}
+,&apos;Subscription&apos;,&apos;Subscriptions&apos;
+,(CASE(text({!$Record.Account__r.Relation_type__c})
+,&apos;Distributor&apos;,  &apos;Distributors&apos;
+,&apos;Dealer&apos;,&apos;Dealers&apos;
+,&apos;Intercompany&apos;,&apos;Intercompany&apos;
+,&apos;Leasing Company&apos;,&apos;Leasing Companies&apos;
+,&apos;High Volume&apos;,&apos;High Volume (Consumer &amp; Business Users)&apos;
+,&apos;Consumer &amp; Business Users&apos;))
+)</expression>
+    </formulas>
+    <interviewLabel>rbb - Product Discount {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbb - Product Discount</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>dgr_01_PriceBook</name>
+        <label>1. PriceBook</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_PriceBook</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>fPriceBookType</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Account__r.Reseller_Name__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Market__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>fMarket</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Pricebook2</object>
+        <queriedFields>Id</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_01_Pricebook_Entry</name>
+        <label>1. Pricebook Entry</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_vUnitPrice</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Pricebook2Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>dgr_01_PriceBook.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Product2Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Product__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>CurrencyIsoCode</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CurrencyIsoCode</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>PricebookEntry</object>
+        <outputAssignments>
+            <assignToReference>vUnitPrice</assignToReference>
+            <field>UnitPrice</field>
+        </outputAssignments>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_New</targetReference>
+        </connector>
+        <object>Product_Discount__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+    <triggerOrder>101</triggerOrder>
+    <variables>
+        <name>vPriceBookId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vUnitPrice</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>2</scale>
+    </variables>
+</Flow>

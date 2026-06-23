@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <constants>
+        <name>cApproved</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>doApprove</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cApprovedWorkItem</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Approve</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cCommentRecal</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Request canceled by the submitter</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cStageApproved</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Approved</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cStageFinance</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Finance</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cStageRecall</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Recall</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cStageRejected</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Rejected</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cStageSales</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Sales</stringValue>
+        </value>
+    </constants>
+    <decisions>
+        <name>dec_01_Finance_Stage</name>
+        <label>1. Finance (Stage)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ast_01_Rejected_Finance</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Rejected (Default)</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Finance_Stage_Approved</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>ast_02_aps_01_Finance.Outputs.approvalDecision</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>cApproved</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>ast_02_aps_01_Finance.Outputs.approvalDecision</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>cApprovedWorkItem</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ast_03_Approved_Finance</targetReference>
+            </connector>
+            <label>Approved</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Sales_Stage</name>
+        <label>1. Sales (Stage)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ast_01_Rejected_Sales</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Rejected (Default)</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Sales_Stage_Approved</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>ast_01_aps_01_Sales.Outputs.approvalDecision</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>cApproved</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>ast_01_aps_01_Sales.Outputs.approvalDecision</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>cApprovedWorkItem</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ast_02_Finance</targetReference>
+            </connector>
+            <label>Approved</label>
+        </rules>
+    </decisions>
+    <description>Start of the Price Agreement (Product Discount) Approval Process</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fCustomer</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE({!$Record.Account__r.Name},&apos;&lt;customer&gt;&apos;) + &apos;  (&apos; + BLANKVALUE({!$Record.Account__r.FinancialDebtorNumber__c},&apos;&lt;debtor&gt;&apos;) + &apos;)&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>fLine</name>
+        <dataType>String</dataType>
+        <expression>&apos;─────────────────────────────────────────────&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>fNotificationSubject</name>
+        <dataType>String</dataType>
+        <expression>&apos;Approval request, price agreement: &apos; + {!$Record.DirectLinkName__c}</expression>
+    </formulas>
+    <formulas>
+        <name>fPricingType</name>
+        <dataType>String</dataType>
+        <expression>IF({!$Record.isFixedPrice__c}, (&apos;Fixed price agreement with the customer, (current list price: &apos; &amp; TEXT(ROUND({!$Record.BasePrice__c},2)) &amp; &apos;)&apos;),&apos;Discount applied to standard pricing&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fProduct</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE({!$Record.Product__r.Name},&apos;&lt;product&gt;&apos;) + &apos; (&apos; + BLANKVALUE({!$Record.Product__r.ProductCode},&apos;&lt;productcode&gt;&apos;)  +&apos;)&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>fSubmitterName</name>
+        <dataType>String</dataType>
+        <expression>TRIM(BLANKVALUE({!$Record.ApprovalSubmitter__r.FirstName},&apos;&apos;) + &apos; &apos; + BLANKVALUE({!$Record.ApprovalSubmitter__r.MiddleName},&apos;&apos;) + &apos; &apos; + BLANKVALUE({!$Record.ApprovalSubmitter__r.LastName},&apos;&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>fTierRow1</name>
+        <dataType>String</dataType>
+        <expression>IF(
+AND(NOT(ISBLANK({!$Record.From_Quantity_1__c})),NOT(ISBLANK({!$Record.From_Discount_1__c})))
+,
+(&apos;• From &apos; &amp; TEXT({!$Record.From_Quantity_1__c}) &amp; &apos; units: &apos; &amp; TEXT({!$Record.From_Discount_1__c}) &amp; &apos;% discount&apos; &amp;
+IF({!$Record.isFixedPrice__c},&apos;, fixed (&apos; &amp; TEXT(ROUND({!$Record.FixedPrice_1__c},2)) &amp; &apos;)&apos;,&apos;&apos;)
+)
+,
+&apos;&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fTierRow2</name>
+        <dataType>String</dataType>
+        <expression>IF(
+AND(NOT(ISBLANK({!$Record.From_Quantity_2__c})),NOT(ISBLANK({!$Record.From_Discount_2__c})))
+,
+(&apos;• From &apos; &amp; TEXT({!$Record.From_Quantity_2__c}) &amp; &apos; units: &apos; &amp; TEXT({!$Record.From_Discount_2__c}) &amp; &apos;% discount&apos; &amp;
+IF({!$Record.isFixedPrice__c},&apos;, fixed (&apos; &amp; TEXT(ROUND({!$Record.FixedPrice_2__c},2)) &amp; &apos;)&apos;,&apos;&apos;)
+)
+,
+&apos;&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fTierRow3</name>
+        <dataType>String</dataType>
+        <expression>IF(
+AND(NOT(ISBLANK({!$Record.From_Quantity_3__c})),NOT(ISBLANK({!$Record.From_Discount_3__c})))
+,
+(&apos;• From &apos; &amp; TEXT({!$Record.From_Quantity_3__c}) &amp; &apos; units: &apos; &amp; TEXT({!$Record.From_Discount_3__c}) &amp; &apos;% discount&apos; &amp;
+IF({!$Record.isFixedPrice__c},&apos;, fixed (&apos; &amp; TEXT(ROUND({!$Record.FixedPrice_3__c},2)) &amp; &apos;)&apos;,&apos;&apos;)
+)
+,
+&apos;&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fTierRow4</name>
+        <dataType>String</dataType>
+        <expression>IF(
+AND(NOT(ISBLANK({!$Record.From_Quantity_4__c})),NOT(ISBLANK({!$Record.From_Discount_4__c})))
+,
+(&apos;• From &apos; &amp; TEXT({!$Record.From_Quantity_4__c}) &amp; &apos; units: &apos; &amp; TEXT({!$Record.From_Discount_4__c}) &amp; &apos;% discount&apos; &amp;
+IF({!$Record.isFixedPrice__c},&apos;, fixed (&apos; &amp; TEXT(ROUND({!$Record.FixedPrice_4__c},2)) &amp; &apos;)&apos;,&apos;&apos;)
+)
+,
+&apos;&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fTiers</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE({!fTierRow1},&apos;&apos;) &amp; IF(ISBLANK({!fTierRow2}),&apos;&apos;,BR()) &amp;
+BLANKVALUE({!fTierRow2},&apos;&apos;) &amp; IF(ISBLANK({!fTierRow3}),&apos;&apos;,BR()) &amp;
+BLANKVALUE({!fTierRow3},&apos;&apos;) &amp; IF(ISBLANK({!fTierRow4}),&apos;&apos;,BR()) &amp;
+BLANKVALUE({!fTierRow4},&apos;&apos;)</expression>
+    </formulas>
+    <interviewLabel>rau - Product Discount - Approval {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rau - Product Discount - Approval</label>
+    <orchestratedStages>
+        <name>ast_01_Recall_Preparation</name>
+        <label>1. Recall (Preparation)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <exitConditionLogic>and</exitConditionLogic>
+        <stageSteps>
+            <name>ast_01_bgs_01_Preparation</name>
+            <actionName>asf_Product_Discount_Approval_Background_Step</actionName>
+            <actionType>stepBackground</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalSubmitter__r.Username</elementReference>
+                </assignee>
+                <assigneeType>User</assigneeType>
+            </assignees>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>approvalComments</name>
+                <value>
+                    <elementReference>cCommentRecal</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>rProductDiscount</name>
+                <value>
+                    <elementReference>$Record</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>stage</name>
+                <value>
+                    <elementReference>cStageRecall</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Preparation (bgs)</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>true</runAsUser>
+            <shouldLock>false</shouldLock>
+            <stepSubtype>BackgroundStep</stepSubtype>
+        </stageSteps>
+    </orchestratedStages>
+    <orchestratedStages>
+        <name>ast_01_Rejected_Finance</name>
+        <label>3. Rejected (Finance)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <exitConditionLogic>and</exitConditionLogic>
+        <stageSteps>
+            <name>ast_03_bgs_01_Rejected</name>
+            <actionName>asf_Product_Discount_Approval_Background_Step</actionName>
+            <actionType>stepBackground</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalFinance__r.Username</elementReference>
+                </assignee>
+                <assigneeType>User</assigneeType>
+            </assignees>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>approvalComments</name>
+                <value>
+                    <elementReference>ast_02_aps_01_Finance.Outputs.approvalComments</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>rProductDiscount</name>
+                <value>
+                    <elementReference>$Record</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>stage</name>
+                <value>
+                    <elementReference>cStageRejected</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Rejected (bgs)</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>true</runAsUser>
+            <shouldLock>false</shouldLock>
+            <stepSubtype>BackgroundStep</stepSubtype>
+        </stageSteps>
+    </orchestratedStages>
+    <orchestratedStages>
+        <name>ast_01_Rejected_Sales</name>
+        <label>1. Rejected  (Sales)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <exitConditionLogic>and</exitConditionLogic>
+        <stageSteps>
+            <name>ast_01_bgs_01_Rejected</name>
+            <actionName>asf_Product_Discount_Approval_Background_Step</actionName>
+            <actionType>stepBackground</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalSales__r.Username</elementReference>
+                </assignee>
+                <assigneeType>User</assigneeType>
+            </assignees>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>approvalComments</name>
+                <value>
+                    <elementReference>ast_01_aps_01_Sales.Outputs.approvalComments</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>rProductDiscount</name>
+                <value>
+                    <elementReference>$Record</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>stage</name>
+                <value>
+                    <elementReference>cStageRejected</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Rejected (bgs)</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>true</runAsUser>
+            <shouldLock>false</shouldLock>
+            <stepSubtype>BackgroundStep</stepSubtype>
+        </stageSteps>
+    </orchestratedStages>
+    <orchestratedStages>
+        <name>ast_01_Sales</name>
+        <label>1. Sales (Stage)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Sales_Stage</targetReference>
+        </connector>
+        <exitConditionLogic>and</exitConditionLogic>
+        <stageSteps>
+            <name>ast_01_bgs_01_Sales</name>
+            <actionName>asf_Product_Discount_Approval_Background_Step</actionName>
+            <actionType>stepBackground</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalSubmitter__r.Username</elementReference>
+                </assignee>
+                <assigneeType>User</assigneeType>
+            </assignees>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>approvalComments</name>
+                <value>
+                    <stringValue></stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>rProductDiscount</name>
+                <value>
+                    <elementReference>$Record</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>stage</name>
+                <value>
+                    <elementReference>cStageSales</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Sales (bgs)</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>true</runAsUser>
+            <shouldLock>false</shouldLock>
+            <stepSubtype>BackgroundStep</stepSubtype>
+        </stageSteps>
+        <stageSteps>
+            <name>ast_01_aps_01_Sales</name>
+            <actionName>scr_Product_Discount_Approval_Evaluate_Request</actionName>
+            <actionType>stepApproval</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalSales__r.Username</elementReference>
+                </assignee>
+                <assigneeType>Resource</assigneeType>
+            </assignees>
+            <canAssigneeEdit>true</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <entryConditions>
+                <conditionType>EntryCondition</conditionType>
+                <leftValueReference>ast_01_bgs_01_Sales.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Completed</stringValue>
+                </rightValue>
+            </entryConditions>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>ActionInput__RecordId</name>
+                <value>
+                    <elementReference>$Record.Id</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>ActionInput__CustomEmailSubject</name>
+                <value>
+                    <elementReference>fNotificationSubject</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>ActionInput__CustomEmailBody</name>
+                <value>
+                    <elementReference>ttNotificationBody</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Sales (aps)</label>
+            <outputConfigParams>
+                <name>approvalComments</name>
+                <value xsi:nil="true"/>
+            </outputConfigParams>
+            <outputConfigParams>
+                <name>approvalDecision</name>
+                <value xsi:nil="true"/>
+            </outputConfigParams>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>false</runAsUser>
+            <shouldLock>true</shouldLock>
+            <stepSubtype>ApprovalStep</stepSubtype>
+        </stageSteps>
+    </orchestratedStages>
+    <orchestratedStages>
+        <name>ast_02_Finance</name>
+        <label>2. Finance (Confirmation)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Finance_Stage</targetReference>
+        </connector>
+        <exitConditionLogic>and</exitConditionLogic>
+        <stageSteps>
+            <name>ast_02_bgs_01_Finance</name>
+            <actionName>asf_Product_Discount_Approval_Background_Step</actionName>
+            <actionType>stepBackground</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalSales__r.Username</elementReference>
+                </assignee>
+                <assigneeType>User</assigneeType>
+            </assignees>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>approvalComments</name>
+                <value>
+                    <elementReference>ast_01_aps_01_Sales.Outputs.approvalComments</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>rProductDiscount</name>
+                <value>
+                    <elementReference>$Record</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>stage</name>
+                <value>
+                    <elementReference>cStageFinance</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Finance (bgs)</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>true</runAsUser>
+            <shouldLock>false</shouldLock>
+            <stepSubtype>BackgroundStep</stepSubtype>
+        </stageSteps>
+        <stageSteps>
+            <name>ast_02_aps_01_Finance</name>
+            <actionName>scr_Product_Discount_Approval_Evaluate_Request</actionName>
+            <actionType>stepApproval</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalFinance__r.Username</elementReference>
+                </assignee>
+                <assigneeType>Resource</assigneeType>
+            </assignees>
+            <canAssigneeEdit>true</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <entryConditions>
+                <conditionType>EntryCondition</conditionType>
+                <leftValueReference>ast_02_bgs_01_Finance.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Completed</stringValue>
+                </rightValue>
+            </entryConditions>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>ActionInput__RecordId</name>
+                <value>
+                    <elementReference>$Record.Id</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>ActionInput__CustomEmailSubject</name>
+                <value>
+                    <elementReference>fNotificationSubject</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>ActionInput__CustomEmailBody</name>
+                <value>
+                    <elementReference>ttNotificationBody</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Finance (aps)</label>
+            <outputConfigParams>
+                <name>approvalComments</name>
+                <value xsi:nil="true"/>
+            </outputConfigParams>
+            <outputConfigParams>
+                <name>approvalDecision</name>
+                <value xsi:nil="true"/>
+            </outputConfigParams>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>false</runAsUser>
+            <shouldLock>true</shouldLock>
+            <stepSubtype>ApprovalStep</stepSubtype>
+        </stageSteps>
+    </orchestratedStages>
+    <orchestratedStages>
+        <name>ast_03_Approved_Finance</name>
+        <label>3. Approved (Finance)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <exitConditionLogic>and</exitConditionLogic>
+        <stageSteps>
+            <name>ast_03_bgs_01_Approved</name>
+            <actionName>asf_Product_Discount_Approval_Background_Step</actionName>
+            <actionType>stepBackground</actionType>
+            <assignees>
+                <assignee>
+                    <elementReference>$Record.ApprovalFinance__r.Username</elementReference>
+                </assignee>
+                <assigneeType>User</assigneeType>
+            </assignees>
+            <canAssigneeEdit>false</canAssigneeEdit>
+            <debugSimulateStep>false</debugSimulateStep>
+            <entryConditionLogic>and</entryConditionLogic>
+            <exitConditionLogic>and</exitConditionLogic>
+            <inputParameters>
+                <name>approvalComments</name>
+                <value>
+                    <elementReference>ast_02_aps_01_Finance.Outputs.approvalComments</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>rProductDiscount</name>
+                <value>
+                    <elementReference>$Record</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>stage</name>
+                <value>
+                    <elementReference>cStageApproved</elementReference>
+                </value>
+            </inputParameters>
+            <label>1. Approved (bgs)</label>
+            <requiresAsyncProcessing>false</requiresAsyncProcessing>
+            <runAsUser>true</runAsUser>
+            <shouldLock>false</shouldLock>
+            <stepSubtype>BackgroundStep</stepSubtype>
+        </stageSteps>
+    </orchestratedStages>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>ApprovalWorkflow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ast_01_Sales</targetReference>
+        </connector>
+        <filterFormula>AND(NOT(ISBLANK({!$Record.Account__c})),NOT(ISBLANK({!$Record.Product__c})),ISCHANGED({!$Record.doApproval__c}),{!$Record.doApproval__c})</filterFormula>
+        <object>Product_Discount__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>ast_01_Recall_Preparation</targetReference>
+            </connector>
+            <pathType>ApprovalRecall</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>ttNotificationBody</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;Hello,&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;A &lt;/span&gt;&lt;strong style=&quot;font-family: sans-serif;&quot;&gt;&lt;u&gt;Price Agreement &lt;/u&gt;&lt;/strong&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;(Product Discount) request has been submitted for approval.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-family: sans-serif;&quot;&gt;Customer:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;{!fCustomer}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-family: sans-serif;&quot;&gt;Product:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;{!fProduct}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-family: sans-serif;&quot;&gt;Pricing type:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!fPricingType}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;{!fLine}&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-family: sans-serif;&quot;&gt;Discount tiers&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!fLine}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;{!fTiers}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!fLine}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-family: sans-serif; font-size: 14px;&quot;&gt;Request details&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!fLine}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-family: sans-serif;&quot;&gt;Justification:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;{!$Record.ApprovalComments__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;Please review this request and approve or reject it using the link below:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;{!$Record.DirectLinkAddress__c}&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;font-family: sans-serif;&quot;&gt;&lt;strong&gt;{!$Record.DirectLinkName__c}&lt;/strong&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: sans-serif;&quot;&gt;Requested by and kind regards,&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-family: sans-serif; font-size: 14px;&quot;&gt;{!fSubmitterName}&lt;/strong&gt;&lt;/p&gt;</text>
+    </textTemplates>
+    <triggerOrder>200</triggerOrder>
+</Flow>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Ja</fullName>
+        <default>false</default>
+        <label>Yes</label>
+    </customValue>
+    <customValue>
+        <fullName>Nee</fullName>
+        <default>false</default>
+        <label>No</label>
+    </customValue>
+    <customValue>
+        <fullName>Weet ik niet, stuur mij aub meer informatie</fullName>
+        <default>false</default>
+        <label>I don&apos;t know, please send me more information</label>
+    </customValue>
+    <masterLabel>Generic Yes, No and More Information</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

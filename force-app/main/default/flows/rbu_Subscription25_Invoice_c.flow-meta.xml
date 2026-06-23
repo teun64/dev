@@ -1,0 +1,1233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Adjusted_Invoice_Number</name>
+        <label>1. Adjusted Invoice Number</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Invoice_Number__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fAdjustedInvoiceNumber</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_02_commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Base_Due_Date</name>
+        <label>1. Base Due Date (Variables)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Due_Date_Base__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fDueDateBase</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vDuePeriod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fDuePeriod</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_04_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Billing_Address</name>
+        <label>1. Billing Address</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Billing_City__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fBillingCity</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Billing_Country__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fBillingCountry</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Billing_Postal_Code__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fBillingPostalCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Billing_State__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fBillingState</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Billing_Street__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fBillingStreet</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_02_Status</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Commit</name>
+        <label>1. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Invoice_Number</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Due_Date_Set</name>
+        <label>1. Due Date (Set)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Due_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fDueDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_05_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Email_Sent_Date_Clear</name>
+        <label>1. Email Sent Date Clear</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Email_SendDate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>cEmptyDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Due_Date_Base__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>cEmptyDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_03_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Email_Sent_Date_Set</name>
+        <label>1. Email Sent Date Set</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Email_SendDate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_03_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Email_Status</name>
+        <label>1. Email Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Email_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SENT</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_NET_Amounts</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Invoice_Date</name>
+        <label>1. Invoice Date</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Invoice_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fInvoiceDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_PaymentMethod_Base</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Final values for Payment Method &amp; Cost Centre &amp; Sales Channel</description>
+        <name>ass_01_Invoice_Defaults</name>
+        <label>1. Invoice (Defaults)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Method__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>vPaymentMethod</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Cost_Center_invoicing__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Account__r.Cost_Center_invoicing__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Sales_Channel__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fSalesChannel</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Reference__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>vPaymentReference</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Remark__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Account__r.Invoice_Payment_Remark__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Account_Contract__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fContractAccount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Paid_In_Advance__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fIsPaid</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Do_Not_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Invoice_Description</name>
+        <label>1. Invoice Description</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Invoice_Description__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fInvoiceDescription</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_Gross_Amount</name>
+        <label>1. Payment Gross Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Amount_Gross__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentAmountGross</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_BillingAddress</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_Net_Amount</name>
+        <label>1. Payment Net Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Amount_Net__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentAmountNet</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_VAT_Amount</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_VAT_Amount</name>
+        <label>1. Payment VAT Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Amount_VAT__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentAmountVAT</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Payment_Gross_Amount</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_PaymentMethod_Additional</name>
+        <label>1. PaymentMethod - Additional</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vPaymentMethod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethodAdditional</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Invoice_Defaults</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Reassing the payment method to the variable</description>
+        <name>ass_01_PaymentMethod_Base</name>
+        <label>1. PaymentMethod - Base</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vPaymentMethod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethodBase</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_PaymentMethod_Revoke</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Revoke Europtrack &amp; SlimmGPS payment methods (out dated)</description>
+        <name>ass_01_PaymentMethod_Revoke</name>
+        <label>1. PaymentMethod - Revoke</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vPaymentMethod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethodRevoke</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_PaymentMethod_Additional</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_prefixInvoiceNumber</name>
+        <label>1. (prefix) InvoiceNumber</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vPrefixInvoiceNumber</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPrefixInvoiceNumber</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vCurrentInvoiceNumber</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fCurrentInvoiceNumber</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_prefixInvoiceNumber</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_02_commit</name>
+        <label>2. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Email_Status</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_03_Commit</name>
+        <label>3. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>ass_01_Base_Due_Date</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Ensure that the vars above are filled</description>
+        <name>ass_04_Commit</name>
+        <label>4. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Due_Date_Set</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Ensure that the vars above are filled</description>
+        <name>ass_05_Commit</name>
+        <label>5 .Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_1_DueDate_DirectDebit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Ensure that the vars above are filled</description>
+        <name>ass_06_Commit</name>
+        <label>6 .Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>ass_1_DueDate_DirectDebit</name>
+        <label>1. Due Date (Direct Debit Weekend)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Due_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fDueDateDirectDebit</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_06_Commit</targetReference>
+        </connector>
+    </assignments>
+    <constants>
+        <name>cEmptyDate</name>
+        <dataType>Date</dataType>
+    </constants>
+    <decisions>
+        <name>dec_01_BillingAddress</name>
+        <label>1. Billing Address</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_02_Status</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_BillingAddress_Set</name>
+            <conditionLogic>(1 AND 2) OR 3 OR 4 OR 5 OR 6</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Billing_State__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Billing_City__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Billing_City__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Billing_Country__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Billing_Postal_Code__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Billing_Street__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Billing_Address</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Do_Not_Email</name>
+        <label>1. Do Not Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_NET_Amounts</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Do_Not_Email_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Email_Status__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>SENT</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Account__r.Invoice_Do_Not_Sent_By_Email__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Email_Status</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Resets the due date when, the due period, invoice date or email date has been changed</description>
+        <name>dec_01_Due_Date</name>
+        <label>1. Due Date</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Due_Date_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>FINALIZED</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Base_Due_Date</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Email_Status</name>
+        <label>1. Email Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Due_Date</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Email_Status_SENT</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Email_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>SENT</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Email_Sent_Date_Set</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Sent</label>
+        </rules>
+        <rules>
+            <name>Error</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Email_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>ERROR</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Email_Sent_Date_Clear</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Error</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Invoice_Number</name>
+        <label>1. Invoice Number</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Email_Status</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Invoice_Number_Adjust</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Invoice_Number__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Invoice_Number__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_prefixInvoiceNumber</targetReference>
+            </connector>
+            <label>Adjust</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Payment_Gross_Amount</name>
+        <label>1. Payment Gross Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_BillingAddress</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_Gross_Amount_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Amount_Gross__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_Gross_Amount</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Payment_NET_Amounts</name>
+        <label>1. Payment NET Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_VAT_Amount</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_NET_Amounts_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Amount_Net__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_Net_Amount</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Payment_VAT_Amount</name>
+        <label>1. Payment VAT Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_Gross_Amount</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_VAT_Amount_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Amount_VAT__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_VAT_Amount</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_prefixInvoiceNumber</name>
+        <label>1. prefixInvoiceNumber</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_02_commit</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_prefixInvoiceNumber_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>vPrefixInvoiceNumber</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Adjusted_Invoice_Number</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Status</name>
+        <label>1. Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Payment_NET_Amounts</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Status_Finalized</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>FINALIZED</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dgr_01_Order</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>Finalized</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_02_Status</name>
+        <label>2. Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_Commit</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_02_Status_Changed_or_Description_Empty</name>
+            <conditionLogic>(1 AND 2) OR ((3 OR 4) AND 5) OR (6 AND 7)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>FINALIZED</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Status__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Invoice_Description__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Invoice_Description__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>FINALIZED</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Description__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Subscription25__Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>FINALIZED</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Invoice_Description</targetReference>
+            </connector>
+            <label>Changed or Description Empty</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>fAdjustedInvoiceNumber</name>
+        <dataType>String</dataType>
+        <expression>{!vPrefixInvoiceNumber} + SUBSTITUTE({!vCurrentInvoiceNumber}, {!vPrefixInvoiceNumber} , &apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fBillingCity</name>
+        <dataType>String</dataType>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingCity},{!$Record.Subscription25__Account__r.BillingCity}),&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fBillingCountry</name>
+        <dataType>String</dataType>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingCountry},{!$Record.Subscription25__Account__r.BillingCountry}),&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fBillingPostalCode</name>
+        <dataType>String</dataType>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingPostalCode},{!$Record.Subscription25__Account__r.BillingPostalCode}),&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fBillingState</name>
+        <dataType>String</dataType>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingState},{!$Record.Subscription25__Account__r.BillingState}),&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fBillingStreet</name>
+        <dataType>String</dataType>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingStreet},{!$Record.Subscription25__Account__r.BillingStreet}),&apos;&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fContractAccount</name>
+        <dataType>String</dataType>
+        <expression>IF(AND(NOT(ISBLANK({!vOrderAccountId})),NOT({!$Record.Subscription25__Account__c} = {!vOrderAccountId})),{!vOrderAccountId},null)</expression>
+    </formulas>
+    <formulas>
+        <name>fCurrentInvoiceNumber</name>
+        <dataType>String</dataType>
+        <expression>UPPER(BLANKVALUE(TRIM({!$Record.Subscription25__Invoice_Number__c}),&apos;&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>fDueDate</name>
+        <dataType>Date</dataType>
+        <expression>IF(ISPICKVAL({!$Record.Payment_Method__c},&apos;I0&apos;)
+,
+IF(
+(DAY({!$Record.Due_Date_Base__c})&gt;9)
+,
+DATE(YEAR(ADDMONTHS({!$Record.Due_Date_Base__c},1)),MONTH(ADDMONTHS({!$Record.Due_Date_Base__c},1)),20)
+,
+DATE(YEAR({!$Record.Due_Date_Base__c}),MONTH({!$Record.Due_Date_Base__c}),20)
+)
+,
+({!$Record.Due_Date_Base__c} + {!vDuePeriod})
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fDueDateBase</name>
+        <dataType>Date</dataType>
+        <expression>IF(AND(ISPICKVAL({!$Record.Payment_Method__c},&apos;I0&apos;),(BlankValue({!$Record.Subscription25__Invoice_Date__c},{!$Flow.CurrentDate}) &lt; {!$Flow.CurrentDate})), {!$Flow.CurrentDate},BLANKVALUE({!$Record.Email_SendDate__c},BlankValue({!$Record.Subscription25__Invoice_Date__c},{!$Flow.CurrentDate})))</expression>
+    </formulas>
+    <formulas>
+        <name>fDueDateDirectDebit</name>
+        <dataType>Date</dataType>
+        <expression>{!$Record.Subscription25__Due_Date__c}
++
+IF((UPPER(LEFT(TEXT({!$Record.Payment_Method__c}),1)) = &apos;I&apos;)
+,
+CASE(WEEKDAY({!$Record.Subscription25__Due_Date__c}),1,1,7,2,0)
+,
+0
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fDuePeriod</name>
+        <dataType>Number</dataType>
+        <expression>IF(
+ISNUMBER(TEXT({!$Record.Payment_Method__c}))
+,
+VALUE(TEXT({!$Record.Payment_Method__c}))
+,
+IF(
+ISNUMBER(RIGHT(TEXT({!$Record.Payment_Method__c}),1))
+,
+CASE(RIGHT(TEXT({!$Record.Payment_Method__c}),1),&apos;3&apos;,30,&apos;4&apos;,14,&apos;6&apos;,60,&apos;8&apos;,8,0)
+,
+0
+)
+)</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>fInvoiceDate</name>
+        <dataType>Date</dataType>
+        <expression>BLANKVALUE({!vInvoiceDate}, {!$Record.Subscription25__Invoice_Date__c})</expression>
+    </formulas>
+    <formulas>
+        <description>Sets the invoice description based on the length of the subscription25__description)</description>
+        <name>fInvoiceDescription</name>
+        <dataType>String</dataType>
+        <expression>IF(OR((LEN(TRIM({!$Record.Subscription25__Description__c})) &gt; 60),({!$Record.Subscription25__Description__c} = &apos;- / -&apos;)),(TEXT(YEAR({!fInvoiceDescriptionDate})) + &apos; - &apos; + RIGHT(&apos;00&apos; + TEXT(MONTH({!fInvoiceDescriptionDate})),2)
++ IF(OR(ISPICKVAL({!$Record.Subscription25__Account__r.Invoice_Frequency__c},&apos;Weekly&apos;),ISPICKVAL({!$Record.Subscription25__Account__r.Invoice_Frequency__c},&apos;Daily&apos;)),&apos; - &apos; + RIGHT(&apos;00&apos; + TEXT(DAY({!fInvoiceDescriptionDate})),2),&apos;&apos;)
+),TRIM({!$Record.Subscription25__Description__c}))</expression>
+    </formulas>
+    <formulas>
+        <name>fInvoiceDescriptionDate</name>
+        <dataType>Date</dataType>
+        <expression>ADDMONTHS({!$Record.Subscription25__Invoice_Date__c}
+,
+IF(
+NOT(ISBLANK({!$Record.Account_Contract__c}))
+,
+BLANKVALUE({!$Record.Account_Contract__c.OrderOffsetTerm__c},0) 
+,
+IF(
+NOT(ISBLANK({!$Record.Subscription25__Account__c}))
+, 
+BLANKVALUE({!$Record.Subscription25__Account__r.OrderOffsetTerm__c},0) 
+,
+0
+)
+)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fIsPaid</name>
+        <dataType>Boolean</dataType>
+        <expression>IF((LEFT({!vPaymentMethod},1) = &apos;P&apos;),true,{!vIsPaid})</expression>
+    </formulas>
+    <formulas>
+        <name>fPaymentAmountGross</name>
+        <dataType>Currency</dataType>
+        <expression>ROUND(BLANKVALUE({!$Record.Payment_Amount_Gross__c},0),2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fPaymentAmountNet</name>
+        <dataType>Currency</dataType>
+        <expression>ROUND(BLANKVALUE({!$Record.Payment_Amount_Net__c},0),2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fPaymentAmountVAT</name>
+        <dataType>Currency</dataType>
+        <expression>ROUND(BLANKVALUE({!$Record.Payment_Amount_VAT__c},0),2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fPaymentMethodAdditional</name>
+        <dataType>String</dataType>
+        <expression>IF(AND((LEFT(BLANKVALUE({!vPaymentMethod},&apos;I&apos;),1) = &apos;I&apos;), ISBLANK({!$Record.Subscription25__Account__r.Bank_Account_Number__c})),&apos;08&apos;,
+IF(AND(({!vPaymentMethod}=&apos;P0&apos;),({!$Record.Subscription25__Total_Amount__c} &lt;0)),&apos;I8&apos;,{!vPaymentMethod})
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fPaymentMethodBase</name>
+        <dataType>String</dataType>
+        <expression>IF(
+AND(
+(BLANKVALUE(TEXT({!$Record.Subscription25__Account__r.Reseller_Name__c}),BLANKVALUE({!$User.DefaultReseller__c},&apos;1&apos;))=&apos;6&apos;)
+,
+(BLANKVALUE({!$Record.Subscription25__Total_Amount__c},0) &lt; 0)
+)
+,
+&apos;C&apos;
+,
+BLANKVALUE(TEXT({!$Record.Payment_Method__c}),
+BLANKVALUE({!vPaymentMethod},
+BLANKVALUE(TEXT({!$Record.Subscription25__Account__r.Payment_Method_Contracts__c}),
+IF((BLANKVALUE(TEXT({!$Record.Subscription25__Account__r.Reseller_Name__c}),BLANKVALUE({!$User.DefaultReseller__c},&apos;1&apos;))=&apos;6&apos;),&apos;I0&apos;,&apos;I8&apos;)
+)
+)
+)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>fPaymentMethodRevoke</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(SUBSTITUTE({!vPaymentMethod}, &apos;S&apos;, &apos;I&apos;), &apos;E&apos;, &apos;I&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fPrefixInvoiceNumber</name>
+        <dataType>String</dataType>
+        <expression>UPPER(BLANKVALUE(TRIM({!$Record.Subscription25__Administration__r.Subscription25__Invoice_Number_Prefix__c}),&apos;zz&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>fSalesChannel</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE(TEXT({!$Record.Sales_Channel__c}),BLANKVALUE({!vSalesChannel},IF(ISBLANK({!$Record.Subscription25__Account__c}),&apos;Moving Intelligence&apos;,BLANKVALUE(TEXT({!$Record.Subscription25__Account__r.Sales_Channel__c}),&apos;Moving Intelligence&apos;))))</expression>
+    </formulas>
+    <interviewLabel>rbu - Subscription25__Invoice__c {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbu - Subscription25_Invoice_c</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>dgr_01_Order</name>
+        <label>1. Order</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>ass_01_Invoice_Date</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Subscription25__Invoice__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <object>Order</object>
+        <outputAssignments>
+            <assignToReference>vOrderAccountId</assignToReference>
+            <field>AccountId</field>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>vInvoiceDate</assignToReference>
+            <field>Invoice_Date_Invoice__c</field>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>vPaymentMethod</assignToReference>
+            <field>Invoice_Payment_Method__c</field>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>vIsPaid</assignToReference>
+            <field>Payment_Is_Paid__c</field>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>vPaymentReference</assignToReference>
+            <field>Payment_Reference__c</field>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>vSalesChannel</assignToReference>
+            <field>Sales_Channel__c</field>
+        </outputAssignments>
+        <sortField>Payment_Reference_Length__c</sortField>
+        <sortOrder>Desc</sortOrder>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Status</targetReference>
+        </connector>
+        <object>Subscription25__Invoice__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>vCommit</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <name>vCurrentInvoiceNumber</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vDuePeriod</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+    </variables>
+    <variables>
+        <name>vInvoiceDate</name>
+        <dataType>Date</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vInvoiceLayout</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>vIsPaid</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>vOrderAccountId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vPaymentMethod</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>vPaymentReference</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>vPrefixInvoiceNumber</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vSalesChannel</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

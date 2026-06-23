@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Commit</name>
+        <label>1. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_02_Payment_Method</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Payment_Method</name>
+        <label>1. Payment Method</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Method__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethodSet</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_02_Commit</name>
+        <label>2. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>ass_02_Payment_Method</name>
+        <label>2. Payment Method</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Method__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethodReset</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_02_Commit</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>dec_01_Payment_Method</name>
+        <label>1. Payment Method</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_02_Payment_Method</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Payment_Method_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Payment_Method</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_02_Payment_Method</name>
+        <label>2. Payment Method</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_02_Payment_Method_Reset</name>
+            <conditionLogic>((1 OR 2) AND (3 OR 4) AND 5 AND 6)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>p0</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>p1</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Subscription</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Contract</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Contract__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.EffectiveDate</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Contract__r.StartDate</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_02_Payment_Method</targetReference>
+            </connector>
+            <label>Reset</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>fPaymentMethodReset</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Account.Bank_Account_Number__c}),&apos;08&apos;,IF(ISPICKVAL({!$Record.Account.Reseller_Name__c},&apos;6&apos;),&apos;I0&apos;,&apos;I8&apos;))</expression>
+    </formulas>
+    <formulas>
+        <name>fPaymentMethodSet</name>
+        <dataType>String</dataType>
+        <expression>IF(
+OR(ISPICKVAL({!$Record.Type},&apos;Hardware&apos;),ISPICKVAL({!$Record.Type},&apos;Opportunity&apos;))
+,
+TEXT({!$Record.Account.Payment_Method_Opportunities__c})
+,
+IF(ISBLANK({!$Record.Contract__c})
+,
+TEXT({!$Record.Account.Payment_Method_Contracts__c})
+,
+BLANKVALUE(TEXT({!$Record.Contract__r.Payment_Method__c}),TEXT({!$Record.Account.Payment_Method_Contracts__c})
+)
+)
+)</expression>
+    </formulas>
+    <interviewLabel>rbc - Order {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbc - Order</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_01_Payment_Method</targetReference>
+        </connector>
+        <object>Order</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+    <triggerOrder>102</triggerOrder>
+    <variables>
+        <name>vCommit</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>

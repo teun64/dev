@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Commit</name>
+        <label>1. Commit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <description>Set Orders between +2,00 and -5,0 to be skipped for invoicing. Original value 0 instead of +2 (fix 11/07 to prevent minor positive orders to be added to invoices)</description>
+        <name>dec_01_Skip</name>
+        <label>1. Skip</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Skip_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Do_Skip__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dur_01_Order</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>record triggered flow on order after create</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fBaseService</name>
+        <dataType>Boolean</dataType>
+        <expression>IF(ISBLANK({!$Record.Subscription25__Recurring_Order__c}),false,{!$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Is_Base_Service__c})</expression>
+    </formulas>
+    <formulas>
+        <name>fInvoiceCycle</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISPICKVAL({!rContract.Invoice_Period__c},&apos;0&apos;), 
+BLANKVALUE({!rContract.RenewalTerm__c} ,
+BLANKVALUE( {!$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Subscription25__Product__r.RenewalTerm__c},
+IF(AND(({!rContract.ContractTerm} &gt; 1),({!rContract.ContractTerm} &lt;= 12)),12,IF({!$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Subscription25__Product__r.IsLifetime__c},60,1))
+)
+),
+{!rContract.Subscription25__Invoice_Cycle__c}
+)</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>fRenewalTerm</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISPICKVAL({!rContract.Invoice_Period__c},&apos;0&apos;), IF(({!rContract.RenewalTerm__c} &lt; {!rContract.Subscription25__Invoice_Cycle__c}),{!rContract.Subscription25__Invoice_Cycle__c},{!rContract.RenewalTerm__c}),{!rContract.Subscription25__Renewal_Term__c})</expression>
+        <scale>0</scale>
+    </formulas>
+    <interviewLabel>rac - Order {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rac - Order</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>dur_01_Order</name>
+        <label>1. Order</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ass_01_Commit</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Skip</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <object>Order</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <scheduledPaths>
+            <name>Skip</name>
+            <connector>
+                <targetReference>dec_01_Skip</targetReference>
+            </connector>
+            <label>Skip</label>
+            <maxBatchSize>1</maxBatchSize>
+            <offsetNumber>1</offsetNumber>
+            <offsetUnit>Minutes</offsetUnit>
+            <timeSource>RecordTriggerEvent</timeSource>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <triggerOrder>401</triggerOrder>
+    <variables>
+        <name>rContract</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contract</objectType>
+    </variables>
+    <variables>
+        <name>vCommit</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>

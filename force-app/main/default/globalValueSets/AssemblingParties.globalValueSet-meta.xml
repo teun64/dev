@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Bestronics</fullName>
+        <default>false</default>
+        <label>Bestronics</label>
+    </customValue>
+    <customValue>
+        <fullName>Variass</fullName>
+        <default>false</default>
+        <label>Variass</label>
+    </customValue>
+    <masterLabel>AssemblingParties</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

@@ -1,0 +1,71 @@
+/* ── Container ────────────────────────────────────────────────────────────── */
+.pc-container {
+    --brand-accent: #0176d3; /* default Salesforce blue; overridden per brand */
+}
+
+.pc-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+/* ── Brand accent overrides ───────────────────────────────────────────────── */
+.brand-E { --brand-accent: #1a6fc4; } /* Echoes blue             */
+.brand-M { --brand-accent: #cc0000; } /* Moving Intelligence red  */
+.brand-T { --brand-accent: #1d3557; } /* TDS Ultra navy           */
+
+/* ── Brand header (EC only) ───────────────────────────────────────────────── */
+.pc-brand-logo {
+    max-height: 40px;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+.pc-divider {
+    border: none;
+    border-top: 1px solid #e4e4e4;
+    margin-top: 0;
+}
+
+/* ── Accent colour on the save button ────────────────────────────────────── */
+.pc-container .full-width-btn lightning-button button[variant="brand"],
+.pc-container .full-width-btn button {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+}
+
+.full-width-btn lightning-button button {
+    width: 100%;
+}
+
+/* ── Section header accent line ──────────────────────────────────────────── */
+:host .section-wrapper {
+    border-left: 3px solid var(--brand-accent);
+    border-radius: 0 4px 4px 0;
+}
+
+/* ── Confirmation toast ──────────────────────────────────────────────────── */
+/* Override the SLDS toast default max-width so it fills the section width */
+.pc-toast {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+.border-bottom {
+    border-bottom: 1px solid #e4e4e4;
+}
+
+.audit-panel {
+    border: 1px solid #e4e4e4;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+
+.audit-table {
+    font-size: 14px;
+}
+
+.Enabled  { color: #2e844a; font-weight: 500; }
+.Disabled { color: #ba0517; font-weight: 500; }

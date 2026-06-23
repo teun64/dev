@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>bg</fullName>
+        <default>false</default>
+        <label>български език (Bulgarian)</label>
+    </customValue>
+    <customValue>
+        <fullName>cs</fullName>
+        <default>false</default>
+        <label>česky, čeština (Czech)</label>
+    </customValue>
+    <customValue>
+        <fullName>da</fullName>
+        <default>false</default>
+        <label>Dansk (Danish)</label>
+    </customValue>
+    <customValue>
+        <fullName>de</fullName>
+        <default>false</default>
+        <label>Deutsch (German)</label>
+    </customValue>
+    <customValue>
+        <fullName>el</fullName>
+        <default>false</default>
+        <label>Ελληνικά (Greek)</label>
+    </customValue>
+    <customValue>
+        <fullName>en</fullName>
+        <default>false</default>
+        <label>English</label>
+    </customValue>
+    <customValue>
+        <fullName>es</fullName>
+        <default>false</default>
+        <label>Español (Spanish)</label>
+    </customValue>
+    <customValue>
+        <fullName>et</fullName>
+        <default>false</default>
+        <label>Eesti keel (Estonian)</label>
+    </customValue>
+    <customValue>
+        <fullName>fi</fullName>
+        <default>false</default>
+        <label>Suomen kieli (Finnish)</label>
+    </customValue>
+    <customValue>
+        <fullName>fr</fullName>
+        <default>false</default>
+        <label>Français (French)</label>
+    </customValue>
+    <customValue>
+        <fullName>ga</fullName>
+        <default>false</default>
+        <label>Gaeilge (Irish)</label>
+    </customValue>
+    <customValue>
+        <fullName>hr</fullName>
+        <default>false</default>
+        <label>Hrvatski</label>
+    </customValue>
+    <customValue>
+        <fullName>hu</fullName>
+        <default>false</default>
+        <label>Magyar</label>
+    </customValue>
+    <customValue>
+        <fullName>it</fullName>
+        <default>false</default>
+        <label>Italiano</label>
+    </customValue>
+    <customValue>
+        <fullName>lt</fullName>
+        <default>false</default>
+        <label>Lietuvių kalba</label>
+    </customValue>
+    <customValue>
+        <fullName>lv</fullName>
+        <default>false</default>
+        <label>Latviešu valoda</label>
+    </customValue>
+    <customValue>
+        <fullName>mt</fullName>
+        <default>false</default>
+        <label>Malti</label>
+    </customValue>
+    <customValue>
+        <fullName>nl</fullName>
+        <default>true</default>
+        <label>Nederlands, Vlaams</label>
+    </customValue>
+    <customValue>
+        <fullName>pl</fullName>
+        <default>false</default>
+        <label>Język polski</label>
+    </customValue>
+    <customValue>
+        <fullName>pt</fullName>
+        <default>false</default>
+        <label>Português</label>
+    </customValue>
+    <customValue>
+        <fullName>ro</fullName>
+        <default>false</default>
+        <label>Română</label>
+    </customValue>
+    <customValue>
+        <fullName>sk</fullName>
+        <default>false</default>
+        <label>Slovenčina</label>
+    </customValue>
+    <customValue>
+        <fullName>sl</fullName>
+        <default>false</default>
+        <label>Slovenščina</label>
+    </customValue>
+    <customValue>
+        <fullName>sv</fullName>
+        <default>false</default>
+        <label>Svenska</label>
+    </customValue>
+    <description>Al supported languages</description>
+    <masterLabel>Language</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'RedHatBold';
+  src: url("/sfsites/c/resource/Red_Hat_Display/static/RedHatDisplay-Bold.ttf") format("truetype");
+  font-weight: 700 !important;
+  font-style: normal !important; }
+
+@font-face {
+  font-family: 'RedHatRegular';
+  src: url("/sfsites/c/resource/Red_Hat_Display/static/RedHatDisplay-Regular.ttf") format("truetype");
+  font-weight: 400 !important;
+  font-style: normal !important; }
+
+.slds-pill{
+  background-color: var(--slds-c-pill-color-background, #e5dfce);
+}
+
+.slds-pill:hover {
+    background-color: #ecece7 !important;
+    box-shadow: none !important;
+}
+
+.THIS a:link {
+      text-decoration: underline;
+      cursor: auto;
+}
+
+.selfServiceTopicArticleList .selfServiceArticleListItem .footer{
+    display:none !important;
+}
+
+.secondaryFieldsWrapper{
+    display:none !important;
+}
+
+.forceEntityIconr{
+    display:none !important;
+}
+
+.slds-text-title {
+    display:none !important;
+}
+:root { --dxp-c-section-columns-max-width: 1170px; }

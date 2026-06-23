@@ -1,0 +1,30 @@
+{
+  "appPageId" : "690a8d6a-87bf-43cf-a86c-223d37797a1b",
+  "componentName" : "siteforce:sldsOneColLayout",
+  "dataProviders" : [ ],
+  "id" : "5e31bbba-90aa-44d4-887d-679beafd425b",
+  "label" : "Login",
+  "regions" : [ {
+    "id" : "7cde4a6a-b0b9-4dde-8890-91a869bac0b3",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "Login"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "bf24bdee-82a9-418a-9257-c638d89e91cb",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "e5ccd053-eb46-45f1-8af9-dc9067c89013",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Login",
+  "type" : "view",
+  "viewType" : "login-home"
+}
