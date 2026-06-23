@@ -20,42 +20,29 @@ private class Test_Ctrl_DealerShop {
         insert acc;
 
         Product2 publicProd = new Product2(
-            Name                       = 'Public Product A',
-            ProductCode                = 'PP-001',
-            Family                     = 'Hardware',
-            IsActive                   = true,
-            Is_Public__c               = true,
-            Shop_Display_Name__c       = 'Public Product A Display',
-            Shop_Description__c        = 'Full description for Public A',
-            Shop_Short_Description__c  = 'Short desc A',
-            Shop_Category__c           = 'Trackers',
-            Shop_Image_URL__c          = 'https://example.com/img/a.png'
+            Name                 = 'Public Product A',
+            ProductCode          = 'PP-001',
+            IsActive             = true,
+            Is_Public__c         = true,
+            Category_Platform__c = 'Fleet',
+            Description          = 'Short desc A'
         );
 
         Product2 publicProd2 = new Product2(
-            Name                       = 'Public Product B',
-            ProductCode                = 'PP-002',
-            Family                     = 'Hardware',
-            IsActive                   = true,
-            Is_Public__c               = true,
-            Shop_Display_Name__c       = 'Public Product B Display',
-            Shop_Description__c        = 'Full description for Public B',
-            Shop_Short_Description__c  = 'Short desc B',
-            Shop_Category__c           = 'Accessories',
-            Shop_Image_URL__c          = 'https://example.com/img/b.png'
+            Name                 = 'Public Product B',
+            ProductCode          = 'PP-002',
+            IsActive             = true,
+            Is_Public__c         = true,
+            Category_Platform__c = 'Security',
+            Description          = 'Short desc B'
         );
 
         Product2 privateProd = new Product2(
-            Name                       = 'Private Product C',
-            ProductCode                = 'PP-003',
-            Family                     = 'Hardware',
-            IsActive                   = true,
-            Is_Public__c               = false,
-            Shop_Display_Name__c       = 'Private Product C Display',
-            Shop_Description__c        = 'Full description for Private C',
-            Shop_Short_Description__c  = 'Short desc C',
-            Shop_Category__c           = 'Trackers',
-            Shop_Image_URL__c          = 'https://example.com/img/c.png'
+            Name                 = 'Private Product C',
+            ProductCode          = 'PP-003',
+            IsActive             = true,
+            Is_Public__c         = false,
+            Category_Platform__c = 'Fleet'
         );
 
         insert new List<Product2>{ publicProd, publicProd2, privateProd };
@@ -109,12 +96,12 @@ private class Test_Ctrl_DealerShop {
     static void testGetProducts_filterByCategory() {
         Test.startTest();
         Ctrl_DealerShop.ProductPageResult result =
-            Ctrl_DealerShop.getProducts('Trackers', 1, 10);
+            Ctrl_DealerShop.getProducts('Fleet', 1, 10);
         Test.stopTest();
 
         System.assertNotEquals(null, result, 'Result should not be null');
         for (Ctrl_DealerShop.ProductDTO dto : result.products) {
-            System.assertEquals('Trackers', dto.category, 'Category filter not applied correctly');
+            System.assertEquals('Fleet', dto.category, 'Category filter not applied correctly');
         }
     }
 
@@ -151,8 +138,8 @@ private class Test_Ctrl_DealerShop {
         System.assertEquals(prod.Id, dto.id, 'Product Id mismatch');
         System.assertEquals('Public Product A', dto.name, 'Product name mismatch');
         System.assertEquals('PP-001', dto.productCode, 'Product code mismatch');
-        System.assertEquals('Trackers', dto.category, 'Category mismatch');
-        System.assertEquals('Public Product A Display', dto.displayName, 'Display name mismatch');
+        System.assertEquals('Fleet', dto.category, 'Category mismatch');
+        System.assertEquals('Public Product A', dto.displayName, 'Display name mismatch');
     }
 
     @IsTest

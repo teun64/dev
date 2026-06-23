@@ -168,6 +168,45 @@ public without sharing class Ctrl_DealerShop {
         return t;
     }
 
+    // ── Image URL from ContentDocumentLink ───────────────────────────────────
+
+    private static Map<Id, String> getProductImageUrls(Set<Id> productIds) {
+        Map<Id, String> result = new Map<Id, String>();
+        if (productIds.isEmpty()) return result;
+
+        Map<Id, Id> cdocByProduct = new Map<Id, Id>();
+        for (ContentDocumentLink cdl : [
+            SELECT LinkedEntityId, ContentDocumentId
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :productIds
+            WITH SYSTEM_MODE
+        ]) {
+            if (!cdocByProduct.containsKey(cdl.LinkedEntityId)) {
+                cdocByProduct.put(cdl.LinkedEntityId, cdl.ContentDocumentId);
+            }
+        }
+        if (cdocByProduct.isEmpty()) return result;
+
+        Map<Id, Id> cvByDoc = new Map<Id, Id>();
+        for (ContentVersion cv : [
+            SELECT Id, ContentDocumentId
+            FROM ContentVersion
+            WHERE ContentDocumentId IN :cdocByProduct.values()
+              AND IsLatest = true
+            WITH SYSTEM_MODE
+        ]) {
+            cvByDoc.put(cv.ContentDocumentId, cv.Id);
+        }
+
+        for (Id productId : cdocByProduct.keySet()) {
+            Id cvId = cvByDoc.get(cdocByProduct.get(productId));
+            if (cvId != null) {
+                result.put(productId, '/sfc/servlet.shepherd/version/download/' + cvId);
+            }
+        }
+        return result;
+    }
+
     // ── ProductDTO builder ────────────────────────────────────────────────────
 
     private static ProductDTO buildProductDTO(
@@ -179,20 +218,17 @@ public without sharing class Ctrl_DealerShop {
             ? prod.Data_Translations__r[0]
             : null;
 
-        ProductDTO dto      = new ProductDTO();
-        dto.id              = prod.Id;
-        dto.name            = prod.Name;
-        dto.displayName     = trans != null && String.isNotBlank(trans.Name__c)
-                                ? trans.Name__c
-                                : (String.isNotBlank(prod.Shop_Display_Name__c) ? prod.Shop_Display_Name__c : prod.Name);
-        dto.shortDescription = trans != null && String.isNotBlank(trans.Description__c)
-                                ? trans.Description__c
-                                : prod.Shop_Short_Description__c;
-        dto.description     = prod.Shop_Description__c;
-        dto.category        = prod.Shop_Category__c;
-        dto.productCode     = prod.ProductCode;
-        dto.family          = prod.Family;
-        dto.imageUrl        = prod.Shop_Image_URL__c;
+        ProductDTO dto           = new ProductDTO();
+        dto.id                   = prod.Id;
+        dto.name                 = prod.Name;
+        dto.displayName          = trans != null && String.isNotBlank(trans.Name__c)
+                                     ? trans.Name__c
+                                     : prod.Name;
+        dto.shortDescription     = prod.Description;
+        dto.description          = trans != null ? trans.Description__c : null;
+        dto.category             = prod.Category_Platform__c;
+        dto.productCode          = prod.ProductCode;
+        dto.family               = prod.Family;
 
         if (entry != null) {
             dto.unitPrice = entry.UnitPrice;
@@ -231,7 +267,7 @@ public without sharing class Ctrl_DealerShop {
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
-                  AND Shop_Category__c = :category
+                  AND Category_Platform__c = :category
                 WITH USER_MODE
             ];
         } else {
@@ -249,32 +285,28 @@ public without sharing class Ctrl_DealerShop {
         List<Product2> products;
         if (String.isNotBlank(category)) {
             products = [
-                SELECT Id, Name, ProductCode, Family, Shop_Display_Name__c,
-                       Shop_Short_Description__c, Shop_Description__c, Shop_Category__c,
-                       Shop_Image_URL__c, webkul_wws__ContentDocumentId__c,
+                SELECT Id, Name, ProductCode, Family, Description, Category_Platform__c,
                        (SELECT Id, Name__c, Description__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId LIMIT 1)
+                        WHERE RecordTypeId = :baseRtId AND Language__c = 'en' LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
-                  AND Shop_Category__c = :category
+                  AND Category_Platform__c = :category
                 WITH USER_MODE
-                ORDER BY Shop_Display_Name__c NULLS LAST, Name
+                ORDER BY Name
                 LIMIT :safePageSize
                 OFFSET :offsetVal
             ];
         } else {
             products = [
-                SELECT Id, Name, ProductCode, Family, Shop_Display_Name__c,
-                       Shop_Short_Description__c, Shop_Description__c, Shop_Category__c,
-                       Shop_Image_URL__c, webkul_wws__ContentDocumentId__c,
+                SELECT Id, Name, ProductCode, Family, Description, Category_Platform__c,
                        (SELECT Id, Name__c, Description__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId LIMIT 1)
+                        WHERE RecordTypeId = :baseRtId AND Language__c = 'en' LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true
                   AND Is_Public__c = true
                 WITH USER_MODE
-                ORDER BY Shop_Display_Name__c NULLS LAST, Name
+                ORDER BY Name
                 LIMIT :safePageSize
                 OFFSET :offsetVal
             ];
@@ -318,13 +350,13 @@ public without sharing class Ctrl_DealerShop {
             }
         }
 
+        Map<Id, String> imageUrls = getProductImageUrls(productIds);
+
         List<ProductDTO> dtos = new List<ProductDTO>();
         for (Product2 p : products) {
-            dtos.add(buildProductDTO(
-                p,
-                entryByProduct.get(p.Id),
-                discountByProduct.get(p.Id)
-            ));
+            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id));
+            dto.imageUrl = imageUrls.get(p.Id);
+            dtos.add(dto);
         }
 
         ProductPageResult result = new ProductPageResult();
@@ -340,11 +372,9 @@ public without sharing class Ctrl_DealerShop {
 
         Id baseRtId = baseTranslationRtId;
         List<Product2> prods = [
-            SELECT Id, Name, ProductCode, Family, Shop_Display_Name__c,
-                   Shop_Short_Description__c, Shop_Description__c, Shop_Category__c,
-                   Shop_Image_URL__c, webkul_wws__ContentDocumentId__c,
+            SELECT Id, Name, ProductCode, Family, Description, Category_Platform__c,
                    (SELECT Id, Name__c, Description__c FROM Data_Translations__r
-                    WHERE RecordTypeId = :baseRtId LIMIT 1)
+                    WHERE RecordTypeId = :baseRtId AND Language__c = 'en' LIMIT 1)
             FROM Product2
             WHERE Id = :productId
               AND IsActive = true
@@ -389,22 +419,8 @@ public without sharing class Ctrl_DealerShop {
         Product_Discount__c disc = discs.isEmpty() ? null : discs[0];
 
         ProductDTO dto = buildProductDTO(prod, entry, disc);
-
-        // Resolve image URL from ContentVersion when no direct URL is set
-        if (String.isBlank(dto.imageUrl) && String.isNotBlank(prod.webkul_wws__ContentDocumentId__c)) {
-            List<ContentVersion> versions = [
-                SELECT Id, VersionDataUrl
-                FROM ContentVersion
-                WHERE ContentDocumentId = :prod.webkul_wws__ContentDocumentId__c
-                  AND IsLatest = true
-                WITH SYSTEM_MODE
-                LIMIT 1
-            ];
-            if (!versions.isEmpty()) {
-                dto.imageUrl = '/sfc/servlet.shepherd/version/download/' + versions[0].Id;
-            }
-        }
-
+        Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
+        dto.imageUrl = imageUrls.get(productId);
         return dto;
     }
 

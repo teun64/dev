@@ -1,18 +1,16 @@
 import { LightningElement, api } from 'lwc';
 
 const CATEGORIES = [
-    { value: 'All',                label: 'Alle producten' },
-    { value: 'Hardware Security',  label: 'Hardware Security' },
-    { value: 'Hardware Fleet',     label: 'Hardware Fleet' },
-    { value: 'Services',           label: 'Services' },
-    { value: 'Subscriptions',      label: 'Abonnementen' },
-    { value: 'Accessories',        label: 'Accessoires' },
-    { value: 'Promotions',         label: 'Promoties' }
+    { value: '',               label: 'Alle producten' },
+    { value: 'Fleet',          label: 'Fleet' },
+    { value: 'Security',       label: 'Security' },
+    { value: 'Security & Fleet', label: 'Security & Fleet' },
+    { value: 'Beacon',         label: 'Beacon' }
 ];
 
 export default class DealerCategoryNav extends LightningElement {
 
-    @api activeCategory = 'All';
+    @api activeCategory = '';
 
     get categoryItems() {
         return CATEGORIES.map(cat => ({
