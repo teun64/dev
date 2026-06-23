@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__theme",
+  "title" : "Moving Intelligence Dealer",
+  "contentBody" : {
+    "activeBrandingSetId" : "MI_Dealer",
+    "definitionName" : "byo",
+    "layouts" : [ {
+      "layoutId" : "snaThemeLayout",
+      "layoutType" : "ServiceNotAvailable"
+    }, {
+      "layoutId" : "scopedHeaderAndFooter",
+      "layoutType" : "Inner"
+    } ]
+  },
+  "urlName" : "mi-dealer"
+}

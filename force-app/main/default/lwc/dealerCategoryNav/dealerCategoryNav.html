@@ -1,0 +1,17 @@
+<template>
+    <nav class="cat-nav" role="navigation" aria-label="Productcategorieën">
+        <ul class="cat-nav__list" role="list">
+            <template for:each={categoryItems} for:item="cat">
+                <li key={cat.value} class={cat.cssClass} role="listitem">
+                    <button
+                        class="cat-nav__tab"
+                        data-value={cat.value}
+                        aria-pressed={cat.isActive}
+                        onclick={handleTabClick}>
+                        {cat.label}
+                    </button>
+                </li>
+            </template>
+        </ul>
+    </nav>
+</template>

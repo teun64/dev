@@ -1,0 +1,8 @@
+{
+  "type" : "sfdc_cms__styles",
+  "title" : "styles.css",
+  "contentBody" : {
+    "fileName" : "styles.css"
+  },
+  "urlName" : "styles-css"
+}

@@ -1,0 +1,79 @@
+<template>
+    <div class={cartClass}>
+        <div class="cart-overlay" onclick={handleOverlayClick}></div>
+        <div class="cart-panel">
+            <div class="cart-header">
+                <h2 class="cart-title">Winkelwagen</h2>
+                <button class="close-btn" onclick={handleClose} aria-label="Winkelwagen sluiten">&#x2715;</button>
+            </div>
+
+            <template lwc:if={isEmpty}>
+                <div class="cart-empty">
+                    <p>Uw winkelwagen is leeg.</p>
+                </div>
+            </template>
+
+            <template lwc:else>
+                <div class="cart-items">
+                    <template for:each={enrichedCartItems} for:item="item">
+                        <div key={item.productId} class="cart-item">
+                            <div class="item-image">
+                                <template lwc:if={item.imageUrl}>
+                                    <img src={item.imageUrl} alt={item.productName} />
+                                </template>
+                                <template lwc:else>
+                                    <div class="image-placeholder"></div>
+                                </template>
+                            </div>
+                            <div class="item-details">
+                                <p class="item-name">{item.productName}</p>
+                                <p class="item-price">&euro; {item.unitPrice}</p>
+                            </div>
+                            <div class="item-qty">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={item.quantity}
+                                    data-product-id={item.productId}
+                                    onchange={handleQtyChange}
+                                    class="qty-input"
+                                    aria-label="Aantal"
+                                />
+                            </div>
+                            <div class="item-line-total">
+                                &euro; {item.lineTotal}
+                            </div>
+                            <button
+                                class="remove-btn"
+                                data-product-id={item.productId}
+                                onclick={handleRemove}
+                                aria-label="Verwijder artikel"
+                            >&#x2715;</button>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="cart-footer">
+                    <div class="cart-total">
+                        <span>Totaal</span>
+                        <span class="total-amount">&euro; {cartTotal}</span>
+                    </div>
+                    <button class="place-order-btn" onclick={handlePlaceOrder} disabled={isLoading}>
+                        <template lwc:if={isLoading}>
+                            <div class="spinner"></div>
+                        </template>
+                        <template lwc:else>
+                            Bestelling plaatsen
+                        </template>
+                    </button>
+                </div>
+            </template>
+
+            <template lwc:if={hasError}>
+                <div class="cart-error">
+                    <p>{errorMessage}</p>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

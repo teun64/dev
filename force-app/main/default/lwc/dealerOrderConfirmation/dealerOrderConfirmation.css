@@ -1,0 +1,81 @@
+.confirmation-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    padding: 2rem;
+}
+
+.confirmation-card {
+    text-align: center;
+    max-width: 480px;
+    width: 100%;
+    padding: 3rem 2.5rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.checkmark-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: #cc0000;
+}
+
+.checkmark-icon lightning-icon {
+    --slds-c-icon-color-foreground-default: #cc0000;
+}
+
+.confirmation-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #cc0000;
+    margin: 0 0 0.75rem 0;
+}
+
+.confirmation-subtitle {
+    font-size: 1rem;
+    color: #555555;
+    margin: 0 0 1.5rem 0;
+}
+
+.order-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fdf0f0;
+    border: 1px solid #f5cccc;
+    border-radius: 6px;
+    padding: 0.6rem 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.order-label {
+    font-size: 0.875rem;
+    color: #888888;
+    font-weight: 500;
+}
+
+.order-id {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #cc0000;
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    background: #cc0000;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: #aa0000;
+}

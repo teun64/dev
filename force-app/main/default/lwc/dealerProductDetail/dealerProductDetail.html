@@ -1,0 +1,119 @@
+<template>
+    <div class="detail-wrapper">
+        <template if:true={isLoading}>
+            <div class="loading-container">
+                <lightning-spinner alternative-text="Laden..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <div class="back-link">
+                <a href="javascript:void(0)" onclick={handleBack}>&#8592; Terug naar overzicht</a>
+            </div>
+
+            <template if:true={product}>
+                <div class="product-layout">
+                    <div class="product-image-col">
+                        <template if:true={product.imageUrl}>
+                            <img src={product.imageUrl} alt={product.displayName} class="product-image" />
+                        </template>
+                        <template if:false={product.imageUrl}>
+                            <div class="product-image-placeholder">
+                                <lightning-icon icon-name="utility:photo" size="large" alternative-text="Geen afbeelding"></lightning-icon>
+                                <p>Geen afbeelding beschikbaar</p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="product-info-col">
+                        <h1 class="product-title">{product.displayName}</h1>
+
+                        <template if:true={product.productCode}>
+                            <span class="product-code-badge">{product.productCode}</span>
+                        </template>
+
+                        <template if:true={product.shortDescription}>
+                            <p class="short-description">{product.shortDescription}</p>
+                        </template>
+
+                        <div class="price-section">
+                            <template if:true={product.unitPrice}>
+                                <div class="unit-price-row">
+                                    <span class="price-label">Prijs per stuk:</span>
+                                    <span class="unit-price">{formattedUnitPrice}</span>
+                                </div>
+                            </template>
+
+                            <template if:true={hasPriceTiers}>
+                                <div class="price-tiers">
+                                    <h3 class="tiers-heading">Volumekortingen</h3>
+                                    <table class="tiers-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Vanaf aantal</th>
+                                                <th>Prijs per stuk</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={product.priceTiers} for:item="tier">
+                                                <tr key={tier.fromQty}>
+                                                    <td>{tier.fromQty}</td>
+                                                    <td>{tier.formattedPrice}</td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="add-to-cart-section">
+                            <div class="quantity-row">
+                                <label for="qty-input" class="qty-label">Aantal:</label>
+                                <lightning-input
+                                    id="qty-input"
+                                    type="number"
+                                    value={quantity}
+                                    min="1"
+                                    step="1"
+                                    onchange={handleQuantityChange}
+                                    class="qty-input"
+                                    variant="label-hidden"
+                                    label="Aantal"
+                                ></lightning-input>
+                            </div>
+
+                            <template if:true={product.unitPrice}>
+                                <div class="calculated-price-row">
+                                    <span class="calc-label">Totaalprijs:</span>
+                                    <span class="calc-price">{formattedCalculatedPrice}</span>
+                                </div>
+                            </template>
+
+                            <lightning-button
+                                label="Toevoegen aan winkelwagen"
+                                onclick={handleAddToCart}
+                                class="add-to-cart-btn"
+                                variant="brand"
+                            ></lightning-button>
+                        </div>
+                    </div>
+                </div>
+
+                <template if:true={product.description}>
+                    <div class="description-section">
+                        <h2 class="description-heading">Productomschrijving</h2>
+                        <lightning-formatted-rich-text value={product.description}></lightning-formatted-rich-text>
+                    </div>
+                </template>
+            </template>
+
+            <template if:true={hasError}>
+                <div class="error-state">
+                    <lightning-icon icon-name="utility:error" variant="error" size="medium"></lightning-icon>
+                    <p>{errorMessage}</p>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,18 @@
+<template>
+    <div class="confirmation-container">
+        <div class="confirmation-card">
+            <div class="checkmark-icon">
+                <lightning-icon icon-name="utility:success" size="large" alternative-text="Succes"></lightning-icon>
+            </div>
+            <h1 class="confirmation-title">Bedankt voor uw bestelling!</h1>
+            <p class="confirmation-subtitle">Uw bestelling is succesvol geplaatst.</p>
+            <div class="order-number">
+                <span class="order-label">Bestelnummer:</span>
+                <span class="order-id">{orderId}</span>
+            </div>
+            <button class="back-btn" onclick={handleBackToShop}>
+                Terug naar de webshop
+            </button>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,46 @@
+<template>
+    <div class="grid-container">
+        <template if:true={isLoading}>
+            <div class="spinner-container">
+                <lightning-spinner alternative-text="Laden..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={isEmpty}>
+                <div class="empty-state">
+                    <p>Geen producten gevonden</p>
+                </div>
+            </template>
+
+            <template if:false={isEmpty}>
+                <div class="product-grid">
+                    <template for:each={products} for:item="product">
+                        <div key={product.id} class="grid-item">
+                            <c-dealer-product-card
+                                product={product}
+                                onproductselect={handleProductSelect}>
+                            </c-dealer-product-card>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="pagination">
+                    <button
+                        class="pagination-btn"
+                        disabled={isPrevDisabled}
+                        onclick={handlePrev}>
+                        &lsaquo; Vorige
+                    </button>
+                    <span class="page-indicator">Pagina {currentPage} van {totalPages}</span>
+                    <button
+                        class="pagination-btn"
+                        disabled={isNextDisabled}
+                        onclick={handleNext}>
+                        Volgende &rsaquo;
+                    </button>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,6 @@
+@media print {
+    .dealer-cart-sidebar,
+    .dealer-nav-tabs {
+        display: none;
+    }
+}

@@ -1,0 +1,62 @@
+<template>
+    <div class="shop-root" style={brandStyle}>
+        <header class="shop-header">
+            <div class="shop-header__brand">
+                <template if:true={logoUrl}>
+                    <img src={logoUrl} alt="Moving Intelligence" class="shop-header__logo" />
+                </template>
+            </div>
+            <div class="shop-header__actions">
+                <button class="cart-button" onclick={handleOpenCart}>
+                    <lightning-icon icon-name="utility:cart" size="small"></lightning-icon>
+                    <span class="cart-button__label">Winkelwagen</span>
+                    <template if:true={cartCount}>
+                        <span class="cart-badge">{cartCount}</span>
+                    </template>
+                </button>
+            </div>
+        </header>
+
+        <c-dealer-category-nav
+            active-category={activeCategory}
+            oncategorychange={handleCategoryChange}>
+        </c-dealer-category-nav>
+
+        <main class="shop-main">
+            <template if:true={isGridView}>
+                <c-dealer-product-grid
+                    category={activeCategory}
+                    onproductselect={handleProductSelect}
+                    onaddtocart={handleAddToCart}>
+                </c-dealer-product-grid>
+            </template>
+
+            <template if:true={isDetailView}>
+                <c-dealer-product-detail
+                    product-id={selectedProductId}
+                    onaddtocart={handleAddToCart}
+                    onbacktoshop={handleBackToShop}>
+                </c-dealer-product-detail>
+            </template>
+
+            <template if:true={isConfirmationView}>
+                <c-dealer-order-confirmation
+                    onbacktoshop={handleBackToShop}>
+                </c-dealer-order-confirmation>
+            </template>
+        </main>
+
+        <template if:true={cartOpen}>
+            <div class="cart-overlay" onclick={handleOverlayClick}>
+                <div class="cart-sidebar" onclick={handleSidebarClick}>
+                    <c-dealer-cart
+                        cart-items={cartItems}
+                        onremovefromcart={handleRemoveFromCart}
+                        onclosecart={handleCloseCart}
+                        onorderplaced={handleOrderPlaced}>
+                    </c-dealer-cart>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

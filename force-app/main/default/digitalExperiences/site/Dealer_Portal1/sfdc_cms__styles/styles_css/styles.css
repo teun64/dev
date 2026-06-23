@@ -1,0 +1,16 @@
+:root {
+    --brand-accent: #cc0000;
+    --brand-secondary: #fdf0f0;
+    --brand-accent-dark: #a80000;
+    --brand-text-on-accent: #ffffff;
+}
+
+body {
+    font-family: var(--dxp-s-html-font-family, 'Salesforce Sans', Arial, sans-serif);
+}
+
+.dealer-portal-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}

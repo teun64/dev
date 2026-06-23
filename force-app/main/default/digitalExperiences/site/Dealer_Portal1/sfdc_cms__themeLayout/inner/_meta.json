@@ -1,0 +1,5 @@
+{
+  "apiName" : "inner",
+  "type" : "sfdc_cms__themeLayout",
+  "path" : "themeLayouts"
+}

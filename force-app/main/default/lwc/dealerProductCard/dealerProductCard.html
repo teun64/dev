@@ -1,0 +1,20 @@
+<template>
+    <div class="card" onclick={handleClick}>
+        <div class="card-image">
+            <template if:true={product.imageUrl}>
+                <img src={product.imageUrl} alt={displayName} class="product-image" />
+            </template>
+            <template if:false={product.imageUrl}>
+                <div class="image-placeholder">
+                    <span>Geen afbeelding</span>
+                </div>
+            </template>
+        </div>
+        <div class="card-body">
+            <p class="product-code">{product.productCode}</p>
+            <h3 class="product-name">{displayName}</h3>
+            <p class="product-description">{product.shortDescription}</p>
+            <p class="product-price">{formattedPrice}</p>
+        </div>
+    </div>
+</template>
