@@ -1,4 +1,4 @@
-public with sharing class Inv_createOpportunityFromCase {
+public without sharing class Inv_createOpportunityFromCase {
 
     @InvocableMethod(
         label='Create Opportunity from Case'
@@ -73,7 +73,7 @@ public with sharing class Inv_createOpportunityFromCase {
         );
 
         try {
-            insert opp;
+            Database.insert(opp, AccessLevel.SYSTEM_MODE);
             response.isSuccess = true;
             response.opportunityId = opp.Id;
             response.opportunityName = opp.Name;
