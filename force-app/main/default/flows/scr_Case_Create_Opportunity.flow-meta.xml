@@ -33,7 +33,7 @@
         <name>Check_Close_Case</name>
         <label>Close Case?</label>
         <locationX>176</locationX>
-        <locationY>480</locationY>
+        <locationY>600</locationY>
         <defaultConnector>
             <targetReference>Screen_Success</targetReference>
         </defaultConnector>
@@ -130,7 +130,7 @@
         <locationX>176</locationX>
         <locationY>360</locationY>
         <connector>
-            <targetReference>Check_Close_Case</targetReference>
+            <targetReference>dur_Relate_Opp_To_Case</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Screen_Error</targetReference>
@@ -189,10 +189,37 @@
 
     <!-- ═══════ RECORD UPDATES ═══════ -->
     <recordUpdates>
+        <name>dur_Relate_Opp_To_Case</name>
+        <label>Relate Opportunity to Case</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <connector>
+            <targetReference>Check_Close_Case</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Opportunity__c</field>
+            <value>
+                <elementReference>dcr_Create_Opportunity</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <recordUpdates>
         <name>dur_Close_Case</name>
         <label>Close Case</label>
         <locationX>176</locationX>
-        <locationY>600</locationY>
+        <locationY>720</locationY>
         <connector>
             <targetReference>Screen_Success</targetReference>
         </connector>
@@ -208,15 +235,15 @@
             </value>
         </filters>
         <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Closed</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Reason</field>
             <value>
                 <stringValue>Opportunity Created</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Closed</stringValue>
             </value>
         </inputAssignments>
         <object>Case</object>
@@ -320,13 +347,13 @@
         <name>Screen_Success</name>
         <label>Opportunity Created</label>
         <locationX>176</locationX>
-        <locationY>720</locationY>
+        <locationY>840</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
             <name>msg_Success</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!inp_Name} has been created and linked to this Case.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!inp_Name} has been created and linked to this Case.&lt;/p&gt;&lt;p&gt;&lt;a href="/lightning/r/Opportunity/{!dcr_Create_Opportunity}/view" target="_blank"&gt;Open Opportunity ↗&lt;/a&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
@@ -336,7 +363,7 @@
         <name>Screen_Error</name>
         <label>Something went wrong</label>
         <locationX>440</locationX>
-        <locationY>720</locationY>
+        <locationY>840</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
