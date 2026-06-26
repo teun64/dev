@@ -180,8 +180,8 @@
         <label>Create Opportunity</label>
         <locationX>176</locationX>
         <locationY>240</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>false</allowFinish>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
             <targetReference>dcr_Create_Opportunity</targetReference>
