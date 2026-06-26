@@ -340,6 +340,16 @@
             <fieldType>InputField</fieldType>
             <isRequired>true</isRequired>
         </fields>
+        <fields>
+            <name>chk_OpenOpportunity</name>
+            <dataType>Boolean</dataType>
+            <defaultValue>
+                <booleanValue>true</booleanValue>
+            </defaultValue>
+            <fieldText>Open Opportunity after saving</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
@@ -353,8 +363,25 @@
         <allowPause>false</allowPause>
         <fields>
             <name>msg_Success</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!inp_Name} has been created and linked to this Case.&lt;/p&gt;&lt;p&gt;&lt;a href="/lightning/r/Opportunity/{!dcr_Create_Opportunity}/view" target="_blank"&gt;Open Opportunity ↗&lt;/a&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!inp_Name} has been created and linked to this Case.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>cmp_OpenOpportunity</name>
+            <extensionName>c:flowOpenRecord</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>recordId</name>
+                <value>
+                    <elementReference>dcr_Create_Opportunity</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>shouldOpen</name>
+                <value>
+                    <elementReference>chk_OpenOpportunity</elementReference>
+                </value>
+            </inputParameters>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
