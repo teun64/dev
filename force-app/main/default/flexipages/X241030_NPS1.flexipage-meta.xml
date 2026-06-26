@@ -420,37 +420,37 @@
   &lt;table style=&quot;border-collapse: collapse; background-color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);&quot;&gt;
     &lt;tr&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=0&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #E57373; text-decoration: none;&quot;&gt;0&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=0&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #E57373; text-decoration: none;&quot;&gt;0&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=1&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #EF5350; text-decoration: none;&quot;&gt;1&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=1&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #EF5350; text-decoration: none;&quot;&gt;1&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=2&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #F06292; text-decoration: none;&quot;&gt;2&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=2&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #F06292; text-decoration: none;&quot;&gt;2&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=3&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #BA68C8; text-decoration: none;&quot;&gt;3&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=3&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #BA68C8; text-decoration: none;&quot;&gt;3&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=4&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #7986CB; text-decoration: none;&quot;&gt;4&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=4&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #7986CB; text-decoration: none;&quot;&gt;4&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=5&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #64B5F6; text-decoration: none;&quot;&gt;5&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=5&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #64B5F6; text-decoration: none;&quot;&gt;5&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=6&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #4DB6AC; text-decoration: none;&quot;&gt;6&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=6&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #4DB6AC; text-decoration: none;&quot;&gt;6&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=7&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #81C784; text-decoration: none;&quot;&gt;7&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=7&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #81C784; text-decoration: none;&quot;&gt;7&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=8&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #AED581; text-decoration: none;&quot;&gt;8&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=8&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #AED581; text-decoration: none;&quot;&gt;8&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=9&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #DCE775; text-decoration: none;&quot;&gt;9&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=9&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #DCE775; text-decoration: none;&quot;&gt;9&lt;/a&gt;
       &lt;/td&gt;
       &lt;td style=&quot;padding: 0;&quot;&gt;
-        &lt;a href=&quot;https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=10&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #D4E157; text-decoration: none;&quot;&gt;10&lt;/a&gt;
+        &lt;a href=&quot;https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=10&quot; style=&quot;display: block; padding: 10px; width: 40px; text-align: center; font-size: 18px; font-weight: bold; color: white; background-color: #D4E157; text-decoration: none;&quot;&gt;10&lt;/a&gt;
       &lt;/td&gt;
     &lt;/tr&gt;
   &lt;/table&gt;
@@ -504,7 +504,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>linkUrl</name>
-                    <value>https://movingintelligence.my.site.com/support/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=10</value>
+                    <value>https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/nps?survey={{{Recipient.Latest_Survey_Identifier__c}}}&amp;score=10</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>marginBottom</name>

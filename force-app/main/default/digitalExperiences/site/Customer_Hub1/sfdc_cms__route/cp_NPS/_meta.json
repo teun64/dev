@@ -1,0 +1,5 @@
+{
+  "apiName" : "cp_NPS",
+  "type" : "sfdc_cms__route",
+  "path" : "routes"
+}

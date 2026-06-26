@@ -1,0 +1,582 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "Service mail - (satisfaction - churn) - MiBlack & MiOrange",
+  "contentBody" : {
+    "backgroundColor" : "{!$brand.colorScheme.root}",
+    "lightning:backgroundImage" : {
+      "position" : "center center",
+      "repeat" : "no-repeat",
+      "size" : "cover"
+    },
+    "lightning:brandSource" : {
+      "defaultBrandOption" : "sfdcBrand"
+    },
+    "lightning:dataProviders" : [ {
+      "attributes" : {
+        "dataGraphApiName" : "Data_Graph"
+      },
+      "definition" : "sfdc_cms__dataGraphDataProvider",
+      "sfdcExpressionKey" : "$dataGraph"
+    } ],
+    "lightning:expressions" : [ ],
+    "messagePurpose" : "promotional",
+    "preheader" : "Alvast een heel fijne vakantie! ",
+    "sfdc_cms:block" : {
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "0ae3704b-e714-4941-aa44-dd988ca03ec7",
+      "type" : "block",
+      "children" : [ {
+        "attributes" : {
+          "lightning:backgroundImage" : {
+            "position" : "center center",
+            "repeat" : "no-repeat",
+            "size" : "cover"
+          },
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : "{!$brand.colorScheme}",
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:padding" : "{!$brand.spacing.none}",
+          "stackOnMobile" : true
+        },
+        "definition" : "lightning/section",
+        "id" : "99220539-cea9-4ab6-a759-13b2c864c13a",
+        "type" : "block",
+        "children" : [ {
+          "attributes" : {
+            "columnWidth" : 12.0,
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.none}",
+            "lightning:verticalAlignment" : "top"
+          },
+          "definition" : "lightning/column",
+          "id" : "882e5ffd-cd4d-47d8-b131-23cfc95bea00",
+          "type" : "block",
+          "children" : [ {
+            "attributes" : {
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              },
+              "imageInfo" : {
+                "altText" : "",
+                "source" : {
+                  "ref" : "MCJQKHKOWEX5DCNHBZNBIOPA223I",
+                  "type" : "imageReference"
+                },
+                "url" : "/cms/media/MCJQKHKOWEX5DCNHBZNBIOPA223I"
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+            },
+            "definition" : "lightning/image",
+            "id" : "e4c8feb0-affc-4225-b1b2-22c59e428237",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "Bijna op weg naar de sneeuw? Bereid u goed voor en voorkom vervelende verrassingen. In deze mail geven we u tips over het goed gebruik van uw Moving Intelligence-systeem tijdens uw vakantie. En, wist u dat u met een druk op de knop rittenregistratie met Keurmerk RRS kunt toevoegen? Alvast een heel fijne vakantie! <br /><br />"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "2da0e7e0-f706-404a-9410-f8cc0ae7edef",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              },
+              "imageInfo" : {
+                "altText" : "",
+                "overrideAltText" : false,
+                "source" : {
+                  "ref" : "MCADPUAUGHW5BH5DEHQBS5OHSRRQ",
+                  "type" : "imageReference"
+                },
+                "url" : "/cms/media/MCADPUAUGHW5BH5DEHQBS5OHSRRQ"
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+            },
+            "definition" : "lightning/image",
+            "id" : "41cc4537-c32d-429e-a70f-53c4bcb974f0",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "<strong>Op wintersport? Denk aan uw Moving Intelligence-systeem! \n</strong><br />Gaat u op wintersport, dan heeft u vast al een lange meeneemlijst. Daar mag één onderdeel niet op ontbreken: de noodsleutel, pas of active tag van uw startonderbreker. Die sleutel, fysiek of digitaal, voorkomt veel gedoe wanneer uw auto geblokkeerd wordt. Waar moet u aan denken voordat u naar de sneeuw vertrekt? \n<br /><br />"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "44af2f54-d9bb-422f-af53-f509d11ce83d",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "content" : {
+                "attributes" : {
+                  "listStyle" : "unordered"
+                },
+                "definition" : "lightning/listElement",
+                "id" : "6c7711df-3e25-42af-a703-b8da295cd406",
+                "type" : "block",
+                "children" : [ {
+                  "definition" : "lightning/listItem",
+                  "id" : "5edf1e29-06d2-4f80-afc9-239a20ae89ec",
+                  "type" : "block",
+                  "children" : [ {
+                    "attributes" : {
+                      "align" : "left",
+                      "text" : "Download de MiApp op uw smartphone. Daarmee kunt u op afstand een eventuele blokkade opheffen. Log alvast een keer in, zodat u zeker weet dat alles werkt."
+                    },
+                    "definition" : "lightning/paragraph",
+                    "id" : "538d527d-277e-4a1c-8f89-d3893a806214",
+                    "type" : "block"
+                  } ]
+                }, {
+                  "definition" : "lightning/listItem",
+                  "id" : "1f2a0928-55f7-4aab-899f-019b33fd1873",
+                  "type" : "block",
+                  "children" : [ {
+                    "attributes" : {
+                      "align" : "left",
+                      "text" : "Neem uw noodsleutel, pas of active tag mee voor wanneer uw auto, bijvoorbeeld in bergachtig gebied of in een parkeergarage, geen verbinding kan maken met het platform. Deze kwijt? Bestel op tijd een nieuwe via uw dealer."
+                    },
+                    "definition" : "lightning/paragraph",
+                    "id" : "9aa8f51c-bc92-4162-8ba5-96f32a9746df",
+                    "type" : "block"
+                  } ]
+                }, {
+                  "definition" : "lightning/listItem",
+                  "id" : "a3b909c2-fce6-43ae-a8e0-cf7d434c2b50",
+                  "type" : "block",
+                  "children" : [ {
+                    "attributes" : {
+                      "align" : "left",
+                      "text" : "Indien u gebruik maakt van de kalenderfunctie van de MiBlock, controleer of deze instelling ook van toepassing tijdens uw vakantie"
+                    },
+                    "definition" : "lightning/paragraph",
+                    "id" : "90164b89-d92a-4a94-a202-926c6c3fcfc9",
+                    "type" : "block"
+                  } ]
+                } ]
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              }
+            },
+            "definition" : "lightning/list",
+            "id" : "848f4071-83b5-4c79-8c96-7cdcb28f2b24",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "Hulp nodig? Bel ons via &#43;3188 999 000 00. Buiten onze kantoortijden is onze alarmcentrale 24/7 bereikbaar via &#43;31 20 569 31 11. Houd ter verificatie uw persoonlijk wachtwoord bij de hand. Bekijk ook de <a href=\"https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/?language&#61;nl_NLhttps://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/?language&#61;nl_NL\" target=\"_blank\" part=\"link\" rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\">supportpagina</a> voor de meest gestelde vragen en handleidingen.<br /><br />"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "02a98456-af7b-4fd8-bf0f-e90796001489",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              },
+              "imageInfo" : {
+                "altText" : "",
+                "overrideAltText" : false,
+                "source" : {
+                  "ref" : "MCJX6C5K7MQ5FUTOAQ3EY6YRJK6E",
+                  "type" : "imageReference"
+                },
+                "url" : "/cms/media/MCJX6C5K7MQ5FUTOAQ3EY6YRJK6E"
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+            },
+            "definition" : "lightning/image",
+            "id" : "999dfc9b-f46b-47ba-bc73-6b7941a32036",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "<strong>Rittenregistratie met keurmerk RRS \n</strong><br />U wilt géén bijtelling betalen voor het gebruik van uw zakelijke auto? Dan moet u voor de Belastingdienst kunnen aantonen dat u niet meer dan 500 kilometer per jaar privé rijdt met deze auto. Uw beveiligingssysteem is goedgekeurd als rittenregistratiesysteem. Met één druk op de knop kunt u in het platform Rittenregistratie met RRS-keurmerk bijbestellen.  Start vandaag nog met rittenregistratie die aan alle eisen voldoet. <a part=\"link\" target=\"_blank\" href=\"https://app.movingintelligence.com/nlhttps://app.movingintelligence.com/nl\" rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\">Login op het platform</a> en ga naar Shop. Kies voor MiBlack-R wanneer u nu een MiBlack-abonnement heeft en voor MiOrange-R wanneer u nu een MiOrange-abonnement heeft.<br />"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "3166457a-b00b-4e53-b4b3-8e4802a16026",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "<strong>Wat zijn zakelijke kilometers en wat zijn privékilometers?</strong><br />Welke ritten ziet de Belastingdienst als zakelijk en welke als privé? Hoe zit het met gecombineerde ritten? Lees het in onze <a part=\"link\" target=\"_blank\" href=\"https://movingintelligence.nl/blog/wat-valt-onder-privekilometers-volgens-de-belastingdienst?utm_source&#61;newsletter&amp;utm_campaign&#61;miblackmiorangefebruarihttps://movingintelligence.nl/blog/wat-valt-onder-privekilometers-volgens-de-belastingdienst?utm_source&#61;newsletter&amp;utm_campaign&#61;miblackmiorangefebruari\" rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\">blog</a>."
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "0f79dead-36a1-4780-a0e4-044a808ed759",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                }
+              },
+              "lineStyle" : "solid",
+              "lineWeight" : {
+                "unit" : "px",
+                "value" : 1.0
+              },
+              "lineWidth" : {
+                "unit" : "%",
+                "value" : 100.0
+              }
+            },
+            "definition" : "lightning/divider",
+            "id" : "b4051c40-d7b7-4230-8cea-9b141646781a",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "center",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.xLarge}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+              "text" : "<a part=\"link\" target=\"_blank\" href=\"https://www.facebook.com/movingintelligence\" rel=\"noopener noreferrer\">Facebook</a> | <a part=\"link\" target=\"_blank\" href=\"https://www.linkedin.com/company/movingintelligence/?viewAsMember&#61;true\" rel=\"noopener noreferrer\">Linkedin</a> | <a part=\"link\" target=\"_blank\" href=\"https://www.instagram.com/movingintelligence/\" rel=\"noopener noreferrer\">Instagram</a>"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "8b01cd9e-346a-4ef6-85d6-baaced086cbc",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                }
+              },
+              "lineStyle" : "solid",
+              "lineWeight" : {
+                "unit" : "px",
+                "value" : 1.0
+              },
+              "lineWidth" : {
+                "unit" : "%",
+                "value" : 100.0
+              }
+            },
+            "definition" : "lightning/divider",
+            "id" : "538b4892-0df3-4f33-84d1-c99bd41d4ecb",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "center",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "{!$organization.Address}   |  <a part=\"link\" target=\"_blank\" href=\"{!$link.EmailAddressOptOutUrl}\" rel=\"noopener noreferrer noopener noreferrer noopener noreferrer\">Uitschrijven</a>"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "230bca9a-474c-46a8-a5cd-3a51a6ddd666",
+            "type" : "block"
+          } ]
+        } ]
+      } ]
+    },
+    "sfdc_cms:title" : "Service mail - (satisfaction - churn) - MiBlack & MiOrange",
+    "subjectLine" : "Op wintersport? Denk aan uw Moving Intelligence-systeem! \r",
+    "sfdc_cms:variants" : [ ]
+  },
+  "urlName" : "service-mail---satisfaction---churn---miblack-miorange"
+}

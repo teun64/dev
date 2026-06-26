@@ -1,0 +1,20 @@
+<template>
+    <div class="nps-container">
+        <div class="nps-scale-labels">
+            <span class="nps-label">Zeer onwaarschijnlijk</span>
+            <span class="nps-label nps-label_right">Zeer waarschijnlijk</span>
+        </div>
+        <div class="nps-buttons">
+            <template for:each={scoreButtons} for:item="btn">
+                <button
+                    key={btn.value}
+                    class={btn.cssClass}
+                    data-value={btn.value}
+                    onclick={handleScoreClick}
+                    type="button">
+                    {btn.label}
+                </button>
+            </template>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "NPS",
+  "contentBody" : {
+    "activeViewId" : "NPS",
+    "configurationTags" : [ ],
+    "pageAccess" : "Public",
+    "routeType" : "custom-nps",
+    "urlPrefix" : "nps"
+  },
+  "urlName" : "nps"
+}

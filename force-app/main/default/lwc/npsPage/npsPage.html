@@ -1,0 +1,16 @@
+<template>
+    <div class="nps-page-container">
+        <template if:true={isReady}>
+            <lightning-flow
+                flow-api-name="scr_Customer_Survey"
+                flow-input-variables={flowInputs}
+                onstatuschange={handleStatusChange}>
+            </lightning-flow>
+        </template>
+        <template if:true={hasError}>
+            <div class="slds-p-around_medium">
+                <p class="slds-text-color_error">{errorMessage}</p>
+            </div>
+        </template>
+    </div>
+</template>
