@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+
+    <!-- ═══════ ACTION CALLS ═══════ -->
+    <actionCalls>
+        <name>Action_CreateOpportunity</name>
+        <label>Create Opportunity</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <actionName>Inv_createOpportunityFromCase</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Check_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Error</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>recordId.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recordTypeName</name>
+            <value>
+                <elementReference>pick_RecordType</elementReference>
+            </value>
+        </inputParameters>
+        <outputParameters>
+            <assignToReference>varIsSuccess</assignToReference>
+            <name>isSuccess</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>varOpportunityName</assignToReference>
+            <name>opportunityName</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>varErrorMessage</assignToReference>
+            <name>errorMessage</name>
+        </outputParameters>
+        <storeOutputAutomatically>false</storeOutputAutomatically>
+    </actionCalls>
+
+    <!-- ═══════ DECISIONS ═══════ -->
+    <decisions>
+        <name>Check_Has_Account</name>
+        <label>Case has Account?</label>
+        <locationX>176</locationX>
+        <locationY>240</locationY>
+        <defaultConnector>
+            <targetReference>Screen_No_Account</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Account</defaultConnectorLabel>
+        <rules>
+            <name>Has_Account</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>recordId.AccountId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Select_Record_Type</targetReference>
+            </connector>
+            <label>Has Account</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Check_Success</name>
+        <label>Created Successfully?</label>
+        <locationX>176</locationX>
+        <locationY>600</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Error</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Failed</defaultConnectorLabel>
+        <rules>
+            <name>Is_Success</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varIsSuccess</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Success</targetReference>
+            </connector>
+            <label>Success</label>
+        </rules>
+    </decisions>
+
+    <description>Quick Action: create an Opportunity linked to the current Case. Requires an Account on the Case.</description>
+
+    <!-- ═══════ DYNAMIC CHOICE SETS ═══════ -->
+    <dynamicChoiceSets>
+        <name>ccs_RecordTypes</name>
+        <collectionReference>Get_RecordTypes</collectionReference>
+        <dataType>String</dataType>
+        <displayField>Name</displayField>
+        <object>RecordType</object>
+        <valueField>DeveloperName</valueField>
+    </dynamicChoiceSets>
+
+    <interviewLabel>scf - Case - Create Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>scf - Case - Create Opportunity</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+
+    <!-- ═══════ RECORD LOOKUPS ═══════ -->
+    <recordLookups>
+        <name>Get_RecordTypes</name>
+        <label>Get Opportunity Record Types</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_Has_Account</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>SObjectType</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Opportunity</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>RecordType</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <runInMode>DefaultMode</runInMode>
+
+    <!-- ═══════ SCREENS ═══════ -->
+    <screens>
+        <name>Screen_No_Account</name>
+        <label>No Account on Case</label>
+        <locationX>440</locationX>
+        <locationY>360</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>msg_NoAccount</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Cannot create an Opportunity&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;This Case does not have an Account. Please add an Account to the Case before creating an Opportunity.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Select_Record_Type</name>
+        <label>Create Opportunity</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>false</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Action_CreateOpportunity</targetReference>
+        </connector>
+        <fields>
+            <name>pick_RecordType</name>
+            <choiceReferences>ccs_RecordTypes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultValue>
+                <stringValue>Standard</stringValue>
+            </defaultValue>
+            <fieldText>Record Type</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Success</name>
+        <label>Opportunity Created</label>
+        <locationX>176</locationX>
+        <locationY>720</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>msg_Success</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!varOpportunityName} has been created and linked to this Case.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Error</name>
+        <label>Something went wrong</label>
+        <locationX>440</locationX>
+        <locationY>720</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>msg_Error</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Could not create the Opportunity&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!varErrorMessage}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+
+    <!-- ═══════ START ═══════ -->
+    <start>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_RecordTypes</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+
+    <!-- ═══════ VARIABLES ═══════ -->
+    <variables>
+        <name>recordId</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Case</objectType>
+    </variables>
+    <variables>
+        <name>varErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varIsSuccess</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOpportunityName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+</Flow>

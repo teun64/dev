@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Create Opportunity</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <targetObject>Case</targetObject>
+    <type>Flow</type>
+    <flow>scf_Case_Create_Opportunity</flow>
+</QuickAction>
