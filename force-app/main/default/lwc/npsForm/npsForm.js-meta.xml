@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="npsForm">
     <apiVersion>67.0</apiVersion>
     <isExposed>true</isExposed>
     <targets>
@@ -7,12 +7,8 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="defaultScore" type="Decimal" label="Default Score"
-                description="Pre-selected score from the URL parameter (0–10, or -1 for none)."
-                role="inputOnly"/>
-            <property name="selectedScore" type="Decimal" label="Selected Score"
-                description="Score the user clicked (0–10, or -1 if nothing selected)."
-                role="outputOnly"/>
+            <property name="defaultScore" type="Integer" label="Default Score" description="The default score to preselect" />
+            <property name="selectedScore" type="Integer" description="The score selected by the user" role="outputOnly"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
