@@ -15,6 +15,17 @@
             <h3 class="product-name">{displayName}</h3>
             <p class="product-description">{product.shortDescription}</p>
             <p class="product-price">{formattedPrice}</p>
+            <template if:true={hasTiers}>
+                <div class="tier-table">
+                    <template for:each={enrichedTiers} for:item="tier">
+                        <div key={tier.key} class="tier-row">
+                            <span class="tier-qty">v.a. {tier.fromQty} st.</span>
+                            <span class="tier-price">{tier.formattedPrice}</span>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <button class="btn-add-cart" onclick={handleAddToCart}>In winkelwagen</button>
         </div>
     </div>
 </template>

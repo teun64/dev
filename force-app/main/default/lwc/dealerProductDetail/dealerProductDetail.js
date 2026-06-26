@@ -83,7 +83,10 @@ export default class DealerProductDetail extends LightningElement {
             detail: {
                 productId: this.productId,
                 quantity: this.quantity,
-                unitPrice
+                unitPrice,
+                priceTiers: this.product?.priceTiers || [],
+                productName: this.product?.displayName || this.product?.name || '',
+                imageUrl: this.product?.imageUrl || null
             },
             bubbles: true,
             composed: true

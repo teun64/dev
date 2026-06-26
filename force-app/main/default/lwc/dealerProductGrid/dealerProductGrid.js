@@ -87,4 +87,15 @@ export default class DealerProductGrid extends LightningElement {
             })
         );
     }
+
+    handleAddToCart(event) {
+        event.stopPropagation();
+        this.dispatchEvent(
+            new CustomEvent('addtocart', {
+                detail: event.detail,
+                bubbles: true,
+                composed: true
+            })
+        );
+    }
 }

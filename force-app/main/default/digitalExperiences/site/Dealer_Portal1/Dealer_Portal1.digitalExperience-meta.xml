@@ -4,6 +4,10 @@
     <label>Dealer_Portal1</label>
     <modules>
         <module>
+            <fullyQualifiedName>sfdc_cms__collection</fullyQualifiedName>
+            <status>ENABLED</status>
+        </module>
+        <module>
             <fullyQualifiedName>sfdc_cms__mobilePublisherConfig</fullyQualifiedName>
             <status>ENABLED</status>
         </module>

@@ -20,16 +20,32 @@ export default class DealerCart extends LightningElement {
     }
 
     get enrichedCartItems() {
-        return (this.cartItems || []).map(item => ({
-            ...item,
-            lineTotal: this._formatPrice(item.quantity * item.unitPrice)
-        }));
+        return (this.cartItems || []).map(item => {
+            const effectivePrice = this._effectivePrice(item.unitPrice, item.priceTiers, item.quantity);
+            return {
+                ...item,
+                effectivePrice: this._formatPrice(effectivePrice),
+                lineTotal: this._formatPrice(item.quantity * effectivePrice)
+            };
+        });
     }
 
     get cartTotal() {
         return this._formatPrice(
-            (this.cartItems || []).reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
+            (this.cartItems || []).reduce((sum, item) => {
+                const ep = this._effectivePrice(item.unitPrice, item.priceTiers, item.quantity);
+                return sum + item.quantity * ep;
+            }, 0)
         );
+    }
+
+    _effectivePrice(unitPrice, priceTiers, quantity) {
+        if (!priceTiers || priceTiers.length === 0) return unitPrice;
+        let price = unitPrice;
+        for (const tier of priceTiers) {
+            if (quantity >= tier.fromQty) price = tier.price;
+        }
+        return price;
     }
 
     _formatPrice(value) {

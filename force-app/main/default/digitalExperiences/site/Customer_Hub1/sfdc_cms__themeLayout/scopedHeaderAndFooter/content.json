@@ -24,6 +24,12 @@
             "sectionVerticalAlign" : "flex-start"
           },
           "children" : [ {
+            "children" : [ {
+              "attributes" : { },
+              "definition" : "c:hubHeader",
+              "id" : "a1b2c3d4-e5f6-7890-ab12-cd3456789012",
+              "type" : "component"
+            } ],
             "id" : "6e88f5e1-2c4f-45a9-94f1-eaea8363ff9e",
             "name" : "headerSection",
             "title" : "Theme Header",
@@ -53,6 +59,12 @@
             "sectionVerticalAlign" : "flex-start"
           },
           "children" : [ {
+            "children" : [ {
+              "attributes" : { },
+              "definition" : "c:hubFooter",
+              "id" : "b2c3d4e5-f6a7-8901-bc23-de4567890123",
+              "type" : "component"
+            } ],
             "id" : "4c198e9a-c90a-41e9-9567-4d4b022f4d83",
             "name" : "footerSection",
             "title" : "Theme Footer",

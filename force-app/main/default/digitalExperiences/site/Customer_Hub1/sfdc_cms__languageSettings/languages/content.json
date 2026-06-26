@@ -2,13 +2,28 @@
   "type" : "sfdc_cms__languageSettings",
   "title" : "LanguageContent",
   "contentBody" : {
+    "defaultLocale" : "en_US",
     "languages" : [ {
-      "locale" : "en_US",
-      "label" : "English (US)",
       "isActive" : true,
-      "isAuthoringOnly" : false
-    } ],
-    "defaultLocale" : "en_US"
+      "isAuthoringOnly" : false,
+      "label" : "English (US)",
+      "locale" : "en_US"
+    }, {
+      "isActive" : true,
+      "isAuthoringOnly" : false,
+      "label" : "Dutch (NL)",
+      "locale" : "nl_NL"
+    }, {
+      "isActive" : true,
+      "isAuthoringOnly" : false,
+      "label" : "French",
+      "locale" : "fr"
+    }, {
+      "isActive" : true,
+      "isAuthoringOnly" : false,
+      "label" : "German",
+      "locale" : "de"
+    } ]
   },
   "urlName" : "languagecontent"
 }

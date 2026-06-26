@@ -8,7 +8,7 @@
 
         <template if:false={isLoading}>
             <div class="back-link">
-                <a href="javascript:void(0)" onclick={handleBack}>&#8592; Terug naar overzicht</a>
+                <button class="back-link-btn" onclick={handleBack}>&#8592; Terug naar overzicht</button>
             </div>
 
             <template if:true={product}>

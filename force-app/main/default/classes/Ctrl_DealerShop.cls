@@ -83,55 +83,59 @@ public without sharing class Ctrl_DealerShop {
 
     private static DealerContext getDealerContext() {
         List<User> users = [
-            SELECT ContactId, DefaultLanguage__c
+            SELECT ContactId, DefaultLanguage__c, Email
             FROM User
             WHERE Id = :UserInfo.getUserId()
             WITH SYSTEM_MODE
             LIMIT 1
         ];
-        if (users.isEmpty() || users[0].ContactId == null) {
-            return fallbackContext(normalizeLang(users.isEmpty() ? null : users[0].DefaultLanguage__c));
+        if (users.isEmpty()) return fallbackContext(null);
+        User usr = users[0];
+
+        // Primary: external/community user with ContactId
+        if (usr.ContactId != null) {
+            List<Contact> contacts = [
+                SELECT AccountId, Language__c
+                FROM Contact WHERE Id = :usr.ContactId WITH SYSTEM_MODE LIMIT 1
+            ];
+            if (!contacts.isEmpty() && contacts[0].AccountId != null) {
+                return buildContextFromContact(contacts[0], usr.DefaultLanguage__c);
+            }
         }
 
-        List<Contact> contacts = [
-            SELECT AccountId, Language__c
-            FROM Contact
-            WHERE Id = :users[0].ContactId
-            WITH SYSTEM_MODE
-            LIMIT 1
-        ];
-        if (contacts.isEmpty() || contacts[0].AccountId == null) {
-            String lang = normalizeLang(users[0].DefaultLanguage__c);
-            if (lang == null && !contacts.isEmpty()) lang = resolveLanguage(contacts[0].Language__c);
-            return fallbackContext(lang);
+        // Secondary: Identity/internal user — resolve Account via Contact email match
+        if (String.isNotBlank(usr.Email)) {
+            List<Contact> emailCons = [
+                SELECT AccountId, Language__c
+                FROM Contact WHERE Email = :usr.Email AND AccountId != null
+                WITH SYSTEM_MODE LIMIT 1
+            ];
+            if (!emailCons.isEmpty()) {
+                return buildContextFromContact(emailCons[0], usr.DefaultLanguage__c);
+            }
         }
 
+        return fallbackContext(normalizeLang(usr.DefaultLanguage__c));
+    }
+
+    private static DealerContext buildContextFromContact(Contact con, String defaultLang) {
         List<Account> accounts = [
             SELECT Id, BillingCountryCode, Dealer_category__c, Sales_Language__c
-            FROM Account
-            WHERE Id = :contacts[0].AccountId
-            WITH SYSTEM_MODE
-            LIMIT 1
+            FROM Account WHERE Id = :con.AccountId WITH SYSTEM_MODE LIMIT 1
         ];
-        if (accounts.isEmpty()) {
-            String lang = normalizeLang(users[0].DefaultLanguage__c);
-            if (lang == null) lang = resolveLanguage(contacts[0].Language__c);
-            return fallbackContext(lang);
-        }
+        if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
 
         DealerContext ctx = new DealerContext();
         ctx.account = accounts[0];
-
-        // Priority: User.DefaultLanguage__c → Contact.Language__c → Account.Sales_Language__c → 'en'
-        String lang = normalizeLang(users[0].DefaultLanguage__c);
-        if (lang == null) lang = resolveLanguage(contacts[0].Language__c);
+        String lang = resolveLanguage(con.Language__c);
         if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
+        if (lang == null) lang = normalizeLang(defaultLang);
         ctx.language = lang != null ? lang : 'en';
         return ctx;
     }
 
     // Returns a context with a stub Account (no Id) — used for preview/admin and unlinked users.
-    // Pricebook resolution will fall back to any Dealer pricebook; no discounts are applied.
+    // Pricebook resolution falls back to any Dealer pricebook; no discounts applied.
     private static DealerContext fallbackContext(String language) {
         DealerContext ctx = new DealerContext();
         ctx.language = language != null ? language : 'en';
@@ -209,7 +213,6 @@ public without sharing class Ctrl_DealerShop {
         if (fromQty == null && price == null) return null;
         PriceTierDTO t  = new PriceTierDTO();
         t.fromQty       = fromQty != null ? fromQty.intValue() : null;
-        t.discountPct   = discountPct;
         if (discountPct != null && price != null) {
             t.price = price * (1 - discountPct / 100);
         } else {
@@ -248,10 +251,11 @@ public without sharing class Ctrl_DealerShop {
             cvByDoc.put(cv.ContentDocumentId, cv.Id);
         }
 
+        String orgBase = System.URL.getOrgDomainUrl().toExternalForm();
         for (Id productId : cdocByProduct.keySet()) {
             Id cvId = cvByDoc.get(cdocByProduct.get(productId));
             if (cvId != null) {
-                result.put(productId, '/sfc/servlet.shepherd/version/download/' + cvId);
+                result.put(productId, orgBase + '/sfc/servlet.shepherd/version/download/' + cvId);
             }
         }
         return result;
@@ -282,7 +286,6 @@ public without sharing class Ctrl_DealerShop {
                                  : prod.longDescription__c;
         dto.category             = prod.Category_Platform__c;
         dto.productCode          = prod.ProductCode;
-        dto.family               = prod.Family;
 
         if (entry != null) {
             dto.unitPrice = entry.UnitPrice;
@@ -315,84 +318,97 @@ public without sharing class Ctrl_DealerShop {
         String lang       = ctx.language;
         Id pricebookId    = resolvePricebookId(acct);
 
-        // Total count query
-        Integer total;
-        if (String.isNotBlank(category)) {
-            total = [
-                SELECT COUNT()
-                FROM Product2
-                WHERE IsActive = true
-                  AND Is_Public__c = true
-                  AND Category_Platform__c = :category
-                WITH SYSTEM_MODE
-            ];
-        } else {
-            total = [
-                SELECT COUNT()
-                FROM Product2
-                WHERE IsActive = true
-                  AND Is_Public__c = true
-                WITH SYSTEM_MODE
-            ];
-        }
-
-        // Page query
-        Id baseRtId = baseTranslationRtId;
-        List<Product2> products;
-        if (String.isNotBlank(category)) {
-            products = [
-                SELECT Id, Name, ProductCode, Family, Description, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
-                FROM Product2
-                WHERE IsActive = true
-                  AND Is_Public__c = true
-                  AND Category_Platform__c = :category
-                WITH SYSTEM_MODE
-                ORDER BY Name
-                LIMIT :safePageSize
-                OFFSET :offsetVal
-            ];
-        } else {
-            products = [
-                SELECT Id, Name, ProductCode, Family, Description, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
-                FROM Product2
-                WHERE IsActive = true
-                  AND Is_Public__c = true
-                WITH SYSTEM_MODE
-                ORDER BY Name
-                LIMIT :safePageSize
-                OFFSET :offsetVal
-            ];
-        }
-
-        Set<Id> productIds = new Set<Id>();
-        for (Product2 p : products) productIds.add(p.Id);
-
-        // Pricebook entries
+        // Pricebook entries drive visibility: only products with an active pricebook entry appear.
         Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
-        if (pricebookId != null && !productIds.isEmpty()) {
+        Boolean filterByEntry = pricebookId != null;
+        if (filterByEntry) {
             for (PricebookEntry pbe : [
                 SELECT Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c,
                        From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c,
                        From_Quantity_4__c, From_Price_4__c
                 FROM PricebookEntry
                 WHERE Pricebook2Id = :pricebookId
-                  AND Product2Id IN :productIds
                   AND IsActive = true
+                  AND IsActive_r__c = true
                 WITH SYSTEM_MODE
             ]) {
                 entryByProduct.put(pbe.Product2Id, pbe);
             }
         }
+        Set<Id> pricedIds = entryByProduct.keySet();
+
+        if (filterByEntry && pricedIds.isEmpty()) {
+            ProductPageResult empty = new ProductPageResult();
+            empty.products    = new List<ProductDTO>();
+            empty.total       = 0;
+            empty.pricebookId = pricebookId;
+            return empty;
+        }
+
+        // Total count
+        Integer total;
+        if (String.isNotBlank(category) && filterByEntry) {
+            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true AND Category_Platform__c INCLUDES (:category) AND Id IN :pricedIds WITH SYSTEM_MODE];
+        } else if (String.isNotBlank(category)) {
+            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true AND Category_Platform__c INCLUDES (:category) WITH SYSTEM_MODE];
+        } else if (filterByEntry) {
+            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true AND Id IN :pricedIds WITH SYSTEM_MODE];
+        } else {
+            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true WITH SYSTEM_MODE];
+        }
+
+        // Page query
+        Id baseRtId = baseTranslationRtId;
+        List<Product2> products;
+        if (String.isNotBlank(category) && filterByEntry) {
+            products = [
+                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
+                FROM Product2
+                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
+                  AND Category_Platform__c INCLUDES (:category) AND Id IN :pricedIds
+                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
+            ];
+        } else if (String.isNotBlank(category)) {
+            products = [
+                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
+                FROM Product2
+                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
+                  AND Category_Platform__c INCLUDES (:category)
+                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
+            ];
+        } else if (filterByEntry) {
+            products = [
+                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
+                FROM Product2
+                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
+                  AND Id IN :pricedIds
+                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
+            ];
+        } else {
+            products = [
+                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
+                FROM Product2
+                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
+                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
+            ];
+        }
+
+        Set<Id> productIds = new Set<Id>();
+        for (Product2 p : products) productIds.add(p.Id);
 
         // Account-level discounts
         Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
         if (acct.Id != null && !productIds.isEmpty()) {
             for (Product_Discount__c disc : [
-                SELECT Id, Product__c, IsActive__c, Discount_percentage__c,
+                SELECT Product__c, IsActive__c, Discount_percentage__c,
                        isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
                        From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
                        From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
@@ -430,13 +446,13 @@ public without sharing class Ctrl_DealerShop {
         String lang    = ctx.language;
         Id baseRtId    = baseTranslationRtId;
         List<Product2> prods = [
-            SELECT Id, Name, ProductCode, Family, Description, Category_Platform__c,
+            SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
                    (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
                     WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
             FROM Product2
             WHERE Id = :productId
               AND IsActive = true
-              AND Is_Public__c = true
+              AND Show_In_Dealer_Shop__c = true
             WITH SYSTEM_MODE
             LIMIT 1
         ];
@@ -456,6 +472,7 @@ public without sharing class Ctrl_DealerShop {
                 WHERE Pricebook2Id = :pricebookId
                   AND Product2Id = :productId
                   AND IsActive = true
+                  AND IsActive_r__c = true
                 WITH SYSTEM_MODE
                 LIMIT 1
             ];
@@ -463,7 +480,7 @@ public without sharing class Ctrl_DealerShop {
         }
 
         List<Product_Discount__c> discs = [
-            SELECT Id, Product__c, IsActive__c, Discount_percentage__c,
+            SELECT Product__c, IsActive__c, Discount_percentage__c,
                    isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
                    From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
                    From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
@@ -566,7 +583,6 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String          longDescription;
         @AuraEnabled public String          category;
         @AuraEnabled public String          productCode;
-        @AuraEnabled public String          family;
         @AuraEnabled public String          imageUrl;
         @AuraEnabled public Decimal         unitPrice;
         @AuraEnabled public List<PriceTierDTO> priceTiers;
@@ -580,7 +596,6 @@ public without sharing class Ctrl_DealerShop {
     public class PriceTierDTO {
         @AuraEnabled public Integer fromQty;
         @AuraEnabled public Decimal price;
-        @AuraEnabled public Decimal discountPct;
     }
 
     public class CartItemInput {

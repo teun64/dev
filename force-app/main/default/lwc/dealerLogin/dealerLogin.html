@@ -12,13 +12,14 @@
             </template>
 
             <div class="login-field">
-                <label for="username" class="login-label">Username</label>
+                <label for="email" class="login-label">E-mailadres</label>
                 <input
-                    id="username"
+                    id="email"
                     type="email"
-                    autocomplete="username"
-                    value={username}
-                    onchange={handleUsernameChange}
+                    autocomplete="email"
+                    placeholder="naam@bedrijf.nl"
+                    value={email}
+                    onchange={handleEmailChange}
                     onkeydown={handleKeyDown}
                     class="login-input"
                     disabled={isLoading}

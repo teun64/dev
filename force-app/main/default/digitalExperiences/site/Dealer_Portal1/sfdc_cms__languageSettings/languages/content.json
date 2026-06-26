@@ -3,17 +3,12 @@
   "title" : "LanguageContent",
   "contentBody" : {
     "languages" : [ {
-      "locale" : "nl_NL",
-      "label" : "Dutch",
-      "isActive" : true,
-      "isAuthoringOnly" : false
-    }, {
       "locale" : "en_US",
       "label" : "English (US)",
       "isActive" : true,
       "isAuthoringOnly" : false
     } ],
-    "defaultLocale" : "nl_NL"
+    "defaultLocale" : "en_US"
   },
   "urlName" : "languagecontent"
 }

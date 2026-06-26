@@ -100,11 +100,9 @@ public without sharing class Ctrl_PreferenceCenter {
         Contact con = queryContact(contactId);
 
         // ── 1. Load the CMT catalog ───────────────────────────────────────────
-        List<BrandCommunicationConfig__mdt> catalog = [
-            SELECT Brand__c, CommunicationType__c, Channel__c
-            FROM BrandCommunicationConfig__mdt
-            ORDER BY Brand__c, CommunicationType__c, Channel__c
-        ];
+        List<BrandCommunicationConfig__mdt> catalog = new List<BrandCommunicationConfig__mdt>(
+            BrandCommunicationConfig__mdt.getAll().values()
+        );
 
         // ── 2. Load existing preference records, keyed by CompositeKey ────────
         Map<String, CommunicationPreference__c> existingByKey = new Map<String, CommunicationPreference__c>();
@@ -159,6 +157,7 @@ public without sharing class Ctrl_PreferenceCenter {
         page.contactId           = String.valueOf(contactId);
         page.contactName         = con.FirstName + ' ' + con.LastName;
         page.contactEmail        = con.Email;
+        page.contactPhone        = String.isNotBlank(con.MobilePhone) ? con.MobilePhone : con.Phone;
         page.preferences         = prefs;
         page.lastAudit           = lastAudit;
         page.primaryBrand        = primaryBrand;
@@ -249,22 +248,16 @@ public without sharing class Ctrl_PreferenceCenter {
         BrandThemeData data = new BrandThemeData();
         data.brand = brand;
 
-        List<BrandThemeConfig__mdt> cfgs = [
-            SELECT Brand__c, BrandName__c, PrimaryColor__c, AccentColor__c,
-                   LogoStaticResource__c, McBrandId__c, TagLine__c
-            FROM   BrandThemeConfig__mdt
-            WHERE  Brand__c = :brand
-            LIMIT  1
-        ];
-
-        if (!cfgs.isEmpty()) {
-            BrandThemeConfig__mdt cfg = cfgs[0];
-            data.brandName         = cfg.BrandName__c;
-            data.primaryColor      = cfg.PrimaryColor__c;
-            data.accentColor       = cfg.AccentColor__c;
-            data.logoStaticPath    = cfg.LogoStaticResource__c;
-            data.mcBrandId         = cfg.McBrandId__c;
-            data.tagLine           = cfg.TagLine__c;
+        for (BrandThemeConfig__mdt cfg : BrandThemeConfig__mdt.getAll().values()) {
+            if (cfg.Brand__c == brand) {
+                data.brandName      = cfg.BrandName__c;
+                data.primaryColor   = cfg.PrimaryColor__c;
+                data.accentColor    = cfg.AccentColor__c;
+                data.logoStaticPath = cfg.LogoStaticResource__c;
+                data.mcBrandId      = cfg.McBrandId__c;
+                data.tagLine        = cfg.TagLine__c;
+                break;
+            }
         }
         return data;
     }
@@ -315,10 +308,7 @@ public without sharing class Ctrl_PreferenceCenter {
     private static Map<String, String> getTypeToCategory() {
         if (typeToCategory == null) {
             typeToCategory = new Map<String, String>();
-            for (CommunicationTypeCategory__mdt m : [
-                SELECT CommunicationType__c, Category__c
-                FROM   CommunicationTypeCategory__mdt
-            ]) {
+            for (CommunicationTypeCategory__mdt m : CommunicationTypeCategory__mdt.getAll().values()) {
                 typeToCategory.put(m.CommunicationType__c, m.Category__c);
             }
         }
@@ -350,7 +340,7 @@ public without sharing class Ctrl_PreferenceCenter {
     private static Contact queryContact(Id contactId) {
         try {
             return [
-                SELECT Id, FirstName, LastName, Email
+                SELECT Id, FirstName, LastName, Email, MobilePhone, Phone
                 FROM Contact
                 WHERE Id = :contactId
                 WITH SYSTEM_MODE
@@ -511,6 +501,7 @@ public without sharing class Ctrl_PreferenceCenter {
         @AuraEnabled public String                           contactId;
         @AuraEnabled public String                           contactName;
         @AuraEnabled public String                           contactEmail;
+        @AuraEnabled public String                           contactPhone;
         @AuraEnabled public List<CommunicationPreference__c> preferences;
         @AuraEnabled public CommunicationPreferenceAudit__c  lastAudit;
         @AuraEnabled public String                           primaryBrand;
