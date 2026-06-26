@@ -4,7 +4,6 @@ import { refreshApex }                        from '@salesforce/apex';
 import { CurrentPageReference }               from 'lightning/navigation';
 import userId                                 from '@salesforce/user/Id';
 import isGuestUser                            from '@salesforce/user/isGuest';
-import COMMUNITY_BASE_PATH                    from '@salesforce/community/basePath';
 import BRANDING_URL                           from '@salesforce/resourceUrl/Branding';
 
 import getPreferences   from '@salesforce/apex/Ctrl_PreferenceCenter.getPreferences';
@@ -12,6 +11,67 @@ import savePreferences  from '@salesforce/apex/Ctrl_PreferenceCenter.savePrefere
 import getAuditHistory  from '@salesforce/apex/Ctrl_PreferenceCenter.getAuditHistory';
 import getBrandTheme    from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
 import getMCBrandAssets from '@salesforce/apex/Ctrl_PreferenceCenter.getMCBrandAssets';
+
+const LANG_EVENTS = ['mi:languagechange', 'echoes:languagechange', 'tds:languagechange'];
+
+const I18N = {
+    nl: {
+        save:       'Voorkeuren opslaan',
+        saving:     'Bezig met opslaan…',
+        showAudit:  'Auditlog tonen',
+        hideAudit:  'Auditlog verbergen',
+        optedIn:    'aangemeld',
+        categories: {
+            MARKETING: { label: 'Marketingcommunicatie',    description: 'Blijf op de hoogte van nieuws, aanbiedingen en productaankondigingen.' },
+            PRODUCT:   { label: 'Productupdates',           description: 'Ontvang informatie over verbeteringen en nieuwe functionaliteit.' },
+            PARTNER:   { label: 'Partnernetwerk',           description: 'Ontvang communicatie van ons partnerecosysteem.' },
+            RESEARCH:  { label: 'Onderzoek & Feedback',     description: 'Help ons onze producten en diensten te verbeteren.' },
+            SERVICE:   { label: 'Essentiële communicatie',  description: 'Vereist voor de levering en beveiliging van uw diensten — kan niet worden uitgeschakeld.' }
+        }
+    },
+    de: {
+        save:       'Einstellungen speichern',
+        saving:     'Wird gespeichert…',
+        showAudit:  'Protokoll anzeigen',
+        hideAudit:  'Protokoll verbergen',
+        optedIn:    'eingewilligt',
+        categories: {
+            MARKETING: { label: 'Marketingkommunikation',   description: 'Bleiben Sie über Neuigkeiten, Aktionen und Produktankündigungen informiert.' },
+            PRODUCT:   { label: 'Produkt-Updates',          description: 'Erhalten Sie Informationen über Produktverbesserungen und neue Funktionen.' },
+            PARTNER:   { label: 'Partnernetzwerk',          description: 'Erhalten Sie Mitteilungen aus unserem Partnerökosystem.' },
+            RESEARCH:  { label: 'Forschung & Feedback',     description: 'Helfen Sie uns, unsere Produkte und Dienstleistungen zu verbessern.' },
+            SERVICE:   { label: 'Wesentliche Mitteilungen', description: 'Erforderlich für die Bereitstellung und Sicherung Ihrer Dienste — kann nicht deaktiviert werden.' }
+        }
+    },
+    fr: {
+        save:       'Enregistrer les préférences',
+        saving:     'Enregistrement…',
+        showAudit:  'Afficher l\'historique',
+        hideAudit:  'Masquer l\'historique',
+        optedIn:    'abonné(s)',
+        categories: {
+            MARKETING: { label: 'Communications marketing',   description: 'Restez informé des actualités, promotions et annonces de produits.' },
+            PRODUCT:   { label: 'Mises à jour produit',       description: 'Recevez des informations sur les améliorations et nouvelles fonctionnalités.' },
+            PARTNER:   { label: 'Réseau de partenaires',      description: 'Recevez les communications de notre écosystème de partenaires.' },
+            RESEARCH:  { label: 'Recherche & Retours',        description: 'Aidez-nous à améliorer nos produits et services.' },
+            SERVICE:   { label: 'Communications essentielles', description: 'Nécessaires pour fournir et sécuriser vos services — ne peuvent pas être désactivées.' }
+        }
+    },
+    en: {
+        save:       'Save Preferences',
+        saving:     'Saving…',
+        showAudit:  'Show audit trail',
+        hideAudit:  'Hide audit trail',
+        optedIn:    'opted in',
+        categories: {
+            MARKETING: { label: 'Marketing Communications',        description: 'Stay informed about news, promotions and product announcements.' },
+            PRODUCT:   { label: 'Product Updates',                 description: 'Receive information about product improvements and new functionality.' },
+            PARTNER:   { label: 'Partner Network',                 description: 'Receive communications from our partner ecosystem.' },
+            RESEARCH:  { label: 'Research & Feedback',             description: 'Help us improve our products and services.' },
+            SERVICE:   { label: 'Essential Service Communications', description: 'Required to provide and secure your services — cannot be disabled.' }
+        }
+    }
+};
 
 const BRAND_LABELS = {
     E: 'Echoes',
@@ -108,6 +168,10 @@ export default class PreferenceCenter extends LightningElement {
     @track showAudit    = false;
     @track contactName  = '';
     @track contactEmail = '';
+    @track contactPhone = '';
+    @track _channel     = '';     // channel from ?chan= URL param (email / sms / phone)
+    @track _lang        = 'nl';   // driven by hub header language selector
+    @track _pageRef     = null;
     @track lastAuditLabel = '';
     @track auditRows    = [];
     @track _brandTheme  = null;   // from BrandThemeConfig__mdt (+ optional MC override)
@@ -126,17 +190,35 @@ export default class PreferenceCenter extends LightningElement {
         if (this.brand) {
             this._fetchBrandTheme(this.brand);
         }
+        this._langHandler = (e) => { this._lang = e.detail?.language || this._lang; };
+        LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
+        // Sync with any language already set by the hub header on the same page
+        try {
+            const h = window.location.hostname;
+            if (h.endsWith('.de')) this._lang = 'de';
+            else if (h.endsWith('.fr')) this._lang = 'fr';
+            else if (h.endsWith('.co.uk') || h.endsWith('.com')) this._lang = 'en';
+        } catch (_) {}
+    }
+
+    disconnectedCallback() {
+        if (this._langHandler) {
+            LANG_EVENTS.forEach(k => window.removeEventListener(k, this._langHandler));
+        }
     }
 
     // ── Wire ──────────────────────────────────────────────────────────────────
 
     @wire(CurrentPageReference)
     handlePageRef(ref) {
+        this._pageRef = ref;
         const urlBrand = ref?.state?.brand || ref?.state?.c__brand;
         if (urlBrand && urlBrand !== this._urlBrand) {
             this._urlBrand = urlBrand;
             this._fetchBrandTheme(urlBrand);
         }
+        const chan = ref?.state?.chan || ref?.state?.c__chan;
+        if (chan) this._channel = chan;
 
         // ?cid= param: used by guest users (tokenised email link) AND authenticated users
         // who don't have a Contact linked to their org User (e.g. admins testing).
@@ -171,6 +253,7 @@ export default class PreferenceCenter extends LightningElement {
             this._showPartnerCategory = !!data.showPartnerCategory;
             this.contactName  = data.contactName;
             this.contactEmail = data.contactEmail;
+            this.contactPhone = data.contactPhone || '';
             // Existing saved settings are already merged by Apex into the catalog
             this._buildPrefsMap(data.preferences);
             this._buildSections();
@@ -215,12 +298,23 @@ export default class PreferenceCenter extends LightningElement {
         const seen = new Set();
         return this.sections
             .filter(s => { if (seen.has(s.brand)) return false; seen.add(s.brand); return true; })
-            .map(s => ({
-                brand:    s.brand,
-                label:    s.brandLabel,
-                isActive: s.brand === this._activeBrand,
-                cssClass: 'slds-tabs_default__item' + (s.brand === this._activeBrand ? ' slds-is-active' : '')
-            }));
+            .map(s => {
+                const logoUrl = s.brand === 'M'
+                    ? `${BRANDING_URL}/Branding/2024/img/mi-logo-black-black-rgb.png`
+                    : s.brand === 'E'
+                        ? `${BRANDING_URL}/Branding/2026/img/echoes-logo-black-blue-rgb.png`
+                        : null;
+                const isTds = s.brand === 'T';
+                return {
+                    brand:     s.brand,
+                    label:     s.brandLabel,
+                    logoUrl,
+                    isTds,
+                    hasVisual: !!(logoUrl || isTds),
+                    isActive:  s.brand === this._activeBrand,
+                    cssClass:  'slds-tabs_default__item' + (s.brand === this._activeBrand ? ' slds-is-active' : '')
+                };
+            });
     }
 
     /** Label for the landing-page brand header. */
@@ -231,7 +325,13 @@ export default class PreferenceCenter extends LightningElement {
     /** Sections filtered to the currently active brand. */
     get visibleSections() {
         const b = this.effectiveBrand;
-        return b ? this.sections.filter(s => s.brand === b) : this.sections;
+        const raw = b ? this.sections.filter(s => s.brand === b) : this.sections;
+        const cats = this._t.categories;
+        return raw.map(s => ({
+            ...s,
+            label:       cats[s.categoryKey]?.label       || s.label,
+            description: cats[s.categoryKey]?.description || s.description
+        }));
     }
 
     handleBrandTab(event) {
@@ -244,7 +344,7 @@ export default class PreferenceCenter extends LightningElement {
     // ── Derived ───────────────────────────────────────────────────────────────
 
     /** True when running inside an Experience Cloud site (Customer Hub or any community). */
-    get isExperienceCloud() { return !!COMMUNITY_BASE_PATH; }
+    get isExperienceCloud() { return (this._pageRef?.type || '').startsWith('comm__'); }
 
     /**
      * Logo URL resolved in priority order:
@@ -253,11 +353,11 @@ export default class PreferenceCenter extends LightningElement {
      *   3. Hardcoded fallback paths (for backward compatibility)
      */
     get brandLogoUrl() {
-        if (this._brandTheme?.mcLogoUrl)      return this._brandTheme.mcLogoUrl;
-        if (this._brandTheme?.logoStaticPath)  return `${BRANDING_URL}/${this._brandTheme.logoStaticPath}`;
+        if (this._brandTheme?.mcLogoUrl)     return this._brandTheme.mcLogoUrl;
+        if (this._brandTheme?.logoStaticPath) return `${BRANDING_URL}/Branding/${this._brandTheme.logoStaticPath}`;
         const brand = this.effectiveBrand;
-        if (brand === 'E') return `${BRANDING_URL}/2026/img/echoes-logo-black-blue-rgb.png`;
-        if (brand === 'M') return `${BRANDING_URL}/2024/img/mi-logo-black-black-rgb.png`;
+        if (brand === 'E') return `${BRANDING_URL}/Branding/2026/img/echoes-logo-black-blue-rgb.png`;
+        if (brand === 'M') return `${BRANDING_URL}/Branding/2024/img/mi-logo-black-black-rgb.png`;
         return null;
     }
 
@@ -282,15 +382,25 @@ export default class PreferenceCenter extends LightningElement {
     /** CSS class applied to the page container to drive brand accent colours (static fallback). */
     get brandCssClass() {
         const brand = this.effectiveBrand;
-        return `pc-container${brand ? ' brand-' + brand : ''}`;
+        const hub = this.isExperienceCloud ? ' is-hub' : '';
+        return `pc-container${brand ? ' brand-' + brand : ''}${hub}`;
+    }
+
+    get _t() { return I18N[this._lang] || I18N.nl; }
+
+    get contactDisplayLine() {
+        if (this._channel === 'email' || (!this._channel && this.contactEmail)) {
+            return this.contactEmail || this.contactPhone;
+        }
+        return this.contactPhone || this.contactEmail;
     }
 
     get isReady()      { return !this.isLoading && !this.hasError; }
-    get saveLabel()    { return this.isSaving ? 'Saving…' : 'Save Preferences'; }
-    get auditToggleLabel() { return this.showAudit ? 'Hide audit trail' : 'Show audit trail'; }
+    get saveLabel()    { return this.isSaving ? this._t.saving : this._t.save; }
+    get auditToggleLabel() { return this.showAudit ? this._t.hideAudit : this._t.showAudit; }
 
     get optInLabel() {
-        return `${this.selectedCount} / ${this.totalCount} opted in`;
+        return `${this.selectedCount} / ${this.totalCount} ${this._t.optedIn}`;
     }
 
     get selectedCount() {
@@ -435,6 +545,7 @@ export default class PreferenceCenter extends LightningElement {
                         key:         brand + '_' + cat,
                         brand:       brand,
                         brandLabel:  BRAND_LABELS[brand] || brand,
+                        categoryKey: cat,
                         label:       CATEGORY_META[cat].label,
                         description: CATEGORY_META[cat].description,
                         iconName:    CATEGORY_META[cat].iconName,

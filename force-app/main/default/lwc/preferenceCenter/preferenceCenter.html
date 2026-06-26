@@ -21,15 +21,11 @@
         <template if:true={isReady}>
             <div class="pc-inner">
 
-                <!-- Brand logo header (Experience Cloud only) -->
+                <!-- Contact info header (Experience Cloud only) -->
                 <template if:true={isExperienceCloud}>
-                    <div class="pc-brand-header slds-grid slds-grid_vertical-align-center slds-var-p-bottom_medium">
-                        <template if:true={brandLogoUrl}>
-                            <img src={brandLogoUrl} alt={activeBrandLabel} class="pc-brand-logo" />
-                        </template>
-                        <template if:false={brandLogoUrl}>
-                            <p class="slds-text-heading_medium">{activeBrandLabel}</p>
-                        </template>
+                    <div class="pc-contact-header slds-var-p-bottom_medium">
+                        <p class="pc-contact-name">{contactName}</p>
+                        <p class="pc-contact-sub">{contactDisplayLine}</p>
                     </div>
                     <hr class="pc-divider slds-var-m-bottom_medium" />
                 </template>
@@ -87,10 +83,18 @@
                         <ul class="slds-tabs_default__nav" role="tablist">
                             <template for:each={brandTabs} for:item="tab">
                                 <li key={tab.brand} class={tab.cssClass} role="presentation">
-                                    <a class="slds-tabs_default__link" role="tab" tabindex="0"
+                                    <a class="slds-tabs_default__link pc-tab-link" role="tab" tabindex="0"
                                        data-brand={tab.brand} onclick={handleBrandTab}
                                        aria-selected={tab.isActive}>
-                                        {tab.label}
+                                        <template if:true={tab.logoUrl}>
+                                            <img src={tab.logoUrl} alt={tab.label} class="pc-tab-logo" />
+                                        </template>
+                                        <template if:true={tab.isTds}>
+                                            <span class="pc-tds-chevron">&#8250;</span><span class="pc-tds-name">TDS</span><span class="pc-tds-ultra">ULTRA</span>
+                                        </template>
+                                        <template if:false={tab.hasVisual}>
+                                            {tab.label}
+                                        </template>
                                     </a>
                                 </li>
                             </template>
@@ -127,13 +131,12 @@
 
                 <!-- Save -->
                 <div class="slds-var-p-top_medium">
-                    <lightning-button
-                        variant="brand"
-                        label={saveLabel}
-                        onclick={handleSave}
-                        disabled={isSaving}
-                        class="full-width-btn slds-show slds-size_1-of-1">
-                    </lightning-button>
+                    <button class="pc-save-btn"
+                            type="button"
+                            onclick={handleSave}
+                            disabled={isSaving}>
+                        {saveLabel}
+                    </button>
                 </div>
 
                 <!-- Audit trail toggle — internal only -->

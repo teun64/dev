@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Finance (NL - pg)</label>
+    <permissionSets>Subscription25__Subscription25_User</permissionSets>
+    <permissionSets>ps_miPlatform1ContactViewEmail</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

@@ -14,6 +14,7 @@
             "backgroundImageConfig" : "",
             "backgroundImageOverlay" : "rgba(0,0,0,0)",
             "componentSpacerSize" : "",
+            "dxpStyle" : { },
             "layoutDirectionDesktop" : "row",
             "layoutDirectionMobile" : "column",
             "layoutDirectionTablet" : "column",
@@ -24,6 +25,17 @@
             "sectionVerticalAlign" : "flex-start"
           },
           "children" : [ {
+            "children" : [ {
+              "attributes" : { },
+              "definition" : "c:dealerNav",
+              "id" : "c1d2e3f4-a5b6-4789-abcd-333333333303",
+              "type" : "component"
+            }, {
+              "attributes" : { },
+              "definition" : "c:dealerSessionRedirect",
+              "id" : "d2e3f4a5-b6c7-4890-bcde-444444444404",
+              "type" : "component"
+            } ],
             "id" : "2d3e4f5a-6b7c-4890-def0-123456789012",
             "name" : "headerSection",
             "title" : "Theme Header",
@@ -43,6 +55,7 @@
             "backgroundImageConfig" : "",
             "backgroundImageOverlay" : "rgba(0,0,0,0)",
             "componentSpacerSize" : "",
+            "dxpStyle" : { },
             "layoutDirectionDesktop" : "row",
             "layoutDirectionMobile" : "column",
             "layoutDirectionTablet" : "column",
@@ -53,6 +66,7 @@
             "sectionVerticalAlign" : "flex-start"
           },
           "children" : [ {
+            "children" : [ ],
             "id" : "5a6b7c8d-9e0f-4123-0123-456789012345",
             "name" : "footerSection",
             "title" : "Theme Footer",

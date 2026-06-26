@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Access to the presence status for Service Cloud Voice, requires API-Enabled</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miService Cloud Voice (ps)</label>
+    <servicePresenceStatusAccesses>
+        <enabled>true</enabled>
+        <servicePresenceStatus>AvailableforVoice</servicePresenceStatus>
+    </servicePresenceStatusAccesses>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ApiEnabled</name>
+    </userPermissions>
+</PermissionSet>

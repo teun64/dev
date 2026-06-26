@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Customer Care Agents NL</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Customer Care User (NL - pg)</label>
+    <permissionSets>Omni_Channel_User</permissionSets>
+    <permissionSets>PartnerTelephonyCustomPsl</permissionSets>
+    <permissionSets>force__ContactCenterAgentExternalTelephony</permissionSets>
+    <permissionSets>force__ServiceCatalogAgent</permissionSets>
+    <permissionSets>force__ServiceCatalogUser</permissionSets>
+    <permissionSets>ps_Subscription25User</permissionSets>
+    <permissionSets>ps_Subscription25_VisualForce</permissionSets>
+    <permissionSets>ps_View_Alarm_Contacts</permissionSets>
+    <permissionSets>ps_View_Current_Location</permissionSets>
+    <permissionSets>ps_View_Incidents</permissionSets>
+    <permissionSets>ps_View_Login_As</permissionSets>
+    <permissionSets>ps_miPlatform1ContactViewEmail</permissionSets>
+    <permissionSets>ps_miServiceCloudVoice</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

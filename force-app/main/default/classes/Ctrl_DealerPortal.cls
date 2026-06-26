@@ -2,7 +2,7 @@ public without sharing class Ctrl_DealerPortal {
 
     // ── Brand config ──────────────────────────────────────────────────────────
 
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static BrandConfigDTO getBrandConfig() {
         String resellerCode = resolveResellerCode();
 
@@ -39,12 +39,13 @@ public without sharing class Ctrl_DealerPortal {
         dto.shopCtaText        = cfg.PortalShopCtaText__c;
         dto.signupTitle        = cfg.PortalSignupTitle__c;
         dto.isAuthenticated    = isAuthenticatedUser();
+        dto.userName           = isAuthenticatedUser() ? UserInfo.getName() : null;
         return dto;
     }
 
     // ── Footer info ───────────────────────────────────────────────────────────
 
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static FooterDTO getFooterInfo() {
         String resellerCode = resolveResellerCode();
 
@@ -145,6 +146,7 @@ public without sharing class Ctrl_DealerPortal {
         @AuraEnabled public String  shopCtaText;
         @AuraEnabled public String  signupTitle;
         @AuraEnabled public Boolean isAuthenticated;
+        @AuraEnabled public String  userName;
     }
 
     public class FooterDTO {

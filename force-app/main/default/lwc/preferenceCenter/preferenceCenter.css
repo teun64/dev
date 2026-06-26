@@ -14,11 +14,26 @@
 .brand-M { --brand-accent: #cc0000; } /* Moving Intelligence red  */
 .brand-T { --brand-accent: #1d3557; } /* TDS Ultra navy           */
 
-/* ── Brand header (EC only) ───────────────────────────────────────────────── */
-.pc-brand-logo {
-    max-height: 40px;
-    max-width: 200px;
-    object-fit: contain;
+/* ── Contact info header (EC only) ───────────────────────────────────────── */
+.pc-contact-header {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.pc-contact-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.pc-contact-sub {
+    font-size: 0.875rem;
+    color: #555;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
 }
 
 .pc-divider {
@@ -27,15 +42,85 @@
     margin-top: 0;
 }
 
-/* ── Accent colour on the save button ────────────────────────────────────── */
-.pc-container .full-width-btn lightning-button button[variant="brand"],
-.pc-container .full-width-btn button {
+/* ── Save button ──────────────────────────────────────────────────────────── */
+/* Service console default: Salesforce blue, native-looking */
+.pc-save-btn {
+    display: block;
+    width: 100%;
+    padding: 0 1rem;
+    height: 2rem;
+    background-color: #0176d3;
+    border: 1px solid #0176d3;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    cursor: pointer;
+    transition: filter 0.12s ease;
+    white-space: nowrap;
+}
+.pc-save-btn:hover:not(:disabled) { filter: brightness(0.88); }
+.pc-save-btn:focus-visible {
+    outline: 2px solid #0176d3;
+    outline-offset: 2px;
+}
+.pc-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Customer Hub override — picks up brand accent from BrandCenter */
+.pc-container.is-hub .pc-save-btn {
     background-color: var(--brand-accent);
     border-color: var(--brand-accent);
 }
+.pc-container.is-hub .pc-save-btn:focus-visible {
+    outline-color: var(--brand-accent);
+}
 
-.full-width-btn lightning-button button {
-    width: 100%;
+/* ── Brand tabs with logo ─────────────────────────────────────────────────── */
+.pc-tab-link {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 0 1rem;
+    min-height: 44px;
+}
+
+.pc-tab-logo {
+    height: 22px;
+    width: auto;
+    max-width: 120px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+.pc-tds-chevron {
+    font-size: 18px;
+    font-weight: 900;
+    color: #90B33C;
+    line-height: 1;
+    margin-right: 1px;
+}
+
+.pc-tds-name {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #8A949E;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+.pc-tds-ultra {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: #90B33C;
+    margin-left: 3px;
+    white-space: nowrap;
 }
 
 /* ── Section header accent line ──────────────────────────────────────────── */

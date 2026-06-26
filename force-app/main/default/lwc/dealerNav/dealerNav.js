@@ -1,7 +1,4 @@
 import { LightningElement, wire, track } from 'lwc';
-import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
-import userId from '@salesforce/user/Id';
-import NAME_FIELD from '@salesforce/schema/User.Name';
 import BRANDING from '@salesforce/resourceUrl/Branding';
 import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 
@@ -13,11 +10,8 @@ export default class DealerNav extends LightningElement {
         if (data) this.config = data;
     }
 
-    @wire(getRecord, { recordId: userId, fields: [NAME_FIELD] })
-    currentUser;
-
     get userName() {
-        return getFieldValue(this.currentUser?.data, NAME_FIELD) || '';
+        return this.config.userName || '';
     }
 
     get logoUrl() {
@@ -37,6 +31,7 @@ export default class DealerNav extends LightningElement {
     }
 
     get currentPath() {
+        if (typeof window === 'undefined') return '';
         return window.location.pathname;
     }
 
@@ -46,5 +41,13 @@ export default class DealerNav extends LightningElement {
 
     get shopClass() {
         return this.currentPath.includes('/dealer/shop') ? 'nav-link active' : 'nav-link';
+    }
+
+    handleShopClick(event) {
+        if (this.config && this.config.isAuthenticated) return;
+        event.preventDefault();
+        if (typeof window !== 'undefined') {
+            window.location.href = '/dealer/login?startURL=/dealer/shop';
+        }
     }
 }

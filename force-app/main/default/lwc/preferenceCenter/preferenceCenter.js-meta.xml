@@ -3,12 +3,21 @@
     <apiVersion>67.0</apiVersion>
     <isExposed>true</isExposed>
     <targets>
+        <target>lightning__FlowScreen</target>
         <target>lightning__RecordPage</target>
         <target>lightning__AppPage</target>
         <target>lightning__HomePage</target>
         <target>lightningCommunity__Page</target>
     </targets>
     <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="recordId" type="String" label="Record Id"
+                description="Contact, Case or Lead Id — Apex resolves the linked contact automatically."
+                role="inputOnly"/>
+            <property name="brand" type="String" label="Brand (optional)"
+                description="Fix to a single brand: E, M or T. Leave empty to auto-detect."
+                role="inputOnly"/>
+        </targetConfig>
         <targetConfig targets="lightning__RecordPage">
             <property name="recordId" type="String" label="Record Id"
                 description="Auto-provided by the platform on Contact and Case pages." />
