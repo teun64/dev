@@ -4,5 +4,5 @@
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <targetObject>Case</targetObject>
     <type>Flow</type>
-    <flow>scf_Case_Create_Opportunity</flow>
+    <flow>scr_Case_Create_Opportunity</flow>
 </QuickAction>

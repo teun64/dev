@@ -109,8 +109,8 @@
         <valueField>DeveloperName</valueField>
     </dynamicChoiceSets>
 
-    <interviewLabel>scf - Case - Create Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>scf - Case - Create Opportunity</label>
+    <interviewLabel>scr - Case - Create Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>scr - Case - Create Opportunity</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
