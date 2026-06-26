@@ -3,54 +3,12 @@
     <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
 
-    <!-- ═══════ ACTION CALLS ═══════ -->
-    <actionCalls>
-        <name>Action_CreateOpportunity</name>
-        <label>Create Opportunity</label>
-        <locationX>176</locationX>
-        <locationY>480</locationY>
-        <actionName>Inv_createOpportunityFromCase</actionName>
-        <actionType>apex</actionType>
-        <connector>
-            <targetReference>Check_Success</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Screen_Error</targetReference>
-        </faultConnector>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>caseId</name>
-            <value>
-                <elementReference>recordId.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>recordTypeName</name>
-            <value>
-                <elementReference>pick_RecordType</elementReference>
-            </value>
-        </inputParameters>
-        <outputParameters>
-            <assignToReference>varIsSuccess</assignToReference>
-            <name>isSuccess</name>
-        </outputParameters>
-        <outputParameters>
-            <assignToReference>varOpportunityName</assignToReference>
-            <name>opportunityName</name>
-        </outputParameters>
-        <outputParameters>
-            <assignToReference>varErrorMessage</assignToReference>
-            <name>errorMessage</name>
-        </outputParameters>
-        <storeOutputAutomatically>false</storeOutputAutomatically>
-    </actionCalls>
-
     <!-- ═══════ DECISIONS ═══════ -->
     <decisions>
         <name>Check_Has_Account</name>
         <label>Case has Account?</label>
         <locationX>176</locationX>
-        <locationY>240</locationY>
+        <locationY>120</locationY>
         <defaultConnector>
             <targetReference>Screen_No_Account</targetReference>
         </defaultConnector>
@@ -66,34 +24,9 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Screen_Select_Record_Type</targetReference>
+                <targetReference>Screen_Create_Opportunity</targetReference>
             </connector>
             <label>Has Account</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Check_Success</name>
-        <label>Created Successfully?</label>
-        <locationX>176</locationX>
-        <locationY>600</locationY>
-        <defaultConnector>
-            <targetReference>Screen_Error</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Failed</defaultConnectorLabel>
-        <rules>
-            <name>Is_Success</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>varIsSuccess</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Screen_Success</targetReference>
-            </connector>
-            <label>Success</label>
         </rules>
     </decisions>
 
@@ -120,8 +53,28 @@
             </value>
         </filters>
         <object>RecordType</object>
-        <valueField>DeveloperName</valueField>
+        <valueField>Id</valueField>
     </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <name>ccs_Stages</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <object xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <picklistField>StageName</picklistField>
+        <picklistObject>Opportunity</picklistObject>
+    </dynamicChoiceSets>
+
+    <!-- ═══════ FORMULAS ═══════ -->
+    <formulas>
+        <name>fDefaultCloseDate</name>
+        <dataType>Date</dataType>
+        <expression>TODAY() + 30</expression>
+    </formulas>
+    <formulas>
+        <name>fDefaultName</name>
+        <dataType>String</dataType>
+        <expression>{!recordId.Account.Name} &amp; &apos; - &apos; &amp; {!recordId.CaseNumber}</expression>
+    </formulas>
 
     <interviewLabel>scr - Case - Create Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
     <label>scr - Case - Create Opportunity</label>
@@ -145,14 +98,72 @@
     </processMetadataValues>
     <processType>Flow</processType>
 
-    <runInMode>DefaultMode</runInMode>
+    <!-- ═══════ RECORD CREATES ═══════ -->
+    <recordCreates>
+        <name>dcr_Create_Opportunity</name>
+        <label>Create Opportunity</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <connector>
+            <targetReference>Screen_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>AccountId</field>
+            <value>
+                <elementReference>recordId.AccountId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Case__c</field>
+            <value>
+                <elementReference>recordId.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CloseDate</field>
+            <value>
+                <elementReference>inp_CloseDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>inp_Name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Option_Require_Signature__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>pick_RecordType</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <elementReference>pick_Stage</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Opportunity</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+
+    <runInMode>SystemModeWithoutSharing</runInMode>
 
     <!-- ═══════ SCREENS ═══════ -->
     <screens>
         <name>Screen_No_Account</name>
         <label>No Account on Case</label>
         <locationX>440</locationX>
-        <locationY>360</locationY>
+        <locationY>240</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -165,26 +176,50 @@
         <showHeader>false</showHeader>
     </screens>
     <screens>
-        <name>Screen_Select_Record_Type</name>
+        <name>Screen_Create_Opportunity</name>
         <label>Create Opportunity</label>
         <locationX>176</locationX>
-        <locationY>360</locationY>
+        <locationY>240</locationY>
         <allowBack>true</allowBack>
         <allowFinish>false</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Action_CreateOpportunity</targetReference>
+            <targetReference>dcr_Create_Opportunity</targetReference>
         </connector>
+        <fields>
+            <name>inp_Name</name>
+            <dataType>String</dataType>
+            <defaultValue>
+                <elementReference>fDefaultName</elementReference>
+            </defaultValue>
+            <fieldText>Name</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
         <fields>
             <name>pick_RecordType</name>
             <choiceReferences>ccs_RecordTypes</choiceReferences>
             <dataType>String</dataType>
-            <defaultValue>
-                <stringValue>Standard</stringValue>
-            </defaultValue>
             <fieldText>Record Type</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>pick_Stage</name>
+            <choiceReferences>ccs_Stages</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Stage</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>inp_CloseDate</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <elementReference>fDefaultCloseDate</elementReference>
+            </defaultValue>
+            <fieldText>Close Date</fieldText>
+            <fieldType>InputField</fieldType>
             <isRequired>true</isRequired>
         </fields>
         <showFooter>true</showFooter>
@@ -194,13 +229,13 @@
         <name>Screen_Success</name>
         <label>Opportunity Created</label>
         <locationX>176</locationX>
-        <locationY>720</locationY>
+        <locationY>480</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
             <name>msg_Success</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!varOpportunityName} has been created and linked to this Case.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!inp_Name} has been created and linked to this Case.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
@@ -210,13 +245,13 @@
         <name>Screen_Error</name>
         <label>Something went wrong</label>
         <locationX>440</locationX>
-        <locationY>720</locationY>
+        <locationY>480</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
             <name>msg_Error</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Could not create the Opportunity&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!varErrorMessage}&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Could not create the Opportunity&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
@@ -241,27 +276,6 @@
         <isInput>true</isInput>
         <isOutput>false</isOutput>
         <objectType>Case</objectType>
-    </variables>
-    <variables>
-        <name>varErrorMessage</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>varIsSuccess</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>varOpportunityName</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
     </variables>
 
 </Flow>
