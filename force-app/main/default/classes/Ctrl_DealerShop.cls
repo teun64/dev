@@ -278,11 +278,11 @@ public without sharing class Ctrl_DealerShop {
         dto.displayName      = trans != null && String.isNotBlank(trans.Name__c)
                                  ? trans.Name__c
                                  : prod.Name;
-        dto.shortDescription = trans != null && String.isNotBlank(trans.Short_Description__c)
-                                 ? trans.Short_Description__c
-                                 : prod.Description;
-        dto.longDescription  = trans != null && String.isNotBlank(trans.Description__c)
-                                 ? trans.Description__c
+        dto.shortDescription = trans != null && String.isNotBlank(trans.shortDescription__c)
+                                 ? trans.shortDescription__c
+                                 : prod.shortDescription__c;
+        dto.longDescription  = trans != null && String.isNotBlank(trans.longDescription__c)
+                                 ? trans.longDescription__c
                                  : prod.longDescription__c;
         dto.category             = prod.Category_Platform__c;
         dto.productCode          = prod.ProductCode;
@@ -362,8 +362,8 @@ public without sharing class Ctrl_DealerShop {
         List<Product2> products;
         if (String.isNotBlank(category) && filterByEntry) {
             products = [
-                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
                         WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
@@ -372,8 +372,8 @@ public without sharing class Ctrl_DealerShop {
             ];
         } else if (String.isNotBlank(category)) {
             products = [
-                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
                         WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
@@ -382,8 +382,8 @@ public without sharing class Ctrl_DealerShop {
             ];
         } else if (filterByEntry) {
             products = [
-                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
                         WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
@@ -392,8 +392,8 @@ public without sharing class Ctrl_DealerShop {
             ];
         } else {
             products = [
-                SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
                         WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
                 FROM Product2
                 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true

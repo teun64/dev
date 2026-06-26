@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>shortDescription__c</fullName>
+    <description>Translated short description for the product. Overrides Product2.shortDescription__c in the dealer shop when populated.</description>
+    <label>Short Description</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>TextArea</type>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>longDescription__c</fullName>
+    <description>Translated long (rich text) description for the product. Overrides Product2.longDescription__c in the dealer shop when populated.</description>
+    <label>Long Description</label>
+    <length>32768</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>10</visibleLines>
+</CustomField>

@@ -9,11 +9,13 @@
                     <span>Geen afbeelding</span>
                 </div>
             </template>
+            <template if:true={hasDescription}>
+                <div class="description-tooltip">{product.shortDescription}</div>
+            </template>
         </div>
         <div class="card-body">
             <p class="product-code">{product.productCode}</p>
             <h3 class="product-name">{displayName}</h3>
-            <p class="product-description">{product.shortDescription}</p>
             <p class="product-price">{formattedPrice}</p>
             <template if:true={hasTiers}>
                 <div class="tier-table">

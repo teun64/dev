@@ -58,10 +58,7 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Description</field>
-            </layoutItems>
-            <layoutItems>
-                <emptySpace>true</emptySpace>
+                <field>shortDescription__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -360,7 +357,8 @@
         <excludeButtons>New</excludeButtons>
         <fields>Language__c</fields>
         <fields>Name__c</fields>
-        <fields>Description__c</fields>
+        <fields>shortDescription__c</fields>
+        <fields>longDescription__c</fields>
         <fields>NAME</fields>
         <relatedList>Data_Translation__c.Product__c</relatedList>
         <sortField>Language__c</sortField>

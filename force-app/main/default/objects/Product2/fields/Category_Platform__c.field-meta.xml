@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Category_Platform__c</fullName>
-    <label>Category Platform</label>
     <description>Platform(s) this product belongs to. Drives shop category filtering and opportunity configuration. Multi-select: a product can belong to more than one platform.</description>
-    <type>MultiselectPicklist</type>
-    <visibleLines>4</visibleLines>
+    <label>Category Platform</label>
+    <required>false</required>
     <trackHistory>false</trackHistory>
-    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
     <valueSet>
+        <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
@@ -25,6 +25,19 @@
                 <default>false</default>
                 <label>Beacon</label>
             </value>
+            <value>
+                <fullName>-</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>-</label>
+            </value>
+            <value>
+                <fullName>Security &amp; Fleet</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Security &amp; Fleet</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
+    <visibleLines>4</visibleLines>
 </CustomField>

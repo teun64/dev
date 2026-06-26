@@ -12,6 +12,10 @@ export default class DealerProductCard extends LightningElement {
         return this._fmt(this.product.unitPrice);
     }
 
+    get hasDescription() {
+        return !!this.product?.shortDescription;
+    }
+
     get hasTiers() {
         return this.product?.priceTiers && this.product.priceTiers.length > 0;
     }
