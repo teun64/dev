@@ -29,6 +29,31 @@
             <label>Has Account</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>Check_Close_Case</name>
+        <label>Close Case?</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Success</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Should_Close_Case</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>chk_CloseCase</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dur_Close_Case</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
 
     <description>Quick Action: create an Opportunity linked to the current Case. Requires an Account on the Case.</description>
 
@@ -105,7 +130,7 @@
         <locationX>176</locationX>
         <locationY>360</locationY>
         <connector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Check_Close_Case</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Screen_Error</targetReference>
@@ -141,6 +166,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>RecordTypeId</field>
             <value>
                 <elementReference>pick_RecordType</elementReference>
@@ -155,6 +186,41 @@
         <object>Opportunity</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
+
+    <!-- ═══════ RECORD UPDATES ═══════ -->
+    <recordUpdates>
+        <name>dur_Close_Case</name>
+        <label>Close Case</label>
+        <locationX>176</locationX>
+        <locationY>600</locationY>
+        <connector>
+            <targetReference>Screen_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Reason</field>
+            <value>
+                <stringValue>Opportunity Created</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
 
     <runInMode>SystemModeWithoutSharing</runInMode>
 
@@ -186,6 +252,21 @@
         <connector>
             <targetReference>dcr_Create_Opportunity</targetReference>
         </connector>
+        <fields>
+            <name>display_Account</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Account&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!recordId.Account.Name}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>display_Contact</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Contact&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!recordId.Contact.Name}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>display_Owner</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Owner&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$User.FirstName} {!$User.LastName}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
         <fields>
             <name>pick_RecordType</name>
             <choiceReferences>ccs_RecordTypes</choiceReferences>
@@ -222,6 +303,16 @@
             <fieldType>InputField</fieldType>
             <isRequired>true</isRequired>
         </fields>
+        <fields>
+            <name>chk_CloseCase</name>
+            <dataType>Boolean</dataType>
+            <defaultValue>
+                <booleanValue>false</booleanValue>
+            </defaultValue>
+            <fieldText>Close Case as Solved (Reason: Opportunity Created)</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
@@ -229,7 +320,7 @@
         <name>Screen_Success</name>
         <label>Opportunity Created</label>
         <locationX>176</locationX>
-        <locationY>480</locationY>
+        <locationY>720</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -245,13 +336,13 @@
         <name>Screen_Error</name>
         <label>Something went wrong</label>
         <locationX>440</locationX>
-        <locationY>480</locationY>
+        <locationY>720</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
             <name>msg_Error</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Could not create the Opportunity&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Could not complete the action&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
