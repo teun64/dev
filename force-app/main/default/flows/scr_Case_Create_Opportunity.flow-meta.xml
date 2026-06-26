@@ -73,7 +73,7 @@
     <formulas>
         <name>fDefaultName</name>
         <dataType>String</dataType>
-        <expression>{!recordId.Account.Name} &amp; &apos; - &apos; &amp; {!recordId.CaseNumber}</expression>
+        <expression>{!recordId.CaseNumber} &amp; &apos; - &apos; &amp; {!recordId.Account.Name}</expression>
     </formulas>
 
     <interviewLabel>scr - Case - Create Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
@@ -187,6 +187,14 @@
             <targetReference>dcr_Create_Opportunity</targetReference>
         </connector>
         <fields>
+            <name>pick_RecordType</name>
+            <choiceReferences>ccs_RecordTypes</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Record Type</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
             <name>inp_Name</name>
             <dataType>String</dataType>
             <defaultValue>
@@ -194,14 +202,6 @@
             </defaultValue>
             <fieldText>Name</fieldText>
             <fieldType>InputField</fieldType>
-            <isRequired>true</isRequired>
-        </fields>
-        <fields>
-            <name>pick_RecordType</name>
-            <choiceReferences>ccs_RecordTypes</choiceReferences>
-            <dataType>String</dataType>
-            <fieldText>Record Type</fieldText>
-            <fieldType>DropdownBox</fieldType>
             <isRequired>true</isRequired>
         </fields>
         <fields>
