@@ -102,9 +102,23 @@
     <!-- ═══════ DYNAMIC CHOICE SETS ═══════ -->
     <dynamicChoiceSets>
         <name>ccs_RecordTypes</name>
-        <collectionReference>Get_RecordTypes</collectionReference>
         <dataType>String</dataType>
         <displayField>Name</displayField>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>SObjectType</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Opportunity</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
         <object>RecordType</object>
         <valueField>DeveloperName</valueField>
     </dynamicChoiceSets>
@@ -130,36 +144,6 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
-
-    <!-- ═══════ RECORD LOOKUPS ═══════ -->
-    <recordLookups>
-        <name>Get_RecordTypes</name>
-        <label>Get Opportunity Record Types</label>
-        <locationX>176</locationX>
-        <locationY>120</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Check_Has_Account</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>SObjectType</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Opportunity</stringValue>
-            </value>
-        </filters>
-        <filters>
-            <field>IsActive</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>RecordType</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
 
     <runInMode>DefaultMode</runInMode>
 
@@ -244,7 +228,7 @@
         <locationX>176</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Get_RecordTypes</targetReference>
+            <targetReference>Check_Has_Account</targetReference>
         </connector>
     </start>
     <status>Active</status>
