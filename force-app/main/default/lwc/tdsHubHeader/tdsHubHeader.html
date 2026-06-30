@@ -1,0 +1,38 @@
+<template>
+    <header class="tds-header" style={headerStyle}>
+        <div class="tds-header-inner">
+            <a class="tds-logo" href={homeUrl} aria-label="TDS Ultra — Customer Hub">
+                <svg class="tds-logo-icon" viewBox="0 0 42 46" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                    <defs>
+                        <linearGradient id="tdsIconGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#3B9CD6"/>
+                            <stop offset="55%" stop-color="#5BB83A"/>
+                            <stop offset="100%" stop-color="#7DB83C"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="42" height="46" rx="5" fill="url(#tdsIconGrad)"/>
+                    <polygon points="7,44 28,9 32,9 36,44" fill="rgba(255,255,255,0.18)"/>
+                    <line x1="7" y1="44" x2="28" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="36" y1="44" x2="32" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="22" y1="40" x2="23" y2="32" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+                    <line x1="23.5" y1="28" x2="24.5" y2="21" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="25" y1="17" x2="25.5" y2="13" stroke="white" stroke-width="1" stroke-linecap="round"/>
+                </svg>
+                <span class="tds-logo-tds">TDS</span><span class="tds-logo-ultra">Ultra</span>
+            </a>
+
+            <nav class="tds-langs" aria-label="Language">
+                <template for:each={languages} for:item="lang">
+                    <button key={lang.code}
+                            class={lang.cssClass}
+                            data-lang={lang.code}
+                            type="button"
+                            onclick={handleLangClick}
+                            aria-pressed={lang.isActive}>
+                        {lang.display}
+                    </button>
+                </template>
+            </nav>
+        </div>
+    </header>
+</template>

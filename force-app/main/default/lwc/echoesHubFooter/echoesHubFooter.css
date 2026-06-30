@@ -1,0 +1,162 @@
+/* ── Brand tokens ─────────────────────────────────────────────── */
+:host {
+    --e-dark:   #000122;
+    --e-accent: #009FE3;
+    --e-white:  #FFFFFF;
+    --e-muted:  rgba(180,196,210,0.7);
+}
+
+/* ── Shell ───────────────────────────────────────────────────── */
+.echoes-footer {
+    background: var(--e-dark);
+    border-top: 3px solid var(--e-accent);
+}
+
+/* ── Body (admin info + arrow accent) ───────────────────────── */
+.echoes-footer-body {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 36px 40px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-items: start;
+}
+
+.echoes-footer-admin {
+    display: flex;
+    flex-direction: column;
+}
+
+.echoes-footer-name {
+    font-family: 'Red Hat Display', 'Segoe UI', Arial, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--e-white);
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+}
+
+.echoes-footer-contacts {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.echoes-footer-contact dt {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--e-muted);
+    margin-bottom: 4px;
+}
+
+.echoes-footer-contact dd {
+    font-size: 13px;
+    color: rgba(255,255,255,0.62);
+    line-height: 1.5;
+}
+
+.echoes-footer-contact a {
+    color: rgba(255,255,255,0.62);
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+
+.echoes-footer-contact a:hover { color: var(--e-white); }
+.echoes-footer-contact a:focus-visible {
+    outline: 1px solid var(--e-accent);
+    outline-offset: 2px;
+}
+
+/* ── Accent arrow (brand element, not logo) ──────────────────── */
+.echoes-footer-arrow {
+    font-family: 'Red Hat Display', 'Segoe UI', Arial, sans-serif;
+    font-weight: 900;
+    color: var(--e-accent);
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    padding-top: 4px;
+    user-select: none;
+}
+
+/* ── Skeleton loaders ────────────────────────────────────────── */
+.echoes-skeleton {
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    animation: echoes-pulse 1.4s ease-in-out infinite;
+}
+
+.echoes-skeleton--name     { height: 24px; width: 200px; margin-bottom: 16px; }
+.echoes-skeleton--contacts { height: 14px; width: 320px; }
+
+@keyframes echoes-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+/* ── Bottom bar ──────────────────────────────────────────────── */
+.echoes-footer-bottom {
+    max-width: 960px;
+    margin: 28px auto 0;
+    padding: 18px 40px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.echoes-footer-bottom-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.echoes-footer-legal {
+    display: flex;
+    gap: 20px;
+}
+
+.echoes-footer-legal a {
+    font-size: 11px;
+    color: rgba(255,255,255,0.28);
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+
+.echoes-footer-legal a:hover { color: rgba(255,255,255,0.58); }
+
+.echoes-footer-reg {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    font-variant-numeric: tabular-nums;
+}
+
+.echoes-footer-copy {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.02em;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .echoes-footer-body {
+        grid-template-columns: 1fr;
+        padding: 28px 20px 0;
+        gap: 16px;
+    }
+
+    .echoes-footer-arrow { display: none; }
+
+    .echoes-footer-bottom {
+        padding: 16px 20px 20px;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+    }
+
+    .echoes-footer-contacts { gap: 20px; }
+}

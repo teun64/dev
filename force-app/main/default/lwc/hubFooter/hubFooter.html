@@ -1,0 +1,11 @@
+<template>
+    <template lwc:if={isBrandE}>
+        <c-echoes-hub-footer></c-echoes-hub-footer>
+    </template>
+    <template lwc:elseif={isBrandT}>
+        <c-tds-hub-footer></c-tds-hub-footer>
+    </template>
+    <template lwc:else>
+        <c-customer-hub-footer></c-customer-hub-footer>
+    </template>
+</template>

@@ -1,0 +1,68 @@
+<template>
+    <footer class="tds-footer">
+        <div class="tds-footer-body">
+
+            <!-- Administration info -->
+            <div class="tds-footer-admin">
+                <template lwc:if={isLoading}>
+                    <div class="tds-skeleton tds-skeleton--name"></div>
+                    <div class="tds-skeleton tds-skeleton--contacts"></div>
+                </template>
+
+                <template lwc:elseif={hasAdmin}>
+                    <p class="tds-footer-name">{admin.name}</p>
+                    <dl class="tds-footer-contacts">
+                        <template lwc:if={admin.phone}>
+                            <div class="tds-footer-contact">
+                                <dt>{labels.phone}</dt>
+                                <dd><a href={phoneHref}>{admin.phone}</a></dd>
+                            </div>
+                        </template>
+                        <template lwc:if={admin.email}>
+                            <div class="tds-footer-contact">
+                                <dt>{labels.email}</dt>
+                                <dd><a href={emailHref}>{admin.email}</a></dd>
+                            </div>
+                        </template>
+                        <template lwc:if={hasAddress}>
+                            <div class="tds-footer-contact">
+                                <dt>{labels.address}</dt>
+                                <dd>
+                                    <template lwc:if={admin.street}>{admin.street}<br /></template>
+                                    {admin.postalCode} {admin.city}
+                                </dd>
+                            </div>
+                        </template>
+                        <template lwc:if={admin.website}>
+                            <div class="tds-footer-contact">
+                                <dt>{labels.website}</dt>
+                                <dd><a href={admin.website} target="_blank" rel="noopener">{admin.website}</a></dd>
+                            </div>
+                        </template>
+                    </dl>
+                </template>
+            </div>
+
+            <!-- Brand accent -->
+            <div class="tds-footer-arrow" aria-hidden="true">&#8250;</div>
+
+        </div>
+
+        <div class="tds-footer-bottom">
+            <div class="tds-footer-bottom-left">
+                <nav class="tds-footer-legal" aria-label="Legal">
+                    <a href={privacyUrl}>{labels.privacy}</a>
+                    <a href={termsUrl}>{labels.terms}</a>
+                </nav>
+                <template lwc:if={hasAdmin}>
+                    <span class="tds-footer-reg">
+                        <template lwc:if={admin.kvk}>{labels.kvk} {admin.kvk}</template>
+                        <template lwc:if={hasKvkAndVat}> &middot; </template>
+                        <template lwc:if={admin.vatNumber}>{labels.vat} {admin.vatNumber}</template>
+                    </span>
+                </template>
+            </div>
+            <span class="tds-footer-copy">© {currentYear} TDS Ultra Ltd</span>
+        </div>
+    </footer>
+</template>

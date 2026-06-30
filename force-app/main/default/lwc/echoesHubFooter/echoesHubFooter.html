@@ -1,0 +1,68 @@
+<template>
+    <footer class="echoes-footer">
+        <div class="echoes-footer-body">
+
+            <!-- Administration info -->
+            <div class="echoes-footer-admin">
+                <template lwc:if={isLoading}>
+                    <div class="echoes-skeleton echoes-skeleton--name"></div>
+                    <div class="echoes-skeleton echoes-skeleton--contacts"></div>
+                </template>
+
+                <template lwc:elseif={hasAdmin}>
+                    <p class="echoes-footer-name">{admin.name}</p>
+                    <dl class="echoes-footer-contacts">
+                        <template lwc:if={admin.phone}>
+                            <div class="echoes-footer-contact">
+                                <dt>{labels.phone}</dt>
+                                <dd><a href={phoneHref}>{admin.phone}</a></dd>
+                            </div>
+                        </template>
+                        <template lwc:if={admin.email}>
+                            <div class="echoes-footer-contact">
+                                <dt>{labels.email}</dt>
+                                <dd><a href={emailHref}>{admin.email}</a></dd>
+                            </div>
+                        </template>
+                        <template lwc:if={hasAddress}>
+                            <div class="echoes-footer-contact">
+                                <dt>{labels.address}</dt>
+                                <dd>
+                                    <template lwc:if={admin.street}>{admin.street}<br /></template>
+                                    {admin.postalCode} {admin.city}
+                                </dd>
+                            </div>
+                        </template>
+                        <template lwc:if={admin.website}>
+                            <div class="echoes-footer-contact">
+                                <dt>{labels.website}</dt>
+                                <dd><a href={admin.website} target="_blank" rel="noopener">{admin.website}</a></dd>
+                            </div>
+                        </template>
+                    </dl>
+                </template>
+            </div>
+
+            <!-- Brand arrow accent -->
+            <div class="echoes-footer-arrow" aria-hidden="true">&#8250;</div>
+
+        </div>
+
+        <div class="echoes-footer-bottom">
+            <div class="echoes-footer-bottom-left">
+                <nav class="echoes-footer-legal" aria-label="Legal">
+                    <a href={privacyUrl}>{labels.privacy}</a>
+                    <a href={termsUrl}>{labels.terms}</a>
+                </nav>
+                <template lwc:if={hasAdmin}>
+                    <span class="echoes-footer-reg">
+                        <template lwc:if={admin.kvk}>{labels.kvk} {admin.kvk}</template>
+                        <template lwc:if={hasKvkAndVat}> &middot; </template>
+                        <template lwc:if={admin.vatNumber}>{labels.vat} {admin.vatNumber}</template>
+                    </span>
+                </template>
+            </div>
+            <span class="echoes-footer-copy">© {currentYear} Echoes</span>
+        </div>
+    </footer>
+</template>

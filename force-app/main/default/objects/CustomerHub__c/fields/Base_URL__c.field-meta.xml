@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Base_URL__c</fullName>
+    <label>Base URL</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <description>Base URL of the Customer Hub Experience Cloud site. Example: https://hub.example.com/customer-hub</description>
+</CustomField>

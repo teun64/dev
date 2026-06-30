@@ -1,0 +1,68 @@
+<template>
+    <footer class="mi-footer">
+        <div class="mi-footer-body">
+
+            <!-- Administration info -->
+            <div class="mi-footer-admin">
+                <template lwc:if={isLoading}>
+                    <div class="mi-skeleton mi-skeleton--name"></div>
+                    <div class="mi-skeleton mi-skeleton--contacts"></div>
+                </template>
+
+                <template lwc:elseif={hasAdmin}>
+                    <p class="mi-footer-name">{admin.name}</p>
+                    <dl class="mi-footer-contacts">
+                        <template lwc:if={admin.phone}>
+                            <div class="mi-footer-contact">
+                                <dt>{labels.phone}</dt>
+                                <dd><a href={phoneHref}>{admin.phone}</a></dd>
+                            </div>
+                        </template>
+                        <template lwc:if={admin.email}>
+                            <div class="mi-footer-contact">
+                                <dt>{labels.email}</dt>
+                                <dd><a href={emailHref}>{admin.email}</a></dd>
+                            </div>
+                        </template>
+                        <template lwc:if={hasAddress}>
+                            <div class="mi-footer-contact">
+                                <dt>{labels.address}</dt>
+                                <dd>
+                                    <template lwc:if={admin.street}>{admin.street}<br /></template>
+                                    {admin.postalCode} {admin.city}
+                                </dd>
+                            </div>
+                        </template>
+                        <template lwc:if={admin.website}>
+                            <div class="mi-footer-contact">
+                                <dt>{labels.website}</dt>
+                                <dd><a href={admin.website} target="_blank" rel="noopener">{admin.website}</a></dd>
+                            </div>
+                        </template>
+                    </dl>
+                </template>
+            </div>
+
+            <!-- Brand chevron accent -->
+            <div class="mi-footer-chevron" aria-hidden="true">&#8250;</div>
+
+        </div>
+
+        <div class="mi-footer-bottom">
+            <div class="mi-footer-bottom-left">
+                <nav class="mi-footer-legal" aria-label="Legal">
+                    <a href={privacyUrl}>{labels.privacy}</a>
+                    <a href={termsUrl}>{labels.terms}</a>
+                </nav>
+                <template lwc:if={hasAdmin}>
+                    <span class="mi-footer-reg">
+                        <template lwc:if={admin.kvk}>{labels.kvk} {admin.kvk}</template>
+                        <template lwc:if={hasKvkAndVat}> &middot; </template>
+                        <template lwc:if={admin.vatNumber}>{labels.vat} {admin.vatNumber}</template>
+                    </span>
+                </template>
+            </div>
+            <span class="mi-footer-copy">© {currentYear} Moving Intelligence</span>
+        </div>
+    </footer>
+</template>

@@ -1,0 +1,171 @@
+/* ── Brand container & accent ─────────────────────────────────────────────── */
+.pp-container {
+    --pp-accent: #0176d3; /* Salesforce blue default; overridden by brand theme */
+}
+
+.pp-brand-bar {
+    height: 4px;
+    background: var(--pp-accent);
+    border-radius: 2px 2px 0 0;
+    margin-bottom: -1px;
+}
+
+/* ── Brand logo in checkout header ───────────────────────────────────────── */
+.pp-brand-logo {
+    height: 26px;
+    width: auto;
+    max-width: 100px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+.pp-brand-sep {
+    display: inline-block;
+    width: 1px;
+    height: 22px;
+    background: #d8dde6;
+    margin: 0 12px;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.pp-tds-chevron {
+    font-size: 20px;
+    font-weight: 900;
+    color: #90B33C;
+    line-height: 1;
+}
+
+.pp-tds-name {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #8A949E;
+    white-space: nowrap;
+    line-height: 1;
+    margin-left: 2px;
+}
+
+.pp-tds-ultra {
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: #90B33C;
+    margin-left: 3px;
+    white-space: nowrap;
+}
+
+/* Prevent horizontal wrap on desktop */
+.main-grid {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.slds-gutters_medium {
+    gap: 1rem;
+}
+
+.column-box {
+    background: var(--slds-canvas-background-color, #fff);
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    min-width: 0;
+    min-height: 100%;
+}
+
+.column-left {
+    margin-right: 1rem;
+}
+
+.column-right {
+    margin-left: 1rem;
+}
+
+.provider-logo-header {
+    height: 48px;
+    width: 48px;
+    border-radius: 0.25rem;
+    background: var(--slds-canvas-background-color, #f3f3f3);
+    border: 1px solid #d8dde6;
+    padding: 4px;
+    object-fit: contain;
+}
+
+.checkout-header {
+    border-bottom: 1px solid #d8dde6;
+}
+
+.checkout-title {
+    font-weight: 700;
+}
+
+.section-title {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.order-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.order-label_bold {
+    font-weight: 700;
+}
+
+.order-value {
+    color: #111;
+}
+
+.order-value_bold {
+    font-weight: 700;
+}
+
+.amount-value {
+    text-align: right;
+}
+
+.language-selector {
+    min-width: 120px;
+}
+
+.locale-selector-wrap {
+    flex: 0 0 auto;
+}
+
+.success-box {
+    max-width: 480px;
+    padding: 2rem;
+    border: 1px solid #d8dde6;
+    border-radius: 0.5rem;
+    background: #f9f9f9;
+}
+
+/* Stack columns on portrait / mobile */
+@media (orientation: portrait) {
+    .main-grid {
+        display: block !important;
+    }
+
+    .column-box {
+        width: 100% !important;
+    }
+
+    .column-left,
+    .column-right {
+        margin: 0 !important;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .main-grid {
+        display: block;
+    }
+
+    .column-left,
+    .column-right {
+        margin: 0 0 1rem 0;
+    }
+}

@@ -1,0 +1,163 @@
+<template>
+<div class="pp-container" style={brandAccentStyle}>
+    <!-- Loading state -->
+    <template if:true={isLoading}>
+        <div class="slds-grid slds-grid_align-center slds-var-p-around_large">
+            <lightning-spinner alternative-text="Loading payment..." size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <!-- Error state (load failure) -->
+    <template if:true={hasError}>
+        <div class="slds-notify slds-notify_alert slds-theme_error slds-var-m-around_medium" role="alert">
+            <lightning-icon icon-name="utility:error" variant="inverse" size="small"
+                class="slds-var-m-right_small"></lightning-icon>
+            <span>{errorMessage}</span>
+        </div>
+    </template>
+
+    <!-- Main checkout layout -->
+    <template if:true={isReady}>
+        <template if:true={hasBrandIdentity}>
+            <div class="pp-brand-bar"></div>
+        </template>
+        <lightning-card class="checkout-card">
+
+            <!-- Header -->
+            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-var-p-around_small checkout-header">
+                <div class="slds-grid slds-grid_vertical-align-center">
+                    <!-- Brand identity -->
+                    <template if:true={hasBrandLogo}>
+                        <img src={brandLogoUrl} alt="Brand logo" class="pp-brand-logo" />
+                        <span class="pp-brand-sep" aria-hidden="true"></span>
+                    </template>
+                    <template if:true={isBrandTds}>
+                        <span class="pp-tds-chevron">&#8250;</span><span class="pp-tds-name">TDS</span><span class="pp-tds-ultra">ULTRA</span>
+                        <span class="pp-brand-sep" aria-hidden="true"></span>
+                    </template>
+                    <!-- Page title + provider logo -->
+                    <img src={providerLogo} alt="Payment provider logo" class="provider-logo-header" />
+                    <h1 class="slds-text-heading_large checkout-title slds-var-m-left_small">{labelPageTitle}</h1>
+                </div>
+                <div class="locale-selector-wrap">
+                    <lightning-combobox
+                        name="locale"
+                        value={locale}
+                        options={localeOptions}
+                        onchange={handleLocaleChange}
+                        variant="label-hidden"
+                        class="language-selector">
+                    </lightning-combobox>
+                </div>
+            </div>
+
+            <!-- Two-column content -->
+            <div class="slds-grid slds-gutters_medium slds-var-p-around_medium main-grid">
+
+                <!-- Left: order summary -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-var-p-around_small column-box column-left">
+                    <h2 class="slds-text-heading_small slds-var-p-bottom_small section-title">
+                        {labelColumnOrder}
+                    </h2>
+                    <p class="slds-text-body_regular slds-var-p-bottom_medium general-payment-text">
+                        {paymentPageText}
+                    </p>
+
+                    <div class="slds-grid slds-wrap">
+                        <template if:true={payment.customer}>
+                            <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label order-label_bold">
+                                {labelCustomer}
+                            </div>
+                            <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value order-value_bold">
+                                {payment.customer}
+                            </div>
+                        </template>
+
+                        <template if:true={payment.reference}>
+                            <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label">
+                                {labelReference}
+                            </div>
+                            <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">
+                                {payment.reference}
+                            </div>
+                        </template>
+
+                        <template if:true={payment.beneficiary}>
+                            <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label">
+                                {labelBeneficiary}
+                            </div>
+                            <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">
+                                {payment.beneficiary}
+                            </div>
+                        </template>
+
+                        <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label">
+                            {labelCurrency}
+                        </div>
+                        <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">
+                            {payment.currency_x}
+                        </div>
+
+                        <template if:true={payment.orderDate}>
+                            <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label">
+                                {labelDate}
+                            </div>
+                            <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">
+                                {orderDateFormatted}
+                            </div>
+                        </template>
+
+                        <template if:true={isPaymentMode}>
+                            <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label order-label_bold">
+                                {labelAmount}
+                            </div>
+                            <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value order-value_bold amount-value">
+                                {amountFormatted}
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Right: Stripe iframe -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-var-p-around_small column-box column-right">
+                    <h2 class="slds-text-heading_small slds-var-p-bottom_small section-title">
+                        {labelColumnProvider}
+                    </h2>
+                    <template if:false={isResolved}>
+                        <c-payment-checkout
+                            publishable-key={payment.publishableKey}
+                            client-secret={payment.clientSecret}
+                            mode={payment.mode}
+                            theme="stripe"
+                            locale={locale}
+                            amount={amountFormatted}
+                            oncheckoutresult={handleCheckoutResult}>
+                        </c-payment-checkout>
+                    </template>
+                </div>
+            </div>
+        </lightning-card>
+    </template>
+
+    <!-- Success state -->
+    <template if:true={isSuccess}>
+        <div class="slds-grid slds-grid_align-center slds-var-p-around_large">
+            <div class="success-box slds-text-align_center">
+                <lightning-icon icon-name="utility:success" variant="success" size="large"
+                    class="slds-var-m-bottom_medium"></lightning-icon>
+                <h2 class="slds-text-heading_medium slds-var-m-bottom_small">{labelSuccessTitle}</h2>
+                <p class="slds-text-body_regular">{labelSuccessBody}</p>
+            </div>
+        </div>
+    </template>
+
+    <!-- Intent-level error / cancelled -->
+    <template if:true={isPaymentError}>
+        <div class="slds-notify slds-notify_alert slds-theme_error slds-var-m-around_medium" role="alert">
+            <lightning-icon icon-name="utility:error" variant="inverse" size="small"
+                class="slds-var-m-right_small"></lightning-icon>
+            <span>{intentMessage}</span>
+        </div>
+    </template>
+</div>
+</template>

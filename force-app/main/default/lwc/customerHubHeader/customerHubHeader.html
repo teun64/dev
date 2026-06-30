@@ -1,0 +1,24 @@
+<template>
+    <header class="mi-header" style={headerStyle}>
+        <div class="mi-header-inner">
+            <a class="mi-logo" href={homeUrl} aria-label="Moving Intelligence — Customer Hub">
+                <span class="mi-logo-row">
+                    <img class="mi-logo-img" src={logoUrl} alt="Moving Intelligence" />
+                </span>
+            </a>
+
+            <nav class="mi-langs" aria-label="Language">
+                <template for:each={languages} for:item="lang">
+                    <button key={lang.code}
+                            class={lang.cssClass}
+                            data-lang={lang.code}
+                            type="button"
+                            onclick={handleLangClick}
+                            aria-pressed={lang.isActive}>
+                        {lang.display}
+                    </button>
+                </template>
+            </nav>
+        </div>
+    </header>
+</template>

@@ -1,0 +1,5 @@
+{
+  "apiName" : "cp_Preferences__c",
+  "type" : "sfdc_cms__route",
+  "path" : "routes"
+}

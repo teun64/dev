@@ -1,0 +1,159 @@
+/* ── Brand tokens ─────────────────────────────────────────────── */
+:host {
+    --t-dark:   #151A0B;
+    --t-accent: #90B33C;
+    --t-white:  #FFFFFF;
+    --t-muted:  rgba(168,185,130,0.75);
+}
+
+/* ── Shell ───────────────────────────────────────────────────── */
+.tds-footer {
+    background: var(--t-dark);
+    border-top: 3px solid var(--t-accent);
+}
+
+/* ── Body (admin info + arrow accent) ───────────────────────── */
+.tds-footer-body {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 36px 40px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-items: start;
+}
+
+.tds-footer-admin {
+    display: flex;
+    flex-direction: column;
+}
+
+.tds-footer-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--t-white);
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+}
+
+.tds-footer-contacts {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.tds-footer-contact dt {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--t-muted);
+    margin-bottom: 4px;
+}
+
+.tds-footer-contact dd {
+    font-size: 13px;
+    color: rgba(255,255,255,0.62);
+    line-height: 1.5;
+}
+
+.tds-footer-contact a {
+    color: rgba(255,255,255,0.62);
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+
+.tds-footer-contact a:hover { color: var(--t-white); }
+.tds-footer-contact a:focus-visible {
+    outline: 1px solid var(--t-accent);
+    outline-offset: 2px;
+}
+
+/* ── Accent arrow (brand element) ────────────────────────────── */
+.tds-footer-arrow {
+    color: var(--t-accent);
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1;
+    padding-top: 6px;
+    user-select: none;
+}
+
+/* ── Skeleton loaders ────────────────────────────────────────── */
+.tds-skeleton {
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    animation: tds-pulse 1.4s ease-in-out infinite;
+}
+
+.tds-skeleton--name     { height: 24px; width: 200px; margin-bottom: 16px; }
+.tds-skeleton--contacts { height: 14px; width: 320px; }
+
+@keyframes tds-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+/* ── Bottom bar ──────────────────────────────────────────────── */
+.tds-footer-bottom {
+    max-width: 960px;
+    margin: 28px auto 0;
+    padding: 18px 40px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.tds-footer-bottom-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tds-footer-legal {
+    display: flex;
+    gap: 20px;
+}
+
+.tds-footer-legal a {
+    font-size: 11px;
+    color: rgba(255,255,255,0.28);
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+
+.tds-footer-legal a:hover { color: rgba(255,255,255,0.58); }
+
+.tds-footer-reg {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    font-variant-numeric: tabular-nums;
+}
+
+.tds-footer-copy {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.02em;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .tds-footer-body {
+        grid-template-columns: 1fr;
+        padding: 28px 20px 0;
+        gap: 16px;
+    }
+
+    .tds-footer-arrow { display: none; }
+
+    .tds-footer-bottom {
+        padding: 16px 20px 20px;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+    }
+
+    .tds-footer-contacts { gap: 20px; }
+}

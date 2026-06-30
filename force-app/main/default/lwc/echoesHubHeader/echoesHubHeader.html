@@ -1,0 +1,22 @@
+<template>
+    <header class="echoes-header" style={headerStyle}>
+        <div class="echoes-header-inner">
+            <a class="echoes-logo" href={homeUrl} aria-label="Echoes — Customer Hub">
+                <span class="echoes-logo-text">echoes</span><span class="echoes-logo-arrow">&#8250;</span>
+            </a>
+
+            <nav class="echoes-langs" aria-label="Language">
+                <template for:each={languages} for:item="lang">
+                    <button key={lang.code}
+                            class={lang.cssClass}
+                            data-lang={lang.code}
+                            type="button"
+                            onclick={handleLangClick}
+                            aria-pressed={lang.isActive}>
+                        {lang.display}
+                    </button>
+                </template>
+            </nav>
+        </div>
+    </header>
+</template>

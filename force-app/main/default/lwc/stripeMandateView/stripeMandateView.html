@@ -1,0 +1,74 @@
+<template>
+    <lightning-card title="Direct Debit Mandate" icon-name="utility:contract_alt">
+
+        <template if:true={isLoading}>
+            <div class="slds-p-around_medium slds-align_absolute-center">
+                <lightning-spinner alternative-text="Loading mandate…" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={hasError}>
+            <div class="slds-p-around_medium slds-text-color_error">
+                {mandate.errorMessage}
+            </div>
+        </template>
+
+        <template if:true={hasMandate}>
+            <div class="slds-p-around_medium">
+
+                <dl class="slds-dl_horizontal">
+
+                    <dt class="slds-dl_horizontal__label slds-text-color_weak">Status</dt>
+                    <dd class="slds-dl_horizontal__detail">
+                        <span class={statusBadgeClass}>{mandate.status}</span>
+                    </dd>
+
+                    <template if:true={hasIban}>
+                        <dt class="slds-dl_horizontal__label slds-text-color_weak">IBAN</dt>
+                        <dd class="slds-dl_horizontal__detail">
+                            •••• {mandate.ibanLast4}
+                            <template if:true={mandate.bankCode}>
+                                &nbsp;({mandate.bankCode})
+                            </template>
+                        </dd>
+                    </template>
+
+                    <template if:true={mandate.mandateReference}>
+                        <dt class="slds-dl_horizontal__label slds-text-color_weak">Reference</dt>
+                        <dd class="slds-dl_horizontal__detail slds-text-font_monospace">
+                            {mandate.mandateReference}
+                        </dd>
+                    </template>
+
+                    <template if:true={acceptedAtFormatted}>
+                        <dt class="slds-dl_horizontal__label slds-text-color_weak">Accepted</dt>
+                        <dd class="slds-dl_horizontal__detail">
+                            {acceptedAtFormatted}
+                            <template if:true={mandate.acceptanceType}>
+                                &nbsp;({mandate.acceptanceType})
+                            </template>
+                        </dd>
+                    </template>
+
+                    <template if:true={mandate.mandateId}>
+                        <dt class="slds-dl_horizontal__label slds-text-color_weak">Mandate ID</dt>
+                        <dd class="slds-dl_horizontal__detail slds-text-font_monospace slds-text-body_small">
+                            {mandate.mandateId}
+                        </dd>
+                    </template>
+
+                </dl>
+
+                <template if:true={mandate.mandateUrl}>
+                    <div class="slds-m-top_medium">
+                        <a href={mandate.mandateUrl} target="_blank" rel="noopener noreferrer">
+                            View mandate document
+                        </a>
+                    </div>
+                </template>
+
+            </div>
+        </template>
+
+    </lightning-card>
+</template>
