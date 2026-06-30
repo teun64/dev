@@ -132,6 +132,49 @@ private class Test_Rest_UpsertAccount {
     }
 
 
+    private static testMethod void testDuplicateContactIdInUpdateList(){
+        // Regression test for: System.ListException: Duplicate id in list
+        //
+        // Production scenario (anonymised): account t83914 was synced without contactDTOs in
+        // January (contacts came only from visitAddress / billingAddress). In June contactDTOs
+        // were added. Between those two syncs the contact's email in SF matched the billing
+        // address email — causing the same SF Contact to be matched via ACR extId (contactDTO)
+        // AND via emailContacts (billingAddress), producing a duplicate id in the update list.
+        //
+        // January sync (no contactDTOs — anonymised):
+        // {"id":"t83914","contactDTOs":null,
+        //  "visitAddress":{"id":"t90213","email":"visit@example.com","firstName":"Test","surName":"Person",...},
+        //  "billingAddress":{"id":"t90214","email":"billing@example.com","firstName":"Test","surName":"Billing",...}}
+        //
+        // Setup call: re-creates the production state just before the June sync failed.
+        // contactDTO id='t221430' is sent with email='billing@example.com' (the billing address
+        // email), matching what had accumulated in production. billingAddress.id == visitAddress.id
+        // so no separate billing contact is created → one contact exists with ACR extId='t221430'
+        // and SF email='billing@example.com'.
+        String jsonSetup = '{"id":"t83914","salesforceId":null,"debtorNumber":null,"name":"Test Holding B.V.","isBusiness":true,"isDealer":false,"vatNumber":"NL000000000B00","cocNumber":"00000000","paymentMethodExactCode":"I8","bankAccountHolder":"Test Holding BV","bankAccountNumber":"NL00TEST0000000000","bankAccountBic":"TESTBIC2","contactDTOs":[{"id":"t221430","salesforceId":null,"accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"billing@example.com","function":null,"phoneNumber":"+31600000001","language":"nl","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true,"mobilePhone":null,"otherPhone":null,"isDeleted":false}],"visitAddress":{"id":"t90213","accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"billing@example.com","phoneNumber":"+31600000001","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"billingAddress":{"id":"t90213","accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"billing@example.com","phoneNumber":"+31600000001","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"isBlocked":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"privacyMode":false,"platformId":1,"personnelCount":0,"fulltimePersonnelCount":0,"directDebitStatus":null,"directDebitReference":null,"directDebitLastTakenDate":null,"marketId":"1","previousDebtorNumber":null,"shortName":null,"orderOffsetTerm":null,"echoesAccountId":null}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonSetup);
+        Rest_UpsertAccount.handleAction();
+
+        // June sync (anonymised) — this is the call that threw the error in production.
+        // contactDTO id='t221430' → extId match → Contact (SF email still 'billing@example.com').
+        // billingAddress email='billing@example.com' → emailContacts match → SAME Contact.
+        // Both land in updateContacts under different MI keys → duplicate SF id without the fix.
+        String jsonJune = '{"id":"t83914","salesforceId":null,"debtorNumber":null,"name":"Test Holding B.V.","isBusiness":true,"isDealer":false,"vatNumber":"NL000000000B00","cocNumber":"00000000","paymentMethodExactCode":"I8","bankAccountHolder":"Test Holding BV","bankAccountNumber":"NL00TEST0000000000","bankAccountBic":"TESTBIC2","contactDTOs":[{"id":"t221430","salesforceId":null,"accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"visit@example.com","function":null,"phoneNumber":"+31600000001","language":"nl","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":null,"isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true,"mobilePhone":null,"otherPhone":null,"isDeleted":false}],"visitAddress":{"id":"t90213","accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"visit@example.com","phoneNumber":"+31600000001","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"billingAddress":{"id":"t90214","accountId":"t83914","firstName":"Test","insertion":null,"surName":"Billing","email":"billing@example.com","phoneNumber":"+31600000002","street":"Teststraat 2","postalCode":"2222 BB","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"isBlocked":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"privacyMode":false,"platformId":1,"personnelCount":0,"fulltimePersonnelCount":0,"directDebitStatus":null,"directDebitReference":null,"directDebitLastTakenDate":null,"marketId":"1","previousDebtorNumber":null,"shortName":null,"orderOffsetTerm":null,"echoesAccountId":null}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonJune);
+
+        Test.startTest();
+        Util_Rest.RestResult result = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        // With the fix the call succeeds — no ListException thrown
+        System.assertNotEquals(null, result);
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = 't83914' LIMIT 1];
+        // The contact was deduped to a single update; only 1 ACR exists for this account
+        System.assertEquals(1, [SELECT Count() FROM AccountContactRelation WHERE AccountId = :acc.Id]);
+    }
+
     @testSetup
     private static void testSetup(){
         Account dealerAcc = Test_Data.createAccount('Dealer', '1', 'B2B', false);

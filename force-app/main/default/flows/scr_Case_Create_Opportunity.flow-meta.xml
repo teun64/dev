@@ -81,6 +81,14 @@
         <valueField>Id</valueField>
     </dynamicChoiceSets>
     <dynamicChoiceSets>
+        <name>ccs_LeadSource</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <object xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <picklistField>LeadSource</picklistField>
+        <picklistObject>Opportunity</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
         <name>ccs_Stages</name>
         <dataType>Picklist</dataType>
         <displayField xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
@@ -145,6 +153,12 @@
             <field>Case__c</field>
             <value>
                 <elementReference>recordId.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LeadSource</field>
+            <value>
+                <elementReference>pick_LeadSource</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -299,6 +313,14 @@
             <choiceReferences>ccs_RecordTypes</choiceReferences>
             <dataType>String</dataType>
             <fieldText>Record Type</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>pick_LeadSource</name>
+            <choiceReferences>ccs_LeadSource</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Lead Source</fieldText>
             <fieldType>DropdownBox</fieldType>
             <isRequired>true</isRequired>
         </fields>

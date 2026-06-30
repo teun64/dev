@@ -792,7 +792,11 @@ global without sharing class Rest_UpsertAccount {
 		}
 
 		if (!updateContacts.isEmpty()) {
-			Database.update(updateContacts.values(), Rest_UpsertAccount.runningMode);
+			Map<Id, Contact> dedupedUpdateContacts = new Map<Id, Contact>();
+			for (Contact c : updateContacts.values()) {
+				dedupedUpdateContacts.put(c.Id, c);
+			}
+			Database.update(dedupedUpdateContacts.values(), Rest_UpsertAccount.runningMode);
 		}
 
 		List<Util_Rest.AddedRecord> records = new List<Util_Rest.AddedRecord>();
