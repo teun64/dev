@@ -51,13 +51,13 @@ private class Test_Ctrl_Payment {
     @IsTest
     static void testGetPaymentData_setupMode() {
         Test.startTest();
-        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
         Test.stopTest();
 
         System.assertEquals(true, d.found, 'Payment should be found');
         System.assertEquals('setup', d.mode, 'No mandate → setup mode');
         System.assertEquals('ACME BV', d.customer, 'Customer name');
-        System.assertEquals('TOKEN-SETUP', d.reference, 'Reference = token');
+        System.assertEquals('TOKEN-SETUP', d.externalId, 'externalId = token');
         System.assertEquals(12000, d.amountCents, '120.00 EUR = 12000 cents');
         System.assertEquals('EUR', d.currency_x);
         System.assertNotEquals(null, d.orderDate, 'Order date populated');
@@ -79,7 +79,7 @@ private class Test_Ctrl_Payment {
         update acc;
 
         Test.startTest();
-        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
         Test.stopTest();
 
         System.assertEquals(true, d.found);
@@ -101,7 +101,7 @@ private class Test_Ctrl_Payment {
         update acr;
 
         Test.startTest();
-        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
         Test.stopTest();
 
         System.assertEquals(true, d.found);
@@ -114,7 +114,7 @@ private class Test_Ctrl_Payment {
     @IsTest
     static void testGetPaymentData_blankToken() {
         Test.startTest();
-        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('', 'en');
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -124,7 +124,7 @@ private class Test_Ctrl_Payment {
     @IsTest
     static void testGetPaymentData_nullToken() {
         Test.startTest();
-        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData(null);
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData(null, 'en');
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -134,7 +134,7 @@ private class Test_Ctrl_Payment {
     @IsTest
     static void testGetPaymentData_unknownToken() {
         Test.startTest();
-        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-DOES-NOT-EXIST');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-DOES-NOT-EXIST', 'en');
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -151,7 +151,7 @@ private class Test_Ctrl_Payment {
         // picklist value, so currently Cancelled payments ARE still returned. This test
         // documents that behaviour so any future filter change is caught.
         Test.startTest();
-        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
         Test.stopTest();
 
         System.assertEquals(true, d.found, 'Cancelled payments still returned under current filter');
