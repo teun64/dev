@@ -73,12 +73,12 @@
                             </div>
                         </template>
 
-                        <template if:true={payment.reference}>
+                        <template if:true={payment.externalId}>
                             <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label">
                                 {labelReference}
                             </div>
                             <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">
-                                {payment.reference}
+                                {payment.externalId}
                             </div>
                         </template>
 
@@ -116,6 +116,32 @@
                             </div>
                         </template>
                     </div>
+
+                    <!-- Product line -->
+                    <template if:true={hasProductLine}>
+                        <div class="slds-var-p-top_medium product-line-section">
+                            <div class="slds-grid product-line-header">
+                                <div class="slds-col slds-size_1-of-6 product-line-label">{labelLineNumber}</div>
+                                <div class="slds-col slds-size_2-of-6 product-line-label">{labelProductCode}</div>
+                                <div class="slds-col slds-size_3-of-6 product-line-label">{labelProductName}</div>
+                            </div>
+                            <div class="slds-grid product-line-row">
+                                <div class="slds-col slds-size_1-of-6 product-line-value">{payment.productLine.lineNumber}</div>
+                                <div class="slds-col slds-size_2-of-6 product-line-value">{payment.productLine.productCode}</div>
+                                <div class="slds-col slds-size_3-of-6 product-line-value">{payment.productLine.productName}</div>
+                            </div>
+                            <div class="slds-grid slds-var-p-top_x-small">
+                                <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label">{labelProductAmount}</div>
+                                <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">{productLineAmountFormatted}</div>
+                            </div>
+                            <template if:true={invoiceCycleLabel}>
+                                <div class="slds-grid">
+                                    <div class="slds-col slds-size_1-of-3 slds-var-p-vertical_x-small order-label">{labelInvoiceCycle}</div>
+                                    <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">{invoiceCycleLabel}</div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
                 </div>
 
                 <!-- Right: Stripe iframe -->

@@ -11,16 +11,25 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public Integer amountCents;
         @AuraEnabled public String customer;
         @AuraEnabled public String beneficiary;
-        @AuraEnabled public String reference;
+        @AuraEnabled public String externalId;
         @AuraEnabled public String orderDate;
         @AuraEnabled public String collectionDate;
         @AuraEnabled public String contactFirstName;
         @AuraEnabled public String contactLastName;
         @AuraEnabled public String contactEmail;
+        @AuraEnabled public ProductLine productLine;
+    }
+
+    public class ProductLine {
+        @AuraEnabled public String  lineNumber;
+        @AuraEnabled public String  productCode;
+        @AuraEnabled public String  productName;
+        @AuraEnabled public Decimal amount;
+        @AuraEnabled public Integer periodMonths;
     }
 
     @AuraEnabled(cacheable=false)
-    public static PaymentData getPaymentData(String token) {
+    public static PaymentData getPaymentData(String token, String language) {
         PaymentData result = new PaymentData();
         result.found = false;
 
@@ -28,9 +37,11 @@ public without sharing class Ctrl_Payment {
             result.errorMessage = 'No payment token provided.';
             return result;
         }
+        if (String.isBlank(language)) language = 'en';
 
         List<Payment__c> payments = Database.queryWithBinds(
             'SELECT Id, externalId__c, Type__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
+            '       Invoice__c,' +
             '       Account__c,' +
             '       Account__r.Name,' +
             '       Account__r.PayProv_CustomerId__c,' +
@@ -57,7 +68,7 @@ public without sharing class Ctrl_Payment {
         Payment__c p = payments[0];
         result.found         = true;
         result.paymentId     = p.Id;
-        result.reference     = p.externalId__c;
+        result.externalId    = p.externalId__c;
         result.currency_x    = p.CurrencyIsoCode;
         result.amountCents   = p.Amount_Gross__c != null ? (Integer)(p.Amount_Gross__c * 100) : 0;
         result.customer      = p.Account__r?.Name;
@@ -93,6 +104,9 @@ public without sharing class Ctrl_Payment {
                 + '-' + String.valueOf(p.Collection_Date__c.month()).leftPad(2, '0')
                 + '-' + String.valueOf(p.Collection_Date__c.day()).leftPad(2, '0');
         }
+
+        // Product line: first line ordered by cost type (recurring before NON_RECURRING)
+        result.productLine = resolveProductLine(p.Invoice__c, language);
 
         String stripeAccountId  = p.Administration__r?.PayProv_Account__c;
         String stripeCustomerId = p.Account__r?.PayProv_CustomerId__c;
@@ -141,6 +155,60 @@ public without sharing class Ctrl_Payment {
         }
 
         return result;
+    }
+
+    // ── Product line resolution ───────────────────────────────────────────────
+    // Supports: Invoice → Order → OrderItem (primary path)
+    // To add Opportunity support: add Opportunity__c to the Payment SOQL and
+    //   call resolveProductLineFromOpportunity(p.Opportunity__c, language).
+    private static ProductLine resolveProductLine(Id invoiceId, String lang) {
+        if (invoiceId == null) return null;
+
+        List<OrderItem> items = Database.queryWithBinds(
+            'SELECT Name, Product_Code__c, Product_Name__c, Amount_Gross__c,' +
+            '       InvoiceStartDate__c, InvoiceEndDate__c,' +
+            '       Subscription25__Product__c,' +
+            '       Subscription25__Product__r.Subscription25__Cost_Type__c' +
+            ' FROM OrderItem' +
+            ' WHERE Order.Subscription25__Invoice__c = :invoiceId' +
+            ' ORDER BY Subscription25__Product__r.Subscription25__Cost_Type__c NULLS FIRST,' +
+            '          Name ASC' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'invoiceId' => invoiceId },
+            AccessLevel.SYSTEM_MODE
+        );
+        if (items.isEmpty()) return null;
+
+        OrderItem item = items[0];
+        ProductLine pl = new ProductLine();
+        pl.lineNumber  = item.Name;
+        pl.productCode = item.Product_Code__c;
+        pl.amount      = item.Amount_Gross__c;
+        pl.productName = item.Product_Name__c; // fallback if no translation
+
+        // Period in months between invoice start and end date
+        if (item.InvoiceStartDate__c != null && item.InvoiceEndDate__c != null) {
+            Integer months = (item.InvoiceEndDate__c.year()  - item.InvoiceStartDate__c.year())  * 12
+                           + (item.InvoiceEndDate__c.month() - item.InvoiceStartDate__c.month());
+            if (item.InvoiceEndDate__c.day() > item.InvoiceStartDate__c.day()) months++;
+            pl.periodMonths = months > 0 ? months : null;
+        }
+
+        // Localized product name from Data_Translation__c
+        if (item.Subscription25__Product__c != null) {
+            Id productId = item.Subscription25__Product__c;
+            List<Data_Translation__c> translations = Database.queryWithBinds(
+                'SELECT Name__c FROM Data_Translation__c' +
+                ' WHERE Product__c = :productId AND Language__c = :lang LIMIT 1',
+                new Map<String, Object>{ 'productId' => productId, 'lang' => lang },
+                AccessLevel.SYSTEM_MODE
+            );
+            if (!translations.isEmpty() && String.isNotBlank(translations[0].Name__c)) {
+                pl.productName = translations[0].Name__c;
+            }
+        }
+
+        return pl;
     }
 
     private static String createPaymentIntent(

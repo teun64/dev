@@ -45,6 +45,11 @@ export default class PaymentPage extends LightningElement {
     labelAmount          = 'Total';
     labelSuccessTitle    = 'Payment received';
     labelSuccessBody     = 'Thank you. Your payment has been processed successfully.';
+    labelLineNumber      = 'Line';
+    labelProductCode     = 'Code';
+    labelProductName     = 'Product';
+    labelProductAmount   = 'Amount';
+    labelInvoiceCycle    = 'Invoice cycle';
 
     // -------- Assets --------
     providerLogo = `${PAYMENT_PROVIDER}/providerIcon.svg`;
@@ -82,6 +87,30 @@ export default class PaymentPage extends LightningElement {
         return new Date(this.payment.orderDate).toLocaleDateString(lang, {
             year: 'numeric', month: 'short', day: 'numeric'
         });
+    }
+
+    get productLineAmountFormatted() {
+        const amount = this.payment?.productLine?.amount;
+        if (amount == null) return '';
+        const lang = (this.localeSet || 'en_GB').split('_')[0];
+        const curr = (this.payment.currency_x || 'EUR').toUpperCase();
+        try {
+            return new Intl.NumberFormat(lang, {
+                style: 'currency',
+                currency: curr,
+                currencyDisplay: 'narrowSymbol'
+            }).format(amount);
+        } catch (e) {
+            return `${amount}`;
+        }
+    }
+
+    get hasProductLine() { return !!this.payment?.productLine; }
+
+    get invoiceCycleLabel() {
+        const months = this.payment?.productLine?.periodMonths;
+        if (!months) return null;
+        return months === 1 ? '1 month' : `${months} months`;
     }
 
     // -------- Brand theme --------
@@ -140,8 +169,9 @@ export default class PaymentPage extends LightningElement {
     _loadPayment(token) {
         this.isLoading = true;
         this.hasError  = false;
+        const language = (LOCALE || 'en_GB').replace('-', '_').split('_')[0];
 
-        getPaymentData({ token })
+        getPaymentData({ token, language })
             .then(data => {
                 if (!data.found) {
                     this.hasError     = true;
