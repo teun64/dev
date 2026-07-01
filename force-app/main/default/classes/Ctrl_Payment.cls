@@ -165,14 +165,14 @@ public without sharing class Ctrl_Payment {
         if (invoiceId == null) return null;
 
         List<OrderItem> items = Database.queryWithBinds(
-            'SELECT Name, Product_Code__c, Product_Name__c, Amount_Gross__c,' +
+            'SELECT Product_Code__c, Product_Name__c, Amount_Gross__c,' +
             '       InvoiceStartDate__c, InvoiceEndDate__c,' +
             '       Subscription25__Product__c,' +
             '       Subscription25__Product__r.Subscription25__Cost_Type__c' +
             ' FROM OrderItem' +
             ' WHERE Order.Subscription25__Invoice__c = :invoiceId' +
             ' ORDER BY Subscription25__Product__r.Subscription25__Cost_Type__c NULLS FIRST,' +
-            '          Name ASC' +
+            '          Product_Code__c ASC' +
             ' LIMIT 1',
             new Map<String, Object>{ 'invoiceId' => invoiceId },
             AccessLevel.SYSTEM_MODE
@@ -181,7 +181,7 @@ public without sharing class Ctrl_Payment {
 
         OrderItem item = items[0];
         ProductLine pl = new ProductLine();
-        pl.lineNumber  = item.Name;
+        pl.lineNumber  = '1';
         pl.productCode = item.Product_Code__c;
         pl.amount      = item.Amount_Gross__c;
         pl.productName = item.Product_Name__c; // fallback if no translation

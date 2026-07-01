@@ -14,8 +14,9 @@ private class Test_Ctrl_Payment {
         insert hubConfig;
 
         Account acc = Test_Data.createAccount('ACME BV', '9001', 'B2B', false);
-        acc.PayProv_CustomerId__c = 'cus_test999';
         insert acc;
+        acc.PayProv_CustomerId__c = 'cus_test999';
+        update acc;
 
         Contact c = new Contact(
             AccountId = acc.Id,
