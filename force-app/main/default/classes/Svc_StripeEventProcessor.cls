@@ -19,7 +19,7 @@ public without sharing class Svc_StripeEventProcessor {
             if (String.isNotBlank(p.customerId))      customerIds.add(p.customerId);
             if (String.isNotBlank(p.paymentMethodId)) paymentMethodIds.add(p.paymentMethodId);
             if (String.isNotBlank(p.paymentSfId)) {
-                try { paymentSfIds.add((Id) p.paymentSfId); } catch (Exception ignored) {}
+                try { paymentSfIds.add((Id) p.paymentSfId); } catch (Exception ignored) { p.paymentSfId = null; }
             }
         }
         if (parsed.isEmpty()) return;
