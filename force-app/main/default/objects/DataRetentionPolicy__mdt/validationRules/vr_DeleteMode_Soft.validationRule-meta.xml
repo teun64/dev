@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>vr_DeleteMode_Soft</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+ISPICKVAL( DeleteMode__c , &apos;SOFT&apos;)
+,
+ISBLANK( DeleteModeSoftField__c)
+)</errorConditionFormula>
+    <errorDisplayField>DeleteModeSoftField__c</errorDisplayField>
+    <errorMessage>The Soft (Delete Mode) requires a valid Field (type boolean to update)</errorMessage>
+</ValidationRule>
