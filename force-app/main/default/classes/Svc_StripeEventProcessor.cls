@@ -128,7 +128,12 @@ public without sharing class Svc_StripeEventProcessor {
                 Payment__c payment = paymentMap.get(p.paymentSfId);
                 String newStatus = statusForEvent(p.eventType);
                 if (newStatus != null) {
-                    paymentUpdates.put(payment.Id, new Payment__c(Id = payment.Id, Status__c = newStatus));
+                    Payment__c pu = new Payment__c(Id = payment.Id, Status__c = newStatus);
+                    if ('setup_intent.succeeded'.equals(p.eventType)) {
+                        pu.Interaction_Status__c = 'Request Processed by Customer';
+                        pu.Processed_Date__c     = Date.today();
+                    }
+                    paymentUpdates.put(payment.Id, pu);
                 }
                 if (isFailure(p.eventType)) {
                     String queueName = 'gqPayment' + payment.Account__r?.Reseller_Name__c;

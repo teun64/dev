@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Letterhead xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <backgroundColor>#FFFFFF</backgroundColor>
+    <name>MI Direct Debit Letterhead</name>
+    <bodyColor>#FFFFFF</bodyColor>
+    <bottomLine>
+        <color>#003087</color>
+        <height>3</height>
+    </bottomLine>
+    <description>Moving Intelligence – direct debit email letterhead (blue corporate style)</description>
+    <footer>
+        <backgroundColor>#003087</backgroundColor>
+        <height>60</height>
+    </footer>
+    <header>
+        <backgroundColor>#003087</backgroundColor>
+        <height>90</height>
+    </header>
+    <middleLine>
+        <color>#E0E0E0</color>
+        <height>1</height>
+    </middleLine>
+    <topLine>
+        <color>#00A3E0</color>
+        <height>4</height>
+    </topLine>
+</Letterhead>

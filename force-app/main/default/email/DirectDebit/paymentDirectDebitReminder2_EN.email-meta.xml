@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>UTF-8</encodingKey>
+    <letterhead>MI_DirectDebit_Letterhead</letterhead>
+    <name>paymentDirectDebitReminder2_EN</name>
+    <style>freeForm</style>
+    <subject>Final Reminder: Direct Debit Authorisation Required – {!Payment__c.Name}</subject>
+    <textOnly>Dear {!Contact.FirstName},
+
+This is a final reminder that your direct debit authorisation is still outstanding.
+
+Without this authorisation, we are unable to process your payments and your account may be referred to our support team.
+
+Please complete the setup immediately via the link below:
+
+{!Payment__c.Setup_URL__c}
+
+If you have questions or need assistance, please contact us promptly.
+
+Kind regards,
+{!Payment__c.Administration__r.Subscription25__Billing_Name__c}</textOnly>
+    <type>html</type>
+</EmailTemplate>

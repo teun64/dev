@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>UTF-8</encodingKey>
+    <letterhead>MI_DirectDebit_Letterhead</letterhead>
+    <name>paymentDirectDebitSetupInitial_EN</name>
+    <style>freeForm</style>
+    <subject>Direct Debit Authorisation Request – {!Payment__c.Name}</subject>
+    <textOnly>Dear {!Contact.FirstName},
+
+To enable direct debit payments, please authorise your bank account via the link below:
+
+{!Payment__c.Setup_URL__c}
+
+This authorisation allows us to collect your invoices automatically. The process takes only a few minutes.
+
+If you have any questions, please do not hesitate to contact us.
+
+Kind regards,
+{!Payment__c.Administration__r.Subscription25__Billing_Name__c}</textOnly>
+    <type>html</type>
+</EmailTemplate>

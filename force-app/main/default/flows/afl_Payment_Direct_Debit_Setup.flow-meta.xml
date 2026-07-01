@@ -156,6 +156,20 @@
                 <booleanValue>true</booleanValue>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>paymentRecord.Interaction_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Mail Sent</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>paymentRecord.Mail_Sent_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>ass_01_Payment_Message</targetReference>
         </connector>

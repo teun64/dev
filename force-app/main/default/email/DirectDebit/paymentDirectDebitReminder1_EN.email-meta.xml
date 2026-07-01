@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>UTF-8</encodingKey>
+    <letterhead>MI_DirectDebit_Letterhead</letterhead>
+    <name>paymentDirectDebitReminder1_EN</name>
+    <style>freeForm</style>
+    <subject>Reminder: Direct Debit Authorisation Still Pending – {!Payment__c.Name}</subject>
+    <textOnly>Dear {!Contact.FirstName},
+
+This is a friendly reminder that your direct debit authorisation has not yet been completed.
+
+To ensure uninterrupted service, please complete the setup at your earliest convenience:
+
+{!Payment__c.Setup_URL__c}
+
+If you have already completed this, please disregard this message.
+
+Kind regards,
+{!Payment__c.Administration__r.Subscription25__Billing_Name__c}</textOnly>
+    <type>html</type>
+</EmailTemplate>
