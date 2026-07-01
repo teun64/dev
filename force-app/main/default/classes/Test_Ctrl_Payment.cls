@@ -1,5 +1,5 @@
 @IsTest
-private class Test_Ctrl_HubPayment {
+private class Test_Ctrl_Payment {
 
     // ── Shared test data ──────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ private class Test_Ctrl_HubPayment {
     @IsTest
     static void testGetPaymentData_setupMode() {
         Test.startTest();
-        Ctrl_HubPayment.PaymentData d = Ctrl_HubPayment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
         Test.stopTest();
 
         System.assertEquals(true, d.found, 'Payment should be found');
@@ -79,7 +79,7 @@ private class Test_Ctrl_HubPayment {
         update acc;
 
         Test.startTest();
-        Ctrl_HubPayment.PaymentData d = Ctrl_HubPayment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
         Test.stopTest();
 
         System.assertEquals(true, d.found);
@@ -101,7 +101,7 @@ private class Test_Ctrl_HubPayment {
         update acr;
 
         Test.startTest();
-        Ctrl_HubPayment.PaymentData d = Ctrl_HubPayment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
         Test.stopTest();
 
         System.assertEquals(true, d.found);
@@ -114,7 +114,7 @@ private class Test_Ctrl_HubPayment {
     @IsTest
     static void testGetPaymentData_blankToken() {
         Test.startTest();
-        Ctrl_HubPayment.PaymentData d = Ctrl_HubPayment.getPaymentData('');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('');
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -124,7 +124,7 @@ private class Test_Ctrl_HubPayment {
     @IsTest
     static void testGetPaymentData_nullToken() {
         Test.startTest();
-        Ctrl_HubPayment.PaymentData d = Ctrl_HubPayment.getPaymentData(null);
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData(null);
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -134,7 +134,7 @@ private class Test_Ctrl_HubPayment {
     @IsTest
     static void testGetPaymentData_unknownToken() {
         Test.startTest();
-        Ctrl_HubPayment.PaymentData d = Ctrl_HubPayment.getPaymentData('TOKEN-DOES-NOT-EXIST');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-DOES-NOT-EXIST');
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -151,7 +151,7 @@ private class Test_Ctrl_HubPayment {
         // picklist value, so currently Cancelled payments ARE still returned. This test
         // documents that behaviour so any future filter change is caught.
         Test.startTest();
-        Ctrl_HubPayment.PaymentData d = Ctrl_HubPayment.getPaymentData('TOKEN-SETUP');
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP');
         Test.stopTest();
 
         System.assertEquals(true, d.found, 'Cancelled payments still returned under current filter');
@@ -162,7 +162,7 @@ private class Test_Ctrl_HubPayment {
     @IsTest
     static void testSendSetupEmail_withHubUrl() {
         Test.startTest();
-        Ctrl_HubPayment.sendSetupEmail('TOKEN-SETUP');
+        Ctrl_Payment.sendSetupEmail('TOKEN-SETUP');
         Test.stopTest();
 
         System.assert(true, 'sendSetupEmail with CustomerHub_Site_URL__c set should not throw');
@@ -175,7 +175,7 @@ private class Test_Ctrl_HubPayment {
         if (cfg.Id != null) delete cfg;
 
         Test.startTest();
-        Ctrl_HubPayment.sendSetupEmail('TOKEN-SETUP');
+        Ctrl_Payment.sendSetupEmail('TOKEN-SETUP');
         Test.stopTest();
 
         System.assert(true, 'Org-domain fallback URL path should not throw');
@@ -184,7 +184,7 @@ private class Test_Ctrl_HubPayment {
     @IsTest
     static void testSendSetupEmail_unknownTokenNoOp() {
         Test.startTest();
-        Ctrl_HubPayment.sendSetupEmail('TOKEN-GHOST');
+        Ctrl_Payment.sendSetupEmail('TOKEN-GHOST');
         Test.stopTest();
 
         System.assert(true, 'Unknown token should return silently without throwing');
@@ -204,7 +204,7 @@ private class Test_Ctrl_HubPayment {
         update acr;
 
         Test.startTest();
-        Ctrl_HubPayment.sendSetupEmail('TOKEN-SETUP');
+        Ctrl_Payment.sendSetupEmail('TOKEN-SETUP');
         Test.stopTest();
 
         System.assert(true, 'No matching contact should return silently without throwing');

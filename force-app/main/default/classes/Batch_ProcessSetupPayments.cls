@@ -33,9 +33,11 @@ global class Batch_ProcessSetupPayments extends Subscription25.Job_AbstractBatch
         List<Payment__c> statusUpdates = new List<Payment__c>();
         List<Case>       failureCases  = new List<Case>();
 
+        Set<Id>     accountIds    = new Set<Id>();
         Set<String> resellerCodes = new Set<String>();
         for (SObject s : scope) {
             Payment__c p = (Payment__c) s;
+            accountIds.add(p.Account__c);
             if (String.isNotBlank(p.Account__r?.Reseller_Name__c)) {
                 resellerCodes.add(p.Account__r.Reseller_Name__c);
             }
@@ -49,16 +51,40 @@ global class Batch_ProcessSetupPayments extends Subscription25.Job_AbstractBatch
                 resellerToQueue.put(g.DeveloperName, g.Id);
             }
         }
+        Map<Id, Id> accountToContact = new Map<Id, Id>();
+        for (AccountContactRelation r : [
+            SELECT AccountId, ContactId
+            FROM AccountContactRelation
+            WHERE AccountId IN :accountIds
+              AND IsActive = true
+              AND (IsPaymentContact__c = true OR isMainContact__c = true)
+            ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC
+        ]) {
+            if (!accountToContact.containsKey(r.AccountId)) {
+                accountToContact.put(r.AccountId, r.ContactId);
+            }
+        }
 
         for (SObject s : scope) {
             Payment__c p = (Payment__c) s;
-            String ddMethod = p.Administration__r?.PayProv_DirectDebit_PaymentMethod__c;
+            String  stripeAccountId = p.Administration__r?.PayProv_Account__c;
+            String  ddMethod        = p.Administration__r?.PayProv_DirectDebit_PaymentMethod__c;
+            Integer amountCents     = p.Amount_Gross__c != null ? (Integer)(p.Amount_Gross__c * 100) : 0;
             if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
-            Integer amountCents = p.Amount_Gross__c != null ? (Integer)(p.Amount_Gross__c * 100) : 0;
+
+            String preflightError = null;
+            if (String.isBlank(stripeAccountId)) preflightError = 'No Stripe account configured on Administration.';
+            else if (amountCents <= 0)            preflightError = 'Invalid payment amount (' + p.Amount_Gross__c + ').';
+
+            if (preflightError != null) {
+                statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed'));
+                failureCases.add(buildFailureCase(p, preflightError, resellerToQueue, accountToContact));
+                continue;
+            }
 
             try {
                 issuePaymentIntent(
-                    p.Administration__r?.PayProv_Account__c,
+                    stripeAccountId,
                     p.Account__r?.PayProv_CustomerId__c,
                     p.Account__r?.PayProv_PaymentMethodId__c,
                     p.Account__r?.PayProv_MandateId__c,
@@ -67,16 +93,7 @@ global class Batch_ProcessSetupPayments extends Subscription25.Job_AbstractBatch
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing'));
             } catch (Exception e) {
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed'));
-                Id queueId = resellerToQueue.get('gqPayment' + p.Account__r?.Reseller_Name__c);
-                Case c = new Case(
-                    AccountId   = p.Account__c,
-                    Subject     = 'Direct Debit collection failed – ' + p.externalId__c,
-                    Description = 'Stripe error: ' + e.getMessage(),
-                    Origin      = 'Direct Debit',
-                    Status      = 'New'
-                );
-                if (queueId != null) c.OwnerId = queueId;
-                failureCases.add(c);
+                failureCases.add(buildFailureCase(p, 'Stripe error: ' + e.getMessage(), resellerToQueue, accountToContact));
             }
         }
 
@@ -87,6 +104,26 @@ global class Batch_ProcessSetupPayments extends Subscription25.Job_AbstractBatch
     public override void finishBatch(Database.BatchableContext bc) {}
 
     // ── Private ───────────────────────────────────────────────────────────────
+    private static Case buildFailureCase(
+        Payment__c p, String reason,
+        Map<String, Id> resellerToQueue, Map<Id, Id> accountToContact
+    ) {
+        Id queueId   = resellerToQueue.get('gqPayment' + p.Account__r?.Reseller_Name__c);
+        Id contactId = accountToContact.get(p.Account__c);
+        Case c = new Case(
+            AccountId   = p.Account__c,
+            ContactId   = contactId,
+            Subject     = 'Direct Debit collection failed – ' + p.externalId__c,
+            Description = reason + '\n\n'
+                        + 'Payment reference: ' + p.externalId__c + '\n'
+                        + 'Amount: ' + p.CurrencyIsoCode + ' ' + p.Amount_Gross__c,
+            Origin      = 'Direct Debit',
+            Status      = 'New'
+        );
+        if (queueId != null) c.OwnerId = queueId;
+        return c;
+    }
+
     private static void issuePaymentIntent(
         String stripeAccountId, String customerId,
         String paymentMethodId, String mandateId,

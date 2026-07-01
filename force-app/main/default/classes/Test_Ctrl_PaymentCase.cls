@@ -1,5 +1,5 @@
 @IsTest
-private class Test_Ctrl_HubPaymentCase {
+private class Test_Ctrl_PaymentCase {
 
     // ── Shared test data ──────────────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ private class Test_Ctrl_HubPaymentCase {
         Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
 
         Test.startTest();
-        String caseId = Ctrl_HubPaymentCase.createPaymentFailureCase(
+        String caseId = Ctrl_PaymentCase.createPaymentFailureCase(
             pmt.Id,
             'SEPA debit declined – insufficient funds'
         );
@@ -117,7 +117,7 @@ private class Test_Ctrl_HubPaymentCase {
         Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
 
         Test.startTest();
-        String caseId = Ctrl_HubPaymentCase.createPaymentFailureCase(pmt.Id, 'Test');
+        String caseId = Ctrl_PaymentCase.createPaymentFailureCase(pmt.Id, 'Test');
         Test.stopTest();
 
         Case c = [SELECT ContactId FROM Case WHERE Id = :caseId];
@@ -148,7 +148,7 @@ private class Test_Ctrl_HubPaymentCase {
         insert pmt;
 
         Test.startTest();
-        String caseId = Ctrl_HubPaymentCase.createPaymentFailureCase(pmt.Id, 'No queue test');
+        String caseId = Ctrl_PaymentCase.createPaymentFailureCase(pmt.Id, 'No queue test');
         Test.stopTest();
 
         System.assertNotEquals(null, caseId, 'Case created even when queue not found');
@@ -167,7 +167,7 @@ private class Test_Ctrl_HubPaymentCase {
         Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
 
         Test.startTest();
-        String caseId = Ctrl_HubPaymentCase.createPaymentFailureCase(pmt.Id, 'Fallback test');
+        String caseId = Ctrl_PaymentCase.createPaymentFailureCase(pmt.Id, 'Fallback test');
         Test.stopTest();
 
         Case c = [SELECT Description FROM Case WHERE Id = :caseId];
@@ -181,7 +181,7 @@ private class Test_Ctrl_HubPaymentCase {
     static void testCreateCase_blankPaymentId() {
         Test.startTest();
         try {
-            Ctrl_HubPaymentCase.createPaymentFailureCase('', 'Test');
+            Ctrl_PaymentCase.createPaymentFailureCase('', 'Test');
             System.assert(false, 'Expected AuraHandledException');
         } catch (AuraHandledException e) {
             System.assertNotEquals(null, e.getMessage());
@@ -193,7 +193,7 @@ private class Test_Ctrl_HubPaymentCase {
     static void testCreateCase_nullPaymentId() {
         Test.startTest();
         try {
-            Ctrl_HubPaymentCase.createPaymentFailureCase(null, 'Test');
+            Ctrl_PaymentCase.createPaymentFailureCase(null, 'Test');
             System.assert(false, 'Expected AuraHandledException');
         } catch (AuraHandledException e) {
             System.assert(true);
@@ -205,7 +205,7 @@ private class Test_Ctrl_HubPaymentCase {
     static void testCreateCase_unknownPaymentId() {
         Test.startTest();
         try {
-            Ctrl_HubPaymentCase.createPaymentFailureCase('000000000000000AAA', 'Test');
+            Ctrl_PaymentCase.createPaymentFailureCase('000000000000000AAA', 'Test');
             System.assert(false, 'Expected AuraHandledException');
         } catch (AuraHandledException e) {
             System.assert(true);

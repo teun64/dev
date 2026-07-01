@@ -1,4 +1,4 @@
-public without sharing class Ctrl_HubPaymentCase {
+public without sharing class Ctrl_PaymentCase {
 
     @AuraEnabled(cacheable=false)
     public static String createPaymentFailureCase(String paymentId, String reason) {

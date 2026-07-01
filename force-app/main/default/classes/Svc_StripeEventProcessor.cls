@@ -18,7 +18,9 @@ public without sharing class Svc_StripeEventProcessor {
             parsed.add(p);
             if (String.isNotBlank(p.customerId))      customerIds.add(p.customerId);
             if (String.isNotBlank(p.paymentMethodId)) paymentMethodIds.add(p.paymentMethodId);
-            if (String.isNotBlank(p.paymentSfId))     paymentSfIds.add(p.paymentSfId);
+            if (String.isNotBlank(p.paymentSfId)) {
+                try { paymentSfIds.add((Id) p.paymentSfId); } catch (Exception ignored) {}
+            }
         }
         if (parsed.isEmpty()) return;
 
@@ -47,9 +49,11 @@ public without sharing class Svc_StripeEventProcessor {
             ]);
         }
 
-        // Collect reseller codes for queue lookup (failure cases)
-        Set<String> resellerCodes = new Set<String>();
+        // Collect reseller codes for queue lookup and account IDs for contact lookup (failure cases)
+        Set<Id>     paymentAccountIds = new Set<Id>();
+        Set<String> resellerCodes     = new Set<String>();
         for (Payment__c p : paymentMap.values()) {
+            paymentAccountIds.add(p.Account__c);
             if (String.isNotBlank(p.Account__r?.Reseller_Name__c)) {
                 resellerCodes.add(p.Account__r.Reseller_Name__c);
             }
@@ -61,6 +65,21 @@ public without sharing class Svc_StripeEventProcessor {
             for (Group g : [SELECT Id, DeveloperName FROM Group
                             WHERE Type = 'Queue' AND DeveloperName IN :queueNames]) {
                 resellerToQueue.put(g.DeveloperName, g.Id);
+            }
+        }
+        Map<Id, Id> accountToContact = new Map<Id, Id>();
+        if (!paymentAccountIds.isEmpty()) {
+            for (AccountContactRelation r : [
+                SELECT AccountId, ContactId
+                FROM AccountContactRelation
+                WHERE AccountId IN :paymentAccountIds
+                  AND IsActive = true
+                  AND (IsPaymentContact__c = true OR isMainContact__c = true)
+                ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC
+            ]) {
+                if (!accountToContact.containsKey(r.AccountId)) {
+                    accountToContact.put(r.AccountId, r.ContactId);
+                }
             }
         }
 
@@ -113,8 +132,9 @@ public without sharing class Svc_StripeEventProcessor {
                 }
                 if (isFailure(p.eventType)) {
                     String queueName = 'gqPayment' + payment.Account__r?.Reseller_Name__c;
-                    Id queueId = resellerToQueue.get(queueName);
-                    newCases.add(buildFailureCase(payment, p.errorMessage, p.errorCode, queueId));
+                    Id queueId   = resellerToQueue.get(queueName);
+                    Id contactId = accountToContact.get(payment.Account__c);
+                    newCases.add(buildFailureCase(payment, p.errorMessage, p.errorCode, queueId, contactId));
                 }
             }
         }
@@ -203,15 +223,16 @@ public without sharing class Svc_StripeEventProcessor {
         return 'payment_intent.payment_failed'.equals(evtType) || 'setup_intent.setup_failed'.equals(evtType);
     }
 
-    private static Case buildFailureCase(Payment__c p, String reason, String code, Id queueId) {
+    private static Case buildFailureCase(Payment__c p, String reason, String code, Id queueId, Id contactId) {
         String description =
-            'Payment reference: ' + p.externalId__c + '\n' +
-            'Amount: ' + p.CurrencyIsoCode + ' ' + p.Amount_Gross__c + '\n' +
             (String.isNotBlank(code)   ? 'Failure code: ' + code + '\n' : '') +
-            (String.isNotBlank(reason) ? 'Reason: ' + reason          : '');
+            (String.isNotBlank(reason) ? reason + '\n\n'                : '') +
+            'Payment reference: ' + p.externalId__c + '\n' +
+            'Amount: ' + p.CurrencyIsoCode + ' ' + p.Amount_Gross__c;
 
         Case c = new Case(
             AccountId   = p.Account__c,
+            ContactId   = contactId,
             Subject     = 'Direct Debit failure – ' + p.externalId__c,
             Description = description,
             Origin      = 'Direct Debit',

@@ -3,10 +3,10 @@ import { CurrentPageReference } from 'lightning/navigation';
 import LOCALE          from '@salesforce/i18n/locale';
 import PAYMENT_PROVIDER from '@salesforce/resourceUrl/paymentProvider';
 import BRANDING_URL    from '@salesforce/resourceUrl/Branding';
-import getPaymentData          from '@salesforce/apex/Ctrl_HubPayment.getPaymentData';
-import finalizeCheckout        from '@salesforce/apex/Ctrl_HubPayment.finalizeCheckout';
+import getPaymentData          from '@salesforce/apex/Ctrl_Payment.getPaymentData';
+import finalizeCheckout        from '@salesforce/apex/Ctrl_Payment.finalizeCheckout';
 import getBrandTheme            from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
-import createPaymentFailureCase from '@salesforce/apex/Ctrl_HubPaymentCase.createPaymentFailureCase';
+import createPaymentFailureCase from '@salesforce/apex/Ctrl_PaymentCase.createPaymentFailureCase';
 
 export default class PaymentPage extends LightningElement {
 

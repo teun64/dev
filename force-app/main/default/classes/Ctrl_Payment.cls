@@ -1,4 +1,4 @@
-public without sharing class Ctrl_HubPayment {
+public without sharing class Ctrl_Payment {
 
     public class PaymentData {
         @AuraEnabled public Boolean found;
