@@ -319,12 +319,13 @@
                                         mandateId:
                                             succeededIntent.mandate ||
                                             succeededIntent.latest_charge?.payment_method_details?.sepa_debit?.mandate ||
+                                            succeededIntent.latest_charge?.payment_method_details?.bacs_debit?.mandate ||
                                             null
                                     });
                                 } else {
                                     result = buildResult({
                                         intentStatus: 'failed',
-                                        intentMode: modeelement,
+                                        intentMode: modeElement,
                                         intentMessage: error.message || 'Operation failed'
                                     });
                                 }
@@ -350,6 +351,7 @@
                                     mandateId:
                                         intent.mandate ||
                                         intent.latest_charge?.payment_method_details?.sepa_debit?.mandate ||
+                                        intent.latest_charge?.payment_method_details?.bacs_debit?.mandate ||
                                         null
                                 });
 

@@ -4,6 +4,7 @@ import LOCALE          from '@salesforce/i18n/locale';
 import PAYMENT_PROVIDER from '@salesforce/resourceUrl/paymentProvider';
 import BRANDING_URL    from '@salesforce/resourceUrl/Branding';
 import getPaymentData          from '@salesforce/apex/Ctrl_HubPayment.getPaymentData';
+import finalizeCheckout        from '@salesforce/apex/Ctrl_HubPayment.finalizeCheckout';
 import getBrandTheme            from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
 import createPaymentFailureCase from '@salesforce/apex/Ctrl_HubPaymentCase.createPaymentFailureCase';
 
@@ -182,6 +183,10 @@ export default class PaymentPage extends LightningElement {
 
         if (status === 'succeeded' || status === 'processing') {
             this.viewState = 'success';
+            finalizeCheckout({
+                token:      this._token,
+                intentMode: d?.intentMode
+            }).catch(() => {});
         } else if (status === 'canceled' || status === 'requires_payment_method') {
             this.intentMessage = d?.intentMessage || 'Payment was not completed.';
             this.viewState     = 'error';

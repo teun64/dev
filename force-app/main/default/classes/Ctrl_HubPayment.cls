@@ -29,21 +29,25 @@ public without sharing class Ctrl_HubPayment {
             return result;
         }
 
-        List<Payment__c> payments = [
-            SELECT Id, externalId__c, Type__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,
-                   Account__c,
-                   Account__r.Name,
-                   Account__r.PayProv_CustomerId__c,
-                   Account__r.PayProv_MandateId__c,
-                   Account__r.PayProv_PaymentMethodId__c,
-                   Administration__r.PayProv_Account__c,
-                   Administration__r.PayProv_Account__r.stripeGC__Publishable_Key__c,
-                   Administration__r.Subscription25__Billing_Name__c
-            FROM Payment__c
-            WHERE externalId__c = :token
-            AND Status__c != 'Closed'
-            LIMIT 1
-        ];
+        List<Payment__c> payments = Database.queryWithBinds(
+            'SELECT Id, externalId__c, Type__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
+            '       Account__c,' +
+            '       Account__r.Name,' +
+            '       Account__r.PayProv_CustomerId__c,' +
+            '       Account__r.PayProv_MandateId__c,' +
+            '       Account__r.PayProv_PaymentMethodId__c,' +
+            '       Administration__c,' +
+            '       Administration__r.PayProv_Account__c,' +
+            '       Administration__r.PayProv_Account__r.stripeGC__Publishable_Key__c,' +
+            '       Administration__r.Subscription25__Billing_Name__c,' +
+            '       Administration__r.PayProv_DirectDebit_PaymentMethod__c' +
+            ' FROM Payment__c' +
+            ' WHERE externalId__c = :token' +
+            ' AND Status__c != \'Closed\'' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'token' => token },
+            AccessLevel.SYSTEM_MODE
+        );
 
         if (payments.isEmpty()) {
             result.errorMessage = 'No open payment found for this link.';
@@ -60,16 +64,18 @@ public without sharing class Ctrl_HubPayment {
         result.beneficiary   = p.Administration__r?.Subscription25__Billing_Name__c;
         result.publishableKey = p.Administration__r?.PayProv_Account__r?.stripeGC__Publishable_Key__c;
 
-        List<AccountContactRelation> contactRels = [
-            SELECT Contact.FirstName, Contact.LastName, Contact.Email,
-                   IsPaymentContact__c, isMainContact__c
-            FROM AccountContactRelation
-            WHERE AccountId = :p.Account__c
-            AND IsActive = true
-            AND (IsPaymentContact__c = true OR isMainContact__c = true)
-            ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC
-            LIMIT 1
-        ];
+        List<AccountContactRelation> contactRels = Database.queryWithBinds(
+            'SELECT Contact.FirstName, Contact.LastName, Contact.Email,' +
+            '       IsPaymentContact__c, isMainContact__c' +
+            ' FROM AccountContactRelation' +
+            ' WHERE AccountId = :accountId' +
+            ' AND IsActive = true' +
+            ' AND (IsPaymentContact__c = true OR isMainContact__c = true)' +
+            ' ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'accountId' => p.Account__c },
+            AccessLevel.SYSTEM_MODE
+        );
         if (!contactRels.isEmpty()) {
             result.contactFirstName = contactRels[0].Contact.FirstName;
             result.contactLastName  = contactRels[0].Contact.LastName;
@@ -92,27 +98,45 @@ public without sharing class Ctrl_HubPayment {
         String stripeCustomerId = p.Account__r?.PayProv_CustomerId__c;
         String mandateId        = p.Account__r?.PayProv_MandateId__c;
         String paymentMethodId  = p.Account__r?.PayProv_PaymentMethodId__c;
+        String ddMethod         = p.Administration__r?.PayProv_DirectDebit_PaymentMethod__c;
+        if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
 
-        Boolean setupFinalized = String.isNotBlank(mandateId) && String.isNotBlank(paymentMethodId);
+        if (String.isBlank(stripeCustomerId)) {
+            result.errorMessage = 'Payment account is not yet configured for direct debit. Please contact support.';
+            return result;
+        }
 
-        if (!setupFinalized) {
-            // Mandate not in place yet — create a SetupIntent so the customer can authorise direct debit
-            result.mode = 'setup';
-            try {
-                result.clientSecret = createSetupIntent(stripeAccountId, stripeCustomerId);
-            } catch (Exception e) {
-                result.errorMessage = 'Could not initialise setup: ' + e.getMessage();
-            }
-        } else {
-            // Mandate in place — create PaymentIntent using the stored payment method
+        if ('bacs_debit'.equals(ddMethod)) {
+            // BACS: always PaymentIntent — Payment Element collects bank details and establishes mandate in one step
             result.mode = 'payment';
             try {
                 result.clientSecret = createPaymentIntent(
-                    stripeAccountId, stripeCustomerId, paymentMethodId,
-                    result.amountCents, result.currency_x, p.Id
+                    stripeAccountId, stripeCustomerId, paymentMethodId, mandateId,
+                    result.amountCents, result.currency_x, ddMethod, p.Id
                 );
             } catch (Exception e) {
                 result.errorMessage = 'Could not initialise payment: ' + e.getMessage();
+            }
+        } else {
+            // SEPA / ACH: SetupIntent first to collect bank details and create mandate; PaymentIntent once mandate is on file
+            Boolean setupFinalized = String.isNotBlank(mandateId) && String.isNotBlank(paymentMethodId);
+            if (!setupFinalized) {
+                result.mode = 'setup';
+                try {
+                    result.clientSecret = createSetupIntent(stripeAccountId, stripeCustomerId, ddMethod, p.Id);
+                } catch (Exception e) {
+                    result.errorMessage = 'Could not initialise setup: ' + e.getMessage();
+                }
+            } else {
+                result.mode = 'payment';
+                try {
+                    result.clientSecret = createPaymentIntent(
+                        stripeAccountId, stripeCustomerId, paymentMethodId, mandateId,
+                        result.amountCents, result.currency_x, ddMethod, p.Id
+                    );
+                } catch (Exception e) {
+                    result.errorMessage = 'Could not initialise payment: ' + e.getMessage();
+                }
             }
         }
 
@@ -120,27 +144,36 @@ public without sharing class Ctrl_HubPayment {
     }
 
     private static String createPaymentIntent(
-        String accountId, String customerId, String paymentMethodId,
-        Integer amountCents, String currencyCode, String paymentId
+        String accountId, String customerId, String paymentMethodId, String mandateId,
+        Integer amountCents, String currencyCode, String ddMethod, String paymentId
     ) {
+        List<String> body = new List<String>{
+            'amount=' + amountCents,
+            'currency=' + currencyCode.toLowerCase(),
+            'customer=' + customerId,
+            'payment_method_types[]=' + ddMethod,
+            'metadata[PaymentID]=' + paymentId,
+            'metadata[PaymentType]=Direct Debit'
+        };
+        if (String.isNotBlank(paymentMethodId)) {
+            body.add('payment_method=' + paymentMethodId);
+        }
+        if (String.isNotBlank(mandateId)) {
+            body.add('mandate=' + mandateId);
+        }
+        // BACS first-time: no existing mandate yet — instruct Stripe to create one for future off-session charges
+        if ('bacs_debit'.equals(ddMethod) && String.isBlank(mandateId)) {
+            body.add('setup_future_usage=off_session');
+        }
         stripeGC.RawInvocableParameters params = new stripeGC.RawInvocableParameters();
         params.method    = 'POST';
         params.endpoint  = '/v1/payment_intents';
         params.accountId = accountId;
-        params.requestBody = String.join(new List<String>{
-            'amount=' + amountCents,
-            'currency=' + currencyCode.toLowerCase(),
-            'customer=' + customerId,
-            'payment_method=' + paymentMethodId,
-            'payment_method_types[]=sepa_debit',
-            'metadata[PaymentID]=' + paymentId,
-            'metadata[PaymentType]=Direct Debit'
-        }, '&');
-
+        params.requestBody = String.join(body, '&');
         return callStripe(params);
     }
 
-    private static String createSetupIntent(String accountId, String customerId) {
+    private static String createSetupIntent(String accountId, String customerId, String ddMethod, String paymentId) {
         stripeGC.RawInvocableParameters params = new stripeGC.RawInvocableParameters();
         params.method    = 'POST';
         params.endpoint  = '/v1/setup_intents';
@@ -148,10 +181,30 @@ public without sharing class Ctrl_HubPayment {
         params.requestBody = String.join(new List<String>{
             'customer=' + customerId,
             'usage=off_session',
-            'payment_method_types[]=sepa_debit'
+            'payment_method_types[]=' + ddMethod,
+            'metadata[PaymentID]=' + paymentId
         }, '&');
-
         return callStripe(params);
+    }
+
+    @AuraEnabled(cacheable=false)
+    public static void finalizeCheckout(String token, String intentMode) {
+        if (String.isBlank(token)) return;
+
+        List<Payment__c> payments = Database.queryWithBinds(
+            'SELECT Id FROM Payment__c' +
+            ' WHERE externalId__c = :token' +
+            ' AND Status__c != \'Closed\'' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'token' => token },
+            AccessLevel.SYSTEM_MODE
+        );
+        if (payments.isEmpty()) return;
+
+        // Payment method and mandate are stored by the Stripe_Event_c trigger (Svc_StripeEventProcessor).
+        // Here we only update the Payment status so the customer sees the result immediately.
+        String newStatus = ('setup'.equals(intentMode)) ? 'Setup' : 'Processing';
+        Database.update(new Payment__c(Id = payments[0].Id, Status__c = newStatus), AccessLevel.SYSTEM_MODE);
     }
 
     private static String callStripe(stripeGC.RawInvocableParameters params) {
@@ -166,27 +219,31 @@ public without sharing class Ctrl_HubPayment {
     public static void sendSetupEmail(String token) {
         if (String.isBlank(token)) return;
 
-        List<Payment__c> payments = [
-            SELECT Id, externalId__c, Account__c,
-                   Administration__r.Subscription25__Billing_Name__c
-            FROM Payment__c
-            WHERE externalId__c = :token
-            AND Status__c != 'Closed'
-            LIMIT 1
-        ];
+        List<Payment__c> payments = Database.queryWithBinds(
+            'SELECT Id, externalId__c, Account__c,' +
+            '       Administration__r.Subscription25__Billing_Name__c' +
+            ' FROM Payment__c' +
+            ' WHERE externalId__c = :token' +
+            ' AND Status__c != \'Closed\'' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'token' => token },
+            AccessLevel.SYSTEM_MODE
+        );
         if (payments.isEmpty()) return;
 
         Payment__c p = payments[0];
 
-        List<AccountContactRelation> contactRels = [
-            SELECT Contact.FirstName, Contact.Email
-            FROM AccountContactRelation
-            WHERE AccountId = :p.Account__c
-            AND IsActive = true
-            AND (IsPaymentContact__c = true OR isMainContact__c = true)
-            ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC
-            LIMIT 1
-        ];
+        List<AccountContactRelation> contactRels = Database.queryWithBinds(
+            'SELECT Contact.FirstName, Contact.Email' +
+            ' FROM AccountContactRelation' +
+            ' WHERE AccountId = :accountId' +
+            ' AND IsActive = true' +
+            ' AND (IsPaymentContact__c = true OR isMainContact__c = true)' +
+            ' ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'accountId' => p.Account__c },
+            AccessLevel.SYSTEM_MODE
+        );
         if (contactRels.isEmpty() || String.isBlank(contactRels[0].Contact.Email)) return;
 
         String contactEmail = contactRels[0].Contact.Email;
