@@ -34,12 +34,6 @@ global class Batch_DataRetentionCleanup extends Subscription25.Job_AbstractBatch
             bc.getJobId()
         );
 
-        Integer totalPolicies = [
-            SELECT COUNT()
-            FROM DataRetentionPolicy__mdt
-            WHERE IsActive__c = true
-        ];
-
         log.saveAll();
 
         this.mainLogGuid = log.getParentGuid();

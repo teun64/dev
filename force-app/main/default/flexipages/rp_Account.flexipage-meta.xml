@@ -3976,6 +3976,12 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
+                <componentName>c:stripeMandateView</componentName>
+                <identifier>c_stripeMandateView1</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
                     <value>Facet-a0d44ad2-299d-45f7-b2be-feae04872dd0</value>

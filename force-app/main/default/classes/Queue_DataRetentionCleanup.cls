@@ -1,4 +1,6 @@
 public class Queue_DataRetentionCleanup implements Queueable {
+    private static final Integer MAX_RECORDS_PER_RUN = 9000;
+
     private DataRetentionPolicy__mdt policy;
     private String parentGuid;
 
@@ -29,7 +31,8 @@ public class Queue_DataRetentionCleanup implements Queueable {
                 'Retention completed successfully. ' +
                 'Object: ' + result.objectName +
                 ', Mode: ' + result.mode +
-                ', Processed: ' + result.processedCount
+                ', Processed: ' + result.processedCount +
+                ', Failed: ' + result.failedCount
             );
 
         } catch (Exception e) {
@@ -86,26 +89,24 @@ public class Queue_DataRetentionCleanup implements Queueable {
             ' WHERE ' + dateField +
             ' < ' + cutoffFormatted;
 
-        System.debug('Retention Query: ' + baseQuery);
-
         if (deleteMode == 'SOFT') {
-            baseQuery += 
-                ' AND ((' + fieldName + '= false ) OR (' + fieldName + ' = null ))';        
+            baseQuery +=
+                ' AND ((' + fieldName + '= false ) OR (' + fieldName + ' = null ))';
         }
-
-        System.debug('Retention Query: ' + baseQuery);
 
         if (!String.isBlank(policy.AdditionalFilter__c)) {
             baseQuery +=
                 ' AND (' + policy.AdditionalFilter__c + ')';
         }
 
+        // Cap the result set so a single run can never exceed the per-transaction
+        // DML row limit (10,000) - the Logger's own upserts in saveAll() also count
+        // against that limit. Remaining records are picked up by the next scheduled run.
+        baseQuery += ' LIMIT ' + MAX_RECORDS_PER_RUN;
+
         System.debug('Retention Query: ' + baseQuery);
 
         List<SObject> records = Database.query(baseQuery);
-
-        System.debug('Retention Query: ' + baseQuery);
-        System.debug(records);
 
         result.processedCount = records.size();
 
@@ -114,9 +115,14 @@ public class Queue_DataRetentionCleanup implements Queueable {
         }
 
         if (deleteMode == 'SOFT') {
-            applySoftDelete(objectName, records, fieldName);
+            result.failedCount = applySoftDelete(objectName, records, fieldName);
+        } else if (deleteMode == 'HARD') {
+            result.failedCount = applyHardDelete(records);
         } else {
-            applyHardDelete(records);
+            throw new System.IllegalArgumentException(
+                'Unsupported DeleteMode__c value \'' + deleteMode +
+                '\' on policy ' + policy.DeveloperName + '. Expected HARD or SOFT.'
+            );
         }
 
         return result;
@@ -126,31 +132,56 @@ public class Queue_DataRetentionCleanup implements Queueable {
     // =========================
     // HARD DELETE
     // =========================
-    private void applyHardDelete(List<SObject> records) {
-        delete records;
+    private Integer applyHardDelete(List<SObject> records) {
+        List<Database.DeleteResult> deleteResults = Database.delete(records, false);
+        return countFailures(deleteResults);
     }
 
     // =========================
     // SOFT DELETE
     // =========================
-    private void applySoftDelete(
+    private Integer applySoftDelete(
         String objectName,
         List<SObject> records,
         String fieldName
     ) {
         for (SObject rec : records) {
-        
             rec.put(fieldName, true);
-            System.debug('Soft deleting record: ' + rec);
         }
-        System.debug('Before Update - Soft deleting record: ' + records);
-        update records;
-        System.debug('After Update - Soft deleting record: ' + records);
+        List<Database.SaveResult> saveResults = Database.update(records, false);
+        return countFailures(saveResults);
+    }
+
+    private Integer countFailures(List<Database.DeleteResult> deleteResults) {
+        Integer failures = 0;
+        for (Database.DeleteResult dr : deleteResults) {
+            if (!dr.isSuccess()) {
+                failures++;
+                for (Database.Error err : dr.getErrors()) {
+                    System.debug(LoggingLevel.ERROR, 'Retention hard delete failed: ' + err.getMessage());
+                }
+            }
+        }
+        return failures;
+    }
+
+    private Integer countFailures(List<Database.SaveResult> saveResults) {
+        Integer failures = 0;
+        for (Database.SaveResult sr : saveResults) {
+            if (!sr.isSuccess()) {
+                failures++;
+                for (Database.Error err : sr.getErrors()) {
+                    System.debug(LoggingLevel.ERROR, 'Retention soft delete failed: ' + err.getMessage());
+                }
+            }
+        }
+        return failures;
     }
 
 
     private class RetentionResult {
         Integer processedCount = 0;
+        Integer failedCount = 0;
         String mode;
         String objectName;
     }

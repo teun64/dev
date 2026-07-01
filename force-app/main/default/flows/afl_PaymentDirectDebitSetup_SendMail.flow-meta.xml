@@ -10,11 +10,10 @@
         <connector>
             <targetReference>ass_01_Commit_Mail</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>ass_01_Case</targetReference>
+        </faultConnector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>recipientAddresses</name>
-            <value/>
-        </inputParameters>
         <inputParameters>
             <name>senderType</name>
             <value>
@@ -149,7 +148,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dgr_01_EmailTemplate</targetReference>
+            <targetReference>dgr_02_Administration</targetReference>
         </connector>
     </assignments>
     <constants>
@@ -191,7 +190,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>dgr_01_EmailTemplate</targetReference>
+                <targetReference>dgr_02_Administration</targetReference>
             </connector>
             <label>Record</label>
         </rules>
@@ -211,6 +210,13 @@
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>VOrgWideEmaiAddress</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>paymentRecord.Contact__c</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -299,17 +305,17 @@
         <name>fMailTemplate</name>
         <dataType>String</dataType>
         <expression>{!cMailTemplateBase} +
-BLANKVALUE(TEXT({!paymentRecord.Administration__r.Reseller__c}),&apos;0&apos;) +
-&apos;_&apos;  + 
+BLANKVALUE(TEXT({!paymentRecord.Reseller__c}),&apos;0&apos;) +
+&apos;_&apos;  +
 BLANKVALUE(TEXT({!paymentRecord.Account__r.Sales_Language__c}),&apos;EN&apos;)</expression>
     </formulas>
     <formulas>
         <name>fMailTemplateDefault</name>
         <dataType>String</dataType>
         <expression>{!cMailTemplateBase} +
-BLANKVALUE(TEXT({!paymentRecord.Administration__r.Reseller__c}),&apos;0&apos;) +
-&apos;_&apos;  + 
-BLANKVALUE(TEXT({!paymentRecord.Administration__r.Language_Default__c}),&apos;EN&apos;)</expression>
+BLANKVALUE(TEXT({!paymentRecord.Reseller__c}),&apos;0&apos;) +
+&apos;_&apos;  +
+BLANKVALUE(TEXT({!dgr_02_Administration.Language_Default__c}),&apos;EN&apos;)</expression>
     </formulas>
     <interviewLabel>afl - Payment - Direct Debit Setup - Mail {!$Flow.CurrentDateTime}</interviewLabel>
     <label>afl - Payment - Direct Debit Setup - Send Mail</label>
@@ -342,6 +348,27 @@ BLANKVALUE(TEXT({!paymentRecord.Administration__r.Language_Default__c}),&apos;EN
         </connector>
         <inputReference>rCase</inputReference>
     </recordCreates>
+    <recordLookups>
+        <name>dgr_02_Administration</name>
+        <label>2. Administration</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dgr_01_EmailTemplate</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>paymentRecord.Administration__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Subscription25__Administration__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordLookups>
         <name>dgr_01_EmailTemplate</name>
         <label>1. Email Template</label>
@@ -379,7 +406,7 @@ BLANKVALUE(TEXT({!paymentRecord.Administration__r.Language_Default__c}),&apos;EN
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>paymentRecord.Administration__r.Subscription25__Organization_Wide_Email__c</elementReference>
+                <elementReference>dgr_02_Administration.Subscription25__Organization_Wide_Email__c</elementReference>
             </value>
         </filters>
         <object>OrgWideEmailAddress</object>

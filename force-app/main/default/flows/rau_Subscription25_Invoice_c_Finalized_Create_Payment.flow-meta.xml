@@ -172,6 +172,13 @@
                 <elementReference>cSourceInvoice</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rPayment.Contact__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_03_ContactPayment.ContactId</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>dcr_01_Payment</targetReference>
         </connector>
@@ -308,6 +315,41 @@ IF({!$Record.Payment_Is_Paid__c},&apos;Paid&apos;,&apos;New&apos;)</expression>
         <inputReference>rPayment</inputReference>
     </recordCreates>
     <recordLookups>
+        <name>dgr_03_ContactPayment</name>
+        <label>3. Contact (Payment)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dgr_01_Payment_Settings</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Account__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Roles</field>
+            <operator>Contains</operator>
+            <value>
+                <stringValue>Payment</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>AccountContactRelation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>dgr_01_Payment_Settings</name>
         <label>1. Payment Settings</label>
         <locationX>0</locationX>
@@ -382,7 +424,7 @@ IF({!$Record.Payment_Is_Paid__c},&apos;Paid&apos;,&apos;New&apos;)</expression>
         <recordTriggerType>Update</recordTriggerType>
         <scheduledPaths>
             <connector>
-                <targetReference>dgr_01_Payment_Settings</targetReference>
+                <targetReference>dgr_03_ContactPayment</targetReference>
             </connector>
             <pathType>AsyncAfterCommit</pathType>
         </scheduledPaths>

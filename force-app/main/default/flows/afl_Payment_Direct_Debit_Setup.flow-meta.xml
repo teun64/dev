@@ -8,7 +8,7 @@
         <actionName>Util_Crypto</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
+            <targetReference>dec_02_Stripe_Customer</targetReference>
         </connector>
         <flowTransactionModel>Automatic</flowTransactionModel>
         <inputParameters>
@@ -218,6 +218,22 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>No Payment provider or administration  linked to the Administraton Payment setup not Possible</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Payment_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_05_Message_No_Stripe_Customer</name>
+        <label>5. Message (No Stripe Customer)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>AlertMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Direct Debit setup email not sent: no Stripe customer found for this account.</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -445,6 +461,56 @@
             <label>No (Provider)</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>dec_03_Stripe_Customer</name>
+        <label>3. Stripe Customer (Created)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_05_Message_No_Stripe_Customer</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Created</defaultConnectorLabel>
+        <rules>
+            <name>dec_03_Stripe_Customer_Created</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountRecord.PayProv_CustomerId__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
+            </connector>
+            <label>Created</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_02_Stripe_Customer</name>
+        <label>2. Stripe Customer</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>sfl_01_Stripe_Customer</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Customer</defaultConnectorLabel>
+        <rules>
+            <name>dec_02_Stripe_Customer_Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountRecord.PayProv_CustomerId__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
+            </connector>
+            <label>Customer Exists</label>
+        </rules>
+    </decisions>
     <environments>Default</environments>
     <formulas>
         <name>fAmountGrossCents</name>
@@ -574,6 +640,32 @@
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>sfl_01_Stripe_Customer</name>
+        <label>1. Stripe Customer</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_03_Stripe_Customer</targetReference>
+        </connector>
+        <flowName>afl_Account_Stripe_Customer_Create_Update</flowName>
+        <inputAssignments>
+            <name>accountRecord</name>
+            <value>
+                <elementReference>accountRecord</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>recordId</name>
+            <value>
+                <elementReference>paymentRecord.Account__c</elementReference>
+            </value>
+        </inputAssignments>
+        <outputAssignments>
+            <assignToReference>accountRecord</assignToReference>
+            <name>accountRecord</name>
+        </outputAssignments>
+    </subflows>
     <subflows>
         <name>act_01_Payment_Direct_Debit_Setup_Send_Mail</name>
         <label>1. afl - Payment - Direct Debit Setup - Send Mail</label>
