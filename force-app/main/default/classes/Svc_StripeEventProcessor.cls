@@ -145,10 +145,10 @@ public without sharing class Svc_StripeEventProcessor {
         }
 
         // 4. DML
-        if (!eventUpdates.isEmpty())           update eventUpdates;
-        if (!accountMap.isEmpty())             update accountMap.values();
-        if (!paymentUpdates.isEmpty())         update paymentUpdates.values();
-        if (!newCases.isEmpty())               insert newCases;
+        if (!eventUpdates.isEmpty())   update eventUpdates;
+        if (!accountMap.isEmpty())     update accountMap.values();
+        if (!paymentUpdates.isEmpty()) Database.update(paymentUpdates.values(), AccessLevel.SYSTEM_MODE);
+        if (!newCases.isEmpty())       insert newCases;
     }
 
     // ──────────────────────────────────────────────────────────────────────────
