@@ -660,7 +660,7 @@ global without sharing class Rest_UpsertAccount {
 			Boolean emptyRoles = (curACR.roles == null) || (curACR.roles == '');
 			Boolean rolesUpdate = false;
 
-			if ( (emptyRoles) || (!curACR.roles.contains('Invoice')) && (acc.Contact_Billing__c == curACR.ContactId)) {
+			if ( ((emptyRoles) || (!curACR.roles.contains('Invoice'))) && (acc.Contact_Billing__c == curACR.ContactId)) {
 				if (emptyRoles) {
 					curACR.roles = '';
 					emptyRoles = false;
@@ -672,7 +672,7 @@ global without sharing class Rest_UpsertAccount {
 				rolesUpdate = true;
 			}
 
-			if ((emptyRoles) || (!curACR.roles.contains('Shipping')) && (acc.Contact_Shipping__c == curACR.ContactId )) {
+			if (((emptyRoles) || (!curACR.roles.contains('Shipping'))) && (acc.Contact_Shipping__c == curACR.ContactId )) {
 				if (emptyRoles) {
 					curACR.roles = '';
 					emptyRoles = false;
@@ -684,7 +684,7 @@ global without sharing class Rest_UpsertAccount {
 				rolesUpdate = true;
 			}
 
-			if ((emptyRoles) || (!curACR.roles.contains('Main')) && (acc.Contact_Person__c == curACR.ContactId)) {
+			if (((emptyRoles) || (!curACR.roles.contains('Main'))) && (acc.Contact_Person__c == curACR.ContactId)) {
 				if (emptyRoles) {
 					curACR.roles = '';
 					emptyRoles = false;
