@@ -3,6 +3,63 @@
     <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
 
+    <!-- ═══════ ASSIGNMENTS ═══════ -->
+    <assignments>
+        <name>ass_Seed_Case</name>
+        <label>Seed Case</label>
+        <locationX>176</locationX>
+        <locationY>240</locationY>
+        <assignmentItems>
+            <assignToReference>rCase</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Screen_Create_Opportunity</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_Relate_Opp_To_Case</name>
+        <label>Relate Opportunity to Case</label>
+        <locationX>176</locationX>
+        <locationY>600</locationY>
+        <assignmentItems>
+            <assignToReference>rCase.Opportunity__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dcr_Create_Opportunity.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_Close_Case</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_Close_Case</name>
+        <label>Close Case</label>
+        <locationX>176</locationX>
+        <locationY>840</locationY>
+        <assignmentItems>
+            <assignToReference>rCase.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rCase.Reason</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Opportunity Created</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dur_Case</targetReference>
+        </connector>
+    </assignments>
+
     <!-- ═══════ DECISIONS ═══════ -->
     <decisions>
         <name>Check_Has_Account</name>
@@ -24,7 +81,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Screen_Create_Opportunity</targetReference>
+                <targetReference>ass_Seed_Case</targetReference>
             </connector>
             <label>Has Account</label>
         </rules>
@@ -33,9 +90,9 @@
         <name>Check_Close_Case</name>
         <label>Close Case?</label>
         <locationX>176</locationX>
-        <locationY>600</locationY>
+        <locationY>720</locationY>
         <defaultConnector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>dur_Case</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
@@ -49,7 +106,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>dur_Close_Case</targetReference>
+                <targetReference>ass_Close_Case</targetReference>
             </connector>
             <label>Yes</label>
         </rules>
@@ -136,9 +193,9 @@
         <name>dcr_Create_Opportunity</name>
         <label>Create Opportunity</label>
         <locationX>176</locationX>
-        <locationY>360</locationY>
+        <locationY>480</locationY>
         <connector>
-            <targetReference>dur_Relate_Opp_To_Case</targetReference>
+            <targetReference>ass_Relate_Opp_To_Case</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Screen_Error</targetReference>
@@ -203,64 +260,17 @@
 
     <!-- ═══════ RECORD UPDATES ═══════ -->
     <recordUpdates>
-        <name>dur_Relate_Opp_To_Case</name>
-        <label>Relate Opportunity to Case</label>
+        <name>dur_Case</name>
+        <label>Case</label>
         <locationX>176</locationX>
-        <locationY>480</locationY>
-        <connector>
-            <targetReference>Check_Close_Case</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Screen_Error</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>recordId.Id</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>Opportunity__c</field>
-            <value>
-                <elementReference>dcr_Create_Opportunity</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Case</object>
-    </recordUpdates>
-    <recordUpdates>
-        <name>dur_Close_Case</name>
-        <label>Close Case</label>
-        <locationX>176</locationX>
-        <locationY>720</locationY>
+        <locationY>960</locationY>
         <connector>
             <targetReference>Screen_Success</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Screen_Error</targetReference>
         </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>recordId.Id</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>Reason</field>
-            <value>
-                <stringValue>Opportunity Created</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Closed</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Case</object>
+        <inputReference>rCase</inputReference>
     </recordUpdates>
 
     <runInMode>SystemModeWithoutSharing</runInMode>
@@ -286,7 +296,7 @@
         <name>Screen_Create_Opportunity</name>
         <label>Create Opportunity</label>
         <locationX>176</locationX>
-        <locationY>240</locationY>
+        <locationY>360</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -379,7 +389,7 @@
         <name>Screen_Success</name>
         <label>Opportunity Created</label>
         <locationX>176</locationX>
-        <locationY>840</locationY>
+        <locationY>1080</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -404,6 +414,12 @@
                     <elementReference>chk_OpenOpportunity</elementReference>
                 </value>
             </inputParameters>
+            <inputParameters>
+                <name>parentRecordId</name>
+                <value>
+                    <elementReference>recordId.AccountId</elementReference>
+                </value>
+            </inputParameters>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
@@ -412,7 +428,7 @@
         <name>Screen_Error</name>
         <label>Something went wrong</label>
         <locationX>440</locationX>
-        <locationY>840</locationY>
+        <locationY>1080</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -436,6 +452,14 @@
     <status>Active</status>
 
     <!-- ═══════ VARIABLES ═══════ -->
+    <variables>
+        <name>rCase</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Case</objectType>
+    </variables>
     <variables>
         <name>recordId</name>
         <dataType>SObject</dataType>
