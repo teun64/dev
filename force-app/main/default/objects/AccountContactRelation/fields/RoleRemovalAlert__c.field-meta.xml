@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RoleRemovalAlert__c</fullName>
+    <description>Automatically populated by afl_AccountContactRelation_Roles when one or more Roles are removed because the Contact has no email address.</description>
+    <externalId>false</externalId>
+    <label>Role Removal Alert</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+</CustomField>

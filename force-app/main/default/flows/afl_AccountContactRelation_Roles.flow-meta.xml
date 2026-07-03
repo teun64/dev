@@ -14,50 +14,8 @@
                 <elementReference>accountContactRelationRecord.AccountId</elementReference>
             </value>
         </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.Contact_Billing__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fContactInvoice</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.Subscription25__UBL_Billing_Attendant_To__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fContactDigital</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.Subscription25__Reminder_Contact__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fContactReminder</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.Subscription25__Billing_Attendant_To__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fContactInvoice</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.Contact_Shipping__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fContactShipping</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.Contact_person__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fContactMain</elementReference>
-            </value>
-        </assignmentItems>
         <connector>
-            <targetReference>dgr_01_AccountContactRelation</targetReference>
+            <targetReference>dec_01_Is_Invoice_Contact</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -70,6 +28,267 @@
             <operator>Assign</operator>
             <value>
                 <elementReference>dgr_01_AccountContactRelationRecord</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_InitRoleCheck</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_InitRoleCheck</name>
+        <label>1. Init Role Check</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vRoles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.Roles</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vCurrentACRUpdate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Check_Invoice_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Remove_Invoice_NoEmail</name>
+        <label>1. Remove Invoice (No Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vRoles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fRolesInvoiceRemove</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>cRolesInvoice</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>;</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vCurrentACRUpdate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Check_Digital_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Remove_Digital_NoEmail</name>
+        <label>1. Remove Digital (No Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vRoles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fRolesDigitalRemove</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>cRolesDigital</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>;</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vCurrentACRUpdate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Check_Reminder_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Remove_Reminder_NoEmail</name>
+        <label>1. Remove Reminder (No Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vRoles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fRolesReminderRemove</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>cRolesReminder</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>;</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vCurrentACRUpdate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Check_Payment_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Remove_Payment_NoEmail</name>
+        <label>1. Remove Payment (No Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vRoles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fRolesPaymentRemove</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>cRolesPayment</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>;</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vCurrentACRUpdate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Check_Main_Email</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_Remove_Main_NoEmail</name>
+        <label>1. Remove Main (No Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vRoles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fRolesMainRemove</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>cRolesMain</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vRoleRemovalMessage</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>;</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vCurrentACRUpdate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Apply_Role_Removal</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_ApplyRoleRemoval</name>
+        <label>1. Apply Role Removal</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>accountContactRelationRecord.Roles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>vRoles</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>accountContactRelationRecord.RolesUpdateStage__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>2.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>accountContactRelationRecord.RoleRemovalAlert__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fRoleRemovalAlertHtml</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dur_01_CurrentACR</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_RefreshACR</name>
+        <label>1. Refresh ACR</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>accountContactRelationRecord</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Refresh_ACR</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -90,6 +309,36 @@
         </assignmentItems>
         <connector>
             <targetReference>dec_01_Update_Account</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_ContactBilling</name>
+        <label>1. Contact Billing</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rAccount.Contact_Billing__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rAccount.Subscription25__Billing_Attendant_To__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vUpdateAccount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Is_Main_Contact</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -139,6 +388,29 @@
         </connector>
     </assignments>
     <assignments>
+        <name>ass_01_ContactMain</name>
+        <label>1. Contact Main</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rAccount.Contact_person__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vUpdateAccount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Is_Shipping_Contact</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>ass_01_ContactMain_Remove</name>
         <label>1. Remove Main (Contact)</label>
         <locationX>0</locationX>
@@ -182,6 +454,75 @@
         </assignmentItems>
         <connector>
             <targetReference>dec_01_Contact_Shipping</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_ContactShipping</name>
+        <label>1. Contact Shipping</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rAccount.Contact_Shipping__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vUpdateAccount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Is_Digital_Contact</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_ContactDigital</name>
+        <label>1. Contact Digital</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rAccount.Subscription25__UBL_Billing_Attendant_To__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vUpdateAccount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Is_Reminder_Contact</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_ContactReminder</name>
+        <label>1. Contact Reminder</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rAccount.Subscription25__Reminder_Contact__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vUpdateAccount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dgr_01_AccountContactRelation</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -364,6 +705,191 @@
         </value>
     </constants>
     <decisions>
+        <name>dec_01_Check_Invoice_Email</name>
+        <label>1. Check Invoice (Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Check_Digital_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Check_Invoice_Email_Remove</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isInvoiceContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Remove_Invoice_NoEmail</targetReference>
+            </connector>
+            <label>Remove</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Check_Digital_Email</name>
+        <label>1. Check Digital (Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Check_Reminder_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Check_Digital_Email_Remove</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isDigitalContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Remove_Digital_NoEmail</targetReference>
+            </connector>
+            <label>Remove</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Check_Reminder_Email</name>
+        <label>1. Check Reminder (Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Check_Payment_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Check_Reminder_Email_Remove</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isReminderContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Remove_Reminder_NoEmail</targetReference>
+            </connector>
+            <label>Remove</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Check_Payment_Email</name>
+        <label>1. Check Payment (Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Check_Main_Email</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Check_Payment_Email_Remove</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.IsPaymentContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Remove_Payment_NoEmail</targetReference>
+            </connector>
+            <label>Remove</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Check_Main_Email</name>
+        <label>1. Check Main (Email)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Apply_Role_Removal</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Check_Main_Email_Remove</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isMainContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Remove_Main_NoEmail</targetReference>
+            </connector>
+            <label>Remove</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Apply_Role_Removal</name>
+        <label>1. Apply Role Removal</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>acc_01_Account</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Apply_Role_Removal_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>vCurrentACRUpdate</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_ApplyRoleRemoval</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>dec_01_Contact_Shipping</name>
         <label>1. Shipping (Contact)</label>
         <locationX>0</locationX>
@@ -524,6 +1050,159 @@
         </rules>
     </decisions>
     <decisions>
+        <name>dec_01_Is_Invoice_Contact</name>
+        <label>1. Is Invoice Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Is_Main_Contact</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Is_Invoice_Contact_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isInvoiceContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_ContactBilling</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Is_Main_Contact</name>
+        <label>1. Is Main Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Is_Shipping_Contact</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Is_Main_Contact_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isMainContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_ContactMain</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Is_Shipping_Contact</name>
+        <label>1. Is Shipping Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Is_Digital_Contact</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Is_Shipping_Contact_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isShippingContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_ContactShipping</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Is_Digital_Contact</name>
+        <label>1. Is Digital Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Is_Reminder_Contact</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Is_Digital_Contact_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isDigitalContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_ContactDigital</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Is_Reminder_Contact</name>
+        <label>1. Is Reminder Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dgr_01_AccountContactRelation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Is_Reminder_Contact_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountContactRelationRecord.isReminderContact__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fHasValidEmail</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_ContactReminder</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>dec_01_PaymentContact</name>
         <label>1. Payment (Contact)</label>
         <locationX>0</locationX>
@@ -585,26 +1264,12 @@
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
             <name>dec_01_Update_Account_Yes</name>
-            <conditionLogic>or</conditionLogic>
+            <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>rAccount.Subscription25__Billing_Attendant_To__c</leftValueReference>
-                <operator>NotEqualTo</operator>
+                <leftValueReference>vUpdateAccount</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>accountContactRelationRecord.Account.Subscription25__Billing_Attendant_To__c</elementReference>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>rAccount.Subscription25__UBL_Billing_Attendant_To__c</leftValueReference>
-                <operator>NotEqualTo</operator>
-                <rightValue>
-                    <elementReference>accountContactRelationRecord.Account.Subscription25__UBL_Billing_Attendant_To__c</elementReference>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>rAccount.Subscription25__Reminder_Contact__c</leftValueReference>
-                <operator>NotEqualTo</operator>
-                <rightValue>
-                    <elementReference>accountContactRelationRecord.Account.Subscription25__Reminder_Contact__c</elementReference>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -665,29 +1330,14 @@
     </decisions>
     <environments>Default</environments>
     <formulas>
-        <name>fContactDigital</name>
-        <dataType>String</dataType>
-        <expression>IF({!accountContactRelationRecord.isDigitalContact__c},{!accountContactRelationRecord.ContactId},{!accountContactRelationRecord.Account.Subscription25__UBL_Billing_Attendant_To__c})</expression>
+        <name>fHasValidEmail</name>
+        <dataType>Boolean</dataType>
+        <expression>NOT(ISBLANK({!accountContactRelationRecord.Contact.Email}))</expression>
     </formulas>
     <formulas>
-        <name>fContactInvoice</name>
+        <name>fRoleRemovalAlertHtml</name>
         <dataType>String</dataType>
-        <expression>IF({!accountContactRelationRecord.isInvoiceContact__c},{!accountContactRelationRecord.ContactId},{!accountContactRelationRecord.Account.Subscription25__Billing_Attendant_To__c})</expression>
-    </formulas>
-    <formulas>
-        <name>fContactMain</name>
-        <dataType>String</dataType>
-        <expression>IF({!accountContactRelationRecord.isMainContact__c},{!accountContactRelationRecord.ContactId},{!accountContactRelationRecord.Account.Contact_person__c})</expression>
-    </formulas>
-    <formulas>
-        <name>fContactReminder</name>
-        <dataType>String</dataType>
-        <expression>IF({!accountContactRelationRecord.isReminderContact__c},{!accountContactRelationRecord.ContactId},{!accountContactRelationRecord.Account.Subscription25__Reminder_Contact__c})</expression>
-    </formulas>
-    <formulas>
-        <name>fContactShipping</name>
-        <dataType>String</dataType>
-        <expression>IF({!accountContactRelationRecord.isShippingContact__c},{!accountContactRelationRecord.ContactId},{!accountContactRelationRecord.Account.Contact_Shipping__c})</expression>
+        <expression>&apos;ALERT: role(s) removed because &apos; &amp; {!accountContactRelationRecord.Contact.Name} &amp; &apos; has no email address: &apos; &amp; SUBSTITUTE(LEFT({!vRoleRemovalMessage}, LEN({!vRoleRemovalMessage}) - 1), &apos;;&apos;, &apos;, &apos;) &amp; &apos;.&apos;</expression>
     </formulas>
     <formulas>
         <name>fRolesDigitalRemove</name>
@@ -889,6 +1539,27 @@
         <sortOrder>Desc</sortOrder>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>dgr_01_Refresh_ACR</name>
+        <label>1. Refresh ACR (post Role Removal)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>ass_01_RefreshACR</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>accountContactRelationRecord.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>AccountContactRelation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>dur_01_Account</name>
         <label>1. Account</label>
@@ -908,6 +1579,16 @@
             <targetReference>ass_01_Commit</targetReference>
         </connector>
         <inputReference>rcAccountContactRelations</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>dur_01_CurrentACR</name>
+        <label>1. Current ACR (Role Removal)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dgr_01_Refresh_ACR</targetReference>
+        </connector>
+        <inputReference>accountContactRelationRecord</inputReference>
     </recordUpdates>
     <runInMode>SystemModeWithoutSharing</runInMode>
     <start>
@@ -969,11 +1650,38 @@
         </value>
     </variables>
     <variables>
+        <name>vCurrentACRUpdate</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>vRoleRemovalMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <name>vRoles</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vUpdateAccount</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
     </variables>
     <variables>
         <name>vUpdateAccountContactRelation</name>

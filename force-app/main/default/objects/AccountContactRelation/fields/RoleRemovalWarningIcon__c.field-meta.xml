@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RoleRemovalWarningIcon__c</fullName>
+    <description>Shows a warning icon when RoleRemovalAlert__c is populated (a Role was removed because the Contact has no email).</description>
+    <label>Role Removal Warning</label>
+    <type>Text</type>
+    <formula><![CDATA[IF(NOT(ISBLANK(RoleRemovalAlert__c)), IMAGE('/img/msg_icons/warning24.png', 'Role removed - Contact has no email', 16, 16), '')]]></formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <required>false</required>
+</CustomField>
