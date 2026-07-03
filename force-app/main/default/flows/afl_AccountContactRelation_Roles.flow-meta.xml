@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>acc_01_Account</name>
+        <name>ass_01_Account</name>
         <label>1. Account</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -292,7 +292,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>acc_01_Account</targetReference>
+            <targetReference>ass_01_Account</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -561,7 +561,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>X1_reset_Variables</targetReference>
+            <targetReference>ass_01_ResetVariables</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -640,7 +640,7 @@
         </connector>
     </assignments>
     <assignments>
-        <name>X1_reset_Variables</name>
+        <name>ass_01_ResetVariables</name>
         <label>1. (re)Set Variables</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -870,7 +870,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>acc_01_Account</targetReference>
+            <targetReference>ass_01_Account</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
@@ -923,7 +923,7 @@
     </decisions>
     <decisions>
         <name>dec_01_ContactDigital</name>
-        <label>Digital (Billing - Contact)</label>
+        <label>1. Digital (Billing - Contact)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -1244,7 +1244,7 @@
             <name>dec_01_recordId_Set</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>recorId</leftValueReference>
+                <leftValueReference>recordId</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -1313,7 +1313,7 @@
         </defaultConnector>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
-            <name>dec_01_vUpdate_Yes</name>
+            <name>dec_01_vUpdate_List_Yes</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>vUpdateAccountContactRelation</leftValueReference>
@@ -1530,7 +1530,7 @@
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>recorId</elementReference>
+                <elementReference>recordId</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1632,7 +1632,7 @@
         <objectType>AccountContactRelation</objectType>
     </variables>
     <variables>
-        <name>recorId</name>
+        <name>recordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
