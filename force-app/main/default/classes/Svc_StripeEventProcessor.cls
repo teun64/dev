@@ -39,6 +39,26 @@ public without sharing class Svc_StripeEventProcessor {
             }
         }
 
+        // Disputes have no SF Id in metadata — resolve via PaymentIntentId__c stored on Payment__c
+        Map<String, Id> piToPaymentId = new Map<String, Id>();
+        Set<String> disputePiIds = new Set<String>();
+        for (ParsedEvent p : parsed) {
+            if (String.isBlank(p.paymentSfId) && String.isNotBlank(p.paymentIntentId)) {
+                disputePiIds.add(p.paymentIntentId);
+            }
+        }
+        if (!disputePiIds.isEmpty()) {
+            List<Payment__c> piPayments = (List<Payment__c>) Database.queryWithBinds(
+                'SELECT Id, PaymentIntentId__c FROM Payment__c WHERE PaymentIntentId__c IN :piIds',
+                new Map<String, Object>{ 'piIds' => disputePiIds },
+                AccessLevel.SYSTEM_MODE
+            );
+            for (Payment__c pmt : piPayments) {
+                piToPaymentId.put(pmt.PaymentIntentId__c, pmt.Id);
+                paymentSfIds.add(pmt.Id);
+            }
+        }
+
         Map<Id, Payment__c> paymentMap = new Map<Id, Payment__c>();
         if (!paymentSfIds.isEmpty()) {
             paymentMap = new Map<Id, Payment__c>([
@@ -124,22 +144,30 @@ public without sharing class Svc_StripeEventProcessor {
             }
 
             // 3c. Payment status + Case
-            if (String.isNotBlank(p.paymentSfId) && paymentMap.containsKey(p.paymentSfId)) {
-                Payment__c payment = paymentMap.get(p.paymentSfId);
+            Id resolvedPaymentId = String.isNotBlank(p.paymentSfId)
+                ? (Id) p.paymentSfId
+                : piToPaymentId.get(p.paymentIntentId);
+            if (resolvedPaymentId != null && paymentMap.containsKey(resolvedPaymentId)) {
+                Payment__c payment = paymentMap.get(resolvedPaymentId);
                 String newStatus = statusForEvent(p.eventType);
                 if (newStatus != null) {
                     Payment__c pu = new Payment__c(Id = payment.Id, Status__c = newStatus);
+                    if (String.isNotBlank(p.paymentIntentId)) pu.PaymentIntentId__c = p.paymentIntentId;
+                    if (String.isNotBlank(p.setupIntentId))   pu.SetupIntentId__c   = p.setupIntentId;
                     if ('setup_intent.succeeded'.equals(p.eventType)) {
                         pu.Interaction_Status__c = 'Request Processed by Customer';
                         pu.Processed_Date__c     = Date.today();
                     }
                     paymentUpdates.put(payment.Id, pu);
                 }
+                String queueName = 'gqPayment' + payment.Account__r?.Reseller_Name__c;
+                Id queueId   = resellerToQueue.get(queueName);
+                Id contactId = accountToContact.get(payment.Account__c);
                 if (isFailure(p.eventType)) {
-                    String queueName = 'gqPayment' + payment.Account__r?.Reseller_Name__c;
-                    Id queueId   = resellerToQueue.get(queueName);
-                    Id contactId = accountToContact.get(payment.Account__c);
                     newCases.add(buildFailureCase(payment, p.errorMessage, p.errorCode, queueId, contactId));
+                }
+                if (isDispute(p.eventType)) {
+                    newCases.add(buildDisputeCase(payment, p.errorCode, queueId, contactId));
                 }
             }
         }
@@ -201,6 +229,12 @@ public without sharing class Svc_StripeEventProcessor {
                 p.mandateId       = p.objectId;
                 p.paymentMethodId = (String) obj.get('payment_method');
                 // No payment metadata — Account is resolved via payment_method lookup
+
+            } else if ('charge.dispute.created'.equals(evtType)) {
+                // Dispute object: resolve payment via PaymentIntentId__c stored on Payment__c
+                p.paymentIntentId = (String) obj.get('payment_intent');
+                p.errorCode       = (String) obj.get('reason'); // e.g. customer_initiated, bank_cannot_process
+                if (String.isBlank(p.paymentIntentId)) return null;
             } else {
                 return null; // unhandled event type
             }
@@ -217,15 +251,20 @@ public without sharing class Svc_StripeEventProcessor {
     // ──────────────────────────────────────────────────────────────────────────
     private static String statusForEvent(String evtType) {
         if ('payment_intent.processing'.equals(evtType))      return 'Processing';
-        if ('payment_intent.succeeded'.equals(evtType))       return 'Collected';
+        if ('payment_intent.succeeded'.equals(evtType))       return 'Paid';
         if ('payment_intent.payment_failed'.equals(evtType))  return 'Failed';
         if ('setup_intent.succeeded'.equals(evtType))         return 'Setup';
         if ('setup_intent.setup_failed'.equals(evtType))      return 'Failed';
+        if ('charge.dispute.created'.equals(evtType))         return 'Reversed';
         return null;
     }
 
     private static Boolean isFailure(String evtType) {
         return 'payment_intent.payment_failed'.equals(evtType) || 'setup_intent.setup_failed'.equals(evtType);
+    }
+
+    private static Boolean isDispute(String evtType) {
+        return 'charge.dispute.created'.equals(evtType);
     }
 
     private static Case buildFailureCase(Payment__c p, String reason, String code, Id queueId, Id contactId) {
@@ -239,6 +278,24 @@ public without sharing class Svc_StripeEventProcessor {
             AccountId   = p.Account__c,
             ContactId   = contactId,
             Subject     = 'Direct Debit failure – ' + p.externalId__c,
+            Description = description,
+            Origin      = 'Direct Debit',
+            Status      = 'New'
+        );
+        if (queueId != null) c.OwnerId = queueId;
+        return c;
+    }
+
+    private static Case buildDisputeCase(Payment__c p, String reason, Id queueId, Id contactId) {
+        String description =
+            (String.isNotBlank(reason) ? 'Dispute reason: ' + reason + '\n\n' : '') +
+            'Payment reference: ' + p.externalId__c + '\n' +
+            'Amount: ' + p.CurrencyIsoCode + ' ' + p.Amount_Gross__c;
+
+        Case c = new Case(
+            AccountId   = p.Account__c,
+            ContactId   = contactId,
+            Subject     = 'Direct Debit reversal – ' + p.externalId__c,
             Description = description,
             Origin      = 'Direct Debit',
             Status      = 'New'

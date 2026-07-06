@@ -107,6 +107,12 @@ export default class PaymentPage extends LightningElement {
 
     get hasProductLine() { return !!this.payment?.productLine; }
 
+    get billingName() {
+        const first = this.payment?.contactFirstName || '';
+        const last  = this.payment?.contactLastName  || '';
+        return [first, last].filter(Boolean).join(' ') || undefined;
+    }
+
     get invoiceCycleLabel() {
         const months = this.payment?.productLine?.periodMonths;
         if (!months) return null;

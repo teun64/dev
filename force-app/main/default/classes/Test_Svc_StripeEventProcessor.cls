@@ -68,14 +68,15 @@ private class Test_Svc_StripeEventProcessor {
 
         Account updAcc = [SELECT PayProv_PaymentMethodId__c, PayProv_MandateId__c FROM Account WHERE Id = :acc.Id];
         Payment__c updPmt = (Payment__c) Database.queryWithBinds(
-            'SELECT Status__c, Interaction_Status__c, Processed_Date__c FROM Payment__c WHERE Id = :pmtId',
+            'SELECT Status__c, Interaction_Status__c, Processed_Date__c, SetupIntentId__c FROM Payment__c WHERE Id = :pmtId',
             new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
 
-        System.assertEquals('pm_test001',      updAcc.PayProv_PaymentMethodId__c,  'Payment method set on account');
-        System.assertEquals('mandate_test001',  updAcc.PayProv_MandateId__c,        'Mandate ID set on account');
-        System.assertEquals('Setup',           updPmt.Status__c,                   'Payment status = Setup');
+        System.assertEquals('pm_test001',     updAcc.PayProv_PaymentMethodId__c,  'Payment method set on account');
+        System.assertEquals('mandate_test001', updAcc.PayProv_MandateId__c,        'Mandate ID set on account');
+        System.assertEquals('Setup',          updPmt.Status__c,                   'Payment status = Setup');
         System.assertEquals('Request Processed by Customer', updPmt.Interaction_Status__c, 'Interaction status updated');
-        System.assertEquals(Date.today(),      updPmt.Processed_Date__c,           'Processed date = today');
+        System.assertEquals(Date.today(),     updPmt.Processed_Date__c,           'Processed date = today');
+        System.assertEquals('si_test001',     updPmt.SetupIntentId__c,            'Setup intent ID stored on payment');
     }
 
     // ── setup_intent.setup_failed ─────────────────────────────────────────────
@@ -195,10 +196,48 @@ private class Test_Svc_StripeEventProcessor {
         Test.stopTest();
 
         Payment__c updPmt = (Payment__c) Database.queryWithBinds(
-            'SELECT Status__c, Interaction_Status__c FROM Payment__c WHERE Id = :pmtId',
+            'SELECT Status__c, Interaction_Status__c, PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
             new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
-        System.assertEquals('Collected', updPmt.Status__c,             'Payment status = Collected');
-        System.assertEquals('Mail Sent', updPmt.Interaction_Status__c, 'Interaction status unchanged for payment_intent events');
+        System.assertEquals('Paid',        updPmt.Status__c,             'Payment status = Paid');
+        System.assertEquals('Mail Sent',  updPmt.Interaction_Status__c, 'Interaction status unchanged for payment_intent events');
+        System.assertEquals('pi_test001', updPmt.PaymentIntentId__c,    'Payment intent ID stored on payment');
+    }
+
+    // ── charge.dispute.created — Reversed + Case ─────────────────────────────
+
+    @IsTest
+    static void testChargeDisputeCreated() {
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+        // Set PaymentIntentId__c so the dispute can resolve back to this payment
+        Database.update(
+            new Payment__c(Id = pmt.Id, Status__c = 'Paid', PaymentIntentId__c = 'pi_dispute001'),
+            AccessLevel.SYSTEM_MODE
+        );
+
+        Test.startTest();
+        insert new stripeGC__Stripe_Event__c(
+            stripeGC__Event_Name__c   = 'charge.dispute.created',
+            stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
+                'data' => new Map<String, Object>{
+                    'object' => new Map<String, Object>{
+                        'id'             => 'dp_test001',
+                        'status'         => 'needs_response',
+                        'reason'         => 'customer_initiated',
+                        'payment_intent' => 'pi_dispute001'
+                    }
+                }
+            })
+        );
+        Test.stopTest();
+
+        Payment__c updPmt = (Payment__c) Database.queryWithBinds(
+            'SELECT Status__c FROM Payment__c WHERE Id = :pmtId',
+            new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
+        System.assertEquals('Reversed', updPmt.Status__c, 'Payment status = Reversed after dispute');
+
+        List<Case> cases = [SELECT Subject FROM Case];
+        System.assertEquals(1, cases.size(), 'One dispute case created');
+        System.assert(cases[0].Subject.contains('reversal'), 'Case subject contains reversal');
     }
 
     // ── already-processed event is skipped ───────────────────────────────────

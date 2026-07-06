@@ -157,6 +157,8 @@
                             theme="stripe"
                             locale={locale}
                             amount={amountFormatted}
+                            billing-email={payment.contactEmail}
+                            billing-name={billingName}
                             oncheckoutresult={handleCheckoutResult}>
                         </c-payment-checkout>
                     </template>

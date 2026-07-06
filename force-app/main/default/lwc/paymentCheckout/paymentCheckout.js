@@ -9,7 +9,9 @@ export default class PaymentCheckout extends LightningElement {
     @api clientSecret;
     @api mode = 'payment';
     @api theme = 'stripe';
-    @api amount; 
+    @api amount;
+    @api billingEmail;
+    @api billingName;
 
     @api
     get locale() {
@@ -105,7 +107,9 @@ export default class PaymentCheckout extends LightningElement {
                     processingLabel: this.processingLabel,
                     submitPaymentLabel: this.submitPaymentLabel,
                     submitSetupLabel: this.submitSetupLabel,
-                    amount: this.amount
+                    amount: this.amount,
+                    billingEmail: this.billingEmail,
+                    billingName: this.billingName
                 }, '*');
             });
         }

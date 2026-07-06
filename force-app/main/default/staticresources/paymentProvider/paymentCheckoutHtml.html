@@ -130,6 +130,8 @@
             let mode;
             let modeElement;
             let amount = '';
+            let billingEmail;
+            let billingName;
             let submitPaymentLabel = '';
             let submitSetupLabel = '';
             let submitLabel = '';
@@ -166,7 +168,13 @@
                         theme: theme
                     }
                 });
-                intent = elements.create("payment");
+                const elementOptions = {};
+                if (billingEmail || billingName) {
+                    elementOptions.defaultValues = { billingDetails: {} };
+                    if (billingEmail) elementOptions.defaultValues.billingDetails.email = billingEmail;
+                    if (billingName)  elementOptions.defaultValues.billingDetails.name  = billingName;
+                }
+                intent = elements.create("payment", elementOptions);
                 intent.mount(elementContainer);
 
                 observeResize();
@@ -192,7 +200,9 @@
                 if (!data || !data.type) return;
 
                 if (data.type === 'initProvider') {
-                    const { publishableKey, clientSecret, mode, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, amount: formattedAmount } = data;
+                    const { publishableKey, clientSecret, mode, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, amount: formattedAmount, billingEmail: bEmail, billingName: bName } = data;
+                    billingEmail = bEmail;
+                    billingName  = bName;
                     theme = themeSet || 'none';
                     cancelLabel = cancelLbl || 'Cancel';
                     cancelConfirmLabel = cancelConfirmLbl || 'Are you sure you want to cancel this checkout session?';
