@@ -1,5 +1,10 @@
 public without sharing class Svc_StripeEventProcessor {
 
+    private static final Set<String> REVERSAL_CODES = new Set<String>{
+        'payment_reversed',    // BACS
+        'sepa_debit_reversal'  // SEPA
+    };
+
     // ──────────────────────────────────────────────────────────────────────────
     // Entry point — called from Trigger_StripeEvent (after insert, bulk-safe)
     // ──────────────────────────────────────────────────────────────────────────
@@ -36,26 +41,6 @@ public without sharing class Svc_StripeEventProcessor {
             for (Account a : [SELECT Id, PayProv_PaymentMethodId__c FROM Account
                               WHERE PayProv_PaymentMethodId__c IN :paymentMethodIds]) {
                 pmToAccount.put(a.PayProv_PaymentMethodId__c, a.Id);
-            }
-        }
-
-        // Disputes have no SF Id in metadata — resolve via PaymentIntentId__c stored on Payment__c
-        Map<String, Id> piToPaymentId = new Map<String, Id>();
-        Set<String> disputePiIds = new Set<String>();
-        for (ParsedEvent p : parsed) {
-            if (String.isBlank(p.paymentSfId) && String.isNotBlank(p.paymentIntentId)) {
-                disputePiIds.add(p.paymentIntentId);
-            }
-        }
-        if (!disputePiIds.isEmpty()) {
-            List<Payment__c> piPayments = (List<Payment__c>) Database.queryWithBinds(
-                'SELECT Id, PaymentIntentId__c FROM Payment__c WHERE PaymentIntentId__c IN :piIds',
-                new Map<String, Object>{ 'piIds' => disputePiIds },
-                AccessLevel.SYSTEM_MODE
-            );
-            for (Payment__c pmt : piPayments) {
-                piToPaymentId.put(pmt.PaymentIntentId__c, pmt.Id);
-                paymentSfIds.add(pmt.Id);
             }
         }
 
@@ -144,12 +129,10 @@ public without sharing class Svc_StripeEventProcessor {
             }
 
             // 3c. Payment status + Case
-            Id resolvedPaymentId = String.isNotBlank(p.paymentSfId)
-                ? (Id) p.paymentSfId
-                : piToPaymentId.get(p.paymentIntentId);
+            Id resolvedPaymentId = String.isNotBlank(p.paymentSfId) ? (Id) p.paymentSfId : null;
             if (resolvedPaymentId != null && paymentMap.containsKey(resolvedPaymentId)) {
                 Payment__c payment = paymentMap.get(resolvedPaymentId);
-                String newStatus = statusForEvent(p.eventType);
+                String newStatus = statusForEvent(p.eventType, p.errorCode);
                 if (newStatus != null) {
                     Payment__c pu = new Payment__c(Id = payment.Id, Status__c = newStatus);
                     if (String.isNotBlank(p.paymentIntentId)) pu.PaymentIntentId__c = p.paymentIntentId;
@@ -163,11 +146,11 @@ public without sharing class Svc_StripeEventProcessor {
                 String queueName = 'gqPayment' + payment.Account__r?.Reseller_Name__c;
                 Id queueId   = resellerToQueue.get(queueName);
                 Id contactId = accountToContact.get(payment.Account__c);
-                if (isFailure(p.eventType)) {
+                if (isFailure(p.eventType, p.errorCode)) {
                     newCases.add(buildFailureCase(payment, p.errorMessage, p.errorCode, queueId, contactId));
                 }
-                if (isDispute(p.eventType)) {
-                    newCases.add(buildDisputeCase(payment, p.errorCode, queueId, contactId));
+                if (isReversal(p.eventType, p.errorCode)) {
+                    newCases.add(buildReversalCase(payment, p.errorCode, queueId, contactId));
                 }
             }
         }
@@ -230,11 +213,6 @@ public without sharing class Svc_StripeEventProcessor {
                 p.paymentMethodId = (String) obj.get('payment_method');
                 // No payment metadata — Account is resolved via payment_method lookup
 
-            } else if ('charge.dispute.created'.equals(evtType)) {
-                // Dispute object: resolve payment via PaymentIntentId__c stored on Payment__c
-                p.paymentIntentId = (String) obj.get('payment_intent');
-                p.errorCode       = (String) obj.get('reason'); // e.g. customer_initiated, bank_cannot_process
-                if (String.isBlank(p.paymentIntentId)) return null;
             } else {
                 return null; // unhandled event type
             }
@@ -249,22 +227,22 @@ public without sharing class Svc_StripeEventProcessor {
     // ──────────────────────────────────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────────────────────────────────
-    private static String statusForEvent(String evtType) {
+    private static String statusForEvent(String evtType, String errorCode) {
         if ('payment_intent.processing'.equals(evtType))      return 'Processing';
         if ('payment_intent.succeeded'.equals(evtType))       return 'Paid';
-        if ('payment_intent.payment_failed'.equals(evtType))  return 'Failed';
+        if ('payment_intent.payment_failed'.equals(evtType))  return REVERSAL_CODES.contains(errorCode) ? 'Reversed' : 'Failed';
         if ('setup_intent.succeeded'.equals(evtType))         return 'Setup';
         if ('setup_intent.setup_failed'.equals(evtType))      return 'Failed';
-        if ('charge.dispute.created'.equals(evtType))         return 'Reversed';
         return null;
     }
 
-    private static Boolean isFailure(String evtType) {
-        return 'payment_intent.payment_failed'.equals(evtType) || 'setup_intent.setup_failed'.equals(evtType);
+    private static Boolean isFailure(String evtType, String errorCode) {
+        return ('payment_intent.payment_failed'.equals(evtType) && !REVERSAL_CODES.contains(errorCode))
+            || 'setup_intent.setup_failed'.equals(evtType);
     }
 
-    private static Boolean isDispute(String evtType) {
-        return 'charge.dispute.created'.equals(evtType);
+    private static Boolean isReversal(String evtType, String errorCode) {
+        return 'payment_intent.payment_failed'.equals(evtType) && REVERSAL_CODES.contains(errorCode);
     }
 
     private static Case buildFailureCase(Payment__c p, String reason, String code, Id queueId, Id contactId) {
@@ -286,9 +264,9 @@ public without sharing class Svc_StripeEventProcessor {
         return c;
     }
 
-    private static Case buildDisputeCase(Payment__c p, String reason, Id queueId, Id contactId) {
+    private static Case buildReversalCase(Payment__c p, String reason, Id queueId, Id contactId) {
         String description =
-            (String.isNotBlank(reason) ? 'Dispute reason: ' + reason + '\n\n' : '') +
+            (String.isNotBlank(reason) ? 'Reversal code: ' + reason + '\n\n' : '') +
             'Payment reference: ' + p.externalId__c + '\n' +
             'Amount: ' + p.CurrencyIsoCode + ' ' + p.Amount_Gross__c;
 

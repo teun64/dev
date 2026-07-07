@@ -172,7 +172,7 @@ private class Test_Svc_StripeEventProcessor {
         System.assertNotEquals('mandate_inactive001', updAcc.PayProv_MandateId__c, 'Inactive mandate must not be stored');
     }
 
-    // ── payment_intent.succeeded — status Collected, interaction unchanged ────
+    // ── payment_intent.succeeded — status Paid, interaction unchanged ────────
 
     @IsTest
     static void testPaymentIntentSucceeded() {
@@ -203,27 +203,27 @@ private class Test_Svc_StripeEventProcessor {
         System.assertEquals('pi_test001', updPmt.PaymentIntentId__c,    'Payment intent ID stored on payment');
     }
 
-    // ── charge.dispute.created — Reversed + Case ─────────────────────────────
+    // ── payment_intent.payment_failed (BACS reversal) — Reversed + Case ────────
 
     @IsTest
-    static void testChargeDisputeCreated() {
+    static void testPaymentIntentReversed() {
         Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
-        // Set PaymentIntentId__c so the dispute can resolve back to this payment
-        Database.update(
-            new Payment__c(Id = pmt.Id, Status__c = 'Paid', PaymentIntentId__c = 'pi_dispute001'),
-            AccessLevel.SYSTEM_MODE
-        );
 
         Test.startTest();
         insert new stripeGC__Stripe_Event__c(
-            stripeGC__Event_Name__c   = 'charge.dispute.created',
+            stripeGC__Event_Name__c   = 'payment_intent.payment_failed',
             stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
                 'data' => new Map<String, Object>{
                     'object' => new Map<String, Object>{
-                        'id'             => 'dp_test001',
-                        'status'         => 'needs_response',
-                        'reason'         => 'customer_initiated',
-                        'payment_intent' => 'pi_dispute001'
+                        'id'             => 'pi_rev001',
+                        'status'         => 'requires_payment_method',
+                        'customer'       => 'cus_test001',
+                        'payment_method' => 'pm_bacs001',
+                        'metadata'       => new Map<String, Object>{ 'PaymentID' => pmt.Id },
+                        'last_payment_error' => new Map<String, Object>{
+                            'code'    => 'payment_reversed',
+                            'message' => 'The payment was reversed by the bank.'
+                        }
                     }
                 }
             })
@@ -231,12 +231,13 @@ private class Test_Svc_StripeEventProcessor {
         Test.stopTest();
 
         Payment__c updPmt = (Payment__c) Database.queryWithBinds(
-            'SELECT Status__c FROM Payment__c WHERE Id = :pmtId',
+            'SELECT Status__c, PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
             new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
-        System.assertEquals('Reversed', updPmt.Status__c, 'Payment status = Reversed after dispute');
+        System.assertEquals('Reversed',  updPmt.Status__c,          'Payment status = Reversed after BACS reversal');
+        System.assertEquals('pi_rev001', updPmt.PaymentIntentId__c, 'Payment intent ID stored on reversal');
 
         List<Case> cases = [SELECT Subject FROM Case];
-        System.assertEquals(1, cases.size(), 'One dispute case created');
+        System.assertEquals(1, cases.size(), 'One reversal case created');
         System.assert(cases[0].Subject.contains('reversal'), 'Case subject contains reversal');
     }
 
