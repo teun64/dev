@@ -37,9 +37,10 @@ public with sharing class Util_ConnectionMi {
 
 		String devName = this.environment + '_' + namedCredential.toLowerCase();
 
-        Platform_Connection_Setting__mdt platformSettings = [SELECT DeveloperName, Environment__c, NamedCredential__c, Secret__c, Username__c, baseURL__c  
+        Platform_Connection_Setting__mdt platformSettings = [SELECT DeveloperName, Environment__c, NamedCredential__c, Secret__c, Username__c, baseURL__c
 														FROM Platform_Connection_Setting__mdt
 														WHERE DeveloperName = :devName
+														WITH SYSTEM_MODE
 														LIMIT 1];
         if(platformSettings == null){
             throw new Util_System.CustomException('Error: No Mi Settings found. Make sure Mi settings exists as custom metadata.');
