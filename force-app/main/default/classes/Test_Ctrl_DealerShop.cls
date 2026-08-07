@@ -1,6 +1,17 @@
 @IsTest(SeeAllData=false)
 private class Test_Ctrl_DealerShop {
 
+    // getDealerContext() only checks User.ContactId != null to resolve the dealer Account - any
+    // portal-type license works. The org's single Customer Community Plus seat is already used by
+    // the real dealer portal user, so this uses the (unused) Partner Community license instead -
+    // a plain internal profile can't carry ContactId at all ("only portal users can be associated
+    // to a contact").
+    private static final String PORTAL_USER_USERNAME = 'apex.test.dealershop@mvsc.invalid.test';
+
+    private static User portalUser() {
+        return [SELECT Id FROM User WHERE Username = :PORTAL_USER_USERNAME LIMIT 1];
+    }
+
     @TestSetup
     static void makeData() {
         Account acc = new Account(
@@ -19,48 +30,87 @@ private class Test_Ctrl_DealerShop {
         acc.Sales_Language__c = 'NL';
         insert acc;
 
+        Contact con = new Contact(
+            AccountId = acc.Id,
+            FirstName = 'Apex',
+            LastName  = 'Test Dealer User',
+            Email     = 'apex.test.dealershop@mvsc.invalid.test'
+        );
+        insert con;
+
+        Id portalProfileId = [SELECT Id FROM Profile WHERE Name = 'Partner Community User' LIMIT 1].Id;
+        insert new User(
+            ProfileId         = portalProfileId,
+            ContactId         = con.Id,
+            Username          = PORTAL_USER_USERNAME,
+            Email             = 'apex.test.dealershop@mvsc.invalid.test',
+            FirstName         = 'Apex',
+            LastName          = 'Test Dealer User',
+            Alias             = 'atduser',
+            LocaleSidKey      = 'nl_NL',
+            LanguageLocaleKey = 'nl_NL',
+            TimeZoneSidKey    = 'Europe/Amsterdam',
+            EmailEncodingKey  = 'UTF-8',
+            IsActive          = true
+        );
+
         Product2 publicProd = new Product2(
-            Name                 = 'Public Product A',
-            ProductCode          = 'PP-001',
-            IsActive             = true,
-            Is_Public__c         = true,
-            Category_Platform__c = 'Fleet',
-            Description          = 'Short desc A'
+            Name                    = 'Public Product A',
+            ProductCode             = 'PP-001',
+            IsActive                = true,
+            Show_In_Dealer_Shop__c  = true,
+            Category_Platform__c    = 'Fleet',
+            Description             = 'Short desc A'
         );
 
         Product2 publicProd2 = new Product2(
-            Name                 = 'Public Product B',
-            ProductCode          = 'PP-002',
-            IsActive             = true,
-            Is_Public__c         = true,
-            Category_Platform__c = 'Security',
-            Description          = 'Short desc B'
+            Name                    = 'Public Product B',
+            ProductCode             = 'PP-002',
+            IsActive                = true,
+            Show_In_Dealer_Shop__c  = true,
+            Category_Platform__c    = 'Security',
+            Description             = 'Short desc B'
         );
 
         Product2 privateProd = new Product2(
-            Name                 = 'Private Product C',
-            ProductCode          = 'PP-003',
-            IsActive             = true,
-            Is_Public__c         = false,
-            Category_Platform__c = 'Fleet'
+            Name                    = 'Private Product C',
+            ProductCode             = 'PP-003',
+            IsActive                = true,
+            Show_In_Dealer_Shop__c  = false,
+            Category_Platform__c    = 'Fleet'
         );
 
         insert new List<Product2>{ publicProd, publicProd2, privateProd };
 
+        // A custom Pricebook2 entry can't exist without a Standard Price Book entry for the same
+        // product first (STANDARD_PRICE_NOT_DEFINED).
+        insert new List<PricebookEntry>{
+            new PricebookEntry(Pricebook2Id = Test.getStandardPricebookId(), Product2Id = publicProd.Id,  UnitPrice = 99.00, IsActive = true),
+            new PricebookEntry(Pricebook2Id = Test.getStandardPricebookId(), Product2Id = publicProd2.Id, UnitPrice = 49.00, IsActive = true),
+            new PricebookEntry(Pricebook2Id = Test.getStandardPricebookId(), Product2Id = privateProd.Id, UnitPrice = 29.00, IsActive = true)
+        };
+
+        // Matches Ctrl_DealerShop.resolvePricebookId()'s '%Dealer%'/'%NL%'/'%All%' Name lookup for
+        // this account (BillingCountryCode NL, Dealer_category__c not Fleet/Security -> market 'All').
+        Pricebook2 dealerPricebook = new Pricebook2(Name = 'Dealer NL All Pricebook', IsActive = false);
+        insert dealerPricebook;
+        dealerPricebook.IsActive = true;
+        update dealerPricebook;
+
         PricebookEntry pbeA = new PricebookEntry(
-            Pricebook2Id = Test.getStandardPricebookId(),
+            Pricebook2Id = dealerPricebook.Id,
             Product2Id   = publicProd.Id,
             UnitPrice    = 99.00,
             IsActive     = true
         );
         PricebookEntry pbeB = new PricebookEntry(
-            Pricebook2Id = Test.getStandardPricebookId(),
+            Pricebook2Id = dealerPricebook.Id,
             Product2Id   = publicProd2.Id,
             UnitPrice    = 49.00,
             IsActive     = true
         );
         PricebookEntry pbeC = new PricebookEntry(
-            Pricebook2Id = Test.getStandardPricebookId(),
+            Pricebook2Id = dealerPricebook.Id,
             Product2Id   = privateProd.Id,
             UnitPrice    = 29.00,
             IsActive     = true
@@ -81,22 +131,26 @@ private class Test_Ctrl_DealerShop {
 
     @IsTest
     static void testGetProducts_returnsOnlyPublic() {
+        Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
-        Ctrl_DealerShop.ProductPageResult result =
-            Ctrl_DealerShop.getProducts(null, 1, 10);
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 10);
+        }
         Test.stopTest();
 
         System.assertNotEquals(null, result, 'Result should not be null');
         System.assertNotEquals(null, result.products, 'Products list should not be null');
-        Integer publicCount = [SELECT COUNT() FROM Product2 WHERE Is_Public__c = true AND IsActive = true];
+        Integer publicCount = [SELECT COUNT() FROM Product2 WHERE Show_In_Dealer_Shop__c = true AND IsActive = true];
         System.assertEquals(publicCount, result.products.size(), 'Product count mismatch');
     }
 
     @IsTest
     static void testGetProducts_filterByCategory() {
+        Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
-        Ctrl_DealerShop.ProductPageResult result =
-            Ctrl_DealerShop.getProducts('Fleet', 1, 10);
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts('Fleet', 1, 10);
+        }
         Test.stopTest();
 
         System.assertNotEquals(null, result, 'Result should not be null');
@@ -107,11 +161,13 @@ private class Test_Ctrl_DealerShop {
 
     @IsTest
     static void testGetProducts_pagination() {
+        Ctrl_DealerShop.ProductPageResult page1;
+        Ctrl_DealerShop.ProductPageResult page2;
         Test.startTest();
-        Ctrl_DealerShop.ProductPageResult page1 =
-            Ctrl_DealerShop.getProducts(null, 1, 1);
-        Ctrl_DealerShop.ProductPageResult page2 =
-            Ctrl_DealerShop.getProducts(null, 2, 1);
+        System.runAs(portalUser()) {
+            page1 = Ctrl_DealerShop.getProducts(null, 1, 1);
+            page2 = Ctrl_DealerShop.getProducts(null, 2, 1);
+        }
         Test.stopTest();
 
         System.assertEquals(1, page1.products.size(), 'Page 1 should have 1 product');
@@ -129,9 +185,11 @@ private class Test_Ctrl_DealerShop {
             SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1
         ];
 
+        Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
-        Ctrl_DealerShop.ProductDTO dto =
-            Ctrl_DealerShop.getProductDetail(prod.Id);
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
         Test.stopTest();
 
         System.assertNotEquals(null, dto, 'ProductDTO should not be null');
@@ -149,12 +207,14 @@ private class Test_Ctrl_DealerShop {
         ];
 
         Test.startTest();
-        try {
-            Ctrl_DealerShop.ProductDTO dto =
-                Ctrl_DealerShop.getProductDetail(privateProd.Id);
-            System.assertEquals(null, dto, 'Private product detail should not be accessible');
-        } catch (AuraHandledException e) {
-            System.assert(true, 'AuraHandledException is acceptable for private product');
+        System.runAs(portalUser()) {
+            try {
+                Ctrl_DealerShop.ProductDTO dto =
+                    Ctrl_DealerShop.getProductDetail(privateProd.Id);
+                System.assertEquals(null, dto, 'Private product detail should not be accessible');
+            } catch (AuraHandledException e) {
+                System.assert(true, 'AuraHandledException is acceptable for private product');
+            }
         }
         Test.stopTest();
     }
@@ -171,22 +231,19 @@ private class Test_Ctrl_DealerShop {
 
         List<Map<String, Object>> cartItems = new List<Map<String, Object>>();
         Map<String, Object> cartItem = new Map<String, Object>{
-            'productId'       => (String) prod.Id,
-            'pricebookEntryId'=> (String) pbe.Id,
-            'quantity'        => 2,
-            'unitPrice'       => pbe.UnitPrice
+            'productId' => (String) prod.Id,
+            'quantity'  => 2,
+            'unitPrice' => pbe.UnitPrice
         };
         cartItems.add(cartItem);
 
-        String cartJson = JSON.serialize(new Map<String, Object>{
-            'accountId'   => (String) acc.Id,
-            'pricebookId' => Test.getStandardPricebookId(),
-            'currency'    => 'EUR',
-            'items'       => cartItems
-        });
+        String cartJson = JSON.serialize(cartItems);
 
+        String orderNumber;
         Test.startTest();
-        String orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+        }
         Test.stopTest();
 
         System.assertNotEquals(null, orderNumber, 'Order number should be returned');
@@ -223,28 +280,24 @@ private class Test_Ctrl_DealerShop {
 
         List<Map<String, Object>> cartItems = new List<Map<String, Object>>{
             new Map<String, Object>{
-                'productId'       => (String) prodA.Id,
-                'pricebookEntryId'=> (String) pbeA.Id,
-                'quantity'        => 1,
-                'unitPrice'       => pbeA.UnitPrice
+                'productId' => (String) prodA.Id,
+                'quantity'  => 1,
+                'unitPrice' => pbeA.UnitPrice
             },
             new Map<String, Object>{
-                'productId'       => (String) prodB.Id,
-                'pricebookEntryId'=> (String) pbeB.Id,
-                'quantity'        => 3,
-                'unitPrice'       => pbeB.UnitPrice
+                'productId' => (String) prodB.Id,
+                'quantity'  => 3,
+                'unitPrice' => pbeB.UnitPrice
             }
         };
 
-        String cartJson = JSON.serialize(new Map<String, Object>{
-            'accountId'   => (String) acc.Id,
-            'pricebookId' => Test.getStandardPricebookId(),
-            'currency'    => 'EUR',
-            'items'       => cartItems
-        });
+        String cartJson = JSON.serialize(cartItems);
 
+        String orderNumber;
         Test.startTest();
-        String orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+        }
         Test.stopTest();
 
         System.assertNotEquals(null, orderNumber, 'Order number should be returned');
@@ -261,13 +314,15 @@ private class Test_Ctrl_DealerShop {
 
     @IsTest
     static void testGetProducts_emptyCategory_returnsAll() {
+        Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
-        Ctrl_DealerShop.ProductPageResult result =
-            Ctrl_DealerShop.getProducts('', 1, 50);
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts('', 1, 50);
+        }
         Test.stopTest();
 
         System.assertNotEquals(null, result, 'Result should not be null');
-        Integer publicCount = [SELECT COUNT() FROM Product2 WHERE Is_Public__c = true AND IsActive = true];
+        Integer publicCount = [SELECT COUNT() FROM Product2 WHERE Show_In_Dealer_Shop__c = true AND IsActive = true];
         System.assertEquals(publicCount, result.products.size(), 'All public products should be returned for empty category');
     }
 
@@ -276,9 +331,11 @@ private class Test_Ctrl_DealerShop {
         Account acc = [SELECT Id FROM Account LIMIT 1];
         Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
 
+        Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
-        Ctrl_DealerShop.ProductDTO dto =
-            Ctrl_DealerShop.getProductDetail(prod.Id);
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
         Test.stopTest();
 
         System.assertNotEquals(null, dto, 'ProductDTO should not be null');
@@ -297,5 +354,71 @@ private class Test_Ctrl_DealerShop {
             System.assert(true, 'Any exception is acceptable for malformed input');
         }
         Test.stopTest();
+    }
+
+    @IsTest
+    static void testGetOrderHistory_returnsPlacedOrder() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        PricebookEntry pbe = [SELECT Id, UnitPrice FROM PricebookEntry WHERE Product2Id = :prod.Id LIMIT 1];
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{
+                'productId' => (String) prod.Id,
+                'quantity'  => 1,
+                'unitPrice' => pbe.UnitPrice
+            }
+        });
+
+        String orderNumber;
+        List<Ctrl_DealerShop.OrderHistoryDTO> mine;
+        List<Ctrl_DealerShop.OrderHistoryDTO> all;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+            mine = Ctrl_DealerShop.getOrderHistory(true);
+            all  = Ctrl_DealerShop.getOrderHistory(false);
+        }
+        Test.stopTest();
+
+        System.assertEquals(1, mine.size(), 'The running user placed exactly one order');
+        System.assertEquals(orderNumber, mine[0].orderNumber, 'Order number should match the one placeOrder returned');
+        System.assertEquals(1, all.size(), 'All-orders view should include the same single order for this account');
+    }
+
+    @IsTest
+    static void testGetProductDetail_imageUrl_resolvesViaContentDistribution() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        ContentVersion cv = new ContentVersion(
+            Title        = 'PP-001 image',
+            PathOnClient = 'pp-001.png',
+            VersionData  = Blob.valueOf('fake image bytes')
+        );
+        insert cv;
+        cv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
+
+        insert new ContentDocumentLink(
+            LinkedEntityId = prod.Id,
+            ContentDocumentId = cv.ContentDocumentId,
+            ShareType = 'V',
+            Visibility = 'AllUsers'
+        );
+
+        ContentDistribution cd = new ContentDistribution(
+            Name = 'PP-001 distribution',
+            ContentVersionId = cv.Id,
+            PreferencesAllowViewInBrowser = true
+        );
+        insert cd;
+        cd = [SELECT Id, ContentDownloadUrl FROM ContentDistribution WHERE Id = :cd.Id];
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(cd.ContentDownloadUrl, dto.imageUrl, 'imageUrl should come from ContentDistribution.ContentDownloadUrl');
     }
 }

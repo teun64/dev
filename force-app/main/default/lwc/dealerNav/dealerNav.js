@@ -43,11 +43,23 @@ export default class DealerNav extends LightningElement {
         return this.currentPath.includes('/dealers/shop') ? 'nav-link active' : 'nav-link';
     }
 
+    get orderHistoryClass() {
+        return this.currentPath.includes('/dealers/order-history') ? 'nav-link active' : 'nav-link';
+    }
+
     handleShopClick(event) {
         if (this.config && this.config.isAuthenticated) return;
         event.preventDefault();
         if (typeof window !== 'undefined') {
             window.location.href = '/dealers/login?startURL=/dealers/shop';
+        }
+    }
+
+    handleOrderHistoryClick(event) {
+        if (this.config && this.config.isAuthenticated) return;
+        event.preventDefault();
+        if (typeof window !== 'undefined') {
+            window.location.href = '/dealers/login?startURL=/dealers/order-history';
         }
     }
 }

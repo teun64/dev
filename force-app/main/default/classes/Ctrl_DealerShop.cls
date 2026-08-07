@@ -619,6 +619,46 @@ public without sharing class Ctrl_DealerShop {
         return opp.Name;
     }
 
+    // ── Order history ─────────────────────────────────────────────────────────
+
+    @AuraEnabled(cacheable=true)
+    public static List<OrderHistoryDTO> getOrderHistory(Boolean onlyMine) {
+        Account acct = getDealerContext().account;
+        if (acct.Id == null) return new List<OrderHistoryDTO>();
+
+        List<Opportunity> opps = onlyMine
+            ? [
+                SELECT Id, Name, CreatedDate, StageName, Amount, CreatedBy.Name
+                FROM Opportunity
+                WHERE AccountId = :acct.Id
+                  AND RecordType.DeveloperName = 'Webshop'
+                  AND CreatedById = :UserInfo.getUserId()
+                WITH SYSTEM_MODE
+                ORDER BY CreatedDate DESC
+            ]
+            : [
+                SELECT Id, Name, CreatedDate, StageName, Amount, CreatedBy.Name
+                FROM Opportunity
+                WHERE AccountId = :acct.Id
+                  AND RecordType.DeveloperName = 'Webshop'
+                WITH SYSTEM_MODE
+                ORDER BY CreatedDate DESC
+            ];
+
+        List<OrderHistoryDTO> results = new List<OrderHistoryDTO>();
+        for (Opportunity o : opps) {
+            OrderHistoryDTO dto = new OrderHistoryDTO();
+            dto.id           = o.Id;
+            dto.orderNumber  = o.Name;
+            dto.placedDate   = o.CreatedDate;
+            dto.stageName    = o.StageName;
+            dto.amount       = o.Amount;
+            dto.placedByName = o.CreatedBy != null ? o.CreatedBy.Name : null;
+            results.add(dto);
+        }
+        return results;
+    }
+
     // ── Inner classes ─────────────────────────────────────────────────────────
 
     public class ProductPageResult {
@@ -643,6 +683,15 @@ public without sharing class Ctrl_DealerShop {
     public class DealerContext {
         public Account account;
         public String  language;
+    }
+
+    public class OrderHistoryDTO {
+        @AuraEnabled public Id       id;
+        @AuraEnabled public String   orderNumber;
+        @AuraEnabled public Datetime placedDate;
+        @AuraEnabled public String   stageName;
+        @AuraEnabled public Decimal  amount;
+        @AuraEnabled public String   placedByName;
     }
 
     public class PriceTierDTO {

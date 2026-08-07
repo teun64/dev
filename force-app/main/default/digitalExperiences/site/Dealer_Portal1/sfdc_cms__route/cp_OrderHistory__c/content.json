@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Order History",
+  "contentBody" : {
+    "activeViewId" : "OrderHistory",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-order-history",
+    "urlPrefix" : "order-history"
+  },
+  "urlName" : "order-history"
+}

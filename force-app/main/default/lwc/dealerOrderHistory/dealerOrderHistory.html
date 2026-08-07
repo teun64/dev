@@ -1,0 +1,50 @@
+<template>
+    <div class="order-history">
+        <div class="order-history__header">
+            <h1 class="order-history__title">Bestelgeschiedenis</h1>
+            <div class="toggle-group">
+                <button class={mineButtonClass} onclick={handleShowMine}>Mijn bestellingen</button>
+                <button class={allButtonClass} onclick={handleShowAll}>Alle bestellingen</button>
+            </div>
+        </div>
+
+        <template if:true={isLoading}>
+            <div class="spinner-container">
+                <lightning-spinner alternative-text="Laden..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={isEmpty}>
+                <div class="empty-state">
+                    <p>Geen bestellingen gevonden</p>
+                </div>
+            </template>
+
+            <template if:false={isEmpty}>
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Bestelnummer</th>
+                            <th>Datum</th>
+                            <th>Status</th>
+                            <th>Besteld door</th>
+                            <th class="col-amount">Totaal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={orders} for:item="order">
+                            <tr key={order.id}>
+                                <td>{order.orderNumber}</td>
+                                <td>{order.formattedDate}</td>
+                                <td>{order.stageName}</td>
+                                <td>{order.placedByName}</td>
+                                <td class="col-amount">{order.formattedAmount}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+        </template>
+    </div>
+</template>

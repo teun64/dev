@@ -1,0 +1,109 @@
+:host {
+    display: block;
+    font-family: var(--brand-font, 'Open Sans', sans-serif);
+}
+
+.order-history {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.order-history__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.order-history__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+    margin: 0;
+}
+
+.toggle-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.toggle-btn {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.toggle-btn--active {
+    background: var(--brand-primary, #cc0000);
+    border-color: var(--brand-primary, #cc0000);
+    color: #ffffff;
+}
+
+.spinner-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: #555;
+    font-size: 1rem;
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.order-table th {
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.order-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #333;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.order-table tr:last-child td {
+    border-bottom: none;
+}
+
+.col-amount {
+    text-align: right;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .order-history {
+        padding: 1rem 0.75rem;
+    }
+
+    .order-table th:nth-child(4),
+    .order-table td:nth-child(4) {
+        display: none;
+    }
+}
