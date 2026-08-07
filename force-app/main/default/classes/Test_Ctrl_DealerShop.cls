@@ -127,6 +127,13 @@ private class Test_Ctrl_DealerShop {
             From_Discount_1__c    = 10
         );
         insert discount;
+
+        // rbb_Product_Discount (before-save, create-only) unconditionally forces IsActive__c=false
+        // and Status__c='Preparation' on every new record - same "insert then separate update"
+        // workaround as rbb_Account (see feedback_apex_test_fixture_gotchas memory). The update
+        // doesn't re-trigger that create-only branch, so this sticks.
+        discount.IsActive__c = true;
+        update discount;
     }
 
     @IsTest
@@ -340,6 +347,46 @@ private class Test_Ctrl_DealerShop {
 
         System.assertNotEquals(null, dto, 'ProductDTO should not be null');
         System.assertEquals(prod.Id, dto.id, 'Product Id should match');
+
+        // The fixture discount's tier 1 starts at quantity 1 (From_Quantity_1__c = 1), so it
+        // applies to a single unit already - it IS the unit price, priced off the pricebook
+        // entry's UnitPrice (99.00), not entry.From_Price_X (which this org never populates and
+        // would silently produce a null price) - and it should not also appear as a redundant
+        // separate tier row.
+        System.assertEquals(89.10, dto.unitPrice, 'unitPrice should be entry.UnitPrice (99.00) discounted by the qty-1 tier (10%)');
+        System.assertEquals(0, dto.priceTiers.size(), 'The qty-1 tier is promoted into unitPrice, not listed separately');
+    }
+
+    @IsTest
+    static void testGetProductDetail_withDiscount_tierAboveQty1_staysListed() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+
+        insert new Product_Discount__c(
+            Account__c            = [SELECT Id FROM Account LIMIT 1].Id,
+            Product__c            = prod.Id,
+            IsActive__c           = true,
+            isFixedPrice__c       = false,
+            From_Quantity_1__c    = 5,
+            From_Discount_1__c    = 15
+        );
+        // Activate separately - rbb_Product_Discount forces IsActive__c=false on every new record.
+        Product_Discount__c disc = [SELECT Id FROM Product_Discount__c WHERE Product__c = :prod.Id];
+        disc.IsActive__c = true;
+        update disc;
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        // Tier starts at quantity 5, not 1 - it must stay listed as a volume tier rather than
+        // being promoted into unitPrice, and unitPrice should remain the undiscounted base (49.00).
+        System.assertEquals(49.00, dto.unitPrice, 'unitPrice should stay at entry.UnitPrice - the tier does not apply at quantity 1');
+        System.assertEquals(1, dto.priceTiers.size(), 'The qty-5 tier should be listed');
+        System.assertEquals(5, dto.priceTiers[0].fromQty, 'Tier from-quantity should be 5');
+        System.assertEquals(41.65, dto.priceTiers[0].price, 'Tier price should be entry.UnitPrice (49.00) discounted by 15%');
     }
 
     @IsTest

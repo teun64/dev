@@ -180,28 +180,36 @@ public without sharing class Ctrl_DealerShop {
                 || disc.From_Discount_4__c != null;
 
             if (hasTierDiscount) {
+                // A tiered price agreement takes over from the pricebook entry's own tier structure
+                // entirely, discounting off the entry's single UnitPrice - not entry.From_Price_X,
+                // which this org never actually populates. Only pass a price when this specific tier
+                // slot is actually defined (From_Discount_X set) - makeTier() skips a tier when both
+                // quantity and price come back null, so an undefined slot must not get a non-null
+                // price just because entry.UnitPrice itself is always non-null.
                 tiers.add(makeTier(
                     disc.From_Quantity_1__c != null ? disc.From_Quantity_1__c : entry.From_Quantity_1__c,
-                    entry.From_Price_1__c, disc.From_Discount_1__c
+                    disc.From_Discount_1__c != null ? entry.UnitPrice : null, disc.From_Discount_1__c
                 ));
                 tiers.add(makeTier(
                     disc.From_Quantity_2__c != null ? disc.From_Quantity_2__c : entry.From_Quantity_2__c,
-                    entry.From_Price_2__c, disc.From_Discount_2__c
+                    disc.From_Discount_2__c != null ? entry.UnitPrice : null, disc.From_Discount_2__c
                 ));
                 tiers.add(makeTier(
                     disc.From_Quantity_3__c != null ? disc.From_Quantity_3__c : entry.From_Quantity_3__c,
-                    entry.From_Price_3__c, disc.From_Discount_3__c
+                    disc.From_Discount_3__c != null ? entry.UnitPrice : null, disc.From_Discount_3__c
                 ));
                 tiers.add(makeTier(
                     disc.From_Quantity_4__c != null ? disc.From_Quantity_4__c : entry.From_Quantity_4__c,
-                    entry.From_Price_4__c, disc.From_Discount_4__c
+                    disc.From_Discount_4__c != null ? entry.UnitPrice : null, disc.From_Discount_4__c
                 ));
             } else {
-                // Flat discount_percentage__c applied to each entry tier price
-                tiers.add(makeTier(entry.From_Quantity_1__c, entry.From_Price_1__c, disc.Discount_percentage__c));
-                tiers.add(makeTier(entry.From_Quantity_2__c, entry.From_Price_2__c, disc.Discount_percentage__c));
-                tiers.add(makeTier(entry.From_Quantity_3__c, entry.From_Price_3__c, disc.Discount_percentage__c));
-                tiers.add(makeTier(entry.From_Quantity_4__c, entry.From_Price_4__c, disc.Discount_percentage__c));
+                // Flat discount_percentage__c applied off the entry's UnitPrice, but only at
+                // quantity breakpoints the entry itself actually defines - this discount has no
+                // tier structure of its own to fall back on.
+                tiers.add(makeTier(entry.From_Quantity_1__c, entry.From_Quantity_1__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
+                tiers.add(makeTier(entry.From_Quantity_2__c, entry.From_Quantity_2__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
+                tiers.add(makeTier(entry.From_Quantity_3__c, entry.From_Quantity_3__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
+                tiers.add(makeTier(entry.From_Quantity_4__c, entry.From_Quantity_4__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
             }
         }
         List<PriceTierDTO> result = new List<PriceTierDTO>();
@@ -316,6 +324,14 @@ public without sharing class Ctrl_DealerShop {
                     dto.unitPrice = entry.UnitPrice * (1 - disc.Discount_percentage__c / 100);
                 }
                 dto.priceTiers = applyDiscountToTiers(entry, disc);
+
+                // A tier starting at quantity 1 already applies to a single unit, so it IS the
+                // unit price - show it there instead of as a redundant first "volume" row above
+                // the remaining, genuinely higher-quantity tiers.
+                if (!dto.priceTiers.isEmpty() && dto.priceTiers[0].fromQty == 1) {
+                    dto.unitPrice = dto.priceTiers[0].price;
+                    dto.priceTiers.remove(0);
+                }
             } else {
                 dto.priceTiers = buildPriceTiersFromEntry(entry);
             }
