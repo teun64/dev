@@ -200,4 +200,84 @@ private class Test_Orders {
 	private static Subscription25__Contract_Product__c reloadContProd(Id cpId){
 		return [SELECT Id, Subscription25__Extrapolate_Orders_Until_Month_End__c, Subscription25__Use_Calendar_Year__c FROM Subscription25__Contract_Product__c WHERE Id = :cpId];
 	}
+
+	@isTest
+	private static void testFirstOrderNegativeAdvanceInvoiceDate(){
+		//reproduces the RestUpsertContract 'DE.Professional' scenario: contract starts mid-month, account has a
+		//negative OrderOffsetTerm (-> Months_In_Advance on the recurring order) and invoices 'First of the month'
+		Account acct = Test_Data.createAccount('test', '12', 'B2B', false);
+		Database.insert(acct);
+		//rbb_Account's before-insert defaults block unconditionally overwrites Invoice_Frequency__c on insert -
+		//force our test values via a follow-up update, which that block doesn't re-trigger on
+		acct.Invoice_Frequency__c = 'First of the month';
+		acct.Payment_Method_Contracts__c = 'I8';
+		Database.update(acct);
+
+		Subscription25__Administration__c admin = Test_Data.createAdministration(true);
+		Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
+		Product2 prod = Test_Data.createProduct('MiBlack', 'Black.12', '1-sv-12', 'Subscription', true);
+		Test_Data.createPricebookEntry(prod.Id, 25, true);
+		Subscription25__VATRate__c vatRate = Test_Data.createVATRate('21%', 21, true, true);
+		Test_Data.createAdministrationProduct(admin.Id, prod.Id, vatRate.Id, true);
+
+		Date contractStart = Date.newInstance(2026, 7, 15);
+
+		Contract cont = Test_Data.createContract(acct.Id, admin.Id, false);
+		cont.StartDate = contractStart;
+		cont.Subscription25__First_Invoice_Date__c = Date.newInstance(2026, 7, 1);
+		Database.insert(cont);
+
+		Subscription25__Contract_Product__c contProd = Test_Data.createContractProduct(cont.Id, prod.Id, false);
+		contProd.Subscription25__Start_Date__c = contractStart;
+		Database.insert(contProd);
+
+		Subscription25__Recurring_Order__c recOrder = new Subscription25__Recurring_Order__c(
+			Subscription25__Account__c = acct.Id,
+			Subscription25__Administration__c = admin.Id,
+			Subscription25__Contract_Product__c = contProd.Id,
+			Subscription25__Period__c = 1,
+			Subscription25__Start_Date__c = contractStart,
+			Subscription25__Months_In_Advance__c = -1
+		);
+		Database.insert(recOrder);
+
+		//Case A (the reported bug): the 1st order of this contract, EffectiveDate matches the contract product's
+		//own Start_Date__c -> should align down to the same (already offset) month, not roll into the next one.
+		//Subscription25__Invoice_Date__c is pre-set here to mirror what the package itself does before our trigger
+		//runs (confirmed against real prod data: Months_In_Advance already shifted it to Aug 15 before this trigger saw it)
+		Order firstOrd = Test_Data.createOrder(acct.Id, admin.Id, contractStart, false);
+		firstOrd.Type = 'Contract';
+		firstOrd.EndDate = Date.newInstance(2026, 7, 31);
+		firstOrd.Subscription25__Recurring_Order__c = recOrder.Id;
+		firstOrd.Subscription25__Invoice_Date__c = Date.newInstance(2026, 8, 15);
+		Database.insert(firstOrd);
+		firstOrd = [SELECT Id, Subscription25__Invoice_Date__c FROM Order WHERE Id = :firstOrd.Id];
+		System.assertEquals(Date.newInstance(2026, 8, 1), firstOrd.Subscription25__Invoice_Date__c);
+
+		//Case B (regression guard): a later (non-first) order on the same recurring order/contract product -
+		//EffectiveDate no longer matches Start_Date__c, so the old (pre-fix) rounding still applies unchanged
+		Order laterOrd = Test_Data.createOrder(acct.Id, admin.Id, Date.newInstance(2026, 8, 15), false);
+		laterOrd.Type = 'Contract';
+		laterOrd.EndDate = Date.newInstance(2026, 8, 31);
+		laterOrd.Subscription25__Recurring_Order__c = recOrder.Id;
+		laterOrd.Subscription25__Invoice_Date__c = Date.newInstance(2026, 9, 15);
+		Database.insert(laterOrd);
+		laterOrd = [SELECT Id, Subscription25__Invoice_Date__c FROM Order WHERE Id = :laterOrd.Id];
+		System.assertEquals(Date.newInstance(2026, 10, 1), laterOrd.Subscription25__Invoice_Date__c);
+
+		//Case C (regression guard): an unrelated offset-0 account should keep behaving exactly as before -
+		//1st of the month FOLLOWING the (mid-month) effective date
+		Account baselineAcct = Test_Data.createAccount('test-baseline', '13', 'B2B', false);
+		Database.insert(baselineAcct);
+		baselineAcct.Invoice_Frequency__c = 'First of the month';
+		baselineAcct.Payment_Method_Contracts__c = 'I8';
+		Database.update(baselineAcct);
+		Test_Data.createDebtorNumber(admin.Id, baselineAcct.Id, true);
+
+		Order baselineOrd = Test_Data.createOrder(baselineAcct.Id, admin.Id, Date.newInstance(2026, 8, 6), false);
+		baselineOrd.Type = 'Contract';
+		Database.insert(baselineOrd);
+		baselineOrd = [SELECT Id, Subscription25__Invoice_Date__c FROM Order WHERE Id = :baselineOrd.Id];
+		System.assertEquals(Date.newInstance(2026, 9, 1), baselineOrd.Subscription25__Invoice_Date__c);
+	}
 }

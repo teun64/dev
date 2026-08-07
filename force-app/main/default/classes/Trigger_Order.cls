@@ -19,7 +19,7 @@ public class Trigger_Order {
 			SELECT Id, Invoice_Frequency__c, OrderOffsetTerm__c, Reseller_Name__c, Payment_Method_Contracts__c, Subscription25__Create_Invoices_As_Draft__c  FROM Account WHERE Id IN :acctIds
 		]);
 		Map<Id, Subscription25__Recurring_Order__c> recOrderMap = new Map<Id, Subscription25__Recurring_Order__c>([
-			SELECT Id, Subscription25__Months_In_Advance__c  FROM Subscription25__Recurring_Order__c WHERE Id IN :recOrderIds
+			SELECT Id, Subscription25__Months_In_Advance__c, Subscription25__Contract_Product__r.Subscription25__Start_Date__c, Subscription25__Contract_Product__r.Subscription25__Contract__r.Subscription25__First_Invoice_Date__c  FROM Subscription25__Recurring_Order__c WHERE Id IN :recOrderIds
 		]);
 		Account curAcct;
 		Subscription25__Recurring_Order__c curRecOrder;
@@ -29,6 +29,7 @@ public class Trigger_Order {
 		Date nextMonday;
 		Integer curInvDay;
 		Integer curMonthsInAdvance = 0;
+		Boolean isFirstOrderNegativeAdvance;
 
 		for(Order ordNew : iterList){ 
 
@@ -36,18 +37,31 @@ public class Trigger_Order {
 				continue;
 			}
 
+			curInvDate = ordNew.EffectiveDate;
+
 			//depending on the invoice frequency of the account, we may need to move the invoice date of the order
 			curAcct = acctMap.get(ordNew.AccountId);
+			isFirstOrderNegativeAdvance = false;
 			if (String.isNotBlank(ordNew.Subscription25__Recurring_Order__c)) {
 				curRecOrder = recOrderMap.get(ordNew.Subscription25__Recurring_Order__c);
 				curMonthsInAdvance = curRecOrder.Subscription25__Months_In_Advance__c?.intValue();
+
+				if (curRecOrder.Subscription25__Contract_Product__r.Subscription25__Contract__r.Subscription25__First_Invoice_Date__c != null) {
+					//curInvDate = curRecOrder.Subscription25__Contract_Product__r.Subscription25__Contract__r.Subscription25__First_Invoice_Date__c;
+
+					//20260806 - TRi - on the 1st order of a contract with an explicit first invoice date, Months_In_Advance (when negative/arrears)
+					//already shifted curInvDate away from the period start further below; the monthly Invoice_Frequency rounding shouldn't roll
+					//that already-shifted date into yet another month on top.
+					isFirstOrderNegativeAdvance = (curMonthsInAdvance < 0) && (ordNew.EffectiveDate == curRecOrder.Subscription25__Contract_Product__r.Subscription25__Start_Date__c);
+				}
+
 			}
 
-			curInvDate = null;
 			newInvDate = null;
 
 			// Use curMonthsInAdvance to determine the invoice date
-			curInvDate = (curMonthsInAdvance == 0) ? ordNew.EffectiveDate : ordNew.EffectiveDate.addMonths((curMonthsInAdvance * -1));
+	
+			curInvDate = (curMonthsInAdvance == 0) ? curInvDate : curInvDate.addMonths((curMonthsInAdvance * -1));
 			//prefent invoicedates in the past
 			curInvDate = (ordNew.Subscription25__Invoice_Date__c != null) ? ordNew.Subscription25__Invoice_Date__c : ((curInvDate > date.today()) ? date.today() : curInvDate);
 			curInvDate = ((ordNew.EndDate != null) && (ordNew.EndDate > curInvDate) && (ordNew.EndDate < date.today())) ? date.today() : curInvDate;
@@ -75,7 +89,9 @@ public class Trigger_Order {
 
 			if(curAcct.Invoice_Frequency__c == 'First of the month'){
 				//set the invoice date to the first of the next month, if it's after the first of the current one
-				newInvDate = curInvDate.day() != 1 ? curInvDate.addMonths(1).toStartOfMonth() : curInvdate;
+				//20260806 - TRi - unless this is the 1st order and a negative Months_In_Advance already moved curInvDate into arrears,
+				//in which case align down to that same month instead of rolling forward again
+				newInvDate = curInvDate.day() == 1 ? curInvdate : (isFirstOrderNegativeAdvance ? curInvDate.toStartOfMonth() : curInvDate.addMonths(1).toStartOfMonth());
 			} else if(curAcct.Invoice_Frequency__c == 'Last of the month'){
 				//set the invoice date to the last day of this month
 				newInvDate = curInvDate.addDays(1).day() != 1 ? curInvDate.addMonths(1).toStartOfMonth().addDays(-1) : curInvdate;
