@@ -30,16 +30,25 @@
                             <th>Status</th>
                             <th>Besteld door</th>
                             <th class="col-amount">Totaal</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <template for:each={orders} for:item="order">
                             <tr key={order.id}>
-                                <td>{order.orderNumber}</td>
+                                <td><a href={order.detailUrl} class="order-link">{order.orderNumber}</a></td>
                                 <td>{order.formattedDate}</td>
                                 <td>{order.stageName}</td>
                                 <td>{order.placedByName}</td>
                                 <td class="col-amount">{order.formattedAmount}</td>
+                                <td>
+                                    <button
+                                        class="reorder-btn"
+                                        data-order-id={order.id}
+                                        onclick={handleAddToCart}>
+                                        Opnieuw bestellen
+                                    </button>
+                                </td>
                             </tr>
                         </template>
                     </tbody>

@@ -675,6 +675,114 @@ public without sharing class Ctrl_DealerShop {
         return results;
     }
 
+    // ── Order detail ──────────────────────────────────────────────────────────
+
+    // Returns an order's line items priced at TODAY's live pricing/discounts (not the historical
+    // price paid at the time), so "reorder"/"add to cart" always uses current prices.
+    @AuraEnabled(cacheable=true)
+    public static OrderDetailDTO getOrderDetail(Id opportunityId) {
+        if (opportunityId == null) throw new AuraHandledException('opportunityId is required.');
+
+        DealerContext ctx = getDealerContext();
+        Account acct = ctx.account;
+        if (acct.Id == null) throw new AuraHandledException('No dealer account context.');
+
+        List<Opportunity> opps = [
+            SELECT Id, Name, CreatedDate, StageName
+            FROM Opportunity
+            WHERE Id = :opportunityId
+              AND AccountId = :acct.Id
+              AND RecordType.DeveloperName = 'Webshop'
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (opps.isEmpty()) throw new AuraHandledException('Order not found.');
+        Opportunity opp = opps[0];
+
+        List<OpportunityLineItem> lineItems = [
+            SELECT Product2Id, Quantity, UnitPrice
+            FROM OpportunityLineItem
+            WHERE OpportunityId = :opp.Id
+            WITH SYSTEM_MODE
+        ];
+
+        Set<Id> productIds = new Set<Id>();
+        for (OpportunityLineItem li : lineItems) productIds.add(li.Product2Id);
+
+        String lang = ctx.language;
+        Id baseRtId = baseTranslationRtId;
+        Map<Id, Product2> prodById = productIds.isEmpty()
+            ? new Map<Id, Product2>()
+            : new Map<Id, Product2>([
+                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
+                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
+                FROM Product2
+                WHERE Id IN :productIds
+                WITH SYSTEM_MODE
+            ]);
+
+        Id pricebookId = resolvePricebookId(acct);
+        Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
+        if (pricebookId != null && !productIds.isEmpty()) {
+            for (PricebookEntry pbe : [
+                SELECT Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c,
+                       From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c,
+                       From_Quantity_4__c, From_Price_4__c
+                FROM PricebookEntry
+                WHERE Pricebook2Id = :pricebookId
+                  AND Product2Id IN :productIds
+                  AND IsActive = true
+                  AND IsActive_r__c = true
+                WITH SYSTEM_MODE
+            ]) {
+                entryByProduct.put(pbe.Product2Id, pbe);
+            }
+        }
+
+        Map<Id, Product_Discount__c> discByProduct = new Map<Id, Product_Discount__c>();
+        if (!productIds.isEmpty()) {
+            for (Product_Discount__c d : [
+                SELECT Product__c, IsActive__c, Discount_percentage__c,
+                       isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
+                       From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
+                       From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
+                FROM Product_Discount__c
+                WHERE Account__c = :acct.Id
+                  AND Product__c IN :productIds
+                  AND IsActive__c = true
+                WITH SYSTEM_MODE
+            ]) {
+                discByProduct.put(d.Product__c, d);
+            }
+        }
+
+        Map<Id, String> imageUrls = getProductImageUrls(productIds);
+
+        OrderDetailDTO result = new OrderDetailDTO();
+        result.orderId     = opp.Id;
+        result.orderNumber = opp.Name;
+        result.placedDate  = opp.CreatedDate;
+        result.stageName   = opp.StageName;
+        result.lines       = new List<OrderLineDTO>();
+
+        for (OpportunityLineItem li : lineItems) {
+            Product2 prod = prodById.get(li.Product2Id);
+            if (prod == null) continue;
+
+            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id));
+            current.imageUrl = imageUrls.get(li.Product2Id);
+
+            OrderLineDTO line = new OrderLineDTO();
+            line.productId         = li.Product2Id;
+            line.quantity          = Integer.valueOf(li.Quantity);
+            line.originalUnitPrice = li.UnitPrice;
+            line.product           = current;
+            result.lines.add(line);
+        }
+        return result;
+    }
+
     // ── Inner classes ─────────────────────────────────────────────────────────
 
     public class ProductPageResult {
@@ -708,6 +816,21 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String   stageName;
         @AuraEnabled public Decimal  amount;
         @AuraEnabled public String   placedByName;
+    }
+
+    public class OrderDetailDTO {
+        @AuraEnabled public Id                orderId;
+        @AuraEnabled public String            orderNumber;
+        @AuraEnabled public Datetime          placedDate;
+        @AuraEnabled public String            stageName;
+        @AuraEnabled public List<OrderLineDTO> lines;
+    }
+
+    public class OrderLineDTO {
+        @AuraEnabled public Id         productId;
+        @AuraEnabled public Integer    quantity;
+        @AuraEnabled public Decimal    originalUnitPrice;
+        @AuraEnabled public ProductDTO product;
     }
 
     public class PriceTierDTO {

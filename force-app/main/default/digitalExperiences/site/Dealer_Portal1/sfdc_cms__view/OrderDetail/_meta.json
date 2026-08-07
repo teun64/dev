@@ -1,0 +1,5 @@
+{
+  "apiName" : "OrderDetail",
+  "type" : "sfdc_cms__view",
+  "path" : "views"
+}

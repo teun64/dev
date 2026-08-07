@@ -1,0 +1,78 @@
+<template>
+    <div class="order-detail">
+        <a href="/dealers/order-history" class="back-link">&lsaquo; Terug naar bestelgeschiedenis</a>
+
+        <template if:true={isLoading}>
+            <div class="spinner-container">
+                <lightning-spinner alternative-text="Laden..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={errorMessage}>
+            <div class="error-state">
+                <p>{errorMessage}</p>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={order}>
+                <div class="order-detail__header">
+                    <div>
+                        <h1 class="order-detail__title">{order.orderNumber}</h1>
+                        <p class="order-detail__meta">{order.formattedDate} &middot; {order.stageName}</p>
+                    </div>
+                    <template if:false={isEmpty}>
+                        <button class="reorder-btn" onclick={handleReorderAll}>Volledige bestelling opnieuw bestellen</button>
+                    </template>
+                </div>
+
+                <template if:true={isEmpty}>
+                    <div class="empty-state">
+                        <p>Geen producten gevonden voor deze bestelling</p>
+                    </div>
+                </template>
+
+                <template if:false={isEmpty}>
+                    <table class="line-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Product</th>
+                                <th>Aantal</th>
+                                <th class="col-price">Prijs destijds</th>
+                                <th class="col-price">Huidige prijs</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={order.lines} for:item="line">
+                                <tr key={line.productId}>
+                                    <td class="col-image">
+                                        <template lwc:if={line.imageUrl}>
+                                            <img src={line.imageUrl} alt={line.productName} />
+                                        </template>
+                                    </td>
+                                    <td>
+                                        <p class="line-name">{line.productName}</p>
+                                        <p class="line-code">{line.productCode}</p>
+                                    </td>
+                                    <td>{line.quantity}</td>
+                                    <td class="col-price">{line.formattedOriginalPrice}</td>
+                                    <td class="col-price">{line.formattedCurrentPrice}</td>
+                                    <td>
+                                        <button
+                                            class="add-line-btn"
+                                            data-product-id={line.productId}
+                                            onclick={handleAddLineToCart}>
+                                            Toevoegen
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </template>
+            </template>
+        </template>
+    </div>
+</template>

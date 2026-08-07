@@ -1,6 +1,7 @@
 import { LightningElement, track } from 'lwc';
 import BRANDING_URL               from '@salesforce/resourceUrl/Branding';
 import getBrandConfig              from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
+import { getCart, saveCart, clearCart } from 'c/dealerCartStorage';
 
 const VIEW_GRID         = 'grid';
 const VIEW_DETAIL       = 'detail';
@@ -20,6 +21,12 @@ export default class DealerShop extends LightningElement {
         getBrandConfig()
             .then(config => { this._brandTheme = config; })
             .catch(() => {});
+
+        this.cartItems = getCart();
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('openCart') === '1') this.cartOpen = true;
+        }
     }
 
     get isGridView()         { return this.currentView === VIEW_GRID; }
@@ -67,11 +74,13 @@ export default class DealerShop extends LightningElement {
             this.cartItems = [...this.cartItems, { ...incoming, quantity: incoming.quantity || 1 }];
         }
         this.cartOpen = true;
+        saveCart(this.cartItems);
     }
 
     handleRemoveFromCart(event) {
         const productId  = event.detail.productId;
         this.cartItems   = this.cartItems.filter(i => i.productId !== productId);
+        saveCart(this.cartItems);
     }
 
     handleCartItemChanged(event) {
@@ -79,6 +88,7 @@ export default class DealerShop extends LightningElement {
         this.cartItems = this.cartItems.map(i =>
             i.productId === productId ? { ...i, quantity } : i
         );
+        saveCart(this.cartItems);
     }
 
     handleOpenCart() {
@@ -94,6 +104,7 @@ export default class DealerShop extends LightningElement {
         this.cartItems   = [];
         this.cartOpen    = false;
         this.currentView = VIEW_CONFIRMATION;
+        clearCart();
     }
 
     handleBackToShop() {

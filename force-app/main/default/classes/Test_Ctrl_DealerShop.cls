@@ -433,6 +433,72 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
+    static void testGetOrderDetail_returnsCurrentPricing() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        PricebookEntry pbe = [SELECT Id, UnitPrice FROM PricebookEntry WHERE Product2Id = :prod.Id LIMIT 1];
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{
+                'productId' => (String) prod.Id,
+                'quantity'  => 2,
+                'unitPrice' => pbe.UnitPrice
+            }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        OpportunityLineItem placedLine = [SELECT UnitPrice FROM OpportunityLineItem WHERE OpportunityId = :opp.Id LIMIT 1];
+
+        // Simulate the account's price agreement changing AFTER the order was placed (e.g. the
+        // discount was renegotiated) - the org's own rbb_Opportunity_Product flow already applies
+        // whatever discount is active at insert time, so the only way to make historical and
+        // current genuinely diverge is to change the discount afterwards.
+        Product_Discount__c disc = [SELECT Id FROM Product_Discount__c WHERE Product__c = :prod.Id LIMIT 1];
+        disc.Discount_percentage__c = 20;
+        disc.From_Discount_1__c = 20;
+        update disc;
+
+        Ctrl_DealerShop.OrderDetailDTO detail;
+        System.runAs(portalUser()) {
+            detail = Ctrl_DealerShop.getOrderDetail(opp.Id);
+        }
+
+        System.assertEquals(orderNumber, detail.orderNumber, 'Order number should match');
+        System.assertEquals(1, detail.lines.size(), 'One line item should be returned');
+
+        Ctrl_DealerShop.OrderLineDTO line = detail.lines[0];
+        System.assertEquals(prod.Id, line.productId, 'Line productId mismatch');
+        System.assertEquals(2, line.quantity, 'Line quantity should match the original order');
+        System.assertEquals(placedLine.UnitPrice, line.originalUnitPrice, 'originalUnitPrice should stay at the historical price actually stored on the line item');
+
+        // The discount is now 20%, not the 10% in effect when the order was placed - current
+        // pricing must reflect that change, not repeat the frozen historical price.
+        System.assertNotEquals(null, line.product, 'product DTO should be populated with current pricing');
+        System.assertEquals(79.20, line.product.unitPrice, 'current unitPrice should reflect the now-20% discount (99.00 * 0.8), not the historical price');
+        System.assertNotEquals(line.originalUnitPrice, line.product.unitPrice, 'current price must differ from the historical price once the discount changed');
+    }
+
+    @IsTest
+    static void testGetOrderDetail_invalidId_throws() {
+        Test.startTest();
+        System.runAs(portalUser()) {
+            try {
+                Ctrl_DealerShop.getOrderDetail(null);
+                System.assert(false, 'Expected an exception for a null opportunityId');
+            } catch (AuraHandledException e) {
+                System.assert(true, 'AuraHandledException expected for a null opportunityId');
+            }
+        }
+        Test.stopTest();
+    }
+
+    @IsTest
     static void testGetProductDetail_imageUrl_resolvesViaContentDistribution() {
         Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
 

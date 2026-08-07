@@ -1,0 +1,12 @@
+{
+  "type" : "sfdc_cms__route",
+  "title" : "Order Detail",
+  "contentBody" : {
+    "activeViewId" : "OrderDetail",
+    "configurationTags" : [ ],
+    "pageAccess" : "UseParent",
+    "routeType" : "custom-order-detail",
+    "urlPrefix" : "order-detail"
+  },
+  "urlName" : "order-detail"
+}
