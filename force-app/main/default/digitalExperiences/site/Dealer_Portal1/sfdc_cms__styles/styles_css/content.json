@@ -2,7 +2,14 @@
   "type" : "sfdc_cms__styles",
   "title" : "styles.css",
   "contentBody" : {
-    "fileName" : "styles.css"
+    "sfdc_cms:media" : {
+      "source" : {
+        "type" : "file",
+        "ref" : "0sNbd000000YShr",
+        "size" : 125,
+        "mimeType" : "text/css"
+      }
+    }
   },
   "urlName" : "styles-css"
 }

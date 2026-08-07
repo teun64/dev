@@ -2,7 +2,7 @@ public without sharing class Ctrl_DealerPortal {
 
     // ── Brand config ──────────────────────────────────────────────────────────
 
-    @AuraEnabled
+    @AuraEnabled(cacheable=true)
     public static BrandConfigDTO getBrandConfig() {
         String resellerCode = resolveResellerCode();
 
@@ -12,6 +12,7 @@ public without sharing class Ctrl_DealerPortal {
                    PortalHomeTitle__c, PortalHomeWelcome__c,
                    PortalShopCtaText__c, PortalSignupTitle__c
             FROM BrandThemeConfig__mdt
+            WITH SYSTEM_MODE
         ];
 
         BrandThemeConfig__mdt matched = null;
@@ -45,7 +46,7 @@ public without sharing class Ctrl_DealerPortal {
 
     // ── Footer info ───────────────────────────────────────────────────────────
 
-    @AuraEnabled
+    @AuraEnabled(cacheable=true)
     public static FooterDTO getFooterInfo() {
         String resellerCode = resolveResellerCode();
 

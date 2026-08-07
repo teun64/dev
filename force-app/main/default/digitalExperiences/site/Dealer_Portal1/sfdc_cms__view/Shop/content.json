@@ -15,7 +15,7 @@
             "layoutDirectionTablet" : "column",
             "maxContentWidth" : "",
             "sectionColumnGutterWidth" : "",
-            "sectionConfig" : "{\"UUID\":\"69eea922-22b7-480e-af3d-75b3a3d5b7ea\",\"columns\":[{\"UUID\":\"c89ca54b-cdf9-429d-8b0e-391e60e06d80\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
+            "sectionConfig" : "{\"UUID\":\"d53bda98-0674-4f23-9ccd-92c7f1ac322f\",\"columns\":[{\"UUID\":\"6864f197-5506-4da0-9f5f-2ae96c345147\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":[]}]}",
             "sectionMinHeight" : "",
             "sectionVerticalAlign" : "flex-start"
           },
@@ -23,19 +23,19 @@
             "children" : [ {
               "attributes" : { },
               "definition" : "c:dealerShop",
-              "id" : "a1ee7404-8690-407f-b657-62e7778eb6fc",
+              "id" : "5500114d-b8f3-4445-a2b2-6484ddbc9f9e",
               "type" : "component"
             } ],
-            "id" : "c89ca54b-cdf9-429d-8b0e-391e60e06d80",
+            "id" : "6864f197-5506-4da0-9f5f-2ae96c345147",
             "name" : "col1",
             "title" : "Column 1",
             "type" : "region"
           } ],
           "definition" : "community_layout:section",
-          "id" : "69eea922-22b7-480e-af3d-75b3a3d5b7ea",
+          "id" : "d53bda98-0674-4f23-9ccd-92c7f1ac322f",
           "type" : "component"
         } ],
-        "id" : "258663f6-0593-445e-8386-60a68d177826",
+        "id" : "88b90413-0037-466b-b101-3b8706b2256a",
         "name" : "content",
         "title" : "Content",
         "type" : "region"
@@ -49,7 +49,7 @@
             "recordId" : "{!recordId}"
           },
           "definition" : "community_builder:seoAssistant",
-          "id" : "3e417ac1-fe1b-4b8b-9e11-f2d6cf710244",
+          "id" : "750639d0-f5b5-414a-8b4c-5535019ebbda",
           "type" : "component"
         } ],
         "id" : "0482f92e-4189-46b4-b926-cfe368b5dd91",

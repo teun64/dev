@@ -9,13 +9,12 @@
             "backgroundImageConfig" : "",
             "backgroundImageOverlay" : "rgba(0,0,0,0)",
             "componentSpacerSize" : "",
-            "dxpStyle" : { },
             "layoutDirectionDesktop" : "row",
             "layoutDirectionMobile" : "column",
             "layoutDirectionTablet" : "column",
             "maxContentWidth" : "",
             "sectionColumnGutterWidth" : "",
-            "sectionConfig" : "{\"UUID\":\"b3389748-8493-4451-8260-831eaab2ead9\",\"columns\":[{\"UUID\":\"a9cb3181-c98d-415b-9f44-53e26cfc93b1\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionConfig" : "{\"UUID\":\"4895d8ca-6b41-4ff8-a0cf-af6399ca2145\",\"columns\":[{\"UUID\":\"fb856b5e-e2b1-4ae3-87de-e8182fb66b37\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
             "sectionMinHeight" : "",
             "sectionVerticalAlign" : "flex-start"
           },
@@ -23,35 +22,33 @@
             "children" : [ {
               "attributes" : {
                 "alignment" : "left",
-                "dxpStyle" : { },
                 "imageInfo" : "",
                 "imageInfoMobile" : "",
                 "logoWidth" : 250
               },
               "definition" : "dxp_content_layout:siteLogo",
-              "id" : "a549956c-9653-41a7-ad59-0579f20265b2",
+              "id" : "17222f2c-691e-42f6-a85d-5b9368c4016c",
               "type" : "component"
             }, {
               "attributes" : {
                 "checkEmailMessage" : "Check the email account associated with your username for the link to reset your password. If you didn't get an email, check your Spam folder. Or contact your administrator.",
-                "dxpStyle" : { },
                 "returnButtonLabel" : "Back to login",
                 "titleLabel" : "Now check your email"
               },
               "definition" : "community_login:checkEmail",
-              "id" : "720f88f7-d74c-4741-8f31-7b284ada56dd",
+              "id" : "6b12fba6-ab5f-4030-a93a-9741a75fe2d6",
               "type" : "component"
             } ],
-            "id" : "a9cb3181-c98d-415b-9f44-53e26cfc93b1",
+            "id" : "fb856b5e-e2b1-4ae3-87de-e8182fb66b37",
             "name" : "col1",
             "title" : "Column 1",
             "type" : "region"
           } ],
           "definition" : "community_layout:section",
-          "id" : "b3389748-8493-4451-8260-831eaab2ead9",
+          "id" : "4895d8ca-6b41-4ff8-a0cf-af6399ca2145",
           "type" : "component"
         } ],
-        "id" : "d8fb8445-2b56-4851-9e79-cd3da6b17c01",
+        "id" : "6266db1a-c776-47b2-8b62-98ee71891b60",
         "name" : "content",
         "title" : "Content",
         "type" : "region"
@@ -60,21 +57,20 @@
           "attributes" : {
             "customHeadTags" : "",
             "description" : "",
-            "dxpStyle" : { },
             "pageTitle" : "Check Password",
             "recordId" : "{!recordId}"
           },
           "definition" : "community_builder:seoAssistant",
-          "id" : "c5295daf-de97-46c3-83ca-1b68449c8ac3",
+          "id" : "66a99c22-1dea-4f8b-8f06-0310b7860ce6",
           "type" : "component"
         } ],
-        "id" : "7b217774-0a47-41bd-b1c2-6ee356c03297",
+        "id" : "6fc74305-cd03-4ebb-a743-fadc5662080a",
         "name" : "sfdcHiddenRegion",
         "title" : "sfdcHiddenRegion",
         "type" : "region"
       } ],
       "definition" : "community_layout:sldsFlexibleLayout",
-      "id" : "8754578a-69ba-4de1-bb13-7983db36dc2e",
+      "id" : "11ed0b7c-896c-459f-83cb-8252b29043ea",
       "type" : "component"
     },
     "dataProviders" : [ ],

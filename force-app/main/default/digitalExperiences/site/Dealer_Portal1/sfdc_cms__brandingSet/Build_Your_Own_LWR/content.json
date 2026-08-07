@@ -1,6 +1,6 @@
 {
   "type" : "sfdc_cms__brandingSet",
-  "title" : "Moving Intelligence Dealer",
+  "title" : "Build Your Own (LWR)",
   "contentBody" : {
     "brandingSetType" : "APP",
     "definitionName" : "talon-template-byo:branding",
@@ -35,7 +35,7 @@
       "ButtonFont" : "var(--dxp-s-html-font-family)",
       "ButtonFontSize" : "1rem",
       "ButtonFontStyle" : "normal",
-      "ButtonFontWeight" : "600",
+      "ButtonFontWeight" : "400",
       "ButtonHoverBorderColor" : "var(--dxp-s-button-color-hover)",
       "ButtonHoverColor" : "var(--dxp-s-button-color-1)",
       "ButtonHoverTextColor" : "var(--dxp-s-button-color-contrast-1)",
@@ -171,7 +171,7 @@
       "MaxContentWidthDesktop" : "1800px",
       "MaxContentWidthMobile" : "none",
       "MobileBaseFontSize" : "1rem",
-      "PrimaryAccentColor" : "#cc0000",
+      "PrimaryAccentColor" : "#005fb2",
       "PrimaryAccentForegroundColor" : "#ffffff",
       "SecondaryButtonBorderColor" : "var(--dxp-s-button-color)",
       "SecondaryButtonColor" : "var(--dxp-g-root)",
@@ -195,14 +195,14 @@
       "TextColor" : "#1a1b1e",
       "VerticalRowPaddingDesktop" : "1rem",
       "VerticalRowPaddingMobile" : "0.75rem",
-      "_BackgroundColor1" : "#f5e6e6",
-      "_BackgroundColor2" : "#e0b3b3",
-      "_BackgroundColor3" : "#c06060",
+      "_BackgroundColor1" : "#ebebeb",
+      "_BackgroundColor2" : "#c2c2c2",
+      "_BackgroundColor3" : "#858585",
       "_ButtonActiveBorderColor" : "var(--dxp-s-button-border-color-focus)",
       "_ButtonActiveColor" : "var(--dxp-s-button-color-focus)",
       "_ButtonActiveTextColor" : "var(--dxp-s-button-color-focus-contrast)",
-      "_ButtonColor1" : "#a80000",
-      "_ButtonTextColor1" : "#ffffff",
+      "_ButtonColor1" : "var(--dxp-g-brand-1)",
+      "_ButtonTextColor1" : "var(--dxp-g-brand-contrast-1)",
       "_DestructiveColor" : "#c23934",
       "_DestructiveColor1" : "#a2302b",
       "_DestructiveColor2" : "#611d1a",
@@ -236,9 +236,9 @@
       "_OfflineForegroundColor1" : "#ffffff",
       "_OfflineForegroundColor2" : "#ffffff",
       "_OfflineForegroundColor3" : "#ffffff",
-      "_PrimaryAccentColor1" : "#a80000",
-      "_PrimaryAccentColor2" : "#7a0000",
-      "_PrimaryAccentColor3" : "#3d0000",
+      "_PrimaryAccentColor1" : "#004989",
+      "_PrimaryAccentColor2" : "#001e38",
+      "_PrimaryAccentColor3" : "#000000",
       "_PrimaryAccentForegroundColor1" : "#ffffff",
       "_PrimaryAccentForegroundColor2" : "#ffffff",
       "_PrimaryAccentForegroundColor3" : "#ffffff",
@@ -276,5 +276,5 @@
       "_WarningForegroundColor3" : "#ffffff"
     }
   },
-  "urlName" : "mi-dealer"
+  "urlName" : "build-your-own-lwr"
 }

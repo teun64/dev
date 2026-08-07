@@ -36,18 +36,18 @@ export default class DealerNav extends LightningElement {
     }
 
     get homeClass() {
-        return this.currentPath === '/dealer' || this.currentPath === '/dealer/' ? 'nav-link active' : 'nav-link';
+        return this.currentPath === '/dealers' || this.currentPath === '/dealers/' ? 'nav-link active' : 'nav-link';
     }
 
     get shopClass() {
-        return this.currentPath.includes('/dealer/shop') ? 'nav-link active' : 'nav-link';
+        return this.currentPath.includes('/dealers/shop') ? 'nav-link active' : 'nav-link';
     }
 
     handleShopClick(event) {
         if (this.config && this.config.isAuthenticated) return;
         event.preventDefault();
         if (typeof window !== 'undefined') {
-            window.location.href = '/dealer/login?startURL=/dealer/shop';
+            window.location.href = '/dealers/login?startURL=/dealers/shop';
         }
     }
 }

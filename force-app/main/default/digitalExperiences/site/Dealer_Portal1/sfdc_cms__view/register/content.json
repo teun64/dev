@@ -9,13 +9,12 @@
             "backgroundImageConfig" : "",
             "backgroundImageOverlay" : "rgba(0,0,0,0)",
             "componentSpacerSize" : "",
-            "dxpStyle" : { },
             "layoutDirectionDesktop" : "row",
             "layoutDirectionMobile" : "column",
             "layoutDirectionTablet" : "column",
             "maxContentWidth" : "",
             "sectionColumnGutterWidth" : "",
-            "sectionConfig" : "{\"UUID\":\"b8c9d0e1-f2a3-4456-5678-901234567890\",\"columns\":[{\"UUID\":\"c9d0e1f2-a3b4-4567-6789-012345678901\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+            "sectionConfig" : "{\"UUID\":\"e5fea288-05de-457c-a794-9643070e0246\",\"columns\":[{\"UUID\":\"11c1c6ea-9c45-4108-95cf-df354a4efee3\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
             "sectionMinHeight" : "",
             "sectionVerticalAlign" : "flex-start"
           },
@@ -23,41 +22,39 @@
             "children" : [ {
               "attributes" : {
                 "alignment" : "left",
-                "dxpStyle" : { },
                 "imageInfo" : "",
                 "imageInfoMobile" : "",
                 "logoWidth" : 250
               },
               "definition" : "dxp_content_layout:siteLogo",
-              "id" : "d0e1f2a3-b4c5-4678-7890-123456789012",
+              "id" : "859113dd-4f2e-4f35-9186-87b1583b0717",
               "type" : "component"
             }, {
               "attributes" : {
-                "cancelLinkLabel" : "Al een account?",
-                "confirmPasswordLabel" : "Bevestig wachtwoord",
-                "dxpStyle" : { },
-                "emailLabel" : "E-mailadres",
-                "firstnameLabel" : "Voornaam",
+                "cancelLinkLabel" : "Already have an account?",
+                "confirmPasswordLabel" : "Confirm Password",
+                "emailLabel" : "Email",
+                "firstnameLabel" : "First Name",
                 "includePasswordField" : true,
-                "lastnameLabel" : "Achternaam",
-                "passwordLabel" : "Wachtwoord aanmaken",
+                "lastnameLabel" : "Last Name",
+                "passwordLabel" : "Create Password",
                 "regConfirmUrl" : "./CheckPasswordResetEmail",
-                "submitButtonLabel" : "Aanmelden"
+                "submitButtonLabel" : "Sign Up"
               },
               "definition" : "community_login:selfRegister",
-              "id" : "e1f2a3b4-c5d6-4789-8901-234567890123",
+              "id" : "29cd1557-d6e5-4c0b-a8ab-ede4314bcf06",
               "type" : "component"
             } ],
-            "id" : "c9d0e1f2-a3b4-4567-6789-012345678901",
+            "id" : "11c1c6ea-9c45-4108-95cf-df354a4efee3",
             "name" : "col1",
             "title" : "Column 1",
             "type" : "region"
           } ],
           "definition" : "community_layout:section",
-          "id" : "b8c9d0e1-f2a3-4456-5678-901234567890",
+          "id" : "e5fea288-05de-457c-a794-9643070e0246",
           "type" : "component"
         } ],
-        "id" : "f2a3b4c5-d6e7-4890-9012-345678901234",
+        "id" : "2586ab17-406d-4e6b-a78c-a70fe392955f",
         "name" : "content",
         "title" : "Content",
         "type" : "region"
@@ -66,21 +63,20 @@
           "attributes" : {
             "customHeadTags" : "",
             "description" : "",
-            "dxpStyle" : { },
-            "pageTitle" : "Aanmelden",
+            "pageTitle" : "Register",
             "recordId" : "{!recordId}"
           },
           "definition" : "community_builder:seoAssistant",
-          "id" : "a3b4c5d6-e7f8-4901-0123-456789012345",
+          "id" : "007df0bd-2302-460f-9caa-c6cbb42befc5",
           "type" : "component"
         } ],
-        "id" : "b4c5d6e7-f8a9-4012-1234-567890123456",
+        "id" : "95ba527c-5716-4c03-9cf8-972bbedaca8a",
         "name" : "sfdcHiddenRegion",
         "title" : "sfdcHiddenRegion",
         "type" : "region"
       } ],
       "definition" : "community_layout:sldsFlexibleLayout",
-      "id" : "c5d6e7f8-a9b0-4123-2345-678901234567",
+      "id" : "fab18211-79a1-4492-b1c9-ac9b76528dda",
       "type" : "component"
     },
     "dataProviders" : [ ],

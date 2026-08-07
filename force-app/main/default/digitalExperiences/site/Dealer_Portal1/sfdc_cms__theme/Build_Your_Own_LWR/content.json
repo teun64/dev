@@ -1,8 +1,8 @@
 {
   "type" : "sfdc_cms__theme",
-  "title" : "Moving Intelligence Dealer",
+  "title" : "Build Your Own (LWR)",
   "contentBody" : {
-    "activeBrandingSetId" : "MI_Dealer",
+    "activeBrandingSetId" : "Build_Your_Own_LWR",
     "definitionName" : "byo",
     "layouts" : [ {
       "layoutId" : "snaThemeLayout",
@@ -12,5 +12,5 @@
       "layoutType" : "Inner"
     } ]
   },
-  "urlName" : "mi-dealer"
+  "urlName" : "build-your-own-lwr"
 }

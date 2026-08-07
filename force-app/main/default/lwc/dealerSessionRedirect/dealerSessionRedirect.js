@@ -21,7 +21,7 @@ export default class DealerSessionRedirect extends LightningElement {
         if (startURL.includes('session/receive')) return;
 
         // Salesforce encodes site-relative paths as //sitePath/...
-        // Convert //dealer/path → /dealer/path (same-origin absolute path)
+        // Convert //dealers/path → /dealers/path (same-origin absolute path)
         if (startURL.startsWith('//')) {
             startURL = startURL.substring(1);
         }

@@ -3,7 +3,7 @@
   "title" : "Service Not Available",
   "contentBody" : {
     "activeViewId" : "serviceNotAvailable",
-    "configurationTags" : [ ],
+    "configurationTags" : [ "allow-in-static-site" ],
     "pageAccess" : "UseParent",
     "routeType" : "service-not-available",
     "urlPrefix" : "service-not-available"

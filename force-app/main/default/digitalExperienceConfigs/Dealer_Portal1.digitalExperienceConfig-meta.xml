@@ -2,7 +2,7 @@
 <DigitalExperienceConfig xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>Dealer Portal</label>
     <site>
-        <urlPathPrefix>dealer</urlPathPrefix>
+        <urlPathPrefix>dealers</urlPathPrefix>
     </site>
     <space>site/Dealer_Portal1</space>
 </DigitalExperienceConfig>
