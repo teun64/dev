@@ -22,7 +22,7 @@
     </values>
     <values>
         <field>LogoStaticResource__c</field>
-        <value xsi:type="xsd:string">2026/img/echoes-logo-black-blue-rgb.png</value>
+        <value xsi:type="xsd:string">Branding/2026/img/echoes-logo-black-blue-rgb.png</value>
     </values>
     <values>
         <field>McBrandId__c</field>

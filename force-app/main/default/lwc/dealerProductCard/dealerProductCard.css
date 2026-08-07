@@ -1,5 +1,5 @@
 .card {
-    background: #fff;
+    background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -14,7 +14,7 @@
 .card:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    border-top-color: var(--brand-accent, #cc0000);
+    border-top-color: var(--brand-primary, #cc0000);
 }
 
 .card-image {
@@ -22,7 +22,7 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    background-color: var(--brand-secondary, #fdf0f0);
+    background-color: #ffffff;
     flex-shrink: 0;
 }
 
@@ -32,7 +32,7 @@
     left: 0;
     right: 0;
     background: rgba(28, 28, 28, 0.82);
-    color: #fff;
+    color: #ffffff;
     font-size: 0.8rem;
     line-height: 1.45;
     padding: 0.5rem 0.75rem;
@@ -60,8 +60,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--brand-secondary, #fdf0f0);
-    color: #999;
+    background-color: #ffffff;
+    color: var(--brand-primary, #cc0000);
     font-size: 0.8rem;
 }
 
@@ -92,7 +92,7 @@
 .product-price {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--brand-accent, #cc0000);
+    color: var(--brand-primary, #cc0000);
     margin: 0 0 0.5rem;
 }
 
@@ -121,8 +121,8 @@
 
 .btn-add-cart {
     width: 100%;
-    background-color: var(--brand-accent, #cc0000);
-    color: #fff;
+    background-color: var(--brand-primary, #cc0000);
+    color: #ffffff;
     border: none;
     border-radius: 4px;
     padding: 0.5rem 0;

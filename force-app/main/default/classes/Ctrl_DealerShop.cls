@@ -38,6 +38,7 @@ public without sharing class Ctrl_DealerShop {
             WHERE Name LIKE '%Dealer%'
               AND Name LIKE :('%' + countryCode + '%')
               AND Name LIKE :('%' + market + '%')
+            WITH SYSTEM_MODE
             ORDER BY Name DESC
             LIMIT 1
         ];
@@ -47,6 +48,7 @@ public without sharing class Ctrl_DealerShop {
             SELECT Id
             FROM Pricebook2
             WHERE Name LIKE '%Dealer%'
+            WITH SYSTEM_MODE
             ORDER BY Name DESC
             LIMIT 1
         ];
@@ -251,11 +253,28 @@ public without sharing class Ctrl_DealerShop {
             cvByDoc.put(cv.ContentDocumentId, cv.Id);
         }
 
-        String orgBase = System.URL.getOrgDomainUrl().toExternalForm();
+        // A raw "/sfc/servlet.shepherd/version/download/{id}" path (with or without a site prefix)
+        // does not reliably serve the file to portal/guest users on a My Domain/LWR site - it returns
+        // errorduringprocessing.jsp instead, even with the correct site prefix and even for otherwise-
+        // visible files. ContentDistribution.ContentDownloadUrl is the platform-supported way to expose
+        // a file for external/community viewing; distributions must already exist (created ahead of
+        // time, e.g. when the file is linked to the product) since this method must stay read-only to
+        // remain @AuraEnabled(cacheable=true)-compatible for callers that use @wire.
+        Map<Id, String> urlByContentVersion = new Map<Id, String>();
+        for (ContentDistribution cd : [
+            SELECT ContentVersionId, ContentDownloadUrl
+            FROM ContentDistribution
+            WHERE ContentVersionId IN :cvByDoc.values()
+            WITH SYSTEM_MODE
+        ]) {
+            urlByContentVersion.put(cd.ContentVersionId, cd.ContentDownloadUrl);
+        }
+
         for (Id productId : cdocByProduct.keySet()) {
             Id cvId = cvByDoc.get(cdocByProduct.get(productId));
-            if (cvId != null) {
-                result.put(productId, orgBase + '/sfc/servlet.shepherd/version/download/' + cvId);
+            String url = cvId != null ? urlByContentVersion.get(cvId) : null;
+            if (url != null) {
+                result.put(productId, url);
             }
         }
         return result;
@@ -446,8 +465,8 @@ public without sharing class Ctrl_DealerShop {
         String lang    = ctx.language;
         Id baseRtId    = baseTranslationRtId;
         List<Product2> prods = [
-            SELECT Id, Name, ProductCode, Description, longDescription__c, Category_Platform__c,
-                   (SELECT Id, Name__c, Short_Description__c, Description__c FROM Data_Translations__r
+            SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                   (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
                     WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
             FROM Product2
             WHERE Id = :productId
@@ -533,13 +552,15 @@ public without sharing class Ctrl_DealerShop {
             entryByProduct.put(pbe.Product2Id, pbe);
         }
 
+        // Order/OrderItem access can't be granted to the Customer Community Plus license at all
+        // (not a permission-set gap - the license itself doesn't allow it), so these run as system.
         Order ord = new Order(
             AccountId      = acct.Id,
             EffectiveDate  = Date.today(),
             Status         = 'Draft',
             Pricebook2Id   = pricebookId
         );
-        insert ord;
+        Database.insert(ord, AccessLevel.SYSTEM_MODE);
 
         List<OrderItem> orderItems = new List<OrderItem>();
         for (CartItemInput item : items) {
@@ -559,11 +580,11 @@ public without sharing class Ctrl_DealerShop {
         }
 
         if (orderItems.isEmpty()) {
-            delete ord;
+            Database.delete(ord, AccessLevel.SYSTEM_MODE);
             throw new AuraHandledException('No valid order items could be created from cart.');
         }
 
-        insert orderItems;
+        Database.insert(orderItems, AccessLevel.SYSTEM_MODE);
         return ord.Id;
     }
 
