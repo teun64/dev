@@ -122,7 +122,7 @@ public without sharing class Ctrl_DealerShop {
 
     private static DealerContext buildContextFromContact(Contact con, String defaultLang) {
         List<Account> accounts = [
-            SELECT Id, BillingCountryCode, Dealer_category__c, Sales_Language__c
+            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c
             FROM Account WHERE Id = :con.AccountId WITH SYSTEM_MODE LIMIT 1
         ];
         if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
@@ -552,40 +552,67 @@ public without sharing class Ctrl_DealerShop {
             entryByProduct.put(pbe.Product2Id, pbe);
         }
 
-        // Order/OrderItem access can't be granted to the Customer Community Plus license at all
-        // (not a permission-set gap - the license itself doesn't allow it), so these run as system.
-        Order ord = new Order(
-            AccountId      = acct.Id,
-            EffectiveDate  = Date.today(),
-            Status         = 'Draft',
-            Pricebook2Id   = pricebookId
-        );
-        Database.insert(ord, AccessLevel.SYSTEM_MODE);
+        List<RecordType> webshopRts = [
+            SELECT Id FROM RecordType
+            WHERE SObjectType = 'Opportunity' AND DeveloperName = 'Webshop'
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
 
-        List<OrderItem> orderItems = new List<OrderItem>();
+        // Opportunity/OpportunityLineItem access can't be granted to the Customer Community Plus
+        // license at all (not a permission-set gap - the license itself doesn't allow it), so
+        // these run as system - same pattern as the Order/OrderItem approach this replaces.
+        //
+        // Name is capped at 40 chars here (not the field's own limit): the org-wide "rac -
+        // Opportunity" after-save flow copies Name into Customer_Reference__c (max length 40) for
+        // any blank-reference Webshop opportunity, and throws CANNOT_EXECUTE_FLOW_TRIGGER /
+        // STRING_TOO_LONG if it doesn't fit.
+        String namePrefix = 'Shop ' + String.valueOf(Date.today()) + ' - ';
+        String acctPart    = String.isNotBlank(acct.Name) ? acct.Name : String.valueOf(acct.Id);
+        Integer maxAcctLen = 40 - namePrefix.length();
+        if (acctPart.length() > maxAcctLen) acctPart = acctPart.substring(0, maxAcctLen);
+
+        Opportunity opp = new Opportunity(
+            AccountId    = acct.Id,
+            Name         = namePrefix + acctPart,
+            Type         = 'Webshop',
+            LeadSource   = 'Webshop',
+            StageName    = 'Webshop',
+            CloseDate    = Date.today().addDays(30),
+            RecordTypeId = webshopRts.isEmpty() ? null : webshopRts[0].Id
+        );
+        Database.insert(opp, AccessLevel.SYSTEM_MODE);
+
+        // The org-wide "rbc - Opportunity" before-save flow re-resolves Pricebook2Id for every
+        // new Opportunity from the account's sales relation type, overriding whatever we set on
+        // insert. Dealer-shop pricing must use the dealer pricebook resolved above, so force it
+        // back with a follow-up update (that flow only fires on Create, so this update sticks).
+        opp.Pricebook2Id = pricebookId;
+        Database.update(opp, AccessLevel.SYSTEM_MODE);
+
+        List<OpportunityLineItem> lineItems = new List<OpportunityLineItem>();
         for (CartItemInput item : items) {
             if (item.productId == null || item.quantity == null || item.quantity <= 0) continue;
             PricebookEntry pbe = entryByProduct.get(item.productId);
             if (pbe == null) continue;
 
             Decimal unitPrice = item.unitPrice != null ? item.unitPrice : pbe.UnitPrice;
-            orderItems.add(new OrderItem(
-                OrderId          = ord.Id,
+            lineItems.add(new OpportunityLineItem(
+                OpportunityId    = opp.Id,
                 Product2Id       = item.productId,
                 PricebookEntryId = pbe.Id,
                 Quantity         = item.quantity,
-                UnitPrice        = unitPrice,
-                ListPrice        = pbe.UnitPrice
+                UnitPrice        = unitPrice
             ));
         }
 
-        if (orderItems.isEmpty()) {
-            Database.delete(ord, AccessLevel.SYSTEM_MODE);
+        if (lineItems.isEmpty()) {
+            Database.delete(opp, AccessLevel.SYSTEM_MODE);
             throw new AuraHandledException('No valid order items could be created from cart.');
         }
 
-        Database.insert(orderItems, AccessLevel.SYSTEM_MODE);
-        return ord.Id;
+        Database.insert(lineItems, AccessLevel.SYSTEM_MODE);
+        return opp.Id;
     }
 
     // ── Inner classes ─────────────────────────────────────────────────────────

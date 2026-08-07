@@ -6,7 +6,7 @@ private class Test_Ctrl_DealerShop {
         Account acc = new Account(
             Name                = 'Test Dealer',
             BillingCountryCode  = 'NL',
-            Dealer_category__c  = 'Gold',
+            Dealer_category__c  = 'D - 0 tot 12',
             RecordTypeId        = Schema.SObjectType.Account
                                     .getRecordTypeInfosByDeveloperName()
                                     .get('B2B')
@@ -160,7 +160,7 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
-    static void testPlaceOrder_createsOrderAndItems() {
+    static void testPlaceOrder_createsOpportunityAndItems() {
         Account acc = [SELECT Id FROM Account LIMIT 1];
         Product2 prod = [
             SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1
@@ -186,27 +186,27 @@ private class Test_Ctrl_DealerShop {
         });
 
         Test.startTest();
-        Id orderId = Ctrl_DealerShop.placeOrder(cartJson);
+        Id oppId = Ctrl_DealerShop.placeOrder(cartJson);
         Test.stopTest();
 
-        System.assertNotEquals(null, orderId, 'Order Id should be returned');
+        System.assertNotEquals(null, oppId, 'Opportunity Id should be returned');
 
-        Order ord = [
-            SELECT Id, AccountId, Status, Pricebook2Id, CurrencyIsoCode
-            FROM Order
-            WHERE Id = :orderId
+        Opportunity opp = [
+            SELECT Id, AccountId, StageName, Type, LeadSource, Pricebook2Id
+            FROM Opportunity
+            WHERE Id = :oppId
         ];
-        System.assertEquals(acc.Id, ord.AccountId, 'Order AccountId mismatch');
-        System.assertNotEquals(null, ord.Status, 'Order Status should be set');
+        System.assertEquals(acc.Id, opp.AccountId, 'Opportunity AccountId mismatch');
+        System.assertEquals('Webshop', opp.StageName, 'Opportunity StageName should be Webshop');
 
-        List<OrderItem> items = [
+        List<OpportunityLineItem> items = [
             SELECT Id, Product2Id, Quantity, UnitPrice
-            FROM OrderItem
-            WHERE OrderId = :orderId
+            FROM OpportunityLineItem
+            WHERE OpportunityId = :oppId
         ];
-        System.assertEquals(1, items.size(), 'One OrderItem should be created');
-        System.assertEquals(prod.Id, items[0].Product2Id, 'OrderItem Product2Id mismatch');
-        System.assertEquals(2, items[0].Quantity, 'OrderItem Quantity mismatch');
+        System.assertEquals(1, items.size(), 'One OpportunityLineItem should be created');
+        System.assertEquals(prod.Id, items[0].Product2Id, 'OpportunityLineItem Product2Id mismatch');
+        System.assertEquals(2, items[0].Quantity, 'OpportunityLineItem Quantity mismatch');
     }
 
     @IsTest
@@ -240,18 +240,18 @@ private class Test_Ctrl_DealerShop {
         });
 
         Test.startTest();
-        Id orderId = Ctrl_DealerShop.placeOrder(cartJson);
+        Id oppId = Ctrl_DealerShop.placeOrder(cartJson);
         Test.stopTest();
 
-        System.assertNotEquals(null, orderId, 'Order Id should be returned');
+        System.assertNotEquals(null, oppId, 'Opportunity Id should be returned');
 
-        List<OrderItem> items = [
+        List<OpportunityLineItem> items = [
             SELECT Id, Product2Id, Quantity
-            FROM OrderItem
-            WHERE OrderId = :orderId
+            FROM OpportunityLineItem
+            WHERE OpportunityId = :oppId
             ORDER BY Quantity ASC
         ];
-        System.assertEquals(2, items.size(), 'Two OrderItems should be created');
+        System.assertEquals(2, items.size(), 'Two OpportunityLineItems should be created');
     }
 
     @IsTest
