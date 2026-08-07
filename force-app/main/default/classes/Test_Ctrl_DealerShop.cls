@@ -186,27 +186,27 @@ private class Test_Ctrl_DealerShop {
         });
 
         Test.startTest();
-        Id oppId = Ctrl_DealerShop.placeOrder(cartJson);
+        String orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
         Test.stopTest();
 
-        System.assertNotEquals(null, oppId, 'Opportunity Id should be returned');
+        System.assertNotEquals(null, orderNumber, 'Order number should be returned');
 
         Opportunity opp = [
             SELECT Id, Name, AccountId, StageName, Type, LeadSource, Pricebook2Id, Auto_Number__c, RecordType.Name
             FROM Opportunity
-            WHERE Id = :oppId
+            WHERE Name = :orderNumber
         ];
         System.assertEquals(acc.Id, opp.AccountId, 'Opportunity AccountId mismatch');
         System.assertEquals('Webshop', opp.StageName, 'Opportunity StageName should be Webshop');
         System.assertEquals(
-            opp.RecordType.Name + '#' + opp.Auto_Number__c, opp.Name,
+            opp.RecordType.Name + ' #' + opp.Auto_Number__c, opp.Name,
             'Opportunity Name should be "<RecordType Name>#<Opportunity Number>"'
         );
 
         List<OpportunityLineItem> items = [
             SELECT Id, Product2Id, Quantity, UnitPrice
             FROM OpportunityLineItem
-            WHERE OpportunityId = :oppId
+            WHERE OpportunityId = :opp.Id
         ];
         System.assertEquals(1, items.size(), 'One OpportunityLineItem should be created');
         System.assertEquals(prod.Id, items[0].Product2Id, 'OpportunityLineItem Product2Id mismatch');
@@ -244,15 +244,16 @@ private class Test_Ctrl_DealerShop {
         });
 
         Test.startTest();
-        Id oppId = Ctrl_DealerShop.placeOrder(cartJson);
+        String orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
         Test.stopTest();
 
-        System.assertNotEquals(null, oppId, 'Opportunity Id should be returned');
+        System.assertNotEquals(null, orderNumber, 'Order number should be returned');
 
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
         List<OpportunityLineItem> items = [
             SELECT Id, Product2Id, Quantity
             FROM OpportunityLineItem
-            WHERE OpportunityId = :oppId
+            WHERE OpportunityId = :opp.Id
             ORDER BY Quantity ASC
         ];
         System.assertEquals(2, items.size(), 'Two OpportunityLineItems should be created');

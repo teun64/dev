@@ -14,6 +14,7 @@ export default class DealerShop extends LightningElement {
     @track cartOpen          = false;
     @track activeCategory    = '';
     @track _brandTheme       = null;
+    @track orderId           = null;
 
     connectedCallback() {
         getBrandConfig()
@@ -88,7 +89,8 @@ export default class DealerShop extends LightningElement {
         this.cartOpen = false;
     }
 
-    handleOrderPlaced() {
+    handleOrderPlaced(event) {
+        this.orderId     = event.detail.orderId;
         this.cartItems   = [];
         this.cartOpen    = false;
         this.currentView = VIEW_CONFIRMATION;

@@ -41,6 +41,7 @@
 
             <template if:true={isConfirmationView}>
                 <c-dealer-order-confirmation
+                    order-id={orderId}
                     onbacktoshop={handleBackToShop}>
                 </c-dealer-order-confirmation>
             </template>

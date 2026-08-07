@@ -519,7 +519,7 @@ public without sharing class Ctrl_DealerShop {
     }
 
     @AuraEnabled
-    public static Id placeOrder(String cartJson) {
+    public static String placeOrder(String cartJson) {
         if (String.isBlank(cartJson)) throw new AuraHandledException('cartJson is required.');
 
         List<CartItemInput> items;
@@ -590,7 +590,7 @@ public without sharing class Ctrl_DealerShop {
         // new Opportunity from the account's sales relation type, overriding whatever we set on
         // insert. Dealer-shop pricing must use the dealer pricebook resolved above, so force it
         // back with a follow-up update (that flow only fires on Create, so this update sticks).
-        opp.Name         = (webshopRt != null ? webshopRt.Name : 'Webshop') + '#' + opp.Auto_Number__c;
+        opp.Name         = (webshopRt != null ? webshopRt.Name : 'Webshop') + ' #' + opp.Auto_Number__c;
         opp.Pricebook2Id = pricebookId;
         Database.update(opp, AccessLevel.SYSTEM_MODE);
 
@@ -616,7 +616,7 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Database.insert(lineItems, AccessLevel.SYSTEM_MODE);
-        return opp.Id;
+        return opp.Name;
     }
 
     // ── Inner classes ─────────────────────────────────────────────────────────
