@@ -192,12 +192,16 @@ private class Test_Ctrl_DealerShop {
         System.assertNotEquals(null, oppId, 'Opportunity Id should be returned');
 
         Opportunity opp = [
-            SELECT Id, AccountId, StageName, Type, LeadSource, Pricebook2Id
+            SELECT Id, Name, AccountId, StageName, Type, LeadSource, Pricebook2Id, Auto_Number__c, RecordType.Name
             FROM Opportunity
             WHERE Id = :oppId
         ];
         System.assertEquals(acc.Id, opp.AccountId, 'Opportunity AccountId mismatch');
         System.assertEquals('Webshop', opp.StageName, 'Opportunity StageName should be Webshop');
+        System.assertEquals(
+            opp.RecordType.Name + '#' + opp.Auto_Number__c, opp.Name,
+            'Opportunity Name should be "<RecordType Name>#<Opportunity Number>"'
+        );
 
         List<OpportunityLineItem> items = [
             SELECT Id, Product2Id, Quantity, UnitPrice

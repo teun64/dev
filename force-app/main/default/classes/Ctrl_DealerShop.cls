@@ -553,40 +553,44 @@ public without sharing class Ctrl_DealerShop {
         }
 
         List<RecordType> webshopRts = [
-            SELECT Id FROM RecordType
+            SELECT Id, Name
+            FROM RecordType
             WHERE SObjectType = 'Opportunity' AND DeveloperName = 'Webshop'
             WITH SYSTEM_MODE
             LIMIT 1
         ];
+        RecordType webshopRt = webshopRts.isEmpty() ? null : webshopRts[0];
 
         // Opportunity/OpportunityLineItem access can't be granted to the Customer Community Plus
         // license at all (not a permission-set gap - the license itself doesn't allow it), so
         // these run as system - same pattern as the Order/OrderItem approach this replaces.
         //
-        // Name is capped at 40 chars here (not the field's own limit): the org-wide "rac -
-        // Opportunity" after-save flow copies Name into Customer_Reference__c (max length 40) for
-        // any blank-reference Webshop opportunity, and throws CANNOT_EXECUTE_FLOW_TRIGGER /
-        // STRING_TOO_LONG if it doesn't fit.
-        String namePrefix = 'Shop ' + String.valueOf(Date.today()) + ' - ';
-        String acctPart    = String.isNotBlank(acct.Name) ? acct.Name : String.valueOf(acct.Id);
-        Integer maxAcctLen = 40 - namePrefix.length();
-        if (acctPart.length() > maxAcctLen) acctPart = acctPart.substring(0, maxAcctLen);
-
+        // Name can't be set to its final "<RecordType>#<Opportunity Number>" form yet - Auto_Number__c
+        // is only populated by Salesforce after the insert completes, not on the in-memory record -
+        // so insert with a placeholder and fix it up below.
         Opportunity opp = new Opportunity(
             AccountId    = acct.Id,
-            Name         = namePrefix + acctPart,
+            Name         = 'Dealer shop order',
             Type         = 'Webshop',
             LeadSource   = 'Webshop',
             StageName    = 'Webshop',
             CloseDate    = Date.today().addDays(30),
-            RecordTypeId = webshopRts.isEmpty() ? null : webshopRts[0].Id
+            RecordTypeId = webshopRt?.Id
         );
         Database.insert(opp, AccessLevel.SYSTEM_MODE);
+
+        opp = [
+            SELECT Id, Auto_Number__c
+            FROM Opportunity
+            WHERE Id = :opp.Id
+            WITH SYSTEM_MODE
+        ];
 
         // The org-wide "rbc - Opportunity" before-save flow re-resolves Pricebook2Id for every
         // new Opportunity from the account's sales relation type, overriding whatever we set on
         // insert. Dealer-shop pricing must use the dealer pricebook resolved above, so force it
         // back with a follow-up update (that flow only fires on Create, so this update sticks).
+        opp.Name         = (webshopRt != null ? webshopRt.Name : 'Webshop') + '#' + opp.Auto_Number__c;
         opp.Pricebook2Id = pricebookId;
         Database.update(opp, AccessLevel.SYSTEM_MODE);
 
