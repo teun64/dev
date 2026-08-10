@@ -390,6 +390,57 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
+    static void testGetProductDetail_customerProductCode_overridesWhenSet() {
+        Product2 prod = [SELECT Id, ProductCode FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+
+        insert new Product_Discount__c(
+            Account__c              = [SELECT Id FROM Account LIMIT 1].Id,
+            Product__c               = prod.Id,
+            IsActive__c              = true,
+            isFixedPrice__c          = false,
+            Discount_percentage__c   = 5,
+            From_Quantity_1__c       = 1,
+            From_Discount_1__c       = 5,
+            Product_Code_Customer__c = 'CUST-CODE-42'
+        );
+        // Activate separately - rbb_Product_Discount forces IsActive__c=false on every new record.
+        Product_Discount__c disc = [SELECT Id FROM Product_Discount__c WHERE Product__c = :prod.Id];
+        disc.IsActive__c = true;
+        update disc;
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals('CUST-CODE-42', dto.productCode, 'productCode should be overridden by the active discount\'s Product_Code_Customer__c');
+        System.assertNotEquals(prod.ProductCode, dto.productCode, 'productCode should not be the standard Product2.ProductCode once overridden');
+    }
+
+    @IsTest
+    static void testGetProducts_customerProductCode_blankFallsBackToStandardCode() {
+        Product2 prod = [SELECT Id, ProductCode FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        // The @TestSetup discount for PP-001 has no Product_Code_Customer__c set - productCode
+        // must fall back to the standard Product2.ProductCode rather than showing blank.
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 10);
+        }
+        Test.stopTest();
+
+        Ctrl_DealerShop.ProductDTO dto = null;
+        for (Ctrl_DealerShop.ProductDTO d : result.products) {
+            if (d.id == prod.Id) dto = d;
+        }
+        System.assertNotEquals(null, dto, 'PP-001 should be in the results');
+        System.assertEquals(prod.ProductCode, dto.productCode, 'productCode should fall back to Product2.ProductCode when Product_Code_Customer__c is blank');
+    }
+
+    @IsTest
     static void testPlaceOrder_invalidJson_throwsException() {
         Test.startTest();
         try {

@@ -312,7 +312,9 @@ public without sharing class Ctrl_DealerShop {
                                  ? trans.longDescription__c
                                  : prod.longDescription__c;
         dto.category             = prod.Category_Platform__c;
-        dto.productCode          = prod.ProductCode;
+        dto.productCode          = (disc != null && disc.IsActive__c == true && String.isNotBlank(disc.Product_Code_Customer__c))
+                                     ? disc.Product_Code_Customer__c
+                                     : prod.ProductCode;
 
         if (entry != null) {
             dto.unitPrice = entry.UnitPrice;
@@ -443,7 +445,7 @@ public without sharing class Ctrl_DealerShop {
         Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
         if (acct.Id != null && !productIds.isEmpty()) {
             for (Product_Discount__c disc : [
-                SELECT Product__c, IsActive__c, Discount_percentage__c,
+                SELECT Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c,
                        isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
                        From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
                        From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
@@ -515,7 +517,7 @@ public without sharing class Ctrl_DealerShop {
         }
 
         List<Product_Discount__c> discs = [
-            SELECT Product__c, IsActive__c, Discount_percentage__c,
+            SELECT Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c,
                    isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
                    From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
                    From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
@@ -743,7 +745,7 @@ public without sharing class Ctrl_DealerShop {
         Map<Id, Product_Discount__c> discByProduct = new Map<Id, Product_Discount__c>();
         if (!productIds.isEmpty()) {
             for (Product_Discount__c d : [
-                SELECT Product__c, IsActive__c, Discount_percentage__c,
+                SELECT Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c,
                        isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
                        From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
                        From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
