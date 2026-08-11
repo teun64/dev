@@ -4,14 +4,23 @@ import getProducts from '@salesforce/apex/Ctrl_DealerShop.getProducts';
 const PAGE_SIZE = 12;
 
 export default class DealerProductGrid extends LightningElement {
+    @api initialPage = 1;
+
     @api
     get category() {
         return this._category;
     }
     set category(value) {
-        this._category = value != null ? value : '';
-        this._currentPage = 1;
-        this.loadProducts();
+        const newValue = value != null ? value : '';
+        const changed = this._connected && newValue !== this._category;
+        this._category = newValue;
+        if (changed) {
+            this._currentPage = 1;
+            this.notifyPageChange();
+        }
+        if (this._connected) {
+            this.loadProducts();
+        }
     }
 
     @track products = [];
@@ -20,8 +29,11 @@ export default class DealerProductGrid extends LightningElement {
     @track _total = 0;
 
     _category = '';
+    _connected = false;
 
     connectedCallback() {
+        this._connected = true;
+        this._currentPage = this.initialPage > 0 ? this.initialPage : 1;
         this.loadProducts();
     }
 
@@ -69,6 +81,7 @@ export default class DealerProductGrid extends LightningElement {
         if (!this.isPrevDisabled) {
             this._currentPage -= 1;
             this.loadProducts();
+            this.notifyPageChange();
         }
     }
 
@@ -76,7 +89,43 @@ export default class DealerProductGrid extends LightningElement {
         if (!this.isNextDisabled) {
             this._currentPage += 1;
             this.loadProducts();
+            this.notifyPageChange();
         }
+    }
+
+    handlePageInputChange(event) {
+        this.goToPage(event.target, event.target.value);
+    }
+
+    handlePageInputKeydown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            this.goToPage(event.target, event.target.value);
+            event.target.blur();
+        }
+    }
+
+    goToPage(inputEl, rawValue) {
+        let parsed = parseInt(rawValue, 10);
+        if (isNaN(parsed)) {
+            parsed = this._currentPage;
+        }
+        const clamped = Math.min(Math.max(parsed, 1), this.totalPages);
+        if (clamped !== this._currentPage) {
+            this._currentPage = clamped;
+            this.loadProducts();
+            this.notifyPageChange();
+        } else if (inputEl) {
+            inputEl.value = clamped;
+        }
+    }
+
+    notifyPageChange() {
+        this.dispatchEvent(
+            new CustomEvent('pagechange', {
+                detail: { page: this._currentPage }
+            })
+        );
     }
 
     handleProductSelect(event) {

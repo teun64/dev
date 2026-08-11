@@ -26,8 +26,10 @@
             <template if:true={isGridView}>
                 <c-dealer-product-grid
                     category={activeCategory}
+                    initial-page={activePage}
                     onproductselect={handleProductSelect}
-                    onaddtocart={handleAddToCart}>
+                    onaddtocart={handleAddToCart}
+                    onpagechange={handleGridPageChange}>
                 </c-dealer-product-grid>
             </template>
 

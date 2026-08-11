@@ -59,6 +59,24 @@
     color: #333;
     min-width: 120px;
     text-align: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.page-input {
+    width: 3rem;
+    text-align: center;
+    font-size: 0.875rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.15rem 0.25rem;
+}
+
+.page-input::-webkit-inner-spin-button,
+.page-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 @media (max-width: 1200px) {

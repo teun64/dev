@@ -14,6 +14,7 @@ export default class DealerShop extends LightningElement {
     @track cartItems         = [];
     @track cartOpen          = false;
     @track activeCategory    = '';
+    @track activePage        = 1;
     @track _brandTheme       = null;
     @track orderId           = null;
 
@@ -53,7 +54,12 @@ export default class DealerShop extends LightningElement {
 
     handleCategoryChange(event) {
         this.activeCategory = event.detail.category;
+        this.activePage     = 1;
         this.currentView    = VIEW_GRID;
+    }
+
+    handleGridPageChange(event) {
+        this.activePage = event.detail.page;
     }
 
     handleProductSelect(event) {

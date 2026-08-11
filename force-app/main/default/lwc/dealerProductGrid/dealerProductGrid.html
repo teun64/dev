@@ -14,6 +14,33 @@
             </template>
 
             <template if:false={isEmpty}>
+                <div class="pagination">
+                    <button
+                        class="pagination-btn"
+                        disabled={isPrevDisabled}
+                        onclick={handlePrev}>
+                        &lsaquo; Vorige
+                    </button>
+                    <span class="page-indicator">
+                        Pagina
+                        <input
+                            type="number"
+                            class="page-input"
+                            min="1"
+                            max={totalPages}
+                            value={currentPage}
+                            onchange={handlePageInputChange}
+                            onkeydown={handlePageInputKeydown} />
+                        van {totalPages}
+                    </span>
+                    <button
+                        class="pagination-btn"
+                        disabled={isNextDisabled}
+                        onclick={handleNext}>
+                        Volgende &rsaquo;
+                    </button>
+                </div>
+
                 <div class="product-grid">
                     <template for:each={products} for:item="product">
                         <div key={product.id} class="grid-item">
@@ -33,7 +60,18 @@
                         onclick={handlePrev}>
                         &lsaquo; Vorige
                     </button>
-                    <span class="page-indicator">Pagina {currentPage} van {totalPages}</span>
+                    <span class="page-indicator">
+                        Pagina
+                        <input
+                            type="number"
+                            class="page-input"
+                            min="1"
+                            max={totalPages}
+                            value={currentPage}
+                            onchange={handlePageInputChange}
+                            onkeydown={handlePageInputKeydown} />
+                        van {totalPages}
+                    </span>
                     <button
                         class="pagination-btn"
                         disabled={isNextDisabled}
