@@ -1,46 +1,36 @@
 <template>
     <footer class="dealer-footer" style={footerStyle}>
-        <div class="footer-inner">
-            <div class="footer-brand">
-                <template if:true={logoUrl}>
-                    <img src={logoUrl} alt={brandName} class="footer-logo" />
-                </template>
-                <template if:false={logoUrl}>
-                    <span class="footer-brand-name">{brandName}</span>
-                </template>
-            </div>
-
-            <div class="footer-contact">
-                <template if:true={footer.companyName}>
-                    <p class="footer-company">{footer.companyName}</p>
-                </template>
-                <template if:true={footer.phone}>
-                    <p class="footer-item">
-                        <a href={phoneHref} class="footer-link">{footer.phone}</a>
-                    </p>
-                </template>
-                <template if:true={footer.email}>
-                    <p class="footer-item">
-                        <a href={emailHref} class="footer-link">{footer.email}</a>
-                    </p>
-                </template>
-                <template if:true={footer.website}>
-                    <p class="footer-item">
-                        <a href={websiteHref} target="_blank" class="footer-link">{footer.website}</a>
-                    </p>
-                </template>
-            </div>
-
-            <div class="footer-links">
-                <a href="/dealers" class="footer-nav-link">Home</a>
-                <a href="/dealers/shop" class="footer-nav-link">Shop</a>
-            </div>
-        </div>
+        <svg class="footer-car-icon" viewBox="0 0 240 130" aria-hidden="true" focusable="false">
+            <path d="M15 95
+                     C10 95 5 90 5 82
+                     L5 78
+                     C5 68 13 62 24 60
+                     L55 56
+                     C62 40 78 22 100 18
+                     C118 15 150 15 168 20
+                     C190 26 205 40 212 58
+                     C225 60 235 68 235 80
+                     L235 88
+                     C235 94 230 98 224 98
+                     L204 98
+                     C204 84 192 74 178 74
+                     C164 74 152 84 152 98
+                     L92 98
+                     C92 84 80 74 66 74
+                     C52 74 40 84 40 98
+                     L24 98
+                     C19 98 15 97 15 95 Z" />
+            <circle cx="66" cy="98" r="20" />
+            <circle cx="178" cy="98" r="20" />
+        </svg>
 
         <div class="footer-legal-bar">
             <div class="footer-legal-logo">
                 <template if:true={logoUrl}>
-                    <img src={logoUrl} alt={brandName} class="footer-legal-logo-img" />
+                    <img src={logoUrl} alt={brandName} class={legalLogoClass} />
+                </template>
+                <template if:false={logoUrl}>
+                    <span class="footer-brand-name">{brandName}</span>
                 </template>
             </div>
 

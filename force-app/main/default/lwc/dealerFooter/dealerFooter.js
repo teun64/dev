@@ -102,27 +102,24 @@ export default class DealerFooter extends LightningElement {
     }
 
     get logoUrl() {
-        return this.config.logoPath ? `${BRANDING}/${this.config.logoPath}` : null;
+        const path = this.config.logoPathDark || this.config.logoPath;
+        return path ? `${BRANDING}/${path}` : null;
+    }
+
+    get logoNeedsWhiteFilter() {
+        return !this.config.logoPathDark;
+    }
+
+    get legalLogoClass() {
+        return this.logoNeedsWhiteFilter
+            ? 'footer-legal-logo-img footer-legal-logo-img--filtered'
+            : 'footer-legal-logo-img';
     }
 
     get footerStyle() {
         return this.config.primaryColor
             ? `--brand-primary: ${this.config.primaryColor};`
             : '';
-    }
-
-    get phoneHref() {
-        return this.footer.phone ? `tel:${this.footer.phone}` : '#';
-    }
-
-    get emailHref() {
-        return this.footer.email ? `mailto:${this.footer.email}` : '#';
-    }
-
-    get websiteHref() {
-        const w = this.footer.website;
-        if (!w) return '#';
-        return w.startsWith('http') ? w : `https://${w}`;
     }
 
     get privacyUrl() {
