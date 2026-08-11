@@ -37,6 +37,56 @@
             </div>
         </div>
 
+        <div class="footer-legal-bar">
+            <div class="footer-legal-logo">
+                <template if:true={logoUrl}>
+                    <img src={logoUrl} alt={brandName} class="footer-legal-logo-img" />
+                </template>
+            </div>
+
+            <nav class="footer-legal-links">
+                <template if:true={privacyUrl}>
+                    <a href={privacyUrl} class="footer-legal-link">{privacyLabel}</a>
+                </template>
+                <template if:true={legalUrl}>
+                    <a href={legalUrl} class="footer-legal-link">{legalLabel}</a>
+                </template>
+                <template if:true={offerUrl}>
+                    <a href={offerUrl} class="footer-legal-link">{offerLabel}</a>
+                </template>
+                <template if:true={careersUrl}>
+                    <a href={careersUrl} class="footer-legal-link">{careersLabel}</a>
+                </template>
+            </nav>
+
+            <div class="footer-lang">
+                <button
+                    class="footer-lang-toggle"
+                    onclick={toggleLangMenu}
+                    aria-haspopup="true"
+                    aria-expanded={isLangMenuOpen}>
+                    <span class="footer-lang-flag" style={currentFlagStyle}></span>
+                    <span class="footer-lang-name">{currentLangName}</span>
+                    <span class="footer-lang-chevron">&rsaquo;</span>
+                </button>
+                <template if:true={isLangMenuOpen}>
+                    <ul class="footer-lang-menu">
+                        <template for:each={languageOptions} for:item="lang">
+                            <li key={lang.code}>
+                                <button
+                                    class="footer-lang-option"
+                                    data-code={lang.code}
+                                    onclick={handleLangSelect}>
+                                    <span class="footer-lang-flag" style={lang.flagStyle}></span>
+                                    <span>{lang.name}</span>
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </div>
+        </div>
+
         <div class="footer-bottom">
             <p class="footer-copyright">&copy; {currentYear} {footer.companyName}. All rights reserved.</p>
         </div>

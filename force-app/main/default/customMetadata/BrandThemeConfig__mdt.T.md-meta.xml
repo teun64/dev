@@ -54,4 +54,20 @@ Access to the webshop requires an account. In your personal account you can view
         <field>PortalSignupTitle__c</field>
         <value xsi:type="xsd:string">Request a dealer account</value>
     </values>
+    <values>
+        <field>PrivacyPolicyUrl__c</field>
+        <value xsi:type="xsd:string">/dealers/privacy</value>
+    </values>
+    <values>
+        <field>LegalNoticeUrl__c</field>
+        <value xsi:type="xsd:string">/dealers/legal</value>
+    </values>
+    <values>
+        <field>OfferUrl__c</field>
+        <value xsi:type="xsd:string">/dealers/shop</value>
+    </values>
+    <values>
+        <field>CareersUrl__c</field>
+        <value xsi:type="xsd:string">/dealers/careers</value>
+    </values>
 </CustomMetadata>

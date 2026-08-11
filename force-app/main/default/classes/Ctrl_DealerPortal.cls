@@ -10,7 +10,8 @@ public without sharing class Ctrl_DealerPortal {
             SELECT Brand__c, BrandName__c, PrimaryColor__c, AccentColor__c,
                    LogoStaticResource__c, TagLine__c, ResellerCodes__c,
                    PortalHomeTitle__c, PortalHomeWelcome__c,
-                   PortalShopCtaText__c, PortalSignupTitle__c
+                   PortalShopCtaText__c, PortalSignupTitle__c,
+                   PrivacyPolicyUrl__c, LegalNoticeUrl__c, OfferUrl__c, CareersUrl__c
             FROM BrandThemeConfig__mdt
             WITH SYSTEM_MODE
         ];
@@ -39,6 +40,10 @@ public without sharing class Ctrl_DealerPortal {
         dto.homeWelcome        = cfg.PortalHomeWelcome__c;
         dto.shopCtaText        = cfg.PortalShopCtaText__c;
         dto.signupTitle        = cfg.PortalSignupTitle__c;
+        dto.privacyPolicyUrl   = cfg.PrivacyPolicyUrl__c;
+        dto.legalNoticeUrl     = cfg.LegalNoticeUrl__c;
+        dto.offerUrl           = cfg.OfferUrl__c;
+        dto.careersUrl         = cfg.CareersUrl__c;
         dto.isAuthenticated    = isAuthenticatedUser();
         dto.userName           = isAuthenticatedUser() ? UserInfo.getName() : null;
         return dto;
@@ -146,6 +151,10 @@ public without sharing class Ctrl_DealerPortal {
         @AuraEnabled public String  homeWelcome;
         @AuraEnabled public String  shopCtaText;
         @AuraEnabled public String  signupTitle;
+        @AuraEnabled public String  privacyPolicyUrl;
+        @AuraEnabled public String  legalNoticeUrl;
+        @AuraEnabled public String  offerUrl;
+        @AuraEnabled public String  careersUrl;
         @AuraEnabled public Boolean isAuthenticated;
         @AuraEnabled public String  userName;
     }
