@@ -14,7 +14,7 @@
     </values>
     <values>
         <field>PrimaryColor__c</field>
-        <value xsi:type="xsd:string">#cc0000</value>
+        <value xsi:type="xsd:string">#ff0000</value>
     </values>
     <values>
         <field>AccentColor__c</field>
@@ -23,6 +23,10 @@
     <values>
         <field>LogoStaticResource__c</field>
         <value xsi:type="xsd:string">Branding/2024/img/mi-logo-black-black-rgb.png</value>
+    </values>
+    <values>
+        <field>LogoStaticResourceDark__c</field>
+        <value xsi:type="xsd:string">Branding/2024/img/mi-logo-white-red-rgb.png</value>
     </values>
     <values>
         <field>McBrandId__c</field>

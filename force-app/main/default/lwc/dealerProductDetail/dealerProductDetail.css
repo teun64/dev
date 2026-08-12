@@ -1,5 +1,5 @@
 :host {
-    --brand-primary: #cc0000;
+    --brand-primary: #ff0000;
     --brand-accent: #fdf0f0;
     display: block;
 }
@@ -223,10 +223,10 @@
 }
 
 .add-to-cart-btn {
-    --slds-c-button-brand-color-background: var(--brand-primary);
-    --slds-c-button-brand-color-background-hover: #aa0000;
-    --slds-c-button-brand-color-border: var(--brand-primary);
-    --slds-c-button-brand-color-border-hover: #aa0000;
+    --slds-c-button-brand-color-background: #0E0F0E;
+    --slds-c-button-brand-color-background-hover: #242524;
+    --slds-c-button-brand-color-border: #0E0F0E;
+    --slds-c-button-brand-color-border-hover: #242524;
 }
 
 .add-to-cart-btn lightning-button {

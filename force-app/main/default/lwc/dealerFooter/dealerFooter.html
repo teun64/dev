@@ -1,84 +1,41 @@
 <template>
     <footer class="dealer-footer" style={footerStyle}>
-        <svg class="footer-car-icon" viewBox="0 0 240 130" aria-hidden="true" focusable="false">
-            <path d="M15 95
-                     C10 95 5 90 5 82
-                     L5 78
-                     C5 68 13 62 24 60
-                     L55 56
-                     C62 40 78 22 100 18
-                     C118 15 150 15 168 20
-                     C190 26 205 40 212 58
-                     C225 60 235 68 235 80
-                     L235 88
-                     C235 94 230 98 224 98
-                     L204 98
-                     C204 84 192 74 178 74
-                     C164 74 152 84 152 98
-                     L92 98
-                     C92 84 80 74 66 74
-                     C52 74 40 84 40 98
-                     L24 98
-                     C19 98 15 97 15 95 Z" />
-            <circle cx="66" cy="98" r="20" />
-            <circle cx="178" cy="98" r="20" />
-        </svg>
-
-        <div class="footer-legal-bar">
-            <div class="footer-legal-logo">
-                <template if:true={logoUrl}>
-                    <img src={logoUrl} alt={brandName} class={legalLogoClass} />
-                </template>
-                <template if:false={logoUrl}>
-                    <span class="footer-brand-name">{brandName}</span>
-                </template>
-            </div>
-
-            <nav class="footer-legal-links">
-                <template if:true={privacyUrl}>
-                    <a href={privacyUrl} class="footer-legal-link">{privacyLabel}</a>
-                </template>
-                <template if:true={legalUrl}>
-                    <a href={legalUrl} class="footer-legal-link">{legalLabel}</a>
-                </template>
-                <template if:true={offerUrl}>
-                    <a href={offerUrl} class="footer-legal-link">{offerLabel}</a>
-                </template>
-                <template if:true={careersUrl}>
-                    <a href={careersUrl} class="footer-legal-link">{careersLabel}</a>
-                </template>
-            </nav>
-
-            <div class="footer-lang">
-                <button
-                    class="footer-lang-toggle"
-                    onclick={toggleLangMenu}
-                    aria-haspopup="true"
-                    aria-expanded={isLangMenuOpen}>
-                    <span class="footer-lang-flag" style={currentFlagStyle}></span>
-                    <span class="footer-lang-name">{currentLangName}</span>
-                    <span class="footer-lang-chevron">&rsaquo;</span>
-                </button>
-                <template if:true={isLangMenuOpen}>
-                    <ul class="footer-lang-menu">
-                        <template for:each={languageOptions} for:item="lang">
-                            <li key={lang.code}>
-                                <button
-                                    class="footer-lang-option"
-                                    data-code={lang.code}
-                                    onclick={handleLangSelect}>
-                                    <span class="footer-lang-flag" style={lang.flagStyle}></span>
-                                    <span>{lang.name}</span>
-                                </button>
-                            </li>
-                        </template>
-                    </ul>
-                </template>
+        <div class="footer-row-image">
+            <div class="footer-row-image-inner">
+                <img src={carImageUrl} alt="" class="footer-car-image" />
             </div>
         </div>
 
-        <div class="footer-bottom">
-            <p class="footer-copyright">&copy; {currentYear} {footer.companyName}. All rights reserved.</p>
+        <div class="footer-row-dark">
+            <div class="footer-legal-bar">
+                <div class="footer-legal-logo">
+                    <template if:true={logoUrl}>
+                        <img src={logoUrl} alt={brandName} class={legalLogoClass} />
+                    </template>
+                    <template if:false={logoUrl}>
+                        <span class="footer-brand-name">{brandName}</span>
+                    </template>
+                </div>
+
+                <nav class="footer-legal-links">
+                    <template if:true={privacyUrl}>
+                        <a href={privacyUrl} class="footer-legal-link">{privacyLabel}</a>
+                    </template>
+                    <template if:true={legalUrl}>
+                        <a href={legalUrl} class="footer-legal-link">{legalLabel}</a>
+                    </template>
+                    <template if:true={offerUrl}>
+                        <a href={offerUrl} class="footer-legal-link">{offerLabel}</a>
+                    </template>
+                    <template if:true={careersUrl}>
+                        <a href={careersUrl} class="footer-legal-link">{careersLabel}</a>
+                    </template>
+                </nav>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-copyright">&copy; {currentYear} {footer.companyName}. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 </template>

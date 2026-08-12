@@ -64,7 +64,7 @@
 }
 
 .close-btn:hover {
-    color: var(--brand-primary, #cc0000);
+    color: var(--brand-primary, #ff0000);
     background: #fdf0f0;
 }
 
@@ -154,7 +154,7 @@
 
 .qty-input:focus {
     outline: none;
-    border-color: var(--brand-primary, #cc0000);
+    border-color: var(--brand-primary, #ff0000);
 }
 
 .item-line-total {
@@ -180,7 +180,7 @@
 }
 
 .remove-btn:hover {
-    color: var(--brand-primary, #cc0000);
+    color: var(--brand-primary, #ff0000);
     background: #fdf0f0;
 }
 
@@ -205,13 +205,13 @@
 
 .total-amount {
     font-size: 1.15rem;
-    color: var(--brand-primary, #cc0000);
+    color: var(--brand-primary, #ff0000);
 }
 
 .place-order-btn {
     width: 100%;
     padding: 0.875rem 1.5rem;
-    background: var(--brand-primary, #cc0000);
+    background: #0E0F0E;
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -226,7 +226,7 @@
 }
 
 .place-order-btn:hover:not(:disabled) {
-    background: #aa0000;
+    background: #242524;
 }
 
 .place-order-btn:disabled {
@@ -251,7 +251,7 @@
 
 .cart-error {
     padding: 0.75rem 1.5rem;
-    color: var(--brand-primary, #cc0000);
+    color: var(--brand-primary, #ff0000);
     font-size: 0.875rem;
     background: #fdf0f0;
     border-top: 1px solid #f5cccc;

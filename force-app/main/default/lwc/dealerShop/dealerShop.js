@@ -40,7 +40,7 @@ export default class DealerShop extends LightningElement {
     }
 
     get brandStyle() {
-        const primary = this._brandTheme?.primaryColor || '#cc0000';
+        const primary = this._brandTheme?.primaryColor || '#ff0000';
         const accent  = this._brandTheme?.accentColor  || '#fdf0f0';
         return `--brand-primary: ${primary}; --brand-accent: ${accent}`;
     }

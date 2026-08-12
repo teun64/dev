@@ -1,6 +1,6 @@
 :host {
     display: block;
-    --brand-primary: #cc0000;
+    --brand-primary: #ff0000;
 }
 
 .dealer-nav {
@@ -83,7 +83,7 @@
 }
 
 .login-link {
-    background: var(--brand-primary);
+    background: #0E0F0E;
     color: #ffffff;
     font-size: 0.875rem;
     font-weight: 600;

@@ -14,7 +14,7 @@
 .card:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    border-top-color: var(--brand-primary, #cc0000);
+    border-top-color: var(--brand-primary, #ff0000);
 }
 
 .card-image {
@@ -61,7 +61,7 @@
     align-items: center;
     justify-content: center;
     background-color: #ffffff;
-    color: var(--brand-primary, #cc0000);
+    color: var(--brand-primary, #ff0000);
     font-size: 0.8rem;
 }
 
@@ -92,7 +92,7 @@
 .product-price {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--brand-primary, #cc0000);
+    color: var(--brand-primary, #ff0000);
     margin: 0 0 0.5rem;
 }
 
@@ -121,7 +121,7 @@
 
 .btn-add-cart {
     width: 100%;
-    background-color: var(--brand-primary, #cc0000);
+    background-color: #0E0F0E;
     color: #ffffff;
     border: none;
     border-radius: 4px;

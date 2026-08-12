@@ -43,8 +43,8 @@
 }
 
 .toggle-btn--active {
-    background: var(--brand-primary, #cc0000);
-    border-color: var(--brand-primary, #cc0000);
+    background: #0E0F0E;
+    border-color: #0E0F0E;
     color: #ffffff;
 }
 
@@ -98,7 +98,7 @@
 }
 
 .order-link {
-    color: var(--brand-primary, #cc0000);
+    color: var(--brand-primary, #ff0000);
     font-weight: 600;
     text-decoration: none;
 }
@@ -108,7 +108,7 @@
 }
 
 .reorder-btn {
-    background-color: var(--brand-primary, #cc0000);
+    background-color: #0E0F0E;
     color: #ffffff;
     border: none;
     border-radius: 4px;

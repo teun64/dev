@@ -15,12 +15,12 @@ export default class DealerHome extends LightningElement {
     }
 
     get heroStyle() {
-        const color = this.config.primaryColor || '#cc0000';
+        const color = this.config.primaryColor || '#ff0000';
         return `background: linear-gradient(135deg, #1a1a1a 0%, ${color} 100%);`;
     }
 
     get ctaBtnStyle() {
-        return this.config.primaryColor ? `background:${this.config.primaryColor};` : '';
+        return 'background: #0E0F0E;';
     }
 
     get welcomeParagraphs() {

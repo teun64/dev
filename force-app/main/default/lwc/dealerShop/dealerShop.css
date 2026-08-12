@@ -1,5 +1,5 @@
 :host {
-    --brand-primary: #cc0000;
+    --brand-primary: #ff0000;
     --brand-accent:  #ffffff;
     display: block;
     font-family: var(--brand-font, 'Open Sans', sans-serif);
@@ -47,7 +47,7 @@
     align-items: center;
     gap: 0.4rem;
     padding: 0.5rem 1rem;
-    background: var(--brand-primary);
+    background: #0E0F0E;
     color: #ffffff;
     border: none;
     border-radius: 4px;

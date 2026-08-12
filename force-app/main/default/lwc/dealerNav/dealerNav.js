@@ -25,9 +25,7 @@ export default class DealerNav extends LightningElement {
     }
 
     get ctaStyle() {
-        return this.config.primaryColor
-            ? `background:${this.config.primaryColor};`
-            : '';
+        return 'background: #0E0F0E;';
     }
 
     get currentPath() {

@@ -4,7 +4,7 @@
 .hero-banner {
     width: 100%;
     height: 300px;
-    background: linear-gradient(135deg, #1a1a1a 0%, #cc0000 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #ff0000 100%);
     background-size: cover;
     background-position: center;
 }
@@ -65,7 +65,7 @@
 .cta-btn {
     display: inline-flex;
     align-items: center;
-    background: #cc0000;
+    background: #0E0F0E;
     color: #fff;
     font-size: 1rem;
     font-weight: 600;
@@ -127,13 +127,13 @@
 }
 
 .form-input:focus {
-    border-color: #cc0000;
-    box-shadow: 0 0 0 2px rgba(204,0,0,0.15);
+    border-color: #ff0000;
+    box-shadow: 0 0 0 2px rgba(255,0,0,0.15);
 }
 
 .signup-btn {
     align-self: flex-start;
-    background: #cc0000;
+    background: #0E0F0E;
     border: none;
     border-radius: 4px;
     color: #fff;
