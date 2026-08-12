@@ -141,7 +141,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 10);
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
         }
         Test.stopTest();
 
@@ -156,7 +156,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts('Fleet', 1, 10);
+            result = Ctrl_DealerShop.getProducts('Fleet', 1, 10, null);
         }
         Test.stopTest();
 
@@ -172,8 +172,8 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult page2;
         Test.startTest();
         System.runAs(portalUser()) {
-            page1 = Ctrl_DealerShop.getProducts(null, 1, 1);
-            page2 = Ctrl_DealerShop.getProducts(null, 2, 1);
+            page1 = Ctrl_DealerShop.getProducts(null, 1, 1, null);
+            page2 = Ctrl_DealerShop.getProducts(null, 2, 1, null);
         }
         Test.stopTest();
 
@@ -324,7 +324,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts('', 1, 50);
+            result = Ctrl_DealerShop.getProducts('', 1, 50, null);
         }
         Test.stopTest();
 
@@ -428,7 +428,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 10);
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
         }
         Test.stopTest();
 

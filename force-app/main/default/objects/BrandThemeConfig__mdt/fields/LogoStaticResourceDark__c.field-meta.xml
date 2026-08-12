@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LogoStaticResourceDark__c</fullName>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Logo Static Resource (Dark Background)</label>
+    <type>Text</type>
+    <length>255</length>
+    <description>Optional logo variant with its own colors preserved (e.g. white text + red arrow), used on dark backgrounds instead of applying the white-out CSS filter to LogoStaticResource__c.</description>
+</CustomField>

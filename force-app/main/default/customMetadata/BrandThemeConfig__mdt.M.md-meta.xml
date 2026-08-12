@@ -29,6 +29,10 @@
         <value xsi:type="xsd:string">Branding/2024/img/mi-logo-white-red-rgb.png</value>
     </values>
     <values>
+        <field>LogoStaticResourceColor__c</field>
+        <value xsi:type="xsd:string">Branding/2024/img/mi-logo-black-red-rgb.png</value>
+    </values>
+    <values>
         <field>McBrandId__c</field>
         <value xsi:nil="true"/>
     </values>

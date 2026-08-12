@@ -15,7 +15,8 @@ export default class DealerNav extends LightningElement {
     }
 
     get logoUrl() {
-        return this.config.logoPath ? `${BRANDING}/${this.config.logoPath}` : null;
+        const path = this.config.logoPathColor || this.config.logoPath;
+        return path ? `${BRANDING}/${path}` : null;
     }
 
     get navStyle() {

@@ -2,10 +2,10 @@
     <nav class="dealer-nav" style={navStyle}>
         <div class="nav-inner">
             <a href="/dealers" class="nav-logo-link">
-                <template if:true={config.logoPath}>
+                <template if:true={logoUrl}>
                     <img src={logoUrl} alt={config.brandName} class="nav-logo" />
                 </template>
-                <template if:false={config.logoPath}>
+                <template if:false={logoUrl}>
                     <span class="nav-brand-text">{config.brandName}</span>
                 </template>
             </a>

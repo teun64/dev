@@ -23,12 +23,30 @@ export default class DealerProductGrid extends LightningElement {
         }
     }
 
+    @api
+    get searchTerm() {
+        return this._searchTerm;
+    }
+    set searchTerm(value) {
+        const newValue = value != null ? value : '';
+        const changed = this._connected && newValue !== this._searchTerm;
+        this._searchTerm = newValue;
+        if (changed) {
+            this._currentPage = 1;
+            this.notifyPageChange();
+        }
+        if (this._connected) {
+            this.loadProducts();
+        }
+    }
+
     @track products = [];
     @track isLoading = false;
     @track _currentPage = 1;
     @track _total = 0;
 
     _category = '';
+    _searchTerm = '';
     _connected = false;
 
     connectedCallback() {
@@ -42,7 +60,8 @@ export default class DealerProductGrid extends LightningElement {
         getProducts({
             category: this._category,
             pageNum: this._currentPage,
-            pageSize: PAGE_SIZE
+            pageSize: PAGE_SIZE,
+            searchTerm: this._searchTerm
         })
             .then((result) => {
                 this.products = result.products || [];

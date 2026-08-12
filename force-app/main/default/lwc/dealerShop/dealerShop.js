@@ -1,5 +1,4 @@
 import { LightningElement, track } from 'lwc';
-import BRANDING_URL               from '@salesforce/resourceUrl/Branding';
 import getBrandConfig              from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 import { getCart, saveCart, clearCart } from 'c/dealerCartStorage';
 
@@ -15,8 +14,11 @@ export default class DealerShop extends LightningElement {
     @track cartOpen          = false;
     @track activeCategory    = '';
     @track activePage        = 1;
+    @track searchTerm        = '';
     @track _brandTheme       = null;
     @track orderId           = null;
+
+    _searchDebounce;
 
     connectedCallback() {
         getBrandConfig()
@@ -45,11 +47,14 @@ export default class DealerShop extends LightningElement {
         return `--brand-primary: ${primary}; --brand-accent: ${accent}`;
     }
 
-    get logoUrl() {
-        if (this._brandTheme?.logoPath) {
-            return `${BRANDING_URL}/${this._brandTheme.logoPath}`;
-        }
-        return `${BRANDING_URL}/2024/img/mi-logo-black-black-rgb.png`;
+    handleSearchInput(event) {
+        const value = event.target.value;
+        clearTimeout(this._searchDebounce);
+        this._searchDebounce = setTimeout(() => {
+            this.searchTerm  = value;
+            this.activePage  = 1;
+            this.currentView = VIEW_GRID;
+        }, 300);
     }
 
     handleCategoryChange(event) {

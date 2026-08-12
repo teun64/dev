@@ -1,20 +1,20 @@
 :host {
     display: block;
-    background: #ECECE7;
+    background: var(--dxp-g-root, #ffffff);
     --brand-primary: #ff0000;
 }
 
 .dealer-footer {
     margin-top: auto;
-    background: #ECECE7;
+    background: var(--dxp-g-root, #ffffff);
 }
 
 .footer-row-image {
-    background: #ECECE7;
+    background: var(--dxp-g-root, #ffffff);
 }
 
 .footer-row-image-inner {
-    padding: 0.625rem 1.5rem 0.3125rem;
+    padding: 0 1.5rem 0.3125rem;
     text-align: left;
 }
 

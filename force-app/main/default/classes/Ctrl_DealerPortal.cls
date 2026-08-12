@@ -8,7 +8,7 @@ public without sharing class Ctrl_DealerPortal {
 
         List<BrandThemeConfig__mdt> configs = [
             SELECT Brand__c, BrandName__c, PrimaryColor__c, AccentColor__c,
-                   LogoStaticResource__c, TagLine__c, ResellerCodes__c,
+                   LogoStaticResource__c, LogoStaticResourceDark__c, LogoStaticResourceColor__c, TagLine__c, ResellerCodes__c,
                    PortalHomeTitle__c, PortalHomeWelcome__c,
                    PortalShopCtaText__c, PortalSignupTitle__c,
                    PrivacyPolicyUrl__c, LegalNoticeUrl__c, OfferUrl__c, CareersUrl__c
@@ -36,6 +36,8 @@ public without sharing class Ctrl_DealerPortal {
         dto.primaryColor       = cfg.PrimaryColor__c;
         dto.accentColor        = cfg.AccentColor__c;
         dto.logoPath           = cfg.LogoStaticResource__c;
+        dto.logoPathDark       = cfg.LogoStaticResourceDark__c;
+        dto.logoPathColor      = cfg.LogoStaticResourceColor__c;
         dto.homeTitle          = cfg.PortalHomeTitle__c;
         dto.homeWelcome        = cfg.PortalHomeWelcome__c;
         dto.shopCtaText        = cfg.PortalShopCtaText__c;
@@ -147,6 +149,8 @@ public without sharing class Ctrl_DealerPortal {
         @AuraEnabled public String  primaryColor;
         @AuraEnabled public String  accentColor;
         @AuraEnabled public String  logoPath;
+        @AuraEnabled public String  logoPathDark;
+        @AuraEnabled public String  logoPathColor;
         @AuraEnabled public String  homeTitle;
         @AuraEnabled public String  homeWelcome;
         @AuraEnabled public String  shopCtaText;

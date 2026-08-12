@@ -345,7 +345,7 @@ public without sharing class Ctrl_DealerShop {
     // ── Public methods ────────────────────────────────────────────────────────
 
     @AuraEnabled(cacheable=true)
-    public static ProductPageResult getProducts(String category, Integer pageNum, Integer pageSize) {
+    public static ProductPageResult getProducts(String category, Integer pageNum, Integer pageSize, String searchTerm) {
         Integer safePageNum  = (pageNum  != null && pageNum  > 0) ? pageNum  : 1;
         Integer safePageSize = (pageSize != null && pageSize > 0) ? pageSize : 20;
         Integer offsetVal    = (safePageNum - 1) * safePageSize;
@@ -382,61 +382,38 @@ public without sharing class Ctrl_DealerShop {
             return empty;
         }
 
-        // Total count
-        Integer total;
-        if (String.isNotBlank(category) && filterByEntry) {
-            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true AND Category_Platform__c INCLUDES (:category) AND Id IN :pricedIds WITH SYSTEM_MODE];
-        } else if (String.isNotBlank(category)) {
-            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true AND Category_Platform__c INCLUDES (:category) WITH SYSTEM_MODE];
-        } else if (filterByEntry) {
-            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true AND Id IN :pricedIds WITH SYSTEM_MODE];
-        } else {
-            total = [SELECT COUNT() FROM Product2 WHERE IsActive = true AND Show_In_Dealer_Shop__c = true WITH SYSTEM_MODE];
+        Id baseRtId = baseTranslationRtId;
+
+        List<String> conditions = new List<String>{ 'IsActive = true', 'Show_In_Dealer_Shop__c = true' };
+        if (String.isNotBlank(category))  conditions.add('Category_Platform__c INCLUDES (:category)');
+        if (filterByEntry)                conditions.add('Id IN :pricedIds');
+
+        String searchLike = String.isNotBlank(searchTerm)
+            ? ('%' + String.escapeSingleQuotes(searchTerm.trim()) + '%')
+            : null;
+        if (searchLike != null) {
+            List<String> searchClauses = new List<String>{
+                'Name LIKE :searchLike',
+                'ProductCode LIKE :searchLike',
+                'Id IN (SELECT Product__c FROM Data_Translation__c WHERE Name__c LIKE :searchLike AND RecordTypeId = :baseRtId AND Language__c = :lang)'
+            };
+            if (acct.Id != null) {
+                searchClauses.add('Id IN (SELECT Product__c FROM Product_Discount__c WHERE Product_Code_Customer__c LIKE :searchLike AND Account__c = :acct.Id AND IsActive__c = true)');
+            }
+            conditions.add('(' + String.join(searchClauses, ' OR ') + ')');
         }
 
-        // Page query
-        Id baseRtId = baseTranslationRtId;
-        List<Product2> products;
-        if (String.isNotBlank(category) && filterByEntry) {
-            products = [
-                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
-                FROM Product2
-                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
-                  AND Category_Platform__c INCLUDES (:category) AND Id IN :pricedIds
-                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
-            ];
-        } else if (String.isNotBlank(category)) {
-            products = [
-                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
-                FROM Product2
-                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
-                  AND Category_Platform__c INCLUDES (:category)
-                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
-            ];
-        } else if (filterByEntry) {
-            products = [
-                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
-                FROM Product2
-                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
-                  AND Id IN :pricedIds
-                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
-            ];
-        } else {
-            products = [
-                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
-                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
-                FROM Product2
-                WHERE IsActive = true AND Show_In_Dealer_Shop__c = true
-                WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal
-            ];
-        }
+        String whereClause = String.join(conditions, ' AND ');
+
+        Integer total = Database.countQuery('SELECT COUNT() FROM Product2 WHERE ' + whereClause + ' WITH SYSTEM_MODE');
+
+        String soql =
+            'SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c, ' +
+            '(SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r ' +
+            ' WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1) ' +
+            'FROM Product2 WHERE ' + whereClause + ' ' +
+            'WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal';
+        List<Product2> products = Database.query(soql);
 
         Set<Id> productIds = new Set<Id>();
         for (Product2 p : products) productIds.add(p.Id);
