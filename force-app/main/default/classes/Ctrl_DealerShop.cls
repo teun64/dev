@@ -234,16 +234,21 @@ public without sharing class Ctrl_DealerShop {
 
     // ── Image URL from ContentDocumentLink ───────────────────────────────────
 
-    private static Map<Id, String> getProductImageUrls(Set<Id> productIds) {
+    public static Map<Id, String> getProductImageUrls(Set<Id> productIds) {
         Map<Id, String> result = new Map<Id, String>();
         if (productIds.isEmpty()) return result;
 
+        // A product can end up with more than one linked file (e.g. an old image kept alongside a
+        // newly uploaded one) - without an explicit order, "first row returned" is whatever the
+        // query planner picks, which is not reliably the newest. Ordering by CreatedDate DESC and
+        // keeping only the first-seen link per product guarantees the most recent upload wins.
         Map<Id, Id> cdocByProduct = new Map<Id, Id>();
         for (ContentDocumentLink cdl : [
             SELECT LinkedEntityId, ContentDocumentId
             FROM ContentDocumentLink
             WHERE LinkedEntityId IN :productIds
             WITH SYSTEM_MODE
+            ORDER BY ContentDocument.CreatedDate DESC, Id DESC
         ]) {
             if (!cdocByProduct.containsKey(cdl.LinkedEntityId)) {
                 cdocByProduct.put(cdl.LinkedEntityId, cdl.ContentDocumentId);

@@ -1,0 +1,81 @@
+.related-list-body {
+    padding: 0;
+}
+
+.drop-zone {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #e5e5e5;
+    transition: background-color 0.15s;
+}
+
+.drop-zone:hover {
+    background-color: #f3f3f3;
+}
+
+.drop-zone--dragging {
+    background-color: #eef6fd;
+}
+
+.row-figure {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: #f3f2f2;
+    border: 1px solid #e5e5e5;
+    overflow: hidden;
+}
+
+.row-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.row-placeholder-icon {
+    --slds-c-icon-color-foreground-default: #706e6b;
+}
+
+.row-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.row-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #181818;
+    margin: 0 0 0.125rem;
+}
+
+.row-subtitle {
+    font-size: 0.75rem;
+    color: #706e6b;
+    margin: 0;
+}
+
+.row-action {
+    flex: 0 0 auto;
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+.remove-old-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.75rem;
+    color: #444;
+    cursor: pointer;
+}

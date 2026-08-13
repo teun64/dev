@@ -1,0 +1,57 @@
+<template>
+    <lightning-card title={cardTitle} icon-name="utility:photo">
+        <div class="related-list-body">
+            <div
+                class={dropZoneClass}
+                ondragover={handleDragOver}
+                ondragleave={handleDragLeave}
+                ondrop={handleDrop}
+                onclick={handleBrowseClick}
+            >
+                <template if:true={isUploading}>
+                    <div class="row-figure">
+                        <lightning-spinner alternative-text="Uploading..." size="small"></lightning-spinner>
+                    </div>
+                </template>
+
+                <template if:false={isUploading}>
+                    <div class="row-figure">
+                        <template if:true={hasCurrentImage}>
+                            <img src={currentImageUrl} alt="Current product image" class="row-thumbnail" />
+                        </template>
+                        <template if:false={hasCurrentImage}>
+                            <lightning-icon icon-name="utility:photo" size="medium" variant="bare" class="row-placeholder-icon"></lightning-icon>
+                        </template>
+                    </div>
+
+                    <div class="row-body">
+                        <template if:true={hasCurrentImage}>
+                            <p class="row-title">Current image</p>
+                        </template>
+                        <template if:false={hasCurrentImage}>
+                            <p class="row-title">No image uploaded yet</p>
+                        </template>
+                        <p class="row-subtitle">Drag and drop an image here, or click to browse - PNG or JPG, max 5MB</p>
+                    </div>
+
+                    <div class="row-action">
+                        <lightning-button label="Upload" variant="neutral" onclick={handleUploadButtonClick}></lightning-button>
+                    </div>
+                </template>
+            </div>
+
+            <input
+                type="file"
+                accept="image/*"
+                data-id="fileInput"
+                class="hidden-file-input"
+                onchange={handleFileInputChange}
+            />
+
+            <label class="remove-old-toggle">
+                <input type="checkbox" onchange={handleRemoveOldFileChange} />
+                Remove the old file before uploading the new one
+            </label>
+        </div>
+    </lightning-card>
+</template>
