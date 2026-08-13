@@ -1,5 +1,9 @@
 <template>
-    <lightning-card title={cardTitle} icon-name="utility:photo">
+    <div class="pi-card">
+        <div class="pi-card-header">
+            <lightning-icon icon-name="custom:custom38" size="small" class="pi-header-icon"></lightning-icon>
+            <h2 class="pi-header-title">{cardTitle}</h2>
+        </div>
         <div class="related-list-body">
             <div
                 class={dropZoneClass}
@@ -53,5 +57,5 @@
                 Remove the old file before uploading the new one
             </label>
         </div>
-    </lightning-card>
+    </div>
 </template>
