@@ -16,6 +16,18 @@ export default class DealerProductCard extends LightningElement {
         return !!this.product?.shortDescription;
     }
 
+    get isFavorite() {
+        return !!this.product?.isFavorite;
+    }
+
+    get favoriteButtonClass() {
+        return 'btn-favorite' + (this.isFavorite ? ' btn-favorite--active' : '');
+    }
+
+    get favoriteAriaLabel() {
+        return this.isFavorite ? 'Verwijder uit favorieten' : 'Markeer als favoriet';
+    }
+
     get hasTiers() {
         return this.product?.priceTiers && this.product.priceTiers.length > 0;
     }
@@ -41,6 +53,17 @@ export default class DealerProductCard extends LightningElement {
     handleClick() {
         this.dispatchEvent(
             new CustomEvent('productselect', {
+                detail: { productId: this.product?.id },
+                bubbles: true,
+                composed: true
+            })
+        );
+    }
+
+    handleToggleFavorite(event) {
+        event.stopPropagation();
+        this.dispatchEvent(
+            new CustomEvent('favoritetoggle', {
                 detail: { productId: this.product?.id },
                 bubbles: true,
                 composed: true

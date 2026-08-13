@@ -1,6 +1,13 @@
 <template>
     <div class="card" onclick={handleClick}>
         <div class="card-image">
+            <button
+                class={favoriteButtonClass}
+                aria-label={favoriteAriaLabel}
+                aria-pressed={isFavorite}
+                onclick={handleToggleFavorite}>
+                &#9829;
+            </button>
             <template if:true={product.imageUrl}>
                 <img src={product.imageUrl} alt={displayName} class="product-image" />
             </template>

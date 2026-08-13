@@ -585,4 +585,140 @@ private class Test_Ctrl_DealerShop {
 
         System.assertEquals(cd.ContentDownloadUrl, dto.imageUrl, 'imageUrl should come from ContentDistribution.ContentDownloadUrl');
     }
+
+    // ── Favorites ─────────────────────────────────────────────────────────────
+
+    @IsTest
+    static void testToggleFavorite_addsThenRemoves() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        Boolean afterFirstToggle;
+        Boolean afterSecondToggle;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            afterFirstToggle  = Ctrl_DealerShop.toggleFavorite(prod.Id);
+            afterSecondToggle = Ctrl_DealerShop.toggleFavorite(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(true, afterFirstToggle, 'First toggle should mark the product as a favorite');
+        System.assertEquals(false, afterSecondToggle, 'Second toggle should remove the favorite');
+        System.assertEquals(
+            0,
+            [SELECT COUNT() FROM Dealer_Product_Favorite__c WHERE Product__c = :prod.Id],
+            'No favorite row should remain after toggling twice'
+        );
+    }
+
+    @IsTest
+    static void testGetProducts_favoritesTab_returnsOnlyFavorited() {
+        Product2 favProd = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        Test.startTest();
+        System.runAs(portalUser()) {
+            Ctrl_DealerShop.toggleFavorite(favProd.Id);
+        }
+
+        Ctrl_DealerShop.ProductPageResult favorites;
+        System.runAs(portalUser()) {
+            favorites = Ctrl_DealerShop.getProducts('favorites', 1, 10, null);
+        }
+        Test.stopTest();
+
+        System.assertEquals(1, favorites.products.size(), 'Only the favorited product should be returned');
+        System.assertEquals(favProd.Id, favorites.products[0].id, 'Favorited product Id mismatch');
+        System.assertEquals(true, favorites.products[0].isFavorite, 'isFavorite should be true for a favorited product');
+    }
+
+    @IsTest
+    static void testGetProducts_isFavorite_falseWhenNotFavorited() {
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
+        }
+        Test.stopTest();
+
+        for (Ctrl_DealerShop.ProductDTO dto : result.products) {
+            System.assertEquals(false, dto.isFavorite, 'isFavorite should default to false when nothing was favorited');
+        }
+    }
+
+    // ── System_Platform__c / Administration platform filter (All Products tab) ─
+
+    @IsTest
+    static void testGetProducts_allTab_platformFilter_failOpen() {
+        // Reseller__c '1' matches the @TestSetup Account's Reseller_Name__c '1'. Required platform
+        // '2' - PP-001 (no System_Platform__c) and PP-002 (matches '2') must both stay visible
+        // (fail-open for the null one); a third product on a non-matching platform must be excluded.
+        insert new Subscription25__Administration__c(
+            Name                                       = 'Test Administration',
+            Reseller__c                                = '1',
+            Available_System_Platforms__c              = '2',
+            Subscription25__Invoice_Number_Prefix__c   = 'TST',
+            Subscription25__Billing_Country__c        = 'NL'
+        );
+
+        Product2 matching = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        matching.System_Platform__c = '2';
+        update matching;
+
+        Product2 mismatched = new Product2(
+            Name                   = 'Mismatched Platform Product',
+            ProductCode            = 'PP-004',
+            IsActive                = true,
+            Show_In_Dealer_Shop__c  = true,
+            Category_Platform__c    = 'Fleet',
+            System_Platform__c      = '5'
+        );
+        insert mismatched;
+        insert new PricebookEntry(Pricebook2Id = Test.getStandardPricebookId(), Product2Id = mismatched.Id, UnitPrice = 10.00, IsActive = true);
+        Pricebook2 dealerPricebook = [SELECT Id FROM Pricebook2 WHERE Name = 'Dealer NL All Pricebook' LIMIT 1];
+        insert new PricebookEntry(Pricebook2Id = dealerPricebook.Id, Product2Id = mismatched.Id, UnitPrice = 10.00, IsActive = true);
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 50, null);
+        }
+        Test.stopTest();
+
+        Set<Id> returnedIds = new Set<Id>();
+        for (Ctrl_DealerShop.ProductDTO dto : result.products) returnedIds.add(dto.id);
+
+        System.assert(returnedIds.contains(matching.Id), 'Product on the required platform should be visible');
+        System.assert(!returnedIds.contains(mismatched.Id), 'Product on a non-required platform should be excluded from All Products');
+
+        Product2 noPlatformProd = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        System.assert(returnedIds.contains(noPlatformProd.Id), 'Product with no System_Platform__c set should stay visible (fail-open)');
+    }
+
+    @IsTest
+    static void testGetProducts_categoryTab_ignoresPlatformFilter() {
+        // The platform filter is scoped to the "All Products" tab only - Fleet/Security/Beacon
+        // tabs must keep showing everything that matches Category_Platform__c regardless of
+        // System_Platform__c, even when a reseller has a required-platforms restriction.
+        insert new Subscription25__Administration__c(
+            Name                                       = 'Test Administration',
+            Reseller__c                                = '1',
+            Available_System_Platforms__c              = '2',
+            Subscription25__Invoice_Number_Prefix__c   = 'TST',
+            Subscription25__Billing_Country__c        = 'NL'
+        );
+
+        Product2 fleetProd = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        fleetProd.System_Platform__c = '5'; // does not overlap with '2'
+        update fleetProd;
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts('Fleet', 1, 50, null);
+        }
+        Test.stopTest();
+
+        Set<Id> returnedIds = new Set<Id>();
+        for (Ctrl_DealerShop.ProductDTO dto : result.products) returnedIds.add(dto.id);
+        System.assert(returnedIds.contains(fleetProd.Id), 'Fleet tab should ignore the All-tab platform filter');
+    }
 }

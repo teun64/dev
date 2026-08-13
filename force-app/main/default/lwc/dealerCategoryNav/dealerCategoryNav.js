@@ -1,10 +1,11 @@
 import { LightningElement, api } from 'lwc';
 
 const CATEGORIES = [
-    { value: '',         label: 'Alle producten' },
-    { value: 'Fleet',    label: 'Fleet' },
-    { value: 'Security', label: 'Security' },
-    { value: 'Beacon',   label: 'Beacon' }
+    { value: '',          label: 'Alle producten' },
+    { value: 'Fleet',     label: 'Fleet' },
+    { value: 'Security',  label: 'Security' },
+    { value: 'Beacon',    label: 'Beacon' },
+    { value: 'favorites', label: 'Mijn favorieten' }
 ];
 
 export default class DealerCategoryNav extends LightningElement {

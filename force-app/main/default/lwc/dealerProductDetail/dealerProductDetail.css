@@ -87,12 +87,43 @@
     min-width: 0;
 }
 
+.title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
 .product-title {
     font-size: 1.75rem;
     font-weight: 700;
-    margin: 0 0 0.75rem;
+    margin: 0;
     line-height: 1.2;
     color: #1c1c1c;
+}
+
+.btn-favorite-detail {
+    flex-shrink: 0;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 0.4rem 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.btn-favorite-detail:hover {
+    border-color: var(--brand-primary);
+}
+
+.btn-favorite-detail--active {
+    color: var(--brand-primary);
+    border-color: var(--brand-primary);
 }
 
 .product-code-badge {

@@ -47,6 +47,34 @@
     transform: translateY(0);
 }
 
+.btn-favorite {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 1;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    color: #bbb;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s, transform 0.15s;
+}
+
+.btn-favorite:hover {
+    transform: scale(1.1);
+}
+
+.btn-favorite--active {
+    color: var(--brand-primary, #ff0000);
+}
+
 .product-image {
     width: 100%;
     height: 100%;

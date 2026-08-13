@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
-import getProducts from '@salesforce/apex/Ctrl_DealerShop.getProducts';
+import getProducts     from '@salesforce/apex/Ctrl_DealerShop.getProducts';
+import toggleFavorite  from '@salesforce/apex/Ctrl_DealerShop.toggleFavorite';
 
 const PAGE_SIZE = 12;
 
@@ -165,5 +166,28 @@ export default class DealerProductGrid extends LightningElement {
                 composed: true
             })
         );
+    }
+
+    handleFavoriteToggle(event) {
+        const { productId } = event.detail;
+        if (!productId) return;
+
+        toggleFavorite({ productId })
+            .then((isFavorite) => {
+                // getProducts is cacheable, so reloading here could just replay a stale cached
+                // result - update the already-loaded list locally instead.
+                if (this._category === 'favorites' && !isFavorite) {
+                    this.products = this.products.filter((p) => p.id !== productId);
+                    this._total -= 1;
+                } else {
+                    this.products = this.products.map((p) =>
+                        p.id === productId ? { ...p, isFavorite } : p
+                    );
+                }
+            })
+            .catch((error) => {
+                // eslint-disable-next-line no-console
+                console.error('Failed to toggle favorite', error);
+            });
     }
 }

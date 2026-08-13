@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Dealer Product Favorite</label>
+    <pluralLabel>Dealer Product Favorites</pluralLabel>
+    <nameField>
+        <label>Dealer Product Favorite Name</label>
+        <type>AutoNumber</type>
+        <displayFormat>DPF-{0000000}</displayFormat>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>One row per Dealer Portal contact marking a Product2 as a favorite. Accessed only via Ctrl_DealerShop (AccessLevel.SYSTEM_MODE), so no CRUD/FLS grants are required on the Dealer Portal permission set.</description>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

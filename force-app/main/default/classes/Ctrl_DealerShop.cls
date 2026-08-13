@@ -122,13 +122,14 @@ public without sharing class Ctrl_DealerShop {
 
     private static DealerContext buildContextFromContact(Contact con, String defaultLang) {
         List<Account> accounts = [
-            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c
+            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c
             FROM Account WHERE Id = :con.AccountId WITH SYSTEM_MODE LIMIT 1
         ];
         if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
 
         DealerContext ctx = new DealerContext();
-        ctx.account = accounts[0];
+        ctx.account   = accounts[0];
+        ctx.contactId = con.Id;
         String lang = resolveLanguage(con.Language__c);
         if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
         if (lang == null) lang = normalizeLang(defaultLang);
@@ -342,6 +343,51 @@ public without sharing class Ctrl_DealerShop {
         return dto;
     }
 
+    // ── Favorites ─────────────────────────────────────────────────────────────
+
+    private static Set<Id> getFavoriteProductIds(Id contactId, Set<Id> productIds) {
+        Set<Id> favoriteIds = new Set<Id>();
+        if (contactId == null || productIds.isEmpty()) return favoriteIds;
+        for (Dealer_Product_Favorite__c f : [
+            SELECT Product__c
+            FROM Dealer_Product_Favorite__c
+            WHERE Contact__c = :contactId AND Product__c IN :productIds
+            WITH SYSTEM_MODE
+        ]) {
+            favoriteIds.add(f.Product__c);
+        }
+        return favoriteIds;
+    }
+
+    // Toggles the current dealer contact's favorite flag for a product and returns the new state.
+    @AuraEnabled
+    public static Boolean toggleFavorite(Id productId) {
+        if (productId == null) throw new AuraHandledException('productId is required.');
+
+        Id contactId = getDealerContext().contactId;
+        if (contactId == null) {
+            throw new AuraHandledException('You must be logged in as a dealer contact to save favorites.');
+        }
+
+        List<Dealer_Product_Favorite__c> existing = [
+            SELECT Id
+            FROM Dealer_Product_Favorite__c
+            WHERE Contact__c = :contactId AND Product__c = :productId
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (!existing.isEmpty()) {
+            Database.delete(existing[0], AccessLevel.SYSTEM_MODE);
+            return false;
+        }
+
+        Database.insert(
+            new Dealer_Product_Favorite__c(Contact__c = contactId, Product__c = productId),
+            AccessLevel.SYSTEM_MODE
+        );
+        return true;
+    }
+
     // ── Public methods ────────────────────────────────────────────────────────
 
     @AuraEnabled(cacheable=true)
@@ -353,7 +399,17 @@ public without sharing class Ctrl_DealerShop {
         DealerContext ctx  = getDealerContext();
         Account acct      = ctx.account;
         String lang       = ctx.language;
+        Id contactId      = ctx.contactId;
         Id pricebookId    = resolvePricebookId(acct);
+
+        Boolean isFavoritesTab = 'favorites'.equals(category);
+        if (isFavoritesTab && contactId == null) {
+            ProductPageResult empty = new ProductPageResult();
+            empty.products    = new List<ProductDTO>();
+            empty.total       = 0;
+            empty.pricebookId = pricebookId;
+            return empty;
+        }
 
         // Pricebook entries drive visibility: only products with an active pricebook entry appear.
         Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
@@ -385,7 +441,20 @@ public without sharing class Ctrl_DealerShop {
         Id baseRtId = baseTranslationRtId;
 
         List<String> conditions = new List<String>{ 'IsActive = true', 'Show_In_Dealer_Shop__c = true' };
-        if (String.isNotBlank(category))  conditions.add('Category_Platform__c INCLUDES (:category)');
+        if (isFavoritesTab) {
+            conditions.add('Id IN (SELECT Product__c FROM Dealer_Product_Favorite__c WHERE Contact__c = :contactId)');
+        } else if (String.isNotBlank(category)) {
+            conditions.add('Category_Platform__c INCLUDES (:category)');
+        } else {
+            // "All Products" tab only - a product/reseller with no platform data set never gets
+            // excluded (fail-open), since most Product2 records don't have System_Platform__c
+            // populated yet; only an actual mismatch between two populated values excludes it.
+            Set<String> availablePlatforms = getAvailablePlatforms(acct);
+            if (!availablePlatforms.isEmpty()) {
+                String platformBind = String.join(new List<String>(availablePlatforms), ';');
+                conditions.add('(System_Platform__c = null OR System_Platform__c INCLUDES (:platformBind))');
+            }
+        }
         if (filterByEntry)                conditions.add('Id IN :pricedIds');
 
         String searchLike = String.isNotBlank(searchTerm)
@@ -437,11 +506,13 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Map<Id, String> imageUrls = getProductImageUrls(productIds);
+        Set<Id> favoriteIds = getFavoriteProductIds(contactId, productIds);
 
         List<ProductDTO> dtos = new List<ProductDTO>();
         for (Product2 p : products) {
             ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id));
-            dto.imageUrl = imageUrls.get(p.Id);
+            dto.imageUrl   = imageUrls.get(p.Id);
+            dto.isFavorite = favoriteIds.contains(p.Id);
             dtos.add(dto);
         }
 
@@ -509,7 +580,8 @@ public without sharing class Ctrl_DealerShop {
 
         ProductDTO dto = buildProductDTO(prod, entry, disc);
         Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
-        dto.imageUrl = imageUrls.get(productId);
+        dto.imageUrl   = imageUrls.get(productId);
+        dto.isFavorite = getFavoriteProductIds(ctx.contactId, new Set<Id>{ productId }).contains(productId);
         return dto;
     }
 
@@ -781,11 +853,34 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String          imageUrl;
         @AuraEnabled public Decimal         unitPrice;
         @AuraEnabled public List<PriceTierDTO> priceTiers;
+        @AuraEnabled public Boolean         isFavorite;
     }
 
     public class DealerContext {
         public Account account;
         public String  language;
+        public Id      contactId;
+    }
+
+    // ── Reseller/platform resolution ──────────────────────────────────────────
+
+    // Account.Reseller_Name__c and Administration.Reseller__c are both plain picklist codes
+    // ("1".."6") that happen to overlap digit-wise with the unrelated System__c global value
+    // set - they are NOT platform codes themselves, just the join key to find the Administration
+    // record that actually carries the platform requirement.
+    private static Set<String> getAvailablePlatforms(Account acct) {
+        Set<String> platforms = new Set<String>();
+        if (acct == null || String.isBlank(acct.Reseller_Name__c)) return platforms;
+        for (Subscription25__Administration__c admin : [
+            SELECT Available_System_Platforms__c
+            FROM Subscription25__Administration__c
+            WHERE Reseller__c = :acct.Reseller_Name__c
+              AND Available_System_Platforms__c != null
+            WITH SYSTEM_MODE
+        ]) {
+            platforms.addAll(admin.Available_System_Platforms__c.split(';'));
+        }
+        return platforms;
     }
 
     public class OrderHistoryDTO {

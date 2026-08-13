@@ -26,7 +26,12 @@
                     </div>
 
                     <div class="product-info-col">
-                        <h1 class="product-title">{product.displayName}</h1>
+                        <div class="title-row">
+                            <h1 class="product-title">{product.displayName}</h1>
+                            <button class={favoriteButtonClass} onclick={handleToggleFavorite}>
+                                {favoriteButtonLabel}
+                            </button>
+                        </div>
 
                         <template if:true={product.productCode}>
                             <span class="product-code-badge">{product.productCode}</span>

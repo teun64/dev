@@ -1,5 +1,6 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import getProductDetail from '@salesforce/apex/Ctrl_DealerShop.getProductDetail';
+import toggleFavorite    from '@salesforce/apex/Ctrl_DealerShop.toggleFavorite';
 
 const CURRENCY_FORMAT = new Intl.NumberFormat('nl-NL', {
     style: 'currency',
@@ -41,6 +42,30 @@ export default class DealerProductDetail extends LightningElement {
             }));
         }
         return enriched;
+    }
+
+    get isFavorite() {
+        return !!this.product?.isFavorite;
+    }
+
+    get favoriteButtonClass() {
+        return 'btn-favorite-detail' + (this.isFavorite ? ' btn-favorite-detail--active' : '');
+    }
+
+    get favoriteButtonLabel() {
+        return this.isFavorite ? '♥ Favoriet' : '♡ Markeer als favoriet';
+    }
+
+    handleToggleFavorite() {
+        if (!this.productId) return;
+        toggleFavorite({ productId: this.productId })
+            .then((isFavorite) => {
+                this.product = { ...this.product, isFavorite };
+            })
+            .catch((error) => {
+                // eslint-disable-next-line no-console
+                console.error('Failed to toggle favorite', error);
+            });
     }
 
     get hasPriceTiers() {
