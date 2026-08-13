@@ -11,7 +11,7 @@ export default class ProductImageUploader extends LightningElement {
     @track currentImageUrl;
     @track isDragging = false;
     @track isUploading = false;
-    removeOldFile = false;
+    removeOldFile = true;
 
     connectedCallback() {
         this.loadCurrentImage();

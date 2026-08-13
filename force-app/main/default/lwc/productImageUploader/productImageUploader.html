@@ -24,7 +24,7 @@
                             <img src={currentImageUrl} alt="Current product image" class="row-thumbnail" />
                         </template>
                         <template if:false={hasCurrentImage}>
-                            <lightning-icon icon-name="utility:photo" size="medium" variant="bare" class="row-placeholder-icon"></lightning-icon>
+                            <lightning-icon icon-name="utility:photo" size="large" variant="bare" class="row-placeholder-icon"></lightning-icon>
                         </template>
                     </div>
 
@@ -53,7 +53,7 @@
             />
 
             <label class="remove-old-toggle">
-                <input type="checkbox" onchange={handleRemoveOldFileChange} />
+                <input type="checkbox" checked onchange={handleRemoveOldFileChange} />
                 Remove the old file before uploading the new one
             </label>
         </div>
