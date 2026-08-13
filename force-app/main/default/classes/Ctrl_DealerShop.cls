@@ -473,8 +473,14 @@ public without sharing class Ctrl_DealerShop {
             // populated yet; only an actual mismatch between two populated values excludes it.
             Set<String> availablePlatforms = getAvailablePlatforms(acct);
             if (!availablePlatforms.isEmpty()) {
-                String platformBind = String.join(new List<String>(availablePlatforms), ';');
-                conditions.add('(System_Platform__c = null OR System_Platform__c INCLUDES (:platformBind))');
+                // INCLUDES('a;b') means "has BOTH a AND b", not "has either" - a single product
+                // only ever carries one platform value, so that would always match zero rows.
+                // "Any of" requires one INCLUDES() per value, OR'd together.
+                List<String> platformClauses = new List<String>();
+                for (String p : availablePlatforms) {
+                    platformClauses.add('System_Platform__c INCLUDES (\'' + String.escapeSingleQuotes(p) + '\')');
+                }
+                conditions.add('(System_Platform__c = null OR ' + String.join(platformClauses, ' OR ') + ')');
             }
         }
         if (filterByEntry)                conditions.add('Id IN :pricedIds');

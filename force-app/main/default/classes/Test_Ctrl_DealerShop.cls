@@ -710,6 +710,41 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
+    static void testGetProducts_allTab_multiplePlatforms_matchesEither() {
+        // A reseller with MULTIPLE available platforms ('1;5') - each product only ever carries
+        // ONE platform value, so this must match products on platform 1 OR platform 5, not require
+        // both on the same product (INCLUDES('1;5') would wrongly demand both at once).
+        insert new Subscription25__Administration__c(
+            Name                                       = 'Test Administration',
+            Reseller__c                                = '1',
+            Available_System_Platforms__c              = '1;5',
+            Subscription25__Invoice_Number_Prefix__c   = 'TST',
+            Subscription25__Billing_Country__c        = 'NL'
+        );
+
+        Product2 onPlatform1 = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        onPlatform1.System_Platform__c = '1';
+        update onPlatform1;
+
+        Product2 onPlatform5 = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        onPlatform5.System_Platform__c = '5';
+        update onPlatform5;
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 50, null);
+        }
+        Test.stopTest();
+
+        Set<Id> returnedIds = new Set<Id>();
+        for (Ctrl_DealerShop.ProductDTO dto : result.products) returnedIds.add(dto.id);
+
+        System.assert(returnedIds.contains(onPlatform1.Id), 'Product on platform 1 should be visible under All Products');
+        System.assert(returnedIds.contains(onPlatform5.Id), 'Product on platform 5 should be visible under All Products');
+    }
+
+    @IsTest
     static void testGetPlatformTabs_returnsResellerPlatformsWithLabelsInValueSetOrder() {
         insert new Subscription25__Administration__c(
             Name                                       = 'Test Administration',
