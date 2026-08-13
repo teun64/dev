@@ -62,8 +62,14 @@ public without sharing class Ctrl_DealerPortal {
             admins = [
                 SELECT Subscription25__Billing_Name__c, Subscription25__Phone__c,
                        Subscription25__Billing_Email_Address__c, Subscription25__Website__c,
-                       Subscription25__Billing_Street__c, Subscription25__Billing_City__c,
-                       Subscription25__Billing_Country__c
+                       Subscription25__Billing_Street__c, Subscription25__Billing_Postal_Code__c,
+                       Subscription25__Billing_City__c,
+                       Subscription25__Billing_Country__c,
+                       Subscription25__Chamber_Of_Commerce_Number__c, Subscription25__VAT_Number__c,
+                       Managing_directors__c,
+                       Subscription25__IBAN__c, Subscription25__BIC__c,
+                       Bank_6_Account_Number__c, Bank_6_Sort_Code__c,
+                       Privacy_Policy_URL__c, Terms_Conditions_URL__c
                 FROM Subscription25__Administration__c
                 WHERE Reseller__c = :resellerCode
                 WITH SYSTEM_MODE
@@ -74,13 +80,23 @@ public without sharing class Ctrl_DealerPortal {
         FooterDTO dto = new FooterDTO();
         if (!admins.isEmpty()) {
             Subscription25__Administration__c admin = admins[0];
-            dto.companyName = admin.Subscription25__Billing_Name__c;
-            dto.phone       = admin.Subscription25__Phone__c;
-            dto.email       = admin.Subscription25__Billing_Email_Address__c;
-            dto.website     = admin.Subscription25__Website__c;
-            dto.street      = admin.Subscription25__Billing_Street__c;
-            dto.city        = admin.Subscription25__Billing_City__c;
-            dto.country     = admin.Subscription25__Billing_Country__c;
+            dto.companyName             = admin.Subscription25__Billing_Name__c;
+            dto.phone                   = admin.Subscription25__Phone__c;
+            dto.email                   = admin.Subscription25__Billing_Email_Address__c;
+            dto.website                 = admin.Subscription25__Website__c;
+            dto.street                  = admin.Subscription25__Billing_Street__c;
+            dto.postalCode              = admin.Subscription25__Billing_Postal_Code__c;
+            dto.city                    = admin.Subscription25__Billing_City__c;
+            dto.country                 = admin.Subscription25__Billing_Country__c;
+            dto.chamberOfCommerceNumber = admin.Subscription25__Chamber_Of_Commerce_Number__c;
+            dto.vatNumber               = admin.Subscription25__VAT_Number__c;
+            dto.managingDirectors       = admin.Managing_directors__c;
+            dto.iban                    = admin.Subscription25__IBAN__c;
+            dto.bic                     = admin.Subscription25__BIC__c;
+            dto.bankAccountNumber       = admin.Bank_6_Account_Number__c;
+            dto.bankSortCode            = admin.Bank_6_Sort_Code__c;
+            dto.privacyPolicyUrl        = admin.Privacy_Policy_URL__c;
+            dto.termsConditionsUrl      = admin.Terms_Conditions_URL__c;
         } else {
             dto.companyName = 'Moving Intelligence B.V.';
             dto.phone       = '+31 (0)88 990 00 00';
@@ -169,7 +185,17 @@ public without sharing class Ctrl_DealerPortal {
         @AuraEnabled public String email;
         @AuraEnabled public String website;
         @AuraEnabled public String street;
+        @AuraEnabled public String postalCode;
         @AuraEnabled public String city;
         @AuraEnabled public String country;
+        @AuraEnabled public String chamberOfCommerceNumber;
+        @AuraEnabled public String vatNumber;
+        @AuraEnabled public String managingDirectors;
+        @AuraEnabled public String iban;
+        @AuraEnabled public String bic;
+        @AuraEnabled public String bankAccountNumber;
+        @AuraEnabled public String bankSortCode;
+        @AuraEnabled public String privacyPolicyUrl;
+        @AuraEnabled public String termsConditionsUrl;
     }
 }

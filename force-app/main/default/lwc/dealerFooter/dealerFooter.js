@@ -10,35 +10,75 @@ const CAR_IMAGE_PATH = 'Branding/2024/img/car-silhouette-dark.png';
 const LABELS = {
     nl: {
         privacy: 'Privacybeleid',
-        legal: 'Wettelijke vermeldingen',
-        offer: 'Aanbod',
-        careers: 'Bij ons komen werken'
+        terms: 'Algemene voorwaarden',
+        contact: 'Contact',
+        phone: 'Telefoon',
+        email: 'E-mail',
+        website: 'Website',
+        coc: 'KvK-nummer',
+        vat: 'BTW-nummer',
+        managingDirectors: 'Directie',
+        iban: 'IBAN',
+        bic: 'BIC',
+        sortCode: 'Sortcode',
+        accountNumber: 'Rekeningnummer'
     },
     en: {
         privacy: 'Privacy Policy',
-        legal: 'Legal Notices',
-        offer: 'Offer',
-        careers: 'Careers'
+        terms: 'Terms & Conditions',
+        contact: 'Contact',
+        phone: 'Phone',
+        email: 'Email',
+        website: 'Website',
+        coc: 'Chamber of Commerce No.',
+        vat: 'VAT No.',
+        managingDirectors: 'Managing Director',
+        iban: 'IBAN',
+        bic: 'BIC',
+        sortCode: 'Sort Code',
+        accountNumber: 'Account Number'
     },
     de: {
         privacy: 'Datenschutz',
-        legal: 'Impressum',
-        offer: 'Angebot',
-        careers: 'Karriere'
+        terms: 'Allgemeine Geschäftsbedingungen',
+        contact: 'Kontakt',
+        phone: 'Telefon',
+        email: 'E-Mail',
+        website: 'Webseite',
+        coc: 'Handelsregisternummer',
+        vat: 'USt-IdNr.',
+        managingDirectors: 'Geschäftsführer',
+        iban: 'IBAN',
+        bic: 'BIC',
+        sortCode: 'Sortcode',
+        accountNumber: 'Kontonummer'
     },
     fr: {
         privacy: 'Politique de confidentialité',
-        legal: 'Mentions légales',
-        offer: 'Offre',
-        careers: 'Carrières'
+        terms: 'Conditions générales',
+        contact: 'Contact',
+        phone: 'Téléphone',
+        email: 'E-mail',
+        website: 'Site web',
+        coc: "N° d'immatriculation",
+        vat: 'N° TVA',
+        managingDirectors: 'Directeur général',
+        iban: 'IBAN',
+        bic: 'BIC',
+        sortCode: 'Code guichet',
+        accountNumber: 'Numéro de compte'
     }
 };
+
+const GERMANY_COUNTRY_NAMES = ['germany', 'deutschland'];
+const UK_COUNTRY_NAMES = ['united kingdom', 'uk', 'great britain', 'england', 'scotland', 'wales', 'northern ireland'];
 
 const SUPPORTED_LANGS = Object.keys(LABELS);
 
 export default class DealerFooter extends LightningElement {
     @track config = {};
     @track footer = {};
+    @track isContactModalOpen = false;
 
     lang = DEFAULT_LANG;
     currentYear = new Date().getFullYear();
@@ -92,34 +132,115 @@ export default class DealerFooter extends LightningElement {
     }
 
     get privacyUrl() {
-        return this.config.privacyPolicyUrl || null;
+        return this.footer.privacyPolicyUrl || null;
     }
 
-    get legalUrl() {
-        return this.config.legalNoticeUrl || null;
-    }
-
-    get offerUrl() {
-        return this.config.offerUrl || null;
-    }
-
-    get careersUrl() {
-        return this.config.careersUrl || null;
+    get termsUrl() {
+        return this.footer.termsConditionsUrl || null;
     }
 
     get privacyLabel() {
         return this.labels.privacy;
     }
 
-    get legalLabel() {
-        return this.labels.legal;
+    get termsLabel() {
+        return this.labels.terms;
     }
 
-    get offerLabel() {
-        return this.labels.offer;
+    get contactLabel() {
+        return this.labels.contact;
     }
 
-    get careersLabel() {
-        return this.labels.careers;
+    get phoneLabel() {
+        return this.labels.phone;
+    }
+
+    get emailLabel() {
+        return this.labels.email;
+    }
+
+    get websiteLabel() {
+        return this.labels.website;
+    }
+
+    get cocLabel() {
+        return this.labels.coc;
+    }
+
+    get vatLabel() {
+        return this.labels.vat;
+    }
+
+    get managingDirectorsLabel() {
+        return this.labels.managingDirectors;
+    }
+
+    get contactAddress() {
+        const postalCity = [this.footer.postalCode, this.footer.city].filter(Boolean).join(' ');
+        const parts = [this.footer.street, postalCity, this.footer.country].filter(Boolean);
+        return parts.join(', ');
+    }
+
+    get isGermany() {
+        const country = (this.footer.country || '').toLowerCase();
+        return GERMANY_COUNTRY_NAMES.some((name) => country.includes(name));
+    }
+
+    get showManagingDirectors() {
+        return this.isGermany && !!this.footer.managingDirectors;
+    }
+
+    get isUK() {
+        const country = (this.footer.country || '').toLowerCase();
+        return UK_COUNTRY_NAMES.some((name) => country.includes(name));
+    }
+
+    get showIbanBic() {
+        return !this.isUK && !!(this.footer.iban || this.footer.bic);
+    }
+
+    get showUkBankDetails() {
+        return this.isUK && !!(this.footer.bankSortCode || this.footer.bankAccountNumber);
+    }
+
+    get ibanLabel() {
+        return this.labels.iban;
+    }
+
+    get bicLabel() {
+        return this.labels.bic;
+    }
+
+    get sortCodeLabel() {
+        return this.labels.sortCode;
+    }
+
+    get accountNumberLabel() {
+        return this.labels.accountNumber;
+    }
+
+    get phoneHref() {
+        return this.footer.phone ? `tel:${this.footer.phone.replace(/\s+/g, '')}` : null;
+    }
+
+    get emailHref() {
+        return this.footer.email ? `mailto:${this.footer.email}` : null;
+    }
+
+    get websiteHref() {
+        if (!this.footer.website) return null;
+        return this.footer.website.startsWith('http') ? this.footer.website : `https://${this.footer.website}`;
+    }
+
+    handleContactClick() {
+        this.isContactModalOpen = true;
+    }
+
+    handleCloseModal() {
+        this.isContactModalOpen = false;
+    }
+
+    handleModalContentClick(event) {
+        event.stopPropagation();
     }
 }

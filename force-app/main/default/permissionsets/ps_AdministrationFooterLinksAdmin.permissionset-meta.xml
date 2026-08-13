@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Administration Footer Links - Admin Access</label>
+    <description>Read/Edit on the Administration footer link URL fields, for admins maintaining reseller Dealer Portal footer links. Dealer Portal itself uses SYSTEM_MODE and doesn't need this.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <fieldPermissions>
+        <field>Subscription25__Administration__c.Privacy_Policy_URL__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Subscription25__Administration__c.Terms_Conditions_URL__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+</PermissionSet>
