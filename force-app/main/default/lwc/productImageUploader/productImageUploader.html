@@ -13,18 +13,18 @@
                 onclick={handleBrowseClick}
             >
                 <template if:true={isUploading}>
-                    <div class="row-figure">
+                    <div class={rowFigureClass}>
                         <lightning-spinner alternative-text="Uploading..." size="small"></lightning-spinner>
                     </div>
                 </template>
 
                 <template if:false={isUploading}>
-                    <div class="row-figure">
+                    <div class={rowFigureClass}>
                         <template if:true={hasCurrentImage}>
                             <img src={currentImageUrl} alt="Current product image" class="row-thumbnail" />
                         </template>
                         <template if:false={hasCurrentImage}>
-                            <lightning-icon icon-name="utility:photo" size="large" variant="bare" class="row-placeholder-icon"></lightning-icon>
+                            <lightning-icon icon-name="utility:photo" size={placeholderIconSize} variant="bare" class="row-placeholder-icon"></lightning-icon>
                         </template>
                     </div>
 

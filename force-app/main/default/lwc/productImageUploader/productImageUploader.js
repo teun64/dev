@@ -5,16 +5,48 @@ import uploadProductImage from '@salesforce/apex/Ctrl_ProductImageManager.upload
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB - comfortably under the Apex request-size limit
 
+// There's no supported way to read Salesforce's Comfy/Compact density setting from inside an
+// LWC's shadow DOM - it isn't exposed as a public CSS token or API. Instead, react to the
+// component's own rendered width: below this, there isn't room for the large preview next to the
+// text/button, which is what a squeezed/compact layout actually looks like in practice.
+const COMPACT_WIDTH_THRESHOLD = 480;
+
 export default class ProductImageUploader extends LightningElement {
     @api recordId;
 
     @track currentImageUrl;
     @track isDragging = false;
     @track isUploading = false;
+    @track isCompact = false;
     removeOldFile = true;
+
+    _resizeObserver;
 
     connectedCallback() {
         this.loadCurrentImage();
+    }
+
+    renderedCallback() {
+        if (!this._resizeObserver) {
+            const el = this.template.querySelector('.pi-card');
+            if (el) {
+                this._resizeObserver = new ResizeObserver((entries) => {
+                    const width = entries[0].contentRect.width;
+                    const compact = width < COMPACT_WIDTH_THRESHOLD;
+                    if (compact !== this.isCompact) {
+                        this.isCompact = compact;
+                    }
+                });
+                this._resizeObserver.observe(el);
+            }
+        }
+    }
+
+    disconnectedCallback() {
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+            this._resizeObserver = null;
+        }
     }
 
     loadCurrentImage() {
@@ -36,7 +68,17 @@ export default class ProductImageUploader extends LightningElement {
     }
 
     get dropZoneClass() {
-        return 'drop-zone' + (this.isDragging ? ' drop-zone--dragging' : '');
+        return 'drop-zone'
+            + (this.isDragging ? ' drop-zone--dragging' : '')
+            + (this.isCompact ? ' drop-zone--compact' : '');
+    }
+
+    get rowFigureClass() {
+        return 'row-figure' + (this.isCompact ? ' row-figure--compact' : '');
+    }
+
+    get placeholderIconSize() {
+        return this.isCompact ? 'small' : 'large';
     }
 
     handleRemoveOldFileChange(event) {
