@@ -388,6 +388,26 @@ public without sharing class Ctrl_DealerShop {
         return true;
     }
 
+    // Tabs for the current dealer's reseller: one per platform value in the Administration's
+    // Available_System_Platforms__c, labeled from the shared "System" global value set - in that
+    // value set's defined order, not the reseller field's (unordered Set) iteration order.
+    @AuraEnabled(cacheable=true)
+    public static List<PlatformTabDTO> getPlatformTabs() {
+        Set<String> platforms = getAvailablePlatforms(getDealerContext().account);
+        List<PlatformTabDTO> tabs = new List<PlatformTabDTO>();
+        if (platforms.isEmpty()) return tabs;
+
+        for (Schema.PicklistEntry entry : Schema.SObjectType.Product2.fields.System_Platform__c.getPicklistValues()) {
+            if (platforms.contains(entry.getValue())) {
+                PlatformTabDTO dto = new PlatformTabDTO();
+                dto.value = entry.getValue();
+                dto.label = entry.getLabel();
+                tabs.add(dto);
+            }
+        }
+        return tabs;
+    }
+
     // ── Public methods ────────────────────────────────────────────────────────
 
     @AuraEnabled(cacheable=true)
@@ -444,7 +464,9 @@ public without sharing class Ctrl_DealerShop {
         if (isFavoritesTab) {
             conditions.add('Id IN (SELECT Product__c FROM Dealer_Product_Favorite__c WHERE Contact__c = :contactId)');
         } else if (String.isNotBlank(category)) {
-            conditions.add('Category_Platform__c INCLUDES (:category)');
+            // A specific platform tab - direct match only, no fail-open: unlike the "All Products"
+            // tab, selecting platform X is an explicit request for products confirmed to be on X.
+            conditions.add('System_Platform__c INCLUDES (:category)');
         } else {
             // "All Products" tab only - a product/reseller with no platform data set never gets
             // excluded (fail-open), since most Product2 records don't have System_Platform__c
@@ -854,6 +876,11 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public Decimal         unitPrice;
         @AuraEnabled public List<PriceTierDTO> priceTiers;
         @AuraEnabled public Boolean         isFavorite;
+    }
+
+    public class PlatformTabDTO {
+        @AuraEnabled public String value;
+        @AuraEnabled public String label;
     }
 
     public class DealerContext {

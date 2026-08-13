@@ -152,18 +152,34 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
-    static void testGetProducts_filterByCategory() {
+    static void testGetProducts_filterBySystemPlatform() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        prod.System_Platform__c = '2';
+        update prod;
+
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts('Fleet', 1, 10, null);
+            result = Ctrl_DealerShop.getProducts('2', 1, 10, null);
         }
         Test.stopTest();
 
-        System.assertNotEquals(null, result, 'Result should not be null');
-        for (Ctrl_DealerShop.ProductDTO dto : result.products) {
-            System.assertEquals('Fleet', dto.category, 'Category filter not applied correctly');
+        System.assertEquals(1, result.products.size(), 'Only the product on platform 2 should be returned');
+        System.assertEquals(prod.Id, result.products[0].id, 'Wrong product returned for platform tab');
+    }
+
+    @IsTest
+    static void testGetProducts_platformTab_noFailOpen() {
+        // Unlike the "All Products" tab, a specific platform tab is an explicit request for that
+        // platform - a product with no System_Platform__c set must NOT show up here.
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts('2', 1, 10, null);
         }
+        Test.stopTest();
+
+        System.assertEquals(0, result.products.size(), 'Products with no platform set must not appear on a specific platform tab');
     }
 
     @IsTest
@@ -694,31 +710,40 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
-    static void testGetProducts_categoryTab_ignoresPlatformFilter() {
-        // The platform filter is scoped to the "All Products" tab only - Fleet/Security/Beacon
-        // tabs must keep showing everything that matches Category_Platform__c regardless of
-        // System_Platform__c, even when a reseller has a required-platforms restriction.
+    static void testGetPlatformTabs_returnsResellerPlatformsWithLabelsInValueSetOrder() {
         insert new Subscription25__Administration__c(
             Name                                       = 'Test Administration',
             Reseller__c                                = '1',
-            Available_System_Platforms__c              = '2',
+            Available_System_Platforms__c              = '6;2',
             Subscription25__Invoice_Number_Prefix__c   = 'TST',
             Subscription25__Billing_Country__c        = 'NL'
         );
 
-        Product2 fleetProd = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
-        fleetProd.System_Platform__c = '5'; // does not overlap with '2'
-        update fleetProd;
-
-        Ctrl_DealerShop.ProductPageResult result;
+        List<Ctrl_DealerShop.PlatformTabDTO> tabs;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts('Fleet', 1, 50, null);
+            tabs = Ctrl_DealerShop.getPlatformTabs();
         }
         Test.stopTest();
 
-        Set<Id> returnedIds = new Set<Id>();
-        for (Ctrl_DealerShop.ProductDTO dto : result.products) returnedIds.add(dto.id);
-        System.assert(returnedIds.contains(fleetProd.Id), 'Fleet tab should ignore the All-tab platform filter');
+        // '6' and '2' were assigned in reverse order - tabs must follow the global value set's
+        // own defined order ('2' before '6'), not the reseller field's Set iteration order.
+        System.assertEquals(2, tabs.size(), 'Should return one tab per reseller platform');
+        System.assertEquals('2', tabs[0].value, 'First tab should be platform 2 (value set order)');
+        System.assertEquals('TrackPilot (DE)', tabs[0].label, 'Label should come from the System global value set');
+        System.assertEquals('6', tabs[1].value, 'Second tab should be platform 6 (value set order)');
+        System.assertEquals('Echoes (FR)', tabs[1].label, 'Label should come from the System global value set');
+    }
+
+    @IsTest
+    static void testGetPlatformTabs_noAdministration_returnsEmpty() {
+        List<Ctrl_DealerShop.PlatformTabDTO> tabs;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            tabs = Ctrl_DealerShop.getPlatformTabs();
+        }
+        Test.stopTest();
+
+        System.assertEquals(0, tabs.size(), 'No Administration record for this reseller - no platform tabs');
     }
 }
