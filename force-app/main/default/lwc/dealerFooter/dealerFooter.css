@@ -84,3 +84,10 @@
     font-size: 0.8125rem;
     margin: 0;
 }
+
+@media (max-width: 768px) {
+    .footer-car-image {
+        width: 204px;
+        max-width: 45%;
+    }
+}
