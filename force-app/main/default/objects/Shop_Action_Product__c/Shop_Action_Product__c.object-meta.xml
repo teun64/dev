@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Shop Action Product</label>
+    <pluralLabel>Shop Action Products</pluralLabel>
+    <nameField>
+        <label>Shop Action Product Name</label>
+        <type>AutoNumber</type>
+        <displayFormat>SAP-{0000000}</displayFormat>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Junction linking a Shop_Action__c to a Product2, carrying the additional discount percentage for that specific product/action pairing (can differ per product within the same action). Read by Ctrl_DealerShop (AccessLevel.SYSTEM_MODE).</description>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

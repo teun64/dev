@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Teaser__c</fullName>
+    <label>Teaser</label>
+    <type>Text</type>
+    <length>80</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <description>Short text rendered in white over the promotional badge image on the shop's product card.</description>
+</CustomField>

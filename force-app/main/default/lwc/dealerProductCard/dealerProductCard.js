@@ -1,7 +1,24 @@
 import { LightningElement, api } from 'lwc';
 
+const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
+const DEFAULT_BADGE_COLOR = '#0E0F0E';
+
 export default class DealerProductCard extends LightningElement {
     @api product;
+
+    get hasAction() {
+        return !!this.product?.action;
+    }
+
+    get actionTeaser() {
+        return this.product?.action?.teaser || '';
+    }
+
+    get actionBadgeStyle() {
+        const color = this.product?.action?.backgroundColor;
+        const safeColor = HEX_COLOR.test(color) ? color : DEFAULT_BADGE_COLOR;
+        return `background-color: ${safeColor};`;
+    }
 
     get displayName() {
         return this.product?.displayName || this.product?.name || '';

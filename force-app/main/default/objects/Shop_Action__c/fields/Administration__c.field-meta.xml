@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Administration__c</fullName>
+    <label>Reseller Administration</label>
+    <type>Lookup</type>
+    <referenceTo>Subscription25__Administration__c</referenceTo>
+    <relationshipLabel>Shop Actions</relationshipLabel>
+    <relationshipName>Shop_Actions</relationshipName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <description>Scopes this action to a single reseller (via its Administration record) so the same product can carry different, non-conflicting actions per reseller (e.g. Germany vs NL).</description>
+</CustomField>

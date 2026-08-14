@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsActive__c</fullName>
+    <label>Active</label>
+    <type>Checkbox</type>
+    <defaultValue>true</defaultValue>
+    <trackHistory>false</trackHistory>
+    <description>Manual on/off switch for this action, independent of the date window - unchecking hides the badge/discount immediately even if today falls within Start_Date__c/End_Date__c.</description>
+</CustomField>

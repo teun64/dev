@@ -1,6 +1,11 @@
 <template>
     <div class="card" onclick={handleClick}>
         <div class="card-image">
+            <template if:true={hasAction}>
+                <div class="action-badge" style={actionBadgeStyle}>
+                    <span class="action-badge-text">{actionTeaser}</span>
+                </div>
+            </template>
             <button
                 class={favoriteButtonClass}
                 aria-label={favoriteAriaLabel}

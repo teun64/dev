@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Background_Color__c</fullName>
+    <label>Background Color</label>
+    <type>Text</type>
+    <length>7</length>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <description>Hex color for the badge background, e.g. #0E0F0E. Format enforced by the Background_Color_Format validation rule.</description>
+</CustomField>

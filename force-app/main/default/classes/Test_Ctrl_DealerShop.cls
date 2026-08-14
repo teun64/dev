@@ -781,4 +781,377 @@ private class Test_Ctrl_DealerShop {
 
         System.assertEquals(0, tabs.size(), 'No Administration record for this reseller - no platform tabs');
     }
+
+    @IsTest
+    static void testGetProductDetail_imageUrl_fallsBackWhenNewestFileHasNoDistribution() {
+        // Regression: a product can end up with two linked files where the newer one was never
+        // given a ContentDistribution (e.g. an older admin-imported photo plus a later upload that
+        // is still pending distribution setup). Preferring "newest" must not resolve to null when
+        // an older, fully-set-up file is available - it should fall back to that one instead.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        ContentVersion olderCv = new ContentVersion(
+            Title        = 'PP-001 older image',
+            PathOnClient = 'pp-001-older.png',
+            VersionData  = Blob.valueOf('older image bytes')
+        );
+        insert olderCv;
+        olderCv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :olderCv.Id];
+        insert new ContentDocumentLink(
+            LinkedEntityId = prod.Id,
+            ContentDocumentId = olderCv.ContentDocumentId,
+            ShareType = 'V',
+            Visibility = 'AllUsers'
+        );
+        ContentDistribution olderCd = new ContentDistribution(
+            Name = 'PP-001 older distribution',
+            ContentVersionId = olderCv.Id,
+            PreferencesAllowViewInBrowser = true
+        );
+        insert olderCd;
+        olderCd = [SELECT Id, ContentDownloadUrl FROM ContentDistribution WHERE Id = :olderCd.Id];
+
+        // Newer file, no ContentDistribution created for it.
+        ContentVersion newerCv = new ContentVersion(
+            Title        = 'PP-001 newer image',
+            PathOnClient = 'pp-001-newer.png',
+            VersionData  = Blob.valueOf('newer image bytes')
+        );
+        insert newerCv;
+        newerCv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :newerCv.Id];
+        insert new ContentDocumentLink(
+            LinkedEntityId = prod.Id,
+            ContentDocumentId = newerCv.ContentDocumentId,
+            ShareType = 'V',
+            Visibility = 'AllUsers'
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(olderCd.ContentDownloadUrl, dto.imageUrl, 'Should fall back to the older file that actually has a ContentDistribution, not resolve to null');
+    }
+
+    // ── Shop Actions ──────────────────────────────────────────────────────────
+
+    // Reseller__c '1' matches the @TestSetup Account's Reseller_Name__c '1' - Shop_Action__c.
+    // Administration__c is required specifically to scope an action to one reseller, so every
+    // Shop_Action__c fixture needs a matching Administration record to exist.
+    private static Id makeAdministrationId(String resellerCode) {
+        Subscription25__Administration__c admin = new Subscription25__Administration__c(
+            Name                                     = 'Test Administration ' + resellerCode,
+            Reseller__c                               = resellerCode,
+            Subscription25__Invoice_Number_Prefix__c = 'T' + resellerCode,
+            Subscription25__Billing_Country__c        = 'NL'
+        );
+        insert admin;
+        return admin.Id;
+    }
+
+    // The org's rbb_Shop_Action before-save flow (CreateAndUpdate) unconditionally derives both
+    // fields below on every save, overwriting whatever is passed directly:
+    //   - Administration__c is looked up from Business_Entity_Reseller__c against
+    //     Subscription25__Administration__c.Reseller__c (assigning null if no match is found).
+    //   - IsActive__c is set to true only when Status__c = 'Activated'.
+    // So a fixture must go through Business_Entity_Reseller__c/Status__c, not set
+    // Administration__c/IsActive__c directly - same "insert then update" shape as the
+    // rbb_Product_Discount create-only override documented elsewhere in this file, except here the
+    // flow re-derives on UPDATE too, so deactivating an existing action means changing Status__c
+    // away from 'Activated', not flipping IsActive__c directly.
+    private static Shop_Action__c makeShopAction(String resellerCode, Date startDate, Date endDate) {
+        makeAdministrationId(resellerCode);
+        Shop_Action__c action = new Shop_Action__c(
+            Name                         = 'Test Action',
+            Business_Entity_Reseller__c  = resellerCode,
+            Status__c                    = 'Activated',
+            Teaser__c                    = 'Summer Deal',
+            Background_Color__c          = '#0E0F0E',
+            Start_Date__c                = startDate,
+            End_Date__c                  = endDate
+        );
+        insert action;
+        return action;
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_appliesToRealVolumeTiers() {
+        // Regression: a product whose Dealer PricebookEntry carries real volume-tier prices in
+        // From_Price_X__c (distinct from UnitPrice, e.g. 800.050.0013's 179/172/164/153 shape) must
+        // have the action's percentage applied to EACH tier's own price - not have every tier
+        // flattened to the same entry.UnitPrice-derived figure.
+        Product2 prod = new Product2(
+            Name                   = 'Volume Tier Product',
+            ProductCode            = 'PP-VOL',
+            IsActive               = true,
+            Show_In_Dealer_Shop__c = true,
+            Category_Platform__c   = 'Fleet'
+        );
+        insert prod;
+        insert new PricebookEntry(Pricebook2Id = Test.getStandardPricebookId(), Product2Id = prod.Id, UnitPrice = 179.00, IsActive = true);
+
+        Pricebook2 dealerPricebook = [SELECT Id FROM Pricebook2 WHERE Name = 'Dealer NL All Pricebook' LIMIT 1];
+        insert new PricebookEntry(
+            Pricebook2Id       = dealerPricebook.Id,
+            Product2Id         = prod.Id,
+            UnitPrice          = 179.00,
+            IsActive           = true,
+            From_Quantity_1__c = 5,
+            From_Price_1__c    = 172.00,
+            From_Quantity_2__c = 11,
+            From_Price_2__c    = 164.00,
+            From_Quantity_3__c = 25,
+            From_Price_3__c    = 153.00
+        );
+
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-1), Date.today().addDays(1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(161.10, dto.unitPrice, 'unitPrice should be entry.UnitPrice (179.00) discounted by the action\'s 10%');
+        System.assertEquals(3, dto.priceTiers.size(), 'All three real volume tiers should be listed');
+        System.assertEquals(5, dto.priceTiers[0].fromQty, 'First tier should start at quantity 5');
+        System.assertEquals(154.80, dto.priceTiers[0].price, 'Tier 1 should be its OWN price (172.00) discounted by 10%, not entry.UnitPrice');
+        System.assertEquals(11, dto.priceTiers[1].fromQty, 'Second tier should start at quantity 11');
+        System.assertEquals(147.60, dto.priceTiers[1].price, 'Tier 2 should be its OWN price (164.00) discounted by 10%, not entry.UnitPrice');
+        System.assertEquals(25, dto.priceTiers[2].fromQty, 'Third tier should start at quantity 25');
+        System.assertEquals(137.70, dto.priceTiers[2].price, 'Tier 3 should be its OWN price (153.00) discounted by 10%, not entry.UnitPrice');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_appliesDiscountAndBadge() {
+        // PP-002 has no Product_Discount__c in the shared fixture, so the action's discount
+        // stacks on the plain undiscounted unit price (49.00) with nothing else in play.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-1), Date.today().addDays(1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(44.10, dto.unitPrice, 'unitPrice should be entry.UnitPrice (49.00) discounted by the action\'s 10%');
+        System.assertNotEquals(null, dto.action, 'action badge info should be populated while within the date window');
+        System.assertEquals('Test Action', dto.action.name, 'action name should come from the Shop_Action__c');
+        System.assertEquals('Summer Deal', dto.action.teaser, 'action teaser should come from the Shop_Action__c');
+        System.assertEquals('#0E0F0E', dto.action.backgroundColor, 'action backgroundColor should come from the Shop_Action__c');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_expired_ignored() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-10), Date.today().addDays(-1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(null, dto.action, 'An expired action must not surface a badge');
+        System.assertEquals(49.00, dto.unitPrice, 'unitPrice should stay undiscounted once the action has ended');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_future_ignored() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(1), Date.today().addDays(10));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(null, dto.action, 'A not-yet-started action must not surface a badge');
+        System.assertEquals(49.00, dto.unitPrice, 'unitPrice should stay undiscounted before the action starts');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_noEndDate_runsIndefinitely() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-30), null);
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 20
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertNotEquals(null, dto.action, 'A blank End_Date__c means the action has no upper bound');
+        System.assertEquals(39.20, dto.unitPrice, 'unitPrice should be entry.UnitPrice (49.00) discounted by 20%');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_inactiveAction_ignored() {
+        // IsActive__c is derived by the org's rbb_Shop_Action flow from Status__c (true only when
+        // Status__c = 'Activated') - moving it away from Activated must suppress the badge/discount
+        // even while today falls within Start_Date__c/End_Date__c. Setting IsActive__c directly
+        // would do nothing, since the flow re-derives it on every save (CreateAndUpdate).
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-1), Date.today().addDays(1));
+        action.Status__c = 'Preparation';
+        update action;
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(null, dto.action, 'IsActive__c=false must suppress the badge even within the date window');
+        System.assertEquals(49.00, dto.unitPrice, 'unitPrice should stay undiscounted while the action is manually deactivated');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_differentReseller_ignored() {
+        // The @TestSetup Account is on reseller '1' - an action scoped to a DIFFERENT reseller's
+        // Administration (e.g. Germany's) must not apply here. This is the entire reason
+        // Administration__c exists: without it, a Germany action and an NL action on the same
+        // product would collide with no way to tell them apart.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('2', Date.today().addDays(-1), Date.today().addDays(1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(null, dto.action, 'An action scoped to a different reseller\'s Administration must not surface a badge');
+        System.assertEquals(49.00, dto.unitPrice, 'unitPrice should stay undiscounted - the action belongs to a different reseller');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_excludedByActiveProductDiscount() {
+        // PP-001 already carries an active Product_Discount__c (10%) from @TestSetup - an active
+        // discount excludes the product from the action entirely: no badge, no stacked discount,
+        // pricing stays exactly what the existing discount-only test already expects (89.10).
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-1), Date.today().addDays(1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 50
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(null, dto.action, 'A product with an active Product_Discount__c must not show an action badge');
+        System.assertEquals(89.10, dto.unitPrice, 'Pricing should follow the existing Product_Discount__c only, not stack the action\'s 50% on top');
+    }
+
+    @IsTest
+    static void testGetProductDetail_shopAction_inactiveProductDiscount_doesNotExclude() {
+        // An inactive Product_Discount__c (e.g. still in the rbb_Product_Discount create-only
+        // "Preparation" state) must not exclude the product from the action - only an ACTIVE
+        // discount does, matching the IsActive__c=true filter used everywhere else in this class.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        insert new Product_Discount__c(
+            Account__c         = [SELECT Id FROM Account LIMIT 1].Id,
+            Product__c         = prod.Id,
+            IsActive__c        = false,
+            isFixedPrice__c    = false,
+            From_Quantity_1__c = 1,
+            From_Discount_1__c = 5
+        );
+
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-1), Date.today().addDays(1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertNotEquals(null, dto.action, 'An inactive Product_Discount__c must not suppress the action badge');
+        System.assertEquals(44.10, dto.unitPrice, 'An inactive Product_Discount__c must not block the action\'s stacked discount');
+    }
+
+    @IsTest
+    static void testGetProducts_shopAction_appliesToListResults() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-1), Date.today().addDays(1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 50, null);
+        }
+        Test.stopTest();
+
+        Ctrl_DealerShop.ProductDTO dto = null;
+        for (Ctrl_DealerShop.ProductDTO d : result.products) {
+            if (d.id == prod.Id) dto = d;
+        }
+        System.assertNotEquals(null, dto, 'PP-002 should be in the results');
+        System.assertNotEquals(null, dto.action, 'action badge info should surface in the product grid, not just the detail page');
+        System.assertEquals(44.10, dto.unitPrice, 'grid pricing should also reflect the stacked action discount');
+    }
 }

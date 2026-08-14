@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Additional_Discount_Percentage__c</fullName>
+    <label>Additional Discount Percentage</label>
+    <type>Percent</type>
+    <precision>5</precision>
+    <scale>2</scale>
+    <required>true</required>
+    <defaultValue>0</defaultValue>
+    <trackHistory>false</trackHistory>
+    <description>Percentage discount applied on top of this product's default unit price while the parent Shop Action is within its date window. Set to 0 to show the badge with no extra discount.</description>
+</CustomField>

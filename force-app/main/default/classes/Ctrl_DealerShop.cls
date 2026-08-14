@@ -241,8 +241,10 @@ public without sharing class Ctrl_DealerShop {
         // A product can end up with more than one linked file (e.g. an old image kept alongside a
         // newly uploaded one) - without an explicit order, "first row returned" is whatever the
         // query planner picks, which is not reliably the newest. Ordering by CreatedDate DESC and
-        // keeping only the first-seen link per product guarantees the most recent upload wins.
-        Map<Id, Id> cdocByProduct = new Map<Id, Id>();
+        // keeping every candidate (not just the first-seen one) per product lets the loop below fall
+        // back to an older document when the newest one turns out to have no ContentDistribution yet.
+        Map<Id, List<Id>> docsByProduct = new Map<Id, List<Id>>();
+        Set<Id> allDocIds = new Set<Id>();
         for (ContentDocumentLink cdl : [
             SELECT LinkedEntityId, ContentDocumentId
             FROM ContentDocumentLink
@@ -250,17 +252,19 @@ public without sharing class Ctrl_DealerShop {
             WITH SYSTEM_MODE
             ORDER BY ContentDocument.CreatedDate DESC, Id DESC
         ]) {
-            if (!cdocByProduct.containsKey(cdl.LinkedEntityId)) {
-                cdocByProduct.put(cdl.LinkedEntityId, cdl.ContentDocumentId);
+            if (!docsByProduct.containsKey(cdl.LinkedEntityId)) {
+                docsByProduct.put(cdl.LinkedEntityId, new List<Id>());
             }
+            docsByProduct.get(cdl.LinkedEntityId).add(cdl.ContentDocumentId);
+            allDocIds.add(cdl.ContentDocumentId);
         }
-        if (cdocByProduct.isEmpty()) return result;
+        if (allDocIds.isEmpty()) return result;
 
         Map<Id, Id> cvByDoc = new Map<Id, Id>();
         for (ContentVersion cv : [
             SELECT Id, ContentDocumentId
             FROM ContentVersion
-            WHERE ContentDocumentId IN :cdocByProduct.values()
+            WHERE ContentDocumentId IN :allDocIds
               AND IsLatest = true
             WITH SYSTEM_MODE
         ]) {
@@ -284,12 +288,90 @@ public without sharing class Ctrl_DealerShop {
             urlByContentVersion.put(cd.ContentVersionId, cd.ContentDownloadUrl);
         }
 
-        for (Id productId : cdocByProduct.keySet()) {
-            Id cvId = cvByDoc.get(cdocByProduct.get(productId));
-            String url = cvId != null ? urlByContentVersion.get(cvId) : null;
+        for (Id productId : docsByProduct.keySet()) {
+            String url = null;
+            for (Id docId : docsByProduct.get(productId)) {
+                Id cvId = cvByDoc.get(docId);
+                url = cvId != null ? urlByContentVersion.get(cvId) : null;
+                if (url != null) break;
+            }
             if (url != null) {
                 result.put(productId, url);
             }
+        }
+        return result;
+    }
+
+    // ── Shop Actions ──────────────────────────────────────────────────────────
+
+    // A promotional badge/discount for a product, sourced from the Shop_Action_Product__c
+    // currently within its parent Shop_Action__c's date window. Not @AuraEnabled - only the
+    // subset needed for display is exposed via ProductDTO.ShopActionDTO once the exclusion
+    // rule (active Product_Discount__c) has been applied in buildProductDTO.
+    private class ShopActionMatch {
+        String  name;
+        String  teaser;
+        String  backgroundColor;
+        Decimal discountPercent;
+    }
+
+    // Scoped to the dealer's own reseller (via Shop_Action__c.Administration__c, required for
+    // exactly this reason) - otherwise a Germany action and an NL action on the same product would
+    // both match with no way to tell which should apply. No resolvable Administration means no
+    // actions apply, matching the same fail-closed behavior as an empty administrationIds set.
+    //
+    // A product with no End_Date__c on its action runs with no upper bound. A product linked to
+    // more than one currently-active action for the same reseller (not expected, but not prevented
+    // by the schema) keeps whichever has the larger additional discount, so the surfaced deal is
+    // never understated.
+    private static Map<Id, ShopActionMatch> getActiveShopActions(Set<Id> productIds, Set<Id> administrationIds) {
+        Map<Id, ShopActionMatch> result = new Map<Id, ShopActionMatch>();
+        if (productIds.isEmpty() || administrationIds.isEmpty()) return result;
+
+        Date today = Date.today();
+        for (Shop_Action_Product__c sap : [
+            SELECT Product__c, Additional_Discount_Percentage__c,
+                   Shop_Action__r.Name, Shop_Action__r.Teaser__c, Shop_Action__r.Background_Color__c
+            FROM Shop_Action_Product__c
+            WHERE Product__c IN :productIds
+              AND Shop_Action__r.IsActive__c = true
+              AND Shop_Action__r.Administration__c IN :administrationIds
+              AND Shop_Action__r.Start_Date__c <= :today
+              AND (Shop_Action__r.End_Date__c = null OR Shop_Action__r.End_Date__c >= :today)
+            WITH SYSTEM_MODE
+        ]) {
+            if (sap.Product__c == null) continue;
+
+            ShopActionMatch existing = result.get(sap.Product__c);
+            if (existing != null && existing.discountPercent >= sap.Additional_Discount_Percentage__c) {
+                continue;
+            }
+            ShopActionMatch match  = new ShopActionMatch();
+            match.name             = sap.Shop_Action__r.Name;
+            match.teaser           = sap.Shop_Action__r.Teaser__c;
+            match.backgroundColor  = sap.Shop_Action__r.Background_Color__c;
+            match.discountPercent  = sap.Additional_Discount_Percentage__c;
+            result.put(sap.Product__c, match);
+        }
+        return result;
+    }
+
+    // Unlike Product_Discount__c's flat-discount branch (which discounts off entry.UnitPrice at
+    // each breakpoint, since a customer with a flat percentage discount and no discount-specific
+    // tier structure typically has no real entry-level tiers either), a Shop Action has no
+    // Product_Discount__c involved at all - the entry's own volume tiers ARE the real prices to
+    // discount here, same as the plain/no-discount path in buildPriceTiersFromEntry(). Applying the
+    // action's percentage off entry.UnitPrice instead would flatten every tier to the same price,
+    // silently erasing genuine volume pricing (e.g. 800.050.0013's 179/172/164/153 tiers).
+    private static List<PriceTierDTO> applyFlatPercentToTiers(PricebookEntry entry, Decimal pct) {
+        List<PriceTierDTO> tiers = new List<PriceTierDTO>();
+        tiers.add(makeTier(entry.From_Quantity_1__c, entry.From_Price_1__c, pct));
+        tiers.add(makeTier(entry.From_Quantity_2__c, entry.From_Price_2__c, pct));
+        tiers.add(makeTier(entry.From_Quantity_3__c, entry.From_Price_3__c, pct));
+        tiers.add(makeTier(entry.From_Quantity_4__c, entry.From_Price_4__c, pct));
+        List<PriceTierDTO> result = new List<PriceTierDTO>();
+        for (PriceTierDTO t : tiers) {
+            if (t != null) result.add(t);
         }
         return result;
     }
@@ -299,7 +381,8 @@ public without sharing class Ctrl_DealerShop {
     private static ProductDTO buildProductDTO(
         Product2 prod,
         PricebookEntry entry,
-        Product_Discount__c disc
+        Product_Discount__c disc,
+        ShopActionMatch action
     ) {
         Data_Translation__c trans = (prod.Data_Translations__r != null && !prod.Data_Translations__r.isEmpty())
             ? prod.Data_Translations__r[0]
@@ -322,10 +405,15 @@ public without sharing class Ctrl_DealerShop {
                                      ? disc.Product_Code_Customer__c
                                      : prod.ProductCode;
 
+        // An active Product_Discount__c excludes the product from any Shop Action entirely (no
+        // badge, no stacked discount) - a customer with negotiated pricing never sees a promo
+        // that would otherwise look like it's stacking on top of that negotiated price.
+        Boolean hasActiveDisc = disc != null && disc.IsActive__c == true;
+
         if (entry != null) {
             dto.unitPrice = entry.UnitPrice;
 
-            if (disc != null && disc.IsActive__c == true) {
+            if (hasActiveDisc) {
                 if (disc.isFixedPrice__c == true && disc.FixedPrice_1__c != null) {
                     dto.unitPrice = disc.FixedPrice_1__c;
                 } else if (disc.Discount_percentage__c != null) {
@@ -340,11 +428,32 @@ public without sharing class Ctrl_DealerShop {
                     dto.unitPrice = dto.priceTiers[0].price;
                     dto.priceTiers.remove(0);
                 }
+            } else if (action != null) {
+                // The additional discount stacks on top of the default (undiscounted) unit price -
+                // there is no Product_Discount__c in play here, so there's nothing else to stack on.
+                if (action.discountPercent != null) {
+                    dto.unitPrice = entry.UnitPrice * (1 - action.discountPercent / 100);
+                    dto.priceTiers = applyFlatPercentToTiers(entry, action.discountPercent);
+                } else {
+                    dto.priceTiers = buildPriceTiersFromEntry(entry);
+                }
+
+                if (!dto.priceTiers.isEmpty() && dto.priceTiers[0].fromQty == 1) {
+                    dto.unitPrice = dto.priceTiers[0].price;
+                    dto.priceTiers.remove(0);
+                }
             } else {
                 dto.priceTiers = buildPriceTiersFromEntry(entry);
             }
         }
         if (dto.priceTiers == null) dto.priceTiers = new List<PriceTierDTO>();
+
+        if (!hasActiveDisc && action != null) {
+            dto.action = new ShopActionDTO();
+            dto.action.name            = action.name;
+            dto.action.teaser          = action.teaser;
+            dto.action.backgroundColor = action.backgroundColor;
+        }
         return dto;
     }
 
@@ -540,10 +649,11 @@ public without sharing class Ctrl_DealerShop {
 
         Map<Id, String> imageUrls = getProductImageUrls(productIds);
         Set<Id> favoriteIds = getFavoriteProductIds(contactId, productIds);
+        Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
 
         List<ProductDTO> dtos = new List<ProductDTO>();
         for (Product2 p : products) {
-            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id));
+            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id), actionsByProduct.get(p.Id));
             dto.imageUrl   = imageUrls.get(p.Id);
             dto.isFavorite = favoriteIds.contains(p.Id);
             dtos.add(dto);
@@ -610,8 +720,9 @@ public without sharing class Ctrl_DealerShop {
             LIMIT 1
         ];
         Product_Discount__c disc = discs.isEmpty() ? null : discs[0];
+        ShopActionMatch action = getActiveShopActions(new Set<Id>{ productId }, getAdministrationIds(acct)).get(productId);
 
-        ProductDTO dto = buildProductDTO(prod, entry, disc);
+        ProductDTO dto = buildProductDTO(prod, entry, disc, action);
         Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
         dto.imageUrl   = imageUrls.get(productId);
         dto.isFavorite = getFavoriteProductIds(ctx.contactId, new Set<Id>{ productId }).contains(productId);
@@ -842,6 +953,7 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Map<Id, String> imageUrls = getProductImageUrls(productIds);
+        Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
 
         OrderDetailDTO result = new OrderDetailDTO();
         result.orderId     = opp.Id;
@@ -854,7 +966,7 @@ public without sharing class Ctrl_DealerShop {
             Product2 prod = prodById.get(li.Product2Id);
             if (prod == null) continue;
 
-            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id));
+            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id), actionsByProduct.get(li.Product2Id));
             current.imageUrl = imageUrls.get(li.Product2Id);
 
             OrderLineDTO line = new OrderLineDTO();
@@ -887,6 +999,13 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public Decimal         unitPrice;
         @AuraEnabled public List<PriceTierDTO> priceTiers;
         @AuraEnabled public Boolean         isFavorite;
+        @AuraEnabled public ShopActionDTO   action;
+    }
+
+    public class ShopActionDTO {
+        @AuraEnabled public String name;
+        @AuraEnabled public String teaser;
+        @AuraEnabled public String backgroundColor;
     }
 
     public class PlatformTabDTO {
@@ -919,6 +1038,23 @@ public without sharing class Ctrl_DealerShop {
             platforms.addAll(admin.Available_System_Platforms__c.split(';'));
         }
         return platforms;
+    }
+
+    // Shop_Action__c.Administration__c is required specifically so actions stay scoped to one
+    // reseller - without it, a Germany action and an NL action on the same product would collide
+    // with no way to tell which one should apply to a given dealer.
+    private static Set<Id> getAdministrationIds(Account acct) {
+        Set<Id> ids = new Set<Id>();
+        if (acct == null || String.isBlank(acct.Reseller_Name__c)) return ids;
+        for (Subscription25__Administration__c admin : [
+            SELECT Id
+            FROM Subscription25__Administration__c
+            WHERE Reseller__c = :acct.Reseller_Name__c
+            WITH SYSTEM_MODE
+        ]) {
+            ids.add(admin.Id);
+        }
+        return ids;
     }
 
     public class OrderHistoryDTO {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Shop Action</label>
+    <pluralLabel>Shop Actions</pluralLabel>
+    <nameField>
+        <label>Shop Action Name</label>
+        <type>Text</type>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>A time-boxed Dealer Shop promotion, scoped to one reseller via Administration__c so the same product can carry different, non-conflicting actions per reseller. Products are linked via Shop_Action_Product__c, which carries the per-product additional discount. Read by Ctrl_DealerShop (AccessLevel.SYSTEM_MODE) to badge/discount products in the shop while today falls within Start_Date__c/End_Date__c.</description>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

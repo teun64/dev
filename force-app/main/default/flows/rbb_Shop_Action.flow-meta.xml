@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>ass_01_Active</name>
+        <label>1. Active</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.IsActive__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fActive</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dgr_1_Administration</targetReference>
+        </connector>
+    </assignments>
+    <environments>Default</environments>
+    <formulas>
+        <name>fActive</name>
+        <dataType>Boolean</dataType>
+        <expression>ISPICKVAL({!$Record.Status__c}, &apos;Activated&apos;)</expression>
+    </formulas>
+    <interviewLabel>rbb - Shop Action {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbb - Shop Action</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>dgr_1_Administration</name>
+        <label>1. Administration</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Business_Entity_Reseller__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Subscription25__Administration__c</object>
+        <outputAssignments>
+            <assignToReference>$Record.Administration__c</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ass_01_Active</targetReference>
+        </connector>
+        <object>Shop_Action__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

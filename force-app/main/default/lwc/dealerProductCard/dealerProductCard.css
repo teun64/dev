@@ -47,6 +47,37 @@
     transform: translateY(0);
 }
 
+.action-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 62%;
+    height: 22%;
+    min-height: 1.6rem;
+    display: flex;
+    align-items: center;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    /* Same parallelogram ribbon shape/position as the old red "Fleet" badge on fleet/EuropTrack
+       product photos - right edge slants in by ~12% of the badge's own width from top to bottom. */
+    clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+}
+
+.action-badge-text {
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    line-height: 1.15;
+    padding: 0 18% 0 8%;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 .btn-favorite {
     position: absolute;
     top: 0.5rem;
