@@ -85,6 +85,11 @@
     cursor: pointer;
 }
 
+.footer-legal-link-button:hover {
+    color: var(--brand-primary, #ff0000) !important;
+    border-bottom-color: var(--brand-primary, #ff0000) !important;
+}
+
 .footer-legal-link-static {
     cursor: default;
     opacity: 0.6;
@@ -201,7 +206,7 @@
 }
 
 .contact-modal-value {
-    color: var(--brand-primary, #ff0000);
+    color: var(--brand-primary, #ff0000) !important;
     text-decoration: none;
 }
 

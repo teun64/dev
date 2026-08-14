@@ -2,12 +2,34 @@ import { LightningElement, wire, track } from 'lwc';
 import BRANDING from '@salesforce/resourceUrl/Branding';
 import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 
+const FAVICON_PATH = 'Branding/2024/img/favicon.png';
+
 export default class DealerNav extends LightningElement {
     @track config = {};
 
     @wire(getBrandConfig)
     wiredConfig({ data }) {
         if (data) this.config = data;
+    }
+
+    connectedCallback() {
+        this.setFavicon();
+    }
+
+    // headMarkup can't reliably reference a static resource by raw URL on this site (the usual
+    // "/sfsites/c/resource/..." path 404s here), but @salesforce/resourceUrl already resolves
+    // correctly for every other Branding asset - reuse that instead of guessing a URL format.
+    setFavicon() {
+        if (typeof document === 'undefined') return;
+        const href = `${BRANDING}/${FAVICON_PATH}`;
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+        }
+        link.type = 'image/png';
+        link.href = href;
     }
 
     get userName() {

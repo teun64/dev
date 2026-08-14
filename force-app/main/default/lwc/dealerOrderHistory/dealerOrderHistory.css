@@ -98,7 +98,7 @@
 }
 
 .order-link {
-    color: var(--brand-primary, #ff0000);
+    color: var(--brand-primary, #ff0000) !important;
     font-weight: 600;
     text-decoration: none;
 }

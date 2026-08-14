@@ -1,6 +1,9 @@
 import { LightningElement, wire, track } from 'lwc';
+import BRANDING from '@salesforce/resourceUrl/Branding';
 import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 import submitSignupRequest from '@salesforce/apex/Ctrl_DealerPortal.submitSignupRequest';
+
+const HERO_IMAGE_PATH = 'Branding/2024/img/home-hero.png';
 
 export default class DealerHome extends LightningElement {
     @track config = { isAuthenticated: false };
@@ -15,12 +18,11 @@ export default class DealerHome extends LightningElement {
     }
 
     get heroStyle() {
-        const color = this.config.primaryColor || '#ff0000';
-        return `background: linear-gradient(135deg, #1a1a1a 0%, ${color} 100%);`;
+        return `background-image: url('${BRANDING}/${HERO_IMAGE_PATH}'); background-size: 100% 100%; background-repeat: no-repeat;`;
     }
 
     get ctaBtnStyle() {
-        return 'background: #0E0F0E;';
+        return 'background: #ff0000;';
     }
 
     get welcomeParagraphs() {

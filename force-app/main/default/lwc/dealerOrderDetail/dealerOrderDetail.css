@@ -12,13 +12,13 @@
 .back-link {
     display: inline-block;
     margin-bottom: 1rem;
-    color: #555;
+    color: #555 !important;
     font-size: 0.875rem;
     text-decoration: none;
 }
 
 .back-link:hover {
-    color: var(--brand-primary, #ff0000);
+    color: var(--brand-primary, #ff0000) !important;
 }
 
 .order-detail__header {
