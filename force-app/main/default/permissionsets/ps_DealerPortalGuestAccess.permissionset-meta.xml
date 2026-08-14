@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Dealer Portal Guest Access</label>
+    <description>Apex class access for the Dealer Portal's Guest User, needed now that the Home page is public.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <classAccesses>
+        <apexClass>Ctrl_DealerPortal</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+</PermissionSet>

@@ -182,6 +182,13 @@
     color: #333;
 }
 
+.form-group-label {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0.5rem 0 -0.25rem;
+}
+
 .form-input {
     border: 1px solid #c9c9c9;
     border-radius: 4px;
@@ -190,6 +197,11 @@
     outline: none;
     background: #fff;
     transition: border-color 0.15s;
+}
+
+.form-textarea {
+    font-family: inherit;
+    resize: vertical;
 }
 
 .form-input:focus {

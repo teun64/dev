@@ -5,7 +5,11 @@ import submitSignupRequest from '@salesforce/apex/Ctrl_DealerPortal.submitSignup
 import isEmailRegistered from '@salesforce/apex/Ctrl_DealerPortal.isEmailRegistered';
 
 const HERO_IMAGE_PATH = 'Branding/2024/img/home-hero.png';
-const EMPTY_FORM = { companyName: '', contactName: '', email: '', phone: '', country: '', message: '' };
+const EMPTY_FORM = {
+    companyName: '', contactName: '', email: '', cocNumber: '', vatNumber: '', phone: '',
+    street: '', postalCode: '', city: '', country: '', message: ''
+};
+const REQUIRED_FIELDS = ['companyName', 'contactName', 'email', 'cocNumber', 'vatNumber', 'street', 'postalCode', 'city', 'country'];
 
 export default class DealerHome extends LightningElement {
     @track config = { isAuthenticated: false };
@@ -55,8 +59,9 @@ export default class DealerHome extends LightningElement {
 
     handleSignupSubmit() {
         this.signupError = '';
-        if (!this.form.companyName || !this.form.email) {
-            this.signupError = 'Company name and email are required.';
+        const missing = REQUIRED_FIELDS.some((field) => !this.form[field]);
+        if (missing) {
+            this.signupError = 'Please fill in all required fields.';
             return;
         }
 
@@ -69,12 +74,17 @@ export default class DealerHome extends LightningElement {
                     return;
                 }
                 submitSignupRequest({
-                    companyName:  this.form.companyName,
-                    contactName:  this.form.contactName,
-                    email:        this.form.email,
-                    phone:        this.form.phone,
-                    country:      this.form.country,
-                    message:      this.form.message
+                    companyName: this.form.companyName,
+                    contactName: this.form.contactName,
+                    email:       this.form.email,
+                    cocNumber:   this.form.cocNumber,
+                    vatNumber:   this.form.vatNumber,
+                    phone:       this.form.phone,
+                    street:      this.form.street,
+                    postalCode:  this.form.postalCode,
+                    city:        this.form.city,
+                    country:     this.form.country,
+                    message:     this.form.message
                 })
                 .then(() => {
                     this.signupSuccess = true;

@@ -117,33 +117,62 @@ public without sharing class Ctrl_DealerPortal {
         return ![SELECT Id FROM Contact WHERE Email = :email WITH SYSTEM_MODE LIMIT 1].isEmpty();
     }
 
+    private static Id salesLeadRecordTypeId {
+        get {
+            if (salesLeadRecordTypeId == null) {
+                List<RecordType> rts = [
+                    SELECT Id FROM RecordType
+                    WHERE SObjectType = 'Lead' AND DeveloperName = 'Sales'
+                    WITH SYSTEM_MODE
+                    LIMIT 1
+                ];
+                salesLeadRecordTypeId = rts.isEmpty() ? null : rts[0].Id;
+            }
+            return salesLeadRecordTypeId;
+        }
+        set;
+    }
+
     @AuraEnabled
     public static void submitSignupRequest(
         String companyName,
         String contactName,
         String email,
+        String cocNumber,
+        String vatNumber,
         String phone,
+        String street,
+        String postalCode,
+        String city,
         String country,
         String message
     ) {
-        if (String.isBlank(companyName) || String.isBlank(email)) {
-            throw new AuraHandledException('Company name and email are required.');
+        if (String.isBlank(companyName) || String.isBlank(contactName) || String.isBlank(email)
+            || String.isBlank(cocNumber) || String.isBlank(vatNumber)
+            || String.isBlank(street) || String.isBlank(postalCode) || String.isBlank(city) || String.isBlank(country)) {
+            throw new AuraHandledException('Please fill in all required fields.');
         }
         if (isEmailRegistered(email)) {
             throw new AuraHandledException('This email address is already registered. Please log in instead.');
         }
 
         Lead lead = new Lead(
-            Company    = companyName,
-            LastName   = String.isNotBlank(contactName) ? contactName : companyName,
-            Email      = email,
-            Phone      = phone,
-            Country    = country,
-            Description = message,
-            LeadSource = 'Dealer Portal',
-            Status     = 'Open - Not Contacted'
+            RecordTypeId = salesLeadRecordTypeId,
+            Company      = companyName,
+            LastName     = contactName,
+            Email        = email,
+            CoC_Number__c   = cocNumber,
+            VAT_Number__c   = vatNumber,
+            Phone        = phone,
+            Street       = street,
+            PostalCode   = postalCode,
+            City         = city,
+            Country      = country,
+            Description  = message,
+            LeadSource   = 'Webshop',
+            Status       = 'Open - Not Contacted'
         );
-        insert lead;
+        Database.insert(lead, AccessLevel.SYSTEM_MODE);
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────

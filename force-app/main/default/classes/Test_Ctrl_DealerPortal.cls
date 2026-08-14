@@ -116,20 +116,32 @@ private class Test_Ctrl_DealerPortal {
     @IsTest
     static void testSubmitSignupRequest_createsLead() {
         Test.startTest();
-        Ctrl_DealerPortal.submitSignupRequest('Prospect Co', 'Jane Doe', 'jane@prospect.example', '+31 987654321', 'Netherlands', 'Interested in becoming a dealer');
+        Ctrl_DealerPortal.submitSignupRequest(
+            'Prospect Co', 'Jane Doe', 'jane@prospect.example',
+            '12345678', 'NL123456789B01', '+31 987654321',
+            'Teststraat 1', '1234 AB', 'Amsterdam', 'Netherlands',
+            'Interested in becoming a dealer'
+        );
         Test.stopTest();
 
-        Lead l = [SELECT Company, Email, LeadSource FROM Lead WHERE Email = 'jane@prospect.example' LIMIT 1];
+        Lead l = [SELECT Company, Email, LeadSource, RecordType.DeveloperName, CoC_Number__c, VAT_Number__c, Street, PostalCode, City, Country FROM Lead WHERE Email = 'jane@prospect.example' LIMIT 1];
         System.assertEquals('Prospect Co', l.Company, 'Lead company should match the submitted value');
-        System.assertEquals('Dealer Portal', l.LeadSource, 'Lead source should be tagged as Dealer Portal');
+        System.assertEquals('Webshop', l.LeadSource, 'Lead source should be tagged as Webshop');
+        System.assertEquals('Sales', l.RecordType.DeveloperName, 'Lead should use the Sales record type');
+        System.assertEquals('12345678', l.CoC_Number__c, 'CoC Number should be saved');
+        System.assertEquals('NL123456789B01', l.VAT_Number__c, 'VAT Number should be saved');
+        System.assertEquals('Teststraat 1', l.Street, 'Street should be saved');
+        System.assertEquals('1234 AB', l.PostalCode, 'PostalCode should be saved');
+        System.assertEquals('Amsterdam', l.City, 'City should be saved');
+        System.assertEquals('Netherlands', l.Country, 'Country should be saved');
     }
 
     @IsTest
     static void testSubmitSignupRequest_missingRequiredFields_throws() {
         Test.startTest();
         try {
-            Ctrl_DealerPortal.submitSignupRequest(null, 'Jane Doe', null, null, null, null);
-            System.assert(false, 'Expected an exception when companyName/email are missing');
+            Ctrl_DealerPortal.submitSignupRequest(null, null, null, null, null, null, null, null, null, null, null);
+            System.assert(false, 'Expected an exception when required fields are missing');
         } catch (AuraHandledException e) {
             System.assert(true, 'AuraHandledException expected for missing required fields');
         }
@@ -160,7 +172,11 @@ private class Test_Ctrl_DealerPortal {
     static void testSubmitSignupRequest_emailAlreadyRegistered_throws() {
         Test.startTest();
         try {
-            Ctrl_DealerPortal.submitSignupRequest('Prospect Co', 'Jane Doe', PORTAL_USER_USERNAME, null, null, null);
+            Ctrl_DealerPortal.submitSignupRequest(
+                'Prospect Co', 'Jane Doe', PORTAL_USER_USERNAME,
+                '12345678', 'NL123456789B01', null,
+                'Teststraat 1', '1234 AB', 'Amsterdam', 'Netherlands', null
+            );
             System.assert(false, 'Expected an exception when the email already belongs to a Contact');
         } catch (AuraHandledException e) {
             System.assert(true, 'AuraHandledException expected when the email already belongs to a Contact');

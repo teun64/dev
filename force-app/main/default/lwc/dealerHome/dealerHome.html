@@ -67,36 +67,81 @@
                                     <input type="text" class="form-input" data-field="companyName"
                                         value={form.companyName} onchange={handleFormChange} />
                                 </div>
+                            </div>
+                            <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Contact name</label>
+                                    <label class="form-label">Your Name *</label>
                                     <input type="text" class="form-input" data-field="contactName"
                                         value={form.contactName} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Email address *</label>
+                                    <label class="form-label">Email *</label>
                                     <input type="email" class="form-input" data-field="email"
                                         value={form.email} onchange={handleFormChange} />
                                 </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">CoC Number *</label>
+                                    <input type="text" class="form-input" data-field="cocNumber"
+                                        value={form.cocNumber} onchange={handleFormChange} />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">VAT Number *</label>
+                                    <input type="text" class="form-input" data-field="vatNumber"
+                                        value={form.vatNumber} onchange={handleFormChange} />
+                                </div>
+                            </div>
+                            <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Phone</label>
                                     <input type="tel" class="form-input" data-field="phone"
                                         value={form.phone} onchange={handleFormChange} />
                                 </div>
                             </div>
+
+                            <p class="form-group-label">Visiting Address *</p>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Country</label>
+                                    <label class="form-label">Street *</label>
+                                    <input type="text" class="form-input" data-field="street"
+                                        value={form.street} onchange={handleFormChange} />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Postal Code *</label>
+                                    <input type="text" class="form-input" data-field="postalCode"
+                                        value={form.postalCode} onchange={handleFormChange} />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">City *</label>
+                                    <input type="text" class="form-input" data-field="city"
+                                        value={form.city} onchange={handleFormChange} />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label class="form-label">Country *</label>
                                     <input type="text" class="form-input" data-field="country"
                                         value={form.country} onchange={handleFormChange} />
                                 </div>
+                            </div>
+
+                            <div class="form-row">
                                 <div class="form-field">
                                     <label class="form-label">Message</label>
-                                    <input type="text" class="form-input" data-field="message"
-                                        value={form.message} onchange={handleFormChange} />
+                                    <textarea class="form-input form-textarea" data-field="message" rows="5"
+                                        value={form.message} onchange={handleFormChange}></textarea>
                                 </div>
                             </div>
+
                             <button class="signup-btn" onclick={handleSignupSubmit}
                                 disabled={signupLoading} style={ctaBtnStyle}>
                                 <template if:true={signupLoading}>Submitting...</template>
