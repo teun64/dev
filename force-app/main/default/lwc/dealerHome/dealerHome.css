@@ -78,22 +78,88 @@
 
 .cta-btn:hover { opacity: 0.88; }
 
-/* ── Signup section ──────────────────────────────────── */
-.signup-section {
-    background: #f4f4f4;
-    padding: 2.5rem 1.5rem;
+.become-dealer-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
-.signup-inner {
-    max-width: 1200px;
-    margin: 0 auto;
+.become-dealer-text {
+    font-size: 0.875rem;
+    color: #666;
 }
 
-.signup-title {
-    font-size: 1.5rem;
+.become-dealer-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #ff0000;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.become-dealer-btn:hover {
+    opacity: 0.8;
+}
+
+/* ── Become a Dealer modal ────────────────────────────── */
+.signup-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(14, 15, 14, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+    padding: 1rem;
+}
+
+.signup-modal {
+    background: #ffffff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.signup-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0E0F0E;
+    color: #ffffff;
+    padding: 1rem 1.25rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.signup-modal-title {
+    font-size: 1.125rem;
     font-weight: 700;
-    color: #1a1a1a;
-    margin: 0 0 1.5rem;
+    margin: 0;
+}
+
+.signup-modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+}
+
+.signup-modal-close:hover {
+    color: #ff0000;
+}
+
+.signup-modal-body {
+    padding: 1.25rem;
 }
 
 .signup-form { display: flex; flex-direction: column; gap: 1rem; }

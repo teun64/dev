@@ -25,7 +25,7 @@
             <div class="nav-user">
                 <template if:true={config.isAuthenticated}>
                     <span class="user-name">{userName}</span>
-                    <a href="/dealers/logout" class="logout-link">Log out</a>
+                    <a href="/dealers/secur/logout.jsp" class="logout-link" onclick={handleLogoutClick}>Log out</a>
                 </template>
                 <template if:false={config.isAuthenticated}>
                     <a href="/dealers/login" class="login-link" style={ctaStyle}>Log in</a>

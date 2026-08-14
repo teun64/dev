@@ -83,4 +83,14 @@ export default class DealerNav extends LightningElement {
             window.location.href = '/dealers/login?startURL=/dealers/order-history';
         }
     }
+
+    // "/dealers/secur/logout.jsp" isn't a page this LWR site's client-side router knows about, so
+    // a plain <a> click gets intercepted as SPA navigation and shows "Invalid Page" instead of
+    // reaching the server. Forcing a full browser navigation bypasses the router entirely.
+    handleLogoutClick(event) {
+        event.preventDefault();
+        if (typeof window !== 'undefined') {
+            window.location.href = '/dealers/secur/logout.jsp?retUrl=/dealers/login';
+        }
+    }
 }

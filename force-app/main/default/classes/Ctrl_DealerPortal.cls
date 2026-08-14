@@ -108,6 +108,15 @@ public without sharing class Ctrl_DealerPortal {
 
     // ── Signup request ────────────────────────────────────────────────────────
 
+    // Client-side pre-check so the "Become a Dealer" form can warn before submitting - the real
+    // enforcement is the identical check inside submitSignupRequest, since a client check alone
+    // can always be bypassed.
+    @AuraEnabled
+    public static Boolean isEmailRegistered(String email) {
+        if (String.isBlank(email)) return false;
+        return ![SELECT Id FROM Contact WHERE Email = :email WITH SYSTEM_MODE LIMIT 1].isEmpty();
+    }
+
     @AuraEnabled
     public static void submitSignupRequest(
         String companyName,
@@ -119,6 +128,9 @@ public without sharing class Ctrl_DealerPortal {
     ) {
         if (String.isBlank(companyName) || String.isBlank(email)) {
             throw new AuraHandledException('Company name and email are required.');
+        }
+        if (isEmailRegistered(email)) {
+            throw new AuraHandledException('This email address is already registered. Please log in instead.');
         }
 
         Lead lead = new Lead(

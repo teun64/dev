@@ -135,4 +135,38 @@ private class Test_Ctrl_DealerPortal {
         }
         Test.stopTest();
     }
+
+    @IsTest
+    static void testIsEmailRegistered_existingContact_returnsTrue() {
+        Boolean result;
+        Test.startTest();
+        result = Ctrl_DealerPortal.isEmailRegistered(PORTAL_USER_USERNAME);
+        Test.stopTest();
+
+        System.assertEquals(true, result, 'Email already used by the fixture Contact should be reported as registered');
+    }
+
+    @IsTest
+    static void testIsEmailRegistered_newEmail_returnsFalse() {
+        Boolean result;
+        Test.startTest();
+        result = Ctrl_DealerPortal.isEmailRegistered('brand-new-prospect@example.test');
+        Test.stopTest();
+
+        System.assertEquals(false, result, 'An email with no matching Contact should not be reported as registered');
+    }
+
+    @IsTest
+    static void testSubmitSignupRequest_emailAlreadyRegistered_throws() {
+        Test.startTest();
+        try {
+            Ctrl_DealerPortal.submitSignupRequest('Prospect Co', 'Jane Doe', PORTAL_USER_USERNAME, null, null, null);
+            System.assert(false, 'Expected an exception when the email already belongs to a Contact');
+        } catch (AuraHandledException e) {
+            System.assert(true, 'AuraHandledException expected when the email already belongs to a Contact');
+        }
+        Test.stopTest();
+
+        System.assertEquals(0, [SELECT COUNT() FROM Lead WHERE Email = :PORTAL_USER_USERNAME], 'No Lead should be created when the email is already registered');
+    }
 }
