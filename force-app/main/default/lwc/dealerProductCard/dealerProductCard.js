@@ -24,6 +24,10 @@ export default class DealerProductCard extends LightningElement {
         return this.product?.displayName || this.product?.name || '';
     }
 
+    get pricesHidden() {
+        return !!this.product?.pricesHidden;
+    }
+
     get formattedPrice() {
         if (this.product?.unitPrice == null) return '';
         return this._fmt(this.product.unitPrice);
@@ -97,6 +101,7 @@ export default class DealerProductCard extends LightningElement {
                     quantity: 1,
                     unitPrice: this.product?.unitPrice,
                     priceTiers: this.product?.priceTiers || [],
+                    pricesHidden: this.pricesHidden,
                     productName: this.displayName,
                     imageUrl: this.product?.imageUrl
                 },

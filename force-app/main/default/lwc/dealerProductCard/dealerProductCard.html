@@ -28,7 +28,9 @@
         <div class="card-body">
             <p class="product-code">{product.productCode}</p>
             <h3 class="product-name">{displayName}</h3>
-            <p class="product-price">{formattedPrice}</p>
+            <template if:false={pricesHidden}>
+                <p class="product-price">{formattedPrice}</p>
+            </template>
             <template if:true={hasTiers}>
                 <div class="tier-table">
                     <template for:each={enrichedTiers} for:item="tier">

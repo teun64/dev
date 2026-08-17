@@ -16,6 +16,9 @@
 .footer-row-image-inner {
     padding: 0 1.5rem 0.3125rem;
     text-align: left;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
 }
 
 .footer-car-image {
@@ -26,9 +29,33 @@
 }
 
 .footer-row-dark {
+    position: relative;
     background: #0E0F0E;
     color: #ccc;
     padding: 0 1.5rem;
+    overflow: hidden;
+}
+
+/* Chevron texture - same tiled pattern already used across Customer Hub's brand headers
+   (mi-header/echoes-header/tds-header ::before), brought here so the footer carries the same
+   brand motif. */
+.footer-row-dark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M6 5 L27 22 L6 39' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-size: 44px 44px;
+    background-repeat: repeat;
+    opacity: 0.16;
+    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 25%, transparent 40%);
+    mask-image: linear-gradient(to left, #000 0%, #000 25%, transparent 40%);
+    pointer-events: none;
+}
+
+.footer-legal-bar,
+.footer-bottom {
+    position: relative;
+    z-index: 1;
 }
 
 .footer-brand-name {

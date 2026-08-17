@@ -102,14 +102,24 @@ export default class DealerProductDetail extends LightningElement {
         this.quantity = (!isNaN(val) && val >= 1) ? val : 1;
     }
 
+    get pricesHidden() {
+        return !!this.product?.pricesHidden;
+    }
+
     handleAddToCart() {
-        const unitPrice = this.calculatePriceForQty(this.quantity);
+        // A hidden-price product never had a real unitPrice to begin with (Ctrl_DealerShop nulls
+        // it out) - calculatePriceForQty would otherwise silently default to 0 here, which reads
+        // to placeOrder as a genuine client-supplied €0 price rather than "no price supplied,
+        // resolve it yourself". Send null explicitly so the server always re-resolves the real,
+        // currently discounted price.
+        const unitPrice = this.pricesHidden ? null : this.calculatePriceForQty(this.quantity);
         this.dispatchEvent(new CustomEvent('addtocart', {
             detail: {
                 productId: this.productId,
                 quantity: this.quantity,
                 unitPrice,
                 priceTiers: this.product?.priceTiers || [],
+                pricesHidden: this.pricesHidden,
                 productName: this.product?.displayName || this.product?.name || '',
                 imageUrl: this.product?.imageUrl || null
             },

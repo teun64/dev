@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Hide_Prices__c</fullName>
+    <label>Hide Prices (Dealer Shop)</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <trackHistory>false</trackHistory>
+    <description>When checked, this account's Dealer Shop contact never sees prices - unit price and volume tiers are omitted from the shop/cart/order pages entirely. Orders can still be placed; the price is always resolved server-side (Ctrl_DealerShop.resolvePricing), never trusted from the client, for accounts with this checked.</description>
+</CustomField>

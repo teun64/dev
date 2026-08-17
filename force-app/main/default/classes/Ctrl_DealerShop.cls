@@ -1,20 +1,25 @@
 public without sharing class Ctrl_DealerShop {
 
-    // ── Data_Translation__c (base record type) ────────────────────────────────
+    // ── Data_Translation__c (all record types) ────────────────────────────────
 
-    private static Id baseTranslationRtId {
+    // Every Data_Translation__c record type represents a valid translation source
+    // ("Base" = name + description, "Factsheet" = base + factsheets, "Name" = name only,
+    // for products that only need their name translated). Restricting to a single record
+    // type (previously just "Base") silently hid every "Name"-only translation - the
+    // majority of real translation rows in this org.
+    private static Set<Id> translationRecordTypeIds {
         get {
-            if (baseTranslationRtId == null) {
-                List<RecordType> rts = [
+            if (translationRecordTypeIds == null) {
+                translationRecordTypeIds = new Set<Id>();
+                for (RecordType rt : [
                     SELECT Id FROM RecordType
                     WHERE SObjectType = 'Data_Translation__c'
-                      AND DeveloperName = 'base'
                     WITH SYSTEM_MODE
-                    LIMIT 1
-                ];
-                baseTranslationRtId = rts.isEmpty() ? null : rts[0].Id;
+                ]) {
+                    translationRecordTypeIds.add(rt.Id);
+                }
             }
-            return baseTranslationRtId;
+            return translationRecordTypeIds;
         }
         set;
     }
@@ -122,14 +127,15 @@ public without sharing class Ctrl_DealerShop {
 
     private static DealerContext buildContextFromContact(Contact con, String defaultLang) {
         List<Account> accounts = [
-            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c
+            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c
             FROM Account WHERE Id = :con.AccountId WITH SYSTEM_MODE LIMIT 1
         ];
         if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
 
         DealerContext ctx = new DealerContext();
-        ctx.account   = accounts[0];
-        ctx.contactId = con.Id;
+        ctx.account     = accounts[0];
+        ctx.contactId   = con.Id;
+        ctx.hidePrices  = accounts[0].Hide_Prices__c == true;
         String lang = resolveLanguage(con.Language__c);
         if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
         if (lang == null) lang = normalizeLang(defaultLang);
@@ -378,11 +384,70 @@ public without sharing class Ctrl_DealerShop {
 
     // ── ProductDTO builder ────────────────────────────────────────────────────
 
+    // Pure price computation, deliberately separate from buildProductDTO so it can be reused
+    // wherever a REAL (never masked) price is required server-side regardless of whether the
+    // account is allowed to see it - e.g. placeOrder must always price a line correctly even for
+    // a Hide_Prices__c account, which never sends a real client-supplied price to fall back on.
+    private static PricingResult resolvePricing(PricebookEntry entry, Product_Discount__c disc, ShopActionMatch action) {
+        PricingResult result = new PricingResult();
+
+        // An active Product_Discount__c excludes the product from any Shop Action entirely (no
+        // badge, no stacked discount) - a customer with negotiated pricing never sees a promo
+        // that would otherwise look like it's stacking on top of that negotiated price.
+        result.hasActiveDisc = disc != null && disc.IsActive__c == true;
+
+        if (entry == null) return result;
+
+        result.unitPrice = entry.UnitPrice;
+
+        if (result.hasActiveDisc) {
+            if (disc.isFixedPrice__c == true && disc.FixedPrice_1__c != null) {
+                result.unitPrice = disc.FixedPrice_1__c;
+            } else if (disc.Discount_percentage__c != null) {
+                result.unitPrice = entry.UnitPrice * (1 - disc.Discount_percentage__c / 100);
+            }
+            result.priceTiers = applyDiscountToTiers(entry, disc);
+
+            // A tier starting at quantity 1 already applies to a single unit, so it IS the
+            // unit price - show it there instead of as a redundant first "volume" row above
+            // the remaining, genuinely higher-quantity tiers.
+            if (!result.priceTiers.isEmpty() && result.priceTiers[0].fromQty == 1) {
+                result.unitPrice = result.priceTiers[0].price;
+                result.priceTiers.remove(0);
+            }
+        } else if (action != null) {
+            // The additional discount stacks on top of the default (undiscounted) unit price -
+            // there is no Product_Discount__c in play here, so there's nothing else to stack on.
+            if (action.discountPercent != null) {
+                result.unitPrice = entry.UnitPrice * (1 - action.discountPercent / 100);
+                result.priceTiers = applyFlatPercentToTiers(entry, action.discountPercent);
+            } else {
+                result.priceTiers = buildPriceTiersFromEntry(entry);
+            }
+
+            if (!result.priceTiers.isEmpty() && result.priceTiers[0].fromQty == 1) {
+                result.unitPrice = result.priceTiers[0].price;
+                result.priceTiers.remove(0);
+            }
+        } else {
+            result.priceTiers = buildPriceTiersFromEntry(entry);
+        }
+        if (result.priceTiers == null) result.priceTiers = new List<PriceTierDTO>();
+        return result;
+    }
+
+    private class PricingResult {
+        Decimal unitPrice;
+        List<PriceTierDTO> priceTiers = new List<PriceTierDTO>();
+        Boolean hasActiveDisc;
+    }
+
     private static ProductDTO buildProductDTO(
         Product2 prod,
         PricebookEntry entry,
         Product_Discount__c disc,
-        ShopActionMatch action
+        ShopActionMatch action,
+        Boolean hidePrices
     ) {
         Data_Translation__c trans = (prod.Data_Translations__r != null && !prod.Data_Translations__r.isEmpty())
             ? prod.Data_Translations__r[0]
@@ -405,54 +470,24 @@ public without sharing class Ctrl_DealerShop {
                                      ? disc.Product_Code_Customer__c
                                      : prod.ProductCode;
 
-        // An active Product_Discount__c excludes the product from any Shop Action entirely (no
-        // badge, no stacked discount) - a customer with negotiated pricing never sees a promo
-        // that would otherwise look like it's stacking on top of that negotiated price.
-        Boolean hasActiveDisc = disc != null && disc.IsActive__c == true;
+        PricingResult pricing = resolvePricing(entry, disc, action);
+        dto.unitPrice  = pricing.unitPrice;
+        dto.priceTiers = pricing.priceTiers;
 
-        if (entry != null) {
-            dto.unitPrice = entry.UnitPrice;
-
-            if (hasActiveDisc) {
-                if (disc.isFixedPrice__c == true && disc.FixedPrice_1__c != null) {
-                    dto.unitPrice = disc.FixedPrice_1__c;
-                } else if (disc.Discount_percentage__c != null) {
-                    dto.unitPrice = entry.UnitPrice * (1 - disc.Discount_percentage__c / 100);
-                }
-                dto.priceTiers = applyDiscountToTiers(entry, disc);
-
-                // A tier starting at quantity 1 already applies to a single unit, so it IS the
-                // unit price - show it there instead of as a redundant first "volume" row above
-                // the remaining, genuinely higher-quantity tiers.
-                if (!dto.priceTiers.isEmpty() && dto.priceTiers[0].fromQty == 1) {
-                    dto.unitPrice = dto.priceTiers[0].price;
-                    dto.priceTiers.remove(0);
-                }
-            } else if (action != null) {
-                // The additional discount stacks on top of the default (undiscounted) unit price -
-                // there is no Product_Discount__c in play here, so there's nothing else to stack on.
-                if (action.discountPercent != null) {
-                    dto.unitPrice = entry.UnitPrice * (1 - action.discountPercent / 100);
-                    dto.priceTiers = applyFlatPercentToTiers(entry, action.discountPercent);
-                } else {
-                    dto.priceTiers = buildPriceTiersFromEntry(entry);
-                }
-
-                if (!dto.priceTiers.isEmpty() && dto.priceTiers[0].fromQty == 1) {
-                    dto.unitPrice = dto.priceTiers[0].price;
-                    dto.priceTiers.remove(0);
-                }
-            } else {
-                dto.priceTiers = buildPriceTiersFromEntry(entry);
-            }
-        }
-        if (dto.priceTiers == null) dto.priceTiers = new List<PriceTierDTO>();
-
-        if (!hasActiveDisc && action != null) {
+        if (!pricing.hasActiveDisc && action != null) {
             dto.action = new ShopActionDTO();
             dto.action.name            = action.name;
             dto.action.teaser          = action.teaser;
             dto.action.backgroundColor = action.backgroundColor;
+        }
+
+        // Masked last, after every other price-derived decision above (badge, product code
+        // override) has already been made using the REAL price - hiding prices from an account
+        // is purely a display concern, not a reason to change what discount/badge logic applies.
+        dto.pricesHidden = hidePrices == true;
+        if (dto.pricesHidden) {
+            dto.unitPrice  = null;
+            dto.priceTiers = new List<PriceTierDTO>();
         }
         return dto;
     }
@@ -572,7 +607,7 @@ public without sharing class Ctrl_DealerShop {
             return empty;
         }
 
-        Id baseRtId = baseTranslationRtId;
+        Set<Id> baseRtIds = translationRecordTypeIds;
 
         List<String> conditions = new List<String>{ 'IsActive = true', 'Show_In_Dealer_Shop__c = true' };
         if (isFavoritesTab) {
@@ -602,14 +637,46 @@ public without sharing class Ctrl_DealerShop {
         String searchLike = String.isNotBlank(searchTerm)
             ? ('%' + String.escapeSingleQuotes(searchTerm.trim()) + '%')
             : null;
+        // Declared at method scope (not inside the "if" below) so they're still in scope as
+        // dynamic-SOQL bind variables when Database.countQuery()/Database.query() run further
+        // down - even when empty, "Id IN :emptySet" is valid SOQL and simply matches nothing.
+        Set<Id> translationMatchIds = new Set<Id>();
+        Set<Id> discountMatchIds    = new Set<Id>();
         if (searchLike != null) {
+            // Two semi-join subqueries OR'd together in the same WHERE clause throws
+            // "Semi join sub-selects are only allowed at the top level WHERE expressions and
+            // not in nested WHERE expressions" - SOQL only allows ONE semi-join per OR group.
+            // Resolving both to plain Id sets first and using "Id IN :set" (a literal bind
+            // variable, not a sub-select) sidesteps the restriction entirely. This was broken
+            // for every authenticated dealer search (acct.Id != null adds the second subquery).
+            for (Data_Translation__c dt : [
+                SELECT Product__c
+                FROM Data_Translation__c
+                WHERE Name__c LIKE :searchLike
+                  AND RecordTypeId IN :baseRtIds
+                  AND Language__c = :lang
+                WITH SYSTEM_MODE
+            ]) {
+                translationMatchIds.add(dt.Product__c);
+            }
+
             List<String> searchClauses = new List<String>{
                 'Name LIKE :searchLike',
                 'ProductCode LIKE :searchLike',
-                'Id IN (SELECT Product__c FROM Data_Translation__c WHERE Name__c LIKE :searchLike AND RecordTypeId = :baseRtId AND Language__c = :lang)'
+                'Id IN :translationMatchIds'
             };
             if (acct.Id != null) {
-                searchClauses.add('Id IN (SELECT Product__c FROM Product_Discount__c WHERE Product_Code_Customer__c LIKE :searchLike AND Account__c = :acct.Id AND IsActive__c = true)');
+                for (Product_Discount__c pd : [
+                    SELECT Product__c
+                    FROM Product_Discount__c
+                    WHERE Product_Code_Customer__c LIKE :searchLike
+                      AND Account__c = :acct.Id
+                      AND IsActive__c = true
+                    WITH SYSTEM_MODE
+                ]) {
+                    discountMatchIds.add(pd.Product__c);
+                }
+                searchClauses.add('Id IN :discountMatchIds');
             }
             conditions.add('(' + String.join(searchClauses, ' OR ') + ')');
         }
@@ -621,7 +688,7 @@ public without sharing class Ctrl_DealerShop {
         String soql =
             'SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c, ' +
             '(SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r ' +
-            ' WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1) ' +
+            ' WHERE RecordTypeId IN :baseRtIds AND Language__c = :lang LIMIT 1) ' +
             'FROM Product2 WHERE ' + whereClause + ' ' +
             'WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal';
         List<Product2> products = Database.query(soql);
@@ -653,7 +720,7 @@ public without sharing class Ctrl_DealerShop {
 
         List<ProductDTO> dtos = new List<ProductDTO>();
         for (Product2 p : products) {
-            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id), actionsByProduct.get(p.Id));
+            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id), actionsByProduct.get(p.Id), ctx.hidePrices);
             dto.imageUrl   = imageUrls.get(p.Id);
             dto.isFavorite = favoriteIds.contains(p.Id);
             dtos.add(dto);
@@ -672,11 +739,11 @@ public without sharing class Ctrl_DealerShop {
 
         DealerContext ctx = getDealerContext();
         String lang    = ctx.language;
-        Id baseRtId    = baseTranslationRtId;
+        Set<Id> baseRtIds = translationRecordTypeIds;
         List<Product2> prods = [
             SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
                    (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
-                    WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
+                    WHERE RecordTypeId IN :baseRtIds AND Language__c = :lang LIMIT 1)
             FROM Product2
             WHERE Id = :productId
               AND IsActive = true
@@ -722,7 +789,7 @@ public without sharing class Ctrl_DealerShop {
         Product_Discount__c disc = discs.isEmpty() ? null : discs[0];
         ShopActionMatch action = getActiveShopActions(new Set<Id>{ productId }, getAdministrationIds(acct)).get(productId);
 
-        ProductDTO dto = buildProductDTO(prod, entry, disc, action);
+        ProductDTO dto = buildProductDTO(prod, entry, disc, action, ctx.hidePrices);
         Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
         dto.imageUrl   = imageUrls.get(productId);
         dto.isFavorite = getFavoriteProductIds(ctx.contactId, new Set<Id>{ productId }).contains(productId);
@@ -753,7 +820,9 @@ public without sharing class Ctrl_DealerShop {
 
         Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
         for (PricebookEntry pbe : [
-            SELECT Id, Product2Id, UnitPrice
+            SELECT Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c,
+                   From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c,
+                   From_Quantity_4__c, From_Price_4__c
             FROM PricebookEntry
             WHERE Pricebook2Id = :pricebookId
               AND Product2Id IN :productIds
@@ -762,6 +831,30 @@ public without sharing class Ctrl_DealerShop {
         ]) {
             entryByProduct.put(pbe.Product2Id, pbe);
         }
+
+        // A client-supplied unitPrice is only ever a display convenience (the price the dealer
+        // already saw on the grid/detail page) - Hide_Prices__c accounts never have one to send
+        // (buildProductDTO nulls it out), so the fallback below MUST resolve the real, currently
+        // discounted price via the same logic as everywhere else in this class, not the raw
+        // undiscounted pbe.UnitPrice - otherwise every hidden-price order would silently drop the
+        // account's Product_Discount__c/Shop Action pricing.
+        Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
+        if (acct.Id != null && !productIds.isEmpty()) {
+            for (Product_Discount__c disc : [
+                SELECT Product__c, IsActive__c, Discount_percentage__c,
+                       isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
+                       From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
+                       From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
+                FROM Product_Discount__c
+                WHERE Account__c = :acct.Id
+                  AND Product__c IN :productIds
+                  AND IsActive__c = true
+                WITH SYSTEM_MODE
+            ]) {
+                discountByProduct.put(disc.Product__c, disc);
+            }
+        }
+        Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
 
         List<RecordType> webshopRts = [
             SELECT Id, Name
@@ -811,7 +904,9 @@ public without sharing class Ctrl_DealerShop {
             PricebookEntry pbe = entryByProduct.get(item.productId);
             if (pbe == null) continue;
 
-            Decimal unitPrice = item.unitPrice != null ? item.unitPrice : pbe.UnitPrice;
+            Decimal unitPrice = item.unitPrice != null
+                ? item.unitPrice
+                : resolvePricing(pbe, discountByProduct.get(item.productId), actionsByProduct.get(item.productId)).unitPrice;
             lineItems.add(new OpportunityLineItem(
                 OpportunityId    = opp.Id,
                 Product2Id       = item.productId,
@@ -834,7 +929,8 @@ public without sharing class Ctrl_DealerShop {
 
     @AuraEnabled(cacheable=true)
     public static List<OrderHistoryDTO> getOrderHistory(Boolean onlyMine) {
-        Account acct = getDealerContext().account;
+        DealerContext ctx = getDealerContext();
+        Account acct = ctx.account;
         if (acct.Id == null) return new List<OrderHistoryDTO>();
 
         List<Opportunity> opps = onlyMine
@@ -863,7 +959,8 @@ public without sharing class Ctrl_DealerShop {
             dto.orderNumber  = o.Name;
             dto.placedDate   = o.CreatedDate;
             dto.stageName    = o.StageName;
-            dto.amount       = o.Amount;
+            dto.amount       = ctx.hidePrices ? null : o.Amount;
+            dto.pricesHidden = ctx.hidePrices;
             dto.placedByName = o.CreatedBy != null ? o.CreatedBy.Name : null;
             results.add(dto);
         }
@@ -905,13 +1002,13 @@ public without sharing class Ctrl_DealerShop {
         for (OpportunityLineItem li : lineItems) productIds.add(li.Product2Id);
 
         String lang = ctx.language;
-        Id baseRtId = baseTranslationRtId;
+        Set<Id> baseRtIds = translationRecordTypeIds;
         Map<Id, Product2> prodById = productIds.isEmpty()
             ? new Map<Id, Product2>()
             : new Map<Id, Product2>([
                 SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
                        (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
-                        WHERE RecordTypeId = :baseRtId AND Language__c = :lang LIMIT 1)
+                        WHERE RecordTypeId IN :baseRtIds AND Language__c = :lang LIMIT 1)
                 FROM Product2
                 WHERE Id IN :productIds
                 WITH SYSTEM_MODE
@@ -966,13 +1063,13 @@ public without sharing class Ctrl_DealerShop {
             Product2 prod = prodById.get(li.Product2Id);
             if (prod == null) continue;
 
-            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id), actionsByProduct.get(li.Product2Id));
+            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id), actionsByProduct.get(li.Product2Id), ctx.hidePrices);
             current.imageUrl = imageUrls.get(li.Product2Id);
 
             OrderLineDTO line = new OrderLineDTO();
             line.productId         = li.Product2Id;
             line.quantity          = Integer.valueOf(li.Quantity);
-            line.originalUnitPrice = li.UnitPrice;
+            line.originalUnitPrice = ctx.hidePrices ? null : li.UnitPrice;
             line.product           = current;
             result.lines.add(line);
         }
@@ -1000,6 +1097,7 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public List<PriceTierDTO> priceTiers;
         @AuraEnabled public Boolean         isFavorite;
         @AuraEnabled public ShopActionDTO   action;
+        @AuraEnabled public Boolean         pricesHidden;
     }
 
     public class ShopActionDTO {
@@ -1017,6 +1115,7 @@ public without sharing class Ctrl_DealerShop {
         public Account account;
         public String  language;
         public Id      contactId;
+        public Boolean hidePrices = false;
     }
 
     // ── Reseller/platform resolution ──────────────────────────────────────────
@@ -1064,6 +1163,7 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String   stageName;
         @AuraEnabled public Decimal  amount;
         @AuraEnabled public String   placedByName;
+        @AuraEnabled public Boolean  pricesHidden;
     }
 
     public class OrderDetailDTO {

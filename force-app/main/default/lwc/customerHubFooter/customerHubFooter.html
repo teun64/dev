@@ -1,68 +1,135 @@
 <template>
     <footer class="mi-footer">
-        <div class="mi-footer-body">
-
-            <!-- Administration info -->
-            <div class="mi-footer-admin">
-                <template lwc:if={isLoading}>
-                    <div class="mi-skeleton mi-skeleton--name"></div>
-                    <div class="mi-skeleton mi-skeleton--contacts"></div>
-                </template>
-
-                <template lwc:elseif={hasAdmin}>
-                    <p class="mi-footer-name">{admin.name}</p>
-                    <dl class="mi-footer-contacts">
-                        <template lwc:if={admin.phone}>
-                            <div class="mi-footer-contact">
-                                <dt>{labels.phone}</dt>
-                                <dd><a href={phoneHref}>{admin.phone}</a></dd>
-                            </div>
-                        </template>
-                        <template lwc:if={admin.email}>
-                            <div class="mi-footer-contact">
-                                <dt>{labels.email}</dt>
-                                <dd><a href={emailHref}>{admin.email}</a></dd>
-                            </div>
-                        </template>
-                        <template lwc:if={hasAddress}>
-                            <div class="mi-footer-contact">
-                                <dt>{labels.address}</dt>
-                                <dd>
-                                    <template lwc:if={admin.street}>{admin.street}<br /></template>
-                                    {admin.postalCode} {admin.city}
-                                </dd>
-                            </div>
-                        </template>
-                        <template lwc:if={admin.website}>
-                            <div class="mi-footer-contact">
-                                <dt>{labels.website}</dt>
-                                <dd><a href={admin.website} target="_blank" rel="noopener">{admin.website}</a></dd>
-                            </div>
-                        </template>
-                    </dl>
-                </template>
+        <div class="footer-row-image">
+            <div class="footer-row-image-inner">
+                <img src={carImageUrl} alt="" class="footer-car-image" />
             </div>
-
-            <!-- Brand chevron accent -->
-            <div class="mi-footer-chevron" aria-hidden="true">&#8250;</div>
-
         </div>
 
-        <div class="mi-footer-bottom">
-            <div class="mi-footer-bottom-left">
-                <nav class="mi-footer-legal" aria-label="Legal">
-                    <a href={privacyUrl}>{labels.privacy}</a>
-                    <a href={termsUrl}>{labels.terms}</a>
-                </nav>
-                <template lwc:if={hasAdmin}>
-                    <span class="mi-footer-reg">
-                        <template lwc:if={admin.kvk}>{labels.kvk} {admin.kvk}</template>
-                        <template lwc:if={hasKvkAndVat}> &middot; </template>
-                        <template lwc:if={admin.vatNumber}>{labels.vat} {admin.vatNumber}</template>
-                    </span>
+        <div class="footer-row-dark">
+            <div class="footer-legal-bar">
+                <div class="footer-legal-logo">
+                    <img src={logoUrl} alt="Moving Intelligence" class="footer-legal-logo-img" />
+                </div>
+
+                <template lwc:if={privacyUrl}>
+                    <a href={privacyUrl} target="_blank" rel="noopener" class="footer-legal-link">{labels.privacy}</a>
                 </template>
+                <template lwc:else>
+                    <span class="footer-legal-link footer-legal-link-static">{labels.privacy}</span>
+                </template>
+
+                <template lwc:if={termsUrl}>
+                    <a href={termsUrl} target="_blank" rel="noopener" class="footer-legal-link">{labels.terms}</a>
+                </template>
+                <template lwc:else>
+                    <span class="footer-legal-link footer-legal-link-static">{labels.terms}</span>
+                </template>
+
+                <button type="button" class="footer-legal-link footer-legal-link-button" onclick={handleContactClick}>{labels.contact}</button>
             </div>
-            <span class="mi-footer-copy">© {currentYear} Moving Intelligence</span>
+
+            <div class="footer-bottom">
+                <p class="footer-copyright">&copy; {currentYear} Moving Intelligence. All rights reserved.</p>
+            </div>
         </div>
     </footer>
+
+    <template lwc:if={isContactModalOpen}>
+        <div class="contact-modal-overlay" onclick={handleCloseModal}>
+            <div class="contact-modal" role="dialog" aria-modal="true" aria-label={labels.contact} onclick={handleModalContentClick}>
+                <div class="contact-modal-header">
+                    <h2 class="contact-modal-title">{labels.contact}</h2>
+                    <button type="button" class="contact-modal-close" onclick={handleCloseModal} aria-label="Close">&times;</button>
+                </div>
+                <div class="contact-modal-body">
+                    <template lwc:if={isLoading}>
+                        <div class="mi-skeleton mi-skeleton--name"></div>
+                        <div class="mi-skeleton mi-skeleton--contacts"></div>
+                    </template>
+                    <template lwc:elseif={hasAdmin}>
+                        <template lwc:if={admin.name}>
+                            <p class="contact-modal-company">{admin.name}</p>
+                        </template>
+                        <template lwc:if={contactAddress}>
+                            <p class="contact-modal-line">{contactAddress}</p>
+                        </template>
+
+                        <div class="contact-modal-spacer"></div>
+
+                        <template lwc:if={admin.phone}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{labels.phone}:</span>
+                                <a href={phoneHref} class="contact-modal-value">{admin.phone}</a>
+                            </p>
+                        </template>
+                        <template lwc:if={admin.email}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{labels.email}:</span>
+                                <a href={emailHref} class="contact-modal-value">{admin.email}</a>
+                            </p>
+                        </template>
+                        <template lwc:if={admin.website}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{labels.website}:</span>
+                                <a href={websiteHref} target="_blank" rel="noopener" class="contact-modal-value">{admin.website}</a>
+                            </p>
+                        </template>
+
+                        <div class="contact-modal-spacer"></div>
+
+                        <template lwc:if={admin.kvk}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{labels.kvk}:</span>
+                                <span class="contact-modal-value contact-modal-value--static">{admin.kvk}</span>
+                            </p>
+                        </template>
+                        <template lwc:if={admin.vatNumber}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{labels.vat}:</span>
+                                <span class="contact-modal-value contact-modal-value--static">{admin.vatNumber}</span>
+                            </p>
+                        </template>
+                        <template lwc:if={showManagingDirectors}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{labels.managingDirectors}:</span>
+                                <span class="contact-modal-value contact-modal-value--static">{admin.managingDirectors}</span>
+                            </p>
+                        </template>
+
+                        <div class="contact-modal-spacer"></div>
+
+                        <template lwc:if={showIbanBic}>
+                            <template lwc:if={admin.iban}>
+                                <p class="contact-modal-line">
+                                    <span class="contact-modal-label">{labels.iban}:</span>
+                                    <span class="contact-modal-value contact-modal-value--static">{admin.iban}</span>
+                                </p>
+                            </template>
+                            <template lwc:if={admin.bic}>
+                                <p class="contact-modal-line">
+                                    <span class="contact-modal-label">{labels.bic}:</span>
+                                    <span class="contact-modal-value contact-modal-value--static">{admin.bic}</span>
+                                </p>
+                            </template>
+                        </template>
+                        <template lwc:if={showUkBankDetails}>
+                            <template lwc:if={admin.bankSortCode}>
+                                <p class="contact-modal-line">
+                                    <span class="contact-modal-label">{labels.sortCode}:</span>
+                                    <span class="contact-modal-value contact-modal-value--static">{admin.bankSortCode}</span>
+                                </p>
+                            </template>
+                            <template lwc:if={admin.bankAccountNumber}>
+                                <p class="contact-modal-line">
+                                    <span class="contact-modal-label">{labels.accountNumber}:</span>
+                                    <span class="contact-modal-value contact-modal-value--static">{admin.bankAccountNumber}</span>
+                                </p>
+                            </template>
+                        </template>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
 </template>

@@ -1,159 +1,253 @@
-/* ── Brand tokens ─────────────────────────────────────────────── */
 :host {
-    --mi-black:  #0E0F0E;
-    --mi-red:    #FF0000;
-    --mi-white:  #FFFFFF;
-    --mi-muted:  #8A8A86;
+    display: block;
+    background: var(--dxp-g-root, #ffffff);
+    --brand-primary: #ff0000;
 }
 
-/* ── Shell ───────────────────────────────────────────────────── */
 .mi-footer {
-    background: var(--mi-black);
-    border-top: 3px solid var(--mi-red);
+    margin-top: auto;
+    background: var(--dxp-g-root, #ffffff);
 }
 
-/* ── Body (admin info + chevron accent) ─────────────────────── */
-.mi-footer-body {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 36px 40px 0;
+.footer-row-image {
+    background: rgb(239, 240, 242);
+}
+
+.footer-row-image-inner {
+    padding: 0 1.5rem 0.3125rem;
+    text-align: left;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.footer-car-image {
+    display: block;
+    width: 272px;
+    max-width: 60%;
+    height: auto;
+}
+
+.footer-row-dark {
+    position: relative;
+    background: #0E0F0E;
+    color: #ccc;
+    padding: 0 1.5rem;
+    overflow: hidden;
+}
+
+/* Chevron texture - the exact same tiled pattern already used in this brand's own header
+   (customerHubHeader's .mi-header::before), brought here so the footer carries the same motif. */
+.footer-row-dark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M6 5 L27 22 L6 39' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-size: 44px 44px;
+    background-repeat: repeat;
+    opacity: 0.16;
+    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 25%, transparent 40%);
+    mask-image: linear-gradient(to left, #000 0%, #000 25%, transparent 40%);
+    pointer-events: none;
+}
+
+.footer-legal-bar,
+.footer-bottom {
+    position: relative;
+    z-index: 1;
+}
+
+.footer-legal-bar {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 48px;
-    align-items: start;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
 }
 
-.mi-footer-admin {
+.footer-legal-logo {
     display: flex;
-    flex-direction: column;
+    align-items: center;
 }
 
-.mi-footer-name {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--mi-white);
-    letter-spacing: -0.01em;
-    margin-bottom: 16px;
+.footer-legal-logo-img {
+    height: 44px;
+    width: auto;
 }
 
-.mi-footer-contacts {
-    display: flex;
-    gap: 28px;
-    flex-wrap: wrap;
-}
-
-.mi-footer-contact dt {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--mi-muted);
-    margin-bottom: 4px;
-}
-
-.mi-footer-contact dd {
-    font-size: 13px;
-    color: rgba(255,255,255,0.62);
-    line-height: 1.5;
-}
-
-.mi-footer-contact a {
-    color: rgba(255,255,255,0.62);
+.footer-legal-link {
+    display: block;
+    text-align: left;
+    width: fit-content;
+    color: #ffffff !important;
+    font-size: 0.9375rem;
+    font-weight: 500;
     text-decoration: none;
-    transition: color 0.12s ease;
+    padding: 0.25rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
 }
 
-.mi-footer-contact a:hover     { color: var(--mi-white); }
-.mi-footer-contact a:focus-visible {
-    outline: 1px solid var(--mi-red);
-    outline-offset: 2px;
+.footer-legal-link:hover {
+    color: var(--brand-primary, #ff0000) !important;
+    border-bottom-color: var(--brand-primary, #ff0000);
 }
 
-/* ── Red chevron accent (replaces logo — brand element, not logo) */
-.mi-footer-chevron {
-    color: var(--mi-red);
-    font-size: 56px;
-    font-weight: 900;
+.footer-legal-link-button {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.footer-legal-link-button:hover {
+    color: var(--brand-primary, #ff0000) !important;
+    border-bottom-color: var(--brand-primary, #ff0000) !important;
+}
+
+.footer-legal-link-static {
+    cursor: default;
+    opacity: 0.6;
+}
+
+.footer-legal-link-static:hover {
+    color: #ffffff;
+    border-bottom-color: transparent;
+}
+
+@media (max-width: 600px) {
+    .footer-legal-bar {
+        grid-template-columns: repeat(2, 1fr);
+        row-gap: 0.75rem;
+    }
+}
+
+.footer-bottom {
+    border-top: 1px solid #333;
+    padding: 1rem 0;
+    text-align: left;
+}
+
+.footer-copyright {
+    color: #666;
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .footer-car-image {
+        width: 204px;
+        max-width: 45%;
+    }
+}
+
+/* ── Contact modal ────────────────────────────────────────────── */
+.contact-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(14, 15, 14, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+    padding: 1rem;
+}
+
+.contact-modal {
+    background: #ffffff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 420px;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.contact-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0E0F0E;
+    color: #ffffff;
+    padding: 1rem 1.25rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.contact-modal-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.contact-modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
     line-height: 1;
-    padding-top: 6px;
-    user-select: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
 }
 
-/* ── Skeleton loaders ────────────────────────────────────────── */
+.contact-modal-close:hover {
+    color: var(--brand-primary, #ff0000);
+}
+
+.contact-modal-body {
+    padding: 1.25rem;
+}
+
+.contact-modal-company {
+    font-size: 1.1875rem;
+    font-weight: 700;
+    color: var(--brand-primary, #ff0000);
+    margin: 0 0 0.5rem;
+}
+
+.contact-modal-spacer {
+    height: 0.875rem;
+}
+
+.contact-modal-line {
+    font-size: 0.875rem;
+    color: #444;
+    margin: 0 0 0.625rem;
+}
+
+.contact-modal-label {
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-right: 0.375rem;
+}
+
+.contact-modal-value {
+    color: var(--brand-primary, #ff0000) !important;
+    text-decoration: none;
+}
+
+.contact-modal-value:hover {
+    text-decoration: underline;
+}
+
+.contact-modal-value--static {
+    color: #444;
+    text-decoration: none;
+    cursor: default;
+}
+
+/* ── Skeleton loaders (contact modal loading state) ─────────────── */
 .mi-skeleton {
-    background: rgba(255,255,255,0.06);
+    background: rgba(0, 0, 0, 0.06);
     border-radius: 2px;
     animation: mi-pulse 1.4s ease-in-out infinite;
 }
 
-.mi-skeleton--name     { height: 24px; width: 200px; margin-bottom: 16px; }
-.mi-skeleton--contacts { height: 14px; width: 320px; }
+.mi-skeleton--name     { height: 20px; width: 180px; margin-bottom: 12px; }
+.mi-skeleton--contacts { height: 14px; width: 260px; }
 
 @keyframes mi-pulse {
     0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
-}
-
-/* ── Bottom bar ──────────────────────────────────────────────── */
-.mi-footer-bottom {
-    max-width: 960px;
-    margin: 28px auto 0;
-    padding: 18px 40px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    border-top: 1px solid rgba(255,255,255,0.07);
-}
-
-.mi-footer-bottom-left {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.mi-footer-legal {
-    display: flex;
-    gap: 20px;
-}
-
-.mi-footer-legal a {
-    font-size: 11px;
-    color: rgba(255,255,255,0.28);
-    text-decoration: none;
-    transition: color 0.12s ease;
-}
-
-.mi-footer-legal a:hover { color: rgba(255,255,255,0.58); }
-
-.mi-footer-reg {
-    font-size: 11px;
-    color: rgba(255,255,255,0.2);
-    font-variant-numeric: tabular-nums;
-}
-
-.mi-footer-copy {
-    font-size: 11px;
-    color: rgba(255,255,255,0.2);
-    letter-spacing: 0.02em;
-}
-
-/* ── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 640px) {
-    .mi-footer-body {
-        grid-template-columns: 1fr;
-        padding: 28px 20px 0;
-        gap: 16px;
-    }
-
-    .mi-footer-chevron { display: none; }
-
-    .mi-footer-bottom {
-        padding: 16px 20px 20px;
-        flex-direction: column-reverse;
-        align-items: flex-start;
-    }
-
-    .mi-footer-contacts { gap: 20px; }
+    50%      { opacity: 0.4; }
 }

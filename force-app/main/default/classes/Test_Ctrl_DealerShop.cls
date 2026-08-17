@@ -224,6 +224,52 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
+    static void testGetProductDetail_translation_nameOnlyRecordTypeIsShown() {
+        // Regression: most real Data_Translation__c rows in this org use the "Name" record
+        // type ("Only the Name is available for Translation"), not "Base" - restricting the
+        // lookup to a single hardcoded record type silently hid the majority of translations.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        Id nameRtId = Schema.SObjectType.Data_Translation__c.getRecordTypeInfosByDeveloperName().get('Name').getRecordTypeId();
+        insert new Data_Translation__c(
+            Product__c   = prod.Id,
+            RecordTypeId = nameRtId,
+            Language__c  = 'nl',
+            Name__c      = 'Vertaalde Naam'
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals('Vertaalde Naam', dto.displayName, 'displayName should use a "Name"-record-type translation, not just "Base"');
+    }
+
+    @IsTest
+    static void testGetProducts_search_matchesNameOnlyTranslation() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        Id nameRtId = Schema.SObjectType.Data_Translation__c.getRecordTypeInfosByDeveloperName().get('Name').getRecordTypeId();
+        insert new Data_Translation__c(
+            Product__c   = prod.Id,
+            RecordTypeId = nameRtId,
+            Language__c  = 'nl',
+            Name__c      = 'Vertaalde Naam'
+        );
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, 'Vertaalde');
+        }
+        Test.stopTest();
+
+        System.assertEquals(1, result.products.size(), 'Searching by a "Name"-record-type translated name should find the product');
+        System.assertEquals(prod.Id, result.products[0].id, 'Wrong product returned for translated-name search');
+    }
+
+    @IsTest
     static void testGetProductDetail_privateProductNotVisible() {
         Product2 privateProd = [
             SELECT Id FROM Product2 WHERE ProductCode = 'PP-003' LIMIT 1
@@ -1153,5 +1199,125 @@ private class Test_Ctrl_DealerShop {
         System.assertNotEquals(null, dto, 'PP-002 should be in the results');
         System.assertNotEquals(null, dto.action, 'action badge info should surface in the product grid, not just the detail page');
         System.assertEquals(44.10, dto.unitPrice, 'grid pricing should also reflect the stacked action discount');
+    }
+
+    // ── Hide Prices ───────────────────────────────────────────────────────────
+
+    private static void setHidePrices(Boolean value) {
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        acc.Hide_Prices__c = value;
+        update acc;
+    }
+
+    @IsTest
+    static void testGetProductDetail_hidePrices_masksUnitPriceAndTiers() {
+        setHidePrices(true);
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(true, dto.pricesHidden, 'pricesHidden should be true for a Hide_Prices__c account');
+        System.assertEquals(null, dto.unitPrice, 'unitPrice should be masked when Hide_Prices__c is true');
+        System.assertEquals(0, dto.priceTiers.size(), 'priceTiers should be masked (empty) when Hide_Prices__c is true');
+    }
+
+    @IsTest
+    static void testGetProductDetail_hidePrices_actionBadgeStillShows() {
+        // Hiding the price is a display concern only - it must not suppress the promotional
+        // badge itself (the teaser text carries no price information).
+        setHidePrices(true);
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        Shop_Action__c action = makeShopAction('1', Date.today().addDays(-1), Date.today().addDays(1));
+        insert new Shop_Action_Product__c(
+            Shop_Action__c = action.Id,
+            Product__c     = prod.Id,
+            Additional_Discount_Percentage__c = 10
+        );
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+        }
+        Test.stopTest();
+
+        System.assertEquals(null, dto.unitPrice, 'unitPrice should still be masked');
+        System.assertNotEquals(null, dto.action, 'the Shop Action badge should still surface even when prices are hidden');
+        System.assertEquals('Summer Deal', dto.action.teaser, 'badge teaser should be unaffected by Hide_Prices__c');
+    }
+
+    @IsTest
+    static void testGetProducts_hidePrices_masksListResults() {
+        setHidePrices(true);
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
+        }
+        Test.stopTest();
+
+        System.assertNotEquals(0, result.products.size(), 'Products should still be returned');
+        for (Ctrl_DealerShop.ProductDTO dto : result.products) {
+            System.assertEquals(true, dto.pricesHidden, 'Every product in the grid should be flagged pricesHidden');
+            System.assertEquals(null, dto.unitPrice, 'Every product in the grid should have unitPrice masked');
+        }
+    }
+
+    @IsTest
+    static void testGetOrderHistory_hidePrices_masksAmount() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        PricebookEntry pbe = [SELECT Id, UnitPrice FROM PricebookEntry WHERE Product2Id = :prod.Id LIMIT 1];
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => pbe.UnitPrice }
+        });
+
+        String orderNumber;
+        List<Ctrl_DealerShop.OrderHistoryDTO> history;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+        }
+        setHidePrices(true);
+        System.runAs(portalUser()) {
+            history = Ctrl_DealerShop.getOrderHistory(true);
+        }
+        Test.stopTest();
+
+        System.assertEquals(1, history.size(), 'The placed order should still appear in history');
+        System.assertEquals(true, history[0].pricesHidden, 'pricesHidden should be true once the account is flagged');
+        System.assertEquals(null, history[0].amount, 'amount should be masked once the account is flagged');
+    }
+
+    @IsTest
+    static void testPlaceOrder_hidePrices_resolvesRealDiscountedPriceServerSide() {
+        // Regression: a Hide_Prices__c account never has a real client-supplied unitPrice to send
+        // (Ctrl_DealerShop nulls it out before the client ever sees it) - placeOrder's fallback
+        // MUST resolve the actual discounted price via resolvePricing(), not the raw
+        // undiscounted pbe.UnitPrice, or every hidden-price order would silently overcharge by
+        // dropping the account's Product_Discount__c.
+        setHidePrices(true);
+        // PP-001 carries an active 10% Product_Discount__c from @TestSetup (entry.UnitPrice 99.00).
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => null }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        OpportunityLineItem item = [SELECT UnitPrice FROM OpportunityLineItem WHERE OpportunityId = :opp.Id LIMIT 1];
+        System.assertEquals(89.10, item.UnitPrice, 'Server must resolve the real 10%-discounted price (99.00 * 0.9), not the raw undiscounted UnitPrice or a client-supplied 0/null');
     }
 }

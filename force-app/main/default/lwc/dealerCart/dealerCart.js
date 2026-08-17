@@ -21,6 +21,9 @@ export default class DealerCart extends LightningElement {
 
     get enrichedCartItems() {
         return (this.cartItems || []).map(item => {
+            if (item.pricesHidden) {
+                return { ...item, effectivePrice: null, lineTotal: null };
+            }
             const effectivePrice = this._effectivePrice(item.unitPrice, item.priceTiers, item.quantity);
             return {
                 ...item,
@@ -28,6 +31,16 @@ export default class DealerCart extends LightningElement {
                 lineTotal: this._formatPrice(item.quantity * effectivePrice)
             };
         });
+    }
+
+    // All items in one dealer's cart belong to the same account, so they share the same
+    // Hide_Prices__c status - checking every item (not just the first) is just defensive.
+    get pricesHidden() {
+        return (this.cartItems || []).some(item => item.pricesHidden);
+    }
+
+    get showCartTotal() {
+        return !this.isEmpty && !this.pricesHidden;
     }
 
     get cartTotal() {

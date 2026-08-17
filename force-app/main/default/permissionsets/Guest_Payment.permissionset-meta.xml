@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Guest - Payment</label>
+    <description>Apex access for the "payment" site's Guest User: Ctrl_Payment, Ctrl_PaymentCase, Util_System. Ctrl_PaymentCase still needs Case create + a few object reads to fully work - not included here.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <classAccesses>
+        <apexClass>Ctrl_Payment</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_PaymentCase</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_System</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+</PermissionSet>

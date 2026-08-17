@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Dealer Shop Hide Prices - Admin Access</label>
+    <description>FLS on Account.Hide_Prices__c for internal staff managing which dealer accounts don't see shop prices. Assign to whichever profiles/users actually maintain Account records - only assigned to the deploying admin by default.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <fieldPermissions>
+        <field>Account.Hide_Prices__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+</PermissionSet>

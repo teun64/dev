@@ -27,7 +27,12 @@
                             </div>
                             <div class="item-details">
                                 <p class="item-name">{item.productName}</p>
-                                <p class="item-price">&euro; {item.effectivePrice}</p>
+                                <template lwc:if={item.pricesHidden}>
+                                    <p class="item-price"></p>
+                                </template>
+                                <template lwc:else>
+                                    <p class="item-price">&euro; {item.effectivePrice}</p>
+                                </template>
                             </div>
                             <div class="item-qty">
                                 <input
@@ -40,9 +45,14 @@
                                     aria-label="Aantal"
                                 />
                             </div>
-                            <div class="item-line-total">
-                                &euro; {item.lineTotal}
-                            </div>
+                            <template lwc:if={item.pricesHidden}>
+                                <div class="item-line-total"></div>
+                            </template>
+                            <template lwc:else>
+                                <div class="item-line-total">
+                                    &euro; {item.lineTotal}
+                                </div>
+                            </template>
                             <button
                                 class="remove-btn"
                                 data-product-id={item.productId}
@@ -54,10 +64,12 @@
                 </div>
 
                 <div class="cart-footer">
-                    <div class="cart-total">
-                        <span>Totaal</span>
-                        <span class="total-amount">&euro; {cartTotal}</span>
-                    </div>
+                    <template lwc:if={showCartTotal}>
+                        <div class="cart-total">
+                            <span>Totaal</span>
+                            <span class="total-amount">&euro; {cartTotal}</span>
+                        </div>
+                    </template>
                     <button class="place-order-btn" onclick={handlePlaceOrder} disabled={isLoading}>
                         <template lwc:if={isLoading}>
                             <div class="spinner"></div>

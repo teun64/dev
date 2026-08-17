@@ -84,6 +84,7 @@ export default class DealerOrderHistory extends LightningElement {
                         quantity: l.quantity,
                         unitPrice: l.product.unitPrice,
                         priceTiers: l.product.priceTiers || [],
+                        pricesHidden: l.product.pricesHidden,
                         productName: l.product.displayName || l.product.name,
                         imageUrl: l.product.imageUrl
                     }));

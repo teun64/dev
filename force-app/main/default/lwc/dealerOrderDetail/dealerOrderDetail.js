@@ -73,6 +73,7 @@ export default class DealerOrderDetail extends LightningElement {
             quantity: line.quantity,
             unitPrice: line.product.unitPrice,
             priceTiers: line.product.priceTiers || [],
+            pricesHidden: line.product.pricesHidden,
             productName: line.productName,
             imageUrl: line.imageUrl
         }]);
@@ -89,6 +90,7 @@ export default class DealerOrderDetail extends LightningElement {
                 quantity: l.quantity,
                 unitPrice: l.product.unitPrice,
                 priceTiers: l.product.priceTiers || [],
+                pricesHidden: l.product.pricesHidden,
                 productName: l.productName,
                 imageUrl: l.imageUrl
             }));
