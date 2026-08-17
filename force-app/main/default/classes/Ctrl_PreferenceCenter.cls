@@ -162,6 +162,7 @@ public without sharing class Ctrl_PreferenceCenter {
         page.lastAudit           = lastAudit;
         page.primaryBrand        = primaryBrand;
         page.showPartnerCategory = showPartnerCategory;
+        page.language            = resolveLanguage(con.Language__c);
         return page;
     }
 
@@ -340,7 +341,7 @@ public without sharing class Ctrl_PreferenceCenter {
     private static Contact queryContact(Id contactId) {
         try {
             return [
-                SELECT Id, FirstName, LastName, Email, MobilePhone, Phone
+                SELECT Id, FirstName, LastName, Email, MobilePhone, Phone, Language__c
                 FROM Contact
                 WHERE Id = :contactId
                 WITH SYSTEM_MODE
@@ -349,6 +350,22 @@ public without sharing class Ctrl_PreferenceCenter {
         } catch (QueryException e) {
             throw new AuraHandledException('Contact not found or access denied.');
         }
+    }
+
+    // Contact.Language__c is a country code, not a language code — map to the 4 languages the
+    // Preference Center LWC supports (nl/de/fr/en). Unmapped/blank codes fall back to English
+    // rather than Dutch, since NL is only the org's default, not a safe guess for e.g. ES/PL/RO.
+    private static final Map<String, String> COUNTRY_TO_LANGUAGE = new Map<String, String>{
+        'NL' => 'nl', 'BE' => 'nl', 'AN' => 'nl',
+        'DE' => 'de', 'AT' => 'de', 'CH' => 'de', 'LU' => 'de',
+        'FR' => 'fr',
+        'GB' => 'en', 'EN' => 'en'
+    };
+
+    private static String resolveLanguage(String countryCode) {
+        if (String.isBlank(countryCode)) return null;
+        String lang = COUNTRY_TO_LANGUAGE.get(countryCode);
+        return lang != null ? lang : 'en';
     }
 
     private static CommunicationPreferenceAudit__c getLastAudit(Id contactId) {
@@ -506,6 +523,7 @@ public without sharing class Ctrl_PreferenceCenter {
         @AuraEnabled public CommunicationPreferenceAudit__c  lastAudit;
         @AuraEnabled public String                           primaryBrand;
         @AuraEnabled public Boolean                          showPartnerCategory;
+        @AuraEnabled public String                           language;
     }
 
     private class AccountContext {

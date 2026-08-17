@@ -1,16 +1,21 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { ShowToastEvent }                     from 'lightning/platformShowToastEvent';
-import { refreshApex }                        from '@salesforce/apex';
 import { CurrentPageReference }               from 'lightning/navigation';
 import userId                                 from '@salesforce/user/Id';
 import isGuestUser                            from '@salesforce/user/isGuest';
 import BRANDING_URL                           from '@salesforce/resourceUrl/Branding';
 
-import getPreferences   from '@salesforce/apex/Ctrl_PreferenceCenter.getPreferences';
-import savePreferences  from '@salesforce/apex/Ctrl_PreferenceCenter.savePreferences';
-import getAuditHistory  from '@salesforce/apex/Ctrl_PreferenceCenter.getAuditHistory';
-import getBrandTheme    from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
-import getMCBrandAssets from '@salesforce/apex/Ctrl_PreferenceCenter.getMCBrandAssets';
+import getPreferences      from '@salesforce/apex/Ctrl_PreferenceCenter.getPreferences';
+import savePreferences     from '@salesforce/apex/Ctrl_PreferenceCenter.savePreferences';
+import getAuditHistory     from '@salesforce/apex/Ctrl_PreferenceCenter.getAuditHistory';
+import getBrandTheme       from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
+import getMCBrandAssets    from '@salesforce/apex/Ctrl_PreferenceCenter.getMCBrandAssets';
+// Guest (unauthenticated) access goes through a separate, token-only Apex class — see
+// Ctrl_PreferenceCenterGuest for why this can't just be extra methods on Ctrl_PreferenceCenter.
+import getGuestPreferences   from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getPreferences';
+import saveGuestPreferences  from '@salesforce/apex/Ctrl_PreferenceCenterGuest.savePreferences';
+import getGuestBrandTheme    from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getBrandTheme';
+import getGuestMCBrandAssets from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getMCBrandAssets';
 
 const LANG_EVENTS = ['mi:languagechange', 'echoes:languagechange', 'tds:languagechange'];
 
@@ -155,7 +160,7 @@ export default class PreferenceCenter extends LightningElement {
     _recordId;
 
     // ── State ─────────────────────────────────────────────────────────────────
-    @track _contextId   = null;   // wire param — recordId on record pages, userId on landing pages
+    @track _contextId   = null;   // resolved id/token — recordId, userId, or (guest) key hash
     @track _urlBrand    = '';     // brand read from URL query param (?brand=M)
     @track _prefsMap    = {};
     @track sections     = [];
@@ -176,7 +181,7 @@ export default class PreferenceCenter extends LightningElement {
     @track auditRows    = [];
     @track _brandTheme  = null;   // from BrandThemeConfig__mdt (+ optional MC override)
 
-    _wiredResult;
+    _loadedFor           = null;   // last _contextId value actually loaded — guards duplicate loads
     _resolvedContactId   = null;   // real Contact Id — may differ from recordId on Case pages
     _showPartnerCategory = false;  // determined per-contact from Account RecordType + ACR Roles
     _sessionId = this._uuid();
@@ -185,8 +190,8 @@ export default class PreferenceCenter extends LightningElement {
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     connectedCallback() {
         // _contextId is intentionally NOT set here for Experience Cloud pages.
-        // handlePageRef fires during init and sets it from ?cid= or falls back to
-        // userId — ensuring the getPreferences wire only fires once with the right id.
+        // handlePageRef fires during init and sets it from ?cid= or falls back to userId,
+        // then triggers the one imperative _loadPreferences() call for the resolved value.
         if (this.brand) {
             this._fetchBrandTheme(this.brand);
         }
@@ -197,6 +202,7 @@ export default class PreferenceCenter extends LightningElement {
             const h = window.location.hostname;
             if (h.endsWith('.de')) this._lang = 'de';
             else if (h.endsWith('.fr')) this._lang = 'fr';
+            else if (h.endsWith('.nl')) this._lang = 'nl';
             else if (h.endsWith('.co.uk') || h.endsWith('.com')) this._lang = 'en';
         } catch (_) {}
     }
@@ -220,8 +226,11 @@ export default class PreferenceCenter extends LightningElement {
         const chan = ref?.state?.chan || ref?.state?.c__chan;
         if (chan) this._channel = chan;
 
-        // ?cid= param: used by guest users (tokenised email link) AND authenticated users
-        // who don't have a Contact linked to their org User (e.g. admins testing).
+        // ?cid= param: for guest users this is a SIGNED TOKEN (see Ctrl_PreferenceCenterGuest),
+        // never a raw record Id — carrying a raw Id here would let anyone view/edit any
+        // contact's preferences by guessing/reusing a Salesforce Id. For internal record pages
+        // it stays a plain Id, used as an admin/support convenience to inspect a different
+        // contact than the one on the current page.
         const cid = ref?.state?.cid || ref?.state?.c__cid;
         if (isGuestUser) {
             if (cid) {
@@ -231,52 +240,99 @@ export default class PreferenceCenter extends LightningElement {
                 this.hasError     = true;
                 this.errorMessage = 'No contact token found. Please use the link from your email.';
             }
-        } else {
-            // On record pages recordId setter already set _contextId — don't overwrite it.
-            // On Experience Cloud landing pages (no recordId) use ?cid= or fall back to userId.
-            if (!this._recordId) {
-                this._contextId = cid || userId;
-            } else if (cid) {
-                this._contextId = cid;
-            }
+        } else if (!this._recordId) {
+            // Experience Cloud landing page (logged-in customer): always resolve from the
+            // platform-verified logged-in user. Never honor a client-supplied cid here — a
+            // portal user could otherwise view/edit another customer's preferences by changing
+            // the URL.
+            this._contextId = userId;
+        } else if (cid) {
+            // Internal record page (Contact/Case) — cid lets an internal user inspect a
+            // different contact than recordId. Internal users' access is already governed by
+            // their own profile/permission sets, not this component.
+            this._contextId = cid;
+        }
+
+        if (this._contextId && this._contextId !== this._loadedFor) {
+            this._loadPreferences();
         }
     }
 
-    // contextId accepts a Contact, Case or User Id — Apex resolves the real contact
-    @wire(getPreferences, { contextId: '$_contextId' })
-    wiredPage(result) {
-        this._wiredResult = result;
-        const { data, error } = result;
-        if (data) {
-            // Store the resolved Contact Id — on Case pages this differs from recordId
-            this._resolvedContactId   = data.contactId;
-            this._showPartnerCategory = !!data.showPartnerCategory;
-            this.contactName  = data.contactName;
-            this.contactEmail = data.contactEmail;
-            this.contactPhone = data.contactPhone || '';
-            // Existing saved settings are already merged by Apex into the catalog
-            this._buildPrefsMap(data.preferences);
-            this._buildSections();
-            // Default active tab: URL param → Account PrimaryBrand → first brand in catalog
-            // Skip when an explicit brand is already fixed (prop or URL)
-            if (!this._activeBrand && !this.brand && !this._urlBrand) {
-                this._activeBrand = data.primaryBrand
-                    || (this.sections.length > 0 ? this.sections[0].brand : '')
-                    || 'M';
-            }
-            this._setLastAuditLabel(data.lastAudit);
-            this.isLoading = false;
-            this.hasError  = false;
-            // Load brand theme once the effective brand is known (covers internal console
-            // where brand is resolved from Account, not from a URL param or @api prop).
-            if (!this._brandTheme) {
-                const resolved = this.brand || this._urlBrand || data.primaryBrand
-                    || (this.sections.length > 0 ? this.sections[0].brand : null)
-                    || 'M';
-                this._fetchBrandTheme(resolved);
-            }
-        } else if (error) {
+    /**
+     * Loads preference data via an imperative Apex call — deliberately NOT @wire. Two prior
+     * attempts wired getPreferences/getGuestPreferences off reactive '$prop' config values
+     * (first a getter, then a dedicated @track field) and both let the wrong method fire with
+     * a bad value in production. Calling explicitly removes any ambiguity about which method
+     * runs and with what — the guest/auth branch below is the only thing deciding that.
+     */
+    async _loadPreferences() {
+        const loadingFor = this._contextId;
+        this.isLoading = true;
+        this.hasError  = false;
+
+        try {
+            const data = await this._withColdStartRetry(() =>
+                isGuestUser
+                    ? getGuestPreferences({ token: loadingFor })
+                    : getPreferences({ contextId: loadingFor })
+            );
+
+            this._loadedFor = loadingFor;
+            this._applyPageData(data);
+        } catch (error) {
             this._setError(error);
+        }
+    }
+
+    /**
+     * Digital Experience guest sessions can reject the very first call against a recently
+     * changed/deployed Apex class with a generic "The Apex request is invalid" error — rejected
+     * before Apex even runs (no server-side exception or log), self-healing on an identical
+     * retry. Confirmed by hand: the failure never repeats twice in a row for the same method.
+     */
+    async _withColdStartRetry(fn, attempts = 2) {
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                return await fn();
+            } catch (error) {
+                const msg = (error?.body?.message || error?.message || '').toLowerCase();
+                if (attempt === attempts || !msg.includes('apex request is invalid')) throw error;
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
+        }
+        return undefined;
+    }
+
+    _applyPageData(data) {
+        // Store the resolved Contact Id — on Case pages this differs from recordId
+        this._resolvedContactId   = data.contactId;
+        this._showPartnerCategory = !!data.showPartnerCategory;
+        this.contactName  = data.contactName;
+        this.contactEmail = data.contactEmail;
+        this.contactPhone = data.contactPhone || '';
+        // Contact.Language__c (resolved server-side) is authoritative once known — it works
+        // regardless of which domain the link was opened from, unlike hostname sniffing.
+        if (data.language) this._lang = data.language;
+        // Existing saved settings are already merged by Apex into the catalog
+        this._buildPrefsMap(data.preferences);
+        this._buildSections();
+        // Default active tab: URL param → Account PrimaryBrand → first brand in catalog
+        // Skip when an explicit brand is already fixed (prop or URL)
+        if (!this._activeBrand && !this.brand && !this._urlBrand) {
+            this._activeBrand = data.primaryBrand
+                || (this.sections.length > 0 ? this.sections[0].brand : '')
+                || 'M';
+        }
+        this._setLastAuditLabel(data.lastAudit);
+        this.isLoading = false;
+        this.hasError  = false;
+        // Load brand theme once the effective brand is known (covers internal console
+        // where brand is resolved from Account, not from a URL param or @api prop).
+        if (!this._brandTheme) {
+            const resolved = this.brand || this._urlBrand || data.primaryBrand
+                || (this.sections.length > 0 ? this.sections[0].brand : null)
+                || 'M';
+            this._fetchBrandTheme(resolved);
         }
     }
 
@@ -440,14 +496,25 @@ export default class PreferenceCenter extends LightningElement {
         const records = Object.values(this._prefsMap);
 
         try {
-            const auditCount = await savePreferences({
-                contactId: this._resolvedContactId,
-                incoming:  records,
-                sessionId: this._sessionId,
-                requestId: this._requestId
-            });
+            // Safe to retry on the cold-start rejection here too: it's thrown before Apex runs,
+            // so a failed attempt never reaches the DML in savePreferences.
+            const auditCount = await this._withColdStartRetry(() =>
+                isGuestUser
+                    ? saveGuestPreferences({
+                        token:     this._contextId,
+                        incoming:  records,
+                        sessionId: this._sessionId,
+                        requestId: this._requestId
+                    })
+                    : savePreferences({
+                        contactId: this._resolvedContactId,
+                        incoming:  records,
+                        sessionId: this._sessionId,
+                        requestId: this._requestId
+                    })
+            );
 
-            await refreshApex(this._wiredResult);
+            await this._loadPreferences();
 
             this.showToast = true;
             setTimeout(() => { this.showToast = false; }, 5000);
@@ -487,14 +554,18 @@ export default class PreferenceCenter extends LightningElement {
     /**
      * Fetches BrandThemeConfig__mdt data for the given brand code and optionally
      * enriches with live logo/color data from Marketing Cloud BrandCenter.
+     * Guest users go through Ctrl_PreferenceCenterGuest — Guest_CustomerHub only grants
+     * class access to that wrapper, never to Ctrl_PreferenceCenter itself.
      */
     _fetchBrandTheme(brand) {
         if (!brand) return;
-        getBrandTheme({ brand })
+        const fetchTheme  = isGuestUser ? getGuestBrandTheme    : getBrandTheme;
+        const fetchAssets = isGuestUser ? getGuestMCBrandAssets : getMCBrandAssets;
+        this._withColdStartRetry(() => fetchTheme({ brand }))
             .then(theme => {
                 this._brandTheme = theme;
                 if (theme?.mcBrandId) {
-                    getMCBrandAssets({ mcBrandId: theme.mcBrandId })
+                    this._withColdStartRetry(() => fetchAssets({ mcBrandId: theme.mcBrandId }))
                         .then(mcData => {
                             if (mcData) {
                                 this._brandTheme = {

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Marketing__c</fullName>
+    <description>True when this relationship is a legitimate marketing/communication target: the Role(s) are not limited to Invoice and/or Digital (pure-invoicing contacts are excluded), and the Contact has at least one of Email, Phone, or Mobile Phone populated.</description>
+    <externalId>false</externalId>
+    <formula>AND(
+    NOT(
+        AND(
+            OR(INCLUDES(Roles, &quot;Invoice&quot;), INCLUDES(Roles, &quot;Digital&quot;)),
+            NOT(INCLUDES(Roles, &quot;Main&quot;)),
+            NOT(INCLUDES(Roles, &quot;Payment&quot;)),
+            NOT(INCLUDES(Roles, &quot;Reminder&quot;)),
+            NOT(INCLUDES(Roles, &quot;Shipping&quot;)),
+            NOT(INCLUDES(Roles, &quot;Sales&quot;)),
+            NOT(INCLUDES(Roles, &quot;Service&quot;)),
+            NOT(INCLUDES(Roles, &quot;ASR&quot;))
+        )
+    ),
+    OR(
+        NOT(ISBLANK(Contact.Email)),
+        NOT(ISBLANK(Contact.Phone)),
+        NOT(ISBLANK(Contact.MobilePhone))
+    )
+)</formula>
+    <label>Marketing</label>
+    <required>false</required>
+    <type>Checkbox</type>
+</CustomField>

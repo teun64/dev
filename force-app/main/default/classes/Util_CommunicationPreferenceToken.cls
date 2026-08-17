@@ -1,114 +1,63 @@
+/**
+ * Builds the Contact.Preference_Token_Key__c (an HMAC of the contact's email) used to resolve
+ * guest (unauthenticated) Preference Center links to a Contact without ever carrying its record
+ * Id, and the ready-to-use URL built around it.
+ *
+ * The key hash itself is the credential — HMAC-SHA256(email, secret) can't be forged without
+ * the secret, and it's not derived from (or reversible to) the Contact Id, so a leaked or
+ * guessed link exposes nothing but a hashed email. There's no separate signed/expiring token
+ * wrapper on top: one was tried, but it only added length (blocking sync into Data Cloud /
+ * Marketing Cloud, which cap or exclude oversized text fields) without adding real protection,
+ * since the hash is already an unforgeable MAC. Revoke a single contact's link by changing
+ * their Email (new hash), or all links org-wide by rotating PreferenceTokenConfig__c.Secret__c.
+ */
 public with sharing class Util_CommunicationPreferenceToken {
 
-    // ⚠️ Replace with secure storage in production
-    private static final String SECRET = 'REPLACE_ME_SECURE';
+    public class TokenConfigException extends Exception {}
 
-    // =========================
-    // DTO
-    // =========================
-    public class TokenResult {
-        public Id contactId;
-        public String brand;
+    /**
+     * Builds a ready-to-use Preference Center URL for a Contact's key hash. Used by
+     * Trigger_Contact to stamp Contact.Preference_Center_Url__c so email templates can merge
+     * it in directly (e.g. {!Contact.Preference_Center_Url__c}) without any Apex at send time.
+     */
+    public static String buildPreferenceCenterUrl(String keyHash) {
+        if (String.isBlank(keyHash)) return null;
 
-        public TokenResult(Id contactId, String brand) {
-            this.contactId = contactId;
-            this.brand = brand;
-        }
-    }
-
-    // =========================
-    // Generate
-    // =========================
-    public static String generate(Id contactId, String brand, Integer ttlSeconds) {
-
-        Long exp = DateTime.now().getTime() / 1000 + ttlSeconds;
-
-        String nonce = EncodingUtil.convertToHex(
-            Crypto.generateDigest('MD5', Blob.valueOf(String.valueOf(Math.random())))
-        );
-
-        Map<String, Object> payload = new Map<String, Object>{
-            'cid' => contactId,
-            'brand' => brand,
-            'exp' => exp,
-            'nonce' => nonce
-        };
-
-        String encoded = EncodingUtil.base64Encode(
-            Blob.valueOf(JSON.serialize(payload))
-        );
-
-        String signature = sign(encoded);
-
-        return encoded + '.' + signature;
-    }
-
-    // =========================
-    // Validate
-    // =========================
-    public static TokenResult validate(String token) {
-
-        if (String.isBlank(token) || !token.contains('.')) {
-            throw new AuraHandledException('Invalid token');
-        }
-
-        List<String> parts = token.split('\\.');
-        String encoded = parts[0];
-        String signature = parts[1];
-
-        if (sign(encoded) != signature) {
-            throw new AuraHandledException('Invalid signature');
-        }
-
-        Map<String, Object> payload =
-            (Map<String, Object>) JSON.deserializeUntyped(
-                EncodingUtil.base64Decode(encoded).toString()
+        String baseUrl = PreferenceTokenConfig__c.getOrgDefaults()?.Base_Url__c;
+        if (String.isBlank(baseUrl)) {
+            throw new TokenConfigException(
+                'PreferenceTokenConfig__c.Base_Url__c is not configured for this org.'
             );
-
-        Long exp = (Long) payload.get('exp');
-
-        if (DateTime.now().getTime() / 1000 > exp) {
-            throw new AuraHandledException('Token expired');
         }
 
-        String nonce = (String) payload.get('nonce');
-
-        if (isNonceUsed(nonce)) {
-            throw new AuraHandledException('Token already used');
-        }
-
-        markNonceUsed(nonce);
-
-        return new TokenResult(
-            (String) payload.get('cid'),
-            (String) payload.get('brand')
-        );
+        return baseUrl.removeEnd('/') + '/preferences?cid=' + EncodingUtil.urlEncode(keyHash, 'UTF-8');
     }
 
     // =========================
-    // Signing
+    // Email -> key hash (used by Trigger_Contact to stamp Contact.Preference_Token_Key__c)
     // =========================
-    private static String sign(String data) {
+    public static String hashEmail(String email) {
+        if (String.isBlank(email)) return null;
         Blob mac = Crypto.generateMac(
             'HmacSHA256',
-            Blob.valueOf(data),
-            Blob.valueOf(SECRET)
+            Blob.valueOf(email.trim().toLowerCase()),
+            Blob.valueOf(getSecret())
         );
         return EncodingUtil.convertToHex(mac);
     }
 
-    // =========================
-    // Replay protection
-    // =========================
-    private static Boolean isNonceUsed(String nonce) {
-        return [
-            SELECT COUNT()
-            FROM PreferenceTokenNonce__c
-            WHERE Nonce__c = :nonce
-        ] > 0;
-    }
-
-    private static void markNonceUsed(String nonce) {
-        insert new PreferenceTokenNonce__c(Nonce__c = nonce);
+    /**
+     * Reads the signing secret from the protected PreferenceTokenConfig__c hierarchy custom
+     * setting. Fails closed — an unconfigured secret blocks all key-hash generation rather than
+     * falling back to a default value.
+     */
+    private static String getSecret() {
+        String secret = PreferenceTokenConfig__c.getOrgDefaults()?.Secret__c;
+        if (String.isBlank(secret)) {
+            throw new TokenConfigException(
+                'PreferenceTokenConfig__c.Secret__c is not configured for this org.'
+            );
+        }
+        return secret;
     }
 }

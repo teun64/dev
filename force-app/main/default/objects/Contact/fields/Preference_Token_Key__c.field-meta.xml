@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Preference_Token_Key__c</fullName>
+    <description>HMAC-SHA256 of the contact&apos;s lowercased Email, keyed by PreferenceTokenConfig__c.Secret__c. Lets a guest Preference Center link resolve to this Contact without ever carrying the record Id itself. Stamped automatically by Trigger_Contact/Util_CommunicationPreferenceToken.hashEmail when Email changes.</description>
+    <externalId>true</externalId>
+    <label>Preference Token Key</label>
+    <length>64</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

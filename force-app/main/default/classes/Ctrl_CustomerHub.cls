@@ -11,6 +11,13 @@ public without sharing class Ctrl_CustomerHub {
         @AuraEnabled public String country;
         @AuraEnabled public String kvk;
         @AuraEnabled public String vatNumber;
+        @AuraEnabled public String managingDirectors;
+        @AuraEnabled public String iban;
+        @AuraEnabled public String bic;
+        @AuraEnabled public String bankAccountNumber;
+        @AuraEnabled public String bankSortCode;
+        @AuraEnabled public String privacyPolicyUrl;
+        @AuraEnabled public String termsConditionsUrl;
     }
 
     private static final Map<String, String> BRAND_RESELLER = new Map<String, String>{
@@ -26,7 +33,14 @@ public without sharing class Ctrl_CustomerHub {
         // 1. Try to resolve reseller from contact / authenticated user
         Id resolvedContactId;
         if (String.isNotBlank(contactId)) {
-            resolvedContactId = (Id) contactId;
+            try {
+                resolvedContactId = (Id) contactId;
+            } catch (System.StringException e) {
+                // Not a real Id — e.g. the guest Preference Center passes its hashed token
+                // through the same ?cid= param the footer reads. Fall through to the brand
+                // fallback below rather than failing the whole footer request.
+                resolvedContactId = null;
+            }
         } else {
             Id uid = UserInfo.getUserId();
             List<User> users = [SELECT ContactId FROM User WHERE Id = :uid WITH SYSTEM_MODE LIMIT 1];
@@ -63,7 +77,14 @@ public without sharing class Ctrl_CustomerHub {
                    Subscription25__Billing_Postal_Code__c,
                    Subscription25__Billing_Country__c,
                    Subscription25__Chamber_Of_Commerce_Number__c,
-                   Subscription25__VAT_Number__c
+                   Subscription25__VAT_Number__c,
+                   Managing_directors__c,
+                   Subscription25__IBAN__c,
+                   Subscription25__BIC__c,
+                   Bank_6_Account_Number__c,
+                   Bank_6_Sort_Code__c,
+                   Privacy_Policy_URL__c,
+                   Terms_Conditions_URL__c
             FROM   Subscription25__Administration__c
             WHERE  Reseller__c = :resellerCode
             AND    Subscription25__Active__c = true
@@ -78,17 +99,24 @@ public without sharing class Ctrl_CustomerHub {
             rawWebsite = 'https://' + rawWebsite;
         }
 
-        AdminInfo info      = new AdminInfo();
-        info.name           = a.Subscription25__Billing_Name__c;
-        info.phone          = a.Subscription25__Phone__c;
-        info.email          = a.email_sales__c;
-        info.website        = rawWebsite;
-        info.street         = a.Subscription25__Billing_Street__c;
-        info.city           = a.Subscription25__Billing_City__c;
-        info.postalCode     = a.Subscription25__Billing_Postal_Code__c;
-        info.country        = a.Subscription25__Billing_Country__c;
-        info.kvk            = a.Subscription25__Chamber_Of_Commerce_Number__c;
-        info.vatNumber      = a.Subscription25__VAT_Number__c;
+        AdminInfo info           = new AdminInfo();
+        info.name                = a.Subscription25__Billing_Name__c;
+        info.phone               = a.Subscription25__Phone__c;
+        info.email               = a.email_sales__c;
+        info.website             = rawWebsite;
+        info.street              = a.Subscription25__Billing_Street__c;
+        info.city                = a.Subscription25__Billing_City__c;
+        info.postalCode          = a.Subscription25__Billing_Postal_Code__c;
+        info.country             = a.Subscription25__Billing_Country__c;
+        info.kvk                 = a.Subscription25__Chamber_Of_Commerce_Number__c;
+        info.vatNumber           = a.Subscription25__VAT_Number__c;
+        info.managingDirectors   = a.Managing_directors__c;
+        info.iban                = a.Subscription25__IBAN__c;
+        info.bic                 = a.Subscription25__BIC__c;
+        info.bankAccountNumber   = a.Bank_6_Account_Number__c;
+        info.bankSortCode        = a.Bank_6_Sort_Code__c;
+        info.privacyPolicyUrl    = a.Privacy_Policy_URL__c;
+        info.termsConditionsUrl  = a.Terms_Conditions_URL__c;
         return info;
     }
 }

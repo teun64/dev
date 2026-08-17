@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Preference_Center_Url__c</fullName>
+    <description>Ready-to-use guest link to this contact's Communication Preference Center, keyed by Preference_Token_Key__c (an HMAC of their email). Stamped by Trigger_Contact/Util_CommunicationPreferenceToken.buildPreferenceCenterUrl whenever Email changes. Merge directly into email templates, e.g. {!Contact.Preference_Center_Url__c} or {!Case.Contact.Preference_Center_Url__c}.</description>
+    <externalId>false</externalId>
+    <label>Preference Center Url</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Url</type>
+</CustomField>
