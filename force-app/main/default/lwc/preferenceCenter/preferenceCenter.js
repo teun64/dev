@@ -11,12 +11,14 @@ import savePreferences     from '@salesforce/apex/Ctrl_PreferenceCenter.savePref
 import getAuditHistory     from '@salesforce/apex/Ctrl_PreferenceCenter.getAuditHistory';
 import getBrandTheme       from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
 import getMCBrandAssets    from '@salesforce/apex/Ctrl_PreferenceCenter.getMCBrandAssets';
+import getDisplayLabels    from '@salesforce/apex/Ctrl_PreferenceCenter.getDisplayLabels';
 // Guest (unauthenticated) access goes through a separate, token-only Apex class — see
 // Ctrl_PreferenceCenterGuest for why this can't just be extra methods on Ctrl_PreferenceCenter.
 import getGuestPreferences   from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getPreferences';
 import saveGuestPreferences  from '@salesforce/apex/Ctrl_PreferenceCenterGuest.savePreferences';
 import getGuestBrandTheme    from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getBrandTheme';
 import getGuestMCBrandAssets from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getMCBrandAssets';
+import getGuestDisplayLabels from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getDisplayLabels';
 
 const LANG_EVENTS = ['mi:languagechange', 'echoes:languagechange', 'tds:languagechange'];
 
@@ -209,7 +211,17 @@ export default class PreferenceCenter extends LightningElement {
                 this._fetchBrandTheme(this.brand);
             }
         }
-        this._langHandler = (e) => { this._lang = e.detail?.language || this._lang; };
+        // Changing _lang alone only re-renders the client-side I18N/CATEGORY_META/TYPE_LABELS
+        // text (save button, audit toggle, etc.) — the server-resolved Category/CommunicationType
+        // /Channel labels (Translation Workbench data) need a fresh fetch for the new language,
+        // since they were only resolved once, for the Contact's language, at page load.
+        this._langHandler = (e) => {
+            const newLang = e.detail?.language || this._lang;
+            if (newLang !== this._lang) {
+                this._lang = newLang;
+                this._loadDisplayLabels(newLang);
+            }
+        };
         LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
         // Sync with any language already set by the hub header on the same page
         try {
@@ -335,6 +347,27 @@ export default class PreferenceCenter extends LightningElement {
             }
         }
         return undefined;
+    }
+
+    /**
+     * Re-fetches Category/CommunicationType/Channel labels for an explicit language — used
+     * whenever the hub header's language switcher fires, since those labels are otherwise only
+     * resolved once (for the Contact's language) when the page first loads. Deliberately does
+     * NOT touch _prefsMap/sections' underlying data — only the labels rendered on top of it —
+     * so it never discards any unsaved toggle changes.
+     */
+    async _loadDisplayLabels(lang) {
+        if (!lang) return;
+        try {
+            const fetchLabels = isGuestUser ? getGuestDisplayLabels : getDisplayLabels;
+            const labels = await this._withColdStartRetry(() => fetchLabels({ language: lang }));
+            this._categoryLabels = labels?.categoryLabels || {};
+            this._typeLabels     = labels?.typeLabels     || {};
+            this._channelLabels  = labels?.channelLabels  || {};
+            this._buildSections();
+        } catch (error) {
+            console.error('Failed to load display labels for language ' + lang, error);
+        }
     }
 
     _applyPageData(data) {

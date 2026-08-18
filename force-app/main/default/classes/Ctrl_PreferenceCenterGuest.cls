@@ -39,6 +39,11 @@ public without sharing class Ctrl_PreferenceCenterGuest {
         return Ctrl_PreferenceCenter.getBrandTheme(brand);
     }
 
+    @AuraEnabled(cacheable=true)
+    public static Ctrl_PreferenceCenter.DisplayLabels getDisplayLabels(String language) {
+        return Ctrl_PreferenceCenter.getDisplayLabels(language);
+    }
+
     @AuraEnabled
     public static Ctrl_PreferenceCenter.BrandThemeData getMCBrandAssets(String mcBrandId) {
         return Ctrl_PreferenceCenter.getMCBrandAssets(mcBrandId);

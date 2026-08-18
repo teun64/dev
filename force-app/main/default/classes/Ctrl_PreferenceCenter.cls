@@ -247,6 +247,25 @@ public without sharing class Ctrl_PreferenceCenter {
     }
 
     /**
+     * Category/CommunicationType/Channel labels for an explicit language — used by the
+     * Experience Cloud hub header's language switcher (nl/de/fr/en buttons), which changes
+     * what the visitor is looking at without reloading the underlying preference catalog.
+     * Always overlays the PicklistTranslation__c cache for the requested language (falling back
+     * to the English master label via describe for anything not yet synced): unlike
+     * getPreferences(), a caller here has explicitly asked for a specific language, so there's
+     * no "running user's own language" case to preserve.
+     */
+    @AuraEnabled(cacheable=true)
+    public static DisplayLabels getDisplayLabels(String language) {
+        Map<String, Map<String, String>> labels = resolveDisplayLabels(true, language);
+        DisplayLabels result = new DisplayLabels();
+        result.categoryLabels = labels.get('ComPrev_Catergory');
+        result.typeLabels     = labels.get('ComPrev_CommunicationType');
+        result.channelLabels  = labels.get('ComPref_Channel');
+        return result;
+    }
+
+    /**
      * Returns branding configuration for a given brand code (E, M, T).
      * Queries BrandThemeConfig__mdt for colors, logo path, and MC brand ID.
      * Cacheable — does not make callouts.
@@ -598,6 +617,12 @@ public without sharing class Ctrl_PreferenceCenter {
         @AuraEnabled public Map<String, String>              categoryLabels;
         @AuraEnabled public Map<String, String>              typeLabels;
         @AuraEnabled public Map<String, String>              channelLabels;
+    }
+
+    public class DisplayLabels {
+        @AuraEnabled public Map<String, String> categoryLabels;
+        @AuraEnabled public Map<String, String> typeLabels;
+        @AuraEnabled public Map<String, String> channelLabels;
     }
 
     private class AccountContext {
