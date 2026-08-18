@@ -1,7 +1,7 @@
 import { LightningElement, track, wire } from 'lwc';
 import { CurrentPageReference }         from 'lightning/navigation';
 import BRANDING        from '@salesforce/resourceUrl/Branding';
-import getAdminInfo    from '@salesforce/apex/Ctrl_CustomerHub.getAdminInfo';
+import getAdminInfoApex from '@salesforce/apex/Ctrl_CustomerHub.getAdminInfo';
 
 const EVENT_KEY = 'mi:languagechange';
 const LOGO_PATH = 'Branding/2024/img/mi-logo-white-red-rgb.png';
@@ -49,6 +49,7 @@ export default class CustomerHubFooter extends LightningElement {
     currentYear = new Date().getFullYear();
 
     _langHandler;
+    _adminLoadedFor = null; // last `${cid}|${brand}` actually loaded — guards duplicate/stale calls
 
     // ── Lifecycle ──────────────────────────────────────────────────
 
@@ -56,7 +57,6 @@ export default class CustomerHubFooter extends LightningElement {
         this._lang = this._detectLang();
         this._langHandler = (e) => { this._lang = e.detail.language; };
         window.addEventListener(EVENT_KEY, this._langHandler);
-        // Sync cid + brand before first wire tick so guest users get admin info immediately
         try {
             const params = new URLSearchParams(window.location.search);
             const c = params.get('cid');
@@ -64,6 +64,7 @@ export default class CustomerHubFooter extends LightningElement {
             if (c) this._cid   = c;
             if (b) this._brand = b;
         } catch (_) { /* ignore */ }
+        this._loadAdminInfo();
     }
 
     disconnectedCallback() {
@@ -78,13 +79,28 @@ export default class CustomerHubFooter extends LightningElement {
         if (c && c !== this._cid) this._cid = c;
         const b = ref?.state?.brand || ref?.state?.c__brand;
         if (b && b !== this._brand) this._brand = b;
+        this._loadAdminInfo();
     }
 
-    @wire(getAdminInfo, { contactId: '$_cid', brand: '$_brand' })
-    wiredAdmin({ data, error }) {
-        this.isLoading = false;
-        if (data) this._admin = data;
-        if (error) console.error('[customerHubFooter] getAdminInfo error', error);
+    /**
+     * Imperative on purpose — @wire(getAdminInfo, { contactId: '$_cid', brand: '$_brand' })
+     * provisions before connectedCallback() runs, so it always fired once with both reactive
+     * params at their blank class-field initializers, sending contactId="" / brand="" to Apex
+     * before the URL/page-ref values were ever read. Same class of bug preferenceCenter.js
+     * already worked around by calling Apex imperatively instead of via @wire.
+     */
+    async _loadAdminInfo() {
+        const key = `${this._cid}|${this._brand}`;
+        if (key === this._adminLoadedFor) return;
+        this._adminLoadedFor = key;
+        this.isLoading = true;
+        try {
+            this._admin = await getAdminInfoApex({ contactId: this._cid, brand: this._brand });
+        } catch (error) {
+            console.error('[customerHubFooter] getAdminInfo error', error);
+        } finally {
+            this.isLoading = false;
+        }
     }
 
     // ── Getters ───────────────────────────────────────────────────

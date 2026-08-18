@@ -2,7 +2,9 @@
  * Ctrl_PreferenceCenter
  *
  * Reads and writes CommunicationPreference__c records for a given Contact.
- * Each preference is a row keyed by Brand + Category + Channel + CommunicationType.
+ * Each preference is a row master-detailed to a CommunicationPreferenceConfig__c —
+ * Config__c carries the Brand + Category + Channel + CommunicationType identity, so
+ * deleting a config row cascade-deletes every preference row that pointed to it.
  *
  * After any save, a CommunicationPreferenceAudit__c record is inserted for every
  * changed row, capturing old/new value, agent, source, and timestamp.
@@ -16,9 +18,6 @@ public without sharing class Ctrl_PreferenceCenter {
     // ── Constants ─────────────────────────────────────────────────────────────
     private static final String CHANGE_REASON = 'USER_ACTION';
     private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
-
-    // Lazy-loaded cache — queried once per transaction from CommunicationTypeCategory__mdt.
-    private static Map<String, String> typeToCategory;
 
     // ─────────────────────────────────────────────────────────────────────────
     // PUBLIC METHODS
@@ -99,15 +98,20 @@ public without sharing class Ctrl_PreferenceCenter {
         validateContactId(contactId);
         Contact con = queryContact(contactId);
 
-        // ── 1. Load the CMT catalog ───────────────────────────────────────────
-        List<BrandCommunicationConfig__mdt> catalog = new List<BrandCommunicationConfig__mdt>(
-            BrandCommunicationConfig__mdt.getAll().values()
-        );
+        // ── 1. Load the catalog — CommunicationPreferenceConfig__c carries Brand,
+        // CommunicationType, Channel and the Category derived from it, so it's both
+        // the catalog and the parent every synthesized/existing row links to.
+        List<CommunicationPreferenceConfig__c> catalog = [
+            SELECT Id, Brand__c, CommunicationType__c, Channel__c, Category__c
+            FROM CommunicationPreferenceConfig__c
+            WITH SYSTEM_MODE
+        ];
 
         // ── 2. Load existing preference records, keyed by CompositeKey ────────
         Map<String, CommunicationPreference__c> existingByKey = new Map<String, CommunicationPreference__c>();
         for (CommunicationPreference__c pref : [
-            SELECT Id, Brand__c, Category__c, Channel__c, CommunicationType__c,
+            SELECT Id, Config__c, Config__r.Brand__c, Config__r.Category__c,
+                   Config__r.Channel__c, Config__r.CommunicationType__c,
                    IsEnabled__c, LegalBasis__c, EffectiveDate__c, Source__c,
                    CompositeKey__c, Channel_Detail__c, BusinessLine__c,
                    Google_Ads_Eligible__c
@@ -119,35 +123,27 @@ public without sharing class Ctrl_PreferenceCenter {
         }
 
         // ── 3. Build catalog-driven preference list ───────────────────────────
-        // Key mirrors stampCompositeKeys: person|Brand|Category|Type|Channel|BusinessLine
-        // Category is derived from CommunicationType via CommunicationTypeCategory__mdt.
+        // Key mirrors stampCompositeKeys: person|Config__c|BusinessLine.
         // Catalog-derived records always have BusinessLine = NONE.
-        Map<String, String> typeToCat = getTypeToCategory();
         String person = String.valueOf(contactId);
         List<CommunicationPreference__c> prefs = new List<CommunicationPreference__c>();
-        for (BrandCommunicationConfig__mdt cfg : catalog) {
-            String category = typeToCat.containsKey(cfg.CommunicationType__c)
-                ? typeToCat.get(cfg.CommunicationType__c)
-                : 'NONE';
-            String ckBrand = cfg.Brand__c             != null ? cfg.Brand__c             : 'NONE';
-            String ckCat   = category;
-            String ckType  = cfg.CommunicationType__c != null ? cfg.CommunicationType__c : 'NONE';
-            String ckChan  = cfg.Channel__c           != null ? cfg.Channel__c           : 'NONE';
-            String key     = person + '|' + ckBrand + '|' + ckCat + '|' + ckType + '|' + ckChan + '|NONE';
+        for (CommunicationPreferenceConfig__c cfg : catalog) {
+            String key = person + '|' + cfg.Id + '|NONE';
 
             if (existingByKey.containsKey(key)) {
                 prefs.add(existingByKey.get(key));
             } else {
-                prefs.add(new CommunicationPreference__c(
-                    Contact__c           = contactId,
-                    Brand__c             = cfg.Brand__c,
-                    Category__c          = category,
-                    CommunicationType__c = cfg.CommunicationType__c,
-                    Channel__c           = cfg.Channel__c,
-                    IsEnabled__c         = 'SERVICE'.equals(category),
-                    Source__c            = resolveSource(),
-                    CompositeKey__c      = key
-                ));
+                CommunicationPreference__c newRow = new CommunicationPreference__c(
+                    Contact__c      = contactId,
+                    Config__c       = cfg.Id,
+                    IsEnabled__c    = 'SERVICE'.equals(cfg.Category__c),
+                    Source__c       = resolveSource(),
+                    CompositeKey__c = key
+                );
+                // Attach the parent in-memory so the client can read Config__r.* on a row
+                // that was never queried from the database (it doesn't exist yet).
+                newRow.putSObject('Config__r', cfg);
+                prefs.add(newRow);
             }
         }
 
@@ -196,8 +192,13 @@ public without sharing class Ctrl_PreferenceCenter {
             p.Source__c  = src;
         }
 
+        // Brand/Category/Channel/CommunicationType live on Config__c now — re-query them
+        // server-side (needed for the audit snapshot below) rather than trust anything the
+        // client sent for those values.
+        Map<Id, CommunicationPreferenceConfig__c> configById = loadConfigMap(incoming);
+
         // Build composite keys — mirrors rbb_CommunicationPreference Before Save flow:
-        // BLANKVALUE(Contact__c, Lead__c) | Brand | Category | CommunicationType | Channel | BusinessLine
+        // BLANKVALUE(Contact__c, Lead__c) | Config__c | BusinessLine
         stampCompositeKeys(incoming, String.valueOf(contactId));
 
         // Only persist records for opted-in preferences OR existing records being updated.
@@ -225,7 +226,7 @@ public without sharing class Ctrl_PreferenceCenter {
 
         // Write audit records for changed rows
         List<CommunicationPreferenceAudit__c> audits =
-            buildAuditRecords(contactId, toUpsert, previousValues, sessionId, requestId);
+            buildAuditRecords(contactId, toUpsert, previousValues, sessionId, requestId, configById);
 
         if (!audits.isEmpty()) {
             try {
@@ -305,17 +306,6 @@ public without sharing class Ctrl_PreferenceCenter {
     // PRIVATE HELPERS
     // ─────────────────────────────────────────────────────────────────────────
 
-    /** Queries CommunicationTypeCategory__mdt once per transaction and caches the result. */
-    private static Map<String, String> getTypeToCategory() {
-        if (typeToCategory == null) {
-            typeToCategory = new Map<String, String>();
-            for (CommunicationTypeCategory__mdt m : CommunicationTypeCategory__mdt.getAll().values()) {
-                typeToCategory.put(m.CommunicationType__c, m.Category__c);
-            }
-        }
-        return typeToCategory;
-    }
-
     /** Returns 'Self-Service' on Customer Hub (Experience Cloud), 'Support' on internal pages. */
     private static String resolveSource() {
         return String.isNotBlank(Site.getBaseUrl()) ? 'Preference Center' : 'Support';
@@ -326,15 +316,32 @@ public without sharing class Ctrl_PreferenceCenter {
         return String.isNotBlank(Site.getBaseUrl()) ? 'CUSTOMER_PORTAL' : 'SUPPORT_CONSOLE';
     }
 
+    /**
+     * Loads the CommunicationPreferenceConfig__c parent for every Config__c Id referenced by
+     * incoming — queried fresh rather than trusting anything the client sent, since Brand/
+     * Category/Channel/CommunicationType live only on that related record now.
+     */
+    private static Map<Id, CommunicationPreferenceConfig__c> loadConfigMap(
+        List<CommunicationPreference__c> incoming
+    ) {
+        Set<Id> configIds = new Set<Id>();
+        for (CommunicationPreference__c p : incoming) {
+            if (p.Config__c != null) configIds.add(p.Config__c);
+        }
+        return new Map<Id, CommunicationPreferenceConfig__c>([
+            SELECT Id, Brand__c, Category__c, Channel__c, CommunicationType__c
+            FROM CommunicationPreferenceConfig__c
+            WHERE Id IN :configIds
+            WITH SYSTEM_MODE
+        ]);
+    }
+
     /** Mutates each record's CompositeKey__c to match the Before Save flow formula */
     private static void stampCompositeKeys(List<CommunicationPreference__c> prefs, String ckPerson) {
         for (CommunicationPreference__c pref : prefs) {
-            String ckBrand   = pref.Brand__c             != null ? pref.Brand__c             : 'NONE';
-            String ckCat     = pref.Category__c          != null ? pref.Category__c          : 'NONE';
-            String ckType    = pref.CommunicationType__c != null ? pref.CommunicationType__c : 'NONE';
-            String ckChannel = pref.Channel__c           != null ? pref.Channel__c           : 'NONE';
-            String ckBLine   = pref.BusinessLine__c      != null ? pref.BusinessLine__c      : 'NONE';
-            pref.CompositeKey__c = ckPerson + '|' + ckBrand + '|' + ckCat + '|' + ckType + '|' + ckChannel + '|' + ckBLine;
+            String ckConfig = pref.Config__c        != null ? String.valueOf(pref.Config__c) : 'NONE';
+            String ckBLine  = pref.BusinessLine__c   != null ? pref.BusinessLine__c           : 'NONE';
+            pref.CompositeKey__c = ckPerson + '|' + ckConfig + '|' + ckBLine;
         }
     }
 
@@ -408,7 +415,8 @@ public without sharing class Ctrl_PreferenceCenter {
         List<CommunicationPreference__c> saved,
         Map<Id, Boolean> previousValues,
         String sessionId,
-        String requestId
+        String requestId,
+        Map<Id, CommunicationPreferenceConfig__c> configById
     ) {
         List<CommunicationPreferenceAudit__c> audits = new List<CommunicationPreferenceAudit__c>();
         Datetime now = Datetime.now();
@@ -423,13 +431,17 @@ public without sharing class Ctrl_PreferenceCenter {
             Boolean changed = (oldVal == null) || (oldVal != p.IsEnabled__c);
             if (!changed) continue;
 
+            // Audit keeps its own Brand/Category/Channel/CommunicationType snapshot — a
+            // permanent historical record independent of any later catalog edit, so it's
+            // intentionally NOT a relationship to CommunicationPreferenceConfig__c.
+            CommunicationPreferenceConfig__c cfg = configById.get(p.Config__c);
             CommunicationPreferenceAudit__c audit = new CommunicationPreferenceAudit__c(
                 Contact__c                 = contactId,
                 CommunicationPreference__c = p.Id,
-                Brand__c                   = p.Brand__c,
-                Category__c                = p.Category__c,
-                CommunicationType__c       = p.CommunicationType__c,
-                Channel__c                 = p.Channel__c,
+                Brand__c                   = cfg?.Brand__c,
+                Category__c                = cfg?.Category__c,
+                CommunicationType__c       = cfg?.CommunicationType__c,
+                Channel__c                 = cfg?.Channel__c,
                 Old_Value__c               = (oldVal == null) ? false : oldVal,
                 New_Value__c               = p.IsEnabled__c,
                 Google_Ads_Eligible__c     = p.Google_Ads_Eligible__c,

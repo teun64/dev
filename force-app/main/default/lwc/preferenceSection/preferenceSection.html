@@ -36,9 +36,11 @@
                         <lightning-icon icon-name="utility:lock" size="xx-small"
                             class="slds-m-right_x-small"></lightning-icon>
                         <span class="slds-text-body_small slds-text-color_weak">{item.label}</span>
-                        <span class="slds-m-left_x-small">
-                            <lightning-badge label={item.channel}></lightning-badge>
-                        </span>
+                        <template if:false={hideChannelBadge}>
+                            <span class="slds-m-left_x-small">
+                                <lightning-badge label={item.channel}></lightning-badge>
+                            </span>
+                        </template>
                     </template>
 
                     <!-- Opt-in: checkbox -->
@@ -52,7 +54,9 @@
                             class="slds-col">
                         </lightning-input>
                         <div class="slds-m-left_x-small badge-group">
-                            <lightning-badge label={item.channel}></lightning-badge>
+                            <template if:false={hideChannelBadge}>
+                                <lightning-badge label={item.channel}></lightning-badge>
+                            </template>
                             <template if:true={item.legalBasis}>
                                 <lightning-badge label={item.legalBasis}
                                     class="slds-m-left_xx-small badge-legal"></lightning-badge>

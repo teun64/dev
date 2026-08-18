@@ -14,6 +14,12 @@ private class Test_Ctrl_PreferenceCenterGuest {
             LastName  = 'Tester',
             Email     = 'jane.guest@example.com'
         ); // Trigger_Contact stamps Preference_Token_Key__c from Email
+
+        // CommunicationPreferenceConfig__c is a real object, not visible in tests by default
+        // the way the CommunicationTypeCategory__mdt it replaced was.
+        insert new CommunicationPreferenceConfig__c(
+            Brand__c = 'M', CommunicationType__c = 'NEWSLETTER', Channel__c = 'EMAIL', Category__c = 'MARKETING'
+        );
     }
 
     @IsTest
@@ -71,12 +77,14 @@ private class Test_Ctrl_PreferenceCenterGuest {
     static void testSavePreferences_persistsUnderResolvedContact() {
         Contact c = [SELECT Id, Preference_Token_Key__c FROM Contact LIMIT 1];
         String token = c.Preference_Token_Key__c;
+        CommunicationPreferenceConfig__c cfg = [
+            SELECT Id FROM CommunicationPreferenceConfig__c
+            WHERE Brand__c = 'M' AND CommunicationType__c = 'NEWSLETTER' AND Channel__c = 'EMAIL'
+            LIMIT 1
+        ];
 
         CommunicationPreference__c pref = new CommunicationPreference__c(
-            Brand__c             = 'M',
-            Category__c          = 'MARKETING',
-            Channel__c           = 'EMAIL',
-            CommunicationType__c = 'NEWSLETTER',
+            Config__c            = cfg.Id,
             IsEnabled__c         = true,
             LegalBasis__c        = 'CONSENT',
             CompositeKey__c      = c.Id + '_M_MARKETING_EMAIL_NEWSLETTER'

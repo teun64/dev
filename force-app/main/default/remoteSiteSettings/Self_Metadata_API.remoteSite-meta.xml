@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Self_Metadata_API</fullName>
+    <disableProtocolSecurity>false</disableProtocolSecurity>
+    <isActive>true</isActive>
+    <url>https://movingintelligence--dev.sandbox.my.salesforce.com</url>
+    <description>Allows Apex callouts back to this org's own Metadata API (SOAP) to read Translation Workbench data (e.g. CustomObjectTranslation) for the Preference Center's language sync — admin-triggered only, uses UserInfo.getSessionId().</description>
+</RemoteSiteSetting>

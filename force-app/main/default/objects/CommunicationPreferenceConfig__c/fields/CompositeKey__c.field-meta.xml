@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CompositeKey__c</fullName>
+    <label>Composite Key</label>
+    <type>Text</type>
+    <length>100</length>
+    <required>false</required>
+    <unique>true</unique>
+    <caseSensitive>false</caseSensitive>
+    <description>Brand|CommunicationType|Channel — stamped by rbb_CommunicationPreferenceConfig Before Save flow. Prevents duplicate config rows for the same combination (picklist fields can't be marked unique directly).</description>
+</CustomField>

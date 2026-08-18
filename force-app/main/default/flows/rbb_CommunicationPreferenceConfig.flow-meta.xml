@@ -14,46 +14,18 @@
                 <elementReference>fCompositeKey</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <targetReference>ass_01_Google_Ads_Eligible</targetReference>
-        </connector>
     </assignments>
-    <assignments>
-        <name>ass_01_Google_Ads_Eligible</name>
-        <label>1. Google Ads Eligible</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>$Record.Google_Ads_Eligible__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fGoogleAdsEligible</elementReference>
-            </value>
-        </assignmentItems>
-    </assignments>
-    <constants>
-        <name>cCategoryMarketing</name>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>MARKETING</stringValue>
-        </value>
-    </constants>
-    <description>Generic flow to update the base values</description>
+    <description>Stamps CompositeKey__c (Brand|CommunicationType|Channel) so the unique constraint on that field prevents duplicate config rows for the same combination.</description>
     <environments>Default</environments>
     <formulas>
         <name>fCompositeKey</name>
         <dataType>String</dataType>
-        <expression>BLANKVALUE({!$Record.Contact__c},{!$Record.Lead__c}) &amp; &quot;|&quot; &amp;
-BLANKVALUE({!$Record.Config__c}, &quot;NONE&quot;) &amp; &quot;|&quot; &amp;
-BLANKVALUE(TEXT({!$Record.BusinessLine__c}), &quot;NONE&quot;)</expression>
+        <expression>BLANKVALUE(TEXT({!$Record.Brand__c}), &quot;NONE&quot;) &amp; &quot;|&quot; &amp;
+BLANKVALUE(TEXT({!$Record.CommunicationType__c}), &quot;NONE&quot;) &amp; &quot;|&quot; &amp;
+BLANKVALUE(TEXT({!$Record.Channel__c}), &quot;NONE&quot;)</expression>
     </formulas>
-    <formulas>
-        <name>fGoogleAdsEligible</name>
-        <dataType>Boolean</dataType>
-        <expression>AND(ISPICKVAL({!$Record.Config__r.Category__c}, &apos;MARKETING&apos;), {!$Record.IsEnabled__c})</expression>
-    </formulas>
-    <interviewLabel>rbb - Communication Preference {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>rbb - Communication Preference</label>
+    <interviewLabel>rbb - Communication Preference Config {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rbb - Communication Preference Config</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -79,7 +51,7 @@ BLANKVALUE(TEXT({!$Record.BusinessLine__c}), &quot;NONE&quot;)</expression>
         <connector>
             <targetReference>ass_01_CompositeKey</targetReference>
         </connector>
-        <object>CommunicationPreference__c</object>
+        <object>CommunicationPreferenceConfig__c</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordBeforeSave</triggerType>
     </start>

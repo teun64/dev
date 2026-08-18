@@ -906,4 +906,9 @@
         <enabled>true</enabled>
         <name>ViewUserPII</name>
     </userPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>CommunicationPreferenceConfig__c.CompositeKey__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 </Profile>

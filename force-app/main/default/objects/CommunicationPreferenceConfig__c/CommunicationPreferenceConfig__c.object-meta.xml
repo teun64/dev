@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Communication Preference Config</label>
+    <pluralLabel>Communication Preference Configs</pluralLabel>
+    <nameField>
+        <label>Communication Preference Config Name</label>
+        <type>AutoNumber</type>
+        <displayFormat>CPC-{0000}</displayFormat>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <sharingModel>ReadWrite</sharingModel>
+    <description>Maps each CommunicationType__c value to its Category__c — replaces the CommunicationTypeCategory__mdt custom metadata type so the picklists can be driven by the shared ComPrev_CommunicationType / ComPrev_Catergory global value sets instead of a metadata-local picklist.</description>
+</CustomObject>

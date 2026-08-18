@@ -184,6 +184,7 @@ export default class PreferenceCenter extends LightningElement {
     _loadedFor           = null;   // last _contextId value actually loaded — guards duplicate loads
     _resolvedContactId   = null;   // real Contact Id — may differ from recordId on Case pages
     _showPartnerCategory = false;  // determined per-contact from Account RecordType + ACR Roles
+    _hasInvalidBrand     = false;  // @api brand or ?brand= isn't one of the known catalog brands
     _sessionId = this._uuid();
     _requestId = null;
 
@@ -193,7 +194,11 @@ export default class PreferenceCenter extends LightningElement {
         // handlePageRef fires during init and sets it from ?cid= or falls back to userId,
         // then triggers the one imperative _loadPreferences() call for the resolved value.
         if (this.brand) {
-            this._fetchBrandTheme(this.brand);
+            if (!this._isValidBrand(this.brand)) {
+                this._setInvalidBrandError();
+            } else {
+                this._fetchBrandTheme(this.brand);
+            }
         }
         this._langHandler = (e) => { this._lang = e.detail?.language || this._lang; };
         LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
@@ -218,9 +223,15 @@ export default class PreferenceCenter extends LightningElement {
     @wire(CurrentPageReference)
     handlePageRef(ref) {
         this._pageRef = ref;
+        if (this._hasInvalidBrand) return; // already flagged — nothing else to resolve or load
+
         const urlBrand = ref?.state?.brand || ref?.state?.c__brand;
         if (urlBrand && urlBrand !== this._urlBrand) {
             this._urlBrand = urlBrand;
+            if (!this._isValidBrand(urlBrand)) {
+                this._setInvalidBrandError();
+                return;
+            }
             this._fetchBrandTheme(urlBrand);
         }
         const chan = ref?.state?.chan || ref?.state?.c__chan;
@@ -493,7 +504,10 @@ export default class PreferenceCenter extends LightningElement {
         this.showToast  = false;
         this._requestId = this._uuid();
 
-        const records = Object.values(this._prefsMap);
+        // Strip Config__r before sending back — it's a read-only relationship traversal
+        // populated for display only; Apex re-derives Brand/Category/Channel/CommunicationType
+        // server-side from Config__c rather than trusting anything nested here.
+        const records = Object.values(this._prefsMap).map(({ Config__r, ...rest }) => rest);
 
         try {
             // Safe to retry on the cold-start rejection here too: it's thrown before Apex runs,
@@ -591,14 +605,15 @@ export default class PreferenceCenter extends LightningElement {
     _buildSections() {
         const byBrand = {};
         Object.values(this._prefsMap).forEach(p => {
-            const brand = p.Brand__c || '';
-            const cat   = p.Category__c;
+            const cfg   = p.Config__r || {};
+            const brand = cfg.Brand__c || '';
+            const cat   = cfg.Category__c;
             if (!byBrand[brand])      byBrand[brand] = {};
             if (!byBrand[brand][cat]) byBrand[brand][cat] = [];
             byBrand[brand][cat].push({
                 compositeKey: p.CompositeKey__c,
-                label:        TYPE_LABELS[p.CommunicationType__c] || p.CommunicationType__c,
-                channel:      p.Channel__c,
+                label:        TYPE_LABELS[cfg.CommunicationType__c] || cfg.CommunicationType__c,
+                channel:      cfg.Channel__c,
                 checked:      p.IsEnabled__c,
                 isEssential:  cat === 'SERVICE',
                 legalBasis:   p.LegalBasis__c
@@ -635,7 +650,7 @@ export default class PreferenceCenter extends LightningElement {
         );
         const updated = {};
         Object.entries(this._prefsMap).forEach(([key, p]) => {
-            if (visibleKeys.has(key) && p.Category__c !== 'SERVICE') {
+            if (visibleKeys.has(key) && p.Config__r?.Category__c !== 'SERVICE') {
                 updated[key] = { ...p, IsEnabled__c: val };
             } else {
                 updated[key] = p;
@@ -681,6 +696,18 @@ export default class PreferenceCenter extends LightningElement {
         this.isLoading    = false;
         this.hasError     = true;
         this.errorMessage = error?.body?.message || error?.message || 'An unexpected error occurred.';
+    }
+
+    /** Only M, E, T are real catalog brands — anything else (typo'd or stale ?brand= link) is invalid. */
+    _isValidBrand(brand) {
+        return !!BRAND_LABELS[brand];
+    }
+
+    _setInvalidBrandError() {
+        this._hasInvalidBrand = true;
+        this.isLoading        = false;
+        this.hasError         = true;
+        this.errorMessage     = 'The selected option is not available.';
     }
 
     _uuid() {

@@ -63,11 +63,11 @@ public class Batch_CleanCommunicationPreferences
 
         Set<String> activeBrands = brandCutoff.keySet();
         return (Iterable<SObject>) Database.getQueryLocator([
-            SELECT Id, Brand__c, LastModifiedDate
+            SELECT Id, Config__r.Brand__c, LastModifiedDate
             FROM   CommunicationPreference__c
-            WHERE  IsEnabled__c  = false
-            AND    Brand__c      IN :activeBrands
-            AND    LastModifiedDate < :broadestCutoff
+            WHERE  IsEnabled__c        = false
+            AND    Config__r.Brand__c  IN :activeBrands
+            AND    LastModifiedDate    < :broadestCutoff
         ]);
     }
 
@@ -75,7 +75,7 @@ public class Batch_CleanCommunicationPreferences
         List<CommunicationPreference__c> toDelete = new List<CommunicationPreference__c>();
         for (SObject s : scope) {
             CommunicationPreference__c pref = (CommunicationPreference__c) s;
-            Datetime cutoff = brandCutoff.get(pref.Brand__c);
+            Datetime cutoff = brandCutoff.get(pref.Config__r.Brand__c);
             // Apply the brand-specific cutoff (may differ from the broadest SOQL cutoff)
             if (cutoff != null && pref.LastModifiedDate < cutoff) {
                 toDelete.add(pref);

@@ -8,6 +8,7 @@ export default class PreferenceSection extends LightningElement {
     @api brandLabel;
     @api isEssential = false;
     @api items = [];
+    @api hideChannelBadge = false;
 
     get allChecked() {
         const optIn = this.items.filter(i => !i.isEssential);

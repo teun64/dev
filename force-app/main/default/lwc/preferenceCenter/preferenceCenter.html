@@ -105,10 +105,10 @@
                 <!-- Select / Deselect all -->
                 <div class="slds-grid slds-grid_align-spread slds-var-p-vertical_small">
                     <div>
-                        <lightning-button label="Select all"   variant="neutral" size="small"
-                            onclick={handleSelectAll} class="slds-var-m-right_x-small"></lightning-button>
-                        <lightning-button label="Deselect all" variant="neutral" size="small"
-                            onclick={handleDeselectAll}></lightning-button>
+                        <button class="pc-secondary-btn slds-var-m-right_x-small" type="button"
+                            onclick={handleSelectAll}>Select all</button>
+                        <button class="pc-secondary-btn" type="button"
+                            onclick={handleDeselectAll}>Deselect all</button>
                     </div>
                     <template if:true={isExperienceCloud}>
                         <lightning-badge label={optInLabel}></lightning-badge>
@@ -125,6 +125,7 @@
                         icon-name={section.iconName}
                         items={section.items}
                         is-essential={section.isEssential}
+                        hide-channel-badge={isExperienceCloud}
                         onpreferencechange={handleChange}>
                     </c-preference-section>
                 </template>

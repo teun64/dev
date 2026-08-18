@@ -10,9 +10,11 @@
 }
 
 /* ── Brand accent overrides ───────────────────────────────────────────────── */
-.brand-E { --brand-accent: #1a6fc4; } /* Echoes blue             */
-.brand-M { --brand-accent: #cc0000; } /* Moving Intelligence red  */
-.brand-T { --brand-accent: #1d3557; } /* TDS Ultra navy           */
+/* --brand-secondary mirrors BrandThemeConfig__mdt.AccentColor__c — a pale tint
+   used as a fill behind brand-accent text/borders, not a standalone foreground color. */
+.brand-E { --brand-accent: #1a6fc4; --brand-secondary: #e8f0fb; } /* Echoes blue             */
+.brand-M { --brand-accent: #cc0000; --brand-secondary: #fdf0f0; } /* Moving Intelligence red  */
+.brand-T { --brand-accent: #1d3557; --brand-secondary: #e8ecf2; } /* TDS Ultra navy           */
 
 /* ── Contact info header (EC only) ───────────────────────────────────────── */
 .pc-contact-header {
@@ -78,6 +80,32 @@
 .pc-container.is-hub .pc-save-btn:focus-visible {
     outline-color: var(--brand-accent);
 }
+
+/* ── Select all / Deselect all buttons ────────────────────────────────────── */
+/* Service console default: plain outlined, matches surrounding SLDS chrome */
+.pc-secondary-btn {
+    display: inline-block;
+    padding: 0 0.75rem;
+    height: 1.75rem;
+    background-color: #fff;
+    border: 1px solid #c9c9c9;
+    border-radius: 4px;
+    color: #444;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.12s ease, background-color 0.12s ease;
+    white-space: nowrap;
+}
+.pc-secondary-btn:hover { background-color: #f3f3f3; }
+
+/* Customer Hub override — brand-secondary tint fill, brand-accent text/border */
+.pc-container.is-hub .pc-secondary-btn {
+    background-color: var(--brand-secondary, #fff);
+    border-color: var(--brand-accent);
+    color: var(--brand-accent);
+}
+.pc-container.is-hub .pc-secondary-btn:hover { filter: brightness(0.96); }
 
 /* ── Brand tabs with logo ─────────────────────────────────────────────────── */
 .pc-tab-link {
