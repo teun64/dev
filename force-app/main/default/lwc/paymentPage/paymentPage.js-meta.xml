@@ -5,5 +5,12 @@
     <targets>
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
+        <target>lightning__FlowScreen</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="token" type="String" label="Payment Token" role="inputOnly" />
+            <property name="brand" type="String" label="Brand (E/M/T)" role="inputOnly" />
+        </targetConfig>
+    </targetConfigs>
 </LightningComponentBundle>

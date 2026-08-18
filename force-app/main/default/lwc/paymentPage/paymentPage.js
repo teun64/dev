@@ -1,4 +1,4 @@
-import { LightningElement, track, wire } from 'lwc';
+import { LightningElement, api, track, wire } from 'lwc';
 import { CurrentPageReference } from 'lightning/navigation';
 import LOCALE          from '@salesforce/i18n/locale';
 import PAYMENT_PROVIDER from '@salesforce/resourceUrl/paymentProvider';
@@ -181,6 +181,30 @@ export default class PaymentPage extends LightningElement {
         }
         link.type = 'image/png';
         link.href = CUSTOMER_HUB_FAVICON;
+    }
+
+    // -------- Flow inputs --------
+    // Lets this component run as a Flow screen component (no CurrentPageReference/site URL
+    // there) in addition to the Experience Cloud /hub/payment route. Same _loadPayment/
+    // _fetchBrandTheme calls either way — language still comes from LOCALE (the running,
+    // internal Flow user's own Salesforce locale) via _applyLocale(LOCALE) in _loadPayment,
+    // since there's no hub header to dispatch a languagechange event inside a Flow.
+    @api
+    get token() { return this._token; }
+    set token(value) {
+        if (value && value !== this._token) {
+            this._token = value;
+            this._loadPayment(value);
+        }
+    }
+
+    @api
+    get brand() { return this._brand; }
+    set brand(value) {
+        if (value && value !== this._brand) {
+            this._brand = value;
+            this._fetchBrandTheme(value);
+        }
     }
 
     // -------- URL params via CurrentPageReference --------
