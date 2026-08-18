@@ -394,8 +394,9 @@ public without sharing class Ctrl_PreferenceCenter {
         'GB' => 'en', 'EN' => 'en'
     };
 
+    /** Contact's language when known; English otherwise — never null, so the client always has a language to render in rather than silently keeping whatever it was already showing. */
     private static String resolveLanguage(String countryCode) {
-        if (String.isBlank(countryCode)) return null;
+        if (String.isBlank(countryCode)) return 'en';
         String lang = COUNTRY_TO_LANGUAGE.get(countryCode);
         return lang != null ? lang : 'en';
     }
