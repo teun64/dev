@@ -4,6 +4,7 @@ import { CurrentPageReference }               from 'lightning/navigation';
 import userId                                 from '@salesforce/user/Id';
 import isGuestUser                            from '@salesforce/user/isGuest';
 import BRANDING_URL                           from '@salesforce/resourceUrl/Branding';
+import CUSTOMER_HUB_FAVICON                   from '@salesforce/resourceUrl/CustomerHubFavicon';
 
 import getPreferences      from '@salesforce/apex/Ctrl_PreferenceCenter.getPreferences';
 import savePreferences     from '@salesforce/apex/Ctrl_PreferenceCenter.savePreferences';
@@ -197,6 +198,7 @@ export default class PreferenceCenter extends LightningElement {
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     connectedCallback() {
+        this._setFavicon();
         // _contextId is intentionally NOT set here for Experience Cloud pages.
         // handlePageRef fires during init and sets it from ?cid= or falls back to userId,
         // then triggers the one imperative _loadPreferences() call for the resolved value.
@@ -217,6 +219,20 @@ export default class PreferenceCenter extends LightningElement {
             else if (h.endsWith('.nl')) this._lang = 'nl';
             else if (h.endsWith('.co.uk') || h.endsWith('.com')) this._lang = 'en';
         } catch (_) {}
+    }
+
+    // Raw "/sfsites/c/resource/..." hrefs 404 on this site — @salesforce/resourceUrl is the
+    // only reliable way to reference a static resource here (see dealerNav.js for precedent).
+    _setFavicon() {
+        if (typeof document === 'undefined') return;
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+        }
+        link.type = 'image/png';
+        link.href = CUSTOMER_HUB_FAVICON;
     }
 
     disconnectedCallback() {
