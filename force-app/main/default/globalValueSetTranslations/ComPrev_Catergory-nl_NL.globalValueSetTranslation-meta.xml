@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSetTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <valueTranslation>
+        <masterLabel>Marketing communications</masterLabel>
+        <translation>Marketingcommunicatie</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Partner Network</masterLabel>
+        <translation>Partnernetwerk</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Product updates</masterLabel>
+        <translation>Productupdates</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Service &amp; operational notifications</masterLabel>
+        <translation>Essentiële communicatie</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Surveys and feedback</masterLabel>
+        <translation>Onderzoek &amp; feedback</translation>
+    </valueTranslation>
+</GlobalValueSetTranslation>

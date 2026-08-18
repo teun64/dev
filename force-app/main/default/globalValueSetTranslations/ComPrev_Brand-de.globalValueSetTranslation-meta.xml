@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSetTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <valueTranslation>
+        <masterLabel>Echoes</masterLabel>
+        <translation><!-- Echoes --></translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Moving Intelligence</masterLabel>
+        <translation><!-- Moving Intelligence --></translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>TDS Ultra</masterLabel>
+        <translation><!-- TDS Ultra --></translation>
+    </valueTranslation>
+</GlobalValueSetTranslation>

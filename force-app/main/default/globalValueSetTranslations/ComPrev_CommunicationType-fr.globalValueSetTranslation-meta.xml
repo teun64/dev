@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSetTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <valueTranslation>
+        <masterLabel>App Updates</masterLabel>
+        <translation>Mises à jour de l&apos;application</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Customer Events</masterLabel>
+        <translation>Événements clients</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Customer Surveys</masterLabel>
+        <translation>Enquêtes clients</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Dealer Events</masterLabel>
+        <translation>Événements concessionnaires</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Dealer Promotions</masterLabel>
+        <translation>Promotions concessionnaires</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Dealer Updates</masterLabel>
+        <translation>Actualités concessionnaires</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Feature Releases</masterLabel>
+        <translation>Nouvelles fonctionnalités</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Installer Updates</masterLabel>
+        <translation>Actualités installateurs</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Insurance Newsletter</masterLabel>
+        <translation>Newsletter partenaires assurance</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Newsletter</masterLabel>
+        <translation>Newsletter</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Platform Reminders</masterLabel>
+        <translation>Rappels de maintenance</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Platform Updates</masterLabel>
+        <translation>Mises à jour de la plateforme</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Product Announcements</masterLabel>
+        <translation>Annonces produits</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Product Updates</masterLabel>
+        <translation>Mises à jour produit</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Product/Service Feedback Requests</masterLabel>
+        <translation>Demandes de retour produit/service</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Promotions</masterLabel>
+        <translation>Promotions</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Security Alerts</masterLabel>
+        <translation>Alertes de sécurité</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Service Notifications</masterLabel>
+        <translation>Notifications de service</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Theft Recovery Alerts</masterLabel>
+        <translation>Alertes de récupération après vol</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Webinar Invitations</masterLabel>
+        <translation>Invitations aux webinaires</translation>
+    </valueTranslation>
+</GlobalValueSetTranslation>

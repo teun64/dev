@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSetTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <valueTranslation>
+        <masterLabel>App Updates</masterLabel>
+        <translation>App-updates</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Customer Events</masterLabel>
+        <translation>Klantevenementen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Customer Surveys</masterLabel>
+        <translation>Klantonderzoek</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Dealer Events</masterLabel>
+        <translation>Dealerevenementen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Dealer Promotions</masterLabel>
+        <translation>Dealerpromoties</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Dealer Updates</masterLabel>
+        <translation>Dealerupdates</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Feature Releases</masterLabel>
+        <translation>Nieuwe functies</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Installer Updates</masterLabel>
+        <translation>Installateursupdates</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Insurance Newsletter</masterLabel>
+        <translation>Nieuwsbrief</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Newsletter</masterLabel>
+        <translation>Nieuwsbrief</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Platform Reminders</masterLabel>
+        <translation>Platformherinneringen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Platform Updates</masterLabel>
+        <translation>Platformupdates</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Product Announcements</masterLabel>
+        <translation>Productaankondigingen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Product Updates</masterLabel>
+        <translation>Productupdates</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Product/Service Feedback Requests</masterLabel>
+        <translation>Productonderzoek</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Promotions</masterLabel>
+        <translation>Aanbiedingen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Security Alerts</masterLabel>
+        <translation>Beveiligingswaarschuwingen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Service Notifications</masterLabel>
+        <translation>Servicemeldingen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Theft Recovery Alerts</masterLabel>
+        <translation>Diefstalherstelmeldingen</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Webinar Invitations</masterLabel>
+        <translation>Webinar-uitnodigingen</translation>
+    </valueTranslation>
+</GlobalValueSetTranslation>

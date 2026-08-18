@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSetTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <valueTranslation>
+        <masterLabel>EMAIL</masterLabel>
+        <translation>E-Mail</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Notifications in portal/app</masterLabel>
+        <translation>Benachrichtigungen im Portal/in der App</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>PHONE</masterLabel>
+        <translation>Telefon</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>PUSH</masterLabel>
+        <translation>Push-Benachrichtigung</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>Physical mail</masterLabel>
+        <translation>Postalische Sendung</translation>
+    </valueTranslation>
+    <valueTranslation>
+        <masterLabel>SMS</masterLabel>
+        <translation>SMS</translation>
+    </valueTranslation>
+</GlobalValueSetTranslation>
