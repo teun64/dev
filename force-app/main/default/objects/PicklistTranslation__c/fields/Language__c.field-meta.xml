@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Language__c</fullName>
+    <label>Language</label>
+    <type>Text</type>
+    <length>10</length>
+    <required>true</required>
+    <description>Short language code matching preferenceCenter.js's language switcher: nl, fr, or de. English is never stored here — the master picklist label already is English.</description>
+</CustomField>

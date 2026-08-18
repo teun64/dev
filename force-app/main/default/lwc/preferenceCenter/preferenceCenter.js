@@ -187,6 +187,13 @@ export default class PreferenceCenter extends LightningElement {
     _hasInvalidBrand     = false;  // @api brand or ?brand= isn't one of the known catalog brands
     _sessionId = this._uuid();
     _requestId = null;
+    // Server-resolved Translation Workbench text for Category/CommunicationType/Channel —
+    // see Ctrl_PreferenceCenter.resolveDisplayLabels. Falls back to the hardcoded English
+    // dictionaries below when a key is missing (e.g. before the first sync, or a brand-new
+    // catalog value not yet synced).
+    _categoryLabels = {};
+    _typeLabels     = {};
+    _channelLabels  = {};
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     connectedCallback() {
@@ -324,6 +331,9 @@ export default class PreferenceCenter extends LightningElement {
         // Contact.Language__c (resolved server-side) is authoritative once known — it works
         // regardless of which domain the link was opened from, unlike hostname sniffing.
         if (data.language) this._lang = data.language;
+        this._categoryLabels = data.categoryLabels || {};
+        this._typeLabels     = data.typeLabels     || {};
+        this._channelLabels  = data.channelLabels  || {};
         // Existing saved settings are already merged by Apex into the catalog
         this._buildPrefsMap(data.preferences);
         this._buildSections();
@@ -396,7 +406,10 @@ export default class PreferenceCenter extends LightningElement {
         const cats = this._t.categories;
         return raw.map(s => ({
             ...s,
-            label:       cats[s.categoryKey]?.label       || s.label,
+            // Server-resolved Translation Workbench text wins — it's the source of truth this
+            // component is meant to reflect; the I18N dict below is only a fallback for values
+            // not yet synced (see Svc_PicklistTranslationSync).
+            label:       this._categoryLabels[s.categoryKey] || cats[s.categoryKey]?.label       || s.label,
             description: cats[s.categoryKey]?.description || s.description
         }));
     }
@@ -612,8 +625,8 @@ export default class PreferenceCenter extends LightningElement {
             if (!byBrand[brand][cat]) byBrand[brand][cat] = [];
             byBrand[brand][cat].push({
                 compositeKey: p.CompositeKey__c,
-                label:        TYPE_LABELS[cfg.CommunicationType__c] || cfg.CommunicationType__c,
-                channel:      cfg.Channel__c,
+                label:        this._typeLabels[cfg.CommunicationType__c] || TYPE_LABELS[cfg.CommunicationType__c] || cfg.CommunicationType__c,
+                channel:      this._channelLabels[cfg.Channel__c] || cfg.Channel__c,
                 checked:      p.IsEnabled__c,
                 isEssential:  cat === 'SERVICE',
                 legalBasis:   p.LegalBasis__c
@@ -632,7 +645,7 @@ export default class PreferenceCenter extends LightningElement {
                         brand:       brand,
                         brandLabel:  BRAND_LABELS[brand] || brand,
                         categoryKey: cat,
-                        label:       CATEGORY_META[cat].label,
+                        label:       this._categoryLabels[cat] || CATEGORY_META[cat].label,
                         description: CATEGORY_META[cat].description,
                         iconName:    CATEGORY_META[cat].iconName,
                         isEssential: cat === 'SERVICE',
@@ -676,7 +689,7 @@ export default class PreferenceCenter extends LightningElement {
                 timestamp:    r.EventTimestamp__c
                     ? new Date(r.EventTimestamp__c).toLocaleString('en-GB')
                     : '',
-                type:         TYPE_LABELS[r.CommunicationType__c] || r.CommunicationType__c,
+                type:         this._typeLabels[r.CommunicationType__c] || TYPE_LABELS[r.CommunicationType__c] || r.CommunicationType__c,
                 channel:      r.Channel__c,
                 brand:        r.Brand__c,
                 oldVal:       r.Old_Value__c ? 'Enabled' : 'Disabled',

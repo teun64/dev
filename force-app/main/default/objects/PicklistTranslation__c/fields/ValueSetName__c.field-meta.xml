@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ValueSetName__c</fullName>
+    <label>Value Set Name</label>
+    <type>Text</type>
+    <length>100</length>
+    <required>true</required>
+    <description>API name of the Global Value Set, e.g. ComPrev_Catergory.</description>
+</CustomField>

@@ -159,6 +159,12 @@ public without sharing class Ctrl_PreferenceCenter {
         page.primaryBrand        = primaryBrand;
         page.showPartnerCategory = showPartnerCategory;
         page.language            = resolveLanguage(con.Language__c);
+
+        Boolean isExperienceCloud = String.isNotBlank(Site.getBaseUrl());
+        Map<String, Map<String, String>> displayLabels = resolveDisplayLabels(isExperienceCloud, page.language);
+        page.categoryLabels = displayLabels.get('ComPrev_Catergory');
+        page.typeLabels     = displayLabels.get('ComPrev_CommunicationType');
+        page.channelLabels  = displayLabels.get('ComPref_Channel');
         return page;
     }
 
@@ -375,6 +381,59 @@ public without sharing class Ctrl_PreferenceCenter {
         return lang != null ? lang : 'en';
     }
 
+    private static final Map<String, String> VALUE_SET_TO_FIELD = new Map<String, String>{
+        'ComPrev_Catergory'         => 'Category__c',
+        'ComPrev_CommunicationType' => 'CommunicationType__c',
+        'ComPref_Channel'           => 'Channel__c'
+    };
+
+    /**
+     * Category/CommunicationType/Channel display labels, keyed by Global Value Set name then
+     * API value.
+     *
+     * Internal Console: native picklist describe already resolves Translation Workbench text
+     * in the running (internal) user's own language — verified directly (switching a user's
+     * LanguageLocaleKey to nl_NL/fr changes getPicklistValues().getLabel() accordingly), so no
+     * extra query is needed there.
+     *
+     * Experience Cloud (guest or logged-in portal user): the site runs under one fixed-language
+     * Guest User (confirmed en_US, single record for the whole site) and a portal user's own
+     * language isn't necessarily the Contact's, so describe can't serve the CONTACT's language.
+     * Overlay PicklistTranslation__c for that language instead — kept in sync with Translation
+     * Workbench by the admin-triggered Svc_PicklistTranslationSync.syncAll().
+     */
+    private static Map<String, Map<String, String>> resolveDisplayLabels(
+        Boolean isExperienceCloud, String contactLanguage
+    ) {
+        Map<String, Map<String, String>> byValueSet = new Map<String, Map<String, String>>();
+
+        Map<String, Schema.DescribeFieldResult> fieldDescribes = new Map<String, Schema.DescribeFieldResult>{
+            'Category__c'          => CommunicationPreferenceConfig__c.Category__c.getDescribe(),
+            'CommunicationType__c' => CommunicationPreferenceConfig__c.CommunicationType__c.getDescribe(),
+            'Channel__c'           => CommunicationPreferenceConfig__c.Channel__c.getDescribe()
+        };
+        for (String valueSet : VALUE_SET_TO_FIELD.keySet()) {
+            Map<String, String> labels = new Map<String, String>();
+            for (Schema.PicklistEntry pe : fieldDescribes.get(VALUE_SET_TO_FIELD.get(valueSet)).getPicklistValues()) {
+                labels.put(pe.getValue(), pe.getLabel());
+            }
+            byValueSet.put(valueSet, labels);
+        }
+
+        if (isExperienceCloud && String.isNotBlank(contactLanguage) && !'en'.equals(contactLanguage)) {
+            for (PicklistTranslation__c row : [
+                SELECT ValueSetName__c, ApiValue__c, Label__c
+                FROM PicklistTranslation__c
+                WHERE ValueSetName__c IN :VALUE_SET_TO_FIELD.keySet() AND Language__c = :contactLanguage
+                WITH SYSTEM_MODE
+            ]) {
+                Map<String, String> labels = byValueSet.get(row.ValueSetName__c);
+                if (labels != null) labels.put(row.ApiValue__c, row.Label__c);
+            }
+        }
+        return byValueSet;
+    }
+
     private static CommunicationPreferenceAudit__c getLastAudit(Id contactId) {
         List<CommunicationPreferenceAudit__c> audits = [
             SELECT Changed_By__r.Name, Change_Source__c, EventTimestamp__c
@@ -536,6 +595,9 @@ public without sharing class Ctrl_PreferenceCenter {
         @AuraEnabled public String                           primaryBrand;
         @AuraEnabled public Boolean                          showPartnerCategory;
         @AuraEnabled public String                           language;
+        @AuraEnabled public Map<String, String>              categoryLabels;
+        @AuraEnabled public Map<String, String>              typeLabels;
+        @AuraEnabled public Map<String, String>              channelLabels;
     }
 
     private class AccountContext {

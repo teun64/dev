@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Picklist Translation</label>
+    <pluralLabel>Picklist Translations</pluralLabel>
+    <nameField>
+        <label>Picklist Translation Name</label>
+        <type>AutoNumber</type>
+        <displayFormat>PT-{0000}</displayFormat>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <sharingModel>Read</sharingModel>
+    <description>Guest-readable cache of Translation Workbench text for global value sets, keyed by value set + API value + language. Populated by Svc_PicklistTranslationSync.syncAll(), which reads the live Translation Workbench data via the Metadata API. Needed because the Experience Cloud site runs under a single fixed-language Guest User, so Apex picklist describe (which resolves translations from the running user's own language) cannot serve a per-visitor language on that site.</description>
+</CustomObject>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Key__c</fullName>
+    <label>Key</label>
+    <type>Text</type>
+    <length>150</length>
+    <required>true</required>
+    <unique>true</unique>
+    <externalId>true</externalId>
+    <caseSensitive>false</caseSensitive>
+    <description>ValueSetName|ApiValue|Language, e.g. ComPrev_Catergory|MARKETING|nl. Upsert key used by Svc_PicklistTranslationSync.</description>
+</CustomField>
