@@ -11,6 +11,16 @@ import getBrandTheme            from '@salesforce/apex/Ctrl_PreferenceCenter.get
 import getGuestBrandTheme       from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getBrandTheme';
 import createPaymentFailureCase from '@salesforce/apex/Ctrl_PaymentCase.createPaymentFailureCase';
 
+// Same site-wide hub header language pills preferenceCenter.js listens to — the payment page
+// no longer has its own in-component language switcher (see paymentPage.html's checkout-header).
+const LANG_EVENTS = ['mi:languagechange', 'echoes:languagechange', 'tds:languagechange'];
+
+// preferenceCenter's switcher emits short codes (nl/de/fr/en); _applyLocale/Intl need a full
+// locale. en_GB (not en_US) matches the pre-existing default below — this payment is in GBP.
+const LANG_CODE_TO_LOCALE = {
+    nl: 'nl_NL', de: 'de_DE', fr: 'fr_FR', en: 'en_GB'
+};
+
 export default class PaymentPage extends LightningElement {
 
     // -------- State --------
@@ -27,13 +37,6 @@ export default class PaymentPage extends LightningElement {
     // -------- Locale --------
     @track localeSet;
     @track languageSet;
-
-    localeOptions = [
-        { label: 'English 🇬🇧', value: 'en_GB' },
-        { label: 'Deutsch 🇩🇪', value: 'de_DE' },
-        { label: 'Français 🇫🇷', value: 'fr_FR' },
-        { label: 'Nederlands 🇳🇱', value: 'nl_NL' },
-    ];
 
     // -------- Labels --------
     labelPageTitle       = 'Checkout';
@@ -152,6 +155,18 @@ export default class PaymentPage extends LightningElement {
 
     connectedCallback() {
         this._setFavicon();
+        this._langHandler = (e) => {
+            const code = e.detail?.language;
+            const locale = LANG_CODE_TO_LOCALE[code];
+            if (locale) this._applyLocale(locale);
+        };
+        LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
+    }
+
+    disconnectedCallback() {
+        if (this._langHandler) {
+            LANG_EVENTS.forEach(k => window.removeEventListener(k, this._langHandler));
+        }
     }
 
     // Raw "/sfsites/c/resource/..." hrefs 404 on this site — @salesforce/resourceUrl is the
@@ -228,10 +243,6 @@ export default class PaymentPage extends LightningElement {
             this.localeSet    = locale;
             this.languageSet  = locale.split('_')[0];
         }
-    }
-
-    handleLocaleChange(event) {
-        this._applyLocale(event.detail.value);
     }
 
     // -------- Checkout result from child c-payment-checkout --------

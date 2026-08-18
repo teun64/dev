@@ -127,14 +127,6 @@
     text-align: right;
 }
 
-.language-selector {
-    min-width: 120px;
-}
-
-.locale-selector-wrap {
-    flex: 0 0 auto;
-}
-
 .success-box {
     max-width: 480px;
     padding: 2rem;

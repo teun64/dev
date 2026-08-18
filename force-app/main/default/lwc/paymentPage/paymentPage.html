@@ -23,32 +23,22 @@
         </template>
         <lightning-card class="checkout-card">
 
-            <!-- Header -->
-            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-var-p-around_small checkout-header">
-                <div class="slds-grid slds-grid_vertical-align-center">
-                    <!-- Brand identity -->
-                    <template if:true={hasBrandLogo}>
-                        <img src={brandLogoUrl} alt="Brand logo" class="pp-brand-logo" />
-                        <span class="pp-brand-sep" aria-hidden="true"></span>
-                    </template>
-                    <template if:true={isBrandTds}>
-                        <span class="pp-tds-chevron">&#8250;</span><span class="pp-tds-name">TDS</span><span class="pp-tds-ultra">ULTRA</span>
-                        <span class="pp-brand-sep" aria-hidden="true"></span>
-                    </template>
-                    <!-- Page title + provider logo -->
-                    <img src={providerLogo} alt="Payment provider logo" class="provider-logo-header" />
-                    <h1 class="slds-text-heading_large checkout-title slds-var-m-left_small">{labelPageTitle}</h1>
-                </div>
-                <div class="locale-selector-wrap">
-                    <lightning-combobox
-                        name="locale"
-                        value={locale}
-                        options={localeOptions}
-                        onchange={handleLocaleChange}
-                        variant="label-hidden"
-                        class="language-selector">
-                    </lightning-combobox>
-                </div>
+            <!-- Header — matches preferenceCenter's header (brand identity + title, no
+                 in-component language switcher: the site's own hub header + language
+                 pills already drive this, see paymentPage.js's LANG_EVENTS listener). -->
+            <div class="slds-grid slds-grid_vertical-align-center slds-var-p-around_small checkout-header">
+                <!-- Brand identity -->
+                <template if:true={hasBrandLogo}>
+                    <img src={brandLogoUrl} alt="Brand logo" class="pp-brand-logo" />
+                    <span class="pp-brand-sep" aria-hidden="true"></span>
+                </template>
+                <template if:true={isBrandTds}>
+                    <span class="pp-tds-chevron">&#8250;</span><span class="pp-tds-name">TDS</span><span class="pp-tds-ultra">ULTRA</span>
+                    <span class="pp-brand-sep" aria-hidden="true"></span>
+                </template>
+                <!-- Page title + provider logo -->
+                <img src={providerLogo} alt="Payment provider logo" class="provider-logo-header" />
+                <h1 class="slds-text-heading_large checkout-title slds-var-m-left_small">{labelPageTitle}</h1>
             </div>
 
             <!-- Two-column content -->
