@@ -1,0 +1,26 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;">
+<div style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; font-family: Arial,Helvetica,sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: #OE0F0E;">
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;"><span style="font-size:16px;"><strong>Sehr geehrte Damen und Herren,</strong></span></div>
+
+<div style="padding-top: 10px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;">
+<p>Wir haben Ihre Mail erhalten</p>
+
+<p>Um Ihnen den bestmöglichen Service bieten zu können, haben wir einen Auftrag für Sie angelegt. Ihre Auftragsnummer lautet: {{{Case.CaseNumber}}}</p>
+
+<p>Einer unserer Mitarbeiter wird Ihre Anfrage so schnell wie möglich bearbeiten und sich bei Bedarf mit Ihnen in Verbindung setzen.</p>
+
+<p>Wenn Sie Fragen oder weitere Informationen zu Ihrer vorherigen E-Mail haben, können Sie auf diese Mail mit Ihrer Aktennummer antworten.</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;">
+<p>Mit freundlichen Grüßen,</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="color:#ff0000;"><strong>Ihr Moving Intelligence-Team</strong></span></div>
+</div>
+</body>
+</html>

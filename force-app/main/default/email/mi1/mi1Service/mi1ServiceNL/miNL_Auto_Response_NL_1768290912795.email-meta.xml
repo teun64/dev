@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>miNl - Service - Auto Response - NL</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>mi1_Service_Auto_Response_NL</name>
+    <relatedEntityType>Case</relatedEntityType>
+    <style>none</style>
+    <subject>Uw referentie voor deze e-mail is: {{{Case.CaseNumber}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

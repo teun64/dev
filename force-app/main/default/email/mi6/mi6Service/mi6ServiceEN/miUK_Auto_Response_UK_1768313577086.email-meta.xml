@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>miUK - Serivice - Auto Response - EN</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>mi6_Service_Auto_Response_UK</name>
+    <relatedEntityType>Case</relatedEntityType>
+    <style>none</style>
+    <subject>We’ve received your message – case {{{Case.CaseNumber}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

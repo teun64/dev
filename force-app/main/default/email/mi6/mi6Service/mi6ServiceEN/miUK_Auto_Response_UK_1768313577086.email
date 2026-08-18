@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;">
+<div style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; font-family: Arial,Helvetica,sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: #OE0F0E;">
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;"><span style="font-size:16px;"><strong>Dear Madam/Sir,</strong></span></div>
+
+<div style="padding-top: 10px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;">
+<p>Thanks for your message — we’ve received it.</p>
+
+<p>To help you as quickly as possible, we’ve created a case for you. Your case reference number is: {{{Case.CaseNumber}}}</p>
+
+<p>One of our team members will take a look at your case shortly and will contact you if needed.</p>
+
+<p>If you have any questions or additional information, feel free to reply to this email.</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="font-size: 16px;"><strong>Need more help?</strong></span>&nbsp;Please also take a look at our&nbsp;<a href="https://movingintelligence.co.uk/pages/faqs" rel="nofollow,noreferrer" style="color: #OE0F0E;"><span style="color: #OE0F0E;"><strong>Frequently Asked Questions</strong></span></a>.</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;">
+<p>Best regards,</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="color:#ff0000;"><strong>Team Moving Intelligence</strong></span></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;">
+<div style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; font-family: Arial,Helvetica,sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: #OE0F0E;">
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;"><span style="font-size:16px;"><strong>Beste mevrouw/heer,</strong></span></div>
+
+<div style="padding-top: 10px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;">
+<p>Wij hebben uw e-mail ontvangen.</p>
+
+<p>Om u zo goed mogelijk van dienst te kunnen zijn hebben wij een case voor u aangemaakt. Uw referentie voor deze case is: {{{Case.CaseNumber}}}</p>
+
+<p>Een van onze medewerkers zal deze case zo spoedig mogelijk oppakken en indien nodig contact met u opnemen.</p>
+
+<p>Voor vragen of aanvullingen op uw eerdere mail, kunt u deze mail beantwoorden.</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="font-size: 16px;"><strong>Meer vragen?</strong></span>&nbsp;Bekijk ook eens onze&nbsp;<a href="https://movingintelligence.nl/support" rel="nofollow,noreferrer" style="color: #OE0F0E;"><span style="color: #OE0F0E;"><strong>veelgestelde vragen</strong></span></a>.</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;">
+<p>Met vriendelijke groet,</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="color:#ff0000;"><strong>Team Moving Intelligence</strong></span></div>
+</div>
+</body>
+</html>

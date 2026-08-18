@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;">
+<div style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; font-family: Arial,Helvetica,sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: #OE0F0E;">
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;"><span style="font-size:16px;"><strong>Chère Madame, cher Monsieur,</strong></span></div>
+
+<div style="padding-top: 10px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;">
+<p>Nous avons bien reçu votre e-mail.</p>
+
+<p>Afin de vous offrir le meilleur service possible, nous avons créé un dossier pour vous. Votre numéro de dossier est : {{{Case.CaseNumber}}}</p>
+
+<p>L'un de nos collaborateurs traitera votre dossier dans les plus brefs délais et vous contactera si nécessaire.</p>
+
+<p>Pour toute question ou complément d'information concernant votre précédent e-mail, vous pouvez répondre à cet e-mail avec votre numéro de dossier.</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="font-size: 16px;"><strong>Vous avez d'autres questions?</strong></span>&nbsp;N'hésitez pas à consulter également notre&nbsp;<a href="https://echoes.solutions/donnees-collectees/" rel="nofollow,noreferrer" style="color: #OE0F0E;"><span style="color: #OE0F0E;"><strong>foire aux questions</strong></span></a>.</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;">
+<p>Cordialement,</p>
+</div>
+
+<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="color:#499AD3;"><strong>L'équipe Echoes Solutions</strong></span></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>miDE - Service - Auto Response - DE</description>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>mi5_Service_Auto_Response_DE</name>
+    <relatedEntityType>Case</relatedEntityType>
+    <style>none</style>
+    <subject>Wir haben Ihre Nachricht erhalten – Vorgang {{{Case.CaseNumber}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>
