@@ -29,6 +29,7 @@ const I18N = {
         showAudit:  'Auditlog tonen',
         hideAudit:  'Auditlog verbergen',
         optedIn:    'aangemeld',
+        privacyNote: 'Voor meer informatie over hoe wij persoonsgegevens verwerken, raadpleeg de Privacyverklaring onderaan deze pagina.',
         categories: {
             MARKETING: { label: 'Marketingcommunicatie',    description: 'Blijf op de hoogte van nieuws, aanbiedingen en productaankondigingen.' },
             PRODUCT:   { label: 'Productupdates',           description: 'Ontvang informatie over verbeteringen en nieuwe functionaliteit.' },
@@ -43,6 +44,7 @@ const I18N = {
         showAudit:  'Protokoll anzeigen',
         hideAudit:  'Protokoll verbergen',
         optedIn:    'eingewilligt',
+        privacyNote: 'Informationen zur Verarbeitung personenbezogener Daten finden Sie in der Datenschutzerklärung weiter unten auf dieser Seite.',
         categories: {
             MARKETING: { label: 'Marketingkommunikation',   description: 'Bleiben Sie über Neuigkeiten, Aktionen und Produktankündigungen informiert.' },
             PRODUCT:   { label: 'Produkt-Updates',          description: 'Erhalten Sie Informationen über Produktverbesserungen und neue Funktionen.' },
@@ -57,6 +59,7 @@ const I18N = {
         showAudit:  'Afficher l\'historique',
         hideAudit:  'Masquer l\'historique',
         optedIn:    'abonné(s)',
+        privacyNote: 'Pour plus d\'informations sur le traitement de vos données personnelles, veuillez consulter la Déclaration de confidentialité en bas de cette page.',
         categories: {
             MARKETING: { label: 'Communications marketing',   description: 'Restez informé des actualités, promotions et annonces de produits.' },
             PRODUCT:   { label: 'Mises à jour produit',       description: 'Recevez des informations sur les améliorations et nouvelles fonctionnalités.' },
@@ -71,6 +74,7 @@ const I18N = {
         showAudit:  'Show audit trail',
         hideAudit:  'Hide audit trail',
         optedIn:    'opted in',
+        privacyNote: 'For information about how we process personal data, please see the Privacy Statement in the footer below.',
         categories: {
             MARKETING: { label: 'Marketing Communications',        description: 'Stay informed about news, promotions and product announcements.' },
             PRODUCT:   { label: 'Product Updates',                 description: 'Receive information about product improvements and new functionality.' },
@@ -527,6 +531,7 @@ export default class PreferenceCenter extends LightningElement {
     get isReady()      { return !this.isLoading && !this.hasError; }
     get saveLabel()    { return this.isSaving ? this._t.saving : this._t.save; }
     get auditToggleLabel() { return this.showAudit ? this._t.hideAudit : this._t.showAudit; }
+    get privacyNote()      { return this._t.privacyNote; }
 
     get optInLabel() {
         return `${this.selectedCount} / ${this.totalCount} ${this._t.optedIn}`;
