@@ -1,35 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
+    <description>Payment - Direct Debit Setup - NL</description>
     <encodingKey>UTF-8</encodingKey>
-    <letterhead>lh_M_Payment</letterhead>
     <name>paymentDirectDebitSetupInitial_NL</name>
-    <style>freeForm</style>
-    <subject>Actie vereist: machtig automatische incasso – {!Payment__c.Name}</subject>
-    <textOnly>Beste {!Contact.FirstName},
-
-Om uw facturen automatisch te kunnen verwerken, vragen wij u om uw bankgegevens te machtigen via de beveiligde link hieronder:
-
-{!Payment__c.Setup_URL__c}
-
-Deze machtiging stelt ons in staat om uw facturen automatisch te incasseren. Het invullen duurt slechts een paar minuten.
-
-Wij slaan uw bankgegevens niet zelf op. Het afronden van deze machtiging gebeurt via onze beveiligde ondertekendienst, en Moving Intelligence heeft op geen enkel moment inzage in of toegang tot uw volledige bankrekeninggegevens.
-
-U kunt deze machtiging op elk gewenst moment intrekken. Let op: het intrekken van de machtiging ontslaat u niet van uw betalingsverplichting; openstaande en toekomstige facturen dient u dan op een andere manier te voldoen.
-
-Heeft u vragen? Neem dan gerust contact met ons op.
-
-Met vriendelijke groet,
-{!Payment__c.Administration__r.Subscription25__Billing_Name__c}
-
----
-Deel deze e-mail niet
-Deze e-mail bevat een veilige, eenmalige URL om het document te tekenen en is specifiek aan u geadresseerd. Deel deze e-mail noch de URL met anderen.
-
-Vragen over dit document?
-Indien u vragen heeft over het detail of de inhoud van het document, neem dan rechtstreeks contact op via e-mail: {!Payment__c.Administration__r.Subscription25__Invoice_Email_Reply_To__c}
-
-Dit bericht is verstuurd door {!Payment__c.Administration__r.Subscription25__Invoice_Email_Display_Name__c}. Indien u niet wenst gecontacteerd te worden, neem dan rechtstreeks contact op met de verzender van dit verzoek.</textOnly>
-    <type>html</type>
+    <relatedEntityType>Payment__c</relatedEntityType>
+    <style>none</style>
+    <subject>Actie vereist: machtig automatische incasso – {{{Payment__c.Name}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
 </EmailTemplate>

@@ -1,29 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
+    <description>Payment - Direct Debit Reminder 2 (Final) - NL</description>
     <encodingKey>UTF-8</encodingKey>
-    <letterhead>lh_M_Payment</letterhead>
     <name>paymentDirectDebitReminder2_NL</name>
-    <style>freeForm</style>
-    <subject>Laatste herinnering: machtiging automatische incasso vereist – {!Payment__c.Name}</subject>
-    <textOnly>Beste {!Contact.FirstName},
-
-Ondanks onze eerdere herinneringen is uw machtiging voor automatische incasso nog steeds niet afgerond. Dit is uw laatste herinnering voordat wij uw dossier overdragen aan onze klantenservice.
-
-Rond de machtiging direct af om onderbreking van uw dienstverlening te voorkomen:
-
-{!Payment__c.Setup_URL__c}
-
-Met vriendelijke groet,
-{!Payment__c.Administration__r.Subscription25__Billing_Name__c}
-
----
-Deel deze e-mail niet
-Deze e-mail bevat een veilige, eenmalige URL om het document te tekenen en is specifiek aan u geadresseerd. Deel deze e-mail noch de URL met anderen.
-
-Vragen over dit document?
-Indien u vragen heeft over het detail of de inhoud van het document, neem dan rechtstreeks contact op via e-mail: {!Payment__c.Administration__r.Subscription25__Invoice_Email_Reply_To__c}
-
-Dit bericht is verstuurd door {!Payment__c.Administration__r.Subscription25__Invoice_Email_Display_Name__c}. Indien u niet wenst gecontacteerd te worden, neem dan rechtstreeks contact op met de verzender van dit verzoek.</textOnly>
-    <type>html</type>
+    <relatedEntityType>Payment__c</relatedEntityType>
+    <style>none</style>
+    <subject>Laatste herinnering: machtiging automatische incasso vereist – {{{Payment__c.Name}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
 </EmailTemplate>
