@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>UTF-8</encodingKey>
+    <letterhead>lh_M_Payment</letterhead>
+    <name>paymentDirectDebitReminder1_NL</name>
+    <style>freeForm</style>
+    <subject>Herinnering: machtiging automatische incasso nog niet afgerond – {!Payment__c.Name}</subject>
+    <textOnly>Beste {!Contact.FirstName},
+
+Dit is een vriendelijke herinnering dat uw machtiging voor automatische incasso nog niet is afgerond.
+
+Rond de machtiging op korte termijn af om onderbreking van onze dienstverlening te voorkomen:
+
+{!Payment__c.Setup_URL__c}
+
+Heeft u dit al gedaan, dan kunt u dit bericht negeren.
+
+Met vriendelijke groet,
+{!Payment__c.Administration__r.Subscription25__Billing_Name__c}
+
+---
+Deel deze e-mail niet
+Deze e-mail bevat een veilige, eenmalige URL om het document te tekenen en is specifiek aan u geadresseerd. Deel deze e-mail noch de URL met anderen.
+
+Vragen over dit document?
+Indien u vragen heeft over het detail of de inhoud van het document, neem dan rechtstreeks contact op via e-mail: {!Payment__c.Administration__r.Subscription25__Invoice_Email_Reply_To__c}
+
+Dit bericht is verstuurd door {!Payment__c.Administration__r.Subscription25__Invoice_Email_Display_Name__c}. Indien u niet wenst gecontacteerd te worden, neem dan rechtstreeks contact op met de verzender van dit verzoek.</textOnly>
+    <type>html</type>
+</EmailTemplate>

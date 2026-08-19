@@ -2,7 +2,7 @@
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
     <encodingKey>UTF-8</encodingKey>
-    <letterhead>MI_DirectDebit_Letterhead</letterhead>
+    <letterhead>lh_M_Payment</letterhead>
     <name>paymentDirectDebitReminder2_EN</name>
     <style>freeForm</style>
     <subject>Final Reminder: Direct Debit Authorisation Required – {!Payment__c.Name}</subject>
