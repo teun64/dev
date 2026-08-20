@@ -30,7 +30,7 @@
             <name>encryptedString</name>
         </outputParameters>
     </actionCalls>
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>ass_01_Account</name>
@@ -476,31 +476,6 @@
         </rules>
     </decisions>
     <decisions>
-        <name>dec_03_Stripe_Customer</name>
-        <label>3. Stripe Customer (Created)</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>ass_05_Message_No_Stripe_Customer</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Not Created</defaultConnectorLabel>
-        <rules>
-            <name>dec_03_Stripe_Customer_Created</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>accountRecord.PayProv_CustomerId__c</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
-            </connector>
-            <label>Created</label>
-        </rules>
-    </decisions>
-    <decisions>
         <name>dec_02_Stripe_Customer</name>
         <label>2. Stripe Customer</label>
         <locationX>0</locationX>
@@ -523,6 +498,31 @@
                 <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
             </connector>
             <label>Customer Exists</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_03_Stripe_Customer</name>
+        <label>3. Stripe Customer (Created)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_05_Message_No_Stripe_Customer</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Created</defaultConnectorLabel>
+        <rules>
+            <name>dec_03_Stripe_Customer_Created</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>accountRecord.PayProv_CustomerId__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
+            </connector>
+            <label>Created</label>
         </rules>
     </decisions>
     <environments>Default</environments>
@@ -655,6 +655,19 @@
     </start>
     <status>Active</status>
     <subflows>
+        <name>act_01_Payment_Direct_Debit_Setup_Send_Mail</name>
+        <label>1. afl - Payment - Direct Debit Setup - Send Mail</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>afl_PaymentDirectDebitSetup_SendMail</flowName>
+        <inputAssignments>
+            <name>paymentRecord</name>
+            <value>
+                <elementReference>paymentRecord</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
         <name>sfl_01_Stripe_Customer</name>
         <label>1. Stripe Customer</label>
         <locationX>0</locationX>
@@ -679,19 +692,6 @@
             <assignToReference>accountRecord</assignToReference>
             <name>accountRecord</name>
         </outputAssignments>
-    </subflows>
-    <subflows>
-        <name>act_01_Payment_Direct_Debit_Setup_Send_Mail</name>
-        <label>1. afl - Payment - Direct Debit Setup - Send Mail</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <flowName>afl_PaymentDirectDebitSetup_SendMail</flowName>
-        <inputAssignments>
-            <name>paymentRecord</name>
-            <value>
-                <elementReference>paymentRecord</elementReference>
-            </value>
-        </inputAssignments>
     </subflows>
     <variables>
         <name>accountRecord</name>

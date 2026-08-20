@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>56.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <description>Changes Open (Status) Payment Batches to &apos;TO_BE_SENT&apos;). TO_BE_SENT, generates new payment batch with the status open</description>
     <environments>Default</environments>
