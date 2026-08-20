@@ -863,7 +863,7 @@
     </decisions>
     <decisions>
         <name>dec_02_Pending_DD</name>
-        <label>1. Pending &amp; pspdd</label>
+        <label>1. Pending/New &amp; pspdd</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -872,7 +872,7 @@
         <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
             <name>dec_02_Pending_Yes</name>
-            <conditionLogic>and</conditionLogic>
+            <conditionLogic>(1 OR 3) AND 2</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Status__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -885,6 +885,13 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>psp-dd</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>New</stringValue>
                 </rightValue>
             </conditions>
             <connector>

@@ -32,6 +32,19 @@
         </connector>
     </assignments>
     <assignments>
+        <name>ass_01_Payment_Create</name>
+        <label>1. Payment (Create)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rPayment.Id</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_02_Payment</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Processing Date set moved to payment</description>
         <name>ass_02_Payment</name>
         <label>2. Payment</label>
@@ -194,7 +207,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_02_Payment</targetReference>
+                <targetReference>ass_01_Payment_Create</targetReference>
             </connector>
             <label>Create</label>
         </rules>
@@ -355,7 +368,7 @@ IF({!$Record.Payment_Is_Paid__c},&apos;Paid&apos;,&apos;New&apos;)</expression>
         <label>3. Contact (Payment)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>dgr_01_Payment_Settings</targetReference>
         </connector>
