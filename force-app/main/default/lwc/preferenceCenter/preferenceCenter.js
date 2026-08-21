@@ -206,7 +206,7 @@ export default class PreferenceCenter extends LightningElement {
     connectedCallback() {
         this._setFavicon();
         // _contextId is intentionally NOT set here for Experience Cloud pages.
-        // handlePageRef fires during init and sets it from ?cid= or falls back to userId,
+        // handlePageRef fires during init and sets it from ?token= or falls back to userId,
         // then triggers the one imperative _loadPreferences() call for the resolved value.
         if (this.brand) {
             if (!this._isValidBrand(this.brand)) {
@@ -276,15 +276,15 @@ export default class PreferenceCenter extends LightningElement {
         const chan = ref?.state?.chan || ref?.state?.c__chan;
         if (chan) this._channel = chan;
 
-        // ?cid= param: for guest users this is a SIGNED TOKEN (see Ctrl_PreferenceCenterGuest),
+        // ?token= param: for guest users this is a SIGNED TOKEN (see Ctrl_PreferenceCenterGuest),
         // never a raw record Id — carrying a raw Id here would let anyone view/edit any
         // contact's preferences by guessing/reusing a Salesforce Id. For internal record pages
         // it stays a plain Id, used as an admin/support convenience to inspect a different
         // contact than the one on the current page.
-        const cid = ref?.state?.cid || ref?.state?.c__cid;
+        const token = ref?.state?.token || ref?.state?.c__token;
         if (isGuestUser) {
-            if (cid) {
-                this._contextId = cid;
+            if (token) {
+                this._contextId = token;
             } else {
                 this.isLoading    = false;
                 this.hasError     = true;
@@ -292,15 +292,15 @@ export default class PreferenceCenter extends LightningElement {
             }
         } else if (!this._recordId) {
             // Experience Cloud landing page (logged-in customer): always resolve from the
-            // platform-verified logged-in user. Never honor a client-supplied cid here — a
+            // platform-verified logged-in user. Never honor a client-supplied token here — a
             // portal user could otherwise view/edit another customer's preferences by changing
             // the URL.
             this._contextId = userId;
-        } else if (cid) {
-            // Internal record page (Contact/Case) — cid lets an internal user inspect a
+        } else if (token) {
+            // Internal record page (Contact/Case) — token lets an internal user inspect a
             // different contact than recordId. Internal users' access is already governed by
             // their own profile/permission sets, not this component.
-            this._contextId = cid;
+            this._contextId = token;
         }
 
         if (this._contextId && this._contextId !== this._loadedFor) {

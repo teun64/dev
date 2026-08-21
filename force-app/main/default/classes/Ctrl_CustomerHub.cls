@@ -37,7 +37,7 @@ public without sharing class Ctrl_CustomerHub {
                 resolvedContactId = (Id) contactId;
             } catch (System.StringException e) {
                 // Not a real Id — e.g. the guest Preference Center passes its hashed token
-                // through the same ?cid= param the footer reads. Fall through to the brand
+                // through the same ?token= param the footer reads. Fall through to the brand
                 // fallback below rather than failing the whole footer request.
                 resolvedContactId = null;
             }

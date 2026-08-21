@@ -28,9 +28,9 @@ private class Test_Util_CommunicationPreferenceToken {
         String url = Util_CommunicationPreferenceToken.buildPreferenceCenterUrl('hash123');
 
         System.assertEquals(
-            'https://example.my.site.com/customerhub/preferences?cid=hash123',
+            'https://example.my.site.com/customerhub/preferences?token=hash123&brand=M',
             url,
-            'Url should be the configured base + /preferences?cid=<keyHash>, with no extra wrapping'
+            'Url should be the configured base + /preferences?token=<keyHash>&brand=M, with no extra wrapping'
         );
     }
 

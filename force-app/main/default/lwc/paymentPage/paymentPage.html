@@ -1,5 +1,5 @@
 <template>
-<div class="pp-container" style={brandAccentStyle}>
+<div class={containerClass} style={brandAccentStyle}>
     <!-- Loading state -->
     <template if:true={isLoading}>
         <div class="slds-grid slds-grid_align-center slds-var-p-around_large">
@@ -26,7 +26,7 @@
             <!-- Header — matches preferenceCenter's header (brand identity + title, no
                  in-component language switcher: the site's own hub header + language
                  pills already drive this, see paymentPage.js's LANG_EVENTS listener). -->
-            <div class="slds-grid slds-grid_vertical-align-center slds-var-p-around_small checkout-header">
+            <div class="slds-grid slds-grid_vertical-align-center slds-var-p-vertical_small checkout-header">
                 <!-- Brand identity -->
                 <template if:true={hasBrandLogo}>
                     <img src={brandLogoUrl} alt="Brand logo" class="pp-brand-logo" />
@@ -42,7 +42,7 @@
             </div>
 
             <!-- Two-column content -->
-            <div class="slds-grid slds-gutters_medium slds-var-p-around_medium main-grid">
+            <div class="slds-grid slds-var-p-vertical_medium main-grid">
 
                 <!-- Left: order summary -->
                 <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-var-p-around_small column-box column-left">

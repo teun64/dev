@@ -2,6 +2,7 @@ public without sharing class Ctrl_Payment {
 
     public class PaymentData {
         @AuraEnabled public Boolean found;
+        @AuraEnabled public Boolean alreadyProcessed;
         @AuraEnabled public String errorMessage;
         @AuraEnabled public String paymentId;
         @AuraEnabled public String publishableKey;
@@ -40,7 +41,7 @@ public without sharing class Ctrl_Payment {
         if (String.isBlank(language)) language = 'en';
 
         List<Payment__c> payments = Database.queryWithBinds(
-            'SELECT Id, externalId__c, Type__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
+            'SELECT Id, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
             '       Invoice__c,' +
             '       Account__c,' +
             '       Account__r.Name,' +
@@ -54,7 +55,6 @@ public without sharing class Ctrl_Payment {
             '       Administration__r.PayProv_DirectDebit_PaymentMethod__c' +
             ' FROM Payment__c' +
             ' WHERE externalId__c = :token' +
-            ' AND Status__c != \'Closed\'' +
             ' LIMIT 1',
             new Map<String, Object>{ 'token' => token },
             AccessLevel.SYSTEM_MODE
@@ -66,6 +66,17 @@ public without sharing class Ctrl_Payment {
         }
 
         Payment__c p = payments[0];
+
+        // Customer followed a link for a payment that already completed (e.g. reused an old
+        // email, double-clicked) — tell them rather than silently spinning up a second Stripe
+        // PaymentIntent for the same Payment__c.
+        if (p.Status__c == 'Paid' || p.Status__c == 'Collected') {
+            result.found            = true;
+            result.alreadyProcessed = true;
+            result.paymentId        = p.Id;
+            return result;
+        }
+
         result.found         = true;
         result.paymentId     = p.Id;
         result.externalId    = p.externalId__c;
@@ -227,7 +238,11 @@ public without sharing class Ctrl_Payment {
             body.add('payment_method=' + paymentMethodId);
         }
         if (String.isNotBlank(mandateId)) {
+            // Recurring charge against an existing mandate — Stripe requires confirming
+            // in the same request, and off_session signals no customer is present.
             body.add('mandate=' + mandateId);
+            body.add('confirm=true');
+            body.add('off_session=true');
         }
         // BACS first-time: no existing mandate yet — instruct Stripe to create one for future off-session charges
         if ('bacs_debit'.equals(ddMethod) && String.isBlank(mandateId)) {
@@ -326,7 +341,7 @@ public without sharing class Ctrl_Payment {
         if (baseUrl.endsWith('/')) {
             baseUrl = baseUrl.removeEnd('/');
         }
-        String setupLink = baseUrl + '/payment/' + p.externalId__c;
+        String setupLink = baseUrl + '/payment?token=' + EncodingUtil.urlEncode(p.externalId__c, 'UTF-8');
 
         String greeting   = String.isNotBlank(firstName) ? 'Dear ' + firstName + ',' : 'Dear Customer,';
         String senderName = p.Administration__r?.Subscription25__Billing_Name__c;

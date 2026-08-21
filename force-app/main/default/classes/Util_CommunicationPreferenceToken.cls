@@ -30,7 +30,7 @@ public with sharing class Util_CommunicationPreferenceToken {
             );
         }
 
-        return baseUrl.removeEnd('/') + '/preferences?cid=' + EncodingUtil.urlEncode(keyHash, 'UTF-8');
+        return baseUrl.removeEnd('/') + '/preferences?token=' + EncodingUtil.urlEncode(keyHash, 'UTF-8') + '&brand=M';
     }
 
     // =========================

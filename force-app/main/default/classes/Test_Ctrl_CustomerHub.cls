@@ -93,7 +93,7 @@ private class Test_Ctrl_CustomerHub {
     static void testGetAdminInfo_nonIdContactId_fallsBackToBrand() {
         Ctrl_CustomerHub.AdminInfo info;
         Test.startTest();
-        // Guest Preference Center links reuse the ?cid= param for a hashed token, not a Contact Id.
+        // Guest Preference Center links reuse the ?token= param for a hashed token, not a Contact Id.
         info = Ctrl_CustomerHub.getAdminInfo('3386d7751d5881dad24e32108db0a7b537e0e2f79691505412257455858ef8d3', 'M');
         Test.stopTest();
 

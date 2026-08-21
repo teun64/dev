@@ -193,9 +193,20 @@ export default class PaymentPage extends LightningElement {
     get token() { return this._token; }
     set token(value) {
         if (value && value !== this._token) {
+            this._isFlowContext = true;
             this._token = value;
             this._loadPayment(value);
         }
+    }
+
+    // True only when a Flow assigns `token` directly (see setter above) — never on the
+    // standalone Experience Cloud page, which resolves the token via CurrentPageReference
+    // instead. Drives containerClass below so the full-bleed page styling (paymentPage.css)
+    // never applies inside a Flow screen's modal/panel.
+    _isFlowContext = false;
+
+    get containerClass() {
+        return this._isFlowContext ? 'pp-container' : 'pp-container pp-standalone';
     }
 
     @api
@@ -243,6 +254,10 @@ export default class PaymentPage extends LightningElement {
                 if (!data.found) {
                     this.hasError     = true;
                     this.errorMessage = data.errorMessage || 'Payment not found.';
+                } else if (data.alreadyProcessed) {
+                    this.labelSuccessTitle = 'Already completed';
+                    this.labelSuccessBody  = 'This payment has already been processed. No further action is needed.';
+                    this.viewState         = 'success';
                 } else if (data.errorMessage) {
                     this.hasError     = true;
                     this.errorMessage = data.errorMessage;

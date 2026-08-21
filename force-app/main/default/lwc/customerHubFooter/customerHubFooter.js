@@ -59,7 +59,7 @@ export default class CustomerHubFooter extends LightningElement {
         window.addEventListener(EVENT_KEY, this._langHandler);
         try {
             const params = new URLSearchParams(window.location.search);
-            const c = params.get('cid');
+            const c = params.get('token');
             const b = params.get('brand');
             if (c) this._cid   = c;
             if (b) this._brand = b;
@@ -75,7 +75,7 @@ export default class CustomerHubFooter extends LightningElement {
 
     @wire(CurrentPageReference)
     handlePageRef(ref) {
-        const c = ref?.state?.cid || ref?.state?.c__cid;
+        const c = ref?.state?.token || ref?.state?.c__token;
         if (c && c !== this._cid) this._cid = c;
         const b = ref?.state?.brand || ref?.state?.c__brand;
         if (b && b !== this._brand) this._brand = b;

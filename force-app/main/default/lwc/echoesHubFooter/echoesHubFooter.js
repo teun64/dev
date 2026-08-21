@@ -32,7 +32,7 @@ export default class EchoesHubFooter extends LightningElement {
         this._langHandler = (e) => { this._lang = e.detail.language; };
         window.addEventListener(EVENT_KEY, this._langHandler);
         try {
-            const c = new URLSearchParams(window.location.search).get('cid');
+            const c = new URLSearchParams(window.location.search).get('token');
             if (c) this._cid = c;
         } catch (_) {}
     }
@@ -45,7 +45,7 @@ export default class EchoesHubFooter extends LightningElement {
 
     @wire(CurrentPageReference)
     handlePageRef(ref) {
-        const c = ref?.state?.cid || ref?.state?.c__cid;
+        const c = ref?.state?.token || ref?.state?.c__token;
         if (c && c !== this._cid) this._cid = c;
     }
 
