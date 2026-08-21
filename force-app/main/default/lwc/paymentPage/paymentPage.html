@@ -23,6 +23,12 @@
         </template>
         <lightning-card class="checkout-card">
 
+            <!-- Card itself spans the full page width to match the site header/footer
+                 (see .pp-standalone in the CSS); this inner wrapper caps and centers the
+                 actual content — same two-layer pattern customerHubHeader.css uses
+                 (.mi-header full-width outer, .mi-header-inner capped/padded inner). -->
+            <div class="pp-content-inset">
+
             <!-- Header — matches preferenceCenter's header (brand identity + title, no
                  in-component language switcher: the site's own hub header + language
                  pills already drive this, see paymentPage.js's LANG_EVENTS listener). -->
@@ -68,7 +74,7 @@
                                 {labelReference}
                             </div>
                             <div class="slds-col slds-size_2-of-3 slds-var-p-vertical_x-small order-value">
-                                {payment.externalId}
+                                {payment.paymentName}
                             </div>
                         </template>
 
@@ -153,6 +159,7 @@
                         </c-payment-checkout>
                     </template>
                 </div>
+            </div>
             </div>
         </lightning-card>
     </template>

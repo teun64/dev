@@ -13,6 +13,7 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public String customer;
         @AuraEnabled public String beneficiary;
         @AuraEnabled public String externalId;
+        @AuraEnabled public String paymentName;
         @AuraEnabled public String orderDate;
         @AuraEnabled public String collectionDate;
         @AuraEnabled public String contactFirstName;
@@ -41,7 +42,7 @@ public without sharing class Ctrl_Payment {
         if (String.isBlank(language)) language = 'en';
 
         List<Payment__c> payments = Database.queryWithBinds(
-            'SELECT Id, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
+            'SELECT Id, Name, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
             '       Invoice__c,' +
             '       Account__c,' +
             '       Account__r.Name,' +
@@ -80,6 +81,7 @@ public without sharing class Ctrl_Payment {
         result.found         = true;
         result.paymentId     = p.Id;
         result.externalId    = p.externalId__c;
+        result.paymentName   = p.Name;
         result.currency_x    = p.CurrencyIsoCode;
         result.amountCents   = p.Amount_Gross__c != null ? (Integer)(p.Amount_Gross__c * 100) : 0;
         result.customer      = p.Account__r?.Name;
@@ -303,11 +305,10 @@ public without sharing class Ctrl_Payment {
         if (String.isBlank(token)) return;
 
         List<Payment__c> payments = Database.queryWithBinds(
-            'SELECT Id, externalId__c, Account__c,' +
+            'SELECT Id, Name, externalId__c, Account__c,' +
             '       Administration__r.Subscription25__Billing_Name__c' +
             ' FROM Payment__c' +
             ' WHERE externalId__c = :token' +
-            ' AND Status__c != \'Closed\'' +
             ' LIMIT 1',
             new Map<String, Object>{ 'token' => token },
             AccessLevel.SYSTEM_MODE
@@ -349,7 +350,7 @@ public without sharing class Ctrl_Payment {
 
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
         mail.setToAddresses(new List<String>{ contactEmail });
-        mail.setSubject('Direct Debit setup request – ' + p.externalId__c);
+        mail.setSubject('Direct Debit setup request – ' + p.Name);
         mail.setPlainTextBody(
             greeting + '\n\n'
             + 'To enable direct debit payments, please authorise your bank account via the link below:\n\n'
