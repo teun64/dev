@@ -155,7 +155,7 @@
         <name>cMailTemplateBase</name>
         <dataType>String</dataType>
         <value>
-            <stringValue>paymentDirectDebitSetup</stringValue>
+            <stringValue>paymentDirectDebitSetupInitial</stringValue>
         </value>
     </constants>
     <decisions>
@@ -305,7 +305,6 @@
         <name>fMailTemplate</name>
         <dataType>String</dataType>
         <expression>{!cMailTemplateBase} +
-BLANKVALUE(TEXT({!paymentRecord.Reseller__c}),&apos;0&apos;) +
 &apos;_&apos;  +
 BLANKVALUE(TEXT({!paymentRecord.Account__r.Sales_Language__c}),&apos;EN&apos;)</expression>
     </formulas>
@@ -313,7 +312,6 @@ BLANKVALUE(TEXT({!paymentRecord.Account__r.Sales_Language__c}),&apos;EN&apos;)</
         <name>fMailTemplateDefault</name>
         <dataType>String</dataType>
         <expression>{!cMailTemplateBase} +
-BLANKVALUE(TEXT({!paymentRecord.Reseller__c}),&apos;0&apos;) +
 &apos;_&apos;  +
 BLANKVALUE(TEXT({!dgr_02_Administration.Language_Default__c}),&apos;EN&apos;)</expression>
     </formulas>
