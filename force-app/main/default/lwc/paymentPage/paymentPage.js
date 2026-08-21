@@ -161,12 +161,40 @@ export default class PaymentPage extends LightningElement {
             if (locale) this._applyLocale(locale);
         };
         LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
+        this._resizeHandler = () => this._applyFullBleed();
+        window.addEventListener('resize', this._resizeHandler);
     }
 
     disconnectedCallback() {
         if (this._langHandler) {
             LANG_EVENTS.forEach(k => window.removeEventListener(k, this._langHandler));
         }
+        if (this._resizeHandler) {
+            window.removeEventListener('resize', this._resizeHandler);
+        }
+    }
+
+    renderedCallback() {
+        this._applyFullBleed();
+    }
+
+    // The LWR content column's own width (and whether it's centered under the viewport) isn't
+    // something CSS alone can reliably escape — see the comment on .pp-standalone in
+    // paymentPage.css for the 100vw/negative-margin attempt this replaced. Measuring the
+    // element's actual position and comparing it to the real viewport width sidesteps the
+    // ancestor chain entirely: whatever gap or overshoot is there gets cancelled directly.
+    _applyFullBleed() {
+        if (this._isFlowContext || typeof document === 'undefined') return;
+        const el = this.template.querySelector('.pp-container');
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const viewportWidth = document.documentElement.clientWidth;
+        const offset = -rect.left;
+        if (this._lastFullBleedWidth === viewportWidth && this._lastFullBleedOffset === offset) return;
+        this._lastFullBleedWidth = viewportWidth;
+        this._lastFullBleedOffset = offset;
+        el.style.width = `${viewportWidth}px`;
+        el.style.marginLeft = `${offset}px`;
     }
 
     // Raw "/sfsites/c/resource/..." hrefs 404 on this site — @salesforce/resourceUrl is the
@@ -292,8 +320,9 @@ export default class PaymentPage extends LightningElement {
         if (status === 'succeeded' || status === 'processing') {
             this.viewState = 'success';
             finalizeCheckout({
-                token:      this._token,
-                intentMode: d?.intentMode
+                token:         this._token,
+                intentMode:    d?.intentMode,
+                futureConsent: d?.futureConsent === true
             }).catch(() => {});
         } else if (status === 'canceled' || status === 'requires_payment_method') {
             this.intentMessage = d?.intentMessage || 'Payment was not completed.';

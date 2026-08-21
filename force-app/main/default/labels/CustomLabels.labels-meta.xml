@@ -1,0 +1,2008 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>CustomerHubBaseURL</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Customer Hub base URL (no trailing slash)</shortDescription>
+        <value>https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite</value>
+    </labels>
+    <labels>
+        <fullName>AccountId</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AccountId</shortDescription>
+        <value>Account</value>
+    </labels>
+    <labels>
+        <fullName>AlarmCode</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AlarmCode</shortDescription>
+        <value>Alarm Code</value>
+    </labels>
+    <labels>
+        <fullName>AlarmCodeHint</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AlarmCodeHint</shortDescription>
+        <value>Alarm Code Hint</value>
+    </labels>
+    <labels>
+        <fullName>AlarmContactPageTitle</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AlarmContactPageTitle</shortDescription>
+        <value>Alarmcontact for entity</value>
+    </labels>
+    <labels>
+        <fullName>Body</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Body</shortDescription>
+        <value>Body</value>
+    </labels>
+    <labels>
+        <fullName>CcAddresses</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ToAddress</shortDescription>
+        <value>CC Addresses</value>
+    </labels>
+    <labels>
+        <fullName>ContactId</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ContactId</shortDescription>
+        <value>Contact</value>
+    </labels>
+    <labels>
+        <fullName>CreatedById</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CreatedById</shortDescription>
+        <value>Created By</value>
+    </labels>
+    <labels>
+        <fullName>CreatedDate</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CreatedDate</shortDescription>
+        <value>Created Date</value>
+    </labels>
+    <labels>
+        <fullName>Credit</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Credit</shortDescription>
+        <value>Credit note</value>
+    </labels>
+    <labels>
+        <fullName>DealerTaskType</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DealerTaskType</shortDescription>
+        <value>Dealertask Type</value>
+    </labels>
+    <labels>
+        <fullName>DebtorNumber</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DebtorNumber</shortDescription>
+        <value>Customer no</value>
+    </labels>
+    <labels>
+        <fullName>DescriptionDetected</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DescriptionDetected</shortDescription>
+        <value>Description Detected</value>
+    </labels>
+    <labels>
+        <fullName>DescriptionSolved</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DescriptionSolved</shortDescription>
+        <value>Description Solved</value>
+    </labels>
+    <labels>
+        <fullName>EndDate</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>EndDate</shortDescription>
+        <value>End Date</value>
+    </labels>
+    <labels>
+        <fullName>ExternalId</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ExternalId</shortDescription>
+        <value>External Id</value>
+    </labels>
+    <labels>
+        <fullName>FirstName</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>FirstName</shortDescription>
+        <value>First Name</value>
+    </labels>
+    <labels>
+        <fullName>HardwareId</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>HardwareId</shortDescription>
+        <value>Hardware</value>
+    </labels>
+    <labels>
+        <fullName>IncidentPageTitle</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>IncidentPageTitle</shortDescription>
+        <value>Incident for Entity</value>
+    </labels>
+    <labels>
+        <fullName>Insertation</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Insertation</shortDescription>
+        <value>Insertation</value>
+    </labels>
+    <labels>
+        <fullName>Insertion</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Insertion</shortDescription>
+        <value>Insertion</value>
+    </labels>
+    <labels>
+        <fullName>InstallationId</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InstallationId</shortDescription>
+        <value>Entity</value>
+    </labels>
+    <labels>
+        <fullName>Invoice</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Invoice</shortDescription>
+        <value>Invoice</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceAttn</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceAttn</shortDescription>
+        <value>Attn.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceBankBIC</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceBankBIC</shortDescription>
+        <value>BIC</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceBankIBAN</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceBankIBAN</shortDescription>
+        <value>IBAN</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceBankUKAccountNumber</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceBankUKAccountNumber</shortDescription>
+        <value>Account Number</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceBankUKSortCode</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceBankUKSortCode</shortDescription>
+        <value>Sort Code</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceCoC</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceCoC</shortDescription>
+        <value>CoC</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceDate</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceDate</shortDescription>
+        <value>Invoice date</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceDescription</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceDescription</shortDescription>
+        <value>Description</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceManagingDirectors</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceManagingDirectors</shortDescription>
+        <value>Managing directors</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceNumber</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceNumber</shortDescription>
+        <value>Invoice No</value>
+    </labels>
+    <labels>
+        <fullName>InvoicePage</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoicePage</shortDescription>
+        <value>Page</value>
+    </labels>
+    <labels>
+        <fullName>InvoicePageOf</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoicePageOf</shortDescription>
+        <value>of</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceReference</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceReference</shortDescription>
+        <value>Your Reference</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkEU1</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkEU1</shortDescription>
+        <value>The tax liability is transferred to the service recipient in accordance with Section 13b UStG. REVERSE CHARGE.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkEU2</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkEU2</shortDescription>
+        <value>The tax liability is transferred to the service recipient in accordance with Section 13b UStG. REVERSE CHARGE.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkEU3</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkEU3</shortDescription>
+        <value>The tax liability is transferred to the service recipient in accordance with Section 13b UStG. REVERSE CHARGE.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkEU4</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkEU4</shortDescription>
+        <value>The tax liability is transferred to the service recipient in accordance with Section 13b UStG. REVERSE CHARGE.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkEU5</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkEU5</shortDescription>
+        <value>The tax liability is transferred to the service recipient in accordance with Section 13b UStG. REVERSE CHARGE.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkEU6</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkEU6</shortDescription>
+        <value>The tax liability is transferred to the service recipient in accordance with Section 13b UStG. REVERSE CHARGE.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkGeneral1</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkGeneral1</shortDescription>
+        <value>Unless otherwise stated, the time of invoice issue shall be deemed to be the time of service.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkGeneral2</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkGeneral2</shortDescription>
+        <value>Unless otherwise stated, the time of invoice issue shall be deemed to be the time of service.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkGeneral3</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkGeneral3</shortDescription>
+        <value>Unless otherwise stated, the time of invoice issue shall be deemed to be the time of service.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkGeneral4</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkGeneral4</shortDescription>
+        <value>Unless otherwise stated, the time of invoice issue shall be deemed to be the time of service.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkGeneral5</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkGeneral5</shortDescription>
+        <value>Unless otherwise stated, the time of invoice issue shall be deemed to be the time of service.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkGeneral6</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkGeneral6</shortDescription>
+        <value>Unless otherwise stated, the time of invoice issue shall be deemed to be the time of service.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkNonEU1</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkNonEU1</shortDescription>
+        <value>Proceeds from services that are taxable in a third country, sales that are not taxable domestically, place of performance not domestic.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkNonEU2</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkNonEU2</shortDescription>
+        <value>Proceeds from services that are taxable in a third country, sales that are not taxable domestically, place of performance not domestic.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkNonEU3</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkNonEU3</shortDescription>
+        <value>Proceeds from services that are taxable in a third country, sales that are not taxable domestically, place of performance not domestic.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkNonEU4</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkNonEU4</shortDescription>
+        <value>Proceeds from services that are taxable in a third country, sales that are not taxable domestically, place of performance not domestic.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkNonEU5</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkNonEU5</shortDescription>
+        <value>Proceeds from services that are taxable in a third country, sales that are not taxable domestically, place of performance not domestic.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceRemarkNonEU6</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceRemarkNonEU6</shortDescription>
+        <value>Proceeds from services that are taxable in a third country, sales that are not taxable domestically, place of performance not domestic.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceSpecification</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceSpecification</shortDescription>
+        <value>Specification</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceTotalGross</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceTotalGross</shortDescription>
+        <value>Invoice Total</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceTotalNet</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceTotalNet</shortDescription>
+        <value>Total Net Amount</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceVAT</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceVAT</shortDescription>
+        <value>VAT</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceVATNumber</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceVATNumber</shortDescription>
+        <value>VAT Reg No</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceVATOn</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceVATOn</shortDescription>
+        <value>on</value>
+    </labels>
+    <labels>
+        <fullName>ItemAmount</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ItemAmount</shortDescription>
+        <value>Net Amount</value>
+    </labels>
+    <labels>
+        <fullName>ItemCode</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ItemCode</shortDescription>
+        <value>Item code</value>
+    </labels>
+    <labels>
+        <fullName>ItemDescription</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ItemDescription</shortDescription>
+        <value>Description</value>
+    </labels>
+    <labels>
+        <fullName>ItemPrice</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ItemPrice</shortDescription>
+        <value>Unit Price</value>
+    </labels>
+    <labels>
+        <fullName>ItemQuantity</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ItemQuantity</shortDescription>
+        <value>Quantity</value>
+    </labels>
+    <labels>
+        <fullName>ItemVATCode</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ItemVATCode</shortDescription>
+        <value>*</value>
+    </labels>
+    <labels>
+        <fullName>LastModificationDate</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LastModificationDate</shortDescription>
+        <value>Last Modification Date</value>
+    </labels>
+    <labels>
+        <fullName>LocationPageTitle</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LocationPageTitle</shortDescription>
+        <value>Location for Entity</value>
+    </labels>
+    <labels>
+        <fullName>MIBrown</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MiYellow</shortDescription>
+        <value>-</value>
+    </labels>
+    <labels>
+        <fullName>MIOrange</fullName>
+        <categories>Quote</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MIOrange</shortDescription>
+        <value>Beveiliging waarbij alle meldingen via de MiApp kenbaar worden gemaakt en u zelf actie neemt voor het opsporen ervan. De meest recente positie en afgelegde route is online en op de MiApp direct zichtbaar. Speciaal geschikt voor het beveiligen van oldtimers, Youngtimers en werkmateriaal.</value>
+    </labels>
+    <labels>
+        <fullName>MailPageTitle</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MailPageTitle</shortDescription>
+        <value>Mails for Contact</value>
+    </labels>
+    <labels>
+        <fullName>MiBlack</fullName>
+        <categories>Quote</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MiBlack</shortDescription>
+        <value>Compleet pakket met SCM gecertificeerde beveiliging incl. hulp na diefstal en KIWA SCM Certificaat voor uw verzekeraar. U wordt direct gewaarschuwd bij sabotage. het moedwillig verstoren van het signaal en er wordt alle mogelijke assistentie verleend bij de opsporing door de alarmcentrale.</value>
+    </labels>
+    <labels>
+        <fullName>MiGreen</fullName>
+        <categories>Quote</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MiGreen</shortDescription>
+        <value>Met het MiGreen pakket heeft u alle tools paraat om uw wagenpark zo efficient mogelijk te beheren. Fiscusproof rittenadministratie met keurmerk. Altijd inzicht in de locatie van uw voertuig(en) en alle mogelijkheden om gereden en gewerkte tijden inzichtelijk te maken.</value>
+    </labels>
+    <labels>
+        <fullName>MiGrey</fullName>
+        <categories>Quote</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MiGrey</shortDescription>
+        <value>Mini volgsysteem waarmee bij beweging online en via de MiApp de meest actuele positie continu zichtbaar is. Speciaal geschikt voor trailers en aanhangers.</value>
+    </labels>
+    <labels>
+        <fullName>MiRed</fullName>
+        <categories>Quote</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MiRed</shortDescription>
+        <value>Met het MIRed pakket heeft u de beschikking over een compleet inzicht in de gereden ritten van uw voertuig. Uw rittenadministratie is met dit pakket eenvoudig bij te houden en tevens heeft u op elk moment van de dag inzicht in de meest recente positie van uw voertuig(en).</value>
+    </labels>
+    <labels>
+        <fullName>MiWhite</fullName>
+        <categories>Quote</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MiWhite</shortDescription>
+        <value>Door activatie van uw peilzender is de alarmcentrale in staat de peilzender wanneer nodig in diefstalmodus te zetten. Ook wordt er minimaal eenmaal per dag een controlebericht verstuurd, waarmee de locatie van de peilzender op dat moment bepaald wordt.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm11_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm11 (Content)</shortDescription>
+        <value>All prices and rates mentioned in this proposal are, unless otherwise stated, exclusive of 21% VAT and based on the purchase of the stated quantities. This proposal is valid until 30 days after the date. Invoicing takes place immediately after delivery and/or installation of the hardware.
+Payment is made by direct debit 8 days after the invoice date, unless explicitly agreed otherwise. The general terms and conditions of Moving Intelligence apply to this offer.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm12_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm12 (Content)</shortDescription>
+        <value>Only our general terms and conditions apply to this proposal, insofar as they are not deviated from in this agreement. You can always view these general terms and conditions anywhere at: movingintelligence.com/general-terms-and-conditions.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm51_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm51 (Content)</shortDescription>
+        <value>The contract begins on {0, date, d-M-yyyy}. The activation of these and other devices/apps should begin on the first of each month for consistent, understandable accounting reasons. The contract terms and general terms and conditions apply accordingly to each additional device, software license or other services ordered after the contract begins. The term according to section 2 and/or section 4 begins with the respective activation.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm51_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm51 (Label)</shortDescription>
+        <value>Start of the contract</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm52_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm52 (Content)</shortDescription>
+        <value>367 / 5.000
+Unless otherwise specified, the following applies: After {0, number,#0} months, the contract can be terminated at any time at the end of the following month. If the contract is not terminated, it will be extended by 1 month at a time. After the minimum contract period has expired, the customer may also terminate individual devices at the end of the following month without affecting the contract as a whole.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm52_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm52 (Label)</shortDescription>
+        <value>Term / Cancellation</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm53_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm53 (Content)</shortDescription>
+        <value>Any subsidiary agreements and additions to the contract must be made in writing. Unless otherwise specified, the current general terms and conditions are part of the contract and are hereby expressly deemed to be agreed. They are published at https://movingintelligence.de/hilfe/agb.pdf.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm53_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm53 (Label)</shortDescription>
+        <value>Additional terms</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm54_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm54 (Content)</shortDescription>
+        <value>All prices plus VAT. Invoices are due immediately and payable without deduction, but at least within 14 days of receipt of the invoice. The total amount for the services ordered under item 1 is payable half upon delivery and half 14 days after delivery - for the first order, the full amount is payable before delivery. Fees for services under item 2 are payable monthly in advance. If payment is delayed for more than 10 days, the contractor is entitled to stop the services without prior notice. For orders of more than EUR 2,500 net, payment of the initial invoice is only possible by bank transfer. The monthly hosting costs will then be collected by SEPA direct debit, if agreed. All invoices are available for download in the service area of ​​the TrackPilot tracking portal. Plus packaging, shipping and insurance in accordance with https://movingintelligence.de/hilfe/versand.pdf - but at least EUR 12.90 net.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm54_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm54 (Label)</shortDescription>
+        <value>Payment terms</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm55_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm55 (Content)</shortDescription>
+        <value>The client agrees to be named as a reference customer by Moving Intelligence and to be listed as such on printed advertising materials or on the Moving Intelligence company website.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm55_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm55 (Label)</shortDescription>
+        <value>Reference</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm56_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm56 (Content)</shortDescription>
+        <value>Support is provided via the service area in the TrackPilot portal. Questions and technical concerns are entered by the user and recorded as service tickets in the system. Tickets are processed from Monday to Friday between 9:00 a.m. and 5:00 p.m. with a response time of usually less than 6 hours. This service is included in the monthly usage fee.
+Special technical support and individual consulting services (e.g. integration of third-party software, individual interface support, communication with the client&apos;s service providers or data protection inquiries) that go beyond the regular user support mentioned above will be invoiced at an hourly rate of €130 plus VAT. The smallest billing unit is 30 minutes in each case.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm56_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm56 (Label)</shortDescription>
+        <value>Support / SLA</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm57_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm57 (Content)</shortDescription>
+        <value>For all additional services that are associated with travel, travel and incidental costs as well as expenses and overnight stays will be invoiced according to actual costs. Travel times will be invoiced at €49 per hour; kilometers traveled by car will be invoiced at an additional €0.59 per km (basis: fastest route according to Google Maps). The choice of means of transport and overnight stay can be agreed with the client in advance.</value>
+    </labels>
+    <labels>
+        <fullName>OfferTerm57_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OfferTerm57 (Label)</shortDescription>
+        <value>Travel expenses</value>
+    </labels>
+    <labels>
+        <fullName>PaymentCheckoutCancelButton</fullName>
+        <categories>Payment Checkout</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cancel Button (Payment Checkout)</shortDescription>
+        <value>Cancel</value>
+    </labels>
+    <labels>
+        <fullName>PaymentCheckoutCancelConfirm</fullName>
+        <categories>Payment Checkout</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Confrom Cancelation (Payment Checkout)</shortDescription>
+        <value>Are you sure you want to cancel this checkout session?</value>
+    </labels>
+    <labels>
+        <fullName>PaymentCheckoutProcessing</fullName>
+        <categories>Payment Checkout</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Processing (Payment Checkout)</shortDescription>
+        <value>Processing</value>
+    </labels>
+    <labels>
+        <fullName>PaymentCheckoutSubmitButtonPayment</fullName>
+        <categories>Payment Checkout</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Submit Button (Payment Checkout)</shortDescription>
+        <value>Pay</value>
+    </labels>
+    <labels>
+        <fullName>PaymentCheckoutSubmitButtonSetup</fullName>
+        <categories>Payment Checkout</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Submit Button (Setup Checkout)</shortDescription>
+        <value>Validate</value>
+    </labels>
+    <labels>
+        <fullName>PaymentCheckoutFutureConsentLabel</fullName>
+        <categories>Payment Checkout</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Future Payments Consent Checkbox (Payment Checkout)</shortDescription>
+        <value>I agree that this Direct Debit mandate may be used to collect all future subscription payments automatically.</value>
+    </labels>
+    <labels>
+        <fullName>PaymentCheckoutFutureConsentRequired</fullName>
+        <categories>Payment Checkout</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Future Payments Consent Required Error (Payment Checkout)</shortDescription>
+        <value>Please confirm you agree to the Direct Debit mandate terms before continuing.</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementError</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error (Payment Element)</shortDescription>
+        <value>Oeps, something went wrong, while processing your payment</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementInitError</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>initError (Payment Element)</shortDescription>
+        <value>Stripe could not be initialized.</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementLoadError</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>loadError (Payment Element)</shortDescription>
+        <value>Stripe could not be loaded.</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementMissingSecret</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>missingSecret (Payment Element)</shortDescription>
+        <value>Missing PaymentIntent client secret.</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementNotReady</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>notReady (Payment Element)</shortDescription>
+        <value>Stripe is not ready yet.</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementPayNow</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Pay Now (Payment Element)</shortDescription>
+        <value>Pay Now</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementProcessing</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Processing (Payment Element)</shortDescription>
+        <value>Processing payment ...</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementSuccess</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Success (Payment Element)</shortDescription>
+        <value>Payment Succesful</value>
+    </labels>
+    <labels>
+        <fullName>PaymentElementTitle</fullName>
+        <categories>Payment Element</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Title (Payment Element)</shortDescription>
+        <value>Complete your payment</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageAmountNet</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Net Amount (Payment Page)</shortDescription>
+        <value>Amount Net</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageAmountTotal</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Total Amount (Payment Page)</shortDescription>
+        <value>Amount (incl. VAT)</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageAmountVAT</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>VAT Amount (Payment Page)</shortDescription>
+        <value>VAT</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageBeneficiary</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Beneficiary (Payment Page</shortDescription>
+        <value>Beneficiary</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageButton</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Button (Payment Page)</shortDescription>
+        <value>Pay 🇬🇧</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageColumnOrder</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order Column (Payment Page)</shortDescription>
+        <value>Order Summary</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageColumnProvider</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Provider Column (Payment Page)</shortDescription>
+        <value>Secure Payment (by Stripe)</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageCurrency</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Currency (Payment Page)</shortDescription>
+        <value>Currency</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageCustomerName</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>PaymentPageCustomerName</shortDescription>
+        <value>Your Name</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageDate</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Date (Payment Page)</shortDescription>
+        <value>Payment Date</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageDescription</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Description (Payment Page)</shortDescription>
+        <value>Description</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPagePayText</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Pay Text (Payment Page)</shortDescription>
+        <value>Please check your order details below before completing the payment.</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageReference</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Reference (Payment Page)</shortDescription>
+        <value>Reference</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageThankYou</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Thank You (Payment Page)</shortDescription>
+        <value>Thank you kindly for your payment</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageTile</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Title (Payment Page)</shortDescription>
+        <value>Payment Information</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageTitle</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Title (Payment Page)</shortDescription>
+        <value>Payment Checkout</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageToggleTheme</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Toggle Theme (Payment Page)</shortDescription>
+        <value>Toggle Theme (light / dark)</value>
+    </labels>
+    <labels>
+        <fullName>PaymentPageTotal</fullName>
+        <categories>Payment Page</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Total (Payment Page)</shortDescription>
+        <value>Total 🇬🇧</value>
+    </labels>
+    <labels>
+        <fullName>PhoneNumber1</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>PhoneNumber1</shortDescription>
+        <value>Phone Number 1</value>
+    </labels>
+    <labels>
+        <fullName>PhoneNumber2</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>PhoneNumber2</shortDescription>
+        <value>Phone Number2</value>
+    </labels>
+    <labels>
+        <fullName>Reason</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Reason</shortDescription>
+        <value>Reason</value>
+    </labels>
+    <labels>
+        <fullName>RequestedById</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RequestedById</shortDescription>
+        <value>Requested By</value>
+    </labels>
+    <labels>
+        <fullName>SentDate</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SentDate</shortDescription>
+        <value>Sent Date</value>
+    </labels>
+    <labels>
+        <fullName>SortOrder</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SortOrder</shortDescription>
+        <value>Sort Order</value>
+    </labels>
+    <labels>
+        <fullName>Spent</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Spent</shortDescription>
+        <value>Spent</value>
+    </labels>
+    <labels>
+        <fullName>StartDate</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>StartDate</shortDescription>
+        <value>Start Date</value>
+    </labels>
+    <labels>
+        <fullName>Status</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Status</shortDescription>
+        <value>Status</value>
+    </labels>
+    <labels>
+        <fullName>Subject</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Subject</shortDescription>
+        <value>Subject</value>
+    </labels>
+    <labels>
+        <fullName>SurName</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SurName</shortDescription>
+        <value>Sur Name</value>
+    </labels>
+    <labels>
+        <fullName>SwappedVersion</fullName>
+        <categories>Opportunity</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SwappedVersion</shortDescription>
+        <value>Swapped Version</value>
+    </labels>
+    <labels>
+        <fullName>TestControle</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>TestControle</shortDescription>
+        <value>Controle</value>
+    </labels>
+    <labels>
+        <fullName>ToAddress</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ToAddress</shortDescription>
+        <value>To Address</value>
+    </labels>
+    <labels>
+        <fullName>ToContactId</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ToContactId</shortDescription>
+        <value>To Contact</value>
+    </labels>
+    <labels>
+        <fullName>Value</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Value</shortDescription>
+        <value>Value</value>
+    </labels>
+    <labels>
+        <fullName>VoucherCode</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>VoucherCode</shortDescription>
+        <value>Voucher Code</value>
+    </labels>
+    <labels>
+        <fullName>VoucherPageTitle</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>VoucherPageTitle</shortDescription>
+        <value>Voucher for account</value>
+    </labels>
+    <labels>
+        <fullName>ers_CancelButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cancel</shortDescription>
+        <value>Cancel</value>
+    </labels>
+    <labels>
+        <fullName>ers_ClearFilterAction</fullName>
+        <categories>actions</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Clear Filter</shortDescription>
+        <value>Clear Filter</value>
+    </labels>
+    <labels>
+        <fullName>ers_ClearFilterButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Clear All Filters</shortDescription>
+        <value>Clear All Filters</value>
+    </labels>
+    <labels>
+        <fullName>ers_ClearSelectionButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Clear Selection</shortDescription>
+        <value>Clear Selection</value>
+    </labels>
+    <labels>
+        <fullName>ers_ColumnHeader</fullName>
+        <categories>headers</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Column</shortDescription>
+        <value>Column</value>
+    </labels>
+    <labels>
+        <fullName>ers_EmptyTableMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Empty</shortDescription>
+        <value>This table currently has no data to display</value>
+    </labels>
+    <labels>
+        <fullName>ers_ErrorRequiredEntry</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Required</shortDescription>
+        <value>This is a required entry.  At least 1 row must be selected.</value>
+    </labels>
+    <labels>
+        <fullName>ers_FilterHeader</fullName>
+        <categories>headers</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Filter</shortDescription>
+        <value>Filter</value>
+    </labels>
+    <labels>
+        <fullName>ers_FirstButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>First Page</shortDescription>
+        <value>First</value>
+    </labels>
+    <labels>
+        <fullName>ers_LabelHeader</fullName>
+        <categories>headers</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Label</shortDescription>
+        <value>Label</value>
+    </labels>
+    <labels>
+        <fullName>ers_LastButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Last Page</shortDescription>
+        <value>Last</value>
+    </labels>
+    <labels>
+        <fullName>ers_NextButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Next Page</shortDescription>
+        <value>Next</value>
+    </labels>
+    <labels>
+        <fullName>ers_PreviousButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Previous Page</shortDescription>
+        <value>Prev</value>
+    </labels>
+    <labels>
+        <fullName>ers_RecordsPerPage</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Records per Page input label</shortDescription>
+        <value>Records per Page</value>
+    </labels>
+    <labels>
+        <fullName>ers_SaveButton</fullName>
+        <categories>buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Save</shortDescription>
+        <value>Save</value>
+    </labels>
+    <labels>
+        <fullName>ers_SearchPlaceholder</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Search Term</shortDescription>
+        <value>Enter search term ...</value>
+    </labels>
+    <labels>
+        <fullName>ers_SetFilterAction</fullName>
+        <categories>actions</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Set Filter</shortDescription>
+        <value>Set Filter</value>
+    </labels>
+    <labels>
+        <fullName>ers_ShowingPageMiddle</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Showing Page x of y Pages input label middle</shortDescription>
+        <value>of</value>
+    </labels>
+    <labels>
+        <fullName>ers_ShowingPagePrefix</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Showing Page x of y Pages input label prefix</shortDescription>
+        <value>Showing Page</value>
+    </labels>
+    <labels>
+        <fullName>ers_ShowingPageSuffix</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Showing Page x of y Pages input label suffix</shortDescription>
+        <value>Pages</value>
+    </labels>
+    <labels>
+        <fullName>ers_filterBlankHelpText</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Help Text for Filter Blank Checkbox</shortDescription>
+        <value>Check here if you want to filter rows where the value in this column is blank</value>
+    </labels>
+    <labels>
+        <fullName>ers_filterBlankLabel</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Label for Filter Blank Checkbox</shortDescription>
+        <value>Filter Blank Values?</value>
+    </labels>
+    <labels>
+        <fullName>etAllinOne_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>All-in-One (et - Content)</shortDescription>
+        <value>With automated trip registration you save time and money. Do you also want to be able to make operational decisions quickly because you always know where your cars are? Then choose our All-in-one package. This gives you 24/7 insight into every movement of your drivers. From hours worked to locations visited and from maximum speeds to routes driven; you will never lose control again.</value>
+    </labels>
+    <labels>
+        <fullName>etAllinOne_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>All-in-one (et - Label)</shortDescription>
+        <value>All in One</value>
+    </labels>
+    <labels>
+        <fullName>etFiscalReports_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Fiscal Reports (et - Content)</shortDescription>
+        <value>To prevent unjustified additional assessment, you must prove that you do not drive more than 500 kilometers privately with your company car. The Tax Authorities set high requirements for the way in which you register the kilometers driven. For you, this often means time-consuming and error-prone administration with the risk of fines and additional assessment. We are happy to take that off your hands with our Fiscal package.</value>
+    </labels>
+    <labels>
+        <fullName>etFiscalReports_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Fiscal Reports (et - Label)</shortDescription>
+        <value>Fiscal Reports</value>
+    </labels>
+    <labels>
+        <fullName>etLiveTracking_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Live Tracking (et - Content)</shortDescription>
+        <value>In order to deploy your fleet as efficiently as possible and to be able to respond quickly to changes or urgent orders, it is important to know where your vehicles are. With Live Tracking, that is no problem at all. Log in to the online platform or the app on your phone and you will immediately see the location, route and speed of each car. Quick insight means quick action. Quick action means satisfied customers.</value>
+    </labels>
+    <labels>
+        <fullName>etLiveTracking_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Live Tracking (et - Label)</shortDescription>
+        <value>Live Tracking</value>
+    </labels>
+    <labels>
+        <fullName>etReporting_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Reporting (et - Content)</shortDescription>
+        <value>Just like fines and additional tax, you would like to avoid discussions about hours worked. Furthermore, you would like to drive as economically and efficiently as possible. That is all a lot easier with insight into routes driven, average and maximum speed, hours spent, use of vehicles outside working hours and a conclusive journey registration. That is why you have 24/7 access to all your important data with our reports.</value>
+    </labels>
+    <labels>
+        <fullName>etReporting_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Reporting (et - Label)</shortDescription>
+        <value>Reporting</value>
+    </labels>
+    <labels>
+        <fullName>fsc_AccessLevel</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AccessLevel</shortDescription>
+        <value>Access Level</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Back</fullName>
+        <categories>Buttons,Filters,Title</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Back</shortDescription>
+        <value>Back</value>
+    </labels>
+    <labels>
+        <fullName>fsc_ButtonIsNotSupportedMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ButtonIsNotSupportedMessage</shortDescription>
+        <value>Following buttons are note supported:</value>
+    </labels>
+    <labels>
+        <fullName>fsc_ConditionLogicHelpText</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ConditionLogicHelpText</shortDescription>
+        <value>Use parentheses, AND, OR, and NOT to customize the logic. For example, if you enter “(1 AND 2 AND 3) OR 4”, the flow evaluates whether the first three conditions are true or only the fourth condition is true.</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Delete</fullName>
+        <categories>labels, buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Delete</shortDescription>
+        <value>Delete</value>
+    </labels>
+    <labels>
+        <fullName>fsc_FieldIsNotSupportedMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>FieldIsNotSupportedMessage</shortDescription>
+        <value>Following fields are not supported:</value>
+    </labels>
+    <labels>
+        <fullName>fsc_FieldTypeNotSuportedMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>fsc_FieldTypeNotSuportedMessage</shortDescription>
+        <value>You provided an unsupported value for the DataTypeFilter input on Object and Field Picker. Currently the only supported value is ’picklist’</value>
+    </labels>
+    <labels>
+        <fullName>fsc_For</fullName>
+        <categories>Buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>For</shortDescription>
+        <value>For</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Key_Label</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Key Label</shortDescription>
+        <value>Key</value>
+    </labels>
+    <labels>
+        <fullName>fsc_LackingPermissions</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LackingPermissions</shortDescription>
+        <value>You don\&apos;t have the proper permissions for ths action</value>
+    </labels>
+    <labels>
+        <fullName>fsc_ManagerEmptyMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ManagerEmptyMessage</shortDescription>
+        <value>&quot;Manager APEX Class&quot; can not be empty</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Manual_Reference_Allowed</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ComboBox Placeholder Txxt</shortDescription>
+        <value>Manual reference allowed</value>
+    </labels>
+    <labels>
+        <fullName>fsc_MultipleGroupsForRole</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>MultipleGroupsForRole</shortDescription>
+        <value>There are multiple groups for that role</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Name</fullName>
+        <categories>quicklinks, Labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Name</shortDescription>
+        <value>Name</value>
+    </labels>
+    <labels>
+        <fullName>fsc_NonePicklistValueLabel</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NonePicklistValueLabel</shortDescription>
+        <value>-- None --</value>
+    </labels>
+    <labels>
+        <fullName>fsc_OWDReadWrite</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OWDReadWrite</shortDescription>
+        <value>Sharing Settings must be private or public read/write to enable manual sharing</value>
+    </labels>
+    <labels>
+        <fullName>fsc_OwnerAdminModify</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OwnerAdminModify</shortDescription>
+        <value>Only the record owner or administrators can modify permissions</value>
+    </labels>
+    <labels>
+        <fullName>fsc_PublicGroups</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>PublicGroups</shortDescription>
+        <value>Public Groups</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Queues</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Queues</shortDescription>
+        <value>Queues</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Read</fullName>
+        <categories>labels, buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Read</shortDescription>
+        <value>Read</value>
+    </labels>
+    <labels>
+        <fullName>fsc_ReadWrite</fullName>
+        <categories>labels, buttons</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ReadWrite</shortDescription>
+        <value>Read / Write</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Reason</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Reason</shortDescription>
+        <value>Reason</value>
+    </labels>
+    <labels>
+        <fullName>fsc_RelatedUsers</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>RelatedUsers</shortDescription>
+        <value>Related Users</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Roles</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Roles</shortDescription>
+        <value>Roles</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Search</fullName>
+        <categories>Actions,Buttons,quicklinks</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Search in</shortDescription>
+        <value>Search in</value>
+    </labels>
+    <labels>
+        <fullName>fsc_SearchFor</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SearchFor</shortDescription>
+        <value>For</value>
+    </labels>
+    <labels>
+        <fullName>fsc_SetAccessLevel</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SetAccessLevel</shortDescription>
+        <value>Set Access Level</value>
+    </labels>
+    <labels>
+        <fullName>fsc_SupportedAddCapabilitiesEmptyMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SupportedAddCapabilitiesEmptyMessage</shortDescription>
+        <value>&quot;Add Capabilities&quot; can not be empty</value>
+    </labels>
+    <labels>
+        <fullName>fsc_SupportedButtonsEmptyMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SupportedButtonsEmptyMessage</shortDescription>
+        <value>&quot;Supported Buttons&quot; can not be empty</value>
+    </labels>
+    <labels>
+        <fullName>fsc_SupportedEditCapabilitiesEmptyMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>SupportedEditCapabilitiesEmptyMessage</shortDescription>
+        <value>&quot;Edit Capabilities&quot; can not be empty</value>
+    </labels>
+    <labels>
+        <fullName>fsc_TooManyResultsMessage</fullName>
+        <categories>messages</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>TooManyResultsMessage</shortDescription>
+        <value>Your search found more than 200 results.  Keep typing to make it more specific</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Type</fullName>
+        <categories>Buttons,Filters,Title</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Type</shortDescription>
+        <value>Type</value>
+    </labels>
+    <labels>
+        <fullName>fsc_UserOrGroup</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>UserOrGroup</shortDescription>
+        <value>User Or Group</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Users</fullName>
+        <categories>labels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Users</shortDescription>
+        <value>Users</value>
+    </labels>
+    <labels>
+        <fullName>fsc_Value_Label</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Value Label</shortDescription>
+        <value>Value</value>
+    </labels>
+    <labels>
+        <fullName>miAzure_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miAzure (mi - Content)</shortDescription>
+        <value>With this subscription we can find your water sports object. The Mi01 Sounding Transmitter is a waterproof post-theft recovery system with European coverage. After theft, the Mi01 determines its position using GPS and GSM signals. All positions are then visible in your personal platform or MiApp.</value>
+    </labels>
+    <labels>
+        <fullName>miAzure_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miAzure (mi - Label)</shortDescription>
+        <value>miAzure</value>
+    </labels>
+    <labels>
+        <fullName>miBlackR_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miBlackR (mi - Content)</shortDescription>
+        <value>Complete package with Thatcham Security (TSC412) certified security incl. assistance after theft. You will be immediately warned in the event of sabotage. Attempted signal blocking and dedicated assistance is provided in case of theft. Tax-proof trip administration with quality mark. A full insight into the location of your vehicle(s) and its history including journeys and working time.</value>
+    </labels>
+    <labels>
+        <fullName>miBlackR_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miBlackR (mi - Label)</shortDescription>
+        <value>miBlackR Ultimate</value>
+    </labels>
+    <labels>
+        <fullName>miBlack_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miBlack (mi - Content)</shortDescription>
+        <value>Complete package with Thatcham Security (TSC412) certified security incl. assistance after theft. You will be immediately warned in the event of sabotage. Attempted signal blocking and dedicated assistance is provided in case of theft.</value>
+    </labels>
+    <labels>
+        <fullName>miBlack_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miBlack (mi - Label)</shortDescription>
+        <value>miBlack Ultimate</value>
+    </labels>
+    <labels>
+        <fullName>miBlue_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miBlue (mi - Content)</shortDescription>
+        <value>With this subscription you have control over your vessel anytime, anywhere. Your logbook, sailing route registration and notifications of movement or entering/leaving a specific area are also kept.</value>
+    </labels>
+    <labels>
+        <fullName>miBlue_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miBlue (mi - Label)</shortDescription>
+        <value>miBlue</value>
+    </labels>
+    <labels>
+        <fullName>miGreen_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miGreen (mi - Content)</shortDescription>
+        <value>With the MiGreen package you have all the tools to manage your fleet as efficiently as possible. Tax-proof trip administration with quality mark. A full insight into the location of your vehicle(s) and its history including journeys and working time.</value>
+    </labels>
+    <labels>
+        <fullName>miGreen_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miGreen (mi - Label)</shortDescription>
+        <value>miGreen</value>
+    </labels>
+    <labels>
+        <fullName>miGrey_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miGrey (mi - Content)</shortDescription>
+        <value>Mini tracking system with live monitoring. Online and via the MiApp. Suitable for (truck) trailers.</value>
+    </labels>
+    <labels>
+        <fullName>miGrey_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miGrey (mi - Label)</shortDescription>
+        <value>miGrey</value>
+    </labels>
+    <labels>
+        <fullName>miOrangeR_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miOrangeR (mi - Content)</shortDescription>
+        <value>Security with a range of alerts via the MiApp, self-managed to track your asset following a theft. The most recent position and journey visible online and on the MiApp. Suitable for securing assets such as classic cars, luxury vehicles and work equipment. Tax-proof trip administration with quality mark. A full insight into the location of your vehicle(s) and its history including journeys and working time.</value>
+    </labels>
+    <labels>
+        <fullName>miOrangeR_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miOrangeR (mi - Label)</shortDescription>
+        <value>miOrangeR</value>
+    </labels>
+    <labels>
+        <fullName>miOrange_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miOrange (mi - Content)</shortDescription>
+        <value>Security with a range of alerts via the MiApp, self-managed to track your asset following a theft. The most recent position and journey visible online and on the MiApp. Suitable for securing assets such as classic cars, luxury vehicles and work equipment.</value>
+    </labels>
+    <labels>
+        <fullName>miOrange_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miOrange (mi - Label)</shortDescription>
+        <value>miOrange</value>
+    </labels>
+    <labels>
+        <fullName>miRed_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miRed (mi - Content)</shortDescription>
+        <value>With the MIRed package you have a complete insight into the trips made by a vehicle. Your trip administration is easy to maintain with this package, providing insight into the most recent position of your vehicle(s) at any time.</value>
+    </labels>
+    <labels>
+        <fullName>miRed_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miRed (mi - Label)</shortDescription>
+        <value>miRed</value>
+    </labels>
+    <labels>
+        <fullName>miRoyalBlue_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miRoyalBlue (mi - Content)</shortDescription>
+        <value>With this subscription you have control over your vessel anytime, anywhere, including recovery after theft. Your logbook, sailing route registration and notifications of movement or entering/leaving a specific area are also kept.</value>
+    </labels>
+    <labels>
+        <fullName>miRoyalBlue_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miRoyalBlue (mi - Label)</shortDescription>
+        <value>miRoyalBlue</value>
+    </labels>
+    <labels>
+        <fullName>miWhite_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miWhite (mi - Content)</shortDescription>
+        <value>Once your tracker is active it will provide a position once a day to the MiApp and Platform. The alarm centre is available to activate your tracker in the event of a theft to place the unit into finder mode in the event of a theft. Thatcham Security Certification (TSC404).</value>
+    </labels>
+    <labels>
+        <fullName>miWhite_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miWhite (mi - Label)</shortDescription>
+        <value>miWhite S7</value>
+    </labels>
+    <labels>
+        <fullName>miYellow_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miYellow (mi - Content)</shortDescription>
+        <value>All security notifications are delivered via the MiApp, self-managed to track your asset following a theft. The latest position and route travelled is visible 24/7. Suitable for securing work equipment and agricultural vehicles. MiYellow includes reporting features to allow you to monitor the use of your machinery.</value>
+    </labels>
+    <labels>
+        <fullName>miYellow_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>miYellow (mi - Label)</shortDescription>
+        <value>miYellow</value>
+    </labels>
+    <labels>
+        <fullName>paymentRemarkA</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>paymentRemarkA</shortDescription>
+        <value>Please pay the invoice amount before {0, date,d-M-yyyy}.</value>
+    </labels>
+    <labels>
+        <fullName>paymentRemarkI</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>paymentRemarkI</shortDescription>
+        <value>The invoice amount will be debited from your account around  {0, date,d-M-yyyy}.</value>
+    </labels>
+    <labels>
+        <fullName>paymentRemarkP</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>paymentRemarkP</shortDescription>
+        <value>Invoice has already been paid on {0, date,d-M-yyyy}, with a (card) payment via the webshop.</value>
+    </labels>
+    <labels>
+        <fullName>paymentRemarkV</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>paymentRemarkV</shortDescription>
+        <value>Paid in full - Thank you.</value>
+    </labels>
+    <labels>
+        <fullName>testGetCustomLabel1</fullName>
+        <categories>Test - getCustomLabels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>testGetCustomLabel1</shortDescription>
+        <value>testGetCustomLabel1 - &gt; default language</value>
+    </labels>
+    <labels>
+        <fullName>testGetCustomLabel2</fullName>
+        <categories>Test - getCustomLabels</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>testGetCustomLabel2</shortDescription>
+        <value>testGetCustomLabel2 - &gt; default language</value>
+    </labels>
+    <labels>
+        <fullName>tpBasic_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Basic (tp - Content)</shortDescription>
+        <value>Live location, graphical route display, electronic logbook, geofencing, evaluation, movement data: 3 years, hardware guarantee (standard).</value>
+    </labels>
+    <labels>
+        <fullName>tpBasic_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Basic (tp - Label)</shortDescription>
+        <value>Basic</value>
+    </labels>
+    <labels>
+        <fullName>tpEnterprise_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Enterprise (tp - Content)</shortDescription>
+        <value>Live location, graphical route display, import interface (Excel, CSV), electronic logbook, reporting incl. automatic. Shipping, data interface/API, alarm functions, geofencing, evaluation of movement data: 3 years, messaging via TrackPilot Go!, drag &amp; drop tour position, framework tour planning, route optimization, target/actual comparison, tour transmission, TrackPilot Predict, number of additional users: 10, hardware guarantee (extended ).</value>
+    </labels>
+    <labels>
+        <fullName>tpEnterprise_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Enterprise (tp - Label)</shortDescription>
+        <value>Enterprise</value>
+    </labels>
+    <labels>
+        <fullName>tpPremium_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Premium (tp - Content)</shortDescription>
+        <value>Live location, graphical route display, import interface (Excel, CSV), electronic logbook, reporting incl. automatic. Shipping, data interface/API, alarm functions, geofencing, evaluation of movement data: 3 years, messaging via TrackPilot Go!, drag &amp; drop tour scheduling, free optimization, framework tour planning, route optimization, target/actual comparison, tour transmission, TrackPilot Predict, number of additional users: 10 , Hardware warranty (Extended+), Free user training: 1 per year.</value>
+    </labels>
+    <labels>
+        <fullName>tpPremium_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Premium (tp - Label)</shortDescription>
+        <value>Premium</value>
+    </labels>
+    <labels>
+        <fullName>tpProfessional_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Professional (tp - Content)</shortDescription>
+        <value>Live location, graphical route display, import interface (Excel, CSV), electronic logbook, reporting incl. automatic. Shipping, data interface/API, alarm functions, geofencing, analysis of movement data: 3 years, messaging via TrackPilot Go!, number of additional users: 10, hardware guarantee (standard).</value>
+    </labels>
+    <labels>
+        <fullName>tpProfessional_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Professional (tp - Label)</shortDescription>
+        <value>Professional</value>
+    </labels>
+    <labels>
+        <fullName>tpRemoteTachoDownload_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Remote Tacho Download (tp - Content)</shortDescription>
+        <value>Automatic reading of signed driver and vehicle data, online transmission of driving and rest times, display of the current driving time budget, display of warnings and violations that have occurred, archiving and report evaluation of driver and vehicle data, creation of social reports, data export in CSV and PDF format, Reminder function for reading.</value>
+    </labels>
+    <labels>
+        <fullName>tpRemoteTachoDownload_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Remote Tacho Download (tp - Label)</shortDescription>
+        <value>Remote Tacho Download</value>
+    </labels>
+    <labels>
+        <fullName>tpTemperature_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Temperature Module (tp - Content)</shortDescription>
+        <value>Incl. 1 sensor, Up to 4 temperature sensors can be used per vehicle, Upper and/or lower temperature limit adjustable, Alarm if the limit values ​​are exceeded, Permanent recording of the temperature values, even when the vehicle is switched off.</value>
+    </labels>
+    <labels>
+        <fullName>tpTemperature_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Temperature Module (tp - Label)</shortDescription>
+        <value>Temperature Module</value>
+    </labels>
+    <labels>
+        <fullName>tpTourPlanning_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Tour Planning (tp - Content)</shortDescription>
+        <value>Drag &amp; drop tour scheduling, free optimization, framework tour planning, route optimization, target/actual comparison, tour transmission.</value>
+    </labels>
+    <labels>
+        <fullName>tpTourPlanning_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Tour Planning (tp - Label)</shortDescription>
+        <value>Tour Planning</value>
+    </labels>
+    <labels>
+        <fullName>tpTrackPilotApp_Content</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>TrackPilot App (tp - Content)</shortDescription>
+        <value>Order and tour management for Android &amp; iPhone, proof of order completion via scan/signature/photo, order navigation.</value>
+    </labels>
+    <labels>
+        <fullName>tpTrackPilotAppl_Label</fullName>
+        <categories>Offer Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>TrackPilot App (tp - Label)</shortDescription>
+        <value>TrackPilot App</value>
+    </labels>
+</CustomLabels>

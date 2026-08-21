@@ -35,6 +35,64 @@
                 margin-bottom: 16px;
             }
 
+            #future-consent-container {
+                display: none;
+                align-items: flex-start;
+                gap: 10px;
+                margin-bottom: 16px;
+                font-size: 13px;
+                line-height: 1.4;
+                color: #3c4257;
+            }
+
+            /* Sized/shaped to match Stripe's own mandate checkbox inside #payment-element -
+               the native browser default is smaller and square, which looked inconsistent
+               right above it. */
+            #future-consent-checkbox {
+                appearance: none;
+                -webkit-appearance: none;
+                width: 16px;
+                height: 16px;
+                margin: 1px 0 0 0;
+                flex-shrink: 0;
+                border: 1px solid #a3acb9;
+                border-radius: 4px;
+                background: #fff;
+                position: relative;
+                cursor: pointer;
+                transition: background-color 0.12s ease, border-color 0.12s ease;
+            }
+
+            #future-consent-checkbox:checked {
+                background-color: var(--provider-primary-color);
+                border-color: var(--provider-primary-color);
+            }
+
+            #future-consent-checkbox:checked::after {
+                content: '';
+                position: absolute;
+                left: 5px;
+                top: 2px;
+                width: 4px;
+                height: 8px;
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+
+            #future-consent-checkbox:focus-visible {
+                outline: 2px solid var(--provider-primary-color);
+                outline-offset: 2px;
+            }
+
+            #future-consent-error {
+                color: #fa755a;
+                font-size: 13px;
+                margin-top: -8px;
+                margin-bottom: 16px;
+                min-height: 16px;
+            }
+
             /* Payment error styling */
             #payment-error {
                 color: #fa755a;
@@ -113,6 +171,12 @@
     <body>
         <!-- Payment container -->
         <div id="payment-element"></div>
+        <!-- Future subscription payments consent (disclosure only; setup mode only) -->
+        <div id="future-consent-container">
+            <input type="checkbox" id="future-consent-checkbox" />
+            <label for="future-consent-checkbox" id="future-consent-label"></label>
+        </div>
+        <div id="future-consent-error" role="alert"></div>
         <!-- Button container -->
         <div class="buttons-container">
             <button id="submit-btn" type="button">Pay Now</button>
@@ -129,6 +193,7 @@
             let cs;
             let mode;
             let modeElement;
+            let paymentMethodType;
             let amount = '';
             let billingEmail;
             let billingName;
@@ -138,6 +203,8 @@
             let cancelLabel = '';
             let cancelConfirmLabel = '';
             let processingLabel = '';
+            let futureConsentLabel = '';
+            let futureConsentRequiredLabel = '';
 
             const postHeight = () => {
                 const height = document.body.scrollHeight;
@@ -153,6 +220,20 @@
             const cancelBtn = document.getElementById('cancel-btn');
             const elementContainer = document.getElementById('payment-element');
             const errorContainer = document.getElementById('payment-error');
+            const futureConsentContainer = document.getElementById('future-consent-container');
+            const futureConsentCheckbox = document.getElementById('future-consent-checkbox');
+            const futureConsentLabelEl = document.getElementById('future-consent-label');
+            const futureConsentErrorEl = document.getElementById('future-consent-error');
+
+            // Disclosure only, shown for mandate-based/reusable payment methods only (Direct
+            // Debit schemes, iDEAL) - never for a plain one-off card payment. `mode` can't be
+            // used for this: BACS establishes its mandate in a single PaymentIntent step
+            // (mode 'payment', same as a one-off card charge), SEPA/ACH via a separate
+            // SetupIntent (mode 'setup') - see Ctrl_Payment.getPaymentData. Reuse of the
+            // mandate for future subscription payments already happens regardless of this
+            // checkbox; see Ctrl_Payment.finalizeCheckout.
+            const FUTURE_CONSENT_METHODS = ['sepa_debit', 'bacs_debit', 'ach_debit', 'ideal'];
+            const showsFutureConsent = () => FUTURE_CONSENT_METHODS.includes(paymentMethodType);
 
             function buildElements() {
                 if (!cs) return;
@@ -200,7 +281,13 @@
                 if (!data || !data.type) return;
 
                 if (data.type === 'initProvider') {
-                    const { publishableKey, clientSecret, mode, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, amount: formattedAmount, billingEmail: bEmail, billingName: bName } = data;
+                    const { publishableKey, clientSecret, mode: modeIn, paymentMethodType: paymentMethodTypeIn, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, futureConsentLabel: futureConsentLbl, futureConsentRequiredLabel: futureConsentRequiredLbl, amount: formattedAmount, billingEmail: bEmail, billingName: bName } = data;
+                    // Assigning (not re-declaring) the module-level `mode`/`paymentMethodType`
+                    // here on purpose — showsFutureConsent() below reads those module-level
+                    // bindings. Destructuring them directly as const would shadow the outer
+                    // `let` and leave it stuck undefined.
+                    mode = modeIn;
+                    paymentMethodType = paymentMethodTypeIn;
                     billingEmail = bEmail;
                     billingName  = bName;
                     theme = themeSet || 'none';
@@ -209,13 +296,15 @@
                     processingLabel = processingLbl || 'Processing';
                     submitPaymentLabel = submitPaymentLbl || 'Pay';
                     submitSetupLabel = submitSetupLbl || 'Validate';
+                    futureConsentLabel = futureConsentLbl || futureConsentLabel;
+                    futureConsentRequiredLabel = futureConsentRequiredLbl || futureConsentRequiredLabel;
                     amount = formattedAmount || '(?)';
                     cs = clientSecret;
 
                     if (!mode) {
                         mode = 'payment';
                     }
-                    
+
                     if (mode === 'both') {
                         modeElement = 'payment';
                         submitLabel = submitSetupLabel.concat(' & ', submitPaymentLabel);
@@ -223,6 +312,9 @@
                         modeElement = mode;
                         submitLabel = (modeElement === 'setup') ? submitSetupLabel : submitPaymentLabel;
                     }
+
+                    futureConsentLabelEl.textContent = futureConsentLabel;
+                    futureConsentContainer.style.display = showsFutureConsent() ? 'flex' : 'none';
 
                     // Initialize Provider
                     provider = Stripe(publishableKey);
@@ -242,6 +334,14 @@
                     submitBtn.addEventListener('click', async () => {
                         // 🔒 Prevent double submit
                         if (window.__stripeSubmitting) return;
+
+                        // Disclosure checkbox - required only when shown (setup/both mode).
+                        futureConsentErrorEl.textContent = '';
+                        if (showsFutureConsent() && !futureConsentCheckbox.checked) {
+                            futureConsentErrorEl.textContent = futureConsentRequiredLabel;
+                            return;
+                        }
+
                         window.__stripeSubmitting = true;
 
                         submitBtn.disabled = true;
@@ -262,7 +362,8 @@
                             intentMessage,
                             intentId,
                             paymentMethodId,
-                            mandateId
+                            mandateId,
+                            futureConsent: showsFutureConsent() ? futureConsentCheckbox.checked : null
                         });
 
                         try {
@@ -473,14 +574,16 @@
                         }
                     });
                 } else if (data.type === 'localeUpdate') {
-                    const { locale: localeUpd, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl} = data;
+                    const { locale: localeUpd, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, futureConsentLabel: futureConsentLbl, futureConsentRequiredLabel: futureConsentRequiredLbl } = data;
 
                     cancelLabel = cancelLbl || cancelLabel;
                     cancelConfirmLabel = cancelConfirmLbl || cancelConfirmLabel;
                     processingLabel = processingLbl || processingLabel;
                     submitPaymentLabel = submitPaymentLbl || submitPaymentLabel;
                     submitSetupLabel = submitSetupLbl || submitSetupLabel;
-                    
+                    futureConsentLabel = futureConsentLbl || futureConsentLabel;
+                    futureConsentRequiredLabel = futureConsentRequiredLbl || futureConsentRequiredLabel;
+
                     if (locale !== localeUpd) {
                         setLocale(localeUpd);
                     }
@@ -492,9 +595,11 @@
                     }
 
                     // --- Display dynamic (translation)label on submit button ---
-                    submitBtn.textContent = submitLabel;  
+                    submitBtn.textContent = submitLabel;
                     // --- Display dynamic (translation)label on cancel button ---
-                    cancelBtn.textContent = cancelLabel;                    
+                    cancelBtn.textContent = cancelLabel;
+                    // --- Display dynamic (translation)label on future-consent checkbox ---
+                    futureConsentLabelEl.textContent = futureConsentLabel;
                 }
             });
         </script>

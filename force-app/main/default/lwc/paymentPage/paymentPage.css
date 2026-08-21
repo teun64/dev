@@ -5,20 +5,19 @@
 
 /* The LWR "Inner" theme layout wraps this component in the site's normal content-column
    padding/max-width, which was designed for regular text pages, not a checkout screen — it
-   made the card look cramped and off-center. Break out of that column (full-bleed) with zero
-   horizontal padding here, so the card's own outer edge reaches exactly the same width as the
-   site header/footer (customerHubHeader.css's .mi-header is width:100% of an already-full-width
-   region with no outer padding of its own — its 40px inset is on .mi-header-inner, one level
-   in, same idea as --pp-inset below being on checkout-header/main-grid rather than here).
+   made the card look cramped and off-center. It needs to break out of that column (full-bleed)
+   so the card's own outer edge reaches exactly the same width as the site header/footer
+   (customerHubHeader.css's .mi-header is width:100% of an already-full-width region with no
+   outer padding of its own — its 40px inset is on .mi-header-inner, one level in, same idea as
+   --pp-inset below being on checkout-header/main-grid rather than here).
+   A pure-CSS 100vw/negative-margin breakout was tried here first and left a residual few-px
+   mismatch against the header/footer edges (100vw includes the scrollbar gutter, width:100%
+   does not) — width/offset are now measured against document.documentElement.clientWidth and
+   this element's own actual position in paymentPage.js's _applyFullBleed(), and applied as
+   inline style, so this class only carries the vertical spacing; JS owns the horizontal box.
    Only applied on the standalone Experience Cloud page (.pp-standalone) — never when this
-   component is embedded as a Flow screen component, where 100vw would blow out the modal. */
+   component is embedded as a Flow screen component, where full-bleed would blow out the modal. */
 .pp-standalone {
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
     padding: 1.5rem 0;
     box-sizing: border-box;
 }

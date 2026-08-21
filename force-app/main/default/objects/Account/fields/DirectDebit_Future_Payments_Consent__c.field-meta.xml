@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DirectDebit_Future_Payments_Consent__c</fullName>
+    <label>DD Future Payments Consent</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <trackHistory>false</trackHistory>
+    <description>Checked when the customer ticked the "use this mandate for future subscription payments" disclosure checkbox on the Direct Debit setup checkout page (paymentCheckoutHtml.html). Disclosure only - reuse of the mandate for future payments already happens regardless of this flag; see DirectDebit_Future_Payments_Consent_Date__c for when they agreed.</description>
+</CustomField>

@@ -8,6 +8,7 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public String publishableKey;
         @AuraEnabled public String clientSecret;
         @AuraEnabled public String mode;
+        @AuraEnabled public String paymentMethodType;
         @AuraEnabled public String currency_x;
         @AuraEnabled public Integer amountCents;
         @AuraEnabled public String customer;
@@ -127,6 +128,7 @@ public without sharing class Ctrl_Payment {
         String paymentMethodId  = p.Account__r?.PayProv_PaymentMethodId__c;
         String ddMethod         = p.Administration__r?.PayProv_DirectDebit_PaymentMethod__c;
         if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
+        result.paymentMethodType = ddMethod;
 
         if (String.isBlank(stripeCustomerId)) {
             result.errorMessage = 'Payment account is not yet configured for direct debit. Please contact support.';
@@ -273,11 +275,11 @@ public without sharing class Ctrl_Payment {
     }
 
     @AuraEnabled(cacheable=false)
-    public static void finalizeCheckout(String token, String intentMode) {
+    public static void finalizeCheckout(String token, String intentMode, Boolean futureConsent) {
         if (String.isBlank(token)) return;
 
         List<Payment__c> payments = Database.queryWithBinds(
-            'SELECT Id FROM Payment__c' +
+            'SELECT Id, Account__c FROM Payment__c' +
             ' WHERE externalId__c = :token' +
             ' AND Status__c != \'Closed\'' +
             ' LIMIT 1',
@@ -290,6 +292,17 @@ public without sharing class Ctrl_Payment {
         // Here we only update the Payment status so the customer sees the result immediately.
         String newStatus = ('setup'.equals(intentMode)) ? 'Setup' : 'Processing';
         Database.update(new Payment__c(Id = payments[0].Id, Status__c = newStatus), AccessLevel.SYSTEM_MODE);
+
+        // Disclosure only - the mandate is already reused for future subscription payments
+        // regardless of this checkbox (see Ctrl_HubMandate). This just records that the
+        // customer was told and ticked the box, for our own records.
+        if (futureConsent == true && payments[0].Account__c != null) {
+            Database.update(new Account(
+                Id = payments[0].Account__c,
+                DirectDebit_Future_Payments_Consent__c      = true,
+                DirectDebit_Future_Payments_Consent_Date__c = Datetime.now()
+            ), AccessLevel.SYSTEM_MODE);
+        }
     }
 
     private static String callStripe(stripeGC.RawInvocableParameters params) {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Ik ga ermee akkoord dat deze incassomachtiging mag worden gebruikt om alle toekomstige abonnementsbetalingen automatisch te innen.</label>
+        <name>PaymentCheckoutFutureConsentLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Bevestig dat u akkoord gaat met de voorwaarden van de incassomachtiging voordat u doorgaat.</label>
+        <name>PaymentCheckoutFutureConsentRequired</name>
+    </customLabels>
+</Translations>

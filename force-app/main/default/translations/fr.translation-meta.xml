@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>J'accepte que ce mandat de prélèvement soit utilisé pour collecter automatiquement tous les futurs paiements d'abonnement.</label>
+        <name>PaymentCheckoutFutureConsentLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Veuillez confirmer que vous acceptez les conditions du mandat de prélèvement avant de continuer.</label>
+        <name>PaymentCheckoutFutureConsentRequired</name>
+    </customLabels>
+</Translations>

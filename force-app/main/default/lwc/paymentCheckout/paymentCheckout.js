@@ -8,6 +8,7 @@ export default class PaymentCheckout extends LightningElement {
     @api publishableKey;
     @api clientSecret;
     @api mode = 'payment';
+    @api paymentMethodType;
     @api theme = 'stripe';
     @api amount;
     @api billingEmail;
@@ -37,14 +38,18 @@ export default class PaymentCheckout extends LightningElement {
     processingLabel = 'Processing';
     submitPaymentLabel = 'Pay';
     submitSetupLabel = 'Validate';
- 
+    futureConsentLabel = 'I agree that this Direct Debit mandate may be used to collect all future subscription payments automatically.';
+    futureConsentRequiredLabel = 'Please confirm you agree to the Direct Debit mandate terms before continuing.';
+
     // Define the list of labels to retrieve
     labelList = [
         'PaymentCheckoutCancelButton',
-        'PaymentCheckoutCancelConfirm', 
-        'PaymentCheckoutProcessing', 
+        'PaymentCheckoutCancelConfirm',
+        'PaymentCheckoutProcessing',
         'PaymentCheckoutSubmitButtonPayment',
-        'PaymentCheckoutSubmitButtonSetup'
+        'PaymentCheckoutSubmitButtonSetup',
+        'PaymentCheckoutFutureConsentLabel',
+        'PaymentCheckoutFutureConsentRequired'
     ];
     // Use @wire to call the Apex method
     @wire(getCustomLabels, { 
@@ -61,6 +66,8 @@ export default class PaymentCheckout extends LightningElement {
             this.processingLabel = data.PaymentCheckoutProcessing;
             this.submitPaymentLabel = data.PaymentCheckoutSubmitButtonPayment;
             this.submitSetupLabel = data.PaymentCheckoutSubmitButtonSetup;
+            this.futureConsentLabel = data.PaymentCheckoutFutureConsentLabel;
+            this.futureConsentRequiredLabel = data.PaymentCheckoutFutureConsentRequired;
 
             console.log('✅ fetching labels notifyIframeOfLabels()');
             // When labels change → notify iframe
@@ -71,7 +78,10 @@ export default class PaymentCheckout extends LightningElement {
     }
 
     iframe;
-    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html`;
+    // ?v= busts the CDN's static-resource cache (cache-control: public, max-age=45 days,
+    // observed independently of the site's own publish step) - bump this on every future
+    // change to paymentCheckoutHtml.html, or the new HTML can sit unserved for weeks.
+    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=4`;
 
 
     // --- Computed Properties ---
@@ -100,6 +110,7 @@ export default class PaymentCheckout extends LightningElement {
                     publishableKey: this.publishableKey,
                     clientSecret: this.clientSecret,
                     mode: this.mode,
+                    paymentMethodType: this.paymentMethodType,
                     theme: this.theme,
                     locale: this.localeSet,
                     cancelLabel: this.cancelLabel,
@@ -107,6 +118,8 @@ export default class PaymentCheckout extends LightningElement {
                     processingLabel: this.processingLabel,
                     submitPaymentLabel: this.submitPaymentLabel,
                     submitSetupLabel: this.submitSetupLabel,
+                    futureConsentLabel: this.futureConsentLabel,
+                    futureConsentRequiredLabel: this.futureConsentRequiredLabel,
                     amount: this.amount,
                     billingEmail: this.billingEmail,
                     billingName: this.billingName
@@ -126,7 +139,9 @@ export default class PaymentCheckout extends LightningElement {
             cancelConfirmLabel: this.cancelConfirmLabel,
             processingLabel: this.processingLabel,
             submitPaymentLabel: this.submitPaymentLabel,
-            submitSetupLabel: this.submitSetupLabel
+            submitSetupLabel: this.submitSetupLabel,
+            futureConsentLabel: this.futureConsentLabel,
+            futureConsentRequiredLabel: this.futureConsentRequiredLabel
         }, '*');
     }
 
