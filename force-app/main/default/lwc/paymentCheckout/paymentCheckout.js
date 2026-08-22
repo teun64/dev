@@ -81,7 +81,7 @@ export default class PaymentCheckout extends LightningElement {
     // ?v= busts the CDN's static-resource cache (cache-control: public, max-age=45 days,
     // observed independently of the site's own publish step) - bump this on every future
     // change to paymentCheckoutHtml.html, or the new HTML can sit unserved for weeks.
-    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=6`;
+    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=7`;
 
 
     // --- Computed Properties ---
