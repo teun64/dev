@@ -35,12 +35,14 @@
                 margin-bottom: 16px;
             }
 
+            /* Matches Stripe's own mandate checkbox label (div.u-fs-sm inside
+               #payment-element's Checkbox - Stripe's "small" text size token, 14px). */
             #future-consent-container {
                 display: none;
                 align-items: flex-start;
                 gap: 10px;
                 margin-bottom: 16px;
-                font-size: 13px;
+                font-size: 14px;
                 line-height: 1.4;
                 color: #3c4257;
             }
@@ -51,12 +53,12 @@
             #future-consent-checkbox {
                 appearance: none;
                 -webkit-appearance: none;
-                width: 16px;
-                height: 16px;
-                margin: 1px 0 0 0;
+                width: 20px;
+                height: 20px;
+                margin: 0;
                 flex-shrink: 0;
-                border: 1px solid #a3acb9;
-                border-radius: 4px;
+                border: 1px solid #b3bcc9;
+                border-radius: 5px;
                 background: #fff;
                 position: relative;
                 cursor: pointer;
@@ -71,10 +73,10 @@
             #future-consent-checkbox:checked::after {
                 content: '';
                 position: absolute;
-                left: 5px;
-                top: 2px;
-                width: 4px;
-                height: 8px;
+                left: 7px;
+                top: 3px;
+                width: 5px;
+                height: 10px;
                 border: solid #fff;
                 border-width: 0 2px 2px 0;
                 transform: rotate(45deg);
