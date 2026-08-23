@@ -199,7 +199,8 @@ private class Test_Svc_StripeEventProcessor {
             'SELECT Status__c, Interaction_Status__c, PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
             new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
         System.assertEquals('Paid',        updPmt.Status__c,             'Payment status = Paid');
-        System.assertEquals('Mail Sent',  updPmt.Interaction_Status__c, 'Interaction status unchanged for payment_intent events');
+        System.assertEquals('Request Processed by Customer', updPmt.Interaction_Status__c,
+            'BACS payments complete via payment_intent.succeeded (no separate SetupIntent step) - the escalation flow only checks Interaction_Status__c, so this must flip here too or a completed BACS payment keeps getting reminder emails');
         System.assertEquals('pi_test001', updPmt.PaymentIntentId__c,    'Payment intent ID stored on payment');
     }
 

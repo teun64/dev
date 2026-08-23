@@ -137,7 +137,7 @@ public without sharing class Svc_StripeEventProcessor {
                     Payment__c pu = new Payment__c(Id = payment.Id, Status__c = newStatus);
                     if (String.isNotBlank(p.paymentIntentId)) pu.PaymentIntentId__c = p.paymentIntentId;
                     if (String.isNotBlank(p.setupIntentId))   pu.SetupIntentId__c   = p.setupIntentId;
-                    if ('setup_intent.succeeded'.equals(p.eventType)) {
+                    if ('setup_intent.succeeded'.equals(p.eventType) || 'payment_intent.succeeded'.equals(p.eventType)) {
                         pu.Interaction_Status__c = 'Request Processed by Customer';
                         pu.Processed_Date__c     = Date.today();
                     }
