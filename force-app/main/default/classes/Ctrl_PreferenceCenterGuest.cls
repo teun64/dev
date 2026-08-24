@@ -4,7 +4,7 @@
  * Deliberately a separate class from Ctrl_PreferenceCenter: Salesforce grants Apex class
  * access per class, not per method, so any @AuraEnabled method on a class the Guest profile
  * can call is invokable directly (bypassing the LWC) with an arbitrary parameter. Keeping the
- * key-hash-only surface here — and granting only this class to ps_miCustomerHub_Preference — means a
+ * key-hash-only surface here — and granting only this class to ps_miCustomerHub — means a
  * guest request can never supply a raw Contact Id; it must present the Contact's
  * Preference_Token_Key__c value (an HMAC of their email, unforgeable without the org secret),
  * which is resolved to a Contact server-side.

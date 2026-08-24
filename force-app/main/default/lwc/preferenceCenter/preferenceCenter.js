@@ -635,8 +635,8 @@ export default class PreferenceCenter extends LightningElement {
     /**
      * Fetches BrandThemeConfig__mdt data for the given brand code and optionally
      * enriches with live logo/color data from Marketing Cloud BrandCenter.
-     * Guest users go through Ctrl_PreferenceCenterGuest — ps_miCustomerHub_Preference only
-     * grants class access to that wrapper, never to Ctrl_PreferenceCenter itself.
+     * Guest users go through Ctrl_PreferenceCenterGuest — ps_miCustomerHub only grants
+     * class access to that wrapper, never to Ctrl_PreferenceCenter itself.
      */
     _fetchBrandTheme(brand) {
         if (!brand) return;
