@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Grants ChatterFileLink ("Content Deliveries and Public Links") - public, no-login share link for a File. Different from Asset Files (ps_miContentAdministrator) - that gives a stable, friendly URL instead of a random link hash.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miContentDeliveries (ps)</label>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ChatterFileLink</name>
+    </userPermissions>
+</PermissionSet>
