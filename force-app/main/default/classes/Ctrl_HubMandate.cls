@@ -48,38 +48,13 @@ public without sharing class Ctrl_HubMandate {
                 acc.PayProv_AccountId__c,
                 '/v1/mandates/' + acc.PayProv_MandateId__c
             );
-
-            result.found     = true;
-            result.mandateId = (String) mandate.get('id');
-            result.status    = (String) mandate.get('status');
-
-            Map<String, Object> pmd = (Map<String, Object>) mandate.get('payment_method_details');
-            if (pmd != null) {
-                Map<String, Object> sepa = (Map<String, Object>) pmd.get('sepa_debit');
-                if (sepa != null) {
-                    result.mandateReference = (String) sepa.get('reference');
-                    result.mandateUrl       = (String) sepa.get('url');
-                }
-            }
-
-            Map<String, Object> acceptance = (Map<String, Object>) mandate.get('customer_acceptance');
-            if (acceptance != null) {
-                result.acceptanceType = (String) acceptance.get('type');
-                Object raw = acceptance.get('accepted_at');
-                if (raw != null) {
-                    result.acceptedAt = Long.valueOf(String.valueOf(raw));
-                }
-            }
+            applyMandateResponse(result, mandate);
 
             // 2. Fetch payment method for IBAN last4 + bank code
             String pmId = (String) mandate.get('payment_method');
             if (String.isNotBlank(pmId)) {
                 Map<String, Object> pm = callStripeGet(acc.PayProv_AccountId__c, '/v1/payment_methods/' + pmId);
-                Map<String, Object> sepaDebit = (Map<String, Object>) pm.get('sepa_debit');
-                if (sepaDebit != null) {
-                    result.ibanLast4 = (String) sepaDebit.get('last4');
-                    result.bankCode  = (String) sepaDebit.get('bank_code');
-                }
+                applyPaymentMethodResponse(result, pm);
             }
 
         } catch (Exception e) {
@@ -88,6 +63,40 @@ public without sharing class Ctrl_HubMandate {
         }
 
         return result;
+    }
+
+    @TestVisible
+    private static void applyMandateResponse(MandateData result, Map<String, Object> mandate) {
+        result.found     = true;
+        result.mandateId = (String) mandate.get('id');
+        result.status    = (String) mandate.get('status');
+
+        Map<String, Object> pmd = (Map<String, Object>) mandate.get('payment_method_details');
+        if (pmd != null) {
+            Map<String, Object> sepa = (Map<String, Object>) pmd.get('sepa_debit');
+            if (sepa != null) {
+                result.mandateReference = (String) sepa.get('reference');
+                result.mandateUrl       = (String) sepa.get('url');
+            }
+        }
+
+        Map<String, Object> acceptance = (Map<String, Object>) mandate.get('customer_acceptance');
+        if (acceptance != null) {
+            result.acceptanceType = (String) acceptance.get('type');
+            Object raw = acceptance.get('accepted_at');
+            if (raw != null) {
+                result.acceptedAt = Long.valueOf(String.valueOf(raw));
+            }
+        }
+    }
+
+    @TestVisible
+    private static void applyPaymentMethodResponse(MandateData result, Map<String, Object> pm) {
+        Map<String, Object> sepaDebit = (Map<String, Object>) pm.get('sepa_debit');
+        if (sepaDebit != null) {
+            result.ibanLast4 = (String) sepaDebit.get('last4');
+            result.bankCode  = (String) sepaDebit.get('bank_code');
+        }
     }
 
     private static Map<String, Object> callStripeGet(String stripeAccountId, String endpoint) {
