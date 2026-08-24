@@ -1,5 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
-import getMandateData from '@salesforce/apex/Ctrl_HubMandate.getMandateData';
+import getMandateData from '@salesforce/apex/Ctrl_PaymentMandate.getMandateData';
 
 export default class StripeMandateView extends LightningElement {
     @api recordId;

@@ -1,5 +1,5 @@
 @IsTest
-private class Test_Ctrl_HubMandate {
+private class Test_Ctrl_PaymentMandate {
 
     // ── Shared test data ──────────────────────────────────────────────────────
 
@@ -16,7 +16,7 @@ private class Test_Ctrl_HubMandate {
     @IsTest
     static void testGetMandateData_blankAccountId() {
         Test.startTest();
-        Ctrl_HubMandate.MandateData d = Ctrl_HubMandate.getMandateData('');
+        Ctrl_PaymentMandate.MandateData d = Ctrl_PaymentMandate.getMandateData('');
         Test.stopTest();
 
         System.assertEquals(false, d.found, 'No account provided → not found');
@@ -26,7 +26,7 @@ private class Test_Ctrl_HubMandate {
     @IsTest
     static void testGetMandateData_nullAccountId() {
         Test.startTest();
-        Ctrl_HubMandate.MandateData d = Ctrl_HubMandate.getMandateData(null);
+        Ctrl_PaymentMandate.MandateData d = Ctrl_PaymentMandate.getMandateData(null);
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -42,7 +42,7 @@ private class Test_Ctrl_HubMandate {
         delete ghost;
 
         Test.startTest();
-        Ctrl_HubMandate.MandateData d = Ctrl_HubMandate.getMandateData(ghostId);
+        Ctrl_PaymentMandate.MandateData d = Ctrl_PaymentMandate.getMandateData(ghostId);
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -55,7 +55,7 @@ private class Test_Ctrl_HubMandate {
         // PayProv_MandateId__c intentionally left blank.
 
         Test.startTest();
-        Ctrl_HubMandate.MandateData d = Ctrl_HubMandate.getMandateData(acc.Id);
+        Ctrl_PaymentMandate.MandateData d = Ctrl_PaymentMandate.getMandateData(acc.Id);
         Test.stopTest();
 
         System.assertEquals(false, d.found);
@@ -78,7 +78,7 @@ private class Test_Ctrl_HubMandate {
         update acc;
 
         Test.startTest();
-        Ctrl_HubMandate.MandateData d = Ctrl_HubMandate.getMandateData(acc.Id);
+        Ctrl_PaymentMandate.MandateData d = Ctrl_PaymentMandate.getMandateData(acc.Id);
         Test.stopTest();
 
         System.assertEquals(false, d.found, 'Unmocked Stripe callout fails, caught and reported as not found');
@@ -94,9 +94,9 @@ private class Test_Ctrl_HubMandate {
 
     @IsTest
     static void testApplyMandateResponse_fullPayload() {
-        Ctrl_HubMandate.MandateData result = new Ctrl_HubMandate.MandateData();
+        Ctrl_PaymentMandate.MandateData result = new Ctrl_PaymentMandate.MandateData();
 
-        Ctrl_HubMandate.applyMandateResponse(result, new Map<String, Object>{
+        Ctrl_PaymentMandate.applyMandateResponse(result, new Map<String, Object>{
             'id'             => 'mandate_abc',
             'status'         => 'active',
             'payment_method' => 'pm_abc',
@@ -123,11 +123,11 @@ private class Test_Ctrl_HubMandate {
 
     @IsTest
     static void testApplyMandateResponse_minimalPayload() {
-        Ctrl_HubMandate.MandateData result = new Ctrl_HubMandate.MandateData();
+        Ctrl_PaymentMandate.MandateData result = new Ctrl_PaymentMandate.MandateData();
 
         // No payment_method_details, no customer_acceptance — both optional
         // blocks must be skipped without throwing.
-        Ctrl_HubMandate.applyMandateResponse(result, new Map<String, Object>{
+        Ctrl_PaymentMandate.applyMandateResponse(result, new Map<String, Object>{
             'id'     => 'mandate_minimal',
             'status' => 'pending'
         });
@@ -142,9 +142,9 @@ private class Test_Ctrl_HubMandate {
 
     @IsTest
     static void testApplyMandateResponse_acceptanceWithoutTimestamp() {
-        Ctrl_HubMandate.MandateData result = new Ctrl_HubMandate.MandateData();
+        Ctrl_PaymentMandate.MandateData result = new Ctrl_PaymentMandate.MandateData();
 
-        Ctrl_HubMandate.applyMandateResponse(result, new Map<String, Object>{
+        Ctrl_PaymentMandate.applyMandateResponse(result, new Map<String, Object>{
             'id'                   => 'mandate_offline',
             'status'               => 'active',
             'customer_acceptance'  => new Map<String, Object>{ 'type' => 'offline' }
@@ -158,9 +158,9 @@ private class Test_Ctrl_HubMandate {
 
     @IsTest
     static void testApplyPaymentMethodResponse_sepaDebit() {
-        Ctrl_HubMandate.MandateData result = new Ctrl_HubMandate.MandateData();
+        Ctrl_PaymentMandate.MandateData result = new Ctrl_PaymentMandate.MandateData();
 
-        Ctrl_HubMandate.applyPaymentMethodResponse(result, new Map<String, Object>{
+        Ctrl_PaymentMandate.applyPaymentMethodResponse(result, new Map<String, Object>{
             'id'         => 'pm_abc',
             'sepa_debit' => new Map<String, Object>{
                 'last4'     => '1234',
@@ -174,10 +174,10 @@ private class Test_Ctrl_HubMandate {
 
     @IsTest
     static void testApplyPaymentMethodResponse_nonSepa() {
-        Ctrl_HubMandate.MandateData result = new Ctrl_HubMandate.MandateData();
+        Ctrl_PaymentMandate.MandateData result = new Ctrl_PaymentMandate.MandateData();
 
         // e.g. a card payment method — no sepa_debit block at all.
-        Ctrl_HubMandate.applyPaymentMethodResponse(result, new Map<String, Object>{
+        Ctrl_PaymentMandate.applyPaymentMethodResponse(result, new Map<String, Object>{
             'id' => 'pm_card'
         });
 

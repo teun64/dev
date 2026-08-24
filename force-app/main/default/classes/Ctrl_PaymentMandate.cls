@@ -1,4 +1,4 @@
-public without sharing class Ctrl_HubMandate {
+public without sharing class Ctrl_PaymentMandate {
 
     public class MandateData {
         @AuraEnabled public Boolean found;

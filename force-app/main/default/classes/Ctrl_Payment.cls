@@ -294,7 +294,7 @@ public without sharing class Ctrl_Payment {
         Database.update(new Payment__c(Id = payments[0].Id, Status__c = newStatus), AccessLevel.SYSTEM_MODE);
 
         // Disclosure only - the mandate is already reused for future subscription payments
-        // regardless of this checkbox (see Ctrl_HubMandate). This just records that the
+        // regardless of this checkbox (see Ctrl_PaymentMandate). This just records that the
         // customer was told and ticked the box, for our own records.
         if (futureConsent == true && payments[0].Account__c != null) {
             Database.update(new Account(
