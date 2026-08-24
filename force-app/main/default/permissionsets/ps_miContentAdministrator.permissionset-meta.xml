@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>miContentAdministrator (ps)</label>
+    <description>Content Administrator perm (+ dependencies) - needed to see the "Asset File" option in the Files UI, among other Salesforce Files/Content admin actions.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <userPermissions>
+        <name>ContentAdministrator</name>
+        <enabled>true</enabled>
+    </userPermissions>
+    <userPermissions>
+        <name>CustomizeApplication</name>
+        <enabled>true</enabled>
+    </userPermissions>
+    <userPermissions>
+        <name>ManageCustomPermissions</name>
+        <enabled>true</enabled>
+    </userPermissions>
+    <userPermissions>
+        <name>ManageTerritories</name>
+        <enabled>true</enabled>
+    </userPermissions>
+    <userPermissions>
+        <name>ManageTranslation</name>
+        <enabled>true</enabled>
+    </userPermissions>
+    <userPermissions>
+        <name>ViewRoles</name>
+        <enabled>true</enabled>
+    </userPermissions>
+    <userPermissions>
+        <name>ViewSetup</name>
+        <enabled>true</enabled>
+    </userPermissions>
+</PermissionSet>
