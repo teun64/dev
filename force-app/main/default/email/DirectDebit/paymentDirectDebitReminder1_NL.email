@@ -64,9 +64,13 @@
     via e-mail: {{{Payment__c.Sender_Email__c}}}
 </p>
 
-<p style="font-size:12px;line-height:1.6;color:#777777;margin:0;">
+<p style="font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
     Dit bericht is verstuurd door {{{Payment__c.Sender_Name__c}}}.
     Indien u niet wenst gecontacteerd te worden, neem dan rechtstreeks contact op met de verzender van dit verzoek.
+</p>
+
+<p style="font-size:12px;line-height:1.6;color:#777777;margin:0;">
+    <a href="{{{Recipient.Preference_Center_Url__c}}}" style="color:#777777;">Beheer uw communicatievoorkeuren</a>
 </p>
 
 </div>
