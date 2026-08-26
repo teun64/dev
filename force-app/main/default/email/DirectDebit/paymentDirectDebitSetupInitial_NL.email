@@ -53,11 +53,6 @@
     <strong>Betalingsreferentie:</strong> {{{Payment__c.Name}}}
 </p>
 
-<p style="font-size:13px;line-height:1.6;color:#555555;margin:0 0 24px 0;">
-    Heeft u deze machtiging niet aangevraagd of heeft u vragen, neem dan contact op met onze klantenservice.
-    U kunt deze e-mail veilig negeren als deze niet op u van toepassing is.
-</p>
-
 <p style="font-size:14px;line-height:1.6;margin:0 0 24px 0;">
     Met vriendelijke groet,<br/>
     <strong>{{{Payment__c.Sender_Name__c}}}</strong>
