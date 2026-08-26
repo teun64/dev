@@ -304,9 +304,24 @@
     <formulas>
         <name>fMailTemplate</name>
         <dataType>String</dataType>
+        <!-- Same source and country->language mapping as Ctrl_PreferenceCenter.COUNTRY_TO_LANGUAGE
+             (Contact.Language__c is a country code, not a language code) - keeps the DD setup
+             email and the Preference Center page the visitor lands on always in agreement,
+             instead of the email picking Account.Sales_Language__c independently. -->
         <expression>{!cMailTemplateBase} +
 &apos;_&apos;  +
-BLANKVALUE(TEXT({!paymentRecord.Account__r.Sales_Language__c}),&apos;EN&apos;)</expression>
+CASE(TEXT({!dgr_03_Contact.Language__c}),
+&apos;NL&apos;,&apos;NL&apos;,
+&apos;BE&apos;,&apos;NL&apos;,
+&apos;AN&apos;,&apos;NL&apos;,
+&apos;DE&apos;,&apos;DE&apos;,
+&apos;AT&apos;,&apos;DE&apos;,
+&apos;CH&apos;,&apos;DE&apos;,
+&apos;LU&apos;,&apos;DE&apos;,
+&apos;FR&apos;,&apos;FR&apos;,
+&apos;GB&apos;,&apos;EN&apos;,
+&apos;EN&apos;,&apos;EN&apos;,
+&apos;EN&apos;)</expression>
     </formulas>
     <formulas>
         <name>fMailTemplateDefault</name>
@@ -450,7 +465,7 @@ BLANKVALUE(TEXT({!dgr_02_Administration.Language_Default__c}),&apos;EN&apos;)</e
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>dgr_01_EmailTemplate</targetReference>
+            <targetReference>dgr_03_Contact</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -462,6 +477,31 @@ BLANKVALUE(TEXT({!dgr_02_Administration.Language_Default__c}),&apos;EN&apos;)</e
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Subscription25__Administration__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_03_Contact</name>
+        <label>3. Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <!-- paymentRecord.Contact__r.Language__c is not reliably populated here — $Record from
+             the triggering rab_Payment_Direct_Debit_Setup flow only carries the Payment__c's own
+             fields, not related-object data, matching the same class of gap already fixed on
+             dgr_02_Administration above. Re-query Contact directly, same proven pattern. -->
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dgr_01_EmailTemplate</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>paymentRecord.Contact__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
