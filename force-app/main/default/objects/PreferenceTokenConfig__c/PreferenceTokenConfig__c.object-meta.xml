@@ -4,5 +4,5 @@
     <description>Stores the HMAC signing secret used to sign/validate guest Preference Center links (Util_CommunicationPreferenceToken). Deploy this object and its Secret__c field via source, but set the actual Secret__c value directly in each org (Setup &gt; Custom Settings &gt; Manage) after deployment — never commit a real secret value to source control.</description>
     <enableFeeds>false</enableFeeds>
     <label>Preference Token Config</label>
-    <visibility>Protected</visibility>
+    <visibility>Public</visibility>
 </CustomObject>
