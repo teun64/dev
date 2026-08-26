@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+        Source-based Metadata API deploy, built as a companion to the outbound
+        Change Set "20260825v3 - CustomerHub - Preferences and Payment".
+
+        CORRECTION 2026-08-25: an earlier version of this file also included
+        Network/CustomSite/DigitalExperienceConfig/ExperienceBundle, on the theory
+        that deploying CustomSite from source (which never carried a `serverIsDown`
+        field) would sidestep the Change Set's "no StaticResource named
+        SNA_8300e_sf_default_cdn_Customer_Hub1 found" error. A dry run against acc
+        disproved this: those four components are circularly dependent (Network
+        needs the CustomSite, CustomSite needs the Network, DigitalExperienceConfig
+        needs the ExperienceBundle) and none can be created by ANY metadata deploy
+        - source or Change Set - into an org with no site at all. They are
+        deliberately EXCLUDED from this package. The only fix for them is the
+        manual Setup > Digital Experiences > New step in each target org
+        (confirmed absent from both acc and prod as of 2026-08-24/25); deploy this
+        package's content on top only after that site exists.
+
+        Field/object scope below was derived by diffing dev's schema against acc
+        AND prod independently (not assumed identical) for every object this
+        feature touches, then intersecting against fields actually referenced by
+        the in-scope Apex/Flow source - not hand-copied from the manifest, which
+        was proven incomplete by that diff (11 more Payment__c fields, 1 more
+        Contact field, and the entire BrandThemeConfig__mdt custom metadata type
+        were all missing from acc/prod and unlisted).
+
+        RESOLVED 2026-08-25 - both "zombie field" references (a field that doesn't
+        exist ANYWHERE, not even dev, but a currently-Active compiled Apex class
+        still referenced it from before the field was deleted) were removed at
+        the code level rather than recreated as unproven fields, per explicit
+        direction:
+          1. Payment__c.Mail_Sent_Date__c - confirmed genuinely unused: the D+2/D+4/D+6
+             reminder cadence in rab_Payment_Direct_Debit_Escalation runs off the
+             flow's own RecordTriggerEvent scheduled-path offset, not a stored date
+             field. Removed the dead line from Test_Svc_StripeEventProcessor and
+             deleted the orphaned local field-meta.xml. Verified: 7/7 tests pass in dev.
+          2. Account.PrimaryBrand__c - confirmed genuinely unused (only reference in
+             the whole org was Ctrl_PreferenceCenter itself). Removed the brand-
+             resolution code path built on it (Case/Contact/User branches, the
+             resolveAccountContext SOQL and its PrimaryBrand__c select/filter, the
+             AccountContext wrapper, PreferencePageData.primaryBrand, and the two
+             dead LWC fallbacks in preferenceCenter.js) while preserving the Partner
+             Network category-visibility logic, which depends only on RecordType +
+             Roles, not this field. Verified: 18/18 tests pass in dev across
+             Ctrl_PreferenceCenter, Ctrl_PreferenceCenterGuest, Svc_MCBrandCenter.
+    -->
+    <types>
+        <members>Ctrl_Payment</members>
+        <members>Test_Ctrl_Payment</members>
+        <members>Ctrl_PaymentCase</members>
+        <members>Test_Ctrl_PaymentCase</members>
+        <members>Ctrl_CustomerHub</members>
+        <members>Test_Ctrl_CustomerHub</members>
+        <members>Ctrl_PaymentMandate</members>
+        <members>Test_Ctrl_PaymentMandate</members>
+        <members>Ctrl_PreferenceCenter</members>
+        <members>Test_Ctrl_PreferenceCenter</members>
+        <members>Ctrl_PreferenceCenterGuest</members>
+        <members>Test_Ctrl_PreferenceCenterGuest</members>
+        <members>Svc_StripeEventProcessor</members>
+        <members>Test_Svc_StripeEventProcessor</members>
+        <members>Svc_PicklistTranslationSync</members>
+        <members>Test_Svc_PicklistTranslationSync</members>
+        <members>Svc_MCBrandCenter</members>
+        <members>Test_Svc_MCBrandCenter</members>
+        <members>Util_CommunicationPreferenceToken</members>
+        <members>Test_Util_CommunicationPreferenceToken</members>
+        <members>Util_System</members>
+        <members>Test_Util_System</members>
+        <!-- Added 2026-08-25 - found via a real test failure that survived every other fix
+             tried today. Contact.trigger and Trigger_Contact.cls (which stamps
+             Preference_Token_Key__c/Preference_Center_Url__c via Util_ContactMarketing +
+             Util_CommunicationPreferenceToken) were NEVER in this package. Confirmed via
+             Tooling API: neither the trigger, the handler class, nor Util_ContactMarketing
+             exist in acc at all - not stale, not broken, simply never deployed. Without this,
+             no Contact insert/update in acc or prod would ever get a working guest Preference
+             Center link, in test or in real usage. -->
+        <members>Util_ContactMarketing</members>
+        <members>Trigger_Contact</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>Stripe_Event_c</members>
+        <members>Contact</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>rau_Subscription25_Invoice_c_Finalized_Create_Payment</members>
+        <members>rbb_Payment</members>
+        <members>rab_Payment</members>
+        <members>rab_Payment_Direct_Debit_Setup</members>
+        <members>afl_Payment_Direct_Debit_Setup</members>
+        <members>afl_PaymentDirectDebitSetup_SendMail</members>
+        <members>rab_Payment_Direct_Debit_Escalation</members>
+        <members>rbb_CommunicationPreference</members>
+        <members>rbb_CommunicationPreferenceConfig</members>
+        <members>SCR_Marketing_Preferences</members>
+        <name>Flow</name>
+    </types>
+    <types>
+        <members>Payment__c.externalId__c</members>
+        <members>Payment__c.Interaction_Status__c</members>
+        <members>Payment__c.Processed_Date__c</members>
+        <members>Payment__c.PaymentIntentId__c</members>
+        <members>Payment__c.SetupIntentId__c</members>
+        <members>Payment__c.Sender_Email__c</members>
+        <members>Payment__c.Sender_Name__c</members>
+        <!-- Mail_Sent_Date__c deliberately omitted - see comment above -->
+        <members>Payment__c.Contact__c</members>
+        <members>Payment__c.Type__c</members>
+        <members>Payment__c.Source__c</members>
+        <members>Payment__c.Reference__c</members>
+        <members>Payment__c.PayProv_PaymentIntentId__c</members>
+        <members>Payment__c.Last_Processed_Date__c</members>
+        <members>Payment__c.Last_Setup_Date__c</members>
+        <members>Payment__c.ProcessingTime__c</members>
+        <members>Payment__c.SetupTime__c</members>
+        <members>Payment__c.of_times_Processed__c</members>
+        <members>Payment__c.of_times_Setup__c</members>
+        <members>Account.DirectDebit_Future_Payments_Consent__c</members>
+        <members>Account.DirectDebit_Future_Payments_Consent_Date__c</members>
+        <members>Contact.Preference_Token_Key__c</members>
+        <members>Contact.Preference_Center_Url__c</members>
+        <members>Subscription25__Administration__c.Privacy_Policy_URL__c</members>
+        <members>Subscription25__Administration__c.Terms_Conditions_URL__c</members>
+        <!-- Added 2026-08-25 - the third zombie-field discovery today, and the only one
+             recreated for real rather than removed. AccountContactRelation.Marketing__c
+             gates Util_ContactMarketing's consent-based exclusion from Preference Center
+             tokens - a real, intended business rule (per explicit direction), not dead code.
+             Confirmed absent from dev/acc/prod alike; a local formula field definition
+             already existed but had never been deployed anywhere. Deployed to dev first,
+             then acc. -->
+        <members>AccountContactRelation.Marketing__c</members>
+        <!-- stripeGC__Stripe_Event__c custom fields - added 2026-08-25, second retrieve pass.
+             Referenced (lowercase) directly in Svc_StripeEventProcessor.cls; missed on the
+             first pass because a case-sensitive grep for the properly-cased names matched
+             nothing. Confirmed absent from acc/prod via describe; never had local source. -->
+        <members>stripeGC__Stripe_Event__c.Type__c</members>
+        <members>stripeGC__Stripe_Event__c.Id__c</members>
+        <members>stripeGC__Stripe_Event__c.CustomerId__c</members>
+        <members>stripeGC__Stripe_Event__c.PaymentMethodId__c</members>
+        <members>stripeGC__Stripe_Event__c.MandateId__c</members>
+        <members>stripeGC__Stripe_Event__c.Status__c</members>
+        <members>stripeGC__Stripe_Event__c.Error__c</members>
+        <members>stripeGC__Stripe_Event__c.Processed__c</members>
+        <members>stripeGC__Stripe_Event__c.PaymentIntentId__c</members>
+        <members>stripeGC__Stripe_Event__c.SetupIntentId__c</members>
+        <members>stripeGC__Stripe_Event__c.Retries__c</members>
+        <members>stripeGC__Stripe_Event__c.Object__c</members>
+        <!-- Added 2026-08-25 - Payment__c.Status__c already existed in acc/prod but was
+             missing two restricted-picklist values (Setup, Processing) that dev has. Found
+             via a real Apex test failure (INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST), not the
+             earlier field-existence diff, which only checks whether a field exists at all,
+             not whether an EXISTING field's picklist values match. Deployed to acc; confirmed
+             prod has the identical gap. -->
+        <members>Payment__c.Status__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>CommunicationPreference__c</members>
+        <members>CommunicationPreferenceConfig__c</members>
+        <members>CommunicationPreferenceAudit__c</members>
+        <members>PicklistTranslation__c</members>
+        <members>PreferenceTokenConfig__c</members>
+        <members>CustomerHub__c</members>
+        <members>BrandThemeConfig__mdt</members>
+        <!-- Added 2026-08-25, second retrieve pass - rbb_Payment flow references this CMDT
+             type directly; confirmed missing from acc/prod, no local source until now. -->
+        <members>DirectDebit_Method_Setting__mdt</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>BrandThemeConfig.M</members>
+        <members>BrandThemeConfig.E</members>
+        <members>BrandThemeConfig.T</members>
+        <members>DirectDebit_Method_Setting.sepa_debit</members>
+        <members>DirectDebit_Method_Setting.ach_debit</members>
+        <members>DirectDebit_Method_Setting.bacs_debit</members>
+        <name>CustomMetadata</name>
+    </types>
+    <types>
+        <members>BusinessLine</members>
+        <members>ComPref_Channel</members>
+        <members>ComPrev_Brand</members>
+        <members>ComPrev_Catergory</members>
+        <members>ComPrev_CommunicationType</members>
+        <name>GlobalValueSet</name>
+    </types>
+    <!-- Added 2026-08-25 - found by running Svc_PicklistTranslationSync.syncAll() against acc
+         post-deploy and seeing it produce zero PicklistTranslation__c rows despite succeeding.
+         GlobalValueSetTranslation is a distinct metadata type from Translations (custom
+         labels) - the fr/nl/de picklist-value translations live here and were never in the
+         package at all, missed by every earlier pass since this checks Translation Workbench
+         content, not field/object existence. -->
+    <types>
+        <members>ComPref_Channel-de</members>
+        <members>ComPref_Channel-fr</members>
+        <members>ComPref_Channel-nl_NL</members>
+        <members>ComPrev_Brand-de</members>
+        <members>ComPrev_Brand-fr</members>
+        <members>ComPrev_Brand-nl_NL</members>
+        <members>ComPrev_Catergory-de</members>
+        <members>ComPrev_Catergory-fr</members>
+        <members>ComPrev_Catergory-nl_NL</members>
+        <members>ComPrev_CommunicationType-de</members>
+        <members>ComPrev_CommunicationType-fr</members>
+        <members>ComPrev_CommunicationType-nl_NL</members>
+        <name>GlobalValueSetTranslation</name>
+    </types>
+    <types>
+        <members>ps_miCustomerHub_Payment</members>
+        <members>ps_miCustomerHub</members>
+        <members>miDataTranslations</members>
+        <!-- Added 2026-08-25, built new per explicit request - internal/marketing-user access
+             to the preference objects, distinct from ps_miCustomerHub (guest-only). Assigned
+             (in dev and acc) to: trietman, the Customer Hub guest user, and the active
+             miMarketing-profile users - Maarten Vos and Arno Natris in both orgs, plus Armin
+             Ossowski and Soheil Arefi in dev only (their acc user records are inactive).
+             REMINDER: user explicitly asked for these assignments to be REMOVED from all
+             profiles/users after testing is done - not yet done as of this deploy, do not
+             forget. The permission set metadata itself should stay. -->
+        <members>ps_miCommunicationPreferences</members>
+        <!-- Added 2026-08-25 - split off the CommunicationPreferenceConfig__c edit/create/
+             delete rights that ps_miCommunicationPreferences deliberately doesn't grant
+             (it's read-only there). Assigned to trietman only, in dev and acc - not part of
+             the "remove after testing" cleanup noted above, this one's meant to stick around. -->
+        <members>ps_CommunciationPreferenceAdmin</members>
+        <!-- Added 2026-08-26 - same split pattern as the two above, for the payment checkout
+             side: Payment__c read access + guest/internal checkout Apex (Ctrl_Payment,
+             Ctrl_PaymentCase, Ctrl_PaymentMandate, Util_System). Assigned in dev and acc to
+             trietman, the Customer Hub guest user, and active miSales-profile users - meant
+             to stay assigned (unlike ps_miCommunicationPreferences's marketing-user grants,
+             there's no "remove after testing" instruction for this one). -->
+        <members>ps_miPaymentCheckout</members>
+        <!-- Added 2026-08-26 - CRUD on the Stripe connection/config objects behind checkout
+             (Administration PayProv_* fields, stripeGC Account/Webhook Endpoint). Assigned to
+             trietman only, in dev and acc. -->
+        <members>ps_miPaymentCheckoutAdmin</members>
+        <name>PermissionSet</name>
+    </types>
+    <types>
+        <members>CustomLabels</members>
+        <name>CustomLabels</name>
+    </types>
+    <!-- Added 2026-08-25 - found via direct request to check internal tab access. CustomTab
+         was never a component type in this package at all. Only CommunicationPreferenceConfig__c
+         has a local tab file; CommunicationPreference__c already had a tab live in acc from
+         before (unrelated to this feature). CommunicationPreferenceAudit__c and
+         PicklistTranslation__c have no tab file locally either - presumably intentional
+         (audit/translation-cache objects aren't meant for manual browsing) but worth
+         confirming rather than assuming. -->
+    <types>
+        <members>CommunicationPreferenceConfig__c</members>
+        <name>CustomTab</name>
+    </types>
+    <!-- Added 2026-08-25 - per explicit request to add the new tab to internal navigation.
+         mi_Marketing_Console's local source was stale (missing the live <logo> element - a
+         drift bug, re-retrieved from acc rather than guessed) and needed a workspaceConfig
+         mapping added (Console apps require one per tab). Subscription25__Subscription25 is
+         a managed-package app; confirmed it's still admin-customizable via metadata deploy. -->
+    <types>
+        <members>mi_Marketing_Console</members>
+        <members>Subscription25__Subscription25</members>
+        <name>CustomApplication</name>
+    </types>
+    <types>
+        <members>nl_NL</members>
+        <members>de</members>
+        <members>fr</members>
+        <members>en_US</members>
+        <name>Translations</name>
+    </types>
+    <types>
+        <members>paymentProvider</members>
+        <members>Branding</members>
+        <members>CustomerHubFavicon</members>
+        <members>Red_Hat_Display</members>
+        <name>StaticResource</name>
+    </types>
+    <types>
+        <members>miemailheader</members>
+        <members>milogoblack</members>
+        <name>ContentAsset</name>
+    </types>
+    <types>
+        <members>DirectDebit</members>
+        <name>EmailFolder</name>
+    </types>
+    <types>
+        <members>DirectDebit/paymentDirectDebitSetupInitial_EN</members>
+        <members>DirectDebit/paymentDirectDebitSetupInitial_NL</members>
+        <members>DirectDebit/paymentDirectDebitReminder1_EN</members>
+        <members>DirectDebit/paymentDirectDebitReminder1_NL</members>
+        <members>DirectDebit/paymentDirectDebitReminder2_EN</members>
+        <members>DirectDebit/paymentDirectDebitReminder2_NL</members>
+        <name>EmailTemplate</name>
+    </types>
+    <types>
+        <members>paymentPage</members>
+        <members>paymentCheckout</members>
+        <members>preferenceCenter</members>
+        <members>preferenceSection</members>
+        <members>customerHubHeader</members>
+        <members>customerHubFooter</members>
+        <members>hubHeader</members>
+        <members>hubFooter</members>
+        <members>tdsHubHeader</members>
+        <members>tdsHubFooter</members>
+        <members>echoesHubHeader</members>
+        <members>echoesHubFooter</members>
+        <members>prefBrandedLayout</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <!--
+        Network / CustomSite / DigitalExperienceConfig / ExperienceBundle - re-added
+        2026-08-25 after the Customer Hub site was created in acc via the Connect API
+        (POST /connect/communities, name "Customer Hub", urlPathPrefix hubvforcesite,
+        template "Build Your Own (LWR)" - matching dev exactly). The site shell now
+        exists, so these four components have something to attach to.
+    -->
+    <types>
+        <members>Customer_Hub</members>
+        <name>CustomSite</name>
+    </types>
+    <types>
+        <members>Customer Hub</members>
+        <name>Network</name>
+    </types>
+    <types>
+        <members>Customer_Hub1</members>
+        <name>DigitalExperienceConfig</name>
+    </types>
+    <types>
+        <members>Customer_Hub1</members>
+        <name>ExperienceBundle</name>
+    </types>
+    <version>67.0</version>
+</Package>
