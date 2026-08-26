@@ -81,7 +81,7 @@ export default class PaymentCheckout extends LightningElement {
     // ?v= busts the CDN's static-resource cache (cache-control: public, max-age=45 days,
     // observed independently of the site's own publish step) - bump this on every future
     // change to paymentCheckoutHtml.html, or the new HTML can sit unserved for weeks.
-    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=7`;
+    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=10`;
 
 
     // --- Computed Properties ---
@@ -112,7 +112,12 @@ export default class PaymentCheckout extends LightningElement {
                     mode: this.mode,
                     paymentMethodType: this.paymentMethodType,
                     theme: this.theme,
-                    locale: this.localeSet,
+                    // Stripe's elements({locale}) only accepts its own short/hyphenated codes
+                    // (nl, de, fr, en, en-GB, auto, ...) — this.localeSet is the underscored
+                    // full locale (nl_NL, de_DE, ...) used elsewhere for Intl formatting, which
+                    // Stripe doesn't recognize and silently ignores. languageSet is the short
+                    // code Stripe actually understands.
+                    locale: this.languageSet,
                     cancelLabel: this.cancelLabel,
                     cancelConfirmLabel: this.cancelConfirmLabel,
                     processingLabel: this.processingLabel,
@@ -134,7 +139,8 @@ export default class PaymentCheckout extends LightningElement {
 
         this.iframe.contentWindow.postMessage({
             type: 'localeUpdate',
-            locale: this.localeSet,
+            // See the same note in renderedCallback() — Stripe needs the short code.
+            locale: this.languageSet,
             cancelLabel: this.cancelLabel,
             cancelConfirmLabel: this.cancelConfirmLabel,
             processingLabel: this.processingLabel,

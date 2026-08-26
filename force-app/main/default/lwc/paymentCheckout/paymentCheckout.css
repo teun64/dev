@@ -1,0 +1,11 @@
+/* Iframe defaults to display:inline, which doesn't reliably respect the parent .column-box's
+   padding on every side across browsers (it was bleeding to the right edge of the column).
+   box-sizing: border-box + an explicit border:0 (frameborder="0" is a legacy HTML attribute,
+   not a CSS reset) keep it a well-behaved block that stays inside the existing padding. */
+iframe {
+    display: block;
+    width: 100%;
+    height: 500px;
+    border: 0;
+    box-sizing: border-box;
+}

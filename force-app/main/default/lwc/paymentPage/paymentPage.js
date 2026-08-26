@@ -21,6 +21,96 @@ const LANG_CODE_TO_LOCALE = {
     nl: 'nl_NL', de: 'de_DE', fr: 'fr_FR', en: 'en_GB'
 };
 
+// Same client-side dictionary pattern as preferenceCenter.js's I18N — the order-summary/checkout
+// labels below are static text with no server-side (Translation Workbench) source, so they need
+// their own translation, keyed the same way as languageSet ('nl'/'de'/'fr'/'en').
+const I18N = {
+    en: {
+        pageTitle: 'Checkout',
+        columnOrder: 'Order summary',
+        columnProvider: 'Secure Payment',
+        pageText: 'Please review your order details below, then complete your secure payment on the right.',
+        customer: 'Name',
+        reference: 'Reference',
+        beneficiary: 'Beneficiary',
+        currency: 'Currency',
+        date: 'Date',
+        amount: 'Total',
+        successTitle: 'Payment received',
+        successBody: 'Thank you. Your payment has been processed successfully.',
+        alreadyProcessedTitle: 'Already completed',
+        alreadyProcessedBody: 'This payment has already been processed. No further action is needed.',
+        lineNumber: 'Line',
+        productCode: 'Code',
+        productName: 'Product',
+        productAmount: 'Amount',
+        invoiceCycle: 'Invoice cycle'
+    },
+    nl: {
+        pageTitle: 'Afrekenen',
+        columnOrder: 'Besteloverzicht',
+        columnProvider: 'Veilig betalen',
+        pageText: 'Controleer hieronder uw bestelgegevens en rond vervolgens rechts uw beveiligde betaling af.',
+        customer: 'Naam',
+        reference: 'Referentie',
+        beneficiary: 'Begunstigde',
+        currency: 'Valuta',
+        date: 'Datum',
+        amount: 'Totaal',
+        successTitle: 'Betaling ontvangen',
+        successBody: 'Bedankt. Uw betaling is succesvol verwerkt.',
+        alreadyProcessedTitle: 'Al voltooid',
+        alreadyProcessedBody: 'Deze betaling is al verwerkt. Geen verdere actie nodig.',
+        lineNumber: 'Regel',
+        productCode: 'Code',
+        productName: 'Product',
+        productAmount: 'Bedrag',
+        invoiceCycle: 'Factuurcyclus'
+    },
+    de: {
+        pageTitle: 'Kasse',
+        columnOrder: 'Bestellübersicht',
+        columnProvider: 'Sichere Zahlung',
+        pageText: 'Bitte überprüfen Sie unten Ihre Bestelldetails und schließen Sie anschließend rechts Ihre sichere Zahlung ab.',
+        customer: 'Name',
+        reference: 'Referenz',
+        beneficiary: 'Empfänger',
+        currency: 'Währung',
+        date: 'Datum',
+        amount: 'Gesamt',
+        successTitle: 'Zahlung erhalten',
+        successBody: 'Vielen Dank. Ihre Zahlung wurde erfolgreich verarbeitet.',
+        alreadyProcessedTitle: 'Bereits abgeschlossen',
+        alreadyProcessedBody: 'Diese Zahlung wurde bereits verarbeitet. Keine weitere Aktion erforderlich.',
+        lineNumber: 'Zeile',
+        productCode: 'Code',
+        productName: 'Produkt',
+        productAmount: 'Betrag',
+        invoiceCycle: 'Rechnungszyklus'
+    },
+    fr: {
+        pageTitle: 'Paiement',
+        columnOrder: 'Récapitulatif de la commande',
+        columnProvider: 'Paiement sécurisé',
+        pageText: 'Veuillez vérifier les détails de votre commande ci-dessous, puis finalisez votre paiement sécurisé à droite.',
+        customer: 'Nom',
+        reference: 'Référence',
+        beneficiary: 'Bénéficiaire',
+        currency: 'Devise',
+        date: 'Date',
+        amount: 'Total',
+        successTitle: 'Paiement reçu',
+        successBody: 'Merci. Votre paiement a été traité avec succès.',
+        alreadyProcessedTitle: 'Déjà effectué',
+        alreadyProcessedBody: 'Ce paiement a déjà été traité. Aucune action supplémentaire n\'est requise.',
+        lineNumber: 'Ligne',
+        productCode: 'Code',
+        productName: 'Produit',
+        productAmount: 'Montant',
+        invoiceCycle: 'Cycle de facturation'
+    }
+};
+
 export default class PaymentPage extends LightningElement {
 
     // -------- State --------
@@ -39,23 +129,31 @@ export default class PaymentPage extends LightningElement {
     @track languageSet;
 
     // -------- Labels --------
-    labelPageTitle       = 'Checkout';
-    labelColumnOrder     = 'Order summary';
-    labelColumnProvider  = 'Secure Payment';
-    paymentPageText      = 'Please review your order details below, then complete your secure payment on the right.';
-    labelCustomer        = 'Name';
-    labelReference       = 'Reference';
-    labelBeneficiary     = 'Beneficiary';
-    labelCurrency        = 'Currency';
-    labelDate            = 'Date';
-    labelAmount          = 'Total';
-    labelSuccessTitle    = 'Payment received';
-    labelSuccessBody     = 'Thank you. Your payment has been processed successfully.';
-    labelLineNumber      = 'Line';
-    labelProductCode     = 'Code';
-    labelProductName     = 'Product';
-    labelProductAmount   = 'Amount';
-    labelInvoiceCycle    = 'Invoice cycle';
+    // Reactive on languageSet (@track, updated by _applyLocale) so the order-summary/checkout
+    // text actually re-renders on a hub-header language change, instead of being frozen at
+    // whatever it was on initial load (the currency/date/amount getters below already did this
+    // correctly via Intl formatting — these plain-text labels were the gap).
+    _alreadyProcessed = false;
+
+    get _t() { return I18N[this.languageSet] || I18N.en; }
+
+    get labelPageTitle()      { return this._t.pageTitle; }
+    get labelColumnOrder()    { return this._t.columnOrder; }
+    get labelColumnProvider() { return this._t.columnProvider; }
+    get paymentPageText()     { return this._t.pageText; }
+    get labelCustomer()       { return this._t.customer; }
+    get labelReference()      { return this._t.reference; }
+    get labelBeneficiary()    { return this._t.beneficiary; }
+    get labelCurrency()       { return this._t.currency; }
+    get labelDate()           { return this._t.date; }
+    get labelAmount()         { return this._t.amount; }
+    get labelSuccessTitle()   { return this._alreadyProcessed ? this._t.alreadyProcessedTitle : this._t.successTitle; }
+    get labelSuccessBody()    { return this._alreadyProcessed ? this._t.alreadyProcessedBody  : this._t.successBody; }
+    get labelLineNumber()     { return this._t.lineNumber; }
+    get labelProductCode()    { return this._t.productCode; }
+    get labelProductName()    { return this._t.productName; }
+    get labelProductAmount()  { return this._t.productAmount; }
+    get labelInvoiceCycle()   { return this._t.invoiceCycle; }
 
     // -------- Assets --------
     providerLogo = `${PAYMENT_PROVIDER}/providerIcon.svg`;
@@ -161,40 +259,12 @@ export default class PaymentPage extends LightningElement {
             if (locale) this._applyLocale(locale);
         };
         LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
-        this._resizeHandler = () => this._applyFullBleed();
-        window.addEventListener('resize', this._resizeHandler);
     }
 
     disconnectedCallback() {
         if (this._langHandler) {
             LANG_EVENTS.forEach(k => window.removeEventListener(k, this._langHandler));
         }
-        if (this._resizeHandler) {
-            window.removeEventListener('resize', this._resizeHandler);
-        }
-    }
-
-    renderedCallback() {
-        this._applyFullBleed();
-    }
-
-    // The LWR content column's own width (and whether it's centered under the viewport) isn't
-    // something CSS alone can reliably escape — see the comment on .pp-standalone in
-    // paymentPage.css for the 100vw/negative-margin attempt this replaced. Measuring the
-    // element's actual position and comparing it to the real viewport width sidesteps the
-    // ancestor chain entirely: whatever gap or overshoot is there gets cancelled directly.
-    _applyFullBleed() {
-        if (this._isFlowContext || typeof document === 'undefined') return;
-        const el = this.template.querySelector('.pp-container');
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const viewportWidth = document.documentElement.clientWidth;
-        const offset = -rect.left;
-        if (this._lastFullBleedWidth === viewportWidth && this._lastFullBleedOffset === offset) return;
-        this._lastFullBleedWidth = viewportWidth;
-        this._lastFullBleedOffset = offset;
-        el.style.width = `${viewportWidth}px`;
-        el.style.marginLeft = `${offset}px`;
     }
 
     // Raw "/sfsites/c/resource/..." hrefs 404 on this site — @salesforce/resourceUrl is the
@@ -229,8 +299,8 @@ export default class PaymentPage extends LightningElement {
 
     // True only when a Flow assigns `token` directly (see setter above) — never on the
     // standalone Experience Cloud page, which resolves the token via CurrentPageReference
-    // instead. Drives containerClass below so the full-bleed page styling (paymentPage.css)
-    // never applies inside a Flow screen's modal/panel.
+    // instead. Drives containerClass below so the standalone page styling (paymentPage.css's
+    // .pp-standalone) never applies inside a Flow screen's modal/panel.
     _isFlowContext = false;
 
     get containerClass() {
@@ -283,8 +353,7 @@ export default class PaymentPage extends LightningElement {
                     this.hasError     = true;
                     this.errorMessage = data.errorMessage || 'Payment not found.';
                 } else if (data.alreadyProcessed) {
-                    this.labelSuccessTitle = 'Already completed';
-                    this.labelSuccessBody  = 'This payment has already been processed. No further action is needed.';
+                    this._alreadyProcessed = true;
                     this.viewState         = 'success';
                 } else if (data.errorMessage) {
                     this.hasError     = true;

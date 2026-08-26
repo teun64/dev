@@ -3,39 +3,29 @@
     --pp-accent: #0176d3; /* Salesforce blue default; overridden by brand theme */
 }
 
-/* The LWR "Inner" theme layout wraps this component in the site's normal content-column
-   padding/max-width, which was designed for regular text pages, not a checkout screen — it
-   made the card look cramped and off-center. It needs to break out of that column (full-bleed)
-   so the card's own outer edge reaches exactly the same width as the site header/footer
-   (customerHubHeader.css's .mi-header is width:100% of an already-full-width region with no
-   outer padding of its own — its 40px inset is on .mi-header-inner, one level in, same idea as
-   --pp-inset below being on checkout-header/main-grid rather than here).
-   A pure-CSS 100vw/negative-margin breakout was tried here first and left a residual few-px
-   mismatch against the header/footer edges (100vw includes the scrollbar gutter, width:100%
-   does not) — width/offset are now measured against document.documentElement.clientWidth and
-   this element's own actual position in paymentPage.js's _applyFullBleed(), and applied as
-   inline style, so this class only carries the vertical spacing; JS owns the horizontal box.
-   Only applied on the standalone Experience Cloud page (.pp-standalone) — never when this
-   component is embedded as a Flow screen component, where full-bleed would blow out the modal. */
+/* Only applied on the standalone Experience Cloud page (.pp-standalone) — never when this
+   component is embedded as a Flow screen component, where the extra vertical padding would
+   look wrong inside the modal. */
 .pp-standalone {
     padding: 1.5rem 0;
     box-sizing: border-box;
 }
 
+/* Card hugs its own content width instead of stretching to the site header/footer's width —
+   the header's border-bottom (checkout-header) and the two-column grid below it are both
+   inset by --pp-inset, so capping the card here means that inset line's left/right gaps stay
+   symmetric and the card's outer edge lines up with it exactly, instead of leaving big empty
+   margins on either side. */
 .pp-standalone .checkout-card {
+    max-width: 1100px;
     width: 100%;
     box-sizing: border-box;
     margin: 0 auto;
     display: block;
 }
 
-/* Caps and centers the actual checkout content within the now full-width card, so individual
-   fields (Sort code, Account number, etc.) don't stretch edge-to-edge on a wide viewport —
-   same two-layer idea as customerHubHeader.css's .mi-header (full-width) / .mi-header-inner
-   (capped, padded) pair. */
 .pp-content-inset {
-    max-width: 1100px;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .pp-brand-bar {
@@ -119,6 +109,14 @@
     min-width: 0;
     min-height: 100%;
     box-sizing: border-box;
+    /* SLDS's slds-size_1-of-2/slds-medium-size_1-of-2 (also on these elements) set
+       flex: none; width: 50% — two fixed, non-shrinkable 50% items plus .main-grid's
+       gap: 1rem overflow the row by exactly that 1rem, and in a nowrap LTR flex row the
+       overflow lands on the last item's right edge, cancelling out padding-right on
+       .main-grid entirely. flex-basis 0 + grow lets flexbox's own gap-aware distribution
+       size the columns instead of a hardcoded width that doesn't account for the gap. */
+    flex: 1 1 0%;
+    width: auto;
 }
 
 .provider-logo-header {
