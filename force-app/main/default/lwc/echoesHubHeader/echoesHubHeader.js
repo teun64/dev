@@ -2,11 +2,14 @@ import { LightningElement, api, track } from 'lwc';
 import RED_HAT_DISPLAY_URL from '@salesforce/resourceUrl/Red_Hat_Display';
 import COMMUNITY_BASE      from '@salesforce/community/basePath';
 
+// A bare '.com' also matches every Salesforce sandbox/site domain (*.my.site.com), which
+// silently forced English on dev/acc regardless of the visitor's language - same bug already
+// fixed in preferenceCenter.js. Match the real production domain specifically instead.
 const LANGS = [
     { code: 'nl', display: 'NL', tlds: ['.nl'] },
     { code: 'de', display: 'DE', tlds: ['.de'] },
     { code: 'fr', display: 'FR', tlds: ['.fr'] },
-    { code: 'en', display: 'EN', tlds: ['.co.uk', '.com'] },
+    { code: 'en', display: 'EN', tlds: ['.co.uk', 'movingintelligence.com'] },
 ];
 
 const EVENT_KEY = 'echoes:languagechange';
