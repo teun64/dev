@@ -1,6 +1,7 @@
 @RestResource(urlMapping='/UpsertContract')
 global with sharing class Rest_UpsertContract {
     private static Contract record;
+	private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
 
     @HttpPost
     global static Util_Rest.RestResult handleAction(){
@@ -46,7 +47,7 @@ global with sharing class Rest_UpsertContract {
                 String extIdCon = (String.isNotBlank(miContract.contractId) ? miContract.contractId : (String.isNotBlank(miContract.id) ? miContract.id : 'dotje')) + '-' + platformId;
 
                 //suppresses errors on (wronly) merged accounts.
-                List<Contract> conts = [SELECT AccountId, Status FROM Contract WHERE extId__c = :extIdCon LIMIT 1];
+                List<Contract> conts = [SELECT AccountId, Status FROM Contract WHERE extId__c = :extIdCon WITH SYSTEM_MODE LIMIT 1 ];
 
                 String accId;
                 String contStatus;
@@ -64,7 +65,7 @@ global with sharing class Rest_UpsertContract {
                 + (String.isNotBlank(accId) ? ('\') OR (Id = \'' + accId) : '')
                 + '\'))';
 
-                List<Account> accts = Database.Query(sSOQL);
+                List<Account> accts = Database.Query(sSOQL,Rest_UpsertContract.runningMode);
 
                 if (accts.size() > 0 ) {
                     for (Account a : accts) {
@@ -134,7 +135,7 @@ global with sharing class Rest_UpsertContract {
         Boolean activateContract;
 
         //Invoicing by platform or Subscription25, used to set the first invoicing date
-        list<Mi_Sync_Setting__mdt> msss = [SELECT Activate_Contracts__c FROM Mi_Sync_Setting__mdt WHERE DeveloperName = 'Invoicing'];
+        list<Mi_Sync_Setting__mdt> msss = [SELECT Activate_Contracts__c FROM Mi_Sync_Setting__mdt WHERE DeveloperName = 'Invoicing' WITH SYSTEM_MODE LIMIT 1];
 
         if (msss.size() > 0) {
             activateContract = msss[0].Activate_Contracts__c;
@@ -201,7 +202,8 @@ global with sharing class Rest_UpsertContract {
                 FROM
                     Subscription25__Contract_Product__c
                 WHERE
-                    extId__c = :extIdConProd];
+                    extId__c = :extIdConProd
+                WITH SYSTEM_MODE];
 
 
         if(contrProds.size() > 0){
@@ -234,7 +236,7 @@ global with sharing class Rest_UpsertContract {
 
         if (doSOQL) {
             sSOQL += ' LIMIT 1';
-            prods = Database.query(sSOQL);
+            prods = Database.query(sSOQL, Rest_UpsertContract.runningMode);
         }
 
         if(prods.size() > 0) {
@@ -255,7 +257,7 @@ global with sharing class Rest_UpsertContract {
         String extIdAsset = (miContract.installationId != null) ? miContract.installationId + '-in-' : ((miContract.hardwareId != null) && (miContract.hardwareId != '<>')) ? miContract.hardwareId + '-hw-' : 'external-id-';
         extIdAsset += platformId;
 
-        List<Asset> assets = [SELECT Id, ParentId FROM Asset WHERE extId__c = :extIdAsset];
+        List<Asset> assets = [SELECT Id, ParentId FROM Asset WHERE extId__c = :extIdAsset WITH SYSTEM_MODE LIMIT 1];
 
         if (assets.size() > 0){
             installationId = (miContract.installationId != null) ? assets[0].Id : null;
@@ -287,7 +289,7 @@ global with sharing class Rest_UpsertContract {
         //system.debug(sSOQL);
         if (doSOQL) {
             sSOQL += ' LIMIT 1';
-            existingConts = Database.query(sSOQL);
+            existingConts = Database.query(sSOQL, Rest_UpsertContract.runningMode);
         }
 
         //system.debug(existingConts);
@@ -353,10 +355,13 @@ global with sharing class Rest_UpsertContract {
                                                             Account_Contract_Default__mdt
                                                         WHERE
                                                             RecordType__c = :acc.Recordtype.DeveloperName AND Reseller__c = :acc.Reseller_Name__c AND Market__c = :acc.Market__c AND Sales_Channel__c = :acc.Sales_Channel__c
+                                                        WITH 
+                                                            SYSTEM_MODE 
                                                         ORDER BY
                                                             CreatedDate__c Desc
-                                                        LIMIT
-                                                            1];
+                                                        LIMIT 
+                                                            1
+                                                        ];
 
             if (acds.size() > 0) {
                 acd = acds.get(0);
@@ -375,7 +380,7 @@ global with sharing class Rest_UpsertContract {
             //20211111 - gen25/tri - upcomming change to multiple to pricebooks per country/region
             sSOQL = 'SELECT Id FROM Pricebook2 WHERE Reseller__c = \'' + resellerPriceBook + '\' AND Type__c = \'Subscriptions\' AND IsActive = true LIMIT 1';
 
-            List<Pricebook2> pbs = Database.Query(sSOQL);
+            List<Pricebook2> pbs = Database.Query(sSOQL, Rest_UpsertContract.runningMode);
 
             if (pbs.size() > 0) {
                 contr.Pricebook2Id = pbs[0].Id;
@@ -629,14 +634,14 @@ global with sharing class Rest_UpsertContract {
                 //system.debug('Before Upsert -> ' + contr);
                 //system.debug('Subscription25__First_Invoice_Date__c -> ' + contr.Subscription25__First_Invoice_Date__c);
                 //upsert the contract
-                Database.upsert(contr);
+                Database.upsert(contr, Rest_UpsertContract.runningMode);
 
                 //system.debug('Before Activate -> ' + contr);
                 //if the contract was new or draft and activateContract = true, update it to activated
                 if((contr.Status == 'Draft') && (activateContract)) {
                     contr.Status = 'Activated';
                     //Database.update(new Contract(Id = contr.Id, Status = 'Activated'));
-                    Database.update(contr);
+                    Database.update(contr, Rest_UpsertContract.runningMode);
                 }
 
                 if ((contrIsNew) && (contr.Subscription25__Termination_Date__c != null) && (contr.Subscription25__Termination_Date__c <= contr.StartDate)) {
@@ -682,6 +687,7 @@ global with sharing class Rest_UpsertContract {
                 WHERE Subscription25__Status__c IN ('Ready', 'Activated', 'Closed')
                     AND Subscription25__Exclude_From_Corrections__c = false
                     AND Subscription25__Contract__c = :contr.Id
+                WITH SYSTEM_MODE
             ]);
 
             input.contractProductIds = cps.keySet();
@@ -703,7 +709,7 @@ global with sharing class Rest_UpsertContract {
             }
 
             if (cpu.size() > 0) {
-                Database.update(cpu);
+                Database.update(cpu, Rest_UpsertContract.runningMode);
             }
 
         } else {
@@ -796,16 +802,16 @@ global with sharing class Rest_UpsertContract {
 
                 if ((contrProdIsNew) || (contrProd.Id == null)) {
                     //system.debug('Insert -> ' + contrProd);
-                    Database.insert(contrProd); 
+                    Database.insert(contrProd, Rest_UpsertContract.runningMode); 
                 } else {    
                     //system.debug('Update -> ' + contrProd);
-                    Database.update(contrProd);
+                    Database.update(contrProd, Rest_UpsertContract.runningMode);
                 }
 
                 //system.debug('doPartnerCode -> ' + doPartnerCode);
 
                 if (doPartnerCode) {
-                    List<OrderItem> orderItemList = [SELECT Id, product2Id, UnitPrice FROM OrderItem WHERE Partner_Code__c = :contrProd.Partner_Code__c LIMIT 1];
+                    List<OrderItem> orderItemList = [SELECT Id, product2Id, UnitPrice FROM OrderItem WHERE Partner_Code__c = :contrProd.Partner_Code__c WITH SYSTEM_MODE LIMIT 1];
                     Boolean balanceSheet = false;
                     Id productId;
                     price = 0;
@@ -822,7 +828,7 @@ global with sharing class Rest_UpsertContract {
                         // ordenary partner code, actions
                         // - find Discount product
                         // - add discount product as non recurring to the contract
-                        prods = [SELECT Id FROM Product2 WHERE RecordType.DeveloperName = 'Handling' and Is_Partner_Code__c = true LIMIT 1];
+                        prods = [SELECT Id FROM Product2 WHERE RecordType.DeveloperName = 'Handling' and Is_Partner_Code__c = true WITH SYSTEM_MODE LIMIT 1];
 
                         if (prods.size() > 0) {
                             productId = prods[0].Id;
@@ -862,7 +868,7 @@ global with sharing class Rest_UpsertContract {
                         cpPartner.Payment_Processor_Reference__c = contrProd.Payment_Processor_Reference__c;
                         cpPartner.Payment_Processor_Amount_Gross__c = contrProd.Payment_Processor_Amount_Gross__c;
 
-                        Database.insert(cpPartner);
+                        Database.insert(cpPartner, Rest_UpsertContract.runningMode);
                     }
                 }
             }
