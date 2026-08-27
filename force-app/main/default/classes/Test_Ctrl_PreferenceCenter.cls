@@ -19,9 +19,13 @@ private class Test_Ctrl_PreferenceCenter {
             configIdByKey.put(cfg.Brand__c + '|' + cfg.CommunicationType__c + '|' + cfg.Channel__c, cfg.Id);
         }
 
+        // LastName deliberately avoids "Tester" - prod has a real Lead (LastName='Tester',
+        // FirstName blank) that the Standard Contact Duplicate Rule's Contact-to-Lead matching
+        // rule blocks against, regardless of which test class creates the Contact. Sandboxes
+        // don't enforce this, so it never surfaced until a real prod deploy - confirmed 2026-08-27.
         Contact c = new Contact(
             FirstName = 'Jane',
-            LastName  = 'Tester',
+            LastName  = 'PrefCenter',
             Email     = 'jane.tester@example.com'
         );
         insert c;
@@ -59,7 +63,7 @@ private class Test_Ctrl_PreferenceCenter {
             Ctrl_PreferenceCenter.getPreferences(c.Id);
         Test.stopTest();
 
-        System.assertEquals('Jane Tester', page.contactName, 'Contact name mismatch');
+        System.assertEquals('Jane PrefCenter', page.contactName, 'Contact name mismatch');
         // The response is catalog-driven — one row per CommunicationPreferenceConfig__c entry,
         // not just the two rows this test seeded — so assert the seeded rows are present and
         // correct rather than asserting an exact total that drifts as the catalog grows.

@@ -21,10 +21,14 @@ private class Test_Ctrl_PaymentCase {
         acc.Reseller_Name__c = '1';
         insert acc;
 
+        // LastName deliberately avoids "Tester" - prod has a real Lead (LastName='Tester',
+        // FirstName blank) that the Standard Contact Duplicate Rule's Contact-to-Lead matching
+        // rule blocks against. Sandboxes don't enforce this, so it never surfaced until a real
+        // prod deploy - confirmed 2026-08-27.
         Contact c = new Contact(
             AccountId = acc.Id,
             FirstName = 'Piet',
-            LastName  = 'Tester',
+            LastName  = 'PayCaseTester',
             Email     = 'piet.tester@acme.nl'
         );
         insert c;
