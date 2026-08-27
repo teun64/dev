@@ -93,7 +93,7 @@ public with sharing class Test_Invoices {
         Assert.areEqual(inv.Financial_Invoice_Is_Paid__c, invoice.isPaid);
         Assert.areEqual(inv.Subscription25__Invoice_Number__c, invoice.invoiceNumber);
         Assert.areEqual(inv.Subscription25__Invoice_Date__c, invoice.invoiceDate);
-        //Assert.areEqual(doc.LatestPublishedVersion.VersionDataUrl, invoice.invoiceUrl);
+        Assert.areEqual(doc.LatestPublishedVersion.VersionDataUrl, invoice.invoiceUrl);
         // Assert test data was correct
         Assert.isNotNull(invoice.amountIncVat);
         Assert.isNotNull(invoice.isPaid);

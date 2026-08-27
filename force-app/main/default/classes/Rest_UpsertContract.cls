@@ -475,40 +475,41 @@ global with sharing class Rest_UpsertContract {
 
         if (String.isNotBlank(miContract.terminationId)) {
             contr.Termination_Method__c = Util_System.getTerminationOption(miContract.terminationId);
+            productTerminationDate = null;
+            productServiceEndDate = null;
 
-            // '0' => 'Termination Reverted','1' => 'No Credit','2' => 'Full Credit','3' => 'Partial Credit Immediate' ,'4' => 'Partial Credit with Cancellation Term'
-            if (contr.Termination_Method__c == 'Termination Reverted') {
-                productTerminationDate = null;
-                productServiceEndDate = null;
-            } else if (miContract.serviceEndDate != null) {
+            // '0' => 'Termination Reverted','1' => 'No Credit','2' => 'Full Credit','3' => 'Partial Credit Immediate',
+            // '4' => 'Partial Credit with Cancellation Term', '5' => 'Auto renewal off', '6' => 'Other'
+            if (miContract.serviceEndDate != null) {
                 productServiceEndDate = Date.valueOf(miContract.serviceEndDate);
-                //system.debug('contr.Termination_Method__c => ' + contr.Termination_Method__c);
-                switch on contr.Termination_Method__c {
-                    when 'No Credit' {
-                        productTerminationDate = contractCurrentEndDate;
-                    } 
-                    when 'Full Credit' {
-                        // Full Credit based on the Invoice tern or Contract Term
-                        if (isFirstContractTerm) {
-                            productTerminationDate = contr.StartDate.addDays(-1);
-
-                        } else {
-                            productTerminationDate = contractCurrentEndDate.addMonths(renewalTerm * -1);
-                        }
-                    } 
-                    when 'Partial Credit Immediate' {
-                        productTerminationDate = productServiceEndDate;
-                    } 
-                    when 'Partial Credit with Cancellation Term' {
-                        // renwal_Term__c toevoegen?
-                        productTerminationDate = productServiceEndDate.addMonths(((renewalTerm == 12) ? 1 : renewalTerm));
-                    }           
-                }
             } else if (miContract.contractEndDate != null) {
                 productServiceEndDate = Date.valueOf(miContract.contractEndDate);
-            } else {
-                productTerminationDate = null;
-                productServiceEndDate = null;
+            } 
+
+            switch on contr.Termination_Method__c {
+                when 'No Credit' {
+                    productTerminationDate = contractCurrentEndDate;
+                }
+                when 'Full Credit' {
+                    // Full Credit based on the Invoice tern or Contract Term
+                    if (isFirstContractTerm) {
+                        productTerminationDate = contr.StartDate.addDays(-1);
+
+                    } else {
+                        productTerminationDate = contractCurrentEndDate.addMonths(renewalTerm * -1);
+                    }
+                } 
+                when 'Partial Credit Immediate' {
+                    productTerminationDate = productServiceEndDate;
+                } 
+                when 'Partial Credit with Cancellation Term' {
+                    // renwal_Term__c toevoegen?
+                    productTerminationDate = productServiceEndDate.addMonths(((renewalTerm == 12) ? 1 : renewalTerm));
+                }
+                when 'Auto renewal off' {
+                    productTerminationDate = contractCurrentEndDate;
+                    productServiceEndDate = productTerminationDate;
+                }       
             }
 
         } else {
@@ -572,7 +573,7 @@ global with sharing class Rest_UpsertContract {
                 //20220603 - TRi - When creditfrom date is null, it will be set to the Subscription25__Current_End_Date__c or miContract.currentEndDate when Subscription25__Current_End_Date__c is null
                 contr.Subscription25__Termination_Date__c = productTerminationDate;
                 contr.Service_End_Date__c = productServiceEndDate;
-                doCorrection = (contractCurrentEndDate != productTerminationDate);
+                doCorrection = ((contractCurrentEndDate != productTerminationDate) && (productTerminationDate != null));
             } else if((contr.Status != 'Terminated') && (productTerminationDate == null)) {
                 contr.Subscription25__Termination_Date__c = null;
                 contr.Service_End_Date__c = null;

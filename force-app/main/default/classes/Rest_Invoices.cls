@@ -101,7 +101,8 @@ global with sharing class Rest_Invoices {
 
         Map<Id, ContentDocument> documentByInvoiceId = new Map<Id, ContentDocument>();
         for (ContentDocumentLink link : [
-            SELECT LinkedEntityId, ContentDocument.Id, ContentDocument.LatestPublishedVersionId
+            SELECT LinkedEntityId, ContentDocument.Id, ContentDocument.LatestPublishedVersionId,
+                ContentDocument.LatestPublishedVersion.VersionDataUrl
             FROM ContentDocumentLink
             WHERE LinkedEntityId IN :invoiceIds
                 AND ContentDocument.LatestPublishedVersion.Title IN :fileNames
@@ -146,10 +147,8 @@ global with sharing class Rest_Invoices {
             if (doc?.LatestPublishedVersionId == null) {
                 return;
             }
-            this.invoiceUrl = String.format('{0}/services/data/v44.0/sobjects/ContentVersion/{1}/VersionData', new List<String> {
-                URL.getOrgDomainURL().toExternalForm(),
-                doc.LatestPublishedVersionId
-            });
+            this.invoiceUrl = doc.LatestPublishedVersion.VersionDataUrl;
+            System.debug(LoggingLevel.INFO, 'Invoice VersionDataUrl: ' + this.invoiceUrl);
         }
     }
 }
