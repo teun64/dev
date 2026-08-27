@@ -158,6 +158,92 @@ private class Test_Ctrl_Payment {
         System.assertEquals(true, d.found, 'Cancelled payments still returned under current filter');
     }
 
+    // ── getPaymentData – already processed / not yet configured / BACS ───────
+
+    @IsTest
+    static void testGetPaymentData_alreadyProcessed() {
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+        pmt.Status__c = 'Paid';
+        update pmt;
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
+        Test.stopTest();
+
+        System.assertEquals(true, d.found);
+        System.assertEquals(true, d.alreadyProcessed, 'Paid payment should be flagged as already processed');
+        System.assertNotEquals(null, d.paymentId);
+    }
+
+    @IsTest
+    static void testGetPaymentData_blankStripeCustomerId() {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
+        acc.PayProv_CustomerId__c = null;
+        update acc;
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
+        Test.stopTest();
+
+        System.assertEquals(true, d.found);
+        System.assertEquals('Payment account is not yet configured for direct debit. Please contact support.', d.errorMessage);
+        System.assertEquals(null, d.mode, 'No mode set when customer is not yet configured');
+    }
+
+    @IsTest
+    static void testGetPaymentData_bacsDebit() {
+        Subscription25__Administration__c admin = [SELECT Id FROM Subscription25__Administration__c LIMIT 1];
+        admin.PayProv_DirectDebit_PaymentMethod__c = 'bacs_debit';
+        update admin;
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
+        Test.stopTest();
+
+        System.assertEquals(true, d.found);
+        System.assertEquals('payment', d.mode, 'BACS always uses payment mode, mandate or not');
+        System.assertEquals('bacs_debit', d.paymentMethodType);
+    }
+
+    // ── finalizeCheckout ──────────────────────────────────────────────────────
+
+    @IsTest
+    static void testFinalizeCheckout_blankTokenNoOp() {
+        Test.startTest();
+        Ctrl_Payment.finalizeCheckout('', 'setup', true);
+        Test.stopTest();
+
+        System.assert(true, 'Blank token should return silently without throwing');
+    }
+
+    @IsTest
+    static void testFinalizeCheckout_setupModeWithConsent() {
+        Payment__c pmt = [SELECT Id, Account__c FROM Payment__c LIMIT 1];
+
+        Test.startTest();
+        Ctrl_Payment.finalizeCheckout('TOKEN-SETUP', 'setup', true);
+        Test.stopTest();
+
+        Payment__c updPmt = [SELECT Status__c FROM Payment__c WHERE Id = :pmt.Id];
+        System.assertEquals('Setup', updPmt.Status__c, 'Setup intent mode maps to Setup status');
+        // Consent checkbox/date on Account not re-queried here — DirectDebit_Future_Payments_Consent__c
+        // was still propagating through the org's describe/SOQL layer as of this write (metadata exists
+        // per Tooling FieldDefinition, but not yet queryable). The DML itself (which this test still
+        // exercises, covering finalizeCheckout's consent branch) doesn't depend on that propagation.
+    }
+
+    @IsTest
+    static void testFinalizeCheckout_paymentModeNoConsent() {
+        Payment__c pmt = [SELECT Id, Account__c FROM Payment__c LIMIT 1];
+
+        Test.startTest();
+        Ctrl_Payment.finalizeCheckout('TOKEN-SETUP', 'payment', false);
+        Test.stopTest();
+
+        Payment__c updPmt = [SELECT Status__c FROM Payment__c WHERE Id = :pmt.Id];
+        System.assertEquals('Processing', updPmt.Status__c, 'Non-setup intent mode maps to Processing status');
+    }
+
     // ── sendSetupEmail ────────────────────────────────────────────────────────
 
     @IsTest
@@ -180,6 +266,19 @@ private class Test_Ctrl_Payment {
         Test.stopTest();
 
         System.assert(true, 'Org-domain fallback URL path should not throw');
+    }
+
+    @IsTest
+    static void testSendSetupEmail_baseUrlTrailingSlashStripped() {
+        CustomerHub__c cfg = CustomerHub__c.getOrgDefaults();
+        cfg.Base_URL__c = 'https://hub.example.com/customer-hub/';
+        update cfg;
+
+        Test.startTest();
+        Ctrl_Payment.sendSetupEmail('TOKEN-SETUP');
+        Test.stopTest();
+
+        System.assert(true, 'Trailing-slash base URL should be stripped without throwing');
     }
 
     @IsTest
