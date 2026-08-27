@@ -9,11 +9,14 @@ private class Test_Ctrl_PreferenceCenterGuest {
             Base_Url__c  = 'https://example.my.site.com/customerhub'
         );
 
-        insert new Contact(
-            FirstName = 'Jane',
-            LastName  = 'Tester',
-            Email     = 'jane.guest@example.com'
-        ); // Trigger_Contact stamps Preference_Token_Key__c from Email
+        // The token-bearing Contact is deliberately NOT created here. A Hierarchy custom
+        // setting org default inserted in @TestSetup isn't visible to a getOrgDefaults()
+        // read later in the SAME transaction — confirmed by direct debug: Trigger_Contact's
+        // hashEmail() call saw a blank secret and its catch silently left
+        // Preference_Token_Key__c null, even though the exact same config read from a
+        // separate @IsTest method (a fresh execution) correctly sees it. Each test that
+        // needs a token-bearing Contact creates it itself via createGuestContact() below,
+        // where the config is already visible.
 
         // CommunicationPreferenceConfig__c is a real object, not visible in tests by default
         // the way the CommunicationTypeCategory__mdt it replaced was.
@@ -22,9 +25,19 @@ private class Test_Ctrl_PreferenceCenterGuest {
         );
     }
 
+    private static Contact createGuestContact() {
+        // Deliberately NOT "Jane Tester" - Test_Ctrl_PreferenceCenter uses that exact name for
+        // its own fixture, and prod's active Contact Duplicate Rules (name-based matching) block
+        // the insert when both test classes run in the same deploy job. Sandboxes don't enforce
+        // this, so it never surfaced until a real prod deploy - confirmed 2026-08-27.
+        Contact c = new Contact(FirstName = 'Jane', LastName = 'GuestTester', Email = 'jane.guest@example.com');
+        insert c; // Trigger_Contact stamps Preference_Token_Key__c from Email
+        return [SELECT Id, Email, Preference_Token_Key__c FROM Contact WHERE Id = :c.Id];
+    }
+
     @IsTest
     static void testGetPreferences_validTokenResolvesContact() {
-        Contact c = [SELECT Id, Preference_Token_Key__c FROM Contact LIMIT 1];
+        Contact c = createGuestContact();
         String token = c.Preference_Token_Key__c;
 
         Test.startTest();
@@ -32,7 +45,7 @@ private class Test_Ctrl_PreferenceCenterGuest {
             Ctrl_PreferenceCenterGuest.getPreferences(token);
         Test.stopTest();
 
-        System.assertEquals('Jane Tester', page.contactName, 'Should resolve to the seeded contact');
+        System.assertEquals('Jane GuestTester', page.contactName, 'Should resolve to the seeded contact');
     }
 
     @IsTest
@@ -75,7 +88,7 @@ private class Test_Ctrl_PreferenceCenterGuest {
 
     @IsTest
     static void testSavePreferences_persistsUnderResolvedContact() {
-        Contact c = [SELECT Id, Preference_Token_Key__c FROM Contact LIMIT 1];
+        Contact c = createGuestContact();
         String token = c.Preference_Token_Key__c;
         CommunicationPreferenceConfig__c cfg = [
             SELECT Id FROM CommunicationPreferenceConfig__c

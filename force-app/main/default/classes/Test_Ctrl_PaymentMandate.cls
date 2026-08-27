@@ -7,7 +7,11 @@ private class Test_Ctrl_PaymentMandate {
     static void makeData() {
         Test_Data.createAdministration(true);
 
-        Account acc = Test_Data.createAccount('ACME BV', '9001', 'B2B', false);
+        // Name/number deliberately distinct from Test_Ctrl_Payment/Test_Svc_StripeEventProcessor's
+        // 'ACME BV'/'9001' fixture - prod's active Contact/Account Duplicate Rules block the insert
+        // when multiple test classes create the same-named Account in the same deploy job.
+        // Sandboxes don't enforce this, so it never surfaced until a real prod deploy - confirmed 2026-08-27.
+        Account acc = Test_Data.createAccount('ACME Mandate BV', '9021', 'B2B', false);
         insert acc;
     }
 
@@ -51,7 +55,7 @@ private class Test_Ctrl_PaymentMandate {
 
     @IsTest
     static void testGetMandateData_noMandateOnFile() {
-        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
+        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME Mandate BV' LIMIT 1];
         // PayProv_MandateId__c intentionally left blank.
 
         Test.startTest();
@@ -72,7 +76,7 @@ private class Test_Ctrl_PaymentMandate {
 
     @IsTest
     static void testGetMandateData_stripeCalloutFails() {
-        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
+        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME Mandate BV' LIMIT 1];
         acc.PayProv_MandateId__c = 'mandate_test001';
         acc.PayProv_AccountId__c = 'acct_test001';
         update acc;

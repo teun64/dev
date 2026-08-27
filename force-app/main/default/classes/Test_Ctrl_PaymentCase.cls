@@ -13,7 +13,11 @@ private class Test_Ctrl_PaymentCase {
         );
         insert hubConfig;
 
-        Account acc = Test_Data.createAccount('ACME BV', '9003', 'B2B', false);
+        // Name/number deliberately distinct from Test_Ctrl_Payment's 'ACME BV'/'9001' fixture -
+        // prod's active Account Duplicate Rules can block the insert when multiple test classes
+        // create the same-named Account in the same deploy job. Sandboxes don't enforce this,
+        // so it never surfaced until a real prod deploy - confirmed 2026-08-27.
+        Account acc = Test_Data.createAccount('ACME PayCase BV', '9023', 'B2B', false);
         acc.Reseller_Name__c = '1';
         insert acc;
 
@@ -78,7 +82,7 @@ private class Test_Ctrl_PaymentCase {
         ];
 
         Account acc = [SELECT Name FROM Account WHERE Id = :c.AccountId LIMIT 1];
-        System.assertEquals('ACME BV', acc.Name, 'Case linked to correct account');
+        System.assertEquals('ACME PayCase BV', acc.Name, 'Case linked to correct account');
 
         Contact con = [SELECT Email FROM Contact WHERE Id = :c.ContactId LIMIT 1];
         System.assertEquals('piet.tester@acme.nl', con.Email, 'Main contact resolved');
@@ -96,7 +100,7 @@ private class Test_Ctrl_PaymentCase {
 
     @IsTest
     static void testCreateCase_paymentContactTakesPriority() {
-        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
+        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME PayCase BV' LIMIT 1];
 
         // Add a second contact as payment contact — should be preferred over main
         Contact payC = new Contact(
@@ -173,6 +177,29 @@ private class Test_Ctrl_PaymentCase {
         Case c = [SELECT Description FROM Case WHERE Id = :caseId];
         System.assert(c.Description.contains('Support portal:'),
             'Support portal line present even with fallback URL');
+    }
+
+    // ── createPaymentFailureCase – guest user access ──────────────────────────
+
+    @IsTest
+    static void testCreateCase_guestUserCanCreate() {
+        List<User> guests = [
+            SELECT Id FROM User
+            WHERE UserType = 'Guest' AND Username LIKE '%customer_hub@%'
+            LIMIT 1
+        ];
+        if (guests.isEmpty()) return; // guest user not provisioned in this org
+
+        Payment__c pmt = [SELECT Id FROM Payment__c WHERE externalId__c = 'REF-CASE-001' LIMIT 1];
+
+        String caseId;
+        System.runAs(guests[0]) {
+            Test.startTest();
+            caseId = Ctrl_PaymentCase.createPaymentFailureCase(pmt.Id, 'Guest access regression check');
+            Test.stopTest();
+        }
+        System.assertNotEquals(null, caseId,
+            'Guest user must be able to create a Direct Debit failure case (queries/DML run in AccessLevel.SYSTEM_MODE)');
     }
 
     // ── createPaymentFailureCase – error cases ────────────────────────────────

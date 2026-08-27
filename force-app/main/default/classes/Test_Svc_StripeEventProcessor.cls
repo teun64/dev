@@ -7,7 +7,12 @@ private class Test_Svc_StripeEventProcessor {
     static void makeData() {
         Subscription25__Administration__c admin = Test_Data.createAdministration(true);
 
-        Account acc = Test_Data.createAccount('ACME BV', '9001', 'B2B', false);
+        // Name/number and Contact name deliberately distinct from Test_Ctrl_Payment's
+        // 'ACME BV'/'9001'/'Jan Betaler' fixture - prod's active Contact/Account Duplicate
+        // Rules block the insert when multiple test classes create the same-named
+        // Account/Contact in the same deploy job. Sandboxes don't enforce this, so it never
+        // surfaced until a real prod deploy - confirmed 2026-08-27.
+        Account acc = Test_Data.createAccount('ACME Stripe BV', '9022', 'B2B', false);
         insert acc;
         acc.PayProv_CustomerId__c = 'cus_test001';
         update acc;
@@ -15,8 +20,8 @@ private class Test_Svc_StripeEventProcessor {
         Contact c = new Contact(
             AccountId = acc.Id,
             FirstName = 'Jan',
-            LastName  = 'Betaler',
-            Email     = 'jan@acme.nl'
+            LastName  = 'StripeBetaler',
+            Email     = 'jan.stripe@acme.nl'
         );
         insert c;
         AccountContactRelation acr = [
@@ -35,8 +40,7 @@ private class Test_Svc_StripeEventProcessor {
             Amount_Gross__c       = 120.00,
             Request_Date__c       = Date.today(),
             Collection_Date__c    = Date.today().addDays(14),
-            Interaction_Status__c = 'Mail Sent',
-            Mail_Sent_Date__c     = Date.today()
+            Interaction_Status__c = 'Mail Sent'
         );
         Database.insert(pmt, AccessLevel.SYSTEM_MODE);
     }
