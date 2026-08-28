@@ -29,9 +29,6 @@
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
-                        <valueListItems>
-                            <value>Payment__c.actCheckoutIntent</value>
-                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
