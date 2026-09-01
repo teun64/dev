@@ -93,7 +93,10 @@ public with sharing class Test_Invoices {
         Assert.areEqual(inv.Financial_Invoice_Is_Paid__c, invoice.isPaid);
         Assert.areEqual(inv.Subscription25__Invoice_Number__c, invoice.invoiceNumber);
         Assert.areEqual(inv.Subscription25__Invoice_Date__c, invoice.invoiceDate);
-        Assert.areEqual(doc.LatestPublishedVersion.VersionDataUrl, invoice.invoiceUrl);
+        ApexClass restInvoicesClass = [SELECT ApiVersion FROM ApexClass WHERE Name = 'Rest_Invoices' AND NamespacePrefix = null];
+        Decimal downloadApiVersion = (Decimal) restInvoicesClass.ApiVersion - 1;
+        String expectedInvoiceUrl = URL.getOrgDomainUrl().toExternalForm() + '/services/data/v' + downloadApiVersion.setScale(1) + '/sobjects/ContentVersion/' + ver.Id + '/VersionData';
+        Assert.areEqual(expectedInvoiceUrl, invoice.invoiceUrl);
         // Assert test data was correct
         Assert.isNotNull(invoice.amountIncVat);
         Assert.isNotNull(invoice.isPaid);

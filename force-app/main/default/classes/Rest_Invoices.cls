@@ -2,6 +2,7 @@
 global with sharing class Rest_Invoices {
 
     private static final Integer MAX_AGE_IN_MONTHS = 24;
+    private static final String DEFAULT_DOWNLOAD_API_VERSION = 'v66.0';
 
     /**
      * Get invoices by platform
@@ -42,7 +43,8 @@ global with sharing class Rest_Invoices {
 
             List<Subscription25__Invoice__c> invoices = Rest_Invoices.queryInvoices(acc);
             Map<Id, ContentDocument> fileMap = Rest_Invoices.queryInvoiceFiles(invoices);
-            responseObj.setInvoices(invoices, fileMap);
+            String downloadApiVersion = Rest_Invoices.resolveDownloadApiVersion();
+            responseObj.setInvoices(invoices, fileMap, downloadApiVersion);
             responseObj.success = true;
 
 		} catch (Exception e) {
@@ -92,6 +94,16 @@ global with sharing class Rest_Invoices {
         return invoices;
     }
 
+    private static String resolveDownloadApiVersion() {
+        try {
+            ApexClass cls = [SELECT ApiVersion FROM ApexClass WHERE Name = 'Rest_Invoices' AND NamespacePrefix = null WITH SYSTEM_MODE LIMIT 1];
+            Decimal previousVersion = (Decimal) cls.ApiVersion - 1;
+            return 'v' + previousVersion.setScale(1);
+        } catch (Exception e) {
+            return Rest_Invoices.DEFAULT_DOWNLOAD_API_VERSION;
+        }
+    }
+
     public static Map<Id, ContentDocument> queryInvoiceFiles(List<Subscription25__Invoice__c> invoices) {
         if (invoices.isEmpty()) {
             return new Map<Id, ContentDocument>();
@@ -101,8 +113,7 @@ global with sharing class Rest_Invoices {
 
         Map<Id, ContentDocument> documentByInvoiceId = new Map<Id, ContentDocument>();
         for (ContentDocumentLink link : [
-            SELECT LinkedEntityId, ContentDocument.Id, ContentDocument.LatestPublishedVersionId,
-                ContentDocument.LatestPublishedVersion.VersionDataUrl
+            SELECT LinkedEntityId, ContentDocument.Id, ContentDocument.LatestPublishedVersionId
             FROM ContentDocumentLink
             WHERE LinkedEntityId IN :invoiceIds
                 AND ContentDocument.LatestPublishedVersion.Title IN :fileNames
@@ -117,12 +128,12 @@ global with sharing class Rest_Invoices {
     private class Invoices extends Util_Rest.AbstractRestResult {
         public List<Rest_Invoices.Invoice> invoices;
 
-        public void setInvoices(List<Subscription25__Invoice__c> sub25Invoices, Map<Id, ContentDocument> fileMap) {
+        public void setInvoices(List<Subscription25__Invoice__c> sub25Invoices, Map<Id, ContentDocument> fileMap, String downloadApiVersion) {
             this.invoices = new List<Rest_Invoices.Invoice>();
 
             for (Subscription25__Invoice__c sub25Invoice : sub25Invoices) {
                 Rest_Invoices.Invoice invoice = new Rest_Invoices.Invoice(sub25Invoice);
-                invoice.setUrl(fileMap.get(sub25Invoice.Id));
+                invoice.setUrl(fileMap.get(sub25Invoice.Id), downloadApiVersion);
                 this.invoices.add(invoice);
             }
         }
@@ -143,12 +154,15 @@ global with sharing class Rest_Invoices {
             this.isPaid = sub25Invoice.Financial_Invoice_Is_Paid__c;
         }
 
-        public void setUrl(ContentDocument doc) {
+        public void setUrl(ContentDocument doc, String downloadApiVersion) {
             if (doc?.LatestPublishedVersionId == null) {
                 return;
             }
-            this.invoiceUrl = doc.LatestPublishedVersion.VersionDataUrl;
-            System.debug(LoggingLevel.INFO, 'Invoice VersionDataUrl: ' + this.invoiceUrl);
+            this.invoiceUrl = String.format('{0}/services/data/{1}/sobjects/ContentVersion/{2}/VersionData', new List<String> {
+                URL.getOrgDomainUrl().toExternalForm(),
+                downloadApiVersion,
+                doc.LatestPublishedVersionId
+            });
         }
     }
 }
