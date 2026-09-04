@@ -11,6 +11,12 @@
             <targetReference>ass_01_Commit</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>requests</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
         <nameSegment>Inv_generateGUID</nameSegment>
         <offset>0</offset>
         <outputParameters>
@@ -18,7 +24,7 @@
             <name>guid</name>
         </outputParameters>
     </actionCalls>
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>ass_01_Commit</name>
@@ -414,7 +420,7 @@
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
-            <targetReference>ass_02_Commit</targetReference>
+            <targetReference>ass_03_Commit</targetReference>
         </faultConnector>
         <inputReference>rEventLog</inputReference>
     </recordCreates>
