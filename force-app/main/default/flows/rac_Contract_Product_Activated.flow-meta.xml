@@ -1,33 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>64.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <assignments>
-        <name>ass_01_Commit</name>
-        <label>1. Commit</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>vCommit</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </assignmentItems>
-    </assignments>
-    <assignments>
-        <name>ass_02_Commit</name>
-        <label>2. Commit</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>vCommit</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </assignmentItems>
-    </assignments>
     <assignments>
         <name>ass_03_Commit</name>
         <label>3. Commit</label>
@@ -83,7 +57,29 @@
             <label>Yes</label>
         </rules>
     </decisions>
-    <description>Activate the contract product, 2 tries in 1 and 3 minuts, should activate the product lines before the resync of the contract form the platform, contract product are generated as draft, activation this way ensures the order generation</description>
+    <decisions>
+        <name>dec_01_Has_Debtor_Number</name>
+        <label>1. Has Debtor Number</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No - Leave to Safety Batch</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Has_Debtor_Number_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>dgr_01_Account.FinancialDebtorNumber__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dec_01_Activate</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>Activate the contract product, 2 tries in 1 and 3 minuts, only when the account already has a financial debtor number, should activate the product lines before the resync of the contract form the platform, contract product are generated as draft, activation this way ensures the order generation. When the account has no debtor number yet, activation is left to Batch_ActivateDraftContractProducts (safety batch, every 5 min), which also drives the Exact sync first if needed.</description>
     <environments>Default</environments>
     <interviewLabel>rac - Contract Product - Activated {!$Flow.CurrentDateTime}</interviewLabel>
     <label>rac - Contract Product - Activated</label>
@@ -106,31 +102,27 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <recordUpdates>
-        <name>dur_01_Subscription25_Contract_Product</name>
-        <label>1. Contract Product</label>
+    <recordLookups>
+        <name>dgr_01_Account</name>
+        <label>1. Account</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>ass_01_Commit</targetReference>
+            <targetReference>dec_01_Has_Debtor_Number</targetReference>
         </connector>
-        <faultConnector>
-            <targetReference>ass_02_Commit</targetReference>
-        </faultConnector>
-        <inputAssignments>
-            <field>DoActivate__c</field>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
             <value>
-                <booleanValue>false</booleanValue>
+                <elementReference>$Record.Subscription25__Contract__r.AccountId</elementReference>
             </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subscription25__Status__c</field>
-            <value>
-                <stringValue>Activated</stringValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>dur_02_Subscription25_Contract_Product_0</name>
         <label>2. Contract Product</label>
@@ -179,7 +171,7 @@
         <scheduledPaths>
             <name>spa_01_Activate_1</name>
             <connector>
-                <targetReference>dur_01_Subscription25_Contract_Product</targetReference>
+                <targetReference>dgr_01_Account</targetReference>
             </connector>
             <label>Activate - 1</label>
             <maxBatchSize>1</maxBatchSize>
@@ -190,7 +182,7 @@
         <scheduledPaths>
             <name>spa_01_Activate_3</name>
             <connector>
-                <targetReference>dec_01_Activate</targetReference>
+                <targetReference>dgr_01_Account</targetReference>
             </connector>
             <label>Activate - 3</label>
             <maxBatchSize>1</maxBatchSize>
@@ -200,7 +192,7 @@
         </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <triggerOrder>1</triggerOrder>
     <variables>
         <name>rDebtorNumber</name>
