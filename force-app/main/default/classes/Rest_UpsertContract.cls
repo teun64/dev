@@ -143,6 +143,7 @@ global with sharing class Rest_UpsertContract {
 
         Boolean managedBy = false;
         Boolean doCorrection = false;
+        Boolean contractBornTerminated = false;
 
         //if it's a base service, create/update the contract
         Subscription25__Contract_Product__c contrProd;
@@ -573,7 +574,14 @@ global with sharing class Rest_UpsertContract {
             contr.Termination_Remark__c = miContract.cancellationRemark;
 
             //set the termination date based on the end date from the platform
-            if ((productServiceEndDate != null) && ((contractTerminationDate == null) || ((contr.status == 'Closed') && (productTerminationDate < contractTerminationDate)))) {
+            //20260908 - TRi - if a brand new contract is already over before it even starts (e.g. cancelled within the platform sync interval),
+            //stamping the termination date here flips the Contract straight to Status=Terminated, and the managed package refuses to activate a
+            //new Contract Product under an already-Terminated Contract. Defer the stamp until after the Contract Product exists (see below).
+            contractBornTerminated = (contrIsNew) && (productTerminationDate != null) && (productTerminationDate <= contr.StartDate);
+
+            if (contractBornTerminated) {
+                //deferred, handled after the contract product is created below
+            } else if ((productServiceEndDate != null) && ((contractTerminationDate == null) || ((contr.status == 'Closed') && (productTerminationDate < contractTerminationDate)))) {
                 //Termination date set base on cancelation period (wet van damme), service_end_date_c set base on the end date of the service -> termination date and invoice periods in sync
                 //20220603 - TRi - When creditfrom date is null, it will be set to the Subscription25__Current_End_Date__c or miContract.currentEndDate when Subscription25__Current_End_Date__c is null
                 contr.Subscription25__Termination_Date__c = productTerminationDate;
@@ -644,14 +652,14 @@ global with sharing class Rest_UpsertContract {
                     Database.update(contr, Rest_UpsertContract.runningMode);
                 }
 
-                if ((contrIsNew) && (contr.Subscription25__Termination_Date__c != null) && (contr.Subscription25__Termination_Date__c <= contr.StartDate)) {
-                    //contract is created
-                    return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contr.Id));
-                }
             }
         }
 
         //system.debug('Do Correction -> ' + doCorrection);
+
+        Savepoint bornTerminatedSp = contractBornTerminated ? Database.setSavepoint() : null;
+
+        try {
 
         if (doCorrection) {
             //contrProd.Subscription25__Termination_Date__c = Date.valueOf(miContract.serviceEndDate);
@@ -871,6 +879,29 @@ global with sharing class Rest_UpsertContract {
                         Database.insert(cpPartner, Rest_UpsertContract.runningMode);
                     }
                 }
+            }
+        }
+
+        } catch (Exception e) {
+            if (!contractBornTerminated) {
+                throw e;
+            }
+            //the Contract Product could not be created for a contract that's already over before it starts - fall back to
+            //returning the Contract only (matches the platform's expected success response) rather than failing the whole call.
+            Database.rollback(bornTerminatedSp);
+            Util_System.setStatusCascadePrevention(false);
+            return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contr.Id));
+        }
+
+        if (contractBornTerminated) {
+            //the contract product now safely exists - mark the contract terminated, which is safe now that the package's
+            //"no new products under a terminated contract" check has already been satisfied.
+            try {
+                contr.Subscription25__Termination_Date__c = productTerminationDate;
+                contr.Service_End_Date__c = productServiceEndDate;
+                Database.update(contr, Rest_UpsertContract.runningMode);
+            } catch (Exception e) {
+                //the contract product is already safely created - not fatal if the contract itself can't be flipped to Terminated
             }
         }
 
