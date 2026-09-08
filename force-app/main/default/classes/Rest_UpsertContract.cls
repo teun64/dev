@@ -578,7 +578,7 @@ global with sharing class Rest_UpsertContract {
                 //20220603 - TRi - When creditfrom date is null, it will be set to the Subscription25__Current_End_Date__c or miContract.currentEndDate when Subscription25__Current_End_Date__c is null
                 contr.Subscription25__Termination_Date__c = productTerminationDate;
                 contr.Service_End_Date__c = productServiceEndDate;
-                doCorrection = ((contractCurrentEndDate != productTerminationDate) && (productTerminationDate != null));
+                doCorrection = ((contractCurrentEndDate != productTerminationDate) && (productTerminationDate != null) && (!contrIsNew));
             } else if((contr.Status != 'Terminated') && (productTerminationDate == null)) {
                 contr.Subscription25__Termination_Date__c = null;
                 contr.Service_End_Date__c = null;
