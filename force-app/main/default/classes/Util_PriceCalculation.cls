@@ -1,5 +1,10 @@
 public without sharing class Util_PriceCalculation {
 
+	//platforms for which Salesforce (not the platform) owns pricing - price is always calculated via
+	//getPricebookEntry rather than trusting the platform's own unitPrice, both on upsert and on the
+	//nightly Batch_UpdateContractProductPrice renewal refresh
+	public static final Set<String> PRICE_CALCULATED_PLATFORMS = new Set<String>{'1'};
+
 	public class getPricebookEntryInput {
 		//required pricebookEntry or productId, pricebookId and currencyIsoCode
 		@InvocableVariable(required=false)

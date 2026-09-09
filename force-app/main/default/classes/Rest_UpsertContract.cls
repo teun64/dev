@@ -789,10 +789,12 @@ global with sharing class Rest_UpsertContract {
                 contrProd.Subscription25__Quantity__c = (miContract.quantity != null) ? miContract.quantity : ((contrProd.Subscription25__Quantity__c != null) ? contrProd.Subscription25__Quantity__c : 1.0);
                 decimal price = contrProd.Subscription25__Price__c;
 
-                if ((prd.Pricing_Platform__c) && (miContract.unitPrice != null)) {
+                //platform check replaces the old Pricing_Platform__c product flag: for platforms Salesforce
+                //now owns pricing for, always calculate via the pricebook instead of trusting the platform's
+                //own unitPrice (see Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS and Batch_UpdateContractProductPrice)
+                if ((!Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS.contains(platformId)) && (miContract.unitPrice != null)) {
                     price = miContract.unitPrice;
                 } else {
-                    prd.Pricing_Platform__c = false;
                     PricebookEntry pbe = Util_PriceCalculation.getPricebookEntry(
                     prd.Id,
                     contr.Pricebook2Id,
@@ -811,7 +813,7 @@ global with sharing class Rest_UpsertContract {
 
                 //system.debug('contrProd.Subscription25__Price__c -> ' + contrProd.Subscription25__Price__c);
 
-                contrProd.Update_Price_before_Renewal__c = (!prd.Pricing_Platform__c);
+                contrProd.Update_Price_before_Renewal__c = Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS.contains(platformId);
                 //system.debug('Update_Price_before_Renewal__c -> ' + contrProd.Update_Price_before_Renewal__c);
 
                 if (String.isNotBlank(miContract.invoiceProductName)) {
