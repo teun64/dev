@@ -53,11 +53,32 @@ global class Batch_ActivateDraftContractProducts extends Subscription25.Job_Abst
         }
 
         if (!toActivate.isEmpty()) {
-            Database.update(toActivate, RUNNING_MODE);
+            //partial success (not all-or-none) - a chunk can hold up to 100 unrelated records, and one
+            //record failing its own validation must not roll back every other legitimate activation in
+            //the same chunk along with it
+            List<Database.SaveResult> saveResults = Database.update(toActivate, false, RUNNING_MODE);
+            for (Integer i = 0; i < saveResults.size(); i++) {
+                if (!saveResults[i].isSuccess()) {
+                    toLog.add(buildFailureLog(toActivate[i].Id, saveResults[i].getErrors()));
+                }
+            }
         }
         if (!toLog.isEmpty()) {
-            Database.insert(toLog, RUNNING_MODE);
+            Database.insert(toLog, false, RUNNING_MODE);
         }
+    }
+
+    private Event_Log__c buildFailureLog(Id contractProductId, List<Database.Error> errors){
+        List<String> errorMessages = new List<String>();
+        for (Database.Error err : errors) {
+            errorMessages.add(err.getMessage());
+        }
+
+        Event_Log__c failLog = Util_Event.getLog(null, 'S', 'S', 'Subscription25__Contract_Product__c', 'ActivateDraftContractProduct', contractProductId, null, String.valueOf(contractProductId));
+        failLog.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
+        failLog.Integration_Status__c = Util_Event.LogEventStatus.CANCELLED.name();
+        failLog.Message__c = 'Failed to activate Contract Product ' + contractProductId + ': ' + String.join(errorMessages, '; ');
+        return failLog;
     }
 
     public override void finishBatch(Database.BatchableContext bc){}
