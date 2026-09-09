@@ -199,6 +199,114 @@ private class Test_Rest_UpsertContract {
         System.assertEquals(Date.newInstance(2026, 8, 1), firstOrd.Subscription25__Invoice_Date__c);
     }
 
+    private static testMethod void testSkipNoOpSyncCall(){
+        //an open-ended/auto-renewing contract: no contractEndDate/serviceEndDate at creation, so
+        //Subscription25__Termination_Date__c stays null afterwards - matches the real-world contracts
+        //that later receive the nightly no-op sync call
+        String jsonCreate = '{"id":"900555","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":null,"salesforceId":null,"quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":null,"terminationId":null,"orderReference":"900555-orderReference"}';
+        //no contractEndDate/serviceEndDate/terminationId - the nightly no-op confirmation call shape
+        String jsonHeartbeat = '{"id":"900555","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":null,"salesforceId":"a0V000000000000AAA","quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":null,"terminationId":null,"orderReference":"900555-orderReference"}';
+        //same no-op shape, but terminationId '0' ("Termination Reverted") - should also be skipped
+        String jsonRevertNoop = jsonHeartbeat.replace('"terminationId":null', '"terminationId":"0"');
+
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        Test.startTest();
+
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonCreate);
+        Util_Rest.RestResult createResult = Rest_UpsertContract.handleAction();
+        System.assertEquals(true, createResult.success, String.join(createResult.messages, '; '));
+
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonHeartbeat);
+        Util_Rest.RestResult heartbeatResult = Rest_UpsertContract.handleAction();
+
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonRevertNoop);
+        Util_Rest.RestResult revertResult = Rest_UpsertContract.handleAction();
+
+        Test.stopTest();
+
+        System.assertEquals(true, heartbeatResult.success, String.join(heartbeatResult.messages, '; '));
+        System.assert(String.join(heartbeatResult.messages, '; ').contains('Skipped'), String.join(heartbeatResult.messages, '; '));
+
+        System.assertEquals(true, revertResult.success, String.join(revertResult.messages, '; '));
+        System.assert(String.join(revertResult.messages, '; ').contains('Skipped'), String.join(revertResult.messages, '; '));
+
+        //the two no-op calls must not have created any duplicate/extra records
+        System.assertEquals(1, [SELECT Count() FROM Contract WHERE extId__c = '900555-1']);
+        System.assertEquals(1, [SELECT Count() FROM Subscription25__Contract_Product__c WHERE extId__c = '900555-1']);
+    }
+
+    private static testMethod void testNoSkipWhenTerminationPending(){
+        String jsonCreate = '{"id":"900556","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":"2027-01-09","salesforceId":null,"quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":"2027-01-09","orderReference":"900556-orderReference"}';
+        //otherwise no-op-shaped call, sent against a contract that has a real pending termination on file
+        String jsonHeartbeat = '{"id":"900556","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":null,"salesforceId":"a0V000000000000AAA","quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":null,"terminationId":null,"orderReference":"900556-orderReference"}';
+
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        Test.startTest();
+
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonCreate);
+        Util_Rest.RestResult createResult = Rest_UpsertContract.handleAction();
+        System.assertEquals(true, createResult.success, String.join(createResult.messages, '; '));
+
+        //simulate a real pending termination already on file, bypassing the need to reconstruct the full
+        //package-managed cascade that would normally set it
+        Contract cont = [SELECT Id FROM Contract WHERE extId__c = '900556-1'];
+        Database.update(new Contract(Id = cont.Id, Subscription25__Termination_Date__c = Date.newInstance(2028, 1, 9)));
+
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonHeartbeat);
+        Util_Rest.RestResult heartbeatResult = Rest_UpsertContract.handleAction();
+
+        Test.stopTest();
+
+        System.assertEquals(true, heartbeatResult.success, String.join(heartbeatResult.messages, '; '));
+        System.assert(!String.join(heartbeatResult.messages, '; ').contains('Skipped'), String.join(heartbeatResult.messages, '; '));
+    }
+
+    private static void setupSubscriptionFixtures(){
+        Product2 pr = Test_Data.createProduct('MiBlack', 'Tst.Black.12', '9999392-sv-1', 'Subscription', false);
+        pr.contractTerm__c = 12;
+        pr.renewalTerm__c = 12;
+        pr.Invoice_Period__c = '0';
+        Database.insert(pr);
+        PricebookEntry pbs = Test_Data.CreatePricebookEntry(pr.id, 8.95, false);
+        Database.insert(pbs);
+        Pricebook2 pb = new Pricebook2(Name = 'Subscription - Test', Reseller__c = '1', Type__c = 'Subscriptions', IsActive = true);
+        Database.insert(pb);
+        PricebookEntry pbe = new PricebookEntry(Product2Id = pr.id, Pricebook2Id = pb.Id, Unitprice = 21, UseStandardPrice = false, Isactive = true);
+        Database.insert(pbe);
+
+        Subscription25__Administration__c adm1 = new Subscription25__Administration__c(
+            Name = 'Test Administration 1',
+            Reseller__c = '1',
+            External_ID__c = 1,
+            Subscription25__Default__c = true,
+            Subscription25__Billing_Country__c = 'Netherlands',
+            Subscription25__Invoice_Number_Prefix__c = 'TS1',
+            Subscription25__Active__c = true
+        );
+        Database.insert(adm1);
+
+        Subscription25__VATRate__c vr = new Subscription25__VATRate__c(Name = '0 - Test', Subscription25__Hide_On_Invoice__c = false, Subscription25__Default__c = true, Subscription25__Active__c = true, Subscription25__VAT_Percentage__c = 21.0);
+        Database.insert(vr);
+        Database.insert(new Subscription25__VAT_Code__c(Subscription25__Administration__c = adm1.Id, Subscription25__VATRate__c = vr.Id, Subscription25__VAT_Code__c = 'A0'));
+        Database.insert(new Subscription25__Administration_Product__c(
+            Subscription25__Administration__c = adm1.id,
+            Subscription25__Product__c = pr.id,
+            Subscription25__Ledger_Account__c = '13100',
+            Subscription25__Ledger_Account_EU__c = '13200',
+            Subscription25__Ledger_Account_Non_EU__c = '13300',
+            Subscription25__VATRate__c = vr.ID,
+            Subscription25__VATRate_EU__c = vr.ID,
+            Subscription25__VATRate_Non_EU__c = vr.ID
+        ));
+    }
+
     @testSetup
     private static void testSetup(){
         Account dealerAcc = Test_Data.createAccount('Dealer', '1', 'B2B', false);

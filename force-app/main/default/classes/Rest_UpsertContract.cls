@@ -2,6 +2,7 @@
 global with sharing class Rest_UpsertContract {
     private static Contract record;
 	private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
+	private static String skipReason;
 
     @HttpPost
     global static Util_Rest.RestResult handleAction(){
@@ -11,6 +12,7 @@ global with sharing class Rest_UpsertContract {
 
     public static Util_Rest.RestResult handleAction(String req){
         Util_Rest.RestResult result = new Util_Rest.RestResult();
+        Rest_UpsertContract.skipReason = null;
         Logger logger = Logger.getInstance();
         String sessionId = logger.startSession(RestContext.request, 'RestUpsertContract', 'S'); // TODO: Set calling system?
         Savepoint savePoint = Database.setSavepoint();
@@ -90,6 +92,10 @@ global with sharing class Rest_UpsertContract {
             result.addedRecords.add(Rest_UpsertContract.upsertMiContract(miContract, platformId, acc));
             result.success = true;
             result.messages.add('Succes: An Contract was added with ID: ' + miContract.id);
+
+            if (String.isNotBlank(Rest_UpsertContract.skipReason)) {
+                result.messages.add('Skipped: ' + Rest_UpsertContract.skipReason + ' for Contract ' + miContract.id);
+            }
 
             Util_Rest.isRestEntry = false;
 
@@ -319,13 +325,32 @@ global with sharing class Rest_UpsertContract {
 
         Rest_UpsertContract.record = contr;
 
+        // 2026-09-09 - TRi - platforms (observed on platform 1) send a nightly no-op confirmation call for
+        // contracts sitting at their native renewal anniversary; Subscription25 already renews the contract
+        // itself (Job_ContractManagement), so this call carries no changes at all - contractEndDate,
+        // serviceEndDate and terminationId are all blank (or terminationId is '0', "Termination Reverted",
+        // sent when there's nothing left to revert). Short-circuit before running the full update/DML path.
+        // The Subscription25__Termination_Date__c == null check is the real safety net: a contract that
+        // actually has a pending/real termination on file never matches this and always runs the full path.
+        Boolean isNoOpSyncCall = (!contrIsNew)
+            && (miContract.contractEndDate == null)
+            && (miContract.serviceEndDate == null)
+            && (String.isBlank(miContract.terminationId) || (miContract.terminationId == '0'))
+            && (contr.Subscription25__Termination_Date__c == null);
+
+        if (isNoOpSyncCall) {
+            Rest_UpsertContract.skipReason = 'no-op sync call, no changes detected';
+            Util_System.setStatusCascadePrevention(false);
+            return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contr.Id));
+        }
+
         if (miContract.renewalTerm != null) {
             renewalTerm = miContract.renewalTerm;
         } else {
             renewalTerm = Rest_UpsertContract.getCurrentProductAccountOrDefaultValue(acc, acd, prd, 'RenewalTerm__c', contr.Subscription25__Renewal_Term__c);
         }
 
-        renewalTerm = ((renewalTerm == null) || (renewalTerm == 0)) ? 1 : renewalTerm;        
+        renewalTerm = ((renewalTerm == null) || (renewalTerm == 0)) ? 1 : renewalTerm;
 
         if(contr.Status == 'Terminated') {
             //if the salesforce contract was already terminated, stop now.
