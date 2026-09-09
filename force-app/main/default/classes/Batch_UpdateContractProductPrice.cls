@@ -1,8 +1,8 @@
 // 2026-09-09 - TRi - refreshes Subscription25__Price__c from the pricebook for platforms where Salesforce
 // (not the platform) owns pricing (see Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS), right before a
 // contract's native renewal. Runs at 00:05 Amsterdam time, ahead of Sub25's own Job_ContractManagement
-// (01:16) - this is also the price refresh that Rest_UpsertContract's nightly no-op sync call used to
-// perform before it started being short-circuited; this batch replaces that side effect.
+// (01:16) on the same day - this is also the price refresh that Rest_UpsertContract's nightly no-op sync
+// call used to perform before it started being short-circuited; this batch replaces that side effect.
 global class Batch_UpdateContractProductPrice extends Subscription25.Job_AbstractBatch2 {
 
     private static final AccessLevel RUNNING_MODE = AccessLevel.SYSTEM_MODE;
@@ -17,7 +17,9 @@ global class Batch_UpdateContractProductPrice extends Subscription25.Job_Abstrac
 
     public override Database.QueryLocator startBatch(Database.BatchableContext bc){
         String platformList = '(\'' + String.join(new List<String>(Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS), '\',\'') + '\')';
-        Date renewingBy = Date.today().addDays(1);
+        //runs at 00:05 - "today" is already the renewal day for anything due, Job_ContractManagement
+        //processes it later this same day (01:16)
+        Date renewingBy = Date.today();
 
         String query =
             'SELECT Id, Subscription25__Product__c, Subscription25__Quantity__c, Subscription25__Price__c, ' +
@@ -46,7 +48,13 @@ global class Batch_UpdateContractProductPrice extends Subscription25.Job_Abstrac
                 0.0
             );
 
-            Decimal newPrice = ((pbe != null) ? pbe.SalesPrice__c : 0).setScale(2, RoundingMode.HALF_DOWN);
+            //no pricebook result isn't a price of 0 - it's "couldn't calculate", so leave the existing
+            //price untouched rather than zeroing it out
+            if (pbe == null) {
+                continue;
+            }
+
+            Decimal newPrice = pbe.SalesPrice__c.setScale(2, RoundingMode.HALF_DOWN);
 
             if (newPrice != cp.Subscription25__Price__c) {
                 toUpdate.add(new Subscription25__Contract_Product__c(Id = cp.Id, Subscription25__Price__c = newPrice));

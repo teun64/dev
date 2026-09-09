@@ -802,7 +802,11 @@ global with sharing class Rest_UpsertContract {
                     contr.accountId,
                     Math.round(contrProd.Subscription25__Quantity__c),
                     0.0);
-                    price = (pbe != null) ? pbe.SalesPrice__c : 0;
+                    //no pricebook result isn't a price of 0 - it's "couldn't calculate", so leave price at
+                    //its existing value (initialized above) rather than zeroing it out
+                    if (pbe != null) {
+                        price = pbe.SalesPrice__c;
+                    }
                 }
 
                 //system.debug('Rounding -> ' + price);
