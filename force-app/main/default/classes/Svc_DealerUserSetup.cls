@@ -46,10 +46,7 @@ public without sharing class Svc_DealerUserSetup {
             throw new SetupException('Contact ' + contactId + ' must be linked to an Account.');
         }
 
-        if (con.Email != email) {
-            con.Email = email;
-            update con;
-        }
+        Boolean contactEmailNeedsSync = con.Email != email;
 
         Id     profileId = resolveProfileId();
         String username  = buildUsername(email);
@@ -86,7 +83,20 @@ public without sharing class Svc_DealerUserSetup {
         ensureNetworkAccess(profileId);
         assignPsIfExists(userId);
 
+        // Deferred to @future: mixing DML on a setup object (User/PermissionSetAssignment,
+        // above) with a non-setup object (Contact) in the same transaction throws
+        // MIXED_DML_OPERATION regardless of which happens first - only running it in a
+        // separate transaction avoids it.
+        if (contactEmailNeedsSync) {
+            syncContactEmailAsync(con.Id, email);
+        }
+
         return userId;
+    }
+
+    @future
+    private static void syncContactEmailAsync(Id contactId, String email) {
+        update new Contact(Id = contactId, Email = email);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
