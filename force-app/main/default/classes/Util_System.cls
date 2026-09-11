@@ -694,6 +694,12 @@ public with sharing class Util_System {
         return sanitizedEmail;
     }
 
+    // Returns the current sandbox name (e.g. "dev", "acc"), or null in production.
+    public static String getSandboxName() {
+        System.Domain d = System.DomainParser.parse(URL.getOrgDomainUrl());
+        return d.getSandboxName();
+    }
+
     /* =========================================================
         getDataSetting(String setting) {
     ========================================================= */
@@ -701,9 +707,7 @@ public with sharing class Util_System {
         Boolean result = false;
 
         if (String.IsNotBlank(setting)) {
-            System.Domain d = System.DomainParser.parse(URL.getOrgDomainUrl());
-
-            String devName = d.getSandboxName() ?? 'prod';
+            String devName = Util_System.getSandboxName() ?? 'prod';
             devName = devName.toLowerCase();
 
             setting = setting.remove('__c') + '__c';

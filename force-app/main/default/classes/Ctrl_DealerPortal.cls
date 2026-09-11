@@ -57,25 +57,19 @@ public without sharing class Ctrl_DealerPortal {
     public static FooterDTO getFooterInfo() {
         String resellerCode = resolveResellerCode();
 
-        List<Subscription25__Administration__c> admins = new List<Subscription25__Administration__c>();
-        if (String.isNotBlank(resellerCode)) {
-            admins = [
-                SELECT Subscription25__Billing_Name__c, Subscription25__Phone__c,
-                       Subscription25__Billing_Email_Address__c, Subscription25__Website__c,
-                       Subscription25__Billing_Street__c, Subscription25__Billing_Postal_Code__c,
-                       Subscription25__Billing_City__c,
-                       Subscription25__Billing_Country__c,
-                       Subscription25__Chamber_Of_Commerce_Number__c, Subscription25__VAT_Number__c,
-                       Managing_directors__c,
-                       Subscription25__IBAN__c, Subscription25__BIC__c,
-                       Bank_6_Account_Number__c, Bank_6_Sort_Code__c,
-                       Privacy_Policy_URL__c, Terms_Conditions_URL__c
-                FROM Subscription25__Administration__c
-                WHERE Reseller__c = :resellerCode
-                WITH SYSTEM_MODE
-                LIMIT 1
-            ];
-        }
+        List<Subscription25__Administration__c> admins = Util_Shop_System.getAdministrationsByReseller(
+            resellerCode,
+            'Subscription25__Billing_Name__c, Subscription25__Phone__c, ' +
+            'Subscription25__Billing_Email_Address__c, Subscription25__Website__c, ' +
+            'Subscription25__Billing_Street__c, Subscription25__Billing_Postal_Code__c, ' +
+            'Subscription25__Billing_City__c, ' +
+            'Subscription25__Billing_Country__c, ' +
+            'Subscription25__Chamber_Of_Commerce_Number__c, Subscription25__VAT_Number__c, ' +
+            'Managing_directors__c, ' +
+            'Subscription25__IBAN__c, Subscription25__BIC__c, ' +
+            'Bank_6_Account_Number__c, Bank_6_Sort_Code__c, ' +
+            'Privacy_Policy_URL__c, Terms_Conditions_URL__c'
+        );
 
         FooterDTO dto = new FooterDTO();
         if (!admins.isEmpty()) {
@@ -179,16 +173,10 @@ public without sharing class Ctrl_DealerPortal {
 
     private static String resolveResellerCode() {
         if (!isAuthenticatedUser()) return null;
-        List<User> users = [
-            SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId() WITH SYSTEM_MODE LIMIT 1
-        ];
-        if (users.isEmpty() || users[0].ContactId == null) return null;
-        List<Contact> contacts = [
-            SELECT AccountId FROM Contact WHERE Id = :users[0].ContactId WITH SYSTEM_MODE LIMIT 1
-        ];
-        if (contacts.isEmpty() || contacts[0].AccountId == null) return null;
+        Id accountId = Util_Shop_System.resolveDealerAccountId(UserInfo.getUserId()).accountId;
+        if (accountId == null) return null;
         List<Account> accounts = [
-            SELECT Reseller_Name__c FROM Account WHERE Id = :contacts[0].AccountId WITH SYSTEM_MODE LIMIT 1
+            SELECT Reseller_Name__c FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
         ];
         return (!accounts.isEmpty()) ? accounts[0].Reseller_Name__c : null;
     }

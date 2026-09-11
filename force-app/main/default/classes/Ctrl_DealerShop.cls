@@ -24,6 +24,19 @@ public without sharing class Ctrl_DealerShop {
         set;
     }
 
+    // ── Shared field lists (repeated across several queries below) ─────────────
+
+    private static final String PRICEBOOK_ENTRY_FIELDS =
+        'Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c, ' +
+        'From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c, ' +
+        'From_Quantity_4__c, From_Price_4__c';
+
+    private static final String PRODUCT_DISCOUNT_FIELDS =
+        'Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c, ' +
+        'isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c, ' +
+        'From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c, ' +
+        'From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c';
+
     // ── Pricebook resolution ──────────────────────────────────────────────────
 
     private static Id resolvePricebookId(Account acct) {
@@ -89,54 +102,25 @@ public without sharing class Ctrl_DealerShop {
     }
 
     private static DealerContext getDealerContext() {
-        List<User> users = [
-            SELECT ContactId, DefaultLanguage__c, Email
-            FROM User
-            WHERE Id = :UserInfo.getUserId()
-            WITH SYSTEM_MODE
-            LIMIT 1
-        ];
-        if (users.isEmpty()) return fallbackContext(null);
-        User usr = users[0];
-
-        // Primary: external/community user with ContactId
-        if (usr.ContactId != null) {
-            List<Contact> contacts = [
-                SELECT AccountId, Language__c
-                FROM Contact WHERE Id = :usr.ContactId WITH SYSTEM_MODE LIMIT 1
-            ];
-            if (!contacts.isEmpty() && contacts[0].AccountId != null) {
-                return buildContextFromContact(contacts[0], usr.DefaultLanguage__c);
-            }
+        Util_Shop_System.DealerAccountLookup lookup = Util_Shop_System.resolveDealerAccountId(UserInfo.getUserId());
+        if (lookup.accountId == null) {
+            return fallbackContext(normalizeLang(lookup.userDefaultLanguage));
         }
-
-        // Secondary: Identity/internal user — resolve Account via Contact email match
-        if (String.isNotBlank(usr.Email)) {
-            List<Contact> emailCons = [
-                SELECT AccountId, Language__c
-                FROM Contact WHERE Email = :usr.Email AND AccountId != null
-                WITH SYSTEM_MODE LIMIT 1
-            ];
-            if (!emailCons.isEmpty()) {
-                return buildContextFromContact(emailCons[0], usr.DefaultLanguage__c);
-            }
-        }
-
-        return fallbackContext(normalizeLang(usr.DefaultLanguage__c));
+        return buildContextFromAccountId(lookup.accountId, lookup.contactId, lookup.contactLanguage, lookup.userDefaultLanguage);
     }
 
-    private static DealerContext buildContextFromContact(Contact con, String defaultLang) {
+    private static DealerContext buildContextFromAccountId(Id accountId, Id contactId, String contactLanguage, String defaultLang) {
         List<Account> accounts = [
             SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c
-            FROM Account WHERE Id = :con.AccountId WITH SYSTEM_MODE LIMIT 1
+            FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
         ];
         if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
 
         DealerContext ctx = new DealerContext();
         ctx.account     = accounts[0];
-        ctx.contactId   = con.Id;
+        ctx.contactId   = contactId;
         ctx.hidePrices  = accounts[0].Hide_Prices__c == true;
-        String lang = resolveLanguage(con.Language__c);
+        String lang = resolveLanguage(contactLanguage);
         if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
         if (lang == null) lang = normalizeLang(defaultLang);
         ctx.language = lang != null ? lang : 'en';
@@ -584,16 +568,11 @@ public without sharing class Ctrl_DealerShop {
         Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
         Boolean filterByEntry = pricebookId != null;
         if (filterByEntry) {
-            for (PricebookEntry pbe : [
-                SELECT Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c,
-                       From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c,
-                       From_Quantity_4__c, From_Price_4__c
-                FROM PricebookEntry
-                WHERE Pricebook2Id = :pricebookId
-                  AND IsActive = true
-                  AND IsActive_r__c = true
-                WITH SYSTEM_MODE
-            ]) {
+            for (PricebookEntry pbe : (List<PricebookEntry>) Database.query(
+                'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+                'WHERE Pricebook2Id = :pricebookId AND IsActive = true AND IsActive_r__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
                 entryByProduct.put(pbe.Product2Id, pbe);
             }
         }
@@ -699,17 +678,12 @@ public without sharing class Ctrl_DealerShop {
         // Account-level discounts
         Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
         if (acct.Id != null && !productIds.isEmpty()) {
-            for (Product_Discount__c disc : [
-                SELECT Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c,
-                       isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
-                       From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
-                       From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
-                FROM Product_Discount__c
-                WHERE Account__c = :acct.Id
-                  AND Product__c IN :productIds
-                  AND IsActive__c = true
-                WITH SYSTEM_MODE
-            ]) {
+            Id acctId = acct.Id;
+            for (Product_Discount__c disc : (List<Product_Discount__c>) Database.query(
+                'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+                'WHERE Account__c = :acctId AND Product__c IN :productIds AND IsActive__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
                 discountByProduct.put(disc.Product__c, disc);
             }
         }
@@ -759,33 +733,21 @@ public without sharing class Ctrl_DealerShop {
 
         PricebookEntry entry = null;
         if (pricebookId != null) {
-            List<PricebookEntry> entries = [
-                SELECT Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c,
-                       From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c,
-                       From_Quantity_4__c, From_Price_4__c
-                FROM PricebookEntry
-                WHERE Pricebook2Id = :pricebookId
-                  AND Product2Id = :productId
-                  AND IsActive = true
-                  AND IsActive_r__c = true
-                WITH SYSTEM_MODE
-                LIMIT 1
-            ];
+            List<PricebookEntry> entries = (List<PricebookEntry>) Database.query(
+                'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+                'WHERE Pricebook2Id = :pricebookId AND Product2Id = :productId ' +
+                'AND IsActive = true AND IsActive_r__c = true LIMIT 1',
+                AccessLevel.SYSTEM_MODE
+            );
             if (!entries.isEmpty()) entry = entries[0];
         }
 
-        List<Product_Discount__c> discs = [
-            SELECT Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c,
-                   isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
-                   From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
-                   From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
-            FROM Product_Discount__c
-            WHERE Account__c = :acct.Id
-              AND Product__c = :productId
-              AND IsActive__c = true
-            WITH SYSTEM_MODE
-            LIMIT 1
-        ];
+        Id acctId = acct.Id;
+        List<Product_Discount__c> discs = (List<Product_Discount__c>) Database.query(
+            'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+            'WHERE Account__c = :acctId AND Product__c = :productId AND IsActive__c = true LIMIT 1',
+            AccessLevel.SYSTEM_MODE
+        );
         Product_Discount__c disc = discs.isEmpty() ? null : discs[0];
         ShopActionMatch action = getActiveShopActions(new Set<Id>{ productId }, getAdministrationIds(acct)).get(productId);
 
@@ -819,16 +781,11 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
-        for (PricebookEntry pbe : [
-            SELECT Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c,
-                   From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c,
-                   From_Quantity_4__c, From_Price_4__c
-            FROM PricebookEntry
-            WHERE Pricebook2Id = :pricebookId
-              AND Product2Id IN :productIds
-              AND IsActive = true
-            WITH SYSTEM_MODE
-        ]) {
+        for (PricebookEntry pbe : (List<PricebookEntry>) Database.query(
+            'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+            'WHERE Pricebook2Id = :pricebookId AND Product2Id IN :productIds AND IsActive = true',
+            AccessLevel.SYSTEM_MODE
+        )) {
             entryByProduct.put(pbe.Product2Id, pbe);
         }
 
@@ -840,17 +797,12 @@ public without sharing class Ctrl_DealerShop {
         // account's Product_Discount__c/Shop Action pricing.
         Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
         if (acct.Id != null && !productIds.isEmpty()) {
-            for (Product_Discount__c disc : [
-                SELECT Product__c, IsActive__c, Discount_percentage__c,
-                       isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
-                       From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
-                       From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
-                FROM Product_Discount__c
-                WHERE Account__c = :acct.Id
-                  AND Product__c IN :productIds
-                  AND IsActive__c = true
-                WITH SYSTEM_MODE
-            ]) {
+            Id acctId = acct.Id;
+            for (Product_Discount__c disc : (List<Product_Discount__c>) Database.query(
+                'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+                'WHERE Account__c = :acctId AND Product__c IN :productIds AND IsActive__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
                 discountByProduct.put(disc.Product__c, disc);
             }
         }
@@ -1017,34 +969,24 @@ public without sharing class Ctrl_DealerShop {
         Id pricebookId = resolvePricebookId(acct);
         Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
         if (pricebookId != null && !productIds.isEmpty()) {
-            for (PricebookEntry pbe : [
-                SELECT Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c,
-                       From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c,
-                       From_Quantity_4__c, From_Price_4__c
-                FROM PricebookEntry
-                WHERE Pricebook2Id = :pricebookId
-                  AND Product2Id IN :productIds
-                  AND IsActive = true
-                  AND IsActive_r__c = true
-                WITH SYSTEM_MODE
-            ]) {
+            for (PricebookEntry pbe : (List<PricebookEntry>) Database.query(
+                'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+                'WHERE Pricebook2Id = :pricebookId AND Product2Id IN :productIds ' +
+                'AND IsActive = true AND IsActive_r__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
                 entryByProduct.put(pbe.Product2Id, pbe);
             }
         }
 
         Map<Id, Product_Discount__c> discByProduct = new Map<Id, Product_Discount__c>();
         if (!productIds.isEmpty()) {
-            for (Product_Discount__c d : [
-                SELECT Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c,
-                       isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c,
-                       From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c,
-                       From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c
-                FROM Product_Discount__c
-                WHERE Account__c = :acct.Id
-                  AND Product__c IN :productIds
-                  AND IsActive__c = true
-                WITH SYSTEM_MODE
-            ]) {
+            Id acctId = acct.Id;
+            for (Product_Discount__c d : (List<Product_Discount__c>) Database.query(
+                'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+                'WHERE Account__c = :acctId AND Product__c IN :productIds AND IsActive__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
                 discByProduct.put(d.Product__c, d);
             }
         }
@@ -1126,15 +1068,13 @@ public without sharing class Ctrl_DealerShop {
     // record that actually carries the platform requirement.
     private static Set<String> getAvailablePlatforms(Account acct) {
         Set<String> platforms = new Set<String>();
-        if (acct == null || String.isBlank(acct.Reseller_Name__c)) return platforms;
-        for (Subscription25__Administration__c admin : [
-            SELECT Available_System_Platforms__c
-            FROM Subscription25__Administration__c
-            WHERE Reseller__c = :acct.Reseller_Name__c
-              AND Available_System_Platforms__c != null
-            WITH SYSTEM_MODE
-        ]) {
-            platforms.addAll(admin.Available_System_Platforms__c.split(';'));
+        if (acct == null) return platforms;
+        for (Subscription25__Administration__c admin : Util_Shop_System.getAdministrationsByReseller(
+            acct.Reseller_Name__c, 'Available_System_Platforms__c'
+        )) {
+            if (admin.Available_System_Platforms__c != null) {
+                platforms.addAll(admin.Available_System_Platforms__c.split(';'));
+            }
         }
         return platforms;
     }
@@ -1144,13 +1084,10 @@ public without sharing class Ctrl_DealerShop {
     // with no way to tell which one should apply to a given dealer.
     private static Set<Id> getAdministrationIds(Account acct) {
         Set<Id> ids = new Set<Id>();
-        if (acct == null || String.isBlank(acct.Reseller_Name__c)) return ids;
-        for (Subscription25__Administration__c admin : [
-            SELECT Id
-            FROM Subscription25__Administration__c
-            WHERE Reseller__c = :acct.Reseller_Name__c
-            WITH SYSTEM_MODE
-        ]) {
+        if (acct == null) return ids;
+        for (Subscription25__Administration__c admin : Util_Shop_System.getAdministrationsByReseller(
+            acct.Reseller_Name__c, 'Id'
+        )) {
             ids.add(admin.Id);
         }
         return ids;
