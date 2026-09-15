@@ -8,5 +8,20 @@
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
         <target>lightning__AppPage</target>
+        <target>lightning__RecordAction</target>
+        <target>lightning__RecordPage</target>
     </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>ScreenAction</actionType>
+            <objects>
+                <object>Account</object>
+            </objects>
+        </targetConfig>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Account</object>
+            </objects>
+        </targetConfig>
+    </targetConfigs>
 </LightningComponentBundle>

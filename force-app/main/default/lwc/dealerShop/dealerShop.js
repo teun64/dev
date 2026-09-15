@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import getBrandConfig              from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 import { getCart, saveCart, clearCart } from 'c/dealerCartStorage';
 
@@ -7,6 +7,11 @@ const VIEW_DETAIL       = 'detail';
 const VIEW_CONFIRMATION = 'confirmation';
 
 export default class DealerShop extends LightningElement {
+
+    // Populated automatically when placed on an Account record page / quick action
+    // (lightning__RecordPage, lightning__RecordAction); stays undefined for the Experience
+    // Cloud usage, where dealer context is instead resolved from the logged-in portal user.
+    @api recordId;
 
     @track currentView       = VIEW_GRID;
     @track selectedProductId = null;
@@ -19,6 +24,13 @@ export default class DealerShop extends LightningElement {
     @track orderId           = null;
 
     _searchDebounce;
+
+    // Normalizes recordId to an explicit null (never undefined) before it reaches any child's
+    // @wire - an undefined reactive wire param never fires at all, which would silently break
+    // the Experience Cloud usage where recordId is never set by the framework.
+    get dealerAccountId() {
+        return this.recordId || null;
+    }
 
     connectedCallback() {
         getBrandConfig()

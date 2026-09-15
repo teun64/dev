@@ -22,6 +22,7 @@
 
         <c-dealer-category-nav
             active-category={activeCategory}
+            dealer-account-id={dealerAccountId}
             oncategorychange={handleCategoryChange}>
         </c-dealer-category-nav>
 
@@ -31,6 +32,7 @@
                     category={activeCategory}
                     initial-page={activePage}
                     search-term={searchTerm}
+                    dealer-account-id={dealerAccountId}
                     onproductselect={handleProductSelect}
                     onaddtocart={handleAddToCart}
                     onpagechange={handleGridPageChange}>
@@ -40,6 +42,7 @@
             <template if:true={isDetailView}>
                 <c-dealer-product-detail
                     product-id={selectedProductId}
+                    dealer-account-id={dealerAccountId}
                     onaddtocart={handleAddToCart}
                     onbacktoshop={handleBackToShop}>
                 </c-dealer-product-detail>
@@ -56,6 +59,7 @@
         <template if:true={cartOpen}>
             <c-dealer-cart
                 cart-items={cartItems}
+                dealer-account-id={dealerAccountId}
                 onremovefromcart={handleRemoveFromCart}
                 oncartitemchanged={handleCartItemChanged}
                 onclosecart={handleCloseCart}

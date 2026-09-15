@@ -7,10 +7,11 @@ const TAB_FAVORITES = { value: 'favorites', label: 'Mijn favorieten' };
 export default class DealerCategoryNav extends LightningElement {
 
     @api activeCategory = '';
+    @api dealerAccountId = null;
     @track _categories = [TAB_ALL, TAB_FAVORITES];
 
     connectedCallback() {
-        getPlatformTabs()
+        getPlatformTabs({ dealerAccountId: this.dealerAccountId })
             .then((tabs) => {
                 this._categories = [TAB_ALL, ...(tabs || []), TAB_FAVORITES];
             })

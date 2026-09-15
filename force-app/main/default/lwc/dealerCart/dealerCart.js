@@ -3,6 +3,7 @@ import placeOrder from '@salesforce/apex/Ctrl_DealerShop.placeOrder';
 
 export default class DealerCart extends LightningElement {
     @api cartItems = [];
+    @api dealerAccountId = null;
 
     @track isLoading = false;
     @track errorMessage = null;
@@ -99,7 +100,7 @@ export default class DealerCart extends LightningElement {
                 quantity: item.quantity,
                 unitPrice: item.unitPrice
             }));
-            const orderId = await placeOrder({ cartJson: JSON.stringify(cartPayload) });
+            const orderId = await placeOrder({ cartJson: JSON.stringify(cartPayload), dealerAccountId: this.dealerAccountId });
             this.dispatchEvent(new CustomEvent('orderplaced', {
                 detail: { orderId }
             }));

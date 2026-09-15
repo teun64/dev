@@ -109,6 +109,31 @@ public without sharing class Ctrl_DealerShop {
         return buildContextFromAccountId(lookup.accountId, lookup.contactId, lookup.contactLanguage, lookup.userDefaultLanguage);
     }
 
+    // Internal-user entry point (Account record page / quick action): dealerAccountId comes
+    // straight from the page, not from a portal Contact, so there's no Contact-based resolution
+    // to run - just confirm the running (internal) user's own sharing actually grants them this
+    // Account (the class itself runs "without sharing" for the portal path further down) before
+    // building the same context a dealer portal user would get for that account.
+    private static DealerContext getDealerContext(Id overrideAccountId) {
+        if (overrideAccountId == null) return getDealerContext();
+
+        List<Account> visible = [
+            SELECT Id FROM Account WHERE Id = :overrideAccountId WITH USER_MODE LIMIT 1
+        ];
+        if (visible.isEmpty()) return fallbackContext(normalizeLang(internalUserLanguage()));
+
+        return buildContextFromAccountId(overrideAccountId, null, null, internalUserLanguage());
+    }
+
+    // UserInfo.getLanguage() returns a locale key (e.g. "nl_NL", "de") - trim to the ISO 639-1
+    // prefix so it lines up with what normalizeLang()/SUPPORTED_LANGUAGES expect.
+    private static String internalUserLanguage() {
+        String lang = UserInfo.getLanguage();
+        if (String.isBlank(lang)) return null;
+        Integer sep = lang.indexOf('_');
+        return sep > 0 ? lang.substring(0, sep) : lang;
+    }
+
     private static DealerContext buildContextFromAccountId(Id accountId, Id contactId, String contactLanguage, String defaultLang) {
         List<Account> accounts = [
             SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c
@@ -494,10 +519,10 @@ public without sharing class Ctrl_DealerShop {
 
     // Toggles the current dealer contact's favorite flag for a product and returns the new state.
     @AuraEnabled
-    public static Boolean toggleFavorite(Id productId) {
+    public static Boolean toggleFavorite(Id productId, Id dealerAccountId) {
         if (productId == null) throw new AuraHandledException('productId is required.');
 
-        Id contactId = getDealerContext().contactId;
+        Id contactId = getDealerContext(dealerAccountId).contactId;
         if (contactId == null) {
             throw new AuraHandledException('You must be logged in as a dealer contact to save favorites.');
         }
@@ -525,8 +550,8 @@ public without sharing class Ctrl_DealerShop {
     // Available_System_Platforms__c, labeled from the shared "System" global value set - in that
     // value set's defined order, not the reseller field's (unordered Set) iteration order.
     @AuraEnabled(cacheable=true)
-    public static List<PlatformTabDTO> getPlatformTabs() {
-        Set<String> platforms = getAvailablePlatforms(getDealerContext().account);
+    public static List<PlatformTabDTO> getPlatformTabs(Id dealerAccountId) {
+        Set<String> platforms = getAvailablePlatforms(getDealerContext(dealerAccountId).account);
         List<PlatformTabDTO> tabs = new List<PlatformTabDTO>();
         if (platforms.isEmpty()) return tabs;
 
@@ -544,12 +569,12 @@ public without sharing class Ctrl_DealerShop {
     // ── Public methods ────────────────────────────────────────────────────────
 
     @AuraEnabled(cacheable=true)
-    public static ProductPageResult getProducts(String category, Integer pageNum, Integer pageSize, String searchTerm) {
+    public static ProductPageResult getProducts(String category, Integer pageNum, Integer pageSize, String searchTerm, Id dealerAccountId) {
         Integer safePageNum  = (pageNum  != null && pageNum  > 0) ? pageNum  : 1;
         Integer safePageSize = (pageSize != null && pageSize > 0) ? pageSize : 20;
         Integer offsetVal    = (safePageNum - 1) * safePageSize;
 
-        DealerContext ctx  = getDealerContext();
+        DealerContext ctx  = getDealerContext(dealerAccountId);
         Account acct      = ctx.account;
         String lang       = ctx.language;
         Id contactId      = ctx.contactId;
@@ -708,10 +733,10 @@ public without sharing class Ctrl_DealerShop {
     }
 
     @AuraEnabled(cacheable=true)
-    public static ProductDTO getProductDetail(Id productId) {
+    public static ProductDTO getProductDetail(Id productId, Id dealerAccountId) {
         if (productId == null) throw new AuraHandledException('productId is required.');
 
-        DealerContext ctx = getDealerContext();
+        DealerContext ctx = getDealerContext(dealerAccountId);
         String lang    = ctx.language;
         Set<Id> baseRtIds = translationRecordTypeIds;
         List<Product2> prods = [
@@ -759,7 +784,7 @@ public without sharing class Ctrl_DealerShop {
     }
 
     @AuraEnabled
-    public static String placeOrder(String cartJson) {
+    public static String placeOrder(String cartJson, Id dealerAccountId) {
         if (String.isBlank(cartJson)) throw new AuraHandledException('cartJson is required.');
 
         List<CartItemInput> items;
@@ -770,7 +795,7 @@ public without sharing class Ctrl_DealerShop {
         }
         if (items == null || items.isEmpty()) throw new AuraHandledException('Cart is empty.');
 
-        Account acct   = getDealerContext().account;
+        Account acct   = getDealerContext(dealerAccountId).account;
         Id pricebookId = resolvePricebookId(acct);
         if (pricebookId == null) throw new AuraHandledException('No dealer pricebook found for your account.');
 

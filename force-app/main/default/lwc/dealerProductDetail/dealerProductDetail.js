@@ -11,6 +11,7 @@ const CURRENCY_FORMAT = new Intl.NumberFormat('nl-NL', {
 
 export default class DealerProductDetail extends LightningElement {
     @api productId;
+    @api dealerAccountId = null;
 
     @track quantity = 1;
     @track product = null;
@@ -18,7 +19,7 @@ export default class DealerProductDetail extends LightningElement {
     @track hasError = false;
     @track errorMessage = '';
 
-    @wire(getProductDetail, { productId: '$productId' })
+    @wire(getProductDetail, { productId: '$productId', dealerAccountId: '$dealerAccountId' })
     wiredProduct({ data, error }) {
         if (data) {
             this.product = this._enrichProduct(data);
@@ -58,7 +59,7 @@ export default class DealerProductDetail extends LightningElement {
 
     handleToggleFavorite() {
         if (!this.productId) return;
-        toggleFavorite({ productId: this.productId })
+        toggleFavorite({ productId: this.productId, dealerAccountId: this.dealerAccountId })
             .then((isFavorite) => {
                 this.product = { ...this.product, isFavorite };
             })

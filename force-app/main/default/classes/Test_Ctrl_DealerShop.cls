@@ -141,7 +141,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null, null);
         }
         Test.stopTest();
 
@@ -160,7 +160,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts('2', 1, 10, null);
+            result = Ctrl_DealerShop.getProducts('2', 1, 10, null, null);
         }
         Test.stopTest();
 
@@ -175,7 +175,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts('2', 1, 10, null);
+            result = Ctrl_DealerShop.getProducts('2', 1, 10, null, null);
         }
         Test.stopTest();
 
@@ -188,8 +188,8 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult page2;
         Test.startTest();
         System.runAs(portalUser()) {
-            page1 = Ctrl_DealerShop.getProducts(null, 1, 1, null);
-            page2 = Ctrl_DealerShop.getProducts(null, 2, 1, null);
+            page1 = Ctrl_DealerShop.getProducts(null, 1, 1, null, null);
+            page2 = Ctrl_DealerShop.getProducts(null, 2, 1, null, null);
         }
         Test.stopTest();
 
@@ -211,7 +211,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -240,7 +240,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -261,7 +261,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 10, 'Vertaalde');
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, 'Vertaalde', null);
         }
         Test.stopTest();
 
@@ -279,7 +279,7 @@ private class Test_Ctrl_DealerShop {
         System.runAs(portalUser()) {
             try {
                 Ctrl_DealerShop.ProductDTO dto =
-                    Ctrl_DealerShop.getProductDetail(privateProd.Id);
+                    Ctrl_DealerShop.getProductDetail(privateProd.Id, null);
                 System.assertEquals(null, dto, 'Private product detail should not be accessible');
             } catch (AuraHandledException e) {
                 System.assert(true, 'AuraHandledException is acceptable for private product');
@@ -311,7 +311,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
         }
         Test.stopTest();
 
@@ -365,7 +365,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
         }
         Test.stopTest();
 
@@ -386,7 +386,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts('', 1, 50, null);
+            result = Ctrl_DealerShop.getProducts('', 1, 50, null, null);
         }
         Test.stopTest();
 
@@ -403,7 +403,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -439,7 +439,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -473,7 +473,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -490,7 +490,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null, null);
         }
         Test.stopTest();
 
@@ -506,7 +506,7 @@ private class Test_Ctrl_DealerShop {
     static void testPlaceOrder_invalidJson_throwsException() {
         Test.startTest();
         try {
-            Ctrl_DealerShop.placeOrder('not-valid-json{{{');
+            Ctrl_DealerShop.placeOrder('not-valid-json{{{', null);
             System.assert(false, 'Expected an exception for invalid JSON');
         } catch (AuraHandledException e) {
             System.assert(true, 'AuraHandledException expected for invalid cart JSON');
@@ -534,7 +534,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.OrderHistoryDTO> all;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
             mine = Ctrl_DealerShop.getOrderHistory(true);
             all  = Ctrl_DealerShop.getOrderHistory(false);
         }
@@ -561,7 +561,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
         }
         Test.stopTest();
 
@@ -641,7 +641,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -658,8 +658,8 @@ private class Test_Ctrl_DealerShop {
         Boolean afterSecondToggle;
         Test.startTest();
         System.runAs(portalUser()) {
-            afterFirstToggle  = Ctrl_DealerShop.toggleFavorite(prod.Id);
-            afterSecondToggle = Ctrl_DealerShop.toggleFavorite(prod.Id);
+            afterFirstToggle  = Ctrl_DealerShop.toggleFavorite(prod.Id, null);
+            afterSecondToggle = Ctrl_DealerShop.toggleFavorite(prod.Id, null);
         }
         Test.stopTest();
 
@@ -678,12 +678,12 @@ private class Test_Ctrl_DealerShop {
 
         Test.startTest();
         System.runAs(portalUser()) {
-            Ctrl_DealerShop.toggleFavorite(favProd.Id);
+            Ctrl_DealerShop.toggleFavorite(favProd.Id, null);
         }
 
         Ctrl_DealerShop.ProductPageResult favorites;
         System.runAs(portalUser()) {
-            favorites = Ctrl_DealerShop.getProducts('favorites', 1, 10, null);
+            favorites = Ctrl_DealerShop.getProducts('favorites', 1, 10, null, null);
         }
         Test.stopTest();
 
@@ -697,7 +697,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null, null);
         }
         Test.stopTest();
 
@@ -741,7 +741,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 50, null);
+            result = Ctrl_DealerShop.getProducts(null, 1, 50, null, null);
         }
         Test.stopTest();
 
@@ -779,7 +779,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 50, null);
+            result = Ctrl_DealerShop.getProducts(null, 1, 50, null, null);
         }
         Test.stopTest();
 
@@ -803,7 +803,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.PlatformTabDTO> tabs;
         Test.startTest();
         System.runAs(portalUser()) {
-            tabs = Ctrl_DealerShop.getPlatformTabs();
+            tabs = Ctrl_DealerShop.getPlatformTabs(null);
         }
         Test.stopTest();
 
@@ -821,7 +821,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.PlatformTabDTO> tabs;
         Test.startTest();
         System.runAs(portalUser()) {
-            tabs = Ctrl_DealerShop.getPlatformTabs();
+            tabs = Ctrl_DealerShop.getPlatformTabs(null);
         }
         Test.stopTest();
 
@@ -875,7 +875,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -963,7 +963,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -992,7 +992,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1016,7 +1016,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1037,7 +1037,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1058,7 +1058,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1085,7 +1085,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1110,7 +1110,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1134,7 +1134,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1167,7 +1167,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1188,7 +1188,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 50, null);
+            result = Ctrl_DealerShop.getProducts(null, 1, 50, null, null);
         }
         Test.stopTest();
 
@@ -1217,7 +1217,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1242,7 +1242,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerShop.getProductDetail(prod.Id);
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
         }
         Test.stopTest();
 
@@ -1258,7 +1258,7 @@ private class Test_Ctrl_DealerShop {
         Ctrl_DealerShop.ProductPageResult result;
         Test.startTest();
         System.runAs(portalUser()) {
-            result = Ctrl_DealerShop.getProducts(null, 1, 10, null);
+            result = Ctrl_DealerShop.getProducts(null, 1, 10, null, null);
         }
         Test.stopTest();
 
@@ -1281,7 +1281,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.OrderHistoryDTO> history;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
         }
         setHidePrices(true);
         System.runAs(portalUser()) {
@@ -1312,12 +1312,56 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
         }
         Test.stopTest();
 
         Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
         OpportunityLineItem item = [SELECT UnitPrice FROM OpportunityLineItem WHERE OpportunityId = :opp.Id LIMIT 1];
         System.assertEquals(89.10, item.UnitPrice, 'Server must resolve the real 10%-discounted price (99.00 * 0.9), not the raw undiscounted UnitPrice or a client-supplied 0/null');
+    }
+
+    // ── Internal-user (Account record page) context ─────────────────────────────
+
+    @IsTest
+    static void testGetProducts_internalUserByAccountId_bypassesPortalLookup() {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+        Integer publicCount = [SELECT COUNT() FROM Product2 WHERE Show_In_Dealer_Shop__c = true AND IsActive = true];
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        // Running as the test's own (non-portal) user, passing the accountId straight through -
+        // no Contact/portal user is involved, same as an internal user on the Account record page.
+        result = Ctrl_DealerShop.getProducts(null, 1, 10, null, acc.Id);
+        Test.stopTest();
+
+        System.assertNotEquals(null, result, 'Result should not be null');
+        System.assertEquals(publicCount, result.products.size(), 'Explicit accountId must resolve the same dealer pricebook/products the portal user sees for that account');
+    }
+
+    @IsTest
+    static void testGetProducts_internalUserWithUnknownAccountId_fallsBackGracefully() {
+        Account bogus = new Account(Name = 'Throwaway - not inserted for this Id lookup');
+        // A syntactically valid but non-existent Account Id - the record simply doesn't resolve.
+        Id fakeId = Id.valueOf('001000000000000AAA');
+
+        Ctrl_DealerShop.ProductPageResult result;
+        Test.startTest();
+        result = Ctrl_DealerShop.getProducts(null, 1, 10, null, fakeId);
+        Test.stopTest();
+
+        System.assertNotEquals(null, result, 'Unknown accountId must fall back to a stub context, not throw');
+    }
+
+    @IsTest
+    static void testGetPlatformTabs_internalUserByAccountId() {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+
+        List<Ctrl_DealerShop.PlatformTabDTO> tabs;
+        Test.startTest();
+        tabs = Ctrl_DealerShop.getPlatformTabs(acc.Id);
+        Test.stopTest();
+
+        System.assertNotEquals(null, tabs, 'Explicit accountId must resolve platform tabs without a portal Contact');
     }
 }

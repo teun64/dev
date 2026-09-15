@@ -6,6 +6,7 @@ const PAGE_SIZE = 12;
 
 export default class DealerProductGrid extends LightningElement {
     @api initialPage = 1;
+    @api dealerAccountId = null;
 
     @api
     get category() {
@@ -62,7 +63,8 @@ export default class DealerProductGrid extends LightningElement {
             category: this._category,
             pageNum: this._currentPage,
             pageSize: PAGE_SIZE,
-            searchTerm: this._searchTerm
+            searchTerm: this._searchTerm,
+            dealerAccountId: this.dealerAccountId
         })
             .then((result) => {
                 this.products = result.products || [];
@@ -172,7 +174,7 @@ export default class DealerProductGrid extends LightningElement {
         const { productId } = event.detail;
         if (!productId) return;
 
-        toggleFavorite({ productId })
+        toggleFavorite({ productId, dealerAccountId: this.dealerAccountId })
             .then((isFavorite) => {
                 // getProducts is cacheable, so reloading here could just replay a stale cached
                 // result - update the already-loaded list locally instead.
