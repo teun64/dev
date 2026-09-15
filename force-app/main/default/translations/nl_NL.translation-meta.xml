@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customLabels>
+        <label>Welkom op het Moving Intelligence Dealerportaal</label>
+        <name>DealerPortal_HomeTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Als Moving Intelligence-dealer bent u hier aan het juiste adres voor alle producten die u nodig heeft. Bestel ze met een druk op de knop en ontvang ze binnen no time.
+Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke account kunt u uw recente bestellingen bekijken, uw verzend- en factuuradressen beheren en uw wachtwoord en accountgegevens wijzigen.</label>
+        <name>DealerPortal_HomeWelcome</name>
+    </customLabels>
+    <customLabels>
         <label>Ik ga ermee akkoord dat deze incassomachtiging mag worden gebruikt om alle toekomstige abonnementsbetalingen automatisch te innen.</label>
         <name>PaymentCheckoutFutureConsentLabel</name>
     </customLabels>

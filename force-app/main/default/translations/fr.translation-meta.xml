@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customLabels>
+        <label>Bienvenue sur le portail revendeur Moving Intelligence</label>
+        <name>DealerPortal_HomeTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>En tant que revendeur Moving Intelligence, vous êtes au bon endroit pour tous les produits dont vous avez besoin. Commandez-les en un clic et recevez-les rapidement.
+L'accès à la boutique en ligne nécessite un compte. Dans votre compte personnel, vous pouvez consulter vos commandes récentes, gérer vos adresses de livraison et de facturation, et modifier votre mot de passe et vos informations de compte.</label>
+        <name>DealerPortal_HomeWelcome</name>
+    </customLabels>
+    <customLabels>
         <label>J'accepte que ce mandat de prélèvement soit utilisé pour collecter automatiquement tous les futurs paiements d'abonnement.</label>
         <name>PaymentCheckoutFutureConsentLabel</name>
     </customLabels>

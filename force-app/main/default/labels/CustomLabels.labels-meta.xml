@@ -2005,4 +2005,21 @@ Special technical support and individual consulting services (e.g. integration o
         <shortDescription>TrackPilot App (tp - Label)</shortDescription>
         <value>TrackPilot App</value>
     </labels>
+    <labels>
+        <fullName>DealerPortal_HomeTitle</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal home page title</shortDescription>
+        <value>Welcome to the Moving Intelligence Dealer Portal</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_HomeWelcome</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal home page welcome text</shortDescription>
+        <value>As a Moving Intelligence dealer you are in the right place for all the products you need. Order them with the push of a button and have them delivered in no time.
+Access to the webshop requires an account. In your personal account you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.</value>
+    </labels>
 </CustomLabels>

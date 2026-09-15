@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import BRANDING from '@salesforce/resourceUrl/Branding';
 import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
+import getHomeText from '@salesforce/apex/Ctrl_DealerPortal.getHomeText';
 import submitSignupRequest from '@salesforce/apex/Ctrl_DealerPortal.submitSignupRequest';
 import isEmailRegistered from '@salesforce/apex/Ctrl_DealerPortal.isEmailRegistered';
 
@@ -11,17 +12,43 @@ const EMPTY_FORM = {
 };
 const REQUIRED_FIELDS = ['companyName', 'contactName', 'email', 'cocNumber', 'vatNumber', 'street', 'postalCode', 'city', 'country'];
 
+// Domain TLD determines the visitor's language - dealer.movingintelligence.nl -> nl_NL,
+// .de -> de, .fr -> fr, everything else (.com, .co.uk, the my.site.com sandbox domain,
+// localhost during dev) falls back to en. Values must match this org's actual registered
+// translation locale codes (see force-app/main/default/translations/*.translation-meta.xml
+// file names) - Dutch is registered as nl_NL, not nl.
+const HOSTNAME_LANGUAGE_MAP = { '.nl': 'nl_NL', '.de': 'de', '.fr': 'fr' };
+function resolveLanguageFromHostname() {
+    const host = window.location.hostname;
+    for (const [suffix, lang] of Object.entries(HOSTNAME_LANGUAGE_MAP)) {
+        if (host.endsWith(suffix)) return lang;
+    }
+    return 'en';
+}
+
 export default class DealerHome extends LightningElement {
     @track config = { isAuthenticated: false };
+    @track homeText = { DealerPortal_HomeTitle: '', DealerPortal_HomeWelcome: '' };
     @track form = { ...EMPTY_FORM };
     @track isSignupModalOpen = false;
     @track signupLoading = false;
     @track signupSuccess = false;
     @track signupError = '';
 
+    language = resolveLanguageFromHostname();
+
     @wire(getBrandConfig)
     wiredConfig({ data }) {
         if (data) this.config = data;
+    }
+
+    @wire(getHomeText, { language: '$language' })
+    wiredHomeText({ data }) {
+        if (data) this.homeText = data;
+    }
+
+    get homeTitle() {
+        return this.homeText.DealerPortal_HomeTitle;
     }
 
     get heroStyle() {
@@ -33,7 +60,7 @@ export default class DealerHome extends LightningElement {
     }
 
     get welcomeParagraphs() {
-        const text = this.config.homeWelcome || '';
+        const text = this.homeText.DealerPortal_HomeWelcome || '';
         return text.split('\n').filter(p => p.trim().length > 0);
     }
 

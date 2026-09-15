@@ -51,6 +51,18 @@ public without sharing class Ctrl_DealerPortal {
         return dto;
     }
 
+    // ── Home page text (language-specific) ──────────────────────────────────────
+
+    // language is resolved client-side from the visiting hostname's TLD
+    // (.nl -> nl, .de -> de, .fr -> fr, otherwise en) - see dealerHome.js.
+    @AuraEnabled(cacheable=true)
+    public static Map<String, String> getHomeText(String language) {
+        return Util_System.getCustomLabels(
+            new List<String>{ 'DealerPortal_HomeTitle', 'DealerPortal_HomeWelcome' },
+            language
+        );
+    }
+
     // ── Footer info ───────────────────────────────────────────────────────────
 
     @AuraEnabled(cacheable=true)

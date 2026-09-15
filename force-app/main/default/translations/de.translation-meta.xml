@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customLabels>
+        <label>Willkommen im Moving Intelligence Händlerportal</label>
+        <name>DealerPortal_HomeTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Als Moving Intelligence-Händler sind Sie hier genau richtig für alle Produkte, die Sie benötigen. Bestellen Sie sie mit einem Klick und erhalten Sie sie im Handumdrehen geliefert.
+Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Konto können Sie Ihre letzten Bestellungen einsehen, Ihre Liefer- und Rechnungsadressen verwalten sowie Ihr Passwort und Ihre Kontodaten bearbeiten.</label>
+        <name>DealerPortal_HomeWelcome</name>
+    </customLabels>
+    <customLabels>
         <label>Ich stimme zu, dass dieses Lastschriftmandat verwendet werden darf, um alle zukünftigen Abonnementzahlungen automatisch einzuziehen.</label>
         <name>PaymentCheckoutFutureConsentLabel</name>
     </customLabels>
