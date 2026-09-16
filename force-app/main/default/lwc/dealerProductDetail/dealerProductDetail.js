@@ -59,7 +59,7 @@ export default class DealerProductDetail extends LightningElement {
 
     handleToggleFavorite() {
         if (!this.productId) return;
-        toggleFavorite({ productId: this.productId, dealerAccountId: this.dealerAccountId })
+        toggleFavorite({ productId: this.productId })
             .then((isFavorite) => {
                 this.product = { ...this.product, isFavorite };
             })

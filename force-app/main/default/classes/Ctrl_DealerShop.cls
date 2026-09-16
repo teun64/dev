@@ -106,7 +106,7 @@ public without sharing class Ctrl_DealerShop {
         if (lookup.accountId == null) {
             return fallbackContext(normalizeLang(lookup.userDefaultLanguage));
         }
-        return buildContextFromAccountId(lookup.accountId, lookup.contactId, lookup.contactLanguage, lookup.userDefaultLanguage);
+        return buildContextFromAccountId(lookup.accountId, lookup.contactLanguage, lookup.userDefaultLanguage);
     }
 
     // Internal-user entry point (Account record page / quick action): dealerAccountId comes
@@ -122,7 +122,7 @@ public without sharing class Ctrl_DealerShop {
         ];
         if (visible.isEmpty()) return fallbackContext(normalizeLang(internalUserLanguage()));
 
-        return buildContextFromAccountId(overrideAccountId, null, null, internalUserLanguage());
+        return buildContextFromAccountId(overrideAccountId, null, internalUserLanguage());
     }
 
     // UserInfo.getLanguage() returns a locale key (e.g. "nl_NL", "de") - trim to the ISO 639-1
@@ -134,7 +134,7 @@ public without sharing class Ctrl_DealerShop {
         return sep > 0 ? lang.substring(0, sep) : lang;
     }
 
-    private static DealerContext buildContextFromAccountId(Id accountId, Id contactId, String contactLanguage, String defaultLang) {
+    private static DealerContext buildContextFromAccountId(Id accountId, String contactLanguage, String defaultLang) {
         List<Account> accounts = [
             SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c
             FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
@@ -143,7 +143,6 @@ public without sharing class Ctrl_DealerShop {
 
         DealerContext ctx = new DealerContext();
         ctx.account     = accounts[0];
-        ctx.contactId   = contactId;
         ctx.hidePrices  = accounts[0].Hide_Prices__c == true;
         String lang = resolveLanguage(contactLanguage);
         if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
@@ -503,13 +502,13 @@ public without sharing class Ctrl_DealerShop {
 
     // ── Favorites ─────────────────────────────────────────────────────────────
 
-    private static Set<Id> getFavoriteProductIds(Id contactId, Set<Id> productIds) {
+    private static Set<Id> getFavoriteProductIds(Id userId, Set<Id> productIds) {
         Set<Id> favoriteIds = new Set<Id>();
-        if (contactId == null || productIds.isEmpty()) return favoriteIds;
+        if (userId == null || productIds.isEmpty()) return favoriteIds;
         for (Dealer_Product_Favorite__c f : [
             SELECT Product__c
             FROM Dealer_Product_Favorite__c
-            WHERE Contact__c = :contactId AND Product__c IN :productIds
+            WHERE User__c = :userId AND Product__c IN :productIds
             WITH SYSTEM_MODE
         ]) {
             favoriteIds.add(f.Product__c);
@@ -517,20 +516,19 @@ public without sharing class Ctrl_DealerShop {
         return favoriteIds;
     }
 
-    // Toggles the current dealer contact's favorite flag for a product and returns the new state.
+    // Keyed by the running user (not Contact) so it covers both Experience Cloud dealer users and
+    // internal Salesforce users opening the shop from an Account record - both always have a
+    // UserId, only the former has a portal Contact.
     @AuraEnabled
-    public static Boolean toggleFavorite(Id productId, Id dealerAccountId) {
+    public static Boolean toggleFavorite(Id productId) {
         if (productId == null) throw new AuraHandledException('productId is required.');
 
-        Id contactId = getDealerContext(dealerAccountId).contactId;
-        if (contactId == null) {
-            throw new AuraHandledException('You must be logged in as a dealer contact to save favorites.');
-        }
+        Id userId = UserInfo.getUserId();
 
         List<Dealer_Product_Favorite__c> existing = [
             SELECT Id
             FROM Dealer_Product_Favorite__c
-            WHERE Contact__c = :contactId AND Product__c = :productId
+            WHERE User__c = :userId AND Product__c = :productId
             WITH SYSTEM_MODE
             LIMIT 1
         ];
@@ -540,7 +538,7 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Database.insert(
-            new Dealer_Product_Favorite__c(Contact__c = contactId, Product__c = productId),
+            new Dealer_Product_Favorite__c(User__c = userId, Product__c = productId),
             AccessLevel.SYSTEM_MODE
         );
         return true;
@@ -577,17 +575,10 @@ public without sharing class Ctrl_DealerShop {
         DealerContext ctx  = getDealerContext(dealerAccountId);
         Account acct      = ctx.account;
         String lang       = ctx.language;
-        Id contactId      = ctx.contactId;
+        Id userId         = UserInfo.getUserId();
         Id pricebookId    = resolvePricebookId(acct);
 
         Boolean isFavoritesTab = 'favorites'.equals(category);
-        if (isFavoritesTab && contactId == null) {
-            ProductPageResult empty = new ProductPageResult();
-            empty.products    = new List<ProductDTO>();
-            empty.total       = 0;
-            empty.pricebookId = pricebookId;
-            return empty;
-        }
 
         // Pricebook entries drive visibility: only products with an active pricebook entry appear.
         Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
@@ -615,7 +606,7 @@ public without sharing class Ctrl_DealerShop {
 
         List<String> conditions = new List<String>{ 'IsActive = true', 'Show_In_Dealer_Shop__c = true' };
         if (isFavoritesTab) {
-            conditions.add('Id IN (SELECT Product__c FROM Dealer_Product_Favorite__c WHERE Contact__c = :contactId)');
+            conditions.add('Id IN (SELECT Product__c FROM Dealer_Product_Favorite__c WHERE User__c = :userId)');
         } else if (String.isNotBlank(category)) {
             // A specific platform tab - direct match only, no fail-open: unlike the "All Products"
             // tab, selecting platform X is an explicit request for products confirmed to be on X.
@@ -714,7 +705,7 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Map<Id, String> imageUrls = getProductImageUrls(productIds);
-        Set<Id> favoriteIds = getFavoriteProductIds(contactId, productIds);
+        Set<Id> favoriteIds = getFavoriteProductIds(userId, productIds);
         Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
 
         List<ProductDTO> dtos = new List<ProductDTO>();
@@ -779,7 +770,7 @@ public without sharing class Ctrl_DealerShop {
         ProductDTO dto = buildProductDTO(prod, entry, disc, action, ctx.hidePrices);
         Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
         dto.imageUrl   = imageUrls.get(productId);
-        dto.isFavorite = getFavoriteProductIds(ctx.contactId, new Set<Id>{ productId }).contains(productId);
+        dto.isFavorite = getFavoriteProductIds(UserInfo.getUserId(), new Set<Id>{ productId }).contains(productId);
         return dto;
     }
 
@@ -1081,7 +1072,6 @@ public without sharing class Ctrl_DealerShop {
     public class DealerContext {
         public Account account;
         public String  language;
-        public Id      contactId;
         public Boolean hidePrices = false;
     }
 

@@ -8,6 +8,6 @@
         <displayFormat>DPF-{0000000}</displayFormat>
     </nameField>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>One row per Dealer Portal contact marking a Product2 as a favorite. Accessed only via Ctrl_DealerShop (AccessLevel.SYSTEM_MODE), so no CRUD/FLS grants are required on the Dealer Portal permission set.</description>
+    <description>One row per user (portal or internal) marking a Product2 as a favorite. Accessed only via Ctrl_DealerShop (AccessLevel.SYSTEM_MODE), so no CRUD/FLS grants are required on the Dealer Portal permission set. Contact__c predates the User__c-keyed design and is no longer written by Apex.</description>
     <sharingModel>ReadWrite</sharingModel>
 </CustomObject>

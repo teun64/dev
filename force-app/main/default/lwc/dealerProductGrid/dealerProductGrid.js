@@ -174,7 +174,7 @@ export default class DealerProductGrid extends LightningElement {
         const { productId } = event.detail;
         if (!productId) return;
 
-        toggleFavorite({ productId, dealerAccountId: this.dealerAccountId })
+        toggleFavorite({ productId })
             .then((isFavorite) => {
                 // getProducts is cacheable, so reloading here could just replay a stale cached
                 // result - update the already-loaded list locally instead.

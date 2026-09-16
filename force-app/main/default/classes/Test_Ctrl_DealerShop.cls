@@ -658,8 +658,8 @@ private class Test_Ctrl_DealerShop {
         Boolean afterSecondToggle;
         Test.startTest();
         System.runAs(portalUser()) {
-            afterFirstToggle  = Ctrl_DealerShop.toggleFavorite(prod.Id, null);
-            afterSecondToggle = Ctrl_DealerShop.toggleFavorite(prod.Id, null);
+            afterFirstToggle  = Ctrl_DealerShop.toggleFavorite(prod.Id);
+            afterSecondToggle = Ctrl_DealerShop.toggleFavorite(prod.Id);
         }
         Test.stopTest();
 
@@ -678,7 +678,7 @@ private class Test_Ctrl_DealerShop {
 
         Test.startTest();
         System.runAs(portalUser()) {
-            Ctrl_DealerShop.toggleFavorite(favProd.Id, null);
+            Ctrl_DealerShop.toggleFavorite(favProd.Id);
         }
 
         Ctrl_DealerShop.ProductPageResult favorites;
@@ -1363,5 +1363,24 @@ private class Test_Ctrl_DealerShop {
         Test.stopTest();
 
         System.assertNotEquals(null, tabs, 'Explicit accountId must resolve platform tabs without a portal Contact');
+    }
+
+    @IsTest
+    static void testToggleFavorite_internalUserWithoutPortalContact_succeeds() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        // Favorites are keyed by User__c, not Contact__c - an internal user (no ContactId at all)
+        // must be able to favorite a product, unlike the old Contact-keyed design.
+        Boolean afterToggle;
+        Test.startTest();
+        afterToggle = Ctrl_DealerShop.toggleFavorite(prod.Id);
+        Test.stopTest();
+
+        System.assertEquals(true, afterToggle, 'An internal user without a portal Contact must still be able to favorite a product');
+        System.assertEquals(
+            1,
+            [SELECT COUNT() FROM Dealer_Product_Favorite__c WHERE Product__c = :prod.Id AND User__c = :UserInfo.getUserId() WITH SYSTEM_MODE],
+            'The favorite row must be keyed by the running internal user'
+        );
     }
 }
