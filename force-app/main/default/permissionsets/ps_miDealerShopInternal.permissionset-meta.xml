@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>Ctrl_DealerShop</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Apex access to the Dealer Shop for internal (non-portal) users opening it from an Account record.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miDealerShopInternal (ps)</label>
+</PermissionSet>
