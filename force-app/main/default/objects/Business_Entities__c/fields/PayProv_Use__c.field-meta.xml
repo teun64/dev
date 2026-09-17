@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PayProv_Use__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When flagged, the payment provider becomes the main source for storing mandates and later on (bank details)</description>
+    <label>Use (Payment Provider)</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

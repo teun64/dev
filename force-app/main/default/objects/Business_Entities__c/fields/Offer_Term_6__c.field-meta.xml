@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Offer_Term_6__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Use Term 6 in a offer</description>
+    <label>Term 6 (Support / SLA - Offer)</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

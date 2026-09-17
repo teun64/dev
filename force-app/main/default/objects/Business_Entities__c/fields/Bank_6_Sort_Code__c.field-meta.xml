@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bank_6_Sort_Code__c</fullName>
+    <description>Sort Code Bank. Plain field, not a formula - mirrors Subscription25__Administration__c.Bank_6_Sort_Code__c, which derives this from the package's IBAN field via the sync Flow instead.</description>
+    <label>Sort Code (Bank)</label>
+    <length>20</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

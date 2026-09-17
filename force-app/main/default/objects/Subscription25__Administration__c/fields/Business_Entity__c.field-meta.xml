@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Business_Entity__c</fullName>
+    <label>Business Entity</label>
+    <type>Lookup</type>
+    <referenceTo>Business_Entities__c</referenceTo>
+    <relationshipLabel>Administrations</relationshipLabel>
+    <relationshipName>Administrations</relationshipName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <description>Points at the Business_Entities__c record for the same reseller (matched via Reseller__c). Added purely for SOQL/report convenience - the two objects are still joined by the shared Reseller__c picklist value, not by this lookup.</description>
+</CustomField>
