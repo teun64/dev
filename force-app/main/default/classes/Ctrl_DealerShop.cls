@@ -889,8 +889,55 @@ public without sharing class Ctrl_DealerShop {
             throw new AuraHandledException('No valid order items could be created from cart.');
         }
 
+        addShippingLineItemIfNeeded(opp.Id, acct, pricebookId, lineItems);
+
         Database.insert(lineItems, AccessLevel.SYSTEM_MODE);
         return opp.Name;
+    }
+
+    // Adds a fixed shipping fee line item when the reseller (Business_Entities__c, matched by
+    // Account.Reseller_Name__c) has a Shipping_Product__c configured and the cart subtotal is
+    // below its Shipping_Free_Threshold__c (null threshold = never waive the fee). Weight/package-
+    // size-based shipping (Shipping_Method__c = 'Weight_Based') isn't implemented yet, so any
+    // reseller configured for it - or with no configuration at all - simply gets no shipping line.
+    private static void addShippingLineItemIfNeeded(Id opportunityId, Account acct, Id pricebookId, List<OpportunityLineItem> lineItems) {
+        if (String.isBlank(acct.Reseller_Name__c)) return;
+
+        List<Business_Entities__c> entities = [
+            SELECT Shipping_Free_Threshold__c, Shipping_Product__c, Shipping_Product__r.Shipping_Method__c
+            FROM Business_Entities__c
+            WHERE Reseller__c = :acct.Reseller_Name__c
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (entities.isEmpty()) return;
+        Business_Entities__c entity = entities[0];
+        if (entity.Shipping_Product__c == null) return;
+        if (entity.Shipping_Product__r.Shipping_Method__c != 'Fixed') return;
+
+        Decimal subtotal = 0;
+        for (OpportunityLineItem li : lineItems) {
+            subtotal += (li.UnitPrice != null ? li.UnitPrice : 0) * li.Quantity;
+        }
+        if (entity.Shipping_Free_Threshold__c != null && subtotal >= entity.Shipping_Free_Threshold__c) return;
+
+        List<PricebookEntry> shippingEntries = [
+            SELECT Id, UnitPrice
+            FROM PricebookEntry
+            WHERE Pricebook2Id = :pricebookId AND Product2Id = :entity.Shipping_Product__c
+              AND IsActive = true AND IsActive_r__c = true
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (shippingEntries.isEmpty()) return;
+
+        lineItems.add(new OpportunityLineItem(
+            OpportunityId    = opportunityId,
+            Product2Id       = entity.Shipping_Product__c,
+            PricebookEntryId = shippingEntries[0].Id,
+            Quantity         = 1,
+            UnitPrice        = shippingEntries[0].UnitPrice
+        ));
     }
 
     // ── Order history ─────────────────────────────────────────────────────────

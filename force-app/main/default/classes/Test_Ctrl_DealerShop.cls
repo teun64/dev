@@ -1383,4 +1383,113 @@ private class Test_Ctrl_DealerShop {
             'The favorite row must be keyed by the running internal user'
         );
     }
+
+    // ── Shipping cost ────────────────────────────────────────────────────────
+
+    private static Product2 makeShippingProduct(Decimal price) {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+        Pricebook2 dealerPricebook = [SELECT Id FROM Pricebook2 WHERE Name = 'Dealer NL All Pricebook' LIMIT 1];
+
+        // Business_Entities__c/Product2's shipping fields have no default FLS grants anywhere
+        // (brand-new custom fields start with zero profile/permset access) - use SYSTEM_MODE DML
+        // here so this test doesn't depend on whichever user happens to run it having a personal
+        // permission set assignment for these fields in this particular org.
+        Product2 shipProd = new Product2(
+            Name                = 'Shipping costs (test)',
+            ProductCode         = 'SHIP-TEST-001',
+            IsActive            = true,
+            IsShippingCost__c   = true,
+            Shipping_Method__c  = 'Fixed'
+        );
+        Database.insert(shipProd, AccessLevel.SYSTEM_MODE);
+
+        Database.insert(new PricebookEntry(
+            Pricebook2Id = Test.getStandardPricebookId(), Product2Id = shipProd.Id, UnitPrice = price, IsActive = true
+        ), AccessLevel.SYSTEM_MODE);
+        Database.insert(new PricebookEntry(
+            Pricebook2Id = dealerPricebook.Id, Product2Id = shipProd.Id, UnitPrice = price, IsActive = true
+        ), AccessLevel.SYSTEM_MODE);
+
+        Database.insert(new Business_Entities__c(
+            Name                          = 'Netherlands (test)',
+            Reseller__c                   = '1',
+            Shipping_Product__c           = shipProd.Id,
+            Shipping_Free_Threshold__c    = 100
+        ), AccessLevel.SYSTEM_MODE);
+
+        return shipProd;
+    }
+
+    @IsTest
+    static void testPlaceOrder_addsShippingFee_whenBelowThreshold() {
+        Product2 shipProd = makeShippingProduct(9.95);
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 50 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        List<OpportunityLineItem> items = [SELECT Product2Id, UnitPrice, Quantity FROM OpportunityLineItem WHERE OpportunityId = :opp.Id];
+        System.assertEquals(2, items.size(), 'Cart subtotal (50) is below the threshold (100) - a shipping line must be added');
+
+        OpportunityLineItem shipLine = null;
+        for (OpportunityLineItem li : items) if (li.Product2Id == shipProd.Id) shipLine = li;
+        System.assertNotEquals(null, shipLine, 'Shipping product line item not found');
+        System.assertEquals(9.95, shipLine.UnitPrice, 'Shipping fee must come from the PricebookEntry price');
+        System.assertEquals(1, shipLine.Quantity, 'Shipping line item quantity should be 1');
+    }
+
+    @IsTest
+    static void testPlaceOrder_noShippingFee_whenAtOrAboveThreshold() {
+        Product2 shipProd = makeShippingProduct(9.95);
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 150 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        List<OpportunityLineItem> items = [SELECT Product2Id FROM OpportunityLineItem WHERE OpportunityId = :opp.Id];
+        System.assertEquals(1, items.size(), 'Cart subtotal (150) is at/above the threshold (100) - no shipping line should be added');
+        System.assertNotEquals(shipProd.Id, items[0].Product2Id, 'The single line item must be the ordered product, not shipping');
+    }
+
+    @IsTest
+    static void testPlaceOrder_noShippingFee_whenNoBusinessEntityConfigured() {
+        // No Business_Entities__c row exists for this test's reseller ('1') unless makeShippingProduct()
+        // was called - confirms the no-config path stays a no-op rather than erroring.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 10 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        System.assertEquals(
+            1,
+            [SELECT COUNT() FROM OpportunityLineItem WHERE OpportunityId = :opp.Id],
+            'With no Business_Entities__c configured for this reseller, no shipping line should be added'
+        );
+    }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Product Shipping Config - Admin Access</label>
+    <description>FLS on Product2's shipping-cost config fields for internal admin use.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <fieldPermissions>
+        <field>Product2.IsShippingCost__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Product2.Shipping_Method__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+</PermissionSet>
