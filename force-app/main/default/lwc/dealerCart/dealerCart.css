@@ -194,6 +194,33 @@
     gap: 1rem;
 }
 
+.shipping-remark {
+    font-size: 0.8rem;
+    color: #666666;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.shipping-omit-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.shipping-omit-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+
+.shipping-omit-remark {
+    color: var(--brand-primary, #ff0000);
+    font-weight: 600;
+}
+
 .cart-total {
     display: flex;
     justify-content: space-between;

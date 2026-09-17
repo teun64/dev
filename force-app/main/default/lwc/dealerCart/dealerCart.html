@@ -64,6 +64,22 @@
                 </div>
 
                 <div class="cart-footer">
+                    <template lwc:if={showShippingRemark}>
+                        <p class="shipping-remark">{shippingRemarkText}</p>
+                    </template>
+
+                    <template lwc:if={isInternalUser}>
+                        <div class="shipping-omit-control">
+                            <label class="shipping-omit-label">
+                                <input type="checkbox" checked={omitShippingCost} onchange={handleOmitShippingChange} />
+                                Omit shipping costs for this order (internal use only)
+                            </label>
+                            <template lwc:if={omitShippingCost}>
+                                <p class="shipping-remark shipping-omit-remark">{omitShippingRemarkText}</p>
+                            </template>
+                        </div>
+                    </template>
+
                     <template lwc:if={showCartTotal}>
                         <div class="cart-total">
                             <span>Totaal</span>

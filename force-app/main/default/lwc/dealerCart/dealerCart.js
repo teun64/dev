@@ -1,5 +1,6 @@
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, api, track, wire } from 'lwc';
 import placeOrder from '@salesforce/apex/Ctrl_DealerShop.placeOrder';
+import getShippingInfo from '@salesforce/apex/Ctrl_DealerShop.getShippingInfo';
 
 export default class DealerCart extends LightningElement {
     @api cartItems = [];
@@ -7,6 +8,49 @@ export default class DealerCart extends LightningElement {
 
     @track isLoading = false;
     @track errorMessage = null;
+    @track shippingInfo = null;
+    // Internal-only (dealerAccountId set) - lets a Salesforce user waive the shipping fee for this
+    // specific order. Defaults off; a portal dealer never sees this control and the server ignores
+    // the flag entirely when dealerAccountId is null, regardless of what a client sends.
+    @track omitShippingCost = false;
+
+    @wire(getShippingInfo, { dealerAccountId: '$dealerAccountId' })
+    wiredShippingInfo({ data }) {
+        if (data) this.shippingInfo = data;
+    }
+
+    // Only an internal user (Account-embedded quick action) may waive shipping - never a portal dealer.
+    get isInternalUser() {
+        return !!this.dealerAccountId;
+    }
+
+    get showShippingRemark() {
+        return !!this.shippingInfo?.configured && !this.omitShippingCost;
+    }
+
+    get shippingRemarkText() {
+        if (!this.shippingInfo?.configured) return '';
+        const currency = this.shippingInfo.currencyIsoCode === 'GBP' ? '£' : '€';
+        if (this.shippingInfo.method === 'Fixed') {
+            const fee = this.shippingInfo.feeAmount != null ? this._formatPrice(this.shippingInfo.feeAmount) : null;
+            const threshold = this._formatPrice(this.shippingInfo.freeThreshold);
+            return fee != null
+                ? `Bij bestellingen onder ${currency} ${threshold} worden verzendkosten van ${currency} ${fee} in rekening gebracht.`
+                : `Bij bestellingen onder ${currency} ${threshold} worden verzendkosten in rekening gebracht.`;
+        }
+        if (this.shippingInfo.method === 'Weight_Based') {
+            return 'Verzendkosten worden berekend op basis van gewicht en afmetingen van het pakket.';
+        }
+        return '';
+    }
+
+    get omitShippingRemarkText() {
+        return 'Shipping costs will not be added to this order.';
+    }
+
+    handleOmitShippingChange(event) {
+        this.omitShippingCost = event.target.checked;
+    }
 
     get cartClass() {
         return 'cart-wrapper';
@@ -100,7 +144,11 @@ export default class DealerCart extends LightningElement {
                 quantity: item.quantity,
                 unitPrice: item.unitPrice
             }));
-            const orderId = await placeOrder({ cartJson: JSON.stringify(cartPayload), dealerAccountId: this.dealerAccountId });
+            const orderId = await placeOrder({
+                cartJson: JSON.stringify(cartPayload),
+                dealerAccountId: this.dealerAccountId,
+                omitShippingCost: this.omitShippingCost
+            });
             this.dispatchEvent(new CustomEvent('orderplaced', {
                 detail: { orderId }
             }));

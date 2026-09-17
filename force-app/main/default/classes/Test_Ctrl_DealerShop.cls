@@ -311,7 +311,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         Test.stopTest();
 
@@ -365,7 +365,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         Test.stopTest();
 
@@ -506,7 +506,7 @@ private class Test_Ctrl_DealerShop {
     static void testPlaceOrder_invalidJson_throwsException() {
         Test.startTest();
         try {
-            Ctrl_DealerShop.placeOrder('not-valid-json{{{', null);
+            Ctrl_DealerShop.placeOrder('not-valid-json{{{', null, null);
             System.assert(false, 'Expected an exception for invalid JSON');
         } catch (AuraHandledException e) {
             System.assert(true, 'AuraHandledException expected for invalid cart JSON');
@@ -534,7 +534,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.OrderHistoryDTO> all;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
             mine = Ctrl_DealerShop.getOrderHistory(true);
             all  = Ctrl_DealerShop.getOrderHistory(false);
         }
@@ -561,7 +561,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         Test.stopTest();
 
@@ -1281,7 +1281,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.OrderHistoryDTO> history;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         setHidePrices(true);
         System.runAs(portalUser()) {
@@ -1312,7 +1312,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         Test.stopTest();
 
@@ -1432,7 +1432,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         Test.stopTest();
 
@@ -1459,7 +1459,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         Test.stopTest();
 
@@ -1481,7 +1481,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
         }
         Test.stopTest();
 
@@ -1533,10 +1533,87 @@ private class Test_Ctrl_DealerShop {
         Test.startTest();
         // No System.runAs(portalUser()) here - calling directly as the (EUR) test-running user via
         // the dealerAccountId override path, same as the Account-embedded internal quick action.
-        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, gbpAcc.Id);
+        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, gbpAcc.Id, null);
         Test.stopTest();
 
         Opportunity opp = [SELECT CurrencyIsoCode FROM Opportunity WHERE Name = :orderNumber];
         System.assertEquals('GBP', opp.CurrencyIsoCode, 'Opportunity currency must follow the Account, not the running user');
+    }
+
+    @IsTest
+    static void testPlaceOrder_omitShippingCost_internalUser_skipsShippingFee() {
+        makeShippingProduct(9.95);
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 50 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, acc.Id, true);
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        System.assertEquals(
+            1,
+            [SELECT COUNT() FROM OpportunityLineItem WHERE OpportunityId = :opp.Id],
+            'omitShippingCost=true must skip the shipping fee even though the subtotal (50) is below the threshold (100)'
+        );
+    }
+
+    @IsTest
+    static void testPlaceOrder_omitShippingCost_portalUser_isIgnored() {
+        // A portal call has no dealerAccountId at all - omitShippingCost must be ignored regardless
+        // of what the client sends, since only the internal quick-action path may waive the fee.
+        makeShippingProduct(9.95);
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 50 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, true);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        System.assertEquals(
+            2,
+            [SELECT COUNT() FROM OpportunityLineItem WHERE OpportunityId = :opp.Id],
+            'omitShippingCost must be a no-op for a portal call (dealerAccountId null) - shipping should still be added'
+        );
+    }
+
+    @IsTest
+    static void testGetShippingInfo_returnsConfiguredFixedMethodInfo() {
+        makeShippingProduct(9.95);
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+
+        Ctrl_DealerShop.ShippingInfoDTO info;
+        Test.startTest();
+        info = Ctrl_DealerShop.getShippingInfo(acc.Id);
+        Test.stopTest();
+
+        System.assertEquals(true, info.configured, 'Shipping should be reported as configured for this reseller');
+        System.assertEquals('Fixed', info.method, 'Method should match the shipping product');
+        System.assertEquals(100, info.freeThreshold, 'Threshold should match the Business_Entities__c record');
+        System.assertEquals(9.95, info.feeAmount, 'Fee amount should come from the resolved dealer pricebook');
+    }
+
+    @IsTest
+    static void testGetShippingInfo_notConfigured_whenNoBusinessEntity() {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+
+        Ctrl_DealerShop.ShippingInfoDTO info;
+        Test.startTest();
+        info = Ctrl_DealerShop.getShippingInfo(acc.Id);
+        Test.stopTest();
+
+        System.assertEquals(false, info.configured, 'No Business_Entities__c row exists for this reseller in this test unless makeShippingProduct() was called');
     }
 }

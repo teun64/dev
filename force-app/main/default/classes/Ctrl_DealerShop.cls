@@ -774,9 +774,13 @@ public without sharing class Ctrl_DealerShop {
         return dto;
     }
 
+    // omitShippingCost is only ever honored when dealerAccountId is set (i.e. an internal user on
+    // the Account-embedded quick action, never a portal dealer) - a portal call can't reach this
+    // path at all since dealerAccountId is always null there, regardless of what the client sends.
     @AuraEnabled
-    public static String placeOrder(String cartJson, Id dealerAccountId) {
+    public static String placeOrder(String cartJson, Id dealerAccountId, Boolean omitShippingCost) {
         if (String.isBlank(cartJson)) throw new AuraHandledException('cartJson is required.');
+        Boolean skipShipping = omitShippingCost == true && dealerAccountId != null;
 
         List<CartItemInput> items;
         try {
@@ -896,19 +900,16 @@ public without sharing class Ctrl_DealerShop {
             throw new AuraHandledException('No valid order items could be created from cart.');
         }
 
-        addShippingLineItemIfNeeded(opp.Id, acct, pricebookId, lineItems);
+        addShippingLineItemIfNeeded(opp.Id, acct, pricebookId, lineItems, skipShipping);
 
         Database.insert(lineItems, AccessLevel.SYSTEM_MODE);
         return opp.Name;
     }
 
-    // Adds a fixed shipping fee line item when the reseller (Business_Entities__c, matched by
-    // Account.Reseller_Name__c) has a Shipping_Product__c configured and the cart subtotal is
-    // below its Shipping_Free_Threshold__c (null threshold = never waive the fee). Weight/package-
-    // size-based shipping (Shipping_Method__c = 'Weight_Based') isn't implemented yet, so any
-    // reseller configured for it - or with no configuration at all - simply gets no shipping line.
-    private static void addShippingLineItemIfNeeded(Id opportunityId, Account acct, Id pricebookId, List<OpportunityLineItem> lineItems) {
-        if (String.isBlank(acct.Reseller_Name__c)) return;
+    // Shared by addShippingLineItemIfNeeded() and getShippingInfo() - one lookup of the reseller's
+    // shipping configuration, keyed by the same Reseller__c value used everywhere else in this class.
+    private static Business_Entities__c getShippingConfig(Account acct) {
+        if (acct == null || String.isBlank(acct.Reseller_Name__c)) return null;
 
         List<Business_Entities__c> entities = [
             SELECT Shipping_Free_Threshold__c, Shipping_Product__c, Shipping_Product__r.Shipping_Method__c
@@ -917,8 +918,21 @@ public without sharing class Ctrl_DealerShop {
             WITH SYSTEM_MODE
             LIMIT 1
         ];
-        if (entities.isEmpty()) return;
-        Business_Entities__c entity = entities[0];
+        return entities.isEmpty() ? null : entities[0];
+    }
+
+    // Adds a fixed shipping fee line item when the reseller (Business_Entities__c, matched by
+    // Account.Reseller_Name__c) has a Shipping_Product__c configured and the cart subtotal is
+    // below its Shipping_Free_Threshold__c (null threshold = never waive the fee). Weight/package-
+    // size-based shipping (Shipping_Method__c = 'Weight_Based') isn't implemented yet, so any
+    // reseller configured for it - or with no configuration at all - simply gets no shipping line.
+    // skipShipping lets an internal user (never a portal dealer - enforced by the caller) omit the
+    // fee entirely for this order regardless of subtotal.
+    private static void addShippingLineItemIfNeeded(Id opportunityId, Account acct, Id pricebookId, List<OpportunityLineItem> lineItems, Boolean skipShipping) {
+        if (skipShipping == true) return;
+
+        Business_Entities__c entity = getShippingConfig(acct);
+        if (entity == null) return;
         if (entity.Shipping_Product__c == null) return;
         if (entity.Shipping_Product__r.Shipping_Method__c != 'Fixed') return;
 
@@ -945,6 +959,47 @@ public without sharing class Ctrl_DealerShop {
             Quantity         = 1,
             UnitPrice        = shippingEntries[0].UnitPrice
         ));
+    }
+
+    // Lets the cart show a policy remark ("free above X", "calculated on weight") without placing
+    // an order - same reseller lookup addShippingLineItemIfNeeded() uses, read-only.
+    @AuraEnabled(cacheable=true)
+    public static ShippingInfoDTO getShippingInfo(Id dealerAccountId) {
+        DealerContext ctx = getDealerContext(dealerAccountId);
+        ShippingInfoDTO dto = new ShippingInfoDTO();
+        dto.configured = false;
+
+        Business_Entities__c entity = getShippingConfig(ctx.account);
+        if (entity == null || entity.Shipping_Product__c == null) return dto;
+
+        dto.configured      = true;
+        dto.method          = entity.Shipping_Product__r.Shipping_Method__c;
+        dto.freeThreshold   = entity.Shipping_Free_Threshold__c;
+        dto.currencyIsoCode = ctx.account?.CurrencyIsoCode;
+
+        if (dto.method == 'Fixed') {
+            Id pricebookId = resolvePricebookId(ctx.account);
+            if (pricebookId != null) {
+                List<PricebookEntry> entries = [
+                    SELECT UnitPrice
+                    FROM PricebookEntry
+                    WHERE Pricebook2Id = :pricebookId AND Product2Id = :entity.Shipping_Product__c
+                      AND IsActive = true AND IsActive_r__c = true
+                    WITH SYSTEM_MODE
+                    LIMIT 1
+                ];
+                if (!entries.isEmpty()) dto.feeAmount = entries[0].UnitPrice;
+            }
+        }
+        return dto;
+    }
+
+    public class ShippingInfoDTO {
+        @AuraEnabled public Boolean configured;
+        @AuraEnabled public String  method;
+        @AuraEnabled public Decimal freeThreshold;
+        @AuraEnabled public Decimal feeAmount;
+        @AuraEnabled public String  currencyIsoCode;
     }
 
     // ── Order history ─────────────────────────────────────────────────────────
