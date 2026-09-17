@@ -17,4 +17,184 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <label>Bitte bestätigen Sie, dass Sie den Bedingungen des Lastschriftmandats zustimmen, bevor Sie fortfahren.</label>
         <name>PaymentCheckoutFutureConsentRequired</name>
     </customLabels>
+    <customLabels>
+        <label>Warenkorb</label>
+        <name>DealerShop_Cart</name>
+    </customLabels>
+    <customLabels>
+        <label>Warenkorb schließen</label>
+        <name>DealerShop_CartCloseAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihr Warenkorb ist leer.</label>
+        <name>DealerShop_CartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Suche nach Produktcode oder Name...</label>
+        <name>DealerShop_SearchPlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>Alle Produkte</label>
+        <name>DealerShop_AllProducts</name>
+    </customLabels>
+    <customLabels>
+        <label>Meine Favoriten</label>
+        <name>DealerShop_MyFavorites</name>
+    </customLabels>
+    <customLabels>
+        <label>Produktkategorien</label>
+        <name>DealerShop_CategoriesAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Wird geladen...</label>
+        <name>DealerShop_Loading</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine Produkte gefunden</label>
+        <name>DealerShop_NoProductsFound</name>
+    </customLabels>
+    <customLabels>
+        <label>Zurück</label>
+        <name>DealerShop_Previous</name>
+    </customLabels>
+    <customLabels>
+        <label>Seite</label>
+        <name>DealerShop_Page</name>
+    </customLabels>
+    <customLabels>
+        <label>von</label>
+        <name>DealerShop_Of</name>
+    </customLabels>
+    <customLabels>
+        <label>Weiter</label>
+        <name>DealerShop_Next</name>
+    </customLabels>
+    <customLabels>
+        <label>Kein Bild</label>
+        <name>DealerShop_NoImage</name>
+    </customLabels>
+    <customLabels>
+        <label>Kein Bild verfügbar</label>
+        <name>DealerShop_NoImageAvailable</name>
+    </customLabels>
+    <customLabels>
+        <label>In den Warenkorb</label>
+        <name>DealerShop_AddToCartShort</name>
+    </customLabels>
+    <customLabels>
+        <label>In den Warenkorb legen</label>
+        <name>DealerShop_AddToCart</name>
+    </customLabels>
+    <customLabels>
+        <label>ab</label>
+        <name>DealerShop_FromQtyAbbrev</name>
+    </customLabels>
+    <customLabels>
+        <label>Stk.</label>
+        <name>DealerShop_UnitsAbbrev</name>
+    </customLabels>
+    <customLabels>
+        <label>Aus Favoriten entfernen</label>
+        <name>DealerShop_RemoveFromFavorites</name>
+    </customLabels>
+    <customLabels>
+        <label>Als Favorit markieren</label>
+        <name>DealerShop_MarkAsFavorite</name>
+    </customLabels>
+    <customLabels>
+        <label>♥ Favorit</label>
+        <name>DealerShop_FavoriteActive</name>
+    </customLabels>
+    <customLabels>
+        <label>♡ Als Favorit markieren</label>
+        <name>DealerShop_FavoriteInactive</name>
+    </customLabels>
+    <customLabels>
+        <label>Zurück zur Übersicht</label>
+        <name>DealerShop_BackToOverview</name>
+    </customLabels>
+    <customLabels>
+        <label>Preis pro Stück:</label>
+        <name>DealerShop_PricePerUnit</name>
+    </customLabels>
+    <customLabels>
+        <label>Mengenrabatte</label>
+        <name>DealerShop_VolumeDiscounts</name>
+    </customLabels>
+    <customLabels>
+        <label>Ab Menge</label>
+        <name>DealerShop_FromQuantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Menge</label>
+        <name>DealerShop_Quantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Gesamtpreis:</label>
+        <name>DealerShop_TotalPrice</name>
+    </customLabels>
+    <customLabels>
+        <label>Produktbeschreibung</label>
+        <name>DealerShop_ProductDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Beim Laden des Produkts ist ein Fehler aufgetreten.</label>
+        <name>DealerShop_ProductLoadError</name>
+    </customLabels>
+    <customLabels>
+        <label>Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</label>
+        <name>DealerShop_GenericError</name>
+    </customLabels>
+    <customLabels>
+        <label>Versandkosten für diese Bestellung nicht berechnen (nur interne Verwendung)</label>
+        <name>DealerShop_ShippingOmitLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Für diese Bestellung werden keine Versandkosten berechnet.</label>
+        <name>DealerShop_ShippingOmitRemark</name>
+    </customLabels>
+    <customLabels>
+        <label>Bei Bestellungen unter {0} fallen Versandkosten von {1} an.</label>
+        <name>DealerShop_ShippingFixedWithFee</name>
+    </customLabels>
+    <customLabels>
+        <label>Bei Bestellungen unter {0} fallen Versandkosten an.</label>
+        <name>DealerShop_ShippingFixedNoFee</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Versandkosten werden basierend auf Gewicht und Abmessungen des Pakets berechnet.</label>
+        <name>DealerShop_ShippingWeightBased</name>
+    </customLabels>
+    <customLabels>
+        <label>Gesamt</label>
+        <name>DealerShop_Total</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellung aufgeben</label>
+        <name>DealerShop_PlaceOrder</name>
+    </customLabels>
+    <customLabels>
+        <label>Artikel entfernen</label>
+        <name>DealerShop_RemoveItemAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Vielen Dank für Ihre Bestellung!</label>
+        <name>DealerShop_OrderConfirmedTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihre Bestellung wurde erfolgreich aufgegeben.</label>
+        <name>DealerShop_OrderConfirmedSubtitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellnummer:</label>
+        <name>DealerShop_OrderNumberLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Zurück zum Webshop</label>
+        <name>DealerShop_BackToShop</name>
+    </customLabels>
+    <customLabels>
+        <label>Erfolg</label>
+        <name>DealerShop_SuccessAriaLabel</name>
+    </customLabels>
 </Translations>

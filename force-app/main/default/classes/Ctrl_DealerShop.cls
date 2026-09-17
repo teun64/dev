@@ -1,5 +1,41 @@
 public without sharing class Ctrl_DealerShop {
 
+    // ── UI labels ────────────────────────────────────────────────────────────
+
+    // language is resolved client-side from the visiting hostname's TLD
+    // (.nl -> nl, .de -> de, .fr -> fr, otherwise en) - same convention as
+    // Ctrl_DealerPortal.getHomeText(). Every static UI string across the shop's
+    // component tree (dealerShop, dealerCategoryNav, dealerProductGrid,
+    // dealerProductCard, dealerProductDetail, dealerCart, dealerOrderConfirmation)
+    // is fetched once here and passed down, rather than each component calling
+    // Util_System.getCustomLabels() separately.
+    @AuraEnabled(cacheable=true)
+    public static Map<String, String> getShopLabels(String language) {
+        return Util_System.getCustomLabels(
+            new List<String>{
+                'DealerShop_Cart', 'DealerShop_CartCloseAriaLabel', 'DealerShop_CartEmpty',
+                'DealerShop_SearchPlaceholder',
+                'DealerShop_AllProducts', 'DealerShop_MyFavorites', 'DealerShop_CategoriesAriaLabel',
+                'DealerShop_Loading', 'DealerShop_NoProductsFound',
+                'DealerShop_Previous', 'DealerShop_Page', 'DealerShop_Of', 'DealerShop_Next',
+                'DealerShop_NoImage', 'DealerShop_NoImageAvailable',
+                'DealerShop_AddToCartShort', 'DealerShop_AddToCart',
+                'DealerShop_FromQtyAbbrev', 'DealerShop_UnitsAbbrev',
+                'DealerShop_RemoveFromFavorites', 'DealerShop_MarkAsFavorite',
+                'DealerShop_FavoriteActive', 'DealerShop_FavoriteInactive',
+                'DealerShop_BackToOverview', 'DealerShop_PricePerUnit', 'DealerShop_VolumeDiscounts',
+                'DealerShop_FromQuantity', 'DealerShop_Quantity', 'DealerShop_TotalPrice',
+                'DealerShop_ProductDescription', 'DealerShop_ProductLoadError', 'DealerShop_GenericError',
+                'DealerShop_ShippingOmitLabel', 'DealerShop_ShippingOmitRemark',
+                'DealerShop_ShippingFixedWithFee', 'DealerShop_ShippingFixedNoFee', 'DealerShop_ShippingWeightBased',
+                'DealerShop_Total', 'DealerShop_PlaceOrder', 'DealerShop_RemoveItemAriaLabel',
+                'DealerShop_OrderConfirmedTitle', 'DealerShop_OrderConfirmedSubtitle',
+                'DealerShop_OrderNumberLabel', 'DealerShop_BackToShop', 'DealerShop_SuccessAriaLabel'
+            },
+            language
+        );
+    }
+
     // ── Data_Translation__c (all record types) ────────────────────────────────
 
     // Every Data_Translation__c record type represents a valid translation source
@@ -968,6 +1004,9 @@ public without sharing class Ctrl_DealerShop {
         DealerContext ctx = getDealerContext(dealerAccountId);
         ShippingInfoDTO dto = new ShippingInfoDTO();
         dto.configured = false;
+        // Always populate, regardless of whether shipping itself is configured - the cart also
+        // uses this to show the right currency symbol for the whole order, not just shipping.
+        dto.currencyIsoCode = ctx.account?.CurrencyIsoCode;
 
         Business_Entities__c entity = getShippingConfig(ctx.account);
         if (entity == null || entity.Shipping_Product__c == null) return dto;
@@ -975,7 +1014,6 @@ public without sharing class Ctrl_DealerShop {
         dto.configured      = true;
         dto.method          = entity.Shipping_Product__r.Shipping_Method__c;
         dto.freeThreshold   = entity.Shipping_Free_Threshold__c;
-        dto.currencyIsoCode = ctx.account?.CurrencyIsoCode;
 
         if (dto.method == 'Fixed') {
             Id pricebookId = resolvePricebookId(ctx.account);

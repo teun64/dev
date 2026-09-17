@@ -17,4 +17,184 @@ L'accès à la boutique en ligne nécessite un compte. Dans votre compte personn
         <label>Veuillez confirmer que vous acceptez les conditions du mandat de prélèvement avant de continuer.</label>
         <name>PaymentCheckoutFutureConsentRequired</name>
     </customLabels>
+    <customLabels>
+        <label>Panier</label>
+        <name>DealerShop_Cart</name>
+    </customLabels>
+    <customLabels>
+        <label>Fermer le panier</label>
+        <name>DealerShop_CartCloseAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Votre panier est vide.</label>
+        <name>DealerShop_CartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Rechercher par code produit ou nom...</label>
+        <name>DealerShop_SearchPlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>Tous les produits</label>
+        <name>DealerShop_AllProducts</name>
+    </customLabels>
+    <customLabels>
+        <label>Mes favoris</label>
+        <name>DealerShop_MyFavorites</name>
+    </customLabels>
+    <customLabels>
+        <label>Catégories de produits</label>
+        <name>DealerShop_CategoriesAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Chargement...</label>
+        <name>DealerShop_Loading</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucun produit trouvé</label>
+        <name>DealerShop_NoProductsFound</name>
+    </customLabels>
+    <customLabels>
+        <label>Précédent</label>
+        <name>DealerShop_Previous</name>
+    </customLabels>
+    <customLabels>
+        <label>Page</label>
+        <name>DealerShop_Page</name>
+    </customLabels>
+    <customLabels>
+        <label>sur</label>
+        <name>DealerShop_Of</name>
+    </customLabels>
+    <customLabels>
+        <label>Suivant</label>
+        <name>DealerShop_Next</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucune image</label>
+        <name>DealerShop_NoImage</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucune image disponible</label>
+        <name>DealerShop_NoImageAvailable</name>
+    </customLabels>
+    <customLabels>
+        <label>Ajouter au panier</label>
+        <name>DealerShop_AddToCartShort</name>
+    </customLabels>
+    <customLabels>
+        <label>Ajouter au panier</label>
+        <name>DealerShop_AddToCart</name>
+    </customLabels>
+    <customLabels>
+        <label>à partir de</label>
+        <name>DealerShop_FromQtyAbbrev</name>
+    </customLabels>
+    <customLabels>
+        <label>unités</label>
+        <name>DealerShop_UnitsAbbrev</name>
+    </customLabels>
+    <customLabels>
+        <label>Retirer des favoris</label>
+        <name>DealerShop_RemoveFromFavorites</name>
+    </customLabels>
+    <customLabels>
+        <label>Ajouter aux favoris</label>
+        <name>DealerShop_MarkAsFavorite</name>
+    </customLabels>
+    <customLabels>
+        <label>♥ Favori</label>
+        <name>DealerShop_FavoriteActive</name>
+    </customLabels>
+    <customLabels>
+        <label>♡ Ajouter aux favoris</label>
+        <name>DealerShop_FavoriteInactive</name>
+    </customLabels>
+    <customLabels>
+        <label>Retour à la vue d&apos;ensemble</label>
+        <name>DealerShop_BackToOverview</name>
+    </customLabels>
+    <customLabels>
+        <label>Prix par unité :</label>
+        <name>DealerShop_PricePerUnit</name>
+    </customLabels>
+    <customLabels>
+        <label>Remises sur volume</label>
+        <name>DealerShop_VolumeDiscounts</name>
+    </customLabels>
+    <customLabels>
+        <label>À partir de la quantité</label>
+        <name>DealerShop_FromQuantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Quantité</label>
+        <name>DealerShop_Quantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Prix total :</label>
+        <name>DealerShop_TotalPrice</name>
+    </customLabels>
+    <customLabels>
+        <label>Description du produit</label>
+        <name>DealerShop_ProductDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Une erreur s&apos;est produite lors du chargement du produit.</label>
+        <name>DealerShop_ProductLoadError</name>
+    </customLabels>
+    <customLabels>
+        <label>Une erreur s&apos;est produite. Veuillez réessayer.</label>
+        <name>DealerShop_GenericError</name>
+    </customLabels>
+    <customLabels>
+        <label>Ne pas facturer les frais de livraison pour cette commande (usage interne uniquement)</label>
+        <name>DealerShop_ShippingOmitLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Les frais de livraison ne seront pas ajoutés à cette commande.</label>
+        <name>DealerShop_ShippingOmitRemark</name>
+    </customLabels>
+    <customLabels>
+        <label>Les commandes inférieures à {0} sont soumises à des frais de livraison de {1}.</label>
+        <name>DealerShop_ShippingFixedWithFee</name>
+    </customLabels>
+    <customLabels>
+        <label>Les commandes inférieures à {0} sont soumises à des frais de livraison.</label>
+        <name>DealerShop_ShippingFixedNoFee</name>
+    </customLabels>
+    <customLabels>
+        <label>Les frais de livraison sont calculés en fonction du poids et des dimensions du colis.</label>
+        <name>DealerShop_ShippingWeightBased</name>
+    </customLabels>
+    <customLabels>
+        <label>Total</label>
+        <name>DealerShop_Total</name>
+    </customLabels>
+    <customLabels>
+        <label>Passer la commande</label>
+        <name>DealerShop_PlaceOrder</name>
+    </customLabels>
+    <customLabels>
+        <label>Retirer l&apos;article</label>
+        <name>DealerShop_RemoveItemAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Merci pour votre commande !</label>
+        <name>DealerShop_OrderConfirmedTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Votre commande a été passée avec succès.</label>
+        <name>DealerShop_OrderConfirmedSubtitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Numéro de commande :</label>
+        <name>DealerShop_OrderNumberLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Retour à la boutique</label>
+        <name>DealerShop_BackToShop</name>
+    </customLabels>
+    <customLabels>
+        <label>Succès</label>
+        <name>DealerShop_SuccessAriaLabel</name>
+    </customLabels>
 </Translations>

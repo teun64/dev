@@ -3,13 +3,13 @@
         <div class="cart-overlay" onclick={handleOverlayClick}></div>
         <div class="cart-panel">
             <div class="cart-header">
-                <h2 class="cart-title">Winkelwagen</h2>
-                <button class="close-btn" onclick={handleClose} aria-label="Winkelwagen sluiten">&#x2715;</button>
+                <h2 class="cart-title">{shopLabels.DealerShop_Cart}</h2>
+                <button class="close-btn" onclick={handleClose} aria-label={shopLabels.DealerShop_CartCloseAriaLabel}>&#x2715;</button>
             </div>
 
             <template lwc:if={isEmpty}>
                 <div class="cart-empty">
-                    <p>Uw winkelwagen is leeg.</p>
+                    <p>{shopLabels.DealerShop_CartEmpty}</p>
                 </div>
             </template>
 
@@ -31,7 +31,7 @@
                                     <p class="item-price"></p>
                                 </template>
                                 <template lwc:else>
-                                    <p class="item-price">&euro; {item.effectivePrice}</p>
+                                    <p class="item-price">{currencySymbol} {item.effectivePrice}</p>
                                 </template>
                             </div>
                             <div class="item-qty">
@@ -42,7 +42,7 @@
                                     data-product-id={item.productId}
                                     onchange={handleQtyChange}
                                     class="qty-input"
-                                    aria-label="Aantal"
+                                    aria-label={shopLabels.DealerShop_Quantity}
                                 />
                             </div>
                             <template lwc:if={item.pricesHidden}>
@@ -50,14 +50,14 @@
                             </template>
                             <template lwc:else>
                                 <div class="item-line-total">
-                                    &euro; {item.lineTotal}
+                                    {currencySymbol} {item.lineTotal}
                                 </div>
                             </template>
                             <button
                                 class="remove-btn"
                                 data-product-id={item.productId}
                                 onclick={handleRemove}
-                                aria-label="Verwijder artikel"
+                                aria-label={shopLabels.DealerShop_RemoveItemAriaLabel}
                             >&#x2715;</button>
                         </div>
                     </template>
@@ -72,7 +72,7 @@
                         <div class="shipping-omit-control">
                             <label class="shipping-omit-label">
                                 <input type="checkbox" checked={omitShippingCost} onchange={handleOmitShippingChange} />
-                                Verzendkosten niet in rekening brengen voor deze bestelling (alleen intern gebruik)
+                                {omitShippingLabelText}
                             </label>
                             <template lwc:if={omitShippingCost}>
                                 <p class="shipping-remark shipping-omit-remark">{omitShippingRemarkText}</p>
@@ -82,8 +82,8 @@
 
                     <template lwc:if={showCartTotal}>
                         <div class="cart-total">
-                            <span>Totaal</span>
-                            <span class="total-amount">&euro; {cartTotal}</span>
+                            <span>{shopLabels.DealerShop_Total}</span>
+                            <span class="total-amount">{currencySymbol} {cartTotal}</span>
                         </div>
                     </template>
                     <button class="place-order-btn" onclick={handlePlaceOrder} disabled={isLoading}>
@@ -91,7 +91,7 @@
                             <div class="spinner"></div>
                         </template>
                         <template lwc:else>
-                            Bestelling plaatsen
+                            {shopLabels.DealerShop_PlaceOrder}
                         </template>
                     </button>
                 </div>

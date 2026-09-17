@@ -1,10 +1,63 @@
 import { LightningElement, api, track } from 'lwc';
 import getBrandConfig              from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
+import getShopLabels                from '@salesforce/apex/Ctrl_DealerShop.getShopLabels';
 import { getCart, saveCart, clearCart } from 'c/dealerCartStorage';
+import { resolveLanguageFromHostname } from 'c/dealerLanguage';
 
 const VIEW_GRID         = 'grid';
 const VIEW_DETAIL       = 'detail';
 const VIEW_CONFIRMATION = 'confirmation';
+
+// English defaults - shown until getShopLabels() resolves, and the source of truth for what
+// getShopLabels() must return (see the label list on Ctrl_DealerShop.getShopLabels()). Keeps
+// every child from ever rendering blank/undefined text on first paint.
+const DEFAULT_LABELS = {
+    DealerShop_Cart: 'Cart',
+    DealerShop_CartCloseAriaLabel: 'Close cart',
+    DealerShop_CartEmpty: 'Your cart is empty.',
+    DealerShop_SearchPlaceholder: 'Search by product code or name...',
+    DealerShop_AllProducts: 'All products',
+    DealerShop_MyFavorites: 'My favorites',
+    DealerShop_CategoriesAriaLabel: 'Product categories',
+    DealerShop_Loading: 'Loading...',
+    DealerShop_NoProductsFound: 'No products found',
+    DealerShop_Previous: 'Previous',
+    DealerShop_Page: 'Page',
+    DealerShop_Of: 'of',
+    DealerShop_Next: 'Next',
+    DealerShop_NoImage: 'No image',
+    DealerShop_NoImageAvailable: 'No image available',
+    DealerShop_AddToCartShort: 'Add to cart',
+    DealerShop_AddToCart: 'Add to cart',
+    DealerShop_FromQtyAbbrev: 'from',
+    DealerShop_UnitsAbbrev: 'units',
+    DealerShop_RemoveFromFavorites: 'Remove from favorites',
+    DealerShop_MarkAsFavorite: 'Mark as favorite',
+    DealerShop_FavoriteActive: '♥ Favorite',
+    DealerShop_FavoriteInactive: '♡ Mark as favorite',
+    DealerShop_BackToOverview: 'Back to overview',
+    DealerShop_PricePerUnit: 'Price per unit:',
+    DealerShop_VolumeDiscounts: 'Volume discounts',
+    DealerShop_FromQuantity: 'From quantity',
+    DealerShop_Quantity: 'Quantity',
+    DealerShop_TotalPrice: 'Total price:',
+    DealerShop_ProductDescription: 'Product description',
+    DealerShop_ProductLoadError: 'An error occurred while loading the product.',
+    DealerShop_GenericError: 'An error occurred. Please try again.',
+    DealerShop_ShippingOmitLabel: 'Omit shipping costs for this order (internal use only)',
+    DealerShop_ShippingOmitRemark: 'Shipping costs will not be added to this order.',
+    DealerShop_ShippingFixedWithFee: 'Orders under {0} incur a shipping fee of {1}.',
+    DealerShop_ShippingFixedNoFee: 'Orders under {0} incur a shipping fee.',
+    DealerShop_ShippingWeightBased: 'Shipping costs are calculated based on the weight and dimensions of the package.',
+    DealerShop_Total: 'Total',
+    DealerShop_PlaceOrder: 'Place order',
+    DealerShop_RemoveItemAriaLabel: 'Remove item',
+    DealerShop_OrderConfirmedTitle: 'Thank you for your order!',
+    DealerShop_OrderConfirmedSubtitle: 'Your order has been placed successfully.',
+    DealerShop_OrderNumberLabel: 'Order number:',
+    DealerShop_BackToShop: 'Back to shop',
+    DealerShop_SuccessAriaLabel: 'Success'
+};
 
 export default class DealerShop extends LightningElement {
 
@@ -22,7 +75,9 @@ export default class DealerShop extends LightningElement {
     @track searchTerm        = '';
     @track _brandTheme       = null;
     @track orderId           = null;
+    @track shopLabels        = DEFAULT_LABELS;
 
+    language = resolveLanguageFromHostname();
     _searchDebounce;
 
     // Normalizes recordId to an explicit null (never undefined) before it reaches any child's
@@ -35,6 +90,10 @@ export default class DealerShop extends LightningElement {
     connectedCallback() {
         getBrandConfig()
             .then(config => { this._brandTheme = config; })
+            .catch(() => {});
+
+        getShopLabels({ language: this.language })
+            .then(labels => { this.shopLabels = { ...DEFAULT_LABELS, ...labels }; })
             .catch(() => {});
 
         this.cartItems = getCart();

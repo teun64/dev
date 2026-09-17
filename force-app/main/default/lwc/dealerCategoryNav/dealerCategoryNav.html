@@ -1,5 +1,5 @@
 <template>
-    <nav class="cat-nav" role="navigation" aria-label="Productcategorieën">
+    <nav class="cat-nav" role="navigation" aria-label={shopLabels.DealerShop_CategoriesAriaLabel}>
         <ul class="cat-nav__list" role="list">
             <template for:each={categoryItems} for:item="cat">
                 <li key={cat.value} class={cat.cssClass} role="listitem">

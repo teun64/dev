@@ -5,14 +5,14 @@
                 <input
                     type="search"
                     class="shop-search-input"
-                    placeholder="Search by product code or name..."
+                    placeholder={shopLabels.DealerShop_SearchPlaceholder}
                     value={searchTerm}
                     oninput={handleSearchInput} />
             </div>
             <div class="shop-header__actions">
                 <button class="cart-button" onclick={handleOpenCart}>
                     <lightning-icon icon-name="utility:cart" size="small"></lightning-icon>
-                    <span class="cart-button__label">Winkelwagen</span>
+                    <span class="cart-button__label">{shopLabels.DealerShop_Cart}</span>
                     <template if:true={cartCount}>
                         <span class="cart-badge">{cartCount}</span>
                     </template>
@@ -23,6 +23,7 @@
         <c-dealer-category-nav
             active-category={activeCategory}
             dealer-account-id={dealerAccountId}
+            shop-labels={shopLabels}
             oncategorychange={handleCategoryChange}>
         </c-dealer-category-nav>
 
@@ -33,6 +34,8 @@
                     initial-page={activePage}
                     search-term={searchTerm}
                     dealer-account-id={dealerAccountId}
+                    shop-labels={shopLabels}
+                    language={language}
                     onproductselect={handleProductSelect}
                     onaddtocart={handleAddToCart}
                     onpagechange={handleGridPageChange}>
@@ -43,6 +46,8 @@
                 <c-dealer-product-detail
                     product-id={selectedProductId}
                     dealer-account-id={dealerAccountId}
+                    shop-labels={shopLabels}
+                    language={language}
                     onaddtocart={handleAddToCart}
                     onbacktoshop={handleBackToShop}>
                 </c-dealer-product-detail>
@@ -51,6 +56,7 @@
             <template if:true={isConfirmationView}>
                 <c-dealer-order-confirmation
                     order-id={orderId}
+                    shop-labels={shopLabels}
                     onbacktoshop={handleBackToShop}>
                 </c-dealer-order-confirmation>
             </template>
@@ -60,6 +66,7 @@
             <c-dealer-cart
                 cart-items={cartItems}
                 dealer-account-id={dealerAccountId}
+                shop-labels={shopLabels}
                 onremovefromcart={handleRemoveFromCart}
                 oncartitemchanged={handleCartItemChanged}
                 onclosecart={handleCloseCart}

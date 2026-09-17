@@ -7,6 +7,8 @@ const PAGE_SIZE = 12;
 export default class DealerProductGrid extends LightningElement {
     @api initialPage = 1;
     @api dealerAccountId = null;
+    @api shopLabels = {};
+    @api language = 'en';
 
     @api
     get category() {

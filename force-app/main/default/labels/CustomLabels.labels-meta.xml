@@ -2022,4 +2022,364 @@ Special technical support and individual consulting services (e.g. integration o
         <value>As a Moving Intelligence dealer you are in the right place for all the products you need. Order them with the push of a button and have them delivered in no time.
 Access to the webshop requires an account. In your personal account you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.</value>
     </labels>
+    <labels>
+        <fullName>DealerShop_Cart</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart button/panel title</shortDescription>
+        <value>Cart</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_CartCloseAriaLabel</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart close button aria-label</shortDescription>
+        <value>Close cart</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_CartEmpty</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart empty state</shortDescription>
+        <value>Your cart is empty.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_SearchPlaceholder</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product search input placeholder</shortDescription>
+        <value>Search by product code or name...</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_AllProducts</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop category tab - all products</shortDescription>
+        <value>All products</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_MyFavorites</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop category tab - favorites</shortDescription>
+        <value>My favorites</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_CategoriesAriaLabel</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop category nav aria-label</shortDescription>
+        <value>Product categories</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Loading</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop generic loading spinner text</shortDescription>
+        <value>Loading...</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_NoProductsFound</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product grid empty state</shortDescription>
+        <value>No products found</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Previous</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop pagination - previous page</shortDescription>
+        <value>Previous</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Page</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop pagination - page label</shortDescription>
+        <value>Page</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Of</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop pagination - 'page X of Y'</shortDescription>
+        <value>of</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Next</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop pagination - next page</shortDescription>
+        <value>Next</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_NoImage</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product card - no image placeholder</shortDescription>
+        <value>No image</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_NoImageAvailable</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail - no image placeholder</shortDescription>
+        <value>No image available</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_AddToCartShort</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product card add-to-cart button</shortDescription>
+        <value>Add to cart</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_AddToCart</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail add-to-cart button</shortDescription>
+        <value>Add to cart</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_FromQtyAbbrev</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop price tier - 'from N units'</shortDescription>
+        <value>from</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_UnitsAbbrev</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop price tier - 'from N units'</shortDescription>
+        <value>units</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_RemoveFromFavorites</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop favorite toggle aria-label - active</shortDescription>
+        <value>Remove from favorites</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_MarkAsFavorite</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop favorite toggle aria-label - inactive</shortDescription>
+        <value>Mark as favorite</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_FavoriteActive</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail favorite button - active</shortDescription>
+        <value>♥ Favorite</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_FavoriteInactive</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail favorite button - inactive</shortDescription>
+        <value>♡ Mark as favorite</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_BackToOverview</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail back link</shortDescription>
+        <value>Back to overview</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_PricePerUnit</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail price label</shortDescription>
+        <value>Price per unit:</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_VolumeDiscounts</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail price tiers heading</shortDescription>
+        <value>Volume discounts</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_FromQuantity</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop price tiers table header</shortDescription>
+        <value>From quantity</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Quantity</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop quantity input label</shortDescription>
+        <value>Quantity</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_TotalPrice</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail calculated total label</shortDescription>
+        <value>Total price:</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ProductDescription</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail long description heading</shortDescription>
+        <value>Product description</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ProductLoadError</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop product detail load error</shortDescription>
+        <value>An error occurred while loading the product.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_GenericError</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop generic error message</shortDescription>
+        <value>An error occurred. Please try again.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ShippingOmitLabel</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart internal-only shipping omit toggle label</shortDescription>
+        <value>Omit shipping costs for this order (internal use only)</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ShippingOmitRemark</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart shipping omitted remark</shortDescription>
+        <value>Shipping costs will not be added to this order.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ShippingFixedWithFee</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart shipping policy remark - fixed fee, with amount</shortDescription>
+        <value>Orders under {0} incur a shipping fee of {1}.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ShippingFixedNoFee</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart shipping policy remark - fixed fee, amount unknown</shortDescription>
+        <value>Orders under {0} incur a shipping fee.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ShippingWeightBased</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart shipping policy remark - weight-based method</shortDescription>
+        <value>Shipping costs are calculated based on the weight and dimensions of the package.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Total</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart total label</shortDescription>
+        <value>Total</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_PlaceOrder</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart place order button</shortDescription>
+        <value>Place order</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_RemoveItemAriaLabel</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart remove item button aria-label</shortDescription>
+        <value>Remove item</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_OrderConfirmedTitle</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop order confirmation title</shortDescription>
+        <value>Thank you for your order!</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_OrderConfirmedSubtitle</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop order confirmation subtitle</shortDescription>
+        <value>Your order has been placed successfully.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_OrderNumberLabel</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop order confirmation order number label</shortDescription>
+        <value>Order number:</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_BackToShop</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop order confirmation back button</shortDescription>
+        <value>Back to shop</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_SuccessAriaLabel</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop order confirmation success icon aria-label</shortDescription>
+        <value>Success</value>
+    </labels>
 </CustomLabels>

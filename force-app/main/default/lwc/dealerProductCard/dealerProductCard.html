@@ -18,7 +18,7 @@
             </template>
             <template if:false={product.imageUrl}>
                 <div class="image-placeholder">
-                    <span>Geen afbeelding</span>
+                    <span>{shopLabels.DealerShop_NoImage}</span>
                 </div>
             </template>
             <template if:true={hasDescription}>
@@ -35,13 +35,13 @@
                 <div class="tier-table">
                     <template for:each={enrichedTiers} for:item="tier">
                         <div key={tier.key} class="tier-row">
-                            <span class="tier-qty">v.a. {tier.fromQty} st.</span>
+                            <span class="tier-qty">{shopLabels.DealerShop_FromQtyAbbrev} {tier.fromQty} {shopLabels.DealerShop_UnitsAbbrev}</span>
                             <span class="tier-price">{tier.formattedPrice}</span>
                         </div>
                     </template>
                 </div>
             </template>
-            <button class="btn-add-cart" onclick={handleAddToCart}>In winkelwagen</button>
+            <button class="btn-add-cart" onclick={handleAddToCart}>{shopLabels.DealerShop_AddToCartShort}</button>
         </div>
     </div>
 </template>

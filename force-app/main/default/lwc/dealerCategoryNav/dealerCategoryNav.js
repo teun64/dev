@@ -1,27 +1,31 @@
 import { LightningElement, api, track } from 'lwc';
 import getPlatformTabs from '@salesforce/apex/Ctrl_DealerShop.getPlatformTabs';
 
-const TAB_ALL       = { value: '',          label: 'Alle producten' };
-const TAB_FAVORITES = { value: 'favorites', label: 'Mijn favorieten' };
+const ALL_VALUE       = '';
+const FAVORITES_VALUE = 'favorites';
 
 export default class DealerCategoryNav extends LightningElement {
 
     @api activeCategory = '';
     @api dealerAccountId = null;
-    @track _categories = [TAB_ALL, TAB_FAVORITES];
+    @api shopLabels = {};
+    // Platform tabs (from getPlatformTabs) are excluded here - their labels come from the
+    // System_Platform__c picklist entry, not from Custom Labels/shopLabels.
+    @track _platformTabs = [];
 
     connectedCallback() {
         getPlatformTabs({ dealerAccountId: this.dealerAccountId })
-            .then((tabs) => {
-                this._categories = [TAB_ALL, ...(tabs || []), TAB_FAVORITES];
-            })
-            .catch(() => {
-                this._categories = [TAB_ALL, TAB_FAVORITES];
-            });
+            .then((tabs) => { this._platformTabs = tabs || []; })
+            .catch(() => { this._platformTabs = []; });
     }
 
     get categoryItems() {
-        return this._categories.map(cat => ({
+        const all = [
+            { value: ALL_VALUE, label: this.shopLabels.DealerShop_AllProducts },
+            ...this._platformTabs,
+            { value: FAVORITES_VALUE, label: this.shopLabels.DealerShop_MyFavorites }
+        ];
+        return all.map(cat => ({
             ...cat,
             isActive: cat.value === this.activeCategory,
             cssClass: 'cat-nav__item' + (cat.value === this.activeCategory ? ' cat-nav__item--active' : '')

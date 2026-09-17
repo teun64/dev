@@ -17,4 +17,184 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <label>Bevestig dat u akkoord gaat met de voorwaarden van de incassomachtiging voordat u doorgaat.</label>
         <name>PaymentCheckoutFutureConsentRequired</name>
     </customLabels>
+    <customLabels>
+        <label>Winkelwagen</label>
+        <name>DealerShop_Cart</name>
+    </customLabels>
+    <customLabels>
+        <label>Winkelwagen sluiten</label>
+        <name>DealerShop_CartCloseAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw winkelwagen is leeg.</label>
+        <name>DealerShop_CartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Zoek op productcode of naam...</label>
+        <name>DealerShop_SearchPlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>Alle producten</label>
+        <name>DealerShop_AllProducts</name>
+    </customLabels>
+    <customLabels>
+        <label>Mijn favorieten</label>
+        <name>DealerShop_MyFavorites</name>
+    </customLabels>
+    <customLabels>
+        <label>Productcategorieën</label>
+        <name>DealerShop_CategoriesAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Laden...</label>
+        <name>DealerShop_Loading</name>
+    </customLabels>
+    <customLabels>
+        <label>Geen producten gevonden</label>
+        <name>DealerShop_NoProductsFound</name>
+    </customLabels>
+    <customLabels>
+        <label>Vorige</label>
+        <name>DealerShop_Previous</name>
+    </customLabels>
+    <customLabels>
+        <label>Pagina</label>
+        <name>DealerShop_Page</name>
+    </customLabels>
+    <customLabels>
+        <label>van</label>
+        <name>DealerShop_Of</name>
+    </customLabels>
+    <customLabels>
+        <label>Volgende</label>
+        <name>DealerShop_Next</name>
+    </customLabels>
+    <customLabels>
+        <label>Geen afbeelding</label>
+        <name>DealerShop_NoImage</name>
+    </customLabels>
+    <customLabels>
+        <label>Geen afbeelding beschikbaar</label>
+        <name>DealerShop_NoImageAvailable</name>
+    </customLabels>
+    <customLabels>
+        <label>In winkelwagen</label>
+        <name>DealerShop_AddToCartShort</name>
+    </customLabels>
+    <customLabels>
+        <label>Toevoegen aan winkelwagen</label>
+        <name>DealerShop_AddToCart</name>
+    </customLabels>
+    <customLabels>
+        <label>v.a.</label>
+        <name>DealerShop_FromQtyAbbrev</name>
+    </customLabels>
+    <customLabels>
+        <label>st.</label>
+        <name>DealerShop_UnitsAbbrev</name>
+    </customLabels>
+    <customLabels>
+        <label>Verwijder uit favorieten</label>
+        <name>DealerShop_RemoveFromFavorites</name>
+    </customLabels>
+    <customLabels>
+        <label>Markeer als favoriet</label>
+        <name>DealerShop_MarkAsFavorite</name>
+    </customLabels>
+    <customLabels>
+        <label>♥ Favoriet</label>
+        <name>DealerShop_FavoriteActive</name>
+    </customLabels>
+    <customLabels>
+        <label>♡ Markeer als favoriet</label>
+        <name>DealerShop_FavoriteInactive</name>
+    </customLabels>
+    <customLabels>
+        <label>Terug naar overzicht</label>
+        <name>DealerShop_BackToOverview</name>
+    </customLabels>
+    <customLabels>
+        <label>Prijs per stuk:</label>
+        <name>DealerShop_PricePerUnit</name>
+    </customLabels>
+    <customLabels>
+        <label>Volumekortingen</label>
+        <name>DealerShop_VolumeDiscounts</name>
+    </customLabels>
+    <customLabels>
+        <label>Vanaf aantal</label>
+        <name>DealerShop_FromQuantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Aantal</label>
+        <name>DealerShop_Quantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Totaalprijs:</label>
+        <name>DealerShop_TotalPrice</name>
+    </customLabels>
+    <customLabels>
+        <label>Productomschrijving</label>
+        <name>DealerShop_ProductDescription</name>
+    </customLabels>
+    <customLabels>
+        <label>Er is een fout opgetreden bij het laden van het product.</label>
+        <name>DealerShop_ProductLoadError</name>
+    </customLabels>
+    <customLabels>
+        <label>Er is een fout opgetreden. Probeer het opnieuw.</label>
+        <name>DealerShop_GenericError</name>
+    </customLabels>
+    <customLabels>
+        <label>Verzendkosten niet in rekening brengen voor deze bestelling (alleen intern gebruik)</label>
+        <name>DealerShop_ShippingOmitLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Verzendkosten worden niet toegevoegd aan deze bestelling.</label>
+        <name>DealerShop_ShippingOmitRemark</name>
+    </customLabels>
+    <customLabels>
+        <label>Bij bestellingen onder {0} worden verzendkosten van {1} in rekening gebracht.</label>
+        <name>DealerShop_ShippingFixedWithFee</name>
+    </customLabels>
+    <customLabels>
+        <label>Bij bestellingen onder {0} worden verzendkosten in rekening gebracht.</label>
+        <name>DealerShop_ShippingFixedNoFee</name>
+    </customLabels>
+    <customLabels>
+        <label>Verzendkosten worden berekend op basis van gewicht en afmetingen van het pakket.</label>
+        <name>DealerShop_ShippingWeightBased</name>
+    </customLabels>
+    <customLabels>
+        <label>Totaal</label>
+        <name>DealerShop_Total</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestelling plaatsen</label>
+        <name>DealerShop_PlaceOrder</name>
+    </customLabels>
+    <customLabels>
+        <label>Verwijder artikel</label>
+        <name>DealerShop_RemoveItemAriaLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Bedankt voor uw bestelling!</label>
+        <name>DealerShop_OrderConfirmedTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw bestelling is succesvol geplaatst.</label>
+        <name>DealerShop_OrderConfirmedSubtitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestelnummer:</label>
+        <name>DealerShop_OrderNumberLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Terug naar de webshop</label>
+        <name>DealerShop_BackToShop</name>
+    </customLabels>
+    <customLabels>
+        <label>Succes</label>
+        <name>DealerShop_SuccessAriaLabel</name>
+    </customLabels>
 </Translations>

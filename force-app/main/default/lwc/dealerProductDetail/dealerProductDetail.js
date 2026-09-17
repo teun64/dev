@@ -1,23 +1,31 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import getProductDetail from '@salesforce/apex/Ctrl_DealerShop.getProductDetail';
 import toggleFavorite    from '@salesforce/apex/Ctrl_DealerShop.toggleFavorite';
-
-const CURRENCY_FORMAT = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-});
+import { resolveNumberLocale } from 'c/dealerLanguage';
 
 export default class DealerProductDetail extends LightningElement {
     @api productId;
     @api dealerAccountId = null;
+    @api shopLabels = {};
+    @api language = 'en';
 
     @track quantity = 1;
     @track product = null;
     @track isLoading = true;
     @track hasError = false;
     @track errorMessage = '';
+
+    // Recomputed per language rather than a cached module constant, so it always reflects the
+    // current @api language (only the number formatting - decimal/grouping separators - not the
+    // currency symbol, which still needs the account's real CurrencyIsoCode).
+    get _currencyFormat() {
+        return new Intl.NumberFormat(resolveNumberLocale(this.language), {
+            style: 'currency',
+            currency: 'EUR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
 
     @wire(getProductDetail, { productId: '$productId', dealerAccountId: '$dealerAccountId' })
     wiredProduct({ data, error }) {
@@ -29,7 +37,7 @@ export default class DealerProductDetail extends LightningElement {
             this.hasError = true;
             this.errorMessage = (error.body && error.body.message)
                 ? error.body.message
-                : 'Er is een fout opgetreden bij het laden van het product.';
+                : this.shopLabels.DealerShop_ProductLoadError;
             this.isLoading = false;
         }
     }
@@ -39,7 +47,7 @@ export default class DealerProductDetail extends LightningElement {
         if (enriched.priceTiers && enriched.priceTiers.length > 0) {
             enriched.priceTiers = enriched.priceTiers.map(tier => ({
                 ...tier,
-                formattedPrice: tier.price != null ? CURRENCY_FORMAT.format(tier.price) : '—'
+                formattedPrice: tier.price != null ? this._currencyFormat.format(tier.price) : '—'
             }));
         }
         return enriched;
@@ -54,7 +62,7 @@ export default class DealerProductDetail extends LightningElement {
     }
 
     get favoriteButtonLabel() {
-        return this.isFavorite ? '♥ Favoriet' : '♡ Markeer als favoriet';
+        return this.isFavorite ? this.shopLabels.DealerShop_FavoriteActive : this.shopLabels.DealerShop_FavoriteInactive;
     }
 
     handleToggleFavorite() {
@@ -75,13 +83,13 @@ export default class DealerProductDetail extends LightningElement {
 
     get formattedUnitPrice() {
         if (!this.product || this.product.unitPrice == null) return '—';
-        return CURRENCY_FORMAT.format(this.product.unitPrice);
+        return this._currencyFormat.format(this.product.unitPrice);
     }
 
     get formattedCalculatedPrice() {
         if (!this.product || this.product.unitPrice == null) return '—';
         const price = this.calculatePriceForQty(this.quantity);
-        return CURRENCY_FORMAT.format(price * this.quantity);
+        return this._currencyFormat.format(price * this.quantity);
     }
 
     calculatePriceForQty(qty) {

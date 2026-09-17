@@ -2,16 +2,16 @@
     <div class="confirmation-container">
         <div class="confirmation-card">
             <div class="checkmark-icon">
-                <lightning-icon icon-name="utility:success" size="large" alternative-text="Succes"></lightning-icon>
+                <lightning-icon icon-name="utility:success" size="large" alternative-text={shopLabels.DealerShop_SuccessAriaLabel}></lightning-icon>
             </div>
-            <h1 class="confirmation-title">Bedankt voor uw bestelling!</h1>
-            <p class="confirmation-subtitle">Uw bestelling is succesvol geplaatst.</p>
+            <h1 class="confirmation-title">{shopLabels.DealerShop_OrderConfirmedTitle}</h1>
+            <p class="confirmation-subtitle">{shopLabels.DealerShop_OrderConfirmedSubtitle}</p>
             <div class="order-number">
-                <span class="order-label">Bestelnummer:</span>
+                <span class="order-label">{shopLabels.DealerShop_OrderNumberLabel}</span>
                 <span class="order-id">{orderId}</span>
             </div>
             <button class="back-btn" onclick={handleBackToShop}>
-                Terug naar de webshop
+                {shopLabels.DealerShop_BackToShop}
             </button>
         </div>
     </div>

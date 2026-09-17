@@ -1,10 +1,13 @@
 import { LightningElement, api } from 'lwc';
+import { resolveNumberLocale } from 'c/dealerLanguage';
 
 const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
 const DEFAULT_BADGE_COLOR = '#0E0F0E';
 
 export default class DealerProductCard extends LightningElement {
     @api product;
+    @api shopLabels = {};
+    @api language = 'en';
 
     get hasAction() {
         return !!this.product?.action;
@@ -46,7 +49,7 @@ export default class DealerProductCard extends LightningElement {
     }
 
     get favoriteAriaLabel() {
-        return this.isFavorite ? 'Verwijder uit favorieten' : 'Markeer als favoriet';
+        return this.isFavorite ? this.shopLabels.DealerShop_RemoveFromFavorites : this.shopLabels.DealerShop_MarkAsFavorite;
     }
 
     get hasTiers() {
@@ -64,7 +67,7 @@ export default class DealerProductCard extends LightningElement {
 
     _fmt(price) {
         if (price == null) return '';
-        const formatted = Number(price).toLocaleString('nl-NL', {
+        const formatted = Number(price).toLocaleString(resolveNumberLocale(this.language), {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });

@@ -1,10 +1,13 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import placeOrder from '@salesforce/apex/Ctrl_DealerShop.placeOrder';
 import getShippingInfo from '@salesforce/apex/Ctrl_DealerShop.getShippingInfo';
+import { resolveNumberLocale } from 'c/dealerLanguage';
 
 export default class DealerCart extends LightningElement {
     @api cartItems = [];
     @api dealerAccountId = null;
+    @api shopLabels = {};
+    @api language = 'en';
 
     @track isLoading = false;
     @track errorMessage = null;
@@ -24,28 +27,39 @@ export default class DealerCart extends LightningElement {
         return !!this.dealerAccountId;
     }
 
+    get currencySymbol() {
+        return this.shippingInfo?.currencyIsoCode === 'GBP' ? '£' : '€';
+    }
+
     get showShippingRemark() {
         return !!this.shippingInfo?.configured && !this.omitShippingCost;
     }
 
     get shippingRemarkText() {
         if (!this.shippingInfo?.configured) return '';
-        const currency = this.shippingInfo.currencyIsoCode === 'GBP' ? '£' : '€';
+        const currency = this.currencySymbol;
         if (this.shippingInfo.method === 'Fixed') {
-            const fee = this.shippingInfo.feeAmount != null ? this._formatPrice(this.shippingInfo.feeAmount) : null;
-            const threshold = this._formatPrice(this.shippingInfo.freeThreshold);
-            return fee != null
-                ? `Bij bestellingen onder ${currency} ${threshold} worden verzendkosten van ${currency} ${fee} in rekening gebracht.`
-                : `Bij bestellingen onder ${currency} ${threshold} worden verzendkosten in rekening gebracht.`;
+            const threshold = `${currency} ${this._formatPrice(this.shippingInfo.freeThreshold)}`;
+            if (this.shippingInfo.feeAmount != null) {
+                const fee = `${currency} ${this._formatPrice(this.shippingInfo.feeAmount)}`;
+                return this.shopLabels.DealerShop_ShippingFixedWithFee
+                    .replace('{0}', threshold)
+                    .replace('{1}', fee);
+            }
+            return this.shopLabels.DealerShop_ShippingFixedNoFee.replace('{0}', threshold);
         }
         if (this.shippingInfo.method === 'Weight_Based') {
-            return 'Verzendkosten worden berekend op basis van gewicht en afmetingen van het pakket.';
+            return this.shopLabels.DealerShop_ShippingWeightBased;
         }
         return '';
     }
 
     get omitShippingRemarkText() {
-        return 'Verzendkosten worden niet toegevoegd aan deze bestelling.';
+        return this.shopLabels.DealerShop_ShippingOmitRemark;
+    }
+
+    get omitShippingLabelText() {
+        return this.shopLabels.DealerShop_ShippingOmitLabel;
     }
 
     handleOmitShippingChange(event) {
@@ -107,7 +121,10 @@ export default class DealerCart extends LightningElement {
     }
 
     _formatPrice(value) {
-        return Number(value).toFixed(2);
+        return Number(value).toLocaleString(resolveNumberLocale(this.language), {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 
     handleClose() {
@@ -153,7 +170,7 @@ export default class DealerCart extends LightningElement {
                 detail: { orderId }
             }));
         } catch (error) {
-            this.errorMessage = error?.body?.message || 'Er is een fout opgetreden. Probeer het opnieuw.';
+            this.errorMessage = error?.body?.message || this.shopLabels.DealerShop_GenericError;
         } finally {
             this.isLoading = false;
         }

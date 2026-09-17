@@ -2,13 +2,13 @@
     <div class="detail-wrapper">
         <template if:true={isLoading}>
             <div class="loading-container">
-                <lightning-spinner alternative-text="Laden..." size="medium"></lightning-spinner>
+                <lightning-spinner alternative-text={shopLabels.DealerShop_Loading} size="medium"></lightning-spinner>
             </div>
         </template>
 
         <template if:false={isLoading}>
             <div class="back-link">
-                <button class="back-link-btn" onclick={handleBack}>&#8592; Terug naar overzicht</button>
+                <button class="back-link-btn" onclick={handleBack}>&#8592; {shopLabels.DealerShop_BackToOverview}</button>
             </div>
 
             <template if:true={product}>
@@ -19,8 +19,8 @@
                         </template>
                         <template if:false={product.imageUrl}>
                             <div class="product-image-placeholder">
-                                <lightning-icon icon-name="utility:photo" size="large" alternative-text="Geen afbeelding"></lightning-icon>
-                                <p>Geen afbeelding beschikbaar</p>
+                                <lightning-icon icon-name="utility:photo" size="large" alternative-text={shopLabels.DealerShop_NoImage}></lightning-icon>
+                                <p>{shopLabels.DealerShop_NoImageAvailable}</p>
                             </div>
                         </template>
                     </div>
@@ -44,19 +44,19 @@
                         <div class="price-section">
                             <template if:true={product.unitPrice}>
                                 <div class="unit-price-row">
-                                    <span class="price-label">Prijs per stuk:</span>
+                                    <span class="price-label">{shopLabels.DealerShop_PricePerUnit}</span>
                                     <span class="unit-price">{formattedUnitPrice}</span>
                                 </div>
                             </template>
 
                             <template if:true={hasPriceTiers}>
                                 <div class="price-tiers">
-                                    <h3 class="tiers-heading">Volumekortingen</h3>
+                                    <h3 class="tiers-heading">{shopLabels.DealerShop_VolumeDiscounts}</h3>
                                     <table class="tiers-table">
                                         <thead>
                                             <tr>
-                                                <th>Vanaf aantal</th>
-                                                <th>Prijs per stuk</th>
+                                                <th>{shopLabels.DealerShop_FromQuantity}</th>
+                                                <th>{shopLabels.DealerShop_PricePerUnit}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -74,7 +74,7 @@
 
                         <div class="add-to-cart-section">
                             <div class="quantity-row">
-                                <label for="qty-input" class="qty-label">Aantal:</label>
+                                <label for="qty-input" class="qty-label">{shopLabels.DealerShop_Quantity}:</label>
                                 <lightning-input
                                     id="qty-input"
                                     type="number"
@@ -84,19 +84,19 @@
                                     onchange={handleQuantityChange}
                                     class="qty-input"
                                     variant="label-hidden"
-                                    label="Aantal"
+                                    label={shopLabels.DealerShop_Quantity}
                                 ></lightning-input>
                             </div>
 
                             <template if:true={product.unitPrice}>
                                 <div class="calculated-price-row">
-                                    <span class="calc-label">Totaalprijs:</span>
+                                    <span class="calc-label">{shopLabels.DealerShop_TotalPrice}</span>
                                     <span class="calc-price">{formattedCalculatedPrice}</span>
                                 </div>
                             </template>
 
                             <lightning-button
-                                label="Toevoegen aan winkelwagen"
+                                label={shopLabels.DealerShop_AddToCart}
                                 onclick={handleAddToCart}
                                 class="add-to-cart-btn"
                                 variant="brand"
@@ -107,7 +107,7 @@
 
                 <template if:true={product.longDescription}>
                     <div class="description-section">
-                        <h2 class="description-heading">Productomschrijving</h2>
+                        <h2 class="description-heading">{shopLabels.DealerShop_ProductDescription}</h2>
                         <lightning-formatted-rich-text value={product.longDescription}></lightning-formatted-rich-text>
                     </div>
                 </template>

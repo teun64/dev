@@ -2,14 +2,14 @@
     <div class="grid-container">
         <template if:true={isLoading}>
             <div class="spinner-container">
-                <lightning-spinner alternative-text="Laden..." size="medium"></lightning-spinner>
+                <lightning-spinner alternative-text={shopLabels.DealerShop_Loading} size="medium"></lightning-spinner>
             </div>
         </template>
 
         <template if:false={isLoading}>
             <template if:true={isEmpty}>
                 <div class="empty-state">
-                    <p>Geen producten gevonden</p>
+                    <p>{shopLabels.DealerShop_NoProductsFound}</p>
                 </div>
             </template>
 
@@ -19,10 +19,10 @@
                         class="pagination-btn"
                         disabled={isPrevDisabled}
                         onclick={handlePrev}>
-                        &lsaquo; Vorige
+                        &lsaquo; {shopLabels.DealerShop_Previous}
                     </button>
                     <span class="page-indicator">
-                        Pagina
+                        {shopLabels.DealerShop_Page}
                         <input
                             type="number"
                             class="page-input"
@@ -31,13 +31,13 @@
                             value={currentPage}
                             onchange={handlePageInputChange}
                             onkeydown={handlePageInputKeydown} />
-                        van {totalPages}
+                        {shopLabels.DealerShop_Of} {totalPages}
                     </span>
                     <button
                         class="pagination-btn"
                         disabled={isNextDisabled}
                         onclick={handleNext}>
-                        Volgende &rsaquo;
+                        {shopLabels.DealerShop_Next} &rsaquo;
                     </button>
                 </div>
 
@@ -46,6 +46,8 @@
                         <div key={product.id} class="grid-item">
                             <c-dealer-product-card
                                 product={product}
+                                shop-labels={shopLabels}
+                                language={language}
                                 onproductselect={handleProductSelect}
                                 onaddtocart={handleAddToCart}
                                 onfavoritetoggle={handleFavoriteToggle}>
@@ -59,10 +61,10 @@
                         class="pagination-btn"
                         disabled={isPrevDisabled}
                         onclick={handlePrev}>
-                        &lsaquo; Vorige
+                        &lsaquo; {shopLabels.DealerShop_Previous}
                     </button>
                     <span class="page-indicator">
-                        Pagina
+                        {shopLabels.DealerShop_Page}
                         <input
                             type="number"
                             class="page-input"
@@ -71,13 +73,13 @@
                             value={currentPage}
                             onchange={handlePageInputChange}
                             onkeydown={handlePageInputKeydown} />
-                        van {totalPages}
+                        {shopLabels.DealerShop_Of} {totalPages}
                     </span>
                     <button
                         class="pagination-btn"
                         disabled={isNextDisabled}
                         onclick={handleNext}>
-                        Volgende &rsaquo;
+                        {shopLabels.DealerShop_Next} &rsaquo;
                     </button>
                 </div>
             </template>
