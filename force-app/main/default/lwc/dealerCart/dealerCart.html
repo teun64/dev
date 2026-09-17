@@ -72,7 +72,7 @@
                         <div class="shipping-omit-control">
                             <label class="shipping-omit-label">
                                 <input type="checkbox" checked={omitShippingCost} onchange={handleOmitShippingChange} />
-                                Omit shipping costs for this order (internal use only)
+                                Verzendkosten niet in rekening brengen voor deze bestelling (alleen intern gebruik)
                             </label>
                             <template lwc:if={omitShippingCost}>
                                 <p class="shipping-remark shipping-omit-remark">{omitShippingRemarkText}</p>

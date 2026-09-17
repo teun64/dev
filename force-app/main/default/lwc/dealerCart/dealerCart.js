@@ -45,7 +45,7 @@ export default class DealerCart extends LightningElement {
     }
 
     get omitShippingRemarkText() {
-        return 'Shipping costs will not be added to this order.';
+        return 'Verzendkosten worden niet toegevoegd aan deze bestelling.';
     }
 
     handleOmitShippingChange(event) {
