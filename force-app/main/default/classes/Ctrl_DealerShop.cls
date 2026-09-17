@@ -136,7 +136,7 @@ public without sharing class Ctrl_DealerShop {
 
     private static DealerContext buildContextFromAccountId(Id accountId, String contactLanguage, String defaultLang) {
         List<Account> accounts = [
-            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c
+            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c, CurrencyIsoCode
             FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
         ];
         if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
@@ -840,14 +840,19 @@ public without sharing class Ctrl_DealerShop {
         // Name can't be set to its final "<RecordType>#<Opportunity Number>" form yet - Auto_Number__c
         // is only populated by Salesforce after the insert completes, not on the in-memory record -
         // so insert with a placeholder and fix it up below.
+        // CurrencyIsoCode must follow the dealer Account, not the running user - the Opportunity
+        // otherwise defaults to the running user's own currency, which mismatches the dealer
+        // pricebook's currency for any user (portal or internal) whose currency differs from the
+        // account's (e.g. an internal NL/EUR user placing an order for a UK/GBP dealer).
         Opportunity opp = new Opportunity(
-            AccountId    = acct.Id,
-            Name         = 'Dealer shop order',
-            Type         = 'Webshop',
-            LeadSource   = 'Webshop',
-            StageName    = 'Webshop',
-            CloseDate    = Date.today().addDays(30),
-            RecordTypeId = webshopRt?.Id
+            AccountId        = acct.Id,
+            Name             = 'Dealer shop order',
+            Type             = 'Webshop',
+            LeadSource       = 'Webshop',
+            StageName        = 'Webshop',
+            CloseDate        = Date.today().addDays(30),
+            RecordTypeId     = webshopRt?.Id,
+            CurrencyIsoCode  = acct.CurrencyIsoCode
         );
         Database.insert(opp, AccessLevel.SYSTEM_MODE);
 
@@ -858,12 +863,14 @@ public without sharing class Ctrl_DealerShop {
             WITH SYSTEM_MODE
         ];
 
-        // The org-wide "rbc - Opportunity" before-save flow re-resolves Pricebook2Id for every
-        // new Opportunity from the account's sales relation type, overriding whatever we set on
-        // insert. Dealer-shop pricing must use the dealer pricebook resolved above, so force it
-        // back with a follow-up update (that flow only fires on Create, so this update sticks).
-        opp.Name         = (webshopRt != null ? webshopRt.Name : 'Webshop') + ' #' + opp.Auto_Number__c;
-        opp.Pricebook2Id = pricebookId;
+        // The org-wide "rbc - Opportunity" before-save flow re-resolves Pricebook2Id AND
+        // CurrencyIsoCode for every new Opportunity (the latter from the running user's own
+        // currency, not the account's), overriding whatever we set on insert. Dealer-shop pricing
+        // must use the dealer pricebook/account currency resolved above, so force both back with
+        // a follow-up update (that flow only fires on Create, so this update sticks).
+        opp.Name            = (webshopRt != null ? webshopRt.Name : 'Webshop') + ' #' + opp.Auto_Number__c;
+        opp.Pricebook2Id    = pricebookId;
+        opp.CurrencyIsoCode = acct.CurrencyIsoCode;
         Database.update(opp, AccessLevel.SYSTEM_MODE);
 
         List<OpportunityLineItem> lineItems = new List<OpportunityLineItem>();

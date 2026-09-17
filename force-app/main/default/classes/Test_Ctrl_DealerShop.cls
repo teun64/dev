@@ -1492,4 +1492,51 @@ private class Test_Ctrl_DealerShop {
             'With no Business_Entities__c configured for this reseller, no shipping line should be added'
         );
     }
+
+    // ── Multi-currency ───────────────────────────────────────────────────────
+
+    @IsTest
+    static void testPlaceOrder_internalUser_opportunityFollowsAccountCurrency_notRunningUserCurrency() {
+        // The running test user's own currency defaults to the org's corporate currency (EUR here) -
+        // if placeOrder ever regresses to defaulting CurrencyIsoCode from the running user instead of
+        // the Account, this GBP account would silently produce a EUR Opportunity, which then fails
+        // to insert against the GBP PricebookEntry below anyway (FIELD_INTEGRITY_EXCEPTION) - exactly
+        // the real bug this guards, reproduced with a real UK account against dev/acc/prod.
+        Account gbpAcc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+        Database.update(new Account(
+            Id = gbpAcc.Id, BillingCountryCode = 'GB', CurrencyIsoCode = 'GBP'
+        ), AccessLevel.SYSTEM_MODE);
+
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        // Named/currencied to be the specific match resolvePricebookId() looks for once
+        // BillingCountryCode is GB (-> "UK") with no Dealer_category__c (-> market "All") -
+        // distinct from the shared EUR "Dealer NL All Pricebook" fixture, not a fallback pick.
+        Pricebook2 gbpPricebook = new Pricebook2(Name = 'Dealer UK All Pricebook', IsActive = false, CurrencyIsoCode = 'GBP');
+        Database.insert(gbpPricebook, AccessLevel.SYSTEM_MODE);
+        gbpPricebook.IsActive = true;
+        Database.update(gbpPricebook, AccessLevel.SYSTEM_MODE);
+        // A custom Pricebook2 entry can't exist without a Standard Price entry in the SAME currency
+        // for the same product first - PP-001's existing Standard entry from @TestSetup is EUR only.
+        Database.insert(new PricebookEntry(
+            Pricebook2Id = Test.getStandardPricebookId(), Product2Id = prod.Id, UnitPrice = 10, IsActive = true, CurrencyIsoCode = 'GBP'
+        ), AccessLevel.SYSTEM_MODE);
+        Database.insert(new PricebookEntry(
+            Pricebook2Id = gbpPricebook.Id, Product2Id = prod.Id, UnitPrice = 10, IsActive = true, CurrencyIsoCode = 'GBP'
+        ), AccessLevel.SYSTEM_MODE);
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 10 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        // No System.runAs(portalUser()) here - calling directly as the (EUR) test-running user via
+        // the dealerAccountId override path, same as the Account-embedded internal quick action.
+        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, gbpAcc.Id);
+        Test.stopTest();
+
+        Opportunity opp = [SELECT CurrencyIsoCode FROM Opportunity WHERE Name = :orderNumber];
+        System.assertEquals('GBP', opp.CurrencyIsoCode, 'Opportunity currency must follow the Account, not the running user');
+    }
 }
