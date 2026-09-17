@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Shipping_Method__c</fullName>
+    <label>Shipping Method</label>
+    <type>Picklist</type>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Fixed</fullName>
+                <default>false</default>
+                <label>Fixed</label>
+            </value>
+            <value>
+                <fullName>Weight_Based</fullName>
+                <default>false</default>
+                <label>Weight Based</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <description>How this shipping product's cost is determined. Only Fixed is implemented so far - Weight_Based is reserved for a later weight/package-size-based method (DE).</description>
+</CustomField>

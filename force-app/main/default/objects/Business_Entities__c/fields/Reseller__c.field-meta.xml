@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Reseller__c</fullName>
+    <label>Reseller</label>
+    <type>Picklist</type>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>BusinessEnitites</valueSetName>
+    </valueSet>
+    <description>Join key matching Account.Reseller_Name__c and Subscription25__Administration__c.Reseller__c by value - not a lookup, to keep this object independent of the Subscription25 package.</description>
+</CustomField>

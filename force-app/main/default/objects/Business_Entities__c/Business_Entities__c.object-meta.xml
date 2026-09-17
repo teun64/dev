@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Business Entity</label>
+    <pluralLabel>Business Entities</pluralLabel>
+    <nameField>
+        <label>Business Entity Name</label>
+        <type>Text</type>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>One row per reseller (Business Entity), keyed by the same Reseller__c picklist value already used on Account.Reseller_Name__c and Subscription25__Administration__c.Reseller__c - joined by value, not by lookup, so this object has no dependency on the Subscription25 managed package. Currently used to configure Dealer Shop shipping cost behaviour per reseller.</description>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Shipping_Product__c</fullName>
+    <label>Shipping Product</label>
+    <type>Lookup</type>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Business Entities</relationshipLabel>
+    <relationshipName>Business_Entities</relationshipName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Product2.IsShippingCost__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+        <errorMessage>Only products flagged as Shipping Cost can be selected.</errorMessage>
+    </lookupFilter>
+    <description>The Product2 whose PricebookEntry price (in this reseller's resolved dealer pricebook) is used as the fixed shipping fee.</description>
+</CustomField>

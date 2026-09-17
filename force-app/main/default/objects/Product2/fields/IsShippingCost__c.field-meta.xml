@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsShippingCost__c</fullName>
+    <label>Shipping Cost</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <trackHistory>false</trackHistory>
+    <description>Marks this product as usable as a Dealer Shop shipping fee line item (see Business_Entities__c.Shipping_Product__c).</description>
+</CustomField>
