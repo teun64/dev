@@ -96,7 +96,7 @@ export default class DealerShop extends LightningElement {
             .then(labels => { this.shopLabels = { ...DEFAULT_LABELS, ...labels }; })
             .catch(() => {});
 
-        this.cartItems = getCart();
+        this.cartItems = getCart(this.dealerAccountId);
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             if (params.get('openCart') === '1') this.cartOpen = true;
@@ -156,13 +156,13 @@ export default class DealerShop extends LightningElement {
             this.cartItems = [...this.cartItems, { ...incoming, quantity: incoming.quantity || 1 }];
         }
         this.cartOpen = true;
-        saveCart(this.cartItems);
+        saveCart(this.cartItems, this.dealerAccountId);
     }
 
     handleRemoveFromCart(event) {
         const productId  = event.detail.productId;
         this.cartItems   = this.cartItems.filter(i => i.productId !== productId);
-        saveCart(this.cartItems);
+        saveCart(this.cartItems, this.dealerAccountId);
     }
 
     handleCartItemChanged(event) {
@@ -170,7 +170,7 @@ export default class DealerShop extends LightningElement {
         this.cartItems = this.cartItems.map(i =>
             i.productId === productId ? { ...i, quantity } : i
         );
-        saveCart(this.cartItems);
+        saveCart(this.cartItems, this.dealerAccountId);
     }
 
     handleOpenCart() {
@@ -186,7 +186,7 @@ export default class DealerShop extends LightningElement {
         this.cartItems   = [];
         this.cartOpen    = false;
         this.currentView = VIEW_CONFIRMATION;
-        clearCart();
+        clearCart(this.dealerAccountId);
     }
 
     handleBackToShop() {
