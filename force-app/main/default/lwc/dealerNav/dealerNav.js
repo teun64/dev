@@ -90,7 +90,7 @@ export default class DealerNav extends LightningElement {
     handleLogoutClick(event) {
         event.preventDefault();
         if (typeof window !== 'undefined') {
-            window.location.href = '/dealers/secur/logout.jsp?retUrl=/dealers/login';
+            window.location.href = '/dealers/secur/logout.jsp?retUrl=/dealers';
         }
     }
 }
