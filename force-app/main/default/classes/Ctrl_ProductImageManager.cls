@@ -11,6 +11,12 @@ public with sharing class Ctrl_ProductImageManager {
     // display it: FirstPublishLocationId links the ContentVersion to the product directly (no
     // separate ContentDocumentLink insert needed), and the ContentDistribution is what makes the
     // file downloadable by guest/portal users - see Ctrl_DealerShop.getProductImageUrls.
+    //
+    // DML runs in SYSTEM_MODE: access to this method is already gated by ps_miProducts (class
+    // access + Product2 CRUD), so it shouldn't additionally require the running user to own or
+    // have explicit CRUD/sharing on the underlying ContentVersion/ContentDocument/
+    // ContentDistribution records - e.g. replacing an image someone else originally uploaded
+    // otherwise fails with INSUFFICIENT_ACCESS_OR_READONLY for any non-admin user.
     @AuraEnabled
     public static String uploadProductImage(Id productId, String base64Data, String filename, Boolean removeOldFile) {
         if (productId == null) throw new AuraHandledException('productId is required.');
@@ -22,10 +28,11 @@ public with sharing class Ctrl_ProductImageManager {
                 SELECT ContentDocumentId
                 FROM ContentDocumentLink
                 WHERE LinkedEntityId = :productId
+                WITH SYSTEM_MODE
                 LIMIT 1
             ];
             if (!existingLinks.isEmpty()) {
-                delete new ContentDocument(Id = existingLinks[0].ContentDocumentId);
+                Database.delete(new ContentDocument(Id = existingLinks[0].ContentDocumentId), AccessLevel.SYSTEM_MODE);
             }
         }
 
@@ -35,8 +42,8 @@ public with sharing class Ctrl_ProductImageManager {
             VersionData            = EncodingUtil.base64Decode(base64Data),
             FirstPublishLocationId = productId
         );
-        insert cv;
-        cv = [SELECT Id FROM ContentVersion WHERE Id = :cv.Id];
+        Database.insert(cv, AccessLevel.SYSTEM_MODE);
+        cv = [SELECT Id FROM ContentVersion WHERE Id = :cv.Id WITH SYSTEM_MODE];
 
         ContentDistribution cd = new ContentDistribution(
             Name                              = filename,
@@ -45,9 +52,9 @@ public with sharing class Ctrl_ProductImageManager {
             PreferencesAllowOriginalDownload  = true,
             PreferencesNotifyOnVisit          = false
         );
-        insert cd;
+        Database.insert(cd, AccessLevel.SYSTEM_MODE);
 
-        cd = [SELECT ContentDownloadUrl FROM ContentDistribution WHERE Id = :cd.Id];
+        cd = [SELECT ContentDownloadUrl FROM ContentDistribution WHERE Id = :cd.Id WITH SYSTEM_MODE];
         return cd.ContentDownloadUrl;
     }
 }
