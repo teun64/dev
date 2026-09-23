@@ -113,4 +113,60 @@ private class Test_Ctrl_ProductImageManager {
         }
         Test.stopTest();
     }
+
+    private static User createNonAdminUser(String alias) {
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+        User u = new User(
+            Alias = alias, Email = alias + '@mvsc.invalid',
+            EmailEncodingKey = 'UTF-8', LastName = alias, LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US', ProfileId = p.Id, TimeZoneSidKey = 'Europe/Amsterdam',
+            UserName = alias + '@mvsc.invalid.' + UserInfo.getOrganizationId()
+        );
+        insert u;
+        insert new PermissionSetAssignment(
+            AssigneeId       = u.Id,
+            PermissionSetId  = [SELECT Id FROM PermissionSet WHERE Name = 'ps_miProducts' LIMIT 1].Id
+        );
+        return u;
+    }
+
+    @IsTest
+    static void testUploadProductImage_asNonOwnerNonAdmin_newImage_succeeds() {
+        // A non-admin user with only ps_miProducts must be able to upload a first image to a
+        // product with no existing file - this doesn't touch anyone else's ContentDocument, so
+        // it isn't subject to the file-ownership restriction removeOldFile runs into below.
+        User nonAdmin = createNonAdminUser('imgusr1');
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+
+        String downloadUrl;
+        System.runAs(nonAdmin) {
+            Test.startTest();
+            downloadUrl = Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'first.png', false);
+            Test.stopTest();
+        }
+
+        System.assertNotEquals(null, downloadUrl, 'A non-admin ps_miProducts user should be able to upload a new image');
+    }
+
+    @IsTest
+    static void testUploadProductImage_asNonOwnerNonAdmin_replacingSomeoneElsesFile_throwsWithRealMessage() {
+        // Regression: replacing a file uploaded by a different user fails with
+        // INSUFFICIENT_ACCESS_OR_READONLY because ContentDocument delete is ownership-gated below
+        // the CRUD/FLS/sharing layer AccessLevel.SYSTEM_MODE covers. The method must surface the
+        // real DmlException message via AuraHandledException, not a caller-side generic fallback.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+        Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'owned-by-admin.png', false);
+
+        User nonAdmin = createNonAdminUser('imgusr2');
+        System.runAs(nonAdmin) {
+            Test.startTest();
+            try {
+                Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'replacement.png', true);
+                System.assert(false, 'Expected an AuraHandledException replacing a file owned by a different user');
+            } catch (AuraHandledException e) {
+                System.assert(true, 'AuraHandledException expected');
+            }
+            Test.stopTest();
+        }
+    }
 }
