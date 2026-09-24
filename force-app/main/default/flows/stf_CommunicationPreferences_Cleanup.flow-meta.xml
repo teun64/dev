@@ -54,6 +54,7 @@
         <connector>
             <targetReference>ddr_01_CommunicationPreference</targetReference>
         </connector>
+        <filterLogic>or</filterLogic>
         <filters>
             <field>Contact__c</field>
             <operator>IsNull</operator>
@@ -61,9 +62,18 @@
                 <booleanValue>true</booleanValue>
             </value>
         </filters>
+        <filters>
+            <field>Contact__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </filters>
         <object>CommunicationPreference__c</object>
         <schedule>
+            <dayOfMonthToRun>0</dayOfMonthToRun>
             <frequency>Daily</frequency>
+            <frequencyNumber>0</frequencyNumber>
             <startDate>2026-09-25</startDate>
             <startTime>06:00:00.000Z</startTime>
         </schedule>
