@@ -6,6 +6,6 @@
     <referenceTo>Contact</referenceTo>
     <relationshipName>CommunicationPreferences</relationshipName>
     <relationshipLabel>Communication Preferences</relationshipLabel>
-    <deleteConstraint>Restrict</deleteConstraint>
+    <deleteConstraint>SetNull</deleteConstraint>
     <required>false</required>
 </CustomField>

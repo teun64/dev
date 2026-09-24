@@ -5,6 +5,52 @@ public class Trigger_Contact {
 		}
 
 		Trigger_Contact.stampPreferenceTokenKey();
+		Trigger_Contact.collectPreferencesToDelete();
+		Trigger_Contact.deletePreferences();
+	}
+
+	// CommunicationPreference__c Ids per Contact, captured before delete: Contact__c is SetNull,
+	// so by after delete the link is already cleared and the rows can't be queried by Contact.
+	private static Map<Id, Set<Id>> preferenceIdsByContactId = new Map<Id, Set<Id>>();
+
+	private static void collectPreferencesToDelete(){
+		if(!(Trigger.isBefore && Trigger.isDelete)){
+			return;
+		}
+
+		for(CommunicationPreference__c pref : [
+			SELECT Id, Contact__c
+			FROM CommunicationPreference__c
+			WHERE Contact__c IN :Trigger.oldMap.keySet()
+			WITH SYSTEM_MODE
+		]){
+			if(!preferenceIdsByContactId.containsKey(pref.Contact__c)){
+				preferenceIdsByContactId.put(pref.Contact__c, new Set<Id>());
+			}
+			preferenceIdsByContactId.get(pref.Contact__c).add(pref.Id);
+		}
+	}
+
+	// Deletes the preferences of Contacts that were really deleted. Merge losers
+	// (MasterRecordId set) are skipped: their preferences are reparented to the master.
+	private static void deletePreferences(){
+		if(!(Trigger.isAfter && Trigger.isDelete)){
+			return;
+		}
+
+		List<CommunicationPreference__c> toDelete = new List<CommunicationPreference__c>();
+		for(Contact conOld : (List<Contact>) Trigger.old){
+			Set<Id> prefIds = preferenceIdsByContactId.remove(conOld.Id);
+			if(prefIds == null || conOld.MasterRecordId != null){
+				continue;
+			}
+			for(Id prefId : prefIds){
+				toDelete.add(new CommunicationPreference__c(Id = prefId));
+			}
+		}
+		if(toDelete.isEmpty()) return;
+
+		Database.delete(toDelete, true, AccessLevel.SYSTEM_MODE);
 	}
 
 	// Keeps Contact.Preference_Token_Key__c (HMAC of the lowercased Email) in sync so guest
