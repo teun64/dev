@@ -15,10 +15,10 @@
             </value>
         </assignmentItems>
     </assignments>
-    <description>Daily cleanup of communication preferences left without a Contact (and Lead), e.g. after an Account delete cascade-deleted its Contacts without firing the Contact trigger.</description>
+    <description>Daily cleanup of communication preferences without a Contact, e.g. after an Account delete cascade-deleted its Contacts without firing the Contact trigger.</description>
     <environments>Default</environments>
-    <interviewLabel>stf - CommunicationPreference - Cleanup Without Contact {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>stf - CommunicationPreference - Cleanup Without Contact</label>
+    <interviewLabel>stf - Communication Preferences - Cleanup {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>stf - Communication Preferences - Cleanup</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -54,16 +54,8 @@
         <connector>
             <targetReference>ddr_01_CommunicationPreference</targetReference>
         </connector>
-        <filterLogic>and</filterLogic>
         <filters>
             <field>Contact__c</field>
-            <operator>IsNull</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Lead__c</field>
             <operator>IsNull</operator>
             <value>
                 <booleanValue>true</booleanValue>
