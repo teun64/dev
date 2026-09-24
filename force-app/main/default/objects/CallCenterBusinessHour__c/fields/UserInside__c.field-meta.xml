@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UserInside__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>A Delta Force Member (User) for the inside office hours</description>
+    <inlineHelpText>A Delta Force Member (user) for the inside office hours</inlineHelpText>
+    <label>User (Inside Office Hours)</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>User.IsActive</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <filterItems>
+            <field>User.isDeltaForce__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <infoMessage>Select a Delta Force Member (user) for the inside office hours</infoMessage>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>User</referenceTo>
+    <relationshipName>Call_Center_Business_Hour_UserInside</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

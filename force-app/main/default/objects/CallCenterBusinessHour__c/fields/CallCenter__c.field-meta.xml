@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CallCenter__c</fullName>
+    <description>LookUp to the Call Center</description>
+    <externalId>false</externalId>
+    <formula>IF(ISBLANK( CallCenterId__c ),&apos;&apos;, HYPERLINK((&apos;/lightning/setup/PartnerContactCenters/&apos; +  CallCenterId__c + &apos;/view&apos;),  BLANKVALUE( CallCenterName__c , BLANKVALUE( InternalName__c , &apos;Call Center&apos;))  , &apos;blank&apos; ))</formula>
+    <label>Call Center</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UserOutsideName__c</fullName>
+    <externalId>false</externalId>
+    <formula>TRIM( UserOutside__r.FirstName + &apos; &apos; + UserOutside__r.MiddleName + &apos; &apos; + UserOutside__r.LastName)</formula>
+    <label>Name (Outside Office Hours)</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OperationalEntity__c</fullName>
+    <description>Required connection to a reseller which represents a Moving Intelligence company in the country</description>
+    <label>Operational Entity</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>BusinessEnitites</valueSetName>
+    </valueSet>
+</CustomField>
