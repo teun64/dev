@@ -1,28 +1,38 @@
 // One-off cleanup of duplicate preferences and stale composite keys left by past Contact merges.
+// Needs a Subscription25__Schedulable_Class__c record (Name + Unique_Name__c = class name), not scheduled.
 // Dry run (counts only, no DML): Database.executeBatch(new Batch_DedupeCommunicationPreferences(true), 200);
-// Real run:                      Database.executeBatch(new Batch_DedupeCommunicationPreferences(false), 200);
+// Real run:                      Database.executeBatch(new Batch_DedupeCommunicationPreferences(), 200);
 // Totals are written to the debug log of the finish transaction (needs a trace flag on the running user).
-public without sharing class Batch_DedupeCommunicationPreferences implements Database.Batchable<SObject>, Database.Stateful {
+global class Batch_DedupeCommunicationPreferences extends Subscription25.Job_AbstractBatch2 implements Database.Stateful {
 
-	private Boolean dryRun;
+	private Boolean dryRun = false;
 	private Integer deleted = 0;
 	private Integer keysRepaired = 0;
 	private Integer enabledConflicts = 0;
 	private List<String> errors = new List<String>();
 
-	public Batch_DedupeCommunicationPreferences(Boolean dryRun){
+	global Batch_DedupeCommunicationPreferences() {
+		super('Batch_DedupeCommunicationPreferences');
+	}
+
+	global Batch_DedupeCommunicationPreferences(Boolean dryRun) {
+		this();
 		this.dryRun = dryRun;
 	}
 
-	public Database.QueryLocator start(Database.BatchableContext bc){
+	public override Integer getBatchSize() {
+		return 200;
+	}
+
+	public override Database.QueryLocator startBatch(Database.BatchableContext bc){
 		return Database.getQueryLocator(
 			'SELECT Id FROM Contact WHERE Id IN (SELECT Contact__c FROM CommunicationPreference__c WHERE Contact__c != null)'
 		);
 	}
 
-	public void execute(Database.BatchableContext bc, List<Contact> scope){
+	public override void executeBatch(Database.BatchableContext bc, List<SObject> scope){
 		Svc_CommunicationPreferenceDedupe.Result res =
-			Svc_CommunicationPreferenceDedupe.dedupe(new Map<Id, Contact>(scope).keySet(), dryRun);
+			Svc_CommunicationPreferenceDedupe.dedupe(new Map<Id, SObject>(scope).keySet(), dryRun);
 		deleted += res.deleted;
 		keysRepaired += res.keysRepaired;
 		enabledConflicts += res.enabledConflicts;
@@ -31,7 +41,7 @@ public without sharing class Batch_DedupeCommunicationPreferences implements Dat
 		}
 	}
 
-	public void finish(Database.BatchableContext bc){
+	public override void finishBatch(Database.BatchableContext bc){
 		String summary = (dryRun ? 'DRY RUN - would delete ' : 'Deleted ') + deleted
 			+ ', keys ' + (dryRun ? 'to repair ' : 'repaired ') + keysRepaired
 			+ ', groups with conflicting IsEnabled ' + enabledConflicts

@@ -3,6 +3,8 @@ private class Test_Trigger_Contact {
 
 	@TestSetup
 	static void makeData() {
+		insert new Subscription25__Schedulable_Class__c(
+			Name = 'Batch_DedupeCommunicationPreferences', Subscription25__Unique_Name__c = 'Batch_DedupeCommunicationPreferences');
 		insert new List<CommunicationPreferenceConfig__c>{
 			new CommunicationPreferenceConfig__c(Brand__c = 'M', CommunicationType__c = 'NEWSLETTER', Channel__c = 'EMAIL', Category__c = 'MARKETING'),
 			new CommunicationPreferenceConfig__c(Brand__c = 'M', CommunicationType__c = 'PROMOTIONS', Channel__c = 'EMAIL', Category__c = 'MARKETING')
@@ -164,7 +166,7 @@ private class Test_Trigger_Contact {
 		Contact master = createMergedDuplicate('RbdBatchRealTest');
 
 		Test.startTest();
-		Database.executeBatch(new Batch_DedupeCommunicationPreferences(false), 200);
+		Database.executeBatch(new Batch_DedupeCommunicationPreferences(), 200);
 		Test.stopTest();
 
 		List<CommunicationPreference__c> remaining = prefsOf(master.Id);
