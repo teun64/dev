@@ -13,6 +13,10 @@ public class Trigger_Contact {
 	// so by after delete the link is already cleared and the rows can't be queried by Contact.
 	private static Map<Id, Set<Id>> preferenceIdsByContactId = new Map<Id, Set<Id>>();
 
+	// Lets tests produce the pre-fix merge state (duplicates, stale keys) for Batch_DedupeCommunicationPreferences.
+	@TestVisible
+	private static Boolean skipMergeDedupe = false;
+
 	private static void collectPreferencesToDelete(){
 		if(!(Trigger.isBefore && Trigger.isDelete)){
 			return;
@@ -39,18 +43,30 @@ public class Trigger_Contact {
 		}
 
 		List<CommunicationPreference__c> toDelete = new List<CommunicationPreference__c>();
+		Set<Id> mergeMasterIds = new Set<Id>();
 		for(Contact conOld : (List<Contact>) Trigger.old){
 			Set<Id> prefIds = preferenceIdsByContactId.remove(conOld.Id);
-			if(prefIds == null || conOld.MasterRecordId != null){
+			if(prefIds == null){
+				continue;
+			}
+			if(conOld.MasterRecordId != null){
+				mergeMasterIds.add(conOld.MasterRecordId);
 				continue;
 			}
 			for(Id prefId : prefIds){
 				toDelete.add(new CommunicationPreference__c(Id = prefId));
 			}
 		}
-		if(toDelete.isEmpty()) return;
 
-		Database.delete(toDelete, true, AccessLevel.SYSTEM_MODE);
+		if(!toDelete.isEmpty()){
+			Database.delete(toDelete, true, AccessLevel.SYSTEM_MODE);
+		}
+
+		// By after delete the merge has reparented the loser's preferences to the master;
+		// collapse the duplicates this creates and repair their composite keys.
+		if(!skipMergeDedupe){
+			Svc_CommunicationPreferenceDedupe.dedupe(mergeMasterIds);
+		}
 	}
 
 	// Keeps Contact.Preference_Token_Key__c (HMAC of the lowercased Email) in sync so guest
