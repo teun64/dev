@@ -29,7 +29,7 @@ public with sharing class Util_Platform {
 			+ ', FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c'
 			+ ', Reseller_Name__c, Market__c, Sales_Channel__c, Sales_Language__c'
 			+ ', FinancialAccountClassification1__c, FinancialAccountClassification2__c, FinancialAccountClassification3__c'
-            + ', SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c, NumberOfEmployees, NumberOfFulltimeEmployees__c, Is_Blocked__c, IsBankrupt__c'
+            + ', SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c, NumberOfEmployees, NumberOfFulltimeEmployees__c, Is_Blocked__c, IsBankrupt__c, Status__c'
 			+ ', ShippingPostalCode, ShippingCity, ShippingStreet, ShippingCountryCode, Shipping_Email__c, Shipping_Phone__c, Shipping_Name__c'
 			+ ', BillingPostalCode, BillingCity, BillingStreet, BillingCountryCode, Billing_Email__c, Billing_Phone__c, Billing_Name__c' 
 			+ ',' + extIdField

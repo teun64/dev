@@ -175,6 +175,64 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals(1, [SELECT Count() FROM AccountContactRelation WHERE AccountId = :acc.Id]);
     }
 
+    private static testMethod void testAccountStatusEnum(){
+        // enum ordinal = platform number, every enum value must exist as an active Status__c picklist value
+        System.assertEquals(0, Rest_UpsertAccount.AccountStatus.active.ordinal());
+        System.assertEquals(6, Rest_UpsertAccount.AccountStatus.deactivated.ordinal());
+        System.assertEquals('0', Rest_UpsertAccount.getStatusId('active'));
+        System.assertEquals('6', Rest_UpsertAccount.getStatusId('deactivated'));
+        System.assertEquals(null, Rest_UpsertAccount.getStatusId(null));
+        Set<String> picklistValues = new Set<String>();
+        for (Schema.PicklistEntry pe : Account.Status__c.getDescribe().getPicklistValues()) {
+            picklistValues.add(pe.getValue());
+        }
+        for (Rest_UpsertAccount.AccountStatus status : Rest_UpsertAccount.AccountStatus.values()) {
+            System.assert(picklistValues.contains(status.name()), 'Missing Status__c value ' + status.name());
+        }
+    }
+
+    private static testMethod void testRestInsertAccountStatusActive(){
+        // a new account is always active, an incoming status is ignored
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('active', [SELECT Status__c FROM Account WHERE extId_1__c = 't30'].Status__c);
+    }
+
+    private static testMethod void testRestUpdateAccountStatus(){
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Rest_UpsertAccount.handleAction();
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = 't30'];
+
+        // a platform update reactivates a deactivated account
+        Database.update(new Account(Id = acc.Id, Status__c = 'deactivated'));
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('active', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c);
+
+        // all other statuses are managed by Salesforce and stay as they are
+        Database.update(new Account(Id = acc.Id, Status__c = 'blocked'));
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"statusId":"4"', '"statusId":"0"'));
+        restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('blocked', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c);
+    }
+
     @testSetup
     private static void testSetup(){
         Account dealerAcc = Test_Data.createAccount('Dealer', '1', 'B2B', false);

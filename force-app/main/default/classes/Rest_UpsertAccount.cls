@@ -4,6 +4,19 @@ global without sharing class Rest_UpsertAccount {
 	private static Boolean accountIsNew;
 	private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
 
+	// Account status (pvs_AccountStatus): the name is the picklist API name, the ordinal is the platform's number - keep the order.
+	public enum AccountStatus { active, blocked, defaulter, ended, bankrupt, archived, deactivated }
+
+	// Status__c API name -> statusId ('0' active ... '6' deactivated)
+	public static String getStatusId(String status) {
+		for (Rest_UpsertAccount.AccountStatus s : Rest_UpsertAccount.AccountStatus.values()) {
+			if (s.name() == status) {
+				return String.valueOf(s.ordinal());
+			}
+		}
+		return null;
+	}
+
 	@HttpPost
 	global static Util_Rest.RestResult handleAction() {
 		//result is needed for returning a custom object to the sender
@@ -94,7 +107,7 @@ global without sharing class Rest_UpsertAccount {
 			' Subscription25__Digital_Invoicing__c, Sales_Language__c, useBillingAddress__c, useShippingAddress__c,' +
 			' BillingStreet, BillingPostalCode, BillingCity, BillingStateCode, BillingCountryCode, ' +
 			' ShippingStreet, ShippingPostalCode, ShippingCity, ShippingStateCode, ShippingCountryCode, ' +
-			' IsBankrupt__c, Is_Blocked__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c,' +
+			' IsBankrupt__c, Is_Blocked__c, Status__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c,' +
 			' Payment_Method_Contracts__c, Payment_Method_Opportunities__c, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c,' +
 			' Bank_Account__c, Bank_Account_Number__c, Bank_BIC__c,' +
 			' SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c, HasDealerTasks__c, ContractTerm__c,' +
@@ -317,7 +330,7 @@ global without sharing class Rest_UpsertAccount {
 
 				if (matchRecords.size() != 0) {
 					for (Datacloud.MatchRecord matchRecord : matchRecords) {
-						sSOQL = 'SELECT Id, ' + extIdField + ' FROM Account WHERE Id = \'' + matchRecord.getRecord().Id + '\' LIMIT 1';
+						sSOQL = 'SELECT Id, Status__c, ' + extIdField + ' FROM Account WHERE Id = \'' + matchRecord.getRecord().Id + '\' LIMIT 1';
 						//System.debug(sSOQL);
 						List<Account> dupAccts = Database.query(sSOQL, Rest_UpsertAccount.runningMode);
 
@@ -325,6 +338,7 @@ global without sharing class Rest_UpsertAccount {
 						if ((dupAccts.size() == 1) && (String.isBlank((String) dupAccts[0].get(extIdField)))) {
 							//System.debug('JA');
 							acc.Id = dupAccts[0].Id;
+							acc.Status__c = dupAccts[0].Status__c;
 							//dupAccts[0].put(extIdField, miAcc.id);
 							//database.update(dupAccts[0],Rest_UpsertAccount.runningMode);
 							accountIsNew = false;
@@ -333,6 +347,11 @@ global without sharing class Rest_UpsertAccount {
 					}
 				}
 			}
+		}
+
+		// Status__c is managed by Salesforce, the incoming status is ignored; new -> active, a platform update only reactivates a deactivated account
+		if (accountIsNew || (acc.Status__c == Rest_UpsertAccount.AccountStatus.deactivated.name())) {
+			acc.Status__c = Rest_UpsertAccount.AccountStatus.active.name();
 		}
 
 		//System.debug(acc);
@@ -966,6 +985,7 @@ global without sharing class Rest_UpsertAccount {
 		public Boolean isDealer;
 		public Boolean isBlocked;
 		public Boolean isBankrupt;
+		public String statusId; // statusIds are: '0' => 'active', '1' => 'blocked', '2' => 'defaulter', '3' => 'ended', '4' => 'bankrupt', '5' => 'archived', '6' => 'deactivated'; outbound only, ignored on upsert (managed by Salesforce)
 		public Long resellerId;
 		public String primarySbiCode;
 		public String secondarySbiCode1;
@@ -1019,6 +1039,7 @@ global without sharing class Rest_UpsertAccount {
 			this.fulltimePersonnelCount = (acct.NumberOfFulltimeEmployees__c != null) ? acct.NumberOfFulltimeEmployees__c.longValue() : null; // create, updatable -> distribution? - null prevention
 			this.isBlocked = acct.Is_Blocked__c; // create, updatable -> distribution? - managed by salesforce previous exact
 			this.isBankrupt = acct.IsBankrupt__c; // create, updatable -> distribution? - managed by salesforce previous exact
+			this.statusId = Rest_UpsertAccount.getStatusId(acct.Status__c);
 
 			/* this.contactDTOs = new List<Rest_UpsertAccount.MiContact>{
 				new Rest_UpsertAccount.MiContact(acct.Contact_Person__r)

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>active</fullName>
+        <default>true</default>
+        <label>Active</label>
+    </customValue>
+    <customValue>
+        <fullName>blocked</fullName>
+        <default>false</default>
+        <label>Blocked</label>
+    </customValue>
+    <customValue>
+        <fullName>defaulter</fullName>
+        <default>false</default>
+        <label>Defaulter</label>
+    </customValue>
+    <customValue>
+        <fullName>ended</fullName>
+        <default>false</default>
+        <label>Ended</label>
+    </customValue>
+    <customValue>
+        <fullName>bankrupt</fullName>
+        <default>false</default>
+        <label>Bankrupt</label>
+    </customValue>
+    <customValue>
+        <fullName>archived</fullName>
+        <default>false</default>
+        <label>Archived</label>
+    </customValue>
+    <customValue>
+        <fullName>deactivated</fullName>
+        <default>false</default>
+        <label>Deactivated</label>
+    </customValue>
+    <description>Account status. Order matches Rest_UpsertAccount.AccountStatus (ordinal = platform number): 0 active, 1 blocked, 2 defaulter, 3 ended, 4 bankrupt, 5 archived, 6 deactivated.</description>
+    <masterLabel>Status (Account)</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>
