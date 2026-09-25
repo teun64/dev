@@ -230,8 +230,10 @@ global without sharing class Util_Rest {
             acc.FinancialDebtorNumber__c = debNr.Subscription25__Debtor_Number__c;
             Database.update(acc, AccessLevel.SYSTEM_MODE);
         } else if ((String.isNotBlank(admin.Subscription25__Synchronisation__c)) && ((debNr == null) || String.isBlank(debNr.Exact_Id__c) || (String.isBlank(debNr.Exact_Contact_Id__c) && String.isNotBlank(acc.Contact_Person__c)) || (util_system.requireBankDetails.contains(acc.Payment_Method_Contracts__c) && (String.isBlank(debNr.Exact_Bank_Account_ID__c) || String.isBlank(debNr.Exact_Mandate_ID__c))))) {
-            Util_Exact.syncAccountAsync(acc.Id);
-        }  
+            if (Util_System.isFinancialSyncAllowed(admin)) {
+                Util_Exact.syncAccountAsync(acc.Id);
+            }
+        }
         
 	}
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Acceptance_Environment_Available__c</fullName>
+    <label>Acceptance Environment Available</label>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+    <trackHistory>false</trackHistory>
+    <description>When enabled, this administration has a real acceptance/test environment for its financial system, so Exact sync is allowed to run from a sandbox org. When disabled (default), Exact sync is skipped in sandboxes for this administration to prevent a sandbox from calling the production financial system.</description>
+</CustomField>

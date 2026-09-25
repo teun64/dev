@@ -105,6 +105,12 @@ public without sharing class Util_Exact {
 				throw new Util_System.CustomException('This accounts reseller does not synchronize with Exact');
 			}
 
+			//a sandbox may only call the real financial system for administrations that have an
+			//acceptance/test environment configured - otherwise it would call production Exact
+			if(!Util_System.isFinancialSyncAllowed(admin)){
+				throw new Util_System.CustomException('This is a sandbox and administration ' + admin.Name + ' has no acceptance environment configured - Exact sync is blocked.');
+			}
+
 			String adminCode = admin.Subscription25__Twinfield_Company_Code__c;
 			namedCredential = admin.Subscription25__Named_Credential__c;
 
@@ -1499,27 +1505,6 @@ public without sharing class Util_Exact {
 			this.LastName = acct.Contact_person__r.LastName;
 			this.Email = acct.Contact_person__r.Email;
 			this.Phone = acct.Contact_person__r.Phone;
-		}
-	}
-
-	private class ExactContact2 {
-		private String ID;
-		private String Account;
-		private String FirstName;
-		private String MiddleName;
-		private String LastName;
-		private String Email;
-		private String Phone;
-		private Boolean IsMailingExcluded;
-
-		private ExactContact2(AccountContactRelation acr){
-			this.Account = acr.FinancialIdAccount__c;
-			this.FirstName = acr.Contact.FirstName;
-			this.MiddleName = acr.Contact.MiddleName;
-			this.LastName = acr.Contact.LastName;
-			this.Email = acr.Contact.Email;
-			this.Phone = acr.Contact.Phone;
-			this.IsMailingExcluded = true; //since these contacts are only used for the main contact on the account, we don't want to send them any marketing materials, so we set this to true
 		}
 	}
 

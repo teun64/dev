@@ -2,6 +2,7 @@ public with sharing class Util_System {
 
     private static Map<Integer, Subscription25__Administration__c> adminMap;
     private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
+    private static Boolean isSandboxOrg;
 
 	public static final Set<String> requireBankDetails = new Set<String>{'I0', 'I3', 'I4', 'I8', 'p0'};
 
@@ -62,11 +63,30 @@ public with sharing class Util_System {
         'AccountIdKey' => 'sfAccountId'
     };
 
+    // true in every sandbox (dev/acc); false only in production. Cached per transaction.
+    public static Boolean isSandbox(){
+        if(Util_System.isSandboxOrg == null){
+            Util_System.isSandboxOrg = [SELECT IsSandbox FROM Organization LIMIT 1].IsSandbox;
+        }
+        return Util_System.isSandboxOrg;
+    }
+
+    // an administration's financial system sync (e.g. Util_Exact.syncAccountAsync) is only allowed to run
+    // from a sandbox when that administration has a real acceptance/test environment configured for it -
+    // otherwise a sandbox would end up calling the production financial system.
+    public static Boolean isFinancialSyncAllowed(Subscription25__Administration__c admin){
+        if(!Util_System.isSandbox()){
+            return true;
+        }
+        return admin.Acceptance_Environment_Available__c;
+    }
+
     public static Subscription25__Administration__c getAdministration(Integer extId){
         if(Util_System.adminMap == null){
             List<Subscription25__Administration__c> adms = [
                 SELECT Id, Name, Daily_Limit__c,  CurrencyIsoCode, External_ID__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
-                    Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Invoice_Number_Prefix__c, Warehouse_Exact_Id__c, Reseller__c
+                    Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Invoice_Number_Prefix__c, Warehouse_Exact_Id__c, Reseller__c,
+                    Acceptance_Environment_Available__c
                 FROM Subscription25__Administration__c
                 WITH SYSTEM_MODE
             ];
