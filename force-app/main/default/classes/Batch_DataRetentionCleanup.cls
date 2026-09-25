@@ -51,6 +51,7 @@ global class Batch_DataRetentionCleanup extends Subscription25.Job_AbstractBatch
                 FilterField__c,
                 DeleteMode__c,
                 DeleteModeSoftField__c,
+                DeleteModeSoftValue__c,
                 AdditionalFilter__c
             FROM DataRetentionPolicy__mdt
             WHERE IsActive__c = true
@@ -80,10 +81,15 @@ global class Batch_DataRetentionCleanup extends Subscription25.Job_AbstractBatch
     ) {
                 
         System.debug('Start Batch');
-        DataRetentionPolicy__mdt policy =(DataRetentionPolicy__mdt) scope[0];
 
-        Queue_DataRetentionCleanup queue = new Queue_DataRetentionCleanup(policy, this.mainLogGuid);
-        System.enqueueJob(queue);
+        //process every policy in this chunk, not just the first - getBatchSize()==1 is not honored by
+        //the real invocation path (execute(SchedulableContext) hardcodes a scope of 2000), so a single
+        //chunk here reliably contains all active policies at once
+        for (SObject s : scope) {
+            DataRetentionPolicy__mdt policy = (DataRetentionPolicy__mdt) s;
+            Queue_DataRetentionCleanup queue = new Queue_DataRetentionCleanup(policy, this.mainLogGuid);
+            System.enqueueJob(queue);
+        }
     }
 
     // =========================

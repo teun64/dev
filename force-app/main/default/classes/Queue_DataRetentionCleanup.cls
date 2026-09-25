@@ -79,6 +79,9 @@ public class Queue_DataRetentionCleanup implements Queueable {
             ? 'Archived__c'
             : policy.DeleteModeSoftField__c;
 
+        // soft delete value: blank = checkbox (true), otherwise the value to write (e.g. Status__c = 'deactivated')
+        String softValue = policy.DeleteModeSoftValue__c;
+
         DateTime cutoff = System.now().addDays(-retentionDays);
 
         String cutoffFormatted =
@@ -90,8 +93,9 @@ public class Queue_DataRetentionCleanup implements Queueable {
             ' < ' + cutoffFormatted;
 
         if (deleteMode == 'SOFT') {
-            baseQuery +=
-                ' AND ((' + fieldName + '= false ) OR (' + fieldName + ' = null ))';
+            baseQuery += String.isBlank(softValue)
+                ? ' AND ((' + fieldName + '= false ) OR (' + fieldName + ' = null ))'
+                : ' AND ((' + fieldName + ' != \'' + String.escapeSingleQuotes(softValue) + '\') OR (' + fieldName + ' = null ))';
         }
 
         if (!String.isBlank(policy.AdditionalFilter__c)) {
@@ -115,7 +119,7 @@ public class Queue_DataRetentionCleanup implements Queueable {
         }
 
         if (deleteMode == 'SOFT') {
-            result.failedCount = applySoftDelete(objectName, records, fieldName);
+            result.failedCount = applySoftDelete(objectName, records, fieldName, softValue);
         } else if (deleteMode == 'HARD') {
             result.failedCount = applyHardDelete(records);
         } else {
@@ -143,10 +147,11 @@ public class Queue_DataRetentionCleanup implements Queueable {
     private Integer applySoftDelete(
         String objectName,
         List<SObject> records,
-        String fieldName
+        String fieldName,
+        String softValue
     ) {
         for (SObject rec : records) {
-            rec.put(fieldName, true);
+            rec.put(fieldName, String.isBlank(softValue) ? (Object) true : (Object) softValue);
         }
         List<Database.SaveResult> saveResults = Database.update(records, false);
         return countFailures(saveResults);

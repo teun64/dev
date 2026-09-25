@@ -119,7 +119,7 @@ global with sharing class Rest_UpsertAccountV2 {
         Account sfAcc = new Account();
         sfAcc.put(extAcc.getExternalIdField(), extAcc.Id);
         sfAcc.AccountSource = 'Platform';
-		sfAcc.Is_Blocked__c = false;
+		sfAcc.Status__c = Rest_UpsertAccount.AccountStatus.active.name();
 		sfAcc.useBillingAddress__c = false;
 		sfAcc.useShippingAddress__c = false;
 
@@ -231,9 +231,6 @@ global with sharing class Rest_UpsertAccountV2 {
 			sfAcc.Direct_Debit_Previous_Reference__c = null;
 			sfAcc.Direct_Debit_Last_Taken_Date__c = null;
 		}
-        // 20250305 - tri : extAcc.isBlocked, only set it when offered
-		//sfAcc.Is_Blocked__c = extAcc.isBlocked ?? false;
-		sfAcc.Is_Blocked__c =  (extAcc.isBlocked != null) ? extAcc.isBlocked : sfAcc.Is_Blocked__c;
 
 		// GS 07Dec2023 Added below 4 fields to Mapping
         Util_System.setIfNotNull(sfAcc, Account.ContractTerm__c, extAcc.contractTerm);
@@ -809,7 +806,6 @@ global with sharing class Rest_UpsertAccountV2 {
 		public String bankAccountNumber;
 		public String bankAccountBic;
 		public Boolean isDealer;
-		public Boolean isBlocked;
 		public Long resellerId;
 		public String primarySbiCode;
 		public String secondarySbiCode1;
@@ -1088,10 +1084,6 @@ global with sharing class Rest_UpsertAccountV2 {
 		}
 		if (String.isNotBlank(miAcc.directDebitLastTakenDate)) {
 			acc.Direct_Debit_Last_Taken_Date__c = Datetime.valueOf(miAcc.directDebitLastTakenDate);
-		}
-
-		if (miAcc.isBlocked != null) {
-			acc.Is_Blocked__c =  miAcc.isBlocked;
 		}
 
 		acc.Reseller_Name__c = String.valueOf(miAcc.resellerId);

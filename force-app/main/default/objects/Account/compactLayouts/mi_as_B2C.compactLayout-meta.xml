@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>mi_as_B2C</fullName>
+    <fields>Exact_Account_Name__c</fields>
+    <fields>BillingAddress</fields>
+    <fields>Billing_Email__c</fields>
+    <fields>FinancialDebtorNumber__c</fields>
+    <fields>HealthList24__c</fields>
+    <fields>RecordTypeId</fields>
+    <fields>Market__c</fields>
+    <fields>StatusIcon__c</fields>
+    <fields>Subscriptions_Activated__c</fields>
+    <fields>First_Subscription_Date__c</fields>
+    <label>B2C - After sales</label>
+</CompactLayout>

@@ -63,11 +63,11 @@ private with sharing class Test_Queue_FinancialSystemAccountSync {
         q.execute(null);
         Test.stopTest();
 
-        Map<Id, Account> validateAccounts = new Map<Id, Account>([SELECT Id, Is_Blocked__c FROM Account]);
+        Map<Id, Account> validateAccounts = new Map<Id, Account>([SELECT Id, FinancialIdAccount__c FROM Account]);
         Assert.areEqual(1, validateAccounts.size(), 'Only one account should be returned.');
         // test account was returned by query
         Assert.isTrue(validateAccounts.containsKey(testAccount.Id), 'Test Account should still present in Salesforce');
-        Assert.isTrue((Boolean)validateAccounts.get(testAccount.Id).get('Is_Blocked__c'), 'Test Account not set to Blocked');
+        Assert.areEqual('TEST1', validateAccounts.get(testAccount.Id).FinancialIdAccount__c, 'Test Account should keep its financial Id');
 
         List<Event_Log__c> logs = [SELECT Id, (SELECT Id FROM OAuth_Logs__r) FROM Event_Log__c ORDER BY Parent_Event__c NULLS FIRST];
         Assert.areEqual(2, logs.size(), 'Expected one parent log and one update log');

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_CustomerBase_DE</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>Accounts - Customer Base - DE (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miCustomerBaseDE_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>DE - Moving Intelligence GmbH</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_CustomerBase_FR</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>Accounts - Customer Base - FR (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miCustomerBaseFR_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>FR - Echoes Solutions</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_CustomerBase_NL</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <description>Shares accounts for NL only</description>
+        <label>Accounts - Customer Base - NL (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miCustomerBaseNL_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>NL - Moving Intelligence B.V.,GR - G4S Greece,BE - Moving Intelligence B.V.,0 - None</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_CustomerBase_UK</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>Accounts - Customer Base - UK (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miCustomerBaseUK_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>GB - Moving Intelligence ltd</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_ServiceBase_DE</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>Accounts - Service Base - DE (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miServiceBaseDE_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <booleanFilter>((1 OR 2) AND 3)</booleanFilter>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>DE - Moving Intelligence GmbH</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>ServiceEntityDE__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_ServiceBase_FR</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>Accounts - Service Base - FR (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miServiceBaseFR_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <booleanFilter>((1 OR 2) AND 3)</booleanFilter>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>FR - Echoes Solutions</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>ServiceEntityFR__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_ServiceBase_NL</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>Accounts - Service Base - NL (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miServiceBaseNL_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <booleanFilter>((1 OR 2) AND 3)</booleanFilter>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>NL - Moving Intelligence B.V.,GR - G4S Greece,BE - Moving Intelligence B.V.,0 - None</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>ServiceEntityNL__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>sr_Accounts_ServiceBase_UK</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>Accounts - Service Base - UK (sr)</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miServiceBaseUK_Management</roleAndSubordinatesInternal>
+        </sharedTo>
+        <booleanFilter>((1 OR 2) AND 3)</booleanFilter>
+        <criteriaItems>
+            <field>Reseller_Name__c</field>
+            <operation>equals</operation>
+            <value>GB - Moving Intelligence ltd</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>ServiceEntityUK__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Status__c</field>
+            <operation>notEqual</operation>
+            <value>deactivated</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+</SharingRules>

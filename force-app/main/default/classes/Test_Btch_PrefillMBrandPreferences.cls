@@ -11,7 +11,7 @@ private class Test_Btch_PrefillMBrandPreferences {
             new CommunicationPreferenceConfig__c(Brand__c = 'E', CommunicationType__c = 'NEWSLETTER', Channel__c = 'EMAIL', Category__c = 'MARKETING')
         };
 
-        // PrimaryBrand__c/Deactivated__c are new fields without broad Edit FLS yet (API v67
+        // PrimaryBrand__c/Status__c are fields without broad Edit FLS yet (API v67
         // defaults Apex DML to User Mode) - use SYSTEM_MODE here since this is just test fixture
         // setup, not something that should depend on the running user's FLS grants.
 
@@ -19,21 +19,21 @@ private class Test_Btch_PrefillMBrandPreferences {
         Account mActive = Test_Data.createAccount('Btch Prefill M Active', '9041', 'B2B', false);
         insert mActive;
         mActive.PrimaryBrand__c = 'M';
-        mActive.Deactivated__c = false;
+        mActive.Status__c = 'active';
         Database.update(mActive, AccessLevel.SYSTEM_MODE);
 
         // Disqualifying account: M-brand, but deactivated
         Account mDeactivated = Test_Data.createAccount('Btch Prefill M Deactivated', '9042', 'B2B', false);
         insert mDeactivated;
         mDeactivated.PrimaryBrand__c = 'M';
-        mDeactivated.Deactivated__c = true;
+        mDeactivated.Status__c = 'deactivated';
         Database.update(mDeactivated, AccessLevel.SYSTEM_MODE);
 
         // Disqualifying account: wrong brand
         Account eActive = Test_Data.createAccount('Btch Prefill E Active', '9043', 'B2B', false);
         insert eActive;
         eActive.PrimaryBrand__c = 'E';
-        eActive.Deactivated__c = false;
+        eActive.Status__c = 'active';
         Database.update(eActive, AccessLevel.SYSTEM_MODE);
 
         // Contacts - inserted one at a time (bulk Contact DML faults the "rab - Contact" flow in this org)

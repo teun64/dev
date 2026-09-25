@@ -2,7 +2,7 @@
  * One-time migration: prefill CommunicationPreference__c for M-brand current customers.
  *
  * Scope:
- *  - Account.PrimaryBrand__c = 'M' AND Account.Deactivated__c = false
+ *  - Account.PrimaryBrand__c = 'M' AND Account.Status__c != 'deactivated'
  *  - Contact qualifies via its AccountContactRelation: Marketing__c = true,
  *    OR Roles is blank (per business rule: no roles set yet -> treat as marketable)
  *  - Config scope: Brand__c = 'M', Channel__c = 'EMAIL', Category__c != 'SERVICE'
@@ -33,7 +33,7 @@ public with sharing class Btch_PrefillMBrandPreferences implements Database.Batc
         return Database.getQueryLocatorWithBinds(
             'SELECT ContactId FROM AccountContactRelation' +
             ' WHERE Account.PrimaryBrand__c = \'M\'' +
-            '   AND Account.Deactivated__c = false' +
+            '   AND Account.Status__c != \'deactivated\'' +
             '   AND (Marketing__c = true OR Roles = null)',
             new Map<String, Object>(),
             AccessLevel.SYSTEM_MODE

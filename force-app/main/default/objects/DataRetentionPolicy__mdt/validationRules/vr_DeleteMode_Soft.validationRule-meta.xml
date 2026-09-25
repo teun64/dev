@@ -8,5 +8,5 @@ ISPICKVAL( DeleteMode__c , &apos;SOFT&apos;)
 ISBLANK( DeleteModeSoftField__c)
 )</errorConditionFormula>
     <errorDisplayField>DeleteModeSoftField__c</errorDisplayField>
-    <errorMessage>The Soft (Delete Mode) requires a valid Field (type boolean to update)</errorMessage>
+    <errorMessage>The Soft (Delete Mode) requires a valid Field (a checkbox, or any field together with Value (Soft - Delete Mode))</errorMessage>
 </ValidationRule>

@@ -52,27 +52,29 @@ private class Test_Queue_DataRetentionCleanup {
         Database.insert(oldAccount);
 
         DataRetentionPolicy__mdt policy = buildPolicy(
-            'Test_Soft', 'Account', 30, 'CreatedDate', 'SOFT', 'Deactivated__c', null
+            'Test_Soft', 'Account', 30, 'CreatedDate', 'SOFT', 'Status__c', null
         );
+        policy.DeleteModeSoftValue__c = 'deactivated';
 
         Test.startTest();
         new Queue_DataRetentionCleanup(policy, null).execute(null);
         Test.stopTest();
 
-        Account result = [SELECT Id, Deactivated__c FROM Account WHERE Id = :oldAccount.Id];
-        Assert.isTrue(result.Deactivated__c, 'Old account should be soft deleted (Deactivated__c = true), not removed');
+        Account result = [SELECT Id, Status__c FROM Account WHERE Id = :oldAccount.Id];
+        Assert.areEqual('deactivated', result.Status__c, 'Old account should be soft deleted (Status__c = deactivated), not removed');
     }
 
     @IsTest
     private static void testSoftDeleteExcludesAlreadyDeactivatedRecords() {
         Account alreadyDeactivated = Test_Data.createAccount('Already Deactivated', 'RETTEST4', 'B2B', false);
         alreadyDeactivated.CreatedDate = System.now().addDays(-100);
-        alreadyDeactivated.Deactivated__c = true;
+        alreadyDeactivated.Status__c = 'deactivated';
         Database.insert(alreadyDeactivated);
 
         DataRetentionPolicy__mdt policy = buildPolicy(
-            'Test_Soft_Skip', 'Account', 30, 'CreatedDate', 'SOFT', 'Deactivated__c', null
+            'Test_Soft_Skip', 'Account', 30, 'CreatedDate', 'SOFT', 'Status__c', null
         );
+        policy.DeleteModeSoftValue__c = 'deactivated';
 
         Test.startTest();
         new Queue_DataRetentionCleanup(policy, null).execute(null);

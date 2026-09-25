@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HealthList48__c</fullName>
+    <description>Picto list representing the plaforms size 48 pix (Detail View Purpose)</description>
+    <externalId>false</externalId>
+    <formula>TRIM(
+IF(ISPICKVAL(Account.Status__c, &apos;bankrupt&apos;),IMAGE(&apos;/resource/Icons/Icons/Account/Stop.png&apos;, &apos;Bankrupt&apos;, 48, 48),
+(IF(ISPICKVAL(Account.Status__c, &apos;blocked&apos;),IMAGE(&apos;/resource/Icons/Icons/Account/Blocked.png&apos;, &apos;Blocked&apos;, 48, 48),&apos;&apos;) + &apos; &apos;
++ IF(ISBLANK( extId_1__c ),&apos;&apos;,IMAGE(&apos;/resource/Platforms/Platforms/1&apos;+IF(ISPICKVAL(Account.Status__c, &apos;blocked&apos;),&apos;_grey&apos;,&apos;&apos;)+&apos;.png&apos;, extId_1__c, 48, 48)) + &apos; &apos;
++ IF(ISBLANK( extId_2__c ),&apos;&apos;,IMAGE(&apos;/resource/Platforms/Platforms/2&apos;+IF(ISPICKVAL(Account.Status__c, &apos;blocked&apos;),&apos;_grey&apos;,&apos;&apos;)+&apos;.png&apos;, extId_2__c, 48, 48)) + &apos; &apos;
++ IF(ISBLANK( extId_3__c ),&apos;&apos;,IMAGE(&apos;/resource/Platforms/Platforms/3&apos;+IF(ISPICKVAL(Account.Status__c, &apos;blocked&apos;),&apos;_grey&apos;,&apos;&apos;)+&apos;.png&apos;, extId_3__c, 48, 48)) + &apos; &apos;
++ IF(ISBLANK( extId_4__c ),&apos;&apos;,IMAGE(&apos;/resource/Platforms/Platforms/4&apos;+IF(ISPICKVAL(Account.Status__c, &apos;blocked&apos;),&apos;_grey&apos;,&apos;&apos;)+&apos;.png&apos;, extId_4__c, 48, 48)) + &apos; &apos;
++ IF(ISBLANK( extId_5__c ),&apos;&apos;,IMAGE(&apos;/resource/Platforms/Platforms/5&apos;+IF(ISPICKVAL(Account.Status__c, &apos;blocked&apos;),&apos;_grey&apos;,&apos;&apos;)+&apos;.png&apos;, extId_5__c, 48, 48)) + &apos; &apos;
++ IF(ISBLANK( extId_6__c ),&apos;&apos;,IMAGE(&apos;/resource/Platforms/Platforms/6&apos;+IF(ISPICKVAL(Account.Status__c, &apos;blocked&apos;),&apos;_grey&apos;,&apos;&apos;)+&apos;.png&apos;, extId_6__c, 48, 48)))
+)
+)</formula>
+    <label>Health (48)</label>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

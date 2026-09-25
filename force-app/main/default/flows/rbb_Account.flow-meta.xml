@@ -164,8 +164,8 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_Commit_DeactivatedOn</name>
-        <label>1. Commit (Deactivated on)</label>
+        <name>ass_01_Commit_StatusChangedOn</name>
+        <label>1. Commit (Status Changed On)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
@@ -192,7 +192,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_Deactivated</targetReference>
+            <targetReference>dec_01_Status</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -212,19 +212,26 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_DeactivatedOn</name>
-        <label>1. Deactivated On</label>
+        <name>ass_01_StatusChangedOn</name>
+        <label>1. Status Changed On</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.DeactivatedOn__c</assignToReference>
+            <assignToReference>$Record.PreviousStatus__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>fDeactivatedOn</elementReference>
+                <elementReference>$Record__Prior.Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.StatusChangedOn__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>ass_01_Commit_DeactivatedOn</targetReference>
+            <targetReference>ass_01_Commit_StatusChangedOn</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1957,8 +1964,8 @@
         </rules>
     </decisions>
     <decisions>
-        <name>dec_01_Deactivated</name>
-        <label>1. Deactivated</label>
+        <name>dec_01_Status</name>
+        <label>1. Status</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -1966,7 +1973,7 @@
         </defaultConnector>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
-            <name>dec_01_Deactivated_Changed</name>
+            <name>dec_01_Status_Changed</name>
             <conditionLogic>or</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Id</leftValueReference>
@@ -1976,14 +1983,14 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.Deactivated__c</leftValueReference>
+                <leftValueReference>$Record.Status__c</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_01_DeactivatedOn</targetReference>
+                <targetReference>ass_01_StatusChangedOn</targetReference>
             </connector>
             <label>Changed</label>
         </rules>
@@ -3137,11 +3144,6 @@ RIGHT((&quot;00000000&quot; + BLANKVALUE({!$Record.Bank_6_Account_Number__c},&ap
         <name>fCreateOrdersUntil</name>
         <dataType>String</dataType>
         <expression>IF({!fInvoiceGrouping},{!cInvoiceEndofMonth},{!cInvoiceRegularEndDate})</expression>
-    </formulas>
-    <formulas>
-        <name>fDeactivatedOn</name>
-        <dataType>DateTime</dataType>
-        <expression>IF({!$Record.Deactivated__c},{!$Flow.CurrentDateTime},null)</expression>
     </formulas>
     <formulas>
         <name>fDigitalInvoicing</name>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DeleteModeSoftValue__c</fullName>
+    <description>Value written to the soft delete field, e.g. &apos;deactivated&apos; for a picklist. Empty = the field is a checkbox and is set to true.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Value (Soft - Delete Mode)</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

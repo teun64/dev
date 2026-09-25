@@ -1,7 +1,7 @@
 /**
  * One-time migration: populate Account.PrimaryBrand__c from Reseller_Name__c.
  * Mapping: Reseller_Name__c 1/2/3/5/6 -> 'M' (Moving Intelligence), 4 -> 'E' (Echoes).
- * Runs against ALL accounts regardless of Deactivated__c, to avoid rework if a
+ * Runs against ALL accounts regardless of Status__c, to avoid rework if a
  * deactivated account is later reactivated.
  */
 public with sharing class Btch_SetAccountPrimaryBrand implements Database.Batchable<SObject>, Database.Stateful {

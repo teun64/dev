@@ -107,7 +107,7 @@ global without sharing class Rest_UpsertAccount {
 			' Subscription25__Digital_Invoicing__c, Sales_Language__c, useBillingAddress__c, useShippingAddress__c,' +
 			' BillingStreet, BillingPostalCode, BillingCity, BillingStateCode, BillingCountryCode, ' +
 			' ShippingStreet, ShippingPostalCode, ShippingCity, ShippingStateCode, ShippingCountryCode, ' +
-			' IsBankrupt__c, Is_Blocked__c, Status__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c,' +
+			' Status__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c,' +
 			' Payment_Method_Contracts__c, Payment_Method_Opportunities__c, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c,' +
 			' Bank_Account__c, Bank_Account_Number__c, Bank_BIC__c,' +
 			' SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c, HasDealerTasks__c, ContractTerm__c,' +
@@ -163,8 +163,6 @@ global without sharing class Rest_UpsertAccount {
 			acc.extId_6__c = miAcc.echoesAccountId;
 		}
 
-		// restore deactivated state to false
-		acc.Deactivated__c = false;
 		acc.Name = Util_System.cleanName(miAcc.name);
 		acc.Short_Name__c = String.isNotBlank(miAcc.shortName) ? miAcc.shortName: null;
 		acc.FinancialDebtorNumberPrevious__c = String.isNotBlank(miAcc.previousDebtorNumber) ? miAcc.previousDebtorNumber : null;
@@ -208,14 +206,6 @@ global without sharing class Rest_UpsertAccount {
 		}
 		if ((miAcc.fulltimePersonnelCount != null) && ((acc.NumberOfFulltimeEmployees__c == null) || (acc.NumberOfFulltimeEmployees__c <= 0))) {
 			acc.NumberOfFulltimeEmployees__c = Integer.valueOf(miAcc.fulltimePersonnelCount);
-		}
-
-		if (miAcc.isBlocked != null) {
-			acc.Is_Blocked__c = miAcc.isBlocked;
-		}
-
-		if (miAcc.isBankrupt != null) {
-			acc.IsBankrupt__c = miAcc.isBankrupt;
 		}
 
 		acc.Reseller_Name__c = String.valueOf(miAcc.resellerId);
@@ -983,8 +973,6 @@ global without sharing class Rest_UpsertAccount {
 		public String bankAccountNumber;
 		public String bankAccountBic;
 		public Boolean isDealer;
-		public Boolean isBlocked;
-		public Boolean isBankrupt;
 		public String statusId; // statusIds are: '0' => 'active', '1' => 'blocked', '2' => 'defaulter', '3' => 'ended', '4' => 'bankrupt', '5' => 'archived', '6' => 'deactivated'; outbound only, ignored on upsert (managed by Salesforce)
 		public Long resellerId;
 		public String primarySbiCode;
@@ -1037,8 +1025,6 @@ global without sharing class Rest_UpsertAccount {
 			this.secondarySbiCode2 = acct.SBI_Secondary_Code_2__c; // create, updatable -> distribution? - null prevention
 			this.personnelCount = acct.NumberOfEmployees; // create, updatable -> distribution? - null prevention
 			this.fulltimePersonnelCount = (acct.NumberOfFulltimeEmployees__c != null) ? acct.NumberOfFulltimeEmployees__c.longValue() : null; // create, updatable -> distribution? - null prevention
-			this.isBlocked = acct.Is_Blocked__c; // create, updatable -> distribution? - managed by salesforce previous exact
-			this.isBankrupt = acct.IsBankrupt__c; // create, updatable -> distribution? - managed by salesforce previous exact
 			this.statusId = Rest_UpsertAccount.getStatusId(acct.Status__c);
 
 			/* this.contactDTOs = new List<Rest_UpsertAccount.MiContact>{

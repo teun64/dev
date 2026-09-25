@@ -82,6 +82,22 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
+                            <value>Account.actDealerShop</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Reseller_Name__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>1</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Relation_type__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Dealer</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
                             <value>Account.Opportunity_Standard</value>
                         </valueListItems>
                         <valueListItems>
@@ -773,10 +789,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Active__c</fieldItem>
-                <identifier>RecordActive_cField</identifier>
+                <fieldItem>Record.StatusIcon__c</fieldItem>
+                <identifier>RecordStatusIcon_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -865,26 +881,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.PayProv_Mandate_Status__c</fieldItem>
                 <identifier>RecordStatus_Payment_Provider_Mandate__cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Is_Blocked__c</fieldItem>
-                <identifier>RecordIs_Blocked_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.IsBankrupt__c</fieldItem>
-                <identifier>RecordIsBankrupt_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-f35d56d8-dbab-4791-82a9-4fc3221a792f</name>
@@ -3070,8 +3066,18 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Deactivated__c</fieldItem>
-                <identifier>RecordDeactivated__cField</identifier>
+                <fieldItem>Record.Status__c</fieldItem>
+                <identifier>RecordStatus_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.PreviousStatus__c</fieldItem>
+                <identifier>RecordPreviousStatus_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-7557ef1e-977d-4622-93e2-cf96076cf835</name>
@@ -3082,10 +3088,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.DeactivatedOn__c</fieldItem>
-                <identifier>RecordDeactivatedOn_cField</identifier>
+                <fieldItem>Record.StatusChangedOn__c</fieldItem>
+                <identifier>RecordStatusChangedOn_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-2a6c745b-01e2-4fab-9ea4-a62dae0f3c38</name>
@@ -3976,12 +3982,6 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentName>c:stripeMandateView</componentName>
-                <identifier>c_stripeMandateView1</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
                     <value>Facet-a0d44ad2-299d-45f7-b2be-feae04872dd0</value>
@@ -4633,6 +4633,27 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>stripeMandateView</componentName>
+                <identifier>c_stripeMandateView1</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.PayProv_CustomerId__c}</leftValue>
+                        <operator>NE</operator>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.PayProv_PaymentMethodId__c}</leftValue>
+                        <operator>NE</operator>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.PayProv_MandateId__c}</leftValue>
+                        <operator>NE</operator>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>

@@ -14,7 +14,6 @@
     // Any values are then also mapped the account.
     private final Map<String, String> financialSystemFieldNameMapping = new Map<String, String>{
             'Timestamp' => null,
-            'Blocked' => 'Is_Blocked__c',
             'ID' => 'FinancialIdAccount__c'
     };
 

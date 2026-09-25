@@ -247,6 +247,37 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>PreviousStatus__c</picklist>
+        <values>
+            <fullName>active</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>blocked</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>defaulter</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>ended</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>bankrupt</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>archived</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>deactivated</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Rating</picklist>
         <values>
             <fullName>Cold</fullName>

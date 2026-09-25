@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Blocked_Accounts</fullName>
+    <columns>ACCOUNT.RECORDTYPE</columns>
+    <columns>ACCOUNT.NAME</columns>
+    <columns>Relation_type__c</columns>
+    <columns>Global_Business_Type_Subscriptions__c</columns>
+    <columns>Subscriptions_Activated__c</columns>
+    <columns>Subscriptions_Activated_1st_This_Year__c</columns>
+    <columns>FinancialDebtorNumber__c</columns>
+    <columns>FinancialCreated__c</columns>
+    <columns>First_Subscription_Date__c</columns>
+    <columns>Subscription_Last_Termindation_Date__c</columns>
+    <columns>CORE.USERS.ALIAS</columns>
+    <columns>ACCOUNT.CREATED_DATE</columns>
+    <columns>HealthList24__c</columns>
+    <columns>StatusChangedOn__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>ACCOUNT.RECORDTYPE</field>
+        <operation>notEqual</operation>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>blocked</value>
+    </filters>
+    <label>Blocked Accounts</label>
+</ListView>
