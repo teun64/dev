@@ -4,9 +4,9 @@ public class  Batch_CleanOauthLogs implements Database.Batchable<SObject>, Datab
     }
 
     public Iterable<Sobject> start(Database.BatchableContext bc){
-        //String query =  'SELECT Id FROM Event_Log__c WHERE CreatedDate < LAST_N_DAYS:7';
-        //String query =  'SELECT Id FROM OAuth_Log__c WHERE CreatedDate < :System.now().addDays(-8)';
-        return (Iterable<Sobject>)Database.getQueryLocator([SELECT Id FROM OAuth_Log__c WHERE CreatedDate < :System.now().addDays(-8)]);
+        //String query =  'SELECT Id FROM Event_Log__c WHERE CreatedDate < LAST_N_DAYS:1';
+        //String query =  'SELECT Id FROM OAuth_Log__c WHERE CreatedDate < :System.now().addDays(-2)';
+        return (Iterable<Sobject>)Database.getQueryLocator([SELECT Id FROM OAuth_Log__c WHERE CreatedDate < :System.now().addDays(-2)]);
     }
 
     public void execute(Database.BatchableContext bc, List<SObject> scope){

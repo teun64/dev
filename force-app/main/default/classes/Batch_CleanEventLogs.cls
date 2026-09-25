@@ -4,9 +4,9 @@ public class Batch_CleanEventLogs implements Database.Batchable<SObject>, Databa
     }
 
     public Iterable<Sobject> start(Database.BatchableContext bc){
-        String query =  'SELECT Id FROM Event_Log__c WHERE CreatedDate < LAST_N_DAYS:7';
+        String query =  'SELECT Id FROM Event_Log__c WHERE CreatedDate < LAST_N_DAYS:1';
         //return (Iterable<Sobject>)Database.getQueryLocator([SELECT Id FROM Event_Log__c WHERE CreatedDate < :System.now().addDays(-8)]);
-        return (Iterable<Sobject>)Database.getQueryLocator([SELECT Id FROM Event_Log__c WHERE CreatedDate < :System.now().addDays(-8)]);
+        return (Iterable<Sobject>)Database.getQueryLocator([SELECT Id FROM Event_Log__c WHERE CreatedDate < :System.now().addDays(-2)]);
     }
 
     public void execute(Database.BatchableContext bc, List<SObject> scope){

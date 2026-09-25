@@ -42,14 +42,11 @@ global class Batch_ActivateDraftContractProducts extends Subscription25.Job_Abst
 
             if ((acct != null) && (String.isNotBlank(acct.FinancialDebtorNumber__c))) {
                 toActivate.add(new Subscription25__Contract_Product__c(Id = cp.Id, Subscription25__Status__c = 'Activated'));
-            } else {
-                //account has no debtor number yet for its administration; mark it and stop here for now instead of auto-syncing
-                Event_Log__c markLog = Util_Event.getLog(null, 'S', 'S', 'Account', 'ActivateDraftContractProduct', acctId, acct?.Name, cp.Id);
-                markLog.Result_Status__c = Util_Event.LogResultStatus.WARNING.name();
-                markLog.Integration_Status__c = Util_Event.LogEventStatus.CANCELLED.name();
-                markLog.Message__c = 'Account ' + acctId + ' has no FinancialDebtorNumber__c; skipping activation of Contract Product ' + cp.Id + ' for now.';
-                toLog.add(markLog);
             }
+            //else: account has no debtor number yet for its administration; stop here for now instead of
+            //auto-syncing. Deliberately not logged - this recurs every run for the same backlog until the
+            //account gets a debtor number, and logging it each time flooded Event_Log__c (see acc storage
+            //overage incident 2026-09-25).
         }
 
         if (!toActivate.isEmpty()) {
