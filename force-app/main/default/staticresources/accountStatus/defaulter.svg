@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Defaulter</title><circle cx="12" cy="12" r="11" fill="#DD7A01"/><rect x="10.8" y="6" width="2.4" height="8" rx="1.2" fill="#FFFFFF"/><circle cx="12" cy="17.2" r="1.4" fill="#FFFFFF"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <circle cx="32" cy="32" r="30" fill="#f87171"/>
+  <path d="M25 23 Q25 15 33 15 Q41 15 41 23 Q41 29 35 31 Q31 33 31 38" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="31" cy="47" r="3.2" fill="#ffffff"/>
+</svg>

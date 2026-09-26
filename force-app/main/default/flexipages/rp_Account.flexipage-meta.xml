@@ -3094,6 +3094,16 @@
                 <identifier>RecordStatusChangedOn_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.StatusChangedBy__c</fieldItem>
+                <identifier>RecordStatusChangedBy_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-2a6c745b-01e2-4fab-9ea4-a62dae0f3c38</name>
         <type>Facet</type>
     </flexiPageRegions>

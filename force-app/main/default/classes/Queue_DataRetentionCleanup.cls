@@ -153,7 +153,8 @@ public class Queue_DataRetentionCleanup implements Queueable {
         for (SObject rec : records) {
             rec.put(fieldName, String.isBlank(softValue) ? (Object) true : (Object) softValue);
         }
-        List<Database.SaveResult> saveResults = Database.update(records, false);
+        // system job: soft delete fields (e.g. Status__c) are not editable for regular users
+        List<Database.SaveResult> saveResults = Database.update(records, false, AccessLevel.SYSTEM_MODE);
         return countFailures(saveResults);
     }
 

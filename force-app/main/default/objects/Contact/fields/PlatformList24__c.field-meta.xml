@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PlatformList24__c</fullName>
+    <description>Picto list representing the plaforms size 24 pix (list view purpose)</description>
+    <externalId>false</externalId>
+    <formula>TRIM(IF(ISBLANK( extId_1__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/1.svg&apos;, extId_1__c , 24, 24)) + &apos; &apos;
++ IF(ISBLANK( extId_2__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/2.svg&apos;, extId_2__c , 24, 24)) + &apos; &apos;
++ IF(ISBLANK( extId_3__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/3.svg&apos;, extId_3__c , 24, 24)) + &apos; &apos;
++ IF(ISBLANK( extId_4__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/4.svg&apos;, extId_4__c , 24, 24)) + &apos; &apos;
++ IF(ISBLANK( extId_5__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/5.svg&apos;, extId_5__c , 24, 24)) + &apos; &apos;
++ IF(ISBLANK( extId_6__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/6.svg&apos;, extId_6__c , 24, 24)))</formula>
+    <label>Platform List (24)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

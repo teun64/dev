@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>application/zip</contentType>
+    <description>System/platform icons (replaces the Platforms resource): &lt;n&gt;.svg per platform (1-6), S (Salesforce), E (Exact), each with a &lt;x&gt;_disabled.svg variant. Used by the HealthList24/48 formulas on Account and AccountContactRelation.</description>
+</StaticResource>
