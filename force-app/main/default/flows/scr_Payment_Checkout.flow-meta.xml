@@ -1155,7 +1155,7 @@
             <targetReference>dgr_01_Payment</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <subflows>
         <name>act_01_Account_Stripe_Customer_Create_Update</name>
         <label>1. Account - Stripe Customer (Create &amp; Update)</label>

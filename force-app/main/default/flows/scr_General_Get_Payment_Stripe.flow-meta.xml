@@ -1363,7 +1363,7 @@
             <targetReference>dgr_01_Payment</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <subflows>
         <name>sfl_01_Afl_Account_Stripe_Customer_Create_Update</name>
         <label>1. Afl - Account - Stripe Customer (Create &amp; Update)</label>

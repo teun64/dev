@@ -785,7 +785,7 @@
             <targetReference>dec_01_Input</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <subflows>
         <name>act_01_afl_Account_Stripe_Customer</name>
         <label>1. afl - Account - Stripe Customer</label>
