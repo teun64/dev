@@ -550,7 +550,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>dec_02_Has_PaymentProvider</targetReference>
+            <targetReference>dgr_02_BusinessEntity</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -561,6 +561,30 @@
             </value>
         </filters>
         <object>Subscription25__Administration__c</object>
+        <outputAssignments>
+            <assignToReference>vBusinessEntityReseller</assignToReference>
+            <field>Reseller__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_02_BusinessEntity</name>
+        <label>2. Business Entity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_02_Has_PaymentProvider</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>vBusinessEntityReseller</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Business_Entities__c</object>
         <outputAssignments>
             <assignToReference>accountRecord.PayProv_AccountId__c</assignToReference>
             <field>PayProv_Account__c</field>
@@ -629,6 +653,13 @@
         <isInput>true</isInput>
         <isOutput>true</isOutput>
         <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <name>vBusinessEntityReseller</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
     <variables>
         <name>acStringList</name>

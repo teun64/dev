@@ -61,7 +61,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_PaymentProvider</targetReference>
+            <targetReference>dgr_02_BusinessEntity</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -161,13 +161,6 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>Mail Sent</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>paymentRecord.Mail_Sent_Date__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -288,7 +281,7 @@
             <name>dec_01_Active_Provider_AcoountYes</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>administrationRecord.PayProv_Use__c</leftValueReference>
+                <leftValueReference>businessEntityRecord.PayProv_Use__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -434,14 +427,14 @@
             <name>dec_01_PaymentProvider_Linked</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>administrationRecord</leftValueReference>
+                <leftValueReference>businessEntityRecord</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>administrationRecord.PayProv_Account__c</leftValueReference>
+                <leftValueReference>businessEntityRecord.PayProv_Account__c</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -456,14 +449,14 @@
             <name>dec_01_Administration_NoProvider</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>administrationRecord</leftValueReference>
+                <leftValueReference>businessEntityRecord</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>administrationRecord.PayProv_Account__c</leftValueReference>
+                <leftValueReference>businessEntityRecord.PayProv_Account__c</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -616,6 +609,31 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <name>dgr_02_BusinessEntity</name>
+        <label>2. Business Entity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_PaymentProvider</targetReference>
+        </connector>
+        <faultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>ass_04_Message</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>paymentRecord.Reseller__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Business_Entities__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>dgr_01_Payment</name>
         <label>1. Payment</label>
         <locationX>0</locationX>
@@ -708,6 +726,14 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Subscription25__Administration__c</objectType>
+    </variables>
+    <variables>
+        <name>businessEntityRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Business_Entities__c</objectType>
     </variables>
     <variables>
         <name>AlertMessage</name>

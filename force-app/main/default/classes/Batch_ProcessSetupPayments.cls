@@ -20,8 +20,7 @@ global class Batch_ProcessSetupPayments extends Subscription25.Job_AbstractBatch
                    Account__r.PayProv_PaymentMethodId__c,
                    Account__r.PayProv_MandateId__c,
                    Account__r.Reseller_Name__c,
-                   Administration__r.PayProv_Account__c,
-                   Administration__r.PayProv_DirectDebit_PaymentMethod__c
+                   Administration__r.Reseller__c
             FROM Payment__c
             WHERE Status__c = 'Setup'
               AND Account__r.PayProv_PaymentMethodId__c != null
@@ -51,6 +50,24 @@ global class Batch_ProcessSetupPayments extends Subscription25.Job_AbstractBatch
                 resellerToQueue.put(g.DeveloperName, g.Id);
             }
         }
+        Set<String> businessEntityResellers = new Set<String>();
+        for (SObject s : scope) {
+            Payment__c p = (Payment__c) s;
+            if (String.isNotBlank(p.Administration__r?.Reseller__c)) {
+                businessEntityResellers.add(p.Administration__r.Reseller__c);
+            }
+        }
+        Map<String, Business_Entities__c> resellerToBusinessEntity = new Map<String, Business_Entities__c>();
+        if (!businessEntityResellers.isEmpty()) {
+            for (Business_Entities__c be : [
+                SELECT Reseller__c, PayProv_Account__c, PayProv_DirectDebit_PaymentMethod__c
+                FROM Business_Entities__c
+                WHERE Reseller__c IN :businessEntityResellers
+            ]) {
+                resellerToBusinessEntity.put(be.Reseller__c, be);
+            }
+        }
+
         Map<Id, Id> accountToContact = new Map<Id, Id>();
         for (AccountContactRelation r : [
             SELECT AccountId, ContactId
@@ -67,13 +84,14 @@ global class Batch_ProcessSetupPayments extends Subscription25.Job_AbstractBatch
 
         for (SObject s : scope) {
             Payment__c p = (Payment__c) s;
-            String  stripeAccountId = p.Administration__r?.PayProv_Account__c;
-            String  ddMethod        = p.Administration__r?.PayProv_DirectDebit_PaymentMethod__c;
+            Business_Entities__c businessEntity = resellerToBusinessEntity.get(p.Administration__r?.Reseller__c);
+            String  stripeAccountId = businessEntity?.PayProv_Account__c;
+            String  ddMethod        = businessEntity?.PayProv_DirectDebit_PaymentMethod__c;
             Integer amountCents     = p.Amount_Gross__c != null ? (Integer)(p.Amount_Gross__c * 100) : 0;
             if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
 
             String preflightError = null;
-            if (String.isBlank(stripeAccountId)) preflightError = 'No Stripe account configured on Administration.';
+            if (String.isBlank(stripeAccountId)) preflightError = 'No Stripe account configured on Business Entity.';
             else if (amountCents <= 0)            preflightError = 'Invalid payment amount (' + p.Amount_Gross__c + ').';
 
             if (preflightError != null) {

@@ -20,6 +20,10 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public String contactFirstName;
         @AuraEnabled public String contactLastName;
         @AuraEnabled public String contactEmail;
+        @AuraEnabled public String billingAddressLine1;
+        @AuraEnabled public String billingCity;
+        @AuraEnabled public String billingPostalCode;
+        @AuraEnabled public String billingCountry;
         @AuraEnabled public ProductLine productLine;
     }
 
@@ -50,11 +54,13 @@ public without sharing class Ctrl_Payment {
             '       Account__r.PayProv_CustomerId__c,' +
             '       Account__r.PayProv_MandateId__c,' +
             '       Account__r.PayProv_PaymentMethodId__c,' +
+            '       Account__r.VisitingAddress__Street__s,' +
+            '       Account__r.VisitingAddress__City__s,' +
+            '       Account__r.VisitingAddress__PostalCode__s,' +
+            '       Account__r.VisitingAddress__CountryCode__s,' +
             '       Administration__c,' +
-            '       Administration__r.PayProv_Account__c,' +
-            '       Administration__r.PayProv_Account__r.stripeGC__Publishable_Key__c,' +
-            '       Administration__r.Subscription25__Billing_Name__c,' +
-            '       Administration__r.PayProv_DirectDebit_PaymentMethod__c' +
+            '       Administration__r.Reseller__c,' +
+            '       Administration__r.Subscription25__Billing_Name__c' +
             ' FROM Payment__c' +
             ' WHERE externalId__c = :token' +
             ' LIMIT 1',
@@ -87,7 +93,13 @@ public without sharing class Ctrl_Payment {
         result.amountCents   = p.Amount_Gross__c != null ? (Integer)(p.Amount_Gross__c * 100) : 0;
         result.customer      = p.Account__r?.Name;
         result.beneficiary   = p.Administration__r?.Subscription25__Billing_Name__c;
-        result.publishableKey = p.Administration__r?.PayProv_Account__r?.stripeGC__Publishable_Key__c;
+
+        Business_Entities__c businessEntity = resolveBusinessEntity(p.Administration__r?.Reseller__c);
+        result.publishableKey = businessEntity?.PayProv_Account__r?.stripeGC__Publishable_Key__c;
+        result.billingAddressLine1 = p.Account__r?.VisitingAddress__Street__s;
+        result.billingCity         = p.Account__r?.VisitingAddress__City__s;
+        result.billingPostalCode   = p.Account__r?.VisitingAddress__PostalCode__s;
+        result.billingCountry      = p.Account__r?.VisitingAddress__CountryCode__s;
 
         List<AccountContactRelation> contactRels = Database.queryWithBinds(
             'SELECT Contact.FirstName, Contact.LastName, Contact.Email,' +
@@ -122,11 +134,11 @@ public without sharing class Ctrl_Payment {
         // Product line: first line ordered by cost type (recurring before NON_RECURRING)
         result.productLine = resolveProductLine(p.Invoice__c, language);
 
-        String stripeAccountId  = p.Administration__r?.PayProv_Account__c;
+        String stripeAccountId  = businessEntity?.PayProv_Account__c;
         String stripeCustomerId = p.Account__r?.PayProv_CustomerId__c;
         String mandateId        = p.Account__r?.PayProv_MandateId__c;
         String paymentMethodId  = p.Account__r?.PayProv_PaymentMethodId__c;
-        String ddMethod         = p.Administration__r?.PayProv_DirectDebit_PaymentMethod__c;
+        String ddMethod         = businessEntity?.PayProv_DirectDebit_PaymentMethod__c;
         if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
         result.paymentMethodType = ddMethod;
 
@@ -170,6 +182,25 @@ public without sharing class Ctrl_Payment {
         }
 
         return result;
+    }
+
+    // ── Business Entity resolution ────────────────────────────────────────────
+    // Business_Entities__c holds the reseller's payment-provider config, replacing the
+    // PayProv_* fields on Subscription25__Administration__c. Joined by Reseller__c value
+    // (not a lookup) so this stays independent of the Subscription25 managed package.
+    private static Business_Entities__c resolveBusinessEntity(String resellerValue) {
+        if (String.isBlank(resellerValue)) return null;
+
+        List<Business_Entities__c> businessEntities = Database.queryWithBinds(
+            'SELECT PayProv_Account__c, PayProv_Account__r.stripeGC__Publishable_Key__c,' +
+            '       PayProv_DirectDebit_PaymentMethod__c' +
+            ' FROM Business_Entities__c' +
+            ' WHERE Reseller__c = :resellerValue' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'resellerValue' => resellerValue },
+            AccessLevel.SYSTEM_MODE
+        );
+        return businessEntities.isEmpty() ? null : businessEntities[0];
     }
 
     // ── Product line resolution ───────────────────────────────────────────────

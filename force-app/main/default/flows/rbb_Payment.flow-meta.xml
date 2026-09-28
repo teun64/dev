@@ -120,7 +120,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_Direct_Debit_Variables</targetReference>
+            <targetReference>dgr_03_BusinessEntity</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -647,14 +647,14 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.Administration__r.PayProv_Use__c</leftValueReference>
+                <leftValueReference>businessEntityRecord.PayProv_Use__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.Administration__r.PayProv_DirectDebit_PaymentMethod__c</leftValueReference>
+                <leftValueReference>businessEntityRecord.PayProv_DirectDebit_PaymentMethod__c</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -794,7 +794,7 @@
         <defaultConnectorLabel>Pending</defaultConnectorLabel>
         <rules>
             <name>dec_01_Status_Setup</name>
-            <conditionLogic>(1 AND  (2 OR 3 OR 4))</conditionLogic>
+            <conditionLogic>(1 AND  (2 OR 3 OR 4) AND 5)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Account__c</leftValueReference>
                 <operator>IsBlank</operator>
@@ -823,6 +823,13 @@
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>dgr_02_Existing_Setup_Payment</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>dec_01_Contact</targetReference>
             </connector>
@@ -835,7 +842,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>dec_01_Direct_Debit_Variables</targetReference>
+            <targetReference>dgr_03_BusinessEntity</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -895,7 +902,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>dec_01_Status</targetReference>
+                <targetReference>dgr_02_Existing_Setup_Payment</targetReference>
             </connector>
             <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
             <label>Yes</label>
@@ -1113,6 +1120,69 @@ CASE(WEEKDAY({!$Record.Collection_Date__c}),1,2,7,1,0) )</expression>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <name>dgr_02_Existing_Setup_Payment</name>
+        <label>2. Existing Setup Payment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_Status</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Account__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Account__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Setup</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>externalId__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Id</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Payment__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_03_BusinessEntity</name>
+        <label>3. Business Entity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_Direct_Debit_Variables</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Administration__r.Reseller__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Business_Entities__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>dgr_01_Account_Contact_Relation</name>
         <label>1. Account Contact Relation</label>
         <locationX>0</locationX>
@@ -1165,7 +1235,7 @@ CASE(WEEKDAY({!$Record.Collection_Date__c}),1,2,7,1,0) )</expression>
             <field>DeveloperName</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Administration__r.PayProv_DirectDebit_PaymentMethod__c</elementReference>
+                <elementReference>businessEntityRecord.PayProv_DirectDebit_PaymentMethod__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1220,6 +1290,14 @@ CASE(WEEKDAY({!$Record.Collection_Date__c}),1,2,7,1,0) )</expression>
         <triggerType>RecordBeforeSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>businessEntityRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Business_Entities__c</objectType>
+    </variables>
     <variables>
         <name>vCommit</name>
         <dataType>Number</dataType>
