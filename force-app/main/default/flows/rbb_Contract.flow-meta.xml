@@ -83,56 +83,56 @@
             <assignToReference>$Record.BillingCity</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingCity</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__City__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingCountryCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingCountryCode</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__CountryCode__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingGeocodeAccuracy</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingGeocodeAccuracy</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__GeocodeAccuracy__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingLatitude</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingLatitude</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__Latitude__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingLongitude</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingLongitude</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__Longitude__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingPostalCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingPostalCode</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__PostalCode__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingStateCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingStateCode</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__StateCode__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingStreet</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account.BillingStreet</elementReference>
+                <elementReference>$Record.Account.InvoiceAddress__Street__s</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -292,35 +292,35 @@
                 <leftValueReference>$Record.BillingCity</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.Account.BillingCity</elementReference>
+                    <elementReference>$Record.Account.InvoiceAddress__City__s</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
                 <leftValueReference>$Record.BillingCountryCode</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.Account.BillingCountryCode</elementReference>
+                    <elementReference>$Record.Account.InvoiceAddress__CountryCode__s</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
                 <leftValueReference>$Record.BillingPostalCode</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.Account.BillingPostalCode</elementReference>
+                    <elementReference>$Record.Account.InvoiceAddress__PostalCode__s</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
                 <leftValueReference>$Record.BillingStateCode</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.Account.BillingStateCode</elementReference>
+                    <elementReference>$Record.Account.InvoiceAddress__StateCode__s</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
                 <leftValueReference>$Record.BillingStreet</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.Account.BillingStreet</elementReference>
+                    <elementReference>$Record.Account.InvoiceAddress__Street__s</elementReference>
                 </rightValue>
             </conditions>
             <connector>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>InvoiceAddress__c</fullName>
+    <businessStatus>Active</businessStatus>
+    <description>Address the invoice is sent to (by post). Equals the Establishment / Billing Address unless useInvoiceAddress__c is set (copied by rbb_Account).</description>
+    <inlineHelpText>Address the invoice is sent to (by post). Only differs from the Establishment / Billing Address when &quot;Use different Invoice Address&quot; is set.</inlineHelpText>
+    <label>Invoice Address</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Address</type>
+</CustomField>

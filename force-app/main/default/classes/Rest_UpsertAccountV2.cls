@@ -120,7 +120,7 @@ global with sharing class Rest_UpsertAccountV2 {
         sfAcc.put(extAcc.getExternalIdField(), extAcc.Id);
         sfAcc.AccountSource = 'Platform';
 		sfAcc.Status__c = Rest_UpsertAccount.AccountStatus.active.name();
-		sfAcc.useBillingAddress__c = false;
+		sfAcc.useInvoiceAddress__c = false;
 		sfAcc.useShippingAddress__c = false;
 
         if (String.isNotBlank(extAcc.marketId)) {
@@ -142,8 +142,8 @@ global with sharing class Rest_UpsertAccountV2 {
         String extAccId = extAcc.Id;
 
         String sSOQL = 'SELECT Id, Name, Bank_Account__c, NumberOfEmployees, NumberOfFulltimeEmployees__c, AccountSource, VAT_Number__c, CoC_Number__c, Short_Name__c, '
-            + ' VisitingAddress__c, VisitingAddress__City__s, VisitingAddress__CountryCode__s, VisitingAddress__PostalCode__s, VisitingAddress__StateCode__s, VisitingAddress__Street__s, '
-            + ' useBillingAddress__c, BillingAddress, BillingCity, BillingCountryCode, BillingPostalCode, BillingStateCode, BillingStreet, '
+            + ' InvoiceAddress__c, InvoiceAddress__City__s, InvoiceAddress__CountryCode__s, InvoiceAddress__PostalCode__s, InvoiceAddress__StateCode__s, InvoiceAddress__Street__s, '
+            + ' useInvoiceAddress__c, BillingAddress, BillingCity, BillingCountryCode, BillingPostalCode, BillingStateCode, BillingStreet, '
             + ' useShippingAddress__c, ShippingAddress, ShippingCity, ShippingCountryCode, ShippingPostalCode, ShippingStateCode, ShippingStreet, '
             + ((String.valueOf(extAcc.platformId) != '6') ? ('extId_6__c, ') : '') + '{0}'
             + ' FROM Account'
@@ -244,32 +244,26 @@ global with sharing class Rest_UpsertAccountV2 {
         Address extBillingAddress;
         Address extShippingAddress;
 
-		if (extAcc.visitAddress != null) {
-			// visit address -> makes shipping address free for real shipping address
-            Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__Street__s, extAcc.visitAddress.getStreet());
-            Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__City__s, extAcc.visitAddress.City);
-            Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__PostalCode__s, extAcc.visitAddress.PostalCode);
-            Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__CountryCode__s, extAcc.visitAddress.country);
-		} else if (extAcc.billingAddress != null) {
-			Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__Street__s, extAcc.billingAddress.getStreet());
-            Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__City__s, extAcc.billingAddress.City);
-            Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__PostalCode__s, extAcc.billingAddress.PostalCode);
-            Util_System.setIfNotBlank(sfAcc, Account.VisitingAddress__CountryCode__s, extAcc.billingAddress.country);
-			sfAcc.useBillingAddress__c = false;
+		// visit address -> establishment / billing address (main address); without visit address the billing address is used
+		Rest_UpsertAccountV2.ExtContact mainAddress = (extAcc.visitAddress != null) ? extAcc.visitAddress : extAcc.billingAddress;
+		if (mainAddress != null) {
+            Util_System.setIfNotBlank(sfAcc, Account.BillingStreet, mainAddress.getStreet());
+            Util_System.setIfNotBlank(sfAcc, Account.BillingCity, mainAddress.City);
+            Util_System.setIfNotBlank(sfAcc, Account.BillingPostalCode, mainAddress.PostalCode);
+            Util_System.setIfNotBlank(sfAcc, Account.BillingCountryCode, mainAddress.country);
 		}
 
-        // only set when not equals or when synced as billing address
+        // billing address (payload) -> invoice address (sending the invoice by post)
 		if (extAcc.billingAddress != null) {
-            Util_System.setIfNotBlank(sfAcc, Account.BillingStreet, extAcc.billingAddress.getStreet());
-            Util_System.setIfNotBlank(sfAcc, Account.BillingCity, extAcc.billingAddress.City);
-            Util_System.setIfNotBlank(sfAcc, Account.BillingPostalCode, extAcc.billingAddress.PostalCode);
-            Util_System.setIfNotBlank(sfAcc, Account.BillingCountryCode, extAcc.billingAddress.country);
+            Util_System.setIfNotBlank(sfAcc, Account.InvoiceAddress__Street__s, extAcc.billingAddress.getStreet());
+            Util_System.setIfNotBlank(sfAcc, Account.InvoiceAddress__City__s, extAcc.billingAddress.City);
+            Util_System.setIfNotBlank(sfAcc, Account.InvoiceAddress__PostalCode__s, extAcc.billingAddress.PostalCode);
+            Util_System.setIfNotBlank(sfAcc, Account.InvoiceAddress__CountryCode__s, extAcc.billingAddress.country);
+			sfAcc.useInvoiceAddress__c = ((sfAcc.BillingStreet != sfAcc.InvoiceAddress__Street__s) || (sfAcc.BillingCity != sfAcc.InvoiceAddress__City__s) ||
+											(sfAcc.BillingPostalCode != sfAcc.InvoiceAddress__PostalCode__s) || (sfAcc.BillingCountryCode != sfAcc.InvoiceAddress__CountryCode__s));
 		}
-
-		sfAcc.useBillingAddress__c = ((sfAcc.VisitingAddress__Street__s != sfAcc.BillingStreet) || (sfAcc.VisitingAddress__City__s != sfAcc.BillingCity) ||
-										(sfAcc.VisitingAddress__PostalCode__s != sfAcc.BillingPostalCode) || (sfAcc.VisitingAddress__CountryCode__s != sfAcc.BillingCountryCode));
-		sfAcc.useShippingAddress__c = ((sfAcc.VisitingAddress__Street__s != sfAcc.ShippingStreet) || (sfAcc.VisitingAddress__City__s != sfAcc.ShippingCity) ||
-										(sfAcc.VisitingAddress__PostalCode__s != sfAcc.ShippingPostalCode) || (sfAcc.VisitingAddress__CountryCode__s != sfAcc.ShippingCountryCode));
+		sfAcc.useShippingAddress__c = ((sfAcc.BillingStreet != sfAcc.ShippingStreet) || (sfAcc.BillingCity != sfAcc.ShippingCity) ||
+										(sfAcc.BillingPostalCode != sfAcc.ShippingPostalCode) || (sfAcc.BillingCountryCode != sfAcc.ShippingCountryCode));
 
     }
 
@@ -981,7 +975,7 @@ global with sharing class Rest_UpsertAccountV2 {
         //if this is a base service look for contracts by external id
 		if(miAcc.id != null) {
 			sSOQL = 'SELECT Id, Name, Bank_Account__c, NumberOfEmployees, NumberOfFulltimeEmployees__c, AccountSource, VAT_Number__c, CoC_Number__c, Short_Name__c, '
-				+ ' VisitingAddress__Street__s, VisitingAddress__PostalCode__s, VisitingAddress__City__s, VisitingAddress__StateCode__s, VisitingAddress__CountryCode__s, '
+				+ ' BillingStreet, BillingPostalCode, BillingCity, BillingStateCode, BillingCountryCode, '
 				+ ' Subscription25__Digital_Invoicing__c, Sales_Language__c,'
 				+ ' Contact_Person__c, Contact_Person__r.AccountId, Contact_Person__r.Is_Active__c, Contact_Person__r.'  + extIdField + ','
 				+ ' Contact_Billing__c, Contact_Billing__r.AccountId, Contact_Billing__r.Email, Contact_Billing__r.Is_Active__c, Contact_Billing__r.' + extIdField + ','
@@ -1109,17 +1103,18 @@ global with sharing class Rest_UpsertAccountV2 {
 
 		if (miAcc.visitAddress != null) {
 			// visit address -> makes shipping address free for real shipping address
-			acc.VisitingAddress__PostalCode__s = (miAcc.visitAddress.PostalCode != null) ? miAcc.visitAddress.PostalCode : '';
-			acc.VisitingAddress__City__s = (miAcc.visitAddress.City != null) ? miAcc.visitAddress.City : '';
-			acc.VisitingAddress__Street__s = (miAcc.visitAddress.Street != null) ? miAcc.visitAddress.Street : '';
-			acc.VisitingAddress__Street__s += (miAcc.visitAddress.Housenumber != null) ? (' ' + miAcc.visitAddress.Housenumber) : '';
-			acc.VisitingAddress__CountryCode__s = (miAcc.visitAddress.country != null) ? miAcc.visitAddress.country : '';
-			// for now copy visiting address to shipping
-			acc.ShippingPostalCode = acc.VisitingAddress__PostalCode__s;
-			acc.ShippingCity = acc.VisitingAddress__City__s;
-			acc.ShippingStreet = acc.VisitingAddress__Street__s;
-			acc.ShippingStateCode = acc.VisitingAddress__StateCode__s;
-			acc.ShippingCountryCode = acc.VisitingAddress__CountryCode__s;
+			// visit address -> establishment / billing address
+			acc.BillingPostalCode = (miAcc.visitAddress.PostalCode != null) ? miAcc.visitAddress.PostalCode : '';
+			acc.BillingCity = (miAcc.visitAddress.City != null) ? miAcc.visitAddress.City : '';
+			acc.BillingStreet = (miAcc.visitAddress.Street != null) ? miAcc.visitAddress.Street : '';
+			acc.BillingStreet += (miAcc.visitAddress.Housenumber != null) ? (' ' + miAcc.visitAddress.Housenumber) : '';
+			acc.BillingCountryCode = (miAcc.visitAddress.country != null) ? miAcc.visitAddress.country : '';
+			// for now copy the establishment address to shipping
+			acc.ShippingPostalCode = acc.BillingPostalCode;
+			acc.ShippingCity = acc.BillingCity;
+			acc.ShippingStreet = acc.BillingStreet;
+			acc.ShippingStateCode = acc.BillingStateCode;
+			acc.ShippingCountryCode = acc.BillingCountryCode;
 
 			// 	move to contact
 			String shippingName = miAcc.visitAddress.firstName;
@@ -1135,11 +1130,12 @@ global with sharing class Rest_UpsertAccountV2 {
 		}
 
 		if (miAcc.billingAddress != null) {
-			acc.BillingCountryCode = miAcc.billingAddress.country;
-			acc.BillingPostalCode = miAcc.billingAddress.PostalCode;
-			acc.BillingCity = (miAcc.billingAddress.City != null) ? miAcc.billingAddress.City : '';
-			acc.BillingStreet = (miAcc.billingAddress.Street != null) ? miAcc.billingAddress.Street: '';
-			acc.BillingStreet += (miAcc.billingAddress.Housenumber != null) ? (' ' + miAcc.billingAddress.Housenumber) : '';
+			// billing address (payload) -> invoice address
+			acc.InvoiceAddress__CountryCode__s = miAcc.billingAddress.country;
+			acc.InvoiceAddress__PostalCode__s = miAcc.billingAddress.PostalCode;
+			acc.InvoiceAddress__City__s = (miAcc.billingAddress.City != null) ? miAcc.billingAddress.City : '';
+			acc.InvoiceAddress__Street__s = (miAcc.billingAddress.Street != null) ? miAcc.billingAddress.Street: '';
+			acc.InvoiceAddress__Street__s += (miAcc.billingAddress.Housenumber != null) ? (' ' + miAcc.billingAddress.Housenumber) : '';
 
 			String billingName = miAcc.billingAddress.firstName;
 			if (String.isNotBlank(miAcc.billingAddress.insertion)) {

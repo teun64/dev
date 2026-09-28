@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>useInvoiceAddress__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indicator for a different invoice address: when true the Invoice Address can be set, when false it equals the Establishment / Billing Address (copied by rbb_Account). Replaces useBillingAddress__c.</description>
+    <label>Use different Invoice Address</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

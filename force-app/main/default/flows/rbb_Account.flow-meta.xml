@@ -51,43 +51,43 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_BillingAddress</name>
+        <name>ass_01_InvoiceAddress</name>
         <label>1. Billing Address</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.BillingCity</assignToReference>
+            <assignToReference>$Record.InvoiceAddress__City__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__City__s</elementReference>
+                <elementReference>$Record.BillingCity</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.BillingCountryCode</assignToReference>
+            <assignToReference>$Record.InvoiceAddress__CountryCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__CountryCode__s</elementReference>
+                <elementReference>$Record.BillingCountryCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.BillingStreet</assignToReference>
+            <assignToReference>$Record.InvoiceAddress__Street__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__Street__s</elementReference>
+                <elementReference>$Record.BillingStreet</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.BillingStateCode</assignToReference>
+            <assignToReference>$Record.InvoiceAddress__StateCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__StateCode__s</elementReference>
+                <elementReference>$Record.BillingStateCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>$Record.BillingPostalCode</assignToReference>
+            <assignToReference>$Record.InvoiceAddress__PostalCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__PostalCode__s</elementReference>
+                <elementReference>$Record.BillingPostalCode</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -524,35 +524,35 @@
             <assignToReference>$Record.ShippingCity</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__City__s</elementReference>
+                <elementReference>$Record.BillingCity</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.ShippingCountryCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__CountryCode__s</elementReference>
+                <elementReference>$Record.BillingCountryCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.ShippingStreet</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__Street__s</elementReference>
+                <elementReference>$Record.BillingStreet</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.ShippingStateCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__StateCode__s</elementReference>
+                <elementReference>$Record.BillingStateCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.ShippingPostalCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__PostalCode__s</elementReference>
+                <elementReference>$Record.BillingPostalCode</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -743,47 +743,82 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_Visiting_Address</name>
-        <label>1. Visiting Address</label>
+        <name>ass_01_EstablishmentAddress_Copies</name>
+        <label>1. Establishment Address Copies</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>$Record.Subscription25__Visiting_City__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__City__s</elementReference>
+                <elementReference>$Record.BillingCity</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.Subscription25__Visiting_Country__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__CountryCode__s</elementReference>
+                <elementReference>$Record.BillingCountryCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.Subscription25__Visiting_Postal_Code__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__PostalCode__s</elementReference>
+                <elementReference>$Record.BillingPostalCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.Subscription25__Visiting_State__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__StateCode__s</elementReference>
+                <elementReference>$Record.BillingStateCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.Subscription25__Visiting_Street__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__Street__s</elementReference>
+                <elementReference>$Record.BillingStreet</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>vVisitingAddressSet</assignToReference>
+            <assignToReference>$Record.VisitingAddress__Street__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStreet</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__City__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCity</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__PostalCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingPostalCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__StateCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStateCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__CountryCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCountryCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vEstablishmentAddressSet</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
@@ -794,15 +829,15 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_Visiting_Country</name>
-        <label>1. Visiting Country</label>
+        <name>ass_01_Billing_Country</name>
+        <label>1. Billing Country</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.VisitingAddress__CountryCode__s</assignToReference>
+            <assignToReference>$Record.BillingCountryCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>fVisitingCountryCode</elementReference>
+                <elementReference>fBillingCountryCode</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -1282,7 +1317,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_Billing_Address</targetReference>
+            <targetReference>dec_01_Invoice_Address</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1410,7 +1445,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_VisitingAddress</targetReference>
+            <targetReference>dec_01_EstablishmentAddress</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1726,8 +1761,8 @@
         </rules>
     </decisions>
     <decisions>
-        <name>dec_01_Billing_Address</name>
-        <label>1. Billing Address</label>
+        <name>dec_01_Invoice_Address</name>
+        <label>1. Invoice Address</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -1735,31 +1770,31 @@
         </defaultConnector>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
-            <name>dec_01_Billing_Address_Set</name>
+            <name>dec_01_Invoice_Address_Set</name>
             <conditionLogic>((1 OR 2) AND 3)</conditionLogic>
             <conditions>
-                <leftValueReference>vVisitingAddressSet</leftValueReference>
+                <leftValueReference>vEstablishmentAddressSet</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.useBillingAddress__c</leftValueReference>
+                <leftValueReference>$Record.useInvoiceAddress__c</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.useBillingAddress__c</leftValueReference>
+                <leftValueReference>$Record.useInvoiceAddress__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_01_BillingAddress</targetReference>
+                <targetReference>ass_01_InvoiceAddress</targetReference>
             </connector>
             <label>Set</label>
         </rules>
@@ -2125,7 +2160,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>dec_01_Visiting_Country</targetReference>
+            <targetReference>dec_01_Billing_Country</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
@@ -2672,7 +2707,7 @@
             <name>dec_01_Shipping_Address_Set</name>
             <conditionLogic>((1 OR 2) AND 3)</conditionLogic>
             <conditions>
-                <leftValueReference>vVisitingAddressSet</leftValueReference>
+                <leftValueReference>vEstablishmentAddressSet</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -2813,8 +2848,8 @@
         </rules>
     </decisions>
     <decisions>
-        <name>dec_01_Visiting_Country</name>
-        <label>1. Visiting Country</label>
+        <name>dec_01_Billing_Country</name>
+        <label>1. Billing Country</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -2825,7 +2860,7 @@
             <name>dec_01_Billing_Country_Changed</name>
             <conditionLogic>(1 OR 2) AND 3</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.VisitingAddress__CountryCode__s</leftValueReference>
+                <leftValueReference>$Record.BillingCountryCode</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -2852,8 +2887,8 @@
         </rules>
     </decisions>
     <decisions>
-        <name>dec_01_VisitingAddress</name>
-        <label>1. Visiting Address</label>
+        <name>dec_01_EstablishmentAddress</name>
+        <label>1. Establishment / Billing Address</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -2861,7 +2896,7 @@
         </defaultConnector>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
-            <name>dec_01_VisitingAddress_Changed</name>
+            <name>dec_01_EstablishmentAddress_Changed</name>
             <conditionLogic>or</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Id</leftValueReference>
@@ -2871,42 +2906,42 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.VisitingAddress__Street__s</leftValueReference>
+                <leftValueReference>$Record.BillingStreet</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.VisitingAddress__City__s</leftValueReference>
+                <leftValueReference>$Record.BillingCity</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.VisitingAddress__PostalCode__s</leftValueReference>
+                <leftValueReference>$Record.BillingPostalCode</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.VisitingAddress__StateCode__s</leftValueReference>
+                <leftValueReference>$Record.BillingStateCode</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.VisitingAddress__CountryCode__s</leftValueReference>
+                <leftValueReference>$Record.BillingCountryCode</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_01_Visiting_Address</targetReference>
+                <targetReference>ass_01_EstablishmentAddress_Copies</targetReference>
             </connector>
             <label>Changed</label>
         </rules>
@@ -3041,7 +3076,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>dec_01_VisitingAddress</targetReference>
+            <targetReference>dec_01_EstablishmentAddress</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
@@ -3165,7 +3200,7 @@ RIGHT((&quot;00000000&quot; + BLANKVALUE({!$Record.Bank_6_Account_Number__c},&ap
     <formulas>
         <name>fFinancialEntity</name>
         <dataType>String</dataType>
-        <expression>CASE({!fVisitingCountryCode}
+        <expression>CASE({!fBillingCountryCode}
 ,&apos;NL&apos;,&apos;1&apos;
 ,&apos;GR&apos;,&apos;2&apos;
 ,&apos;BE&apos;,&apos;1&apos;
@@ -3315,9 +3350,9 @@ TEXT({!$Record.BillingCountryCode})
         <expression>IF(ISBLANK({!$Record.VAT_Number__c}),&apos;&apos;,IF(({!$Record.VAT_Number__c}=&apos;-&apos;), {!$Record.VAT_Number__c}, UPPER({!$Record.VAT_Number__c})))</expression>
     </formulas>
     <formulas>
-        <name>fVisitingCountryCode</name>
+        <name>fBillingCountryCode</name>
         <dataType>String</dataType>
-        <expression>BLANKVALUE(TEXT({!$Record.VisitingAddress__CountryCode__s}),BLANKVALUE(TEXT({!$Record.VisitingAddress__CountryCode__s}),BLANKVALUE({!$User.DefaultCountryCode__c},&apos;NL&apos;)))</expression>
+        <expression>BLANKVALUE(TEXT({!$Record.BillingCountryCode}),BLANKVALUE(TEXT({!$Record.BillingCountryCode}),BLANKVALUE({!$User.DefaultCountryCode__c},&apos;NL&apos;)))</expression>
     </formulas>
     <formulas>
         <name>fWSONEDossierNumber</name>
@@ -3468,7 +3503,7 @@ TEXT({!$Record.BillingCountryCode})
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>ass_01_Visiting_Country</targetReference>
+            <targetReference>ass_01_Billing_Country</targetReference>
         </connector>
         <object>Account</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
@@ -3508,7 +3543,7 @@ TEXT({!$Record.BillingCountryCode})
         </value>
     </variables>
     <variables>
-        <name>vVisitingAddressSet</name>
+        <name>vEstablishmentAddressSet</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

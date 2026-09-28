@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Block_Syncing_Exact__c</fullName>
+    <description>Field to unlink WSONE app from all the code execution, does the check in a formula (insted of code)</description>
+    <formula>AND(
+    OR(
+        (RecordType.DeveloperName = &apos;B2C&apos;),
+        AND(
+            (RecordType.DeveloperName &lt;&gt; &apos;B2C&apos;),
+            NOT(
+                AND(
+                    OR(
+                        AND( 
+                            (TEXT(BillingCountryCode) &lt;&gt; &apos;NL&apos;),
+                            NOT(ISBLANK(TEXT(BillingCountryCode)))
+                        )
+                        ,
+                        AND(
+                            (TEXT(BillingCountryCode) = &apos;NL&apos;),
+                            (WSONE_DATA__DutchBusinessValidationStatus__c = &apos;VALIDATED&apos;)
+                        )
+                    ),
+                    NOT(
+                        ISBLANK(CoC_Number__c)
+                    ),
+                    OR(
+                        ISNUMBER(CoC_Number__c),
+                        (CoC_Number__c = &apos;-&apos;)
+                    ),
+                    (CoC_Number_Confirmation_Required__c = CoC_Number_Confirmation__c),
+                    NOT(
+                        ISBLANK(VAT_Number__c)
+                    ),
+                    (VAT_Number_Confirmation_Required__c = VAT_Number_Confirmation__c)
+                )
+            )
+        )
+    )
+    ,
+    AND(ISBLANK(BillingStreet), ISBLANK(BillingCity), ISBLANK(BillingPostalCode), ISBLANK(TEXT(BillingCountryCode)))
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Block Syncing to exact is TRUE when this account is not validated and checked by WSONE, the supplied COC Number is valid and a VAT Number is supplied.</inlineHelpText>
+    <label>Block Syncing Financial System</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

@@ -8,6 +8,9 @@ private class Test_Util_Exact {
         Test_Data.createExactSettings('123', true);
 
         Subscription25__Administration__c adm = Test_Data.createAdministration(true);
+        // sandboxes only sync to Exact for administrations with an acceptance environment (Util_System.isFinancialSyncAllowed)
+        adm.Acceptance_Environment_Available__c = true;
+        Database.update(adm);
 
         Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = adm.Id, Relation_Type__c = 'End User', Exact_ID__c = '5d8b7622-25d2-4c08-ab57-7b02810ad56b');
         Database.insert(ers);
@@ -30,12 +33,13 @@ private class Test_Util_Exact {
         Util_Exact.syncAccountAsync(acct1.Id);
         Test.stopTest();
 
-        Subscription25__Debtor_Number__c debNr = [SELECT Id, Subscription25__Debtor_Number__c,  Exact_Id__c, Exact_Billing_Address_Id__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acct1.Id AND Subscription25__Administration__c = :adm.id];
+        Subscription25__Debtor_Number__c debNr = [SELECT Id, Subscription25__Debtor_Number__c,  Exact_Id__c, Exact_Invoice_Address_ID__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acct1.Id AND Subscription25__Administration__c = :adm.id];
         /*System.assertEquals('account_sync_11', debNr2.Exact_ID__c);
         System.assertEquals('address_sync_11', debNr2.Exact_Billing_Address_ID__c);*/
         //System.assertEquals('87654321', debNr.Subscription25__Debtor_Number__c);
         System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', debNr.Exact_ID__c);
-        System.assertEquals('address_sync', debNr.Exact_Billing_Address_Id__c);
+        // the separate invoice address (Test_Data) is synced as Exact invoice address (type 3)
+        System.assertEquals('address_sync', debNr.Exact_Invoice_Address_ID__c);
     }
 
     @isTest

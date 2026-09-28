@@ -32,49 +32,49 @@
             <assignToReference>$Record.BillingAddress__City__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.BillingCity</elementReference>
+                <elementReference>$Record.Account__r.InvoiceAddress__City__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingAddress__CountryCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.BillingCountryCode</elementReference>
+                <elementReference>$Record.Account__r.InvoiceAddress__CountryCode__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingAddress__Latitude__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.BillingLatitude</elementReference>
+                <elementReference>$Record.Account__r.InvoiceAddress__Latitude__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingAddress__Longitude__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.BillingLongitude</elementReference>
+                <elementReference>$Record.Account__r.InvoiceAddress__Longitude__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingAddress__PostalCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.BillingPostalCode</elementReference>
+                <elementReference>$Record.Account__r.InvoiceAddress__PostalCode__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingAddress__StateCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.BillingStateCode</elementReference>
+                <elementReference>$Record.Account__r.InvoiceAddress__StateCode__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.BillingAddress__Street__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.BillingStreet</elementReference>
+                <elementReference>$Record.Account__r.InvoiceAddress__Street__s</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -193,49 +193,49 @@
             <assignToReference>$Record.VisitingAddress__City__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.VisitingAddress__City__s</elementReference>
+                <elementReference>$Record.Account__r.BillingCity</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.VisitingAddress__CountryCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.VisitingAddress__CountryCode__s</elementReference>
+                <elementReference>$Record.Account__r.BillingCountryCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.VisitingAddress__Latitude__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.VisitingAddress__Latitude__s</elementReference>
+                <elementReference>$Record.Account__r.BillingLatitude</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.VisitingAddress__Longitude__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.VisitingAddress__Longitude__s</elementReference>
+                <elementReference>$Record.Account__r.BillingLongitude</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.VisitingAddress__PostalCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__PostalCode__s</elementReference>
+                <elementReference>$Record.Account__r.BillingPostalCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.VisitingAddress__StateCode__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Account__r.VisitingAddress__StateCode__s</elementReference>
+                <elementReference>$Record.Account__r.BillingStateCode</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>$Record.VisitingAddress__Street__s</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.VisitingAddress__Street__s</elementReference>
+                <elementReference>$Record.Account__r.BillingStreet</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>

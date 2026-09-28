@@ -103,8 +103,8 @@ global without sharing class Rest_UpsertAccount {
 		//if this is a base service look for contracts by external id
 		sSOQL =
 			'SELECT Id, Name, Short_Name__c, RecordTypeId, NumberOfEmployees, NumberOfFulltimeEmployees__c, AccountSource,' +
-			' VisitingAddress__Street__s, VisitingAddress__PostalCode__s, VisitingAddress__City__s, VisitingAddress__StateCode__s, VisitingAddress__CountryCode__s, ' +
-			' Subscription25__Digital_Invoicing__c, Sales_Language__c, useBillingAddress__c, useShippingAddress__c,' +
+			' InvoiceAddress__Street__s, InvoiceAddress__PostalCode__s, InvoiceAddress__City__s, InvoiceAddress__StateCode__s, InvoiceAddress__CountryCode__s, ' +
+			' Subscription25__Digital_Invoicing__c, Sales_Language__c, useInvoiceAddress__c, useShippingAddress__c,' +
 			' BillingStreet, BillingPostalCode, BillingCity, BillingStateCode, BillingCountryCode, ' +
 			' ShippingStreet, ShippingPostalCode, ShippingCity, ShippingStateCode, ShippingCountryCode, ' +
 			' Status__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c,' +
@@ -141,7 +141,7 @@ global without sharing class Rest_UpsertAccount {
 			acc = new Account();
 			acc.put(extIdField, miAcc.id);
 			acc.AccountSource = 'Platform';
-			acc.useBillingAddress__c = false;
+			acc.useInvoiceAddress__c = false;
 			acc.useShippingAddress__c = false;
 
 			acc.Payment_Method_Opportunities__c = (miAcc.resellerId == 6) ? ((miAcc.platformId == 5) ? '14' : ((miAcc.isBusiness == true) ? '08' : 'p1')) : ((miAcc.bankAccountNumber == null) ? '08' : 'I8');
@@ -231,12 +231,12 @@ global without sharing class Rest_UpsertAccount {
 		}
 
 		if (miAcc.visitAddress != null) {
-			// visit address -> makes shipping address free for real shipping address
-			acc.VisitingAddress__PostalCode__s = (miAcc.visitAddress.PostalCode != null) ? miAcc.visitAddress.PostalCode : '';
-			acc.VisitingAddress__City__s = (miAcc.visitAddress.City != null) ? miAcc.visitAddress.City : '';
-			acc.VisitingAddress__Street__s = (miAcc.visitAddress.Street != null) ? miAcc.visitAddress.Street : '';
-			acc.VisitingAddress__Street__s += (miAcc.visitAddress.Housenumber != null) ? (' ' + miAcc.visitAddress.Housenumber) : '';
-			acc.VisitingAddress__CountryCode__s = (miAcc.visitAddress.country != null) ? miAcc.visitAddress.country : '';
+			// visit address -> establishment / billing address (main address; rbb_Account copies it to shipping, invoice and the visiting mirror)
+			acc.BillingPostalCode = (miAcc.visitAddress.PostalCode != null) ? miAcc.visitAddress.PostalCode : '';
+			acc.BillingCity = (miAcc.visitAddress.City != null) ? miAcc.visitAddress.City : '';
+			acc.BillingStreet = (miAcc.visitAddress.Street != null) ? miAcc.visitAddress.Street : '';
+			acc.BillingStreet += (miAcc.visitAddress.Housenumber != null) ? (' ' + miAcc.visitAddress.Housenumber) : '';
+			acc.BillingCountryCode = (miAcc.visitAddress.country != null) ? miAcc.visitAddress.country : '';
 
 			// 	move to contact
 			String shippingName = miAcc.visitAddress.firstName;
@@ -260,28 +260,30 @@ global without sharing class Rest_UpsertAccount {
 
 				if (miAcc.visitAddress.Id == miAcc.billingAddress.Id) {
 					// same address -> make shipping address free
-					acc.useBillingAddress__c = false;
+					acc.useInvoiceAddress__c = false;
 				} else if (sameStreet && samePostalCode && sameCity && sameCountry) {
-					acc.useBillingAddress__c = false;
+					acc.useInvoiceAddress__c = false;
 				} else {
-					acc.useBillingAddress__c = true;
+					acc.useInvoiceAddress__c = true;
 				}
 			} else {
-				acc.useBillingAddress__c = false;
+				acc.useInvoiceAddress__c = false;
 
-				acc.VisitingAddress__CountryCode__s = miAcc.billingAddress.country;
-				acc.VisitingAddress__PostalCode__s = miAcc.billingAddress.PostalCode;
-				acc.VisitingAddress__City__s = (miAcc.billingAddress.City != null) ? miAcc.billingAddress.City : '';
-				acc.VisitingAddress__Street__s = (miAcc.billingAddress.Street != null) ? miAcc.billingAddress.Street : '';
-				acc.VisitingAddress__Street__s += (miAcc.billingAddress.Housenumber != null) ? (' ' + miAcc.billingAddress.Housenumber): '';
-			}
-
-			if (acc.useBillingAddress__c) {
+				// no visit address: the billing (invoice) address is also the establishment address
 				acc.BillingCountryCode = miAcc.billingAddress.country;
 				acc.BillingPostalCode = miAcc.billingAddress.PostalCode;
 				acc.BillingCity = (miAcc.billingAddress.City != null) ? miAcc.billingAddress.City : '';
 				acc.BillingStreet = (miAcc.billingAddress.Street != null) ? miAcc.billingAddress.Street : '';
-				acc.BillingStreet += (miAcc.billingAddress.Housenumber != null) ? (' ' + miAcc.billingAddress.Housenumber) : '';
+				acc.BillingStreet += (miAcc.billingAddress.Housenumber != null) ? (' ' + miAcc.billingAddress.Housenumber): '';
+			}
+
+			// billing address (payload) -> invoice address, only when it differs from the establishment address
+			if (acc.useInvoiceAddress__c) {
+				acc.InvoiceAddress__CountryCode__s = miAcc.billingAddress.country;
+				acc.InvoiceAddress__PostalCode__s = miAcc.billingAddress.PostalCode;
+				acc.InvoiceAddress__City__s = (miAcc.billingAddress.City != null) ? miAcc.billingAddress.City : '';
+				acc.InvoiceAddress__Street__s = (miAcc.billingAddress.Street != null) ? miAcc.billingAddress.Street : '';
+				acc.InvoiceAddress__Street__s += (miAcc.billingAddress.Housenumber != null) ? (' ' + miAcc.billingAddress.Housenumber) : '';
 			}
 
 			String billingName = miAcc.billingAddress.firstName;
@@ -1075,10 +1077,10 @@ global without sharing class Rest_UpsertAccount {
 			//System.debug('MiAccount constructor - visit address : ' + mainContact);
 			this.visitAddress = new Rest_UpsertAccount.MiContact(mainContact); // consequences other systems - null ??
 			//System.debug('MiAccount constructor - visit address : ' + this.visitAddress);
-			this.visitAddress.postalCode = acct.ShippingPostalCode;
-			this.visitAddress.city = acct.ShippingCity;
-			this.visitAddress.street = acct.ShippingStreet;
-			this.visitAddress.country = acct.ShippingCountryCode;
+			this.visitAddress.postalCode = acct.BillingPostalCode; // establishment / billing address
+			this.visitAddress.city = acct.BillingCity;
+			this.visitAddress.street = acct.BillingStreet;
+			this.visitAddress.country = acct.BillingCountryCode;
 			this.visitAddress.type = 'Main;Shipping';
 
 			//System.debug('MiAccount constructor - visit address : ' + this.visitAddress);
@@ -1087,10 +1089,10 @@ global without sharing class Rest_UpsertAccount {
 			//System.debug('MiAccount constructor - billing address : ' + billingContact);
 			this.billingAddress = new Rest_UpsertAccount.MiContact(invoiceContact); // consequences other systems - null ??
 			//System.debug('MiAccount constructor - billing address : ' + this.billingAddress);
-			this.billingAddress.postalCode = acct.BillingPostalCode;
-			this.billingAddress.city = acct.BillingCity;
-			this.billingAddress.street = acct.BillingStreet;
-			this.billingAddress.country = acct.BillingCountryCode;
+			this.billingAddress.postalCode = acct.InvoiceAddress__PostalCode__s; // invoice address
+			this.billingAddress.city = acct.InvoiceAddress__City__s;
+			this.billingAddress.street = acct.InvoiceAddress__Street__s;
+			this.billingAddress.country = acct.InvoiceAddress__CountryCode__s;
 			this.billingAddress.type = 'Invoice';
 			if (this.isBusiness) {
 				this.billingAddress.type += ';Digital';

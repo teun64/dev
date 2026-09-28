@@ -4,18 +4,19 @@ public with sharing class Test_Data {
 
         Account acct = new Account(Name = name);
 
-        acct.VisitingAddress__Street__s = 'Roerdomp 32';
-        acct.VisitingAddress__PostalCode__s = '1715 HL';
-        acct.VisitingAddress__City__s = 'Spanbroek';
-        acct.VisitingAddress__CountryCode__s = 'NL';
-
-        acct.useBillingAddress__c = true;
-        acct.useShippingAddress__c = false;
-
-        acct.BillingStreet = 'Postbus 184';
-        acct.BillingPostalCode = '1715 ZH';
+        // establishment / billing address (main), separate invoice address (by post)
+        acct.BillingStreet = 'Roerdomp 32';
+        acct.BillingPostalCode = '1715 HL';
         acct.BillingCity = 'Spanbroek';
         acct.BillingCountryCode = 'NL';
+
+        acct.useInvoiceAddress__c = true;
+        acct.useShippingAddress__c = false;
+
+        acct.InvoiceAddress__Street__s = 'Postbus 184';
+        acct.InvoiceAddress__PostalCode__s = '1715 ZH';
+        acct.InvoiceAddress__City__s = 'Spanbroek';
+        acct.InvoiceAddress__CountryCode__s = 'NL';
 
         acct.ShippingStreet = 'Roerdomp 32';
         acct.ShippingPostalCode = '1715 HL';

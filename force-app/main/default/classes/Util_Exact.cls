@@ -55,9 +55,10 @@ public without sharing class Util_Exact {
 				, Block_Syncing_Exact__c, Name, OwnerId, Payment_Method_Contracts__c, Exact_Account_Name__c
 				, ShippingStreet, ShippingPostalCode, ShippingCity, ShippingCountryCode
 				, BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode, Billing_Phone__c, Billing_Email__c
+				, InvoiceAddress__Street__s, InvoiceAddress__PostalCode__s, InvoiceAddress__City__s, InvoiceAddress__CountryCode__s
 				, Bank_Account_Number__c, Bank_Account__c, Bank_BIC__c, Bank_Country__c 
 				, FinancialDebtorCheck__c, FinancialNumberOfDebtors__c, FinancialReplaceDebtorNumber__c
-				, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c, FinancialIdAccount__c, FinancialIdVisitingAddress__c,  FinancialIdBillingAddress__c,  FinancialIdShippingAddress__c,  FinancialIdBankAccount__c, FinancialIdBankMandate__c
+				, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c, FinancialIdAccount__c, FinancialIdVisitingAddress__c,  FinancialIdBillingAddress__c,  FinancialIdInvoiceAddress__c,  FinancialIdShippingAddress__c,  FinancialIdBankAccount__c, FinancialIdBankMandate__c
 				, FinancialAccountClassification1__c, FinancialAccountClassification2__c, FinancialAccountClassification3__c
 				, Contact_person__c, Contact_person__r.FinancialIdContact__c, Contact_person__r.FirstName, Contact_person__r.MiddleName, Contact_person__r.LastName, Contact_person__r.Email, Contact_person__r.Phone					
 				, Contact_Billing__c, Contact_Billing__r.FinancialIdContact__c, Contact_Billing__r.FirstName, Contact_Billing__r.MiddleName, Contact_Billing__r.LastName, Contact_Billing__r.Email, Contact_Billing__r.Phone					
@@ -84,15 +85,15 @@ public without sharing class Util_Exact {
 			//system.debug(skipDataCheck);
 
 			if (!skipDataCheck) {
-				if(acct.Reseller_Name__c == '1' && acct.RecordType.DeveloperName != 'B2C' && acct.ShippingCountryCode == 'NL' && acct.Block_Syncing_Exact__c){
+				if(acct.Reseller_Name__c == '1' && acct.RecordType.DeveloperName != 'B2C' && acct.BillingCountryCode == 'NL' && acct.Block_Syncing_Exact__c){
 					throw new Util_System.CustomException('This account is not validated by Web Services, this validation has to be completed before this account can be synchronised.');
 				} else if (Util_System.requireBankDetails.contains(acct.Payment_Method_Contracts__c) && (String.isBlank(acct.Bank_Account_Number__c) || String.isBlank(acct.Bank_Account__c))){
 					//Reseller 1 requires an bank account
 					throw new Util_System.CustomException('This account can not be synchronised because the bank account is not filled in.');
-				} else if (String.isBlank(acct.ShippingCountryCode) || String.isBlank(acct.ShippingStreet) || String.isBlank(acct.ShippingPostalCode) || String.isBlank(acct.ShippingCity)){
-					throw new Util_System.CustomException('This account can not be synchronised because the shipping address is not filled in.');
 				} else if (String.isBlank(acct.BillingCountryCode) || String.isBlank(acct.BillingStreet) || String.isBlank(acct.BillingPostalCode) || String.isBlank(acct.BillingCity)){
-					throw new Util_System.CustomException('This account can not be synchronised because the billing address is not filled in.');
+					throw new Util_System.CustomException('This account can not be synchronised because the establishment / billing address is not filled in.');
+				} else if (String.isBlank(acct.InvoiceAddress__CountryCode__s) || String.isBlank(acct.InvoiceAddress__Street__s) || String.isBlank(acct.InvoiceAddress__PostalCode__s) || String.isBlank(acct.InvoiceAddress__City__s)){
+					throw new Util_System.CustomException('This account can not be synchronised because the invoice address is not filled in.');
 				}
 			}
 
@@ -119,7 +120,7 @@ public without sharing class Util_Exact {
 			
 			List<Subscription25__Debtor_Number__c> debtorNumbers = [
 				SELECT Id, Subscription25__Composite_Key__c, Subscription25__Administration__c, Subscription25__Debtor_Number__c, 
-					Exact_Id__c, Exact_Bank_Account_ID__c, Exact_Billing_Address_ID__c, Exact_Contact_ID__c, Exact_Mandate_Id__c
+					Exact_Id__c, Exact_Bank_Account_ID__c, Exact_Billing_Address_ID__c, Exact_Invoice_Address_ID__c, Exact_Contact_ID__c, Exact_Mandate_Id__c
 				FROM Subscription25__Debtor_Number__c
 				WHERE Subscription25__Administration__c = :admin.Id
 					AND Subscription25__Account__c = :acct.Id
@@ -168,6 +169,7 @@ public without sharing class Util_Exact {
 			if ((!String.isBlank(previousExactID) && (curDebNr.Exact_Id__c != previousExactID) && (accountMethod != 'pseudoPOST')) || (accountMethod == 'POST')) {
 				curDebNr.Exact_Contact_Id__c = '';
 				curDebNr.Exact_Billing_Address_Id__c = '';
+				curDebNr.Exact_Invoice_Address_ID__c = '';
 				curDebNr.Exact_Bank_Account_Id__c = '';				
 				curDebNr.Exact_Mandate_Id__c = '';
 				isNewExactAccount = true;				
@@ -188,14 +190,13 @@ public without sharing class Util_Exact {
 				}
 			}
 			
-			//now we can also create/update the billing address, this method also populates the Exact_Billing_Address_Id__c field
+			//now we can also create/update the invoice address, this method also populates the Exact_Invoice_Address_Id__c field
 			//on the given account (and debtor number), it returns the method that it applied (so we know if DML on the account is required)
-			//only sync billing address if it differs from the shipping address
-			//system.debug('billing address');
-			if(!String.isBlank(curDebNr.Exact_Id__c) && !String.isBlank(acct.BillingCity) && (acct.BillingStreet != acct.ShippingStreet || acct.BillingPostalCode != acct.ShippingPostalCode
-					|| acct.BillingCity != acct.ShippingCity || acct.BillingCountryCode != acct.ShippingCountryCode)){
+			//only sync the invoice address if it differs from the establishment / billing (main) address
+			if(!String.isBlank(curDebNr.Exact_Id__c) && !String.isBlank(acct.InvoiceAddress__City__s) && (acct.InvoiceAddress__Street__s != acct.BillingStreet || acct.InvoiceAddress__PostalCode__s != acct.BillingPostalCode
+					|| acct.InvoiceAddress__City__s != acct.BillingCity || acct.InvoiceAddress__CountryCode__s != acct.BillingCountryCode)){
 				try {
-					String billingMethod = Util_Exact.syncBillingAddress(acct, curDebNr, adminCode, namedCredential, mainLog.GUID__c);
+					String billingMethod = Util_Exact.syncInvoiceAddress(acct, curDebNr, adminCode, namedCredential, mainLog.GUID__c);
 					saveDebtorNumber |= billingMethod == 'POST'; //if the billing address was an insert, we have to save the account so the id gets updated
 				} catch(Util_System.FinancialSyncException e){
 					//same handling of FinancialSyncExceptions as all the way below
@@ -387,6 +388,7 @@ public without sharing class Util_Exact {
 							acct.FinancialIdAccount__c = financialAccounts.results[0].ID;
 							debNr.Exact_Contact_Id__c = null;
 							debNr.Exact_Billing_Address_Id__c = null;
+							debNr.Exact_Invoice_Address_ID__c = null;
 							debNr.Exact_Bank_Account_Id__c = null;
 							debnr.Exact_Mandate_ID__c = null;
 						}
@@ -459,7 +461,7 @@ public without sharing class Util_Exact {
 		return retStr;
 	}
 
-	private static String syncBillingAddress(Account acct, Subscription25__Debtor_Number__c debNr, String adminCode, String namedCredential, String logGuid){
+	private static String syncInvoiceAddress(Account acct, Subscription25__Debtor_Number__c debNr, String adminCode, String namedCredential, String logGuid){
 		Util_Exact.ExactAddress billAddress = new Util_Exact.ExactAddress(acct, debNr);
 
 		//set up the request to upsert the address. On update we have to use PUT, with the GUID in the URL
@@ -467,8 +469,8 @@ public without sharing class Util_Exact {
 		String method = 'POST';
 
 		//if we have an Exact Id on the debtor number, that means this will be an update, using the PUT method and adding the GUID to the endpoint.
-		if(!String.isBlank(debNr.Exact_Billing_Address_ID__c)){
-			endpoint += '(guid\''+debNr.Exact_Billing_Address_ID__c+'\')';
+		if(!String.isBlank(debNr.Exact_Invoice_Address_ID__c)){
+			endpoint += '(guid\''+debNr.Exact_Invoice_Address_ID__c+'\')';
 			method = 'PUT';
 		}
 		String response = Util_Exact.doRequest(namedCredential, endpoint, null, method, JSON.serialize(billAddress), logGuid);
@@ -477,10 +479,10 @@ public without sharing class Util_Exact {
 		if(method == 'POST'){
 			Util_Exact.ExactAddress responseAddress = (Util_Exact.ExactAddress)JSON.deserialize(response, Util_Exact.ExactAddress.class);
 			//acct.Exact_Billing_Address_Id__c = responseAddress.ID;
-			debNr.Exact_Billing_Address_ID__c = responseAddress.ID;
+			debNr.Exact_Invoice_Address_ID__c = responseAddress.ID;
 			//20230328 - TRi forces account update when saving debtornummer
 			acct.FinancialDebtorNumber__c = '';
-			acct.FinancialIdBillingAddress__c = responseAddress.ID;
+			acct.FinancialIdInvoiceAddress__c = responseAddress.ID;
 		}
 		return method;
 	}
@@ -687,7 +689,7 @@ public without sharing class Util_Exact {
 			namedCredential = admin.Subscription25__Named_Credential__c;
 
 			List<Subscription25__Debtor_Number__c> debtorNumbers = [
-				SELECT Id, Subscription25__Debtor_Number__c, Exact_Id__c, Exact_Bank_Account_ID__c, Exact_Billing_Address_ID__c, Exact_Contact_ID__c, Exact_Mandate_Id__c
+				SELECT Id, Subscription25__Debtor_Number__c, Exact_Id__c, Exact_Bank_Account_ID__c, Exact_Billing_Address_ID__c, Exact_Invoice_Address_ID__c, Exact_Contact_ID__c, Exact_Mandate_Id__c
 				FROM Subscription25__Debtor_Number__c
 				WHERE Subscription25__Administration__c = :admin.Id
 					AND Subscription25__Account__c = :curOrder.AccountId
@@ -727,12 +729,13 @@ public without sharing class Util_Exact {
 					acct = [
 						SELECT Id, RecordType.DeveloperName, VAT_Number__c, Reseller_Name__c, Market__c, Relation_Type__c, Sales_Channel__c
 							, FinancialDebtorCheck__c, FinancialNumberOfDebtors__c, FinancialReplaceDebtorNumber__c
-							, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c, FinancialIdAccount__c, FinancialIdVisitingAddress__c,  FinancialIdBillingAddress__c,  FinancialIdShippingAddress__c,  FinancialIdBankAccount__c, FinancialIdBankMandate__c
+							, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c, FinancialIdAccount__c, FinancialIdVisitingAddress__c,  FinancialIdBillingAddress__c,  FinancialIdInvoiceAddress__c,  FinancialIdShippingAddress__c,  FinancialIdBankAccount__c, FinancialIdBankMandate__c
 							, FinancialAccountClassification1__c, FinancialAccountClassification2__c, FinancialAccountClassification3__c
 							, Customer_Type__c, CoC_Number__c
 							, Block_Syncing_Exact__c, Name, OwnerId, Payment_Method_Contracts__c, Exact_Account_Name__c
 							, ShippingStreet, ShippingPostalCode, ShippingCity, ShippingCountryCode
 							, BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode, Billing_Phone__c, Billing_Email__c
+							, InvoiceAddress__Street__s, InvoiceAddress__PostalCode__s, InvoiceAddress__City__s, InvoiceAddress__CountryCode__s
 							, Bank_Account_Number__c, Bank_Account__c, Bank_BIC__c, Bank_Country__c
 							, Contact_person__r.FirstName, Contact_person__r.MiddleName, Contact_person__r.LastName, Contact_person__r.Email, Contact_person__r.Phone					
 						FROM Account
@@ -1358,11 +1361,10 @@ public without sharing class Util_Exact {
 				this.Code = debNr.Subscription25__Debtor_Number__c;
 			}
 			this.Name = acct.Exact_Account_Name__c;
-			this.AddressLine1 = acct.ShippingStreet;
-			this.Postcode = acct.ShippingPostalCode;
-			this.City = acct.ShippingCity;
-			//this.Country = Util_System.getISO2CountryCode(acct.ShippingCountry);
-			this.Country = acct.ShippingCountryCode;
+			this.AddressLine1 = acct.BillingStreet; // establishment / billing address = main address
+			this.Postcode = acct.BillingPostalCode;
+			this.City = acct.BillingCity;
+			this.Country = acct.BillingCountryCode;
 			this.Phone = acct.Billing_Phone__c;
 			this.Email = acct.Billing_Email__c;
 			this.ChamberOfCommerce = (acct.CoC_Number__c != '-') ? acct.CoC_Number__c  : '';  //Gen25 26/11/2020 change: acct.WSONE_DATA__DossierNumber__c;
@@ -1436,11 +1438,10 @@ public without sharing class Util_Exact {
 
 		private ExactAddress(Account acct, Subscription25__Debtor_Number__c debNr){
 			this.Account = debNr.Exact_ID__c;
-			this.AddressLine1 = acct.BillingStreet;
-			this.Postcode = acct.BillingPostalCode;
-			this.City = acct.BillingCity;
-			//this.Country = Util_System.getISO2CountryCode(acct.BillingCountry);
-			this.Country = acct.BillingCountryCode;
+			this.AddressLine1 = acct.InvoiceAddress__Street__s; // invoice address
+			this.Postcode = acct.InvoiceAddress__PostalCode__s;
+			this.City = acct.InvoiceAddress__City__s;
+			this.Country = acct.InvoiceAddress__CountryCode__s;
 			this.Contact = debNr.Exact_Contact_ID__c;
 			this.Type = 3; //altijd invoice
 		}

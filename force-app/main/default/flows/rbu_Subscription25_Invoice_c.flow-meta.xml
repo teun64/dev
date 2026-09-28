@@ -877,27 +877,27 @@
     <formulas>
         <name>fBillingCity</name>
         <dataType>String</dataType>
-        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingCity},{!$Record.Subscription25__Account__r.BillingCity}),&apos;&apos;)</expression>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.InvoiceAddress__City__s},{!$Record.Subscription25__Account__r.InvoiceAddress__City__s}),&apos;&apos;)</expression>
     </formulas>
     <formulas>
         <name>fBillingCountry</name>
         <dataType>String</dataType>
-        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingCountry},{!$Record.Subscription25__Account__r.BillingCountry}),&apos;&apos;)</expression>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.InvoiceAddress_Country__c},{!$Record.Subscription25__Account__r.InvoiceAddress_Country__c}),&apos;&apos;)</expression>
     </formulas>
     <formulas>
         <name>fBillingPostalCode</name>
         <dataType>String</dataType>
-        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingPostalCode},{!$Record.Subscription25__Account__r.BillingPostalCode}),&apos;&apos;)</expression>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.InvoiceAddress__PostalCode__s},{!$Record.Subscription25__Account__r.InvoiceAddress__PostalCode__s}),&apos;&apos;)</expression>
     </formulas>
     <formulas>
         <name>fBillingState</name>
         <dataType>String</dataType>
-        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingState},{!$Record.Subscription25__Account__r.BillingState}),&apos;&apos;)</expression>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.InvoiceAddress_State__c},{!$Record.Subscription25__Account__r.InvoiceAddress_State__c}),&apos;&apos;)</expression>
     </formulas>
     <formulas>
         <name>fBillingStreet</name>
         <dataType>String</dataType>
-        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.BillingStreet},{!$Record.Subscription25__Account__r.BillingStreet}),&apos;&apos;)</expression>
+        <expression>IF(NOT(ISBLANK({!$Record.Subscription25__Account__c})),IF(AND(NOT(ISBLANK({!$Record.Subscription25__Account__r.ParentId})),{!$Record.Subscription25__Account__r.Subscription25__Bill_To_Parent__c}),{!$Record.Subscription25__Account__r.Parent.InvoiceAddress__Street__s},{!$Record.Subscription25__Account__r.InvoiceAddress__Street__s}),&apos;&apos;)</expression>
     </formulas>
     <formulas>
         <name>fContractAccount</name>

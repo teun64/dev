@@ -659,9 +659,9 @@
 		),
 		/* Billing Address */
 		OR (
-			ISBLANK( {!$Record.Account.BillingStreet} ), 
-			ISBLANK( {!$Record.Account.BillingPostalCode} ), 
-			ISBLANK( {!$Record.Account.BillingCity} )
+			ISBLANK( {!$Record.Account.InvoiceAddress__Street__s} ), 
+			ISBLANK( {!$Record.Account.InvoiceAddress__PostalCode__s} ), 
+			ISBLANK( {!$Record.Account.InvoiceAddress__City__s} )
 		), 
 		/* Shipping Address */
 		OR (

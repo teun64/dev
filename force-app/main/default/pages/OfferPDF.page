@@ -165,17 +165,17 @@
                                     </td>
                                 </tr>
                             </apex:outputPanel>
-                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.Account.VisitingAddress__Street__s))}">
+                            <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(curOpp.Account.BillingStreet))}">
                                 <tr>
                                     <td class="account-detail-table-cell m--last-cell">
-                                        <p>{!curOpp.Account.VisitingAddress__Street__s}</p>
+                                        <p>{!curOpp.Account.BillingStreet}</p>
                                     </td>
                                 </tr>
                             </apex:outputPanel>
-                            <apex:outputPanel layout="none" rendered="{!AND(NOT(ISBLANK(curOpp.Account.VisitingAddress__PostalCode__s)), NOT(ISBLANK(curOpp.Account.VisitingAddress__City__s)))}">
+                            <apex:outputPanel layout="none" rendered="{!AND(NOT(ISBLANK(curOpp.Account.BillingPostalCode)), NOT(ISBLANK(curOpp.Account.BillingCity)))}">
                                 <tr>
                                     <td class="account-detail-table-cell m--last-cell">
-                                        <p>{!curOpp.Account.VisitingAddress__PostalCode__s} {!curOpp.Account.VisitingAddress__City__s} </p>
+                                        <p>{!curOpp.Account.BillingPostalCode} {!curOpp.Account.BillingCity} </p>
                                     </td>
                                 </tr>
                             </apex:outputPanel>

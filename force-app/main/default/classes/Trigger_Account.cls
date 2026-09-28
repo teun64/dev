@@ -5,6 +5,7 @@ public class Trigger_Account {
 		}
 
 		Trigger_Account.updateVisitingAddressLabels();
+		Trigger_Account.updateInvoiceAddressLabels();
 		Trigger_Account.cascadeOrderCreationSettings();
 		//Trigger_Account.syncToExact();
 	}
@@ -37,6 +38,31 @@ public class Trigger_Account {
 
 		}
 
+	}
+
+	// country / state labels of the invoice address (custom address fields only have codes), used for the invoice (Subscription25) address
+	private static void updateInvoiceAddressLabels(){
+		if(!(Trigger.isBefore && (Trigger.isInsert || Trigger.isUpdate))){
+			return;
+		}
+
+		List<Account> iterList = Trigger.new;
+		for(Account accNew : iterList){
+			Account accOld = Trigger.isUpdate ? (Account)Trigger.oldMap.get(accNew.Id) : null;
+			Boolean addressChanged = (accOld == null) ||
+				(accNew.InvoiceAddress__CountryCode__s != accOld.InvoiceAddress__CountryCode__s) ||
+				(accNew.InvoiceAddress__StateCode__s != accOld.InvoiceAddress__StateCode__s) ||
+				((String.isNotBlank(accNew.InvoiceAddress__CountryCode__s)) && (String.isBlank(accNew.InvoiceAddress_Country__c))) ||
+				((String.isNotBlank(accNew.InvoiceAddress__StateCode__s)) && (String.isBlank(accNew.InvoiceAddress_State__c)));
+
+			if (addressChanged) {
+				String countryCode = accNew.InvoiceAddress__CountryCode__s;
+				String stateCode   = accNew.InvoiceAddress__StateCode__s;
+
+				accNew.InvoiceAddress_Country__c = String.isNotBlank(countryCode) ? Util_AddressLabel.getCountryLabel(countryCode) : null;
+				accNew.InvoiceAddress_State__c   = String.isNotBlank(stateCode) ? Util_AddressLabel.getStateLabel(stateCode) : null;
+			}
+		}
 	}
 
 	//when the value of Create Montly Orders Until or Create Yearly Orders Until change, we simply update the contract

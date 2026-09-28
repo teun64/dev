@@ -24,7 +24,7 @@ public without sharing class Ctrl_OfferPDF {
                 OwnerId, ReceiverName__c, ReceiverFirstName__c, ReceiverLastName__c, ReceiverTitle__c, ReceiverEmail__c, ReceiverPhone__c, ReceiverMobile__c, ReceiverLanguage__c, 
                 AccountId, Account.Name, Account.Reseller_Name__c, Account.RecordType.DeveloperName, Account.Sales_Language__c, Account.Phone, 
                 Account.Invoice_VAT_Calculation__c,
-                Account.VisitingAddress__Street__s, Account.VisitingAddress__PostalCode__s, Account.VisitingAddress__City__s, Account.VisitingAddress__CountryCode__s,
+                Account.BillingStreet, Account.BillingPostalCode, Account.BillingCity, Account.BillingCountryCode,
                 Option_Show_Compressed__c, Option_Show_Customer_Product_Code__c, Option_Show_ListPrice__c, Option_Show_UnitPrice__c, Option_Show_Activation_Fee_Remark__c,
                 Option_Require_Signature__c, 
                 Subscriptions__c, Subscription_Description__c, Subscriptions_StartDate__c, Subscriptions_ContractTerm__c,

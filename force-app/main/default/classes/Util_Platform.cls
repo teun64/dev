@@ -32,6 +32,7 @@ public with sharing class Util_Platform {
             + ', SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c, NumberOfEmployees, NumberOfFulltimeEmployees__c, Status__c'
 			+ ', ShippingPostalCode, ShippingCity, ShippingStreet, ShippingCountryCode, Shipping_Email__c, Shipping_Phone__c, Shipping_Name__c'
 			+ ', BillingPostalCode, BillingCity, BillingStreet, BillingCountryCode, Billing_Email__c, Billing_Phone__c, Billing_Name__c' 
+			+ ', InvoiceAddress__PostalCode__s, InvoiceAddress__City__s, InvoiceAddress__Street__s, InvoiceAddress__CountryCode__s'
 			+ ',' + extIdField
 			+ ', Contact_person__r.FirstName, Contact_person__r.MiddleName, Contact_person__r.LastName, Contact_person__r.Language__c'
 			+ ', Contact_person__r.Email, Contact_person__r.Phone, Contact_person__r.MobilePhone, Contact_person__r.OtherPhone'

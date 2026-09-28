@@ -565,8 +565,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.VisitingAddress__c</fieldItem>
-                <identifier>RecordVisitingAddress_cField</identifier>
+                <fieldItem>Record.BillingAddress</fieldItem>
+                <identifier>RecordBillingAddressField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -585,8 +585,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.useBillingAddress__c</fieldItem>
-                <identifier>RecorduseBillingAddress_cField</identifier>
+                <fieldItem>Record.useInvoiceAddress__c</fieldItem>
+                <identifier>RecorduseInvoiceAddress_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -633,11 +633,11 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.BillingAddress</fieldItem>
-                <identifier>RecordBillingAddressField</identifier>
+                <fieldItem>Record.InvoiceAddress__c</fieldItem>
+                <identifier>RecordInvoiceAddress_cField</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue>{!Record.useBillingAddress__c}</leftValue>
+                        <leftValue>{!Record.useInvoiceAddress__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>true</rightValue>
                     </criteria>
@@ -2566,7 +2566,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Primary Address (Visiting)</value>
+                    <value>Primary Address (Establishment / Billing)</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection5</identifier>
@@ -2584,14 +2584,14 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Additional Addresses (Billing &amp; Shipping)</value>
+                    <value>Additional Addresses (Invoice &amp; Shipping)</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection7</identifier>
                 <visibilityRule>
                     <booleanFilter>1 OR 2</booleanFilter>
                     <criteria>
-                        <leftValue>{!Record.useBillingAddress__c}</leftValue>
+                        <leftValue>{!Record.useInvoiceAddress__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>true</rightValue>
                     </criteria>
@@ -3356,6 +3356,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.FinancialIdBillingAddress__c</fieldItem>
                 <identifier>RecordFinancialIdBillingAddress_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FinancialIdInvoiceAddress__c</fieldItem>
+                <identifier>RecordFinancialIdInvoiceAddress_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>

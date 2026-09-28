@@ -56,6 +56,13 @@
             </value>
         </assignmentItems>
         <assignmentItems>
+            <assignToReference>rAccount.FinancialIdInvoiceAddress__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
             <assignToReference>rAccount.FinancialIdShippingAddress__c</assignToReference>
             <operator>Assign</operator>
             <value>
@@ -210,6 +217,13 @@
             <operator>Assign</operator>
             <value>
                 <elementReference>rAccount.FinancialIdBillingAddress__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rHistoricalDebtorNumber.Exact_Invoice_Address_ID__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rAccount.FinancialIdInvoiceAddress__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>

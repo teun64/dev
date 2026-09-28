@@ -233,6 +233,26 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals('blocked', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c);
     }
 
+    private static testMethod void testRestInsertAccountAddresses(){
+        // visitAddress -> establishment / billing address, a different billingAddress -> invoice address
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Postbus","houseNumber":"99","postalCode":"2222 BB","city":"Factuurstad","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account acc = [SELECT BillingStreet, BillingCity, InvoiceAddress__Street__s, InvoiceAddress__City__s, useInvoiceAddress__c, VisitingAddress__Street__s FROM Account WHERE extId_1__c = 't30'];
+        System.assertEquals('Straatnaam 12', acc.BillingStreet, 'visitAddress is the establishment / billing address');
+        System.assertEquals('Plaatsnaam', acc.BillingCity);
+        System.assertEquals(true, acc.useInvoiceAddress__c, 'different billingAddress sets a separate invoice address');
+        System.assertEquals('Postbus 99', acc.InvoiceAddress__Street__s);
+        System.assertEquals('Factuurstad', acc.InvoiceAddress__City__s);
+        System.assertEquals('Straatnaam 12', acc.VisitingAddress__Street__s, 'visiting address mirrors the billing address');
+    }
+
     @testSetup
     private static void testSetup(){
         Account dealerAcc = Test_Data.createAccount('Dealer', '1', 'B2B', false);

@@ -186,17 +186,17 @@
         <customLabel>true</customLabel>
         <detailHeading>true</detailHeading>
         <editHeading>true</editHeading>
-        <label>Primary Address (Visiting)</label>
+        <label>Primary Address (Establishment / Billing)</label>
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>VisitingAddress__c</field>
+                <field>BillingAddress</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>useBillingAddress__c</field>
+                <field>useInvoiceAddress__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -209,11 +209,11 @@
         <customLabel>true</customLabel>
         <detailHeading>true</detailHeading>
         <editHeading>true</editHeading>
-        <label>Additional Address (Billing &amp; Shipping)</label>
+        <label>Additional Address (Invoice &amp; Shipping)</label>
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>BillingAddress</field>
+                <field>InvoiceAddress__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

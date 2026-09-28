@@ -57,43 +57,43 @@
             </value>
         </filters>
         <inputAssignments>
-            <field>VisitingAddress__City__s</field>
+            <field>BillingCity</field>
             <value>
                 <elementReference>$Record.City</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__CountryCode__s</field>
+            <field>BillingCountryCode</field>
             <value>
                 <elementReference>$Record.CountryCode</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__Latitude__s</field>
+            <field>BillingLatitude</field>
             <value>
                 <elementReference>$Record.Latitude</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__Longitude__s</field>
+            <field>BillingLongitude</field>
             <value>
                 <elementReference>$Record.Longitude</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__PostalCode__s</field>
+            <field>BillingPostalCode</field>
             <value>
                 <elementReference>$Record.PostalCode</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__StateCode__s</field>
+            <field>BillingStateCode</field>
             <value>
                 <elementReference>$Record.StateCode</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__Street__s</field>
+            <field>BillingStreet</field>
             <value>
                 <elementReference>$Record.Street</elementReference>
             </value>
@@ -122,31 +122,31 @@
             </value>
         </filters>
         <inputAssignments>
-            <field>VisitingAddress__City__s</field>
+            <field>BillingCity</field>
             <value>
                 <elementReference>$Record.City</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__CountryCode__s</field>
+            <field>BillingCountryCode</field>
             <value>
                 <elementReference>$Record.CountryCode</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__PostalCode__s</field>
+            <field>BillingPostalCode</field>
             <value>
                 <elementReference>$Record.PostalCode</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__StateCode__s</field>
+            <field>BillingStateCode</field>
             <value>
                 <elementReference>$Record.StateCode</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>VisitingAddress__Street__s</field>
+            <field>BillingStreet</field>
             <value>
                 <elementReference>$Record.Street</elementReference>
             </value>

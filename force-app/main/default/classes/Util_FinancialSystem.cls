@@ -1295,21 +1295,9 @@ public without sharing class Util_FinancialSystem {
         }
     }
 
+    // Exact visit address (type 1) = the establishment / billing address (main address)
     private class VisitingAddress extends ExactAddress {
         public VisitingAddress(Account acct) {
-            Super(acct, Schema.Account.FinancialIdVisitingAddress__c);
-            this.ID = acct.FinancialIdVisitingAddress__c;
-            this.Account = acct.FinancialIdAccount__c;
-            this.AddressLine1 = acct.VisitingAddress__Street__s;
-            this.Postcode = acct.VisitingAddress__PostalCode__s;
-            this.City = acct.VisitingAddress__City__s;
-            this.Country = acct.VisitingAddress__CountryCode__s;
-            this.Type = 1;
-        }
-    }
-
-    private class BillingAddress extends ExactAddress {
-        public BillingAddress(Account acct) {
             Super(acct, Schema.Account.FinancialIdBillingAddress__c);
             this.ID = acct.FinancialIdBillingAddress__c;
             this.Account = acct.FinancialIdAccount__c;
@@ -1317,6 +1305,20 @@ public without sharing class Util_FinancialSystem {
             this.Postcode = acct.BillingPostalCode;
             this.City = acct.BillingCity;
             this.Country = acct.BillingCountryCode;
+            this.Type = 1;
+        }
+    }
+
+    // Exact invoice address (type 3) = the invoice address (sending the invoice by post)
+    private class BillingAddress extends ExactAddress {
+        public BillingAddress(Account acct) {
+            Super(acct, Schema.Account.FinancialIdInvoiceAddress__c);
+            this.ID = acct.FinancialIdInvoiceAddress__c;
+            this.Account = acct.FinancialIdAccount__c;
+            this.AddressLine1 = acct.InvoiceAddress__Street__s;
+            this.Postcode = acct.InvoiceAddress__PostalCode__s;
+            this.City = acct.InvoiceAddress__City__s;
+            this.Country = acct.InvoiceAddress__CountryCode__s;
             this.Type = 3;
         }
     }
