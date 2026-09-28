@@ -156,6 +156,10 @@
                             amount={amountFormatted}
                             billing-email={payment.contactEmail}
                             billing-name={billingName}
+                            billing-address-line1={payment.billingAddressLine1}
+                            billing-city={payment.billingCity}
+                            billing-postal-code={payment.billingPostalCode}
+                            billing-country={payment.billingCountry}
                             oncheckoutresult={handleCheckoutResult}>
                         </c-payment-checkout>
                     </template>

@@ -13,6 +13,10 @@ export default class PaymentCheckout extends LightningElement {
     @api amount;
     @api billingEmail;
     @api billingName;
+    @api billingAddressLine1;
+    @api billingCity;
+    @api billingPostalCode;
+    @api billingCountry;
 
     @api
     get locale() {
@@ -81,7 +85,7 @@ export default class PaymentCheckout extends LightningElement {
     // ?v= busts the CDN's static-resource cache (cache-control: public, max-age=45 days,
     // observed independently of the site's own publish step) - bump this on every future
     // change to paymentCheckoutHtml.html, or the new HTML can sit unserved for weeks.
-    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=11`;
+    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=12`;
 
 
     // --- Computed Properties ---
@@ -127,7 +131,11 @@ export default class PaymentCheckout extends LightningElement {
                     futureConsentRequiredLabel: this.futureConsentRequiredLabel,
                     amount: this.amount,
                     billingEmail: this.billingEmail,
-                    billingName: this.billingName
+                    billingName: this.billingName,
+                    billingAddressLine1: this.billingAddressLine1,
+                    billingCity: this.billingCity,
+                    billingPostalCode: this.billingPostalCode,
+                    billingCountry: this.billingCountry
                 }, '*');
             });
         }

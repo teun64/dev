@@ -54,10 +54,10 @@ public without sharing class Ctrl_Payment {
             '       Account__r.PayProv_CustomerId__c,' +
             '       Account__r.PayProv_MandateId__c,' +
             '       Account__r.PayProv_PaymentMethodId__c,' +
-            '       Account__r.VisitingAddress__Street__s,' +
-            '       Account__r.VisitingAddress__City__s,' +
-            '       Account__r.VisitingAddress__PostalCode__s,' +
-            '       Account__r.VisitingAddress__CountryCode__s,' +
+            '       Account__r.BillingStreet,' +
+            '       Account__r.BillingCity,' +
+            '       Account__r.BillingPostalCode,' +
+            '       Account__r.BillingCountryCode,' +
             '       Administration__c,' +
             '       Administration__r.Reseller__c,' +
             '       Administration__r.Subscription25__Billing_Name__c' +
@@ -96,10 +96,10 @@ public without sharing class Ctrl_Payment {
 
         Business_Entities__c businessEntity = resolveBusinessEntity(p.Administration__r?.Reseller__c);
         result.publishableKey = businessEntity?.PayProv_Account__r?.stripeGC__Publishable_Key__c;
-        result.billingAddressLine1 = p.Account__r?.VisitingAddress__Street__s;
-        result.billingCity         = p.Account__r?.VisitingAddress__City__s;
-        result.billingPostalCode   = p.Account__r?.VisitingAddress__PostalCode__s;
-        result.billingCountry      = p.Account__r?.VisitingAddress__CountryCode__s;
+        result.billingAddressLine1 = p.Account__r?.BillingStreet;
+        result.billingCity         = p.Account__r?.BillingCity;
+        result.billingPostalCode   = p.Account__r?.BillingPostalCode;
+        result.billingCountry      = p.Account__r?.BillingCountryCode;
 
         List<AccountContactRelation> contactRels = Database.queryWithBinds(
             'SELECT Contact.FirstName, Contact.LastName, Contact.Email,' +
