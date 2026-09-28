@@ -1,7 +1,10 @@
 import { LightningElement, wire, track } from 'lwc';
 import { CurrentPageReference }          from 'lightning/navigation';
+import isGuestUser                       from '@salesforce/user/isGuest';
 import getBrandTheme                     from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
 import getMCBrandAssets                  from '@salesforce/apex/Ctrl_PreferenceCenter.getMCBrandAssets';
+import getGuestBrandTheme                from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getBrandTheme';
+import getGuestMCBrandAssets             from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getMCBrandAssets';
 
 export default class PrefBrandedLayout extends LightningElement {
 
@@ -11,12 +14,14 @@ export default class PrefBrandedLayout extends LightningElement {
     wiredPageRef(pageRef) {
         const brand = pageRef?.state?.brand || pageRef?.state?.c__brand;
         if (brand) {
-            getBrandTheme({ brand })
+            const fetchTheme  = isGuestUser ? getGuestBrandTheme    : getBrandTheme;
+            const fetchAssets = isGuestUser ? getGuestMCBrandAssets : getMCBrandAssets;
+            fetchTheme({ brand })
                 .then(theme => {
                     this._theme = theme;
                     // If a MC brand ID is configured, try to enrich with live MC assets
                     if (theme?.mcBrandId) {
-                        getMCBrandAssets({ mcBrandId: theme.mcBrandId })
+                        fetchAssets({ mcBrandId: theme.mcBrandId })
                             .then(mcData => {
                                 if (mcData) {
                                     this._theme = {
