@@ -1,4 +1,4 @@
-<apex:page controller="Ctrl_Invoice" language="{!language}"  renderAs="{!isPdf}" sidebar="false" showHeader="false" standardStylesheets="false" applyBodyTag="false" showQuickActionVfHeader="false" applyHtmlTag="false">
+<apex:page controller="Ctrl_Invoice" extensions="Ctrl_InvoiceEstablishmentAddress" language="{!language}"  renderAs="{!isPdf}" sidebar="false" showHeader="false" standardStylesheets="false" applyBodyTag="false" showQuickActionVfHeader="false" applyHtmlTag="false">
 <!-- apex:page standardController="Subscription25__Invoice__c" extensions="Ctrl_Invoice" language="{!language}"  renderAs="{!isPdf}" sidebar="false" showHeader="false" standardStylesheets="false" applyBodyTag="false" showQuickActionVfHeader="false" applyHtmlTag="false"-->
 <html>
     
@@ -283,7 +283,7 @@
                                                     </apex:outputPanel>
                                                     {!invoice.Subscription25__Billing_Street__c}<br/>
                                                     {!invoice.Subscription25__Billing_Postal_Code__c} {!invoice.Subscription25__Billing_City__c}<br/>
-                                                    <apex:outputPanel rendered="{!AND(NOT(ISBLANK(invoice.Subscription25__Billing_Country__c)),(UPPER(admin.country) <> UPPER(invoice.Subscription25__Billing_Country__c))) }" layout="none">
+                                                    <apex:outputPanel rendered="{!showInvoiceCountry}" layout="none">
                                                         {!invoice.Subscription25__Billing_Country__c}<br/>
                                                     </apex:outputPanel>
                                                 </td>
@@ -627,6 +627,27 @@
                                 &nbsp;
                             </td>
                         </tr>
+                        <apex:outputPanel rendered="{!showEstablishmentAddress}" layout="none">
+                            <tr class="invoiceFooterAdditonalRow">
+                                <td class="invoiceFooterEstablishmentCell tLeft" colspan="30">
+                                    <div class="establishmentBox">
+                                        <div class="establishmentBoxTitle">{!$Label.InvoiceEstablishmentTitle}</div>
+                                        <div class="establishmentBoxNotice">{!$Label.InvoiceEstablishmentNotice}</div>
+                                        <div class="establishmentBoxAddress">
+                                            <span class="establishmentBoxName">{!establishmentName}</span><br/>
+                                            {!establishmentStreet}<br/>
+                                            {!establishmentPostalCode} {!establishmentCity}
+                                            <apex:outputPanel rendered="{!showEstablishmentCountry}" layout="none"><br/>{!establishmentCountry}</apex:outputPanel>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="invoiceFooterAdditonalRow hm002">
+                                <td class="invoiceFooterEmptyCell tLeft" colspan="30">
+                                    &nbsp;
+                                </td>
+                            </tr>
+                        </apex:outputPanel>
                         <apex:outputPanel rendered="{!showPaymentRemark}" layout="none">
                             <tr class="invoiceFooterAdditonalRow">
                                 <td class="invoiceFooterPaymentRemarkCell tLeft" colspan="30">

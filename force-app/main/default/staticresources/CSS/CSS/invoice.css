@@ -479,3 +479,41 @@ div.header {
     font-size: 14px;
     font-weight: medium;
 }
+
+/* establishment address box (tax regulations), shown when the invoice is sent to a different invoice address */
+.invoiceFooterEstablishmentCell {
+    vertical-align: top;
+    padding-top: 2mm;
+    padding-bottom: 1mm;
+}
+.establishmentBox {
+    border: 0.25mm solid #b8b8b2;
+    border-left: 1.2mm solid #0e0f0e;
+    background-color: #f7f7f4;
+    padding: 2.5mm 4mm 3mm 4mm;
+    /* no width: the PDF renderer ignores box-sizing, so width:100% + padding/border overflowed on the right */
+    display: block;
+    page-break-inside: avoid;
+}
+.establishmentBoxTitle {
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #0e0f0e;
+    margin-bottom: 1mm;
+}
+.establishmentBoxNotice {
+    font-size: 11px;
+    font-style: italic;
+    color: #4a4a47;
+    line-height: 1.35;
+    margin-bottom: 2mm;
+}
+.establishmentBoxAddress {
+    font-size: 13px;
+    line-height: 1.4;
+}
+.establishmentBoxName {
+    font-weight: bold;
+}

@@ -2382,4 +2382,20 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Dealer Shop order confirmation success icon aria-label</shortDescription>
         <value>Success</value>
     </labels>
+    <labels>
+        <fullName>InvoiceEstablishmentTitle</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceEstablishmentTitle</shortDescription>
+        <value>Establishment address</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceEstablishmentNotice</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceEstablishmentNotice</shortDescription>
+        <value>In accordance with tax regulations, we are required to state the customer&apos;s establishment address in addition to the invoice address.</value>
+    </labels>
 </CustomLabels>

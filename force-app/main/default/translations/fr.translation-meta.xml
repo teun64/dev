@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customLabels>
+        <label>Adresse d&apos;établissement</label>
+        <name>InvoiceEstablishmentTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Conformément à la réglementation fiscale, nous sommes tenus d&apos;indiquer, outre l&apos;adresse de facturation, l&apos;adresse d&apos;établissement du client.</label>
+        <name>InvoiceEstablishmentNotice</name>
+    </customLabels>
+    <customLabels>
         <label>Bienvenue sur le portail revendeur Moving Intelligence</label>
         <name>DealerPortal_HomeTitle</name>
     </customLabels>

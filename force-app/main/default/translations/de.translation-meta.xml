@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customLabels>
+        <label>Niederlassungsanschrift</label>
+        <name>InvoiceEstablishmentTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Aufgrund steuerrechtlicher Vorschriften sind wir verpflichtet, neben der Rechnungsanschrift auch die Niederlassungsanschrift des Leistungsempfängers anzugeben.</label>
+        <name>InvoiceEstablishmentNotice</name>
+    </customLabels>
+    <customLabels>
         <label>Willkommen im Moving Intelligence Händlerportal</label>
         <name>DealerPortal_HomeTitle</name>
     </customLabels>
