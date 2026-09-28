@@ -34,47 +34,6 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>Opportunity.actPaymentStripe</value>
-                            <visibilityRule>
-                                <booleanFilter>1 AND 2 AND (3 OR 4)  AND (5 OR 6) AND 7</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Reseller__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>6</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Payment_Is_Paid__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.StageName}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Administration</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.StageName}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Closed Won</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!$Permission.CustomPermission.cp_miAllowPaymentProviderStripe}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!$User.isSysAdmin__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Amount_Cents__c}</leftValue>
-                                    <operator>GE</operator>
-                                    <rightValue>50</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
                             <value>Opportunity.actGetPayment</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND (3 OR 4)  AND (5 OR 6) AND 7</booleanFilter>
