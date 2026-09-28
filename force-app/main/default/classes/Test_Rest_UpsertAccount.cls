@@ -220,7 +220,12 @@ private class Test_Rest_UpsertAccount {
         System.RestContext.request.requestBody = Blob.valueOf(jsonString);
         Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
         System.assert(restResult.success, String.valueOf(restResult.messages));
-        System.assertEquals('active', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c);
+        Account reactivated = [SELECT Status__c, StatusPrevious__c, StatusChangedOn__c, StatusChangedBy__c FROM Account WHERE Id = :acc.Id];
+        System.assertEquals('active', reactivated.Status__c);
+        // rbb_Account stamps the change: previous status, when and by whom
+        System.assertEquals('deactivated', reactivated.StatusPrevious__c, 'previous status is kept');
+        System.assertNotEquals(null, reactivated.StatusChangedOn__c, 'change date is set');
+        System.assertEquals(UserInfo.getUserId(), reactivated.StatusChangedBy__c, 'changed by the running (integration) user');
 
         // all other statuses are managed by Salesforce and stay as they are
         Database.update(new Account(Id = acc.Id, Status__c = 'blocked'));
@@ -251,6 +256,89 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals('Postbus 99', acc.InvoiceAddress__Street__s);
         System.assertEquals('Factuurstad', acc.InvoiceAddress__City__s);
         System.assertEquals('Straatnaam 12', acc.VisitingAddress__Street__s, 'visiting address mirrors the billing address');
+    }
+
+    // a platform update (with any statusId) never changes a Salesforce-managed status (only deactivated -> active)
+    private static void assertStatusKeptOnUpdate(String status) {
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Rest_UpsertAccount.handleAction();
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = 't30'];
+        Database.update(new Account(Id = acc.Id, Status__c = status), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"statusId":"4"', '"statusId":"0"'));
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals(status, [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c, status + ' must not be changed by the platform');
+    }
+
+    private static testMethod void testRestUpdateKeepsDefaulter(){ assertStatusKeptOnUpdate('defaulter'); }
+    private static testMethod void testRestUpdateKeepsEnded(){ assertStatusKeptOnUpdate('ended'); }
+    private static testMethod void testRestUpdateKeepsBankrupt(){ assertStatusKeptOnUpdate('bankrupt'); }
+    private static testMethod void testRestUpdateKeepsArchived(){ assertStatusKeptOnUpdate('archived'); }
+
+    private static testMethod void testRestDuplicateMatchKeepsStatus(){
+        // an existing Salesforce account (no platform id yet) that the duplicate rules match with the incoming "new" account
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        Account existing = Test_Data.createAccount('Business b.v.', (String) null, 'B2B', false);
+        existing.extId_1__c = null;
+        existing.VAT_Number__c = 'NL123456789B01';
+        existing.CoC_Number__c = '12345678';
+        // same name + establishment (billing) address as the payload's visitAddress -> mr_Account_Addresses matches
+        existing.BillingStreet = 'Straatnaam 12';
+        existing.BillingCity = 'Plaatsnaam';
+        existing.BillingPostalCode = '1111 AA';
+        existing.BillingCountryCode = 'NL';
+        insert existing;
+        Database.update(new Account(Id = existing.Id, Status__c = 'blocked'), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account platformAcc = [SELECT Id, Status__c FROM Account WHERE extId_1__c = 't30'];
+        System.assertEquals(existing.Id, platformAcc.Id, 'the duplicate rule (name + establishment address) links the platform account to the existing one');
+        System.assertEquals('blocked', platformAcc.Status__c, 'a duplicate-rule match must keep the existing Salesforce-managed status');
+    }
+
+    private static testMethod void testOutboundStatusId(){
+        // the payload sent to the platform (Util_Platform) carries statusId = enum ordinal of Status__c
+        Account acc = Test_Data.createAccount('Outbound Status', 't40', 'B2B', true);
+        Contact con = Test_Data.createContact(acc.Id, 'Outbound', '0570651470', 'outbound@status.test', true);
+        Database.update(new Account(Id = acc.Id, Status__c = 'bankrupt', Contact_Person__c = con.Id, Contact_Billing__c = con.Id, FinancialDebtorNumber__c = 'TEST40'), AccessLevel.SYSTEM_MODE);
+
+        Account q = [
+            SELECT Id, extId_1__c, Reseller_Name__c, Market__c, Sales_Channel__c, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c,
+                Name, Short_Name__c, isBusiness__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c, Payment_Method_Contracts__c,
+                Bank_Account__c, Bank_Account_Number__c, Bank_BIC__c, SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c,
+                NumberOfEmployees, NumberOfFulltimeEmployees__c, Status__c, Contact_Person__c, Contact_Billing__c,
+                BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode,
+                InvoiceAddress__Street__s, InvoiceAddress__PostalCode__s, InvoiceAddress__City__s, InvoiceAddress__CountryCode__s,
+                Contact_Person__r.FirstName, Contact_Person__r.MiddleName, Contact_Person__r.LastName, Contact_Person__r.Email, Contact_Person__r.Phone,
+                Contact_Person__r.MobilePhone, Contact_Person__r.OtherPhone, Contact_Person__r.Language__c, Contact_Person__r.Is_Active__c,
+                Contact_Person__r.Has_Dealertask_access__c, Contact_Person__r.Newsletter__c,
+                Contact_Billing__r.FirstName, Contact_Billing__r.MiddleName, Contact_Billing__r.LastName, Contact_Billing__r.Email, Contact_Billing__r.Phone,
+                Contact_Billing__r.MobilePhone, Contact_Billing__r.OtherPhone, Contact_Billing__r.Language__c, Contact_Billing__r.Is_Active__c,
+                Contact_Billing__r.Has_Dealertask_access__c, Contact_Billing__r.Newsletter__c,
+                (SELECT Id FROM AccountContactRelations WHERE Id = null)
+            FROM Account WHERE Id = :acc.Id
+        ];
+
+        Test.startTest();
+        Rest_UpsertAccount.MiAccount out = new Rest_UpsertAccount.MiAccount(q);
+        Test.stopTest();
+
+        System.assertEquals('4', out.statusId, 'bankrupt is sent as statusId 4');
+        System.assertEquals(q.BillingStreet, out.visitAddress.street, 'visitAddress = establishment / billing address');
+        System.assertEquals(q.InvoiceAddress__Street__s, out.billingAddress.street, 'billingAddress = invoice address');
     }
 
     @testSetup
