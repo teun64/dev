@@ -217,7 +217,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.PreviousStatus__c</assignToReference>
+            <assignToReference>$Record.StatusPrevious__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>$Record__Prior.Status__c</elementReference>

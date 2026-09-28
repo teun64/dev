@@ -3,7 +3,7 @@
     <description>Edit access to Account.Status__c (pvs_AccountStatus). All other users have read-only access; the status history fields are always read-only (set by rbb_Account).</description>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Account.PreviousStatus__c</field>
+        <field>Account.StatusPrevious__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

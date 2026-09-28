@@ -309,7 +309,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>
-                <field>PreviousStatus__c</field>
+                <field>StatusPrevious__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

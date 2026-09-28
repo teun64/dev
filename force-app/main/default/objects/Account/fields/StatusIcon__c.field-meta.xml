@@ -17,7 +17,7 @@ CASE(Status__c,
     &apos;&apos;)
 )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Status (Icon)</label>
+    <label>Icon (Status)</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <type>Text</type>

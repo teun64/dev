@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>StatusChangedOn__c</fullName>
     <description>Set by rbb_Account when Status__c is set or changed.</description>
-    <label>Status Changed On</label>
+    <label>Changed On (Status)</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

@@ -247,7 +247,7 @@
         </values>
     </picklistValues>
     <picklistValues>
-        <picklist>PreviousStatus__c</picklist>
+        <picklist>StatusPrevious__c</picklist>
         <values>
             <fullName>active</fullName>
             <default>false</default>

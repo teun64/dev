@@ -2,8 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>StatusChangedBy__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <description>User who made the last Status__c change. Set by rbb_Account (together with PreviousStatus__c and StatusChangedOn__c).</description>
-    <label>Status Changed By</label>
+    <description>User who made the last Status__c change. Set by rbb_Account (together with StatusPrevious__c and StatusChangedOn__c).</description>
+    <label>Changed By (Status)</label>
     <referenceTo>User</referenceTo>
     <relationshipName>StatusChangedBy</relationshipName>
     <required>false</required>

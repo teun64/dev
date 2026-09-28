@@ -3076,8 +3076,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.PreviousStatus__c</fieldItem>
-                <identifier>RecordPreviousStatus_cField</identifier>
+                <fieldItem>Record.StatusPrevious__c</fieldItem>
+                <identifier>RecordStatusPrevious_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-7557ef1e-977d-4622-93e2-cf96076cf835</name>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>PreviousStatus__c</fullName>
+    <fullName>StatusPrevious__c</fullName>
     <description>Status__c value before the last status change. Set by rbb_Account (together with StatusChangedOn__c).</description>
-    <label>Status (Previous)</label>
+    <label>Previous (Status)</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
