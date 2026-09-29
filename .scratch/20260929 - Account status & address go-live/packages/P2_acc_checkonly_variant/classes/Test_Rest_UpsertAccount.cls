@@ -1,0 +1,429 @@
+@isTest
+private class Test_Rest_UpsertAccount {
+
+    private static testMethod void testRestInsertAccount(){
+        // 20200409 - Gen25/Tri paymentMethod replaced by paymentMethodExactCode and value changed to I8 to match picklist value
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assertEquals(2, [SELECT Count() FROM Account]); //1 from JSON; 1 from @testSetup
+        System.assertEquals(6, [SELECT Count() FROM Contact]); //2 from JSON; 2 from @testSetup
+    }
+
+    private static testMethod void testRestUpdateAccount(){
+        Account acc = Test_Data.createAccount('Foutje Capitals', 't29', 'B2B', true);
+        Contact con = Test_Data.createContact( acc.Id, 'Foutje', '0570651470', 'foutje@bedankt.com', true);
+
+        String jsonString1 = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        String jsonString2 = '{"id":"t31","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3101","salesforceId":null,"accountId":"t31","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3102","salesforceId":null,"accountId":"t31","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t31v","accountId":"t31","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t31b","accountId":"t30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        String jsonString3 = '{"id":"t31","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3101","salesforceId":null,"accountId":"t31","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3102","salesforceId":null,"accountId":"t31","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t31v","accountId":"t31","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t31b","accountId":"t30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,kickbackId:"t30"}';
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString1);
+        Util_Rest.RestResult restResult1 = Rest_UpsertAccount.handleAction();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString2);
+         //adding Account again to simulate the update. 
+        Util_Rest.RestResult restResult2 = Rest_UpsertAccount.handleAction();
+        Account accUpdated = [SELECT Id FROM Account WHERE extId_1__c = 't31' LIMIT 1];
+        accUpdated.Contact_person__c = con.Id;
+        accUpdated.Contact_Billing__c = con.Id;
+        accUpdated.Contact_Shipping__c = con.Id;
+        accUpdated.MI_Administrator__c = con.Id;
+        Database.update(accUpdated);
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString3);        
+        Util_Rest.RestResult restResult3 = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assertEquals(4, [SELECT Count() FROM Account]); //1 from JSON; 1 from @testSetup
+        System.assertEquals(11, [SELECT Count() FROM Contact]); //2 from JSON; 2 from @testSetup; 1 billingcontact
+    }
+
+    private static testMethod void testAddFinancialContactRestAccount(){
+        // 20200409 - Gen25/Tri paymentMethod replaced by paymentMethodExactCode and value changed to I8 to match picklist value
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t31","salesforceId":null,"accountId":"T30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t32","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"T30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        //adding the same contacts again should NOT result in more contacts. 
+        Util_Rest.RestResult restResult2 = Rest_UpsertAccount.handleAction();
+        Test.stopTest();    
+
+        System.assertEquals(2, [SELECT Count() FROM Account]); //1 from JSON; 1 from @testSetup
+        System.debug([SELECT Name, Email FROM Contact]);
+        System.assertEquals(1, [SELECT Count() FROM Contact WHERE Email = 'billing@gmail.com']); //2 from JSON; 1 from @testSetup; 1 billingcontact
+    }
+
+    private static testMethod void testAddSecondFinancialContactRestAccount(){
+        // 20200409 - Gen25/Tri paymentMethod replaced by paymentMethodExactCode and value changed to I8 to match picklist value
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t31","salesforceId":null,"accountId":"T30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t32","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"T30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Contact financialContact1 = [SELECT Id FROM Contact WHERE LastName = 'Billert' LIMIT 1];
+        Account acc1 = [SELECT id, extId_1__c, Contact_Billing__c, Contact_Billing__r.extId_1__c FROM Account WHERE extId_1__c = 't30'];
+        AccountContactRelation acr1 = [SELECT Id, AccountId, ContactId, extId_1__c FROM AccountContactRelation WHERE AccountId = :acc1.Id AND isInvoiceContact__c = true];
+
+        
+        //adding the same contacts again should NOT result in more contacts. 
+        jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t31","salesforceId":null,"accountId":"T30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t32","salesforceId":null,"accountId":"T30","firstName":"Anita","insertion":"het","surName":"Contact","email":"anita.het.Contact@gmail.com","function":null,"phoneNumber":"+3166778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":false},{"id":"t33","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"de","surName":"Contact","email":"billing@gmail.com","function":null,"phoneNumber":"+3144556677","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":false}],"visitAddress":{"id":"t30v","accountId":"T30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult2 = Rest_UpsertAccount.handleAction();
+        Test.stopTest();  
+
+        System.assertEquals(acr1.ContactId, financialContact1.Id);
+        //get second account + contact
+        Contact financialContact2 = [SELECT Id FROM Contact WHERE LastName = 'Billert' LIMIT 1];
+        Account acc2 = [SELECT id, extId_1__c, Contact_Billing__c, Contact_Billing__r.extId_1__c FROM Account WHERE extId_1__c = 't30'];
+        AccountContactRelation acr2 = [SELECT Id, AccountId, ContactId, extId_1__c FROM AccountContactRelation WHERE AccountId = :acc2.Id AND isInvoiceContact__c = true];
+        //check if account billing attendant is updated to the second contact.
+        System.assertEquals(acr2.ContactId, financialContact2.Id);
+
+        //check if everything is added 
+        System.assertEquals(2, [SELECT Count() FROM Account]); //1 from JSON; 1 from @testSetup
+        System.assertEquals(1, [SELECT Count() FROM Contact WHERE Email = 'billing@gmail.com']); //2 from JSON; 1 from @testSetup; 1 billingcontact
+    }
+
+    private static testMethod void testDuplicateFinancialContactRestAccount(){
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t31","salesforceId":null,"accountId":"T30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t32","salesforceId":null,"accountId":"T30","firstName":"Anita","insertion":"het","surName":"Contact","email":"anita.het.Contact@gmail.com","function":null,"phoneNumber":"+3166778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":false},{"id":"t33","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"de","surName":"Contact","email":"billing@gmail.com","function":null,"phoneNumber":"+3144556677","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":false}],"visitAddress":{"id":"t30v","accountId":"T30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        System.assertEquals(2, [SELECT Count() FROM Account]); //1 from JSON; 1 from @testSetup
+        System.assertEquals(1, [SELECT Count() FROM Contact WHERE Email = 'billing@gmail.com']); //2 from JSON; 1 from @testSetup; 1 billingcontact
+            
+        //upsert a modified json > check if values are updated.
+        jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t31","salesforceId":null,"accountId":"T30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t32","salesforceId":null,"accountId":"T30","firstName":"Anita","insertion":"het","surName":"Contact","email":"anita.het.Contact@gmail.com","function":null,"phoneNumber":"+3166778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":false},{"id":"t33","salesforceId":null,"accountId":"T30","firstName":"Karel","insertion":"de","surName":"Administrateur","email":"billing@gmail.com","function":null,"phoneNumber":"+3144556677","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":false}],"visitAddress":{"id":"t30v","accountId":"T30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Util_Rest.RestResult restResult2 = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assertEquals(2, [SELECT Count() FROM Account]); //1 from JSON; 1 from @testSetup
+        System.assertEquals(1, [SELECT Count() FROM Contact WHERE Email = 'billing@gmail.com']); //2 from JSON; 1 from @testSetup; 1 billingcontact
+
+        Account acc1 = [SELECT id, extId_1__c, Contact_Billing__c, Contact_Billing__r.extId_1__c FROM Account WHERE extId_1__c = 't30'];
+        AccountContactRelation acr1 = [SELECT Id, AccountId, ContactId, extId_1__c, Contact.FirstName, Contact.LastName, Contact.Email FROM AccountContactRelation WHERE AccountId = :acc1.Id AND isInvoiceContact__c = true];
+
+        Contact updatedContact1 = [
+            SELECT AccountId, Firstname, Lastname, Email, Phone
+            FROM Contact 
+            WHERE LastName = 'Billert'
+        ]; 
+        //assert that the values have been updated with the second json
+        System.assertEquals(acr1.Contact.Firstname, updatedContact1.Firstname);
+        System.assertEquals(acr1.Contact.Lastname, updatedContact1.Lastname);
+        System.assertEquals(acr1.Contact.Email, updatedContact1.Email);
+    }
+
+
+    private static testMethod void testDuplicateContactIdInUpdateList(){
+        // Regression test for: System.ListException: Duplicate id in list
+        //
+        // Production scenario (anonymised): account t83914 was synced without contactDTOs in
+        // January (contacts came only from visitAddress / billingAddress). In June contactDTOs
+        // were added. Between those two syncs the contact's email in SF matched the billing
+        // address email — causing the same SF Contact to be matched via ACR extId (contactDTO)
+        // AND via emailContacts (billingAddress), producing a duplicate id in the update list.
+        //
+        // January sync (no contactDTOs — anonymised):
+        // {"id":"t83914","contactDTOs":null,
+        //  "visitAddress":{"id":"t90213","email":"visit@example.com","firstName":"Test","surName":"Person",...},
+        //  "billingAddress":{"id":"t90214","email":"billing@example.com","firstName":"Test","surName":"Billing",...}}
+        //
+        // Setup call: re-creates the production state just before the June sync failed.
+        // contactDTO id='t221430' is sent with email='billing@example.com' (the billing address
+        // email), matching what had accumulated in production. billingAddress.id == visitAddress.id
+        // so no separate billing contact is created → one contact exists with ACR extId='t221430'
+        // and SF email='billing@example.com'.
+        String jsonSetup = '{"id":"t83914","salesforceId":null,"debtorNumber":null,"name":"Test Holding B.V.","isBusiness":true,"isDealer":false,"vatNumber":"NL000000000B00","cocNumber":"00000000","paymentMethodExactCode":"I8","bankAccountHolder":"Test Holding BV","bankAccountNumber":"NL00TEST0000000000","bankAccountBic":"TESTBIC2","contactDTOs":[{"id":"t221430","salesforceId":null,"accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"billing@example.com","function":null,"phoneNumber":"+31600000001","language":"nl","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true,"mobilePhone":null,"otherPhone":null,"isDeleted":false}],"visitAddress":{"id":"t90213","accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"billing@example.com","phoneNumber":"+31600000001","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"billingAddress":{"id":"t90213","accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"billing@example.com","phoneNumber":"+31600000001","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"isBlocked":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"privacyMode":false,"platformId":1,"personnelCount":0,"fulltimePersonnelCount":0,"directDebitStatus":null,"directDebitReference":null,"directDebitLastTakenDate":null,"marketId":"1","previousDebtorNumber":null,"shortName":null,"orderOffsetTerm":null,"echoesAccountId":null}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonSetup);
+        Rest_UpsertAccount.handleAction();
+
+        // June sync (anonymised) — this is the call that threw the error in production.
+        // contactDTO id='t221430' → extId match → Contact (SF email still 'billing@example.com').
+        // billingAddress email='billing@example.com' → emailContacts match → SAME Contact.
+        // Both land in updateContacts under different MI keys → duplicate SF id without the fix.
+        String jsonJune = '{"id":"t83914","salesforceId":null,"debtorNumber":null,"name":"Test Holding B.V.","isBusiness":true,"isDealer":false,"vatNumber":"NL000000000B00","cocNumber":"00000000","paymentMethodExactCode":"I8","bankAccountHolder":"Test Holding BV","bankAccountNumber":"NL00TEST0000000000","bankAccountBic":"TESTBIC2","contactDTOs":[{"id":"t221430","salesforceId":null,"accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"visit@example.com","function":null,"phoneNumber":"+31600000001","language":"nl","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":null,"isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true,"mobilePhone":null,"otherPhone":null,"isDeleted":false}],"visitAddress":{"id":"t90213","accountId":"t83914","firstName":"Test","insertion":"","surName":"Person","email":"visit@example.com","phoneNumber":"+31600000001","street":"Teststraat 1","postalCode":"1111 AA","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"billingAddress":{"id":"t90214","accountId":"t83914","firstName":"Test","insertion":null,"surName":"Billing","email":"billing@example.com","phoneNumber":"+31600000002","street":"Teststraat 2","postalCode":"2222 BB","city":"Teststad","country":"NL","mobilePhone":null,"otherPhone":null,"language":null},"isBlocked":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"privacyMode":false,"platformId":1,"personnelCount":0,"fulltimePersonnelCount":0,"directDebitStatus":null,"directDebitReference":null,"directDebitLastTakenDate":null,"marketId":"1","previousDebtorNumber":null,"shortName":null,"orderOffsetTerm":null,"echoesAccountId":null}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonJune);
+
+        Test.startTest();
+        Util_Rest.RestResult result = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        // With the fix the call succeeds — no ListException thrown
+        System.assertNotEquals(null, result);
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = 't83914' LIMIT 1];
+        // The contact was deduped to a single update; only 1 ACR exists for this account
+        System.assertEquals(1, [SELECT Count() FROM AccountContactRelation WHERE AccountId = :acc.Id]);
+    }
+
+    private static testMethod void testAccountStatusEnum(){
+        // statusId is fixed per status (agreed with the platforms), every enum value must exist as an active Status__c picklist value
+        System.assertEquals('0', Rest_UpsertAccount.getStatusId('active'));
+        System.assertEquals('1', Rest_UpsertAccount.getStatusId('blocked'));
+        System.assertEquals('2', Rest_UpsertAccount.getStatusId('defaulter'));
+        System.assertEquals('3', Rest_UpsertAccount.getStatusId('ended'));
+        System.assertEquals('4', Rest_UpsertAccount.getStatusId('bankrupt'));
+        System.assertEquals('6', Rest_UpsertAccount.getStatusId('deactivated'));
+        System.assertEquals(null, Rest_UpsertAccount.getStatusId('archived'), 'archived is no longer a status');
+        System.assertEquals(null, Rest_UpsertAccount.getStatusId(null));
+        Set<String> picklistValues = new Set<String>();
+        for (Schema.PicklistEntry pe : Account.Status__c.getDescribe().getPicklistValues()) {
+            picklistValues.add(pe.getValue());
+        }
+        for (Rest_UpsertAccount.AccountStatus status : Rest_UpsertAccount.AccountStatus.values()) {
+            System.assert(picklistValues.contains(status.name()), 'Missing Status__c value ' + status.name());
+            System.assertNotEquals(null, Rest_UpsertAccount.getStatusId(status.name()), 'Missing statusId for ' + status.name());
+        }
+        System.assertEquals(Rest_UpsertAccount.AccountStatus.values().size(), picklistValues.size(), 'every active Status__c value needs an enum value');
+    }
+
+    private static testMethod void testRestInsertAccountStatusActive(){
+        // a new account is always active, an incoming status is ignored
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('active', [SELECT Status__c FROM Account WHERE extId_1__c = 't30'].Status__c);
+    }
+
+    private static testMethod void testRestUpdateAccountStatus(){
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Rest_UpsertAccount.handleAction();
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = 't30'];
+
+        // a platform update reactivates a deactivated account
+        Database.update(new Account(Id = acc.Id, Status__c = 'deactivated'));
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account reactivated = [SELECT Status__c, StatusPrevious__c, StatusChangedOn__c, StatusChangedBy__c FROM Account WHERE Id = :acc.Id];
+        System.assertEquals('active', reactivated.Status__c);
+        // rbb_Account stamps the change: previous status, when and by whom
+        System.assertEquals('deactivated', reactivated.StatusPrevious__c, 'previous status is kept');
+        System.assertNotEquals(null, reactivated.StatusChangedOn__c, 'change date is set');
+        System.assertEquals(UserInfo.getUserId(), reactivated.StatusChangedBy__c, 'changed by the running (integration) user');
+
+        // all other statuses are managed by Salesforce and stay as they are
+        Database.update(new Account(Id = acc.Id, Status__c = 'blocked'));
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"statusId":"4"', '"statusId":"0"'));
+        restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('blocked', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c);
+    }
+
+    private static testMethod void testRestInsertAccountAddresses(){
+        // visitAddress -> establishment / billing address, a different billingAddress -> invoice address
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Postbus","houseNumber":"99","postalCode":"2222 BB","city":"Factuurstad","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+
+        Test.startTest();
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account acc = [SELECT BillingStreet, BillingCity, InvoiceAddress__Street__s, InvoiceAddress__City__s, useInvoiceAddress__c, VisitingAddress__Street__s FROM Account WHERE extId_1__c = 't30'];
+        System.assertEquals('Straatnaam 12', acc.BillingStreet, 'visitAddress is the establishment / billing address');
+        System.assertEquals('Plaatsnaam', acc.BillingCity);
+        System.assertEquals(true, acc.useInvoiceAddress__c, 'different billingAddress sets a separate invoice address');
+        System.assertEquals('Postbus 99', acc.InvoiceAddress__Street__s);
+        System.assertEquals('Factuurstad', acc.InvoiceAddress__City__s);
+        System.assertEquals('Straatnaam 12', acc.VisitingAddress__Street__s, 'visiting address mirrors the billing address');
+    }
+
+    // a platform update (with any statusId) never changes a Salesforce-managed status (only deactivated -> active)
+    private static void assertStatusKeptOnUpdate(String status) {
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Rest_UpsertAccount.handleAction();
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = 't30'];
+        Database.update(new Account(Id = acc.Id, Status__c = status), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"statusId":"4"', '"statusId":"0"'));
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals(status, [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c, status + ' must not be changed by the platform');
+    }
+
+    private static testMethod void testRestUpdateKeepsDefaulter(){ assertStatusKeptOnUpdate('defaulter'); }
+    private static testMethod void testRestUpdateKeepsEnded(){ assertStatusKeptOnUpdate('ended'); }
+    private static testMethod void testRestUpdateKeepsBankrupt(){ assertStatusKeptOnUpdate('bankrupt'); }
+
+    // statusId sent: flags are ignored, the Salesforce-managed status rule applies
+    private static testMethod void testUpsertStatusWithStatusId(){
+        Rest_UpsertAccount.MiAccount miAcc = new Rest_UpsertAccount.MiAccount();
+        miAcc.statusId = '0';
+        miAcc.isBankrupt = true;
+        miAcc.isBlocked = true;
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new -> active');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated -> active');
+        miAcc.isBlocked = false;
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked stays');
+        System.assertEquals('ended', Rest_UpsertAccount.getUpsertStatus(miAcc, 'ended', false), 'ended stays');
+    }
+
+    // no statusId: isBankrupt / isBlocked drive the status
+    private static testMethod void testUpsertStatusWithoutStatusId(){
+        Rest_UpsertAccount.MiAccount miAcc = new Rest_UpsertAccount.MiAccount();
+        // no flags
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new -> active');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated -> active');
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'isBlocked not sent -> blocked stays');
+        System.assertEquals('defaulter', Rest_UpsertAccount.getUpsertStatus(miAcc, 'defaulter', false), 'defaulter stays');
+        // bankrupt wins, regardless of blocked
+        miAcc.isBankrupt = true;
+        miAcc.isBlocked = true;
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new + bankrupt');
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated + bankrupt');
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked + bankrupt');
+        // blocked when not bankrupt
+        miAcc.isBankrupt = false;
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new + blocked');
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated + blocked');
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'active', false), 'active + blocked');
+        // isBlocked = false releases a blocked account
+        miAcc.isBlocked = false;
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked released -> active');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated -> active');
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, 'bankrupt', false), 'bankrupt stays');
+        System.assertEquals('ended', Rest_UpsertAccount.getUpsertStatus(miAcc, 'ended', false), 'ended stays');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new, flags false -> active');
+    }
+
+    // end-to-end without statusId: insert with isBlocked -> blocked, update with isBlocked = false -> active, update with isBankrupt -> bankrupt
+    private static testMethod void testRestStatusFromFlagsWithoutStatusId(){
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":true,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account acc = [SELECT Id, Status__c FROM Account WHERE extId_1__c = 't30'];
+        System.assertEquals('blocked', acc.Status__c, 'new + isBlocked -> blocked');
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"isBlocked":true', '"isBlocked":false'));
+        restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('active', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c, 'isBlocked = false -> active');
+
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"isBankrupt":false', '"isBankrupt":true'));
+        restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('bankrupt', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c, 'isBankrupt -> bankrupt, blocked is ignored');
+    }
+
+    private static testMethod void testRestDuplicateMatchKeepsStatus(){
+        // an existing Salesforce account (no platform id yet) that the duplicate rules match with the incoming "new" account
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
+        Account existing = Test_Data.createAccount('Business b.v.', (String) null, 'B2B', false);
+        existing.extId_1__c = null;
+        existing.VAT_Number__c = 'NL123456789B01';
+        existing.CoC_Number__c = '12345678';
+        // same name + establishment (billing) address as the payload's visitAddress -> mr_Account_Addresses matches
+        existing.BillingStreet = 'Straatnaam 12';
+        existing.BillingCity = 'Plaatsnaam';
+        existing.BillingPostalCode = '1111 AA';
+        existing.BillingCountryCode = 'NL';
+        insert existing;
+        Database.update(new Account(Id = existing.Id, Status__c = 'blocked'), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account platformAcc = [SELECT Id, Status__c FROM Account WHERE extId_1__c = 't30'];
+        System.assertEquals(existing.Id, platformAcc.Id, 'the duplicate rule (name + establishment address) links the platform account to the existing one');
+        System.assertEquals('blocked', platformAcc.Status__c, 'a duplicate-rule match must keep the existing Salesforce-managed status');
+    }
+
+    private static testMethod void testOutboundStatusId(){
+        // the payload sent to the platform (Util_Platform) carries statusId = enum ordinal of Status__c
+        Account acc = Test_Data.createAccount('Outbound Status', 't40', 'B2B', true);
+        Contact con = Test_Data.createContact(acc.Id, 'Outbound', '0570651470', 'outbound@status.test', true);
+        Database.update(new Account(Id = acc.Id, Status__c = 'bankrupt', Contact_Person__c = con.Id, Contact_Billing__c = con.Id, FinancialDebtorNumber__c = 'TEST40'), AccessLevel.SYSTEM_MODE);
+
+        Account q = [
+            SELECT Id, extId_1__c, Reseller_Name__c, Market__c, Sales_Channel__c, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c,
+                Name, Short_Name__c, isBusiness__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c, Payment_Method_Contracts__c,
+                Bank_Account__c, Bank_Account_Number__c, Bank_BIC__c, SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c,
+                NumberOfEmployees, NumberOfFulltimeEmployees__c, Status__c, Contact_Person__c, Contact_Billing__c,
+                BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode,
+                InvoiceAddress__Street__s, InvoiceAddress__PostalCode__s, InvoiceAddress__City__s, InvoiceAddress__CountryCode__s,
+                Contact_Person__r.FirstName, Contact_Person__r.MiddleName, Contact_Person__r.LastName, Contact_Person__r.Email, Contact_Person__r.Phone,
+                Contact_Person__r.MobilePhone, Contact_Person__r.OtherPhone, Contact_Person__r.Language__c, Contact_Person__r.Is_Active__c,
+                Contact_Person__r.Has_Dealertask_access__c, Contact_Person__r.Newsletter__c,
+                Contact_Billing__r.FirstName, Contact_Billing__r.MiddleName, Contact_Billing__r.LastName, Contact_Billing__r.Email, Contact_Billing__r.Phone,
+                Contact_Billing__r.MobilePhone, Contact_Billing__r.OtherPhone, Contact_Billing__r.Language__c, Contact_Billing__r.Is_Active__c,
+                Contact_Billing__r.Has_Dealertask_access__c, Contact_Billing__r.Newsletter__c,
+                (SELECT Id FROM AccountContactRelations WHERE Id = null)
+            FROM Account WHERE Id = :acc.Id
+        ];
+
+        Test.startTest();
+        Rest_UpsertAccount.MiAccount out = new Rest_UpsertAccount.MiAccount(q);
+        Test.stopTest();
+
+        System.assertEquals('4', out.statusId, 'bankrupt is sent as statusId 4');
+        System.assertEquals(true, out.isBankrupt, 'bankrupt is also sent as isBankrupt');
+        System.assertEquals(false, out.isBlocked, 'not blocked');
+        System.assertEquals(q.BillingStreet, out.visitAddress.street, 'visitAddress = establishment / billing address');
+        System.assertEquals(q.InvoiceAddress__Street__s, out.billingAddress.street, 'billingAddress = invoice address');
+    }
+
+    @testSetup
+    private static void testSetup(){
+        Account dealerAcc = Test_Data.createAccount('Dealer', '1', 'B2B', false);
+        Database.insert(dealerAcc);
+        Product2 hwProd = Test_Data.createProduct('Mi50 (43)', '', '43-hw-1', 'Platform', false);
+        Database.insert(hwProd);
+
+        Database.insert(new Contact(FirstName = 'test', LastName = 'dealer', AccountId = dealerAcc.Id, Email = 'test1@test1.nl', extId_1__c = '1', Is_Active__c = true));
+        Database.insert(new Contact(FirstName = 'test', AccountId = dealerAcc.Id, LastName = 'Driver', Email = 'test@test2.nl', extId_1__c = '2', Is_Active__c = true));
+        Database.insert(new Asset(Name = 'testAsset', AccountId = dealerAcc.Id, extID__c = '123-hw-1', Product2Id = hwProd.Id, RecordTypeId = Schema.SObjectType.Asset.getRecordTypeInfosByDeveloperName().get('Hardware').getRecordTypeId()));
+        Database.insert(new Asset(Name = 'testAssetEntity', AccountId = dealerAcc.Id, extID__c = '7587-in-1', RecordTypeId = Schema.SObjectType.Asset.getRecordTypeInfosByDeveloperName().get('Entity').getRecordTypeId()));
+    }
+}

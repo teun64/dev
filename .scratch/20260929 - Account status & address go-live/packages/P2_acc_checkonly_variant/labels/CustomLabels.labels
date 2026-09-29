@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>InvoiceEstablishmentNotice</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceEstablishmentNotice</shortDescription>
+        <value>In accordance with tax regulations, we are required to state the customer&apos;s establishment address in addition to the invoice address.</value>
+    </labels>
+    <labels>
+        <fullName>InvoiceEstablishmentTitle</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>InvoiceEstablishmentTitle</shortDescription>
+        <value>Establishment address</value>
+    </labels>
+</CustomLabels>

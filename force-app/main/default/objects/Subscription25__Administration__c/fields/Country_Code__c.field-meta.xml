@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Country_Code__c</fullName>
+    <label>Country Code</label>
+    <type>Text</type>
+    <length>2</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <description>ISO 3166-1 alpha-2 country code for this business entity (seller), used as BT-40 on EN 16931 e-invoices. Subscription25__Billing_Country__c is free text and not usable for this.</description>
+</CustomField>

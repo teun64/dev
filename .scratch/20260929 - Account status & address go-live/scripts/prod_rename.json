@@ -1,0 +1,1 @@
+{"FullName": "Account.StatusChangedOn__c", "Metadata": {"label": "Changed On (Status)", "required": false, "trackFeedHistory": false, "trackHistory": false, "type": "DateTime", "description": "Set by rbb_Account when Status__c is set or changed."}}
