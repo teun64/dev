@@ -631,7 +631,12 @@
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Business_Entities__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <outputReference>businessEntityRecord</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>PayProv_Account__c</queriedFields>
+        <queriedFields>PayProv_DirectDebit_PaymentMethod__c</queriedFields>
+        <queriedFields>PayProv_Use__c</queriedFields>
+        <storeOutputAutomatically>false</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>dgr_01_Payment</name>
@@ -664,6 +669,7 @@
         </connector>
         <inputReference>paymentRecord</inputReference>
     </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>

@@ -527,6 +527,7 @@ BLANKVALUE(TEXT({!dgr_02_Administration.Language_Default__c}),&apos;EN&apos;)</e
             <field>Id</field>
         </outputAssignments>
     </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
