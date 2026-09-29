@@ -163,6 +163,22 @@
         </connector>
     </assignments>
     <assignments>
+        <name>ass_02_BusinessEntity</name>
+        <label>2. Business Entity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Business_Entity__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>businessEntityRecord.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Direct_Debit_Variables</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>ass_01_Direct_Debit_Variables</name>
         <label>1. Direct Debit Variables</label>
         <locationX>0</locationX>
@@ -1168,7 +1184,7 @@ CASE(WEEKDAY({!$Record.Collection_Date__c}),1,2,7,1,0) )</expression>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>dec_01_Direct_Debit_Variables</targetReference>
+            <targetReference>ass_02_BusinessEntity</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
