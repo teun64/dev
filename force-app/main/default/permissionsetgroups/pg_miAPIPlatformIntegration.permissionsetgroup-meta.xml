@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Permissionsets required for the platform sync</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miAPI Platform Integration (pg)</label>
+    <permissionSets>ps_miAPEXOperationalClasses</permissionSets>
+    <permissionSets>ps_miAPEXRestPointClasses</permissionSets>
+    <permissionSets>ps_miAPIPlatformIntegration</permissionSets>
+    <permissionSets>ps_miAccountStatus_Admin</permissionSets>
+    <permissionSets>ps_miConnectedAppPlatform</permissionSets>
+    <permissionSets>ps_miWMFA</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

@@ -282,6 +282,73 @@ private class Test_Rest_UpsertAccount {
     private static testMethod void testRestUpdateKeepsBankrupt(){ assertStatusKeptOnUpdate('bankrupt'); }
     private static testMethod void testRestUpdateKeepsArchived(){ assertStatusKeptOnUpdate('archived'); }
 
+    // statusId sent: flags are ignored, the Salesforce-managed status rule applies
+    private static testMethod void testUpsertStatusWithStatusId(){
+        Rest_UpsertAccount.MiAccount miAcc = new Rest_UpsertAccount.MiAccount();
+        miAcc.statusId = '0';
+        miAcc.isBankrupt = true;
+        miAcc.isBlocked = true;
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new -> active');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated -> active');
+        miAcc.isBlocked = false;
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked stays');
+        System.assertEquals('ended', Rest_UpsertAccount.getUpsertStatus(miAcc, 'ended', false), 'ended stays');
+    }
+
+    // no statusId: isBankrupt / isBlocked drive the status
+    private static testMethod void testUpsertStatusWithoutStatusId(){
+        Rest_UpsertAccount.MiAccount miAcc = new Rest_UpsertAccount.MiAccount();
+        // no flags
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new -> active');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated -> active');
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'isBlocked not sent -> blocked stays');
+        System.assertEquals('defaulter', Rest_UpsertAccount.getUpsertStatus(miAcc, 'defaulter', false), 'defaulter stays');
+        // bankrupt wins, regardless of blocked
+        miAcc.isBankrupt = true;
+        miAcc.isBlocked = true;
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new + bankrupt');
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated + bankrupt');
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked + bankrupt');
+        // blocked when not bankrupt
+        miAcc.isBankrupt = false;
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new + blocked');
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated + blocked');
+        System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'active', false), 'active + blocked');
+        // isBlocked = false releases a blocked account
+        miAcc.isBlocked = false;
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked released -> active');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated -> active');
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, 'bankrupt', false), 'bankrupt stays');
+        System.assertEquals('archived', Rest_UpsertAccount.getUpsertStatus(miAcc, 'archived', false), 'archived stays');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new, flags false -> active');
+    }
+
+    // end-to-end without statusId: insert with isBlocked -> blocked, update with isBlocked = false -> active, update with isBankrupt -> bankrupt
+    private static testMethod void testRestStatusFromFlagsWithoutStatusId(){
+        String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":true,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account acc = [SELECT Id, Status__c FROM Account WHERE extId_1__c = 't30'];
+        System.assertEquals('blocked', acc.Status__c, 'new + isBlocked -> blocked');
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"isBlocked":true', '"isBlocked":false'));
+        restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('active', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c, 'isBlocked = false -> active');
+
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"isBankrupt":false', '"isBankrupt":true'));
+        restResult = Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('bankrupt', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c, 'isBankrupt -> bankrupt, blocked is ignored');
+    }
+
     private static testMethod void testRestDuplicateMatchKeepsStatus(){
         // an existing Salesforce account (no platform id yet) that the duplicate rules match with the incoming "new" account
         String jsonString = '{"id":"t30","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"08","bankAccountHolder":"Business b.v.","bankAccountNumber":"NL00BANK0000000001","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t3001","salesforceId":null,"accountId":"t30","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t3002","salesforceId":null,"accountId":"T30","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t30v","accountId":"t30","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t30b","accountId":"T30","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1,"statusId":"4"}';
@@ -337,6 +404,8 @@ private class Test_Rest_UpsertAccount {
         Test.stopTest();
 
         System.assertEquals('4', out.statusId, 'bankrupt is sent as statusId 4');
+        System.assertEquals(true, out.isBankrupt, 'bankrupt is also sent as isBankrupt');
+        System.assertEquals(false, out.isBlocked, 'not blocked');
         System.assertEquals(q.BillingStreet, out.visitAddress.street, 'visitAddress = establishment / billing address');
         System.assertEquals(q.InvoiceAddress__Street__s, out.billingAddress.street, 'billingAddress = invoice address');
     }

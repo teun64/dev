@@ -341,10 +341,7 @@ global without sharing class Rest_UpsertAccount {
 			}
 		}
 
-		// Status__c is managed by Salesforce, the incoming status is ignored; new -> active, a platform update only reactivates a deactivated account
-		if (accountIsNew || (acc.Status__c == Rest_UpsertAccount.AccountStatus.deactivated.name())) {
-			acc.Status__c = Rest_UpsertAccount.AccountStatus.active.name();
-		}
+		acc.Status__c = Rest_UpsertAccount.getUpsertStatus(miAcc, acc.Status__c, accountIsNew);
 
 		//System.debug(acc);
 		//System.debug(accountIsNew);
@@ -953,6 +950,34 @@ global without sharing class Rest_UpsertAccount {
 		}
 	}
 
+	// Status__c is managed by Salesforce. Platforms sending statusId: the incoming status is ignored, new -> active and an
+	// update only reactivates a deactivated account. Platforms without statusId (not supported yet) still drive the
+	// status with isBankrupt / isBlocked: bankrupt wins, then blocked, isBlocked = false releases a blocked account,
+	// otherwise new -> active and deactivated -> active.
+	@TestVisible
+	private static String getUpsertStatus(Rest_UpsertAccount.MiAccount miAcc, String currentStatus, Boolean accountIsNew) {
+		String active = Rest_UpsertAccount.AccountStatus.active.name();
+		String blocked = Rest_UpsertAccount.AccountStatus.blocked.name();
+		String bankrupt = Rest_UpsertAccount.AccountStatus.bankrupt.name();
+		String deactivated = Rest_UpsertAccount.AccountStatus.deactivated.name();
+
+		if (String.isBlank(miAcc.statusId)) {
+			if (miAcc.isBankrupt == true) {
+				return bankrupt;
+			}
+			if (miAcc.isBlocked == true) {
+				return blocked;
+			}
+			if (!accountIsNew && (currentStatus == blocked) && (miAcc.isBlocked == false)) {
+				return active;
+			}
+		}
+		if (accountIsNew || (currentStatus == deactivated)) {
+			return active;
+		}
+		return currentStatus;
+	}
+
 	//these classes are used for deserializing the incoming JSON file.
 	public class MiAccount {
 		public String id;
@@ -975,7 +1000,9 @@ global without sharing class Rest_UpsertAccount {
 		public String bankAccountNumber;
 		public String bankAccountBic;
 		public Boolean isDealer;
-		public String statusId; // statusIds are: '0' => 'active', '1' => 'blocked', '2' => 'defaulter', '3' => 'ended', '4' => 'bankrupt', '5' => 'archived', '6' => 'deactivated'; outbound only, ignored on upsert (managed by Salesforce)
+		public String statusId; // statusIds are: '0' => 'active', '1' => 'blocked', '2' => 'defaulter', '3' => 'ended', '4' => 'bankrupt', '5' => 'archived', '6' => 'deactivated'; ignored on upsert (managed by Salesforce)
+		public Boolean isBlocked; // only used on upsert when no statusId is sent (platforms without statusId support)
+		public Boolean isBankrupt; // only used on upsert when no statusId is sent (platforms without statusId support)
 		public Long resellerId;
 		public String primarySbiCode;
 		public String secondarySbiCode1;
@@ -1028,6 +1055,8 @@ global without sharing class Rest_UpsertAccount {
 			this.personnelCount = acct.NumberOfEmployees; // create, updatable -> distribution? - null prevention
 			this.fulltimePersonnelCount = (acct.NumberOfFulltimeEmployees__c != null) ? acct.NumberOfFulltimeEmployees__c.longValue() : null; // create, updatable -> distribution? - null prevention
 			this.statusId = Rest_UpsertAccount.getStatusId(acct.Status__c);
+			this.isBlocked = (acct.Status__c == Rest_UpsertAccount.AccountStatus.blocked.name());
+			this.isBankrupt = (acct.Status__c == Rest_UpsertAccount.AccountStatus.bankrupt.name());
 
 			/* this.contactDTOs = new List<Rest_UpsertAccount.MiContact>{
 				new Rest_UpsertAccount.MiContact(acct.Contact_Person__r)
