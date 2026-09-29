@@ -4,14 +4,24 @@ global without sharing class Rest_UpsertAccount {
 	private static Boolean accountIsNew;
 	private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
 
-	// Account status (pvs_AccountStatus): the name is the picklist API name, the ordinal is the platform's number - keep the order.
-	public enum AccountStatus { active, blocked, defaulter, ended, bankrupt, archived, deactivated }
+	// Account status (pvs_AccountStatus): the name is the picklist API name, in picklist order.
+	public enum AccountStatus { active, deactivated, defaulter, blocked, bankrupt, ended }
 
-	// Status__c API name -> statusId ('0' active ... '6' deactivated)
+	// statusId agreed with the platforms, fixed per status - never renumber ('5' was archived and is no longer used)
+	private static final Map<Rest_UpsertAccount.AccountStatus, String> STATUS_IDS = new Map<Rest_UpsertAccount.AccountStatus, String>{
+		Rest_UpsertAccount.AccountStatus.active => '0',
+		Rest_UpsertAccount.AccountStatus.blocked => '1',
+		Rest_UpsertAccount.AccountStatus.defaulter => '2',
+		Rest_UpsertAccount.AccountStatus.ended => '3',
+		Rest_UpsertAccount.AccountStatus.bankrupt => '4',
+		Rest_UpsertAccount.AccountStatus.deactivated => '6'
+	};
+
+	// Status__c API name -> statusId
 	public static String getStatusId(String status) {
 		for (Rest_UpsertAccount.AccountStatus s : Rest_UpsertAccount.AccountStatus.values()) {
 			if (s.name() == status) {
-				return String.valueOf(s.ordinal());
+				return Rest_UpsertAccount.STATUS_IDS.get(s);
 			}
 		}
 		return null;
@@ -1000,7 +1010,7 @@ global without sharing class Rest_UpsertAccount {
 		public String bankAccountNumber;
 		public String bankAccountBic;
 		public Boolean isDealer;
-		public String statusId; // statusIds are: '0' => 'active', '1' => 'blocked', '2' => 'defaulter', '3' => 'ended', '4' => 'bankrupt', '5' => 'archived', '6' => 'deactivated'; ignored on upsert (managed by Salesforce)
+		public String statusId; // statusIds are: '0' => 'active', '1' => 'blocked', '2' => 'defaulter', '3' => 'ended', '4' => 'bankrupt', '6' => 'deactivated' ('5' no longer used); ignored on upsert (managed by Salesforce)
 		public Boolean isBlocked; // only used on upsert when no statusId is sent (platforms without statusId support)
 		public Boolean isBankrupt; // only used on upsert when no statusId is sent (platforms without statusId support)
 		public Long resellerId;

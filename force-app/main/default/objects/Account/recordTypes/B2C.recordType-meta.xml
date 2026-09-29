@@ -269,10 +269,6 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>archived</fullName>
-            <default>false</default>
-        </values>
-        <values>
             <fullName>deactivated</fullName>
             <default>false</default>
         </values>
@@ -297,10 +293,6 @@
         <values>
             <fullName>active</fullName>
             <default>true</default>
-        </values>
-        <values>
-            <fullName>archived</fullName>
-            <default>false</default>
         </values>
         <values>
             <fullName>bankrupt</fullName>

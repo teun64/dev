@@ -176,11 +176,14 @@ private class Test_Rest_UpsertAccount {
     }
 
     private static testMethod void testAccountStatusEnum(){
-        // enum ordinal = platform number, every enum value must exist as an active Status__c picklist value
-        System.assertEquals(0, Rest_UpsertAccount.AccountStatus.active.ordinal());
-        System.assertEquals(6, Rest_UpsertAccount.AccountStatus.deactivated.ordinal());
+        // statusId is fixed per status (agreed with the platforms), every enum value must exist as an active Status__c picklist value
         System.assertEquals('0', Rest_UpsertAccount.getStatusId('active'));
+        System.assertEquals('1', Rest_UpsertAccount.getStatusId('blocked'));
+        System.assertEquals('2', Rest_UpsertAccount.getStatusId('defaulter'));
+        System.assertEquals('3', Rest_UpsertAccount.getStatusId('ended'));
+        System.assertEquals('4', Rest_UpsertAccount.getStatusId('bankrupt'));
         System.assertEquals('6', Rest_UpsertAccount.getStatusId('deactivated'));
+        System.assertEquals(null, Rest_UpsertAccount.getStatusId('archived'), 'archived is no longer a status');
         System.assertEquals(null, Rest_UpsertAccount.getStatusId(null));
         Set<String> picklistValues = new Set<String>();
         for (Schema.PicklistEntry pe : Account.Status__c.getDescribe().getPicklistValues()) {
@@ -188,7 +191,9 @@ private class Test_Rest_UpsertAccount {
         }
         for (Rest_UpsertAccount.AccountStatus status : Rest_UpsertAccount.AccountStatus.values()) {
             System.assert(picklistValues.contains(status.name()), 'Missing Status__c value ' + status.name());
+            System.assertNotEquals(null, Rest_UpsertAccount.getStatusId(status.name()), 'Missing statusId for ' + status.name());
         }
+        System.assertEquals(Rest_UpsertAccount.AccountStatus.values().size(), picklistValues.size(), 'every active Status__c value needs an enum value');
     }
 
     private static testMethod void testRestInsertAccountStatusActive(){
@@ -280,7 +285,6 @@ private class Test_Rest_UpsertAccount {
     private static testMethod void testRestUpdateKeepsDefaulter(){ assertStatusKeptOnUpdate('defaulter'); }
     private static testMethod void testRestUpdateKeepsEnded(){ assertStatusKeptOnUpdate('ended'); }
     private static testMethod void testRestUpdateKeepsBankrupt(){ assertStatusKeptOnUpdate('bankrupt'); }
-    private static testMethod void testRestUpdateKeepsArchived(){ assertStatusKeptOnUpdate('archived'); }
 
     // statusId sent: flags are ignored, the Salesforce-managed status rule applies
     private static testMethod void testUpsertStatusWithStatusId(){
@@ -319,7 +323,7 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked released -> active');
         System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'deactivated -> active');
         System.assertEquals('bankrupt', Rest_UpsertAccount.getUpsertStatus(miAcc, 'bankrupt', false), 'bankrupt stays');
-        System.assertEquals('archived', Rest_UpsertAccount.getUpsertStatus(miAcc, 'archived', false), 'archived stays');
+        System.assertEquals('ended', Rest_UpsertAccount.getUpsertStatus(miAcc, 'ended', false), 'ended stays');
         System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new, flags false -> active');
     }
 

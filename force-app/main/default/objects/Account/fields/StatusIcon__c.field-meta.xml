@@ -12,7 +12,6 @@ CASE(Status__c,
     &apos;defaulter&apos;, &apos;Defaulter&apos;,
     &apos;ended&apos;, &apos;Ended&apos;,
     &apos;bankrupt&apos;, &apos;Bankrupt&apos;,
-    &apos;archived&apos;, &apos;Archived&apos;,
     &apos;deactivated&apos;, &apos;Deactivated&apos;,
     &apos;&apos;)
 )</formula>
