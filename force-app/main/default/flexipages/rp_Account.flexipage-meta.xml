@@ -207,6 +207,12 @@
             </fieldInstance>
         </itemInstances>
         <itemInstances>
+            <componentInstance>
+                <componentName>flexipage:blankSpace</componentName>
+                <identifier>flexipage_blankSpace23</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
@@ -228,20 +234,28 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.MI_Login_as__c</fieldItem>
-                <identifier>RecordMI_Login_as_cField</identifier>
+                <fieldItem>Record.Account_Satisfaction__c</fieldItem>
+                <identifier>RecordAccount_Satisfaction_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.RecordType.DeveloperName}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>B2B</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentName>flexipage:blankSpace</componentName>
-                <identifier>flexipage_blankSpace23</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentName>flexipage:blankSpace</componentName>
                 <identifier>flexipage_blankSpace24</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.RecordType.DeveloperName}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>B2C</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <name>Facet-34311d0a-5ac6-49d9-952e-4b1d6dc4c0d1</name>
@@ -266,23 +280,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Platform_IDs__c</fieldItem>
                 <identifier>RecordPlatform_IDs_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Account_Satisfaction__c</fieldItem>
-                <identifier>RecordAccount_Satisfaction_cField</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.RecordType.DeveloperName}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>B2B</rightValue>
-                    </criteria>
-                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -380,6 +377,78 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-af3ccf74-6526-4c0b-bbee-d4934ba88289</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Status__c</fieldItem>
+                <identifier>RecordStatus_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.StatusPrevious__c</fieldItem>
+                <identifier>RecordStatusPrevious_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-7557ef1e-977d-4622-93e2-cf96076cf835</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.StatusChangedOn__c</fieldItem>
+                <identifier>RecordStatusChangedOn_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.StatusChangedBy__c</fieldItem>
+                <identifier>RecordStatusChangedBy_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-2a6c745b-01e2-4fab-9ea4-a62dae0f3c38</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-7557ef1e-977d-4622-93e2-cf96076cf835</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column65</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-2a6c745b-01e2-4fab-9ea4-a62dae0f3c38</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column66</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-63453058-98a7-4009-8867-564dc0a22f9d</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -2540,6 +2609,24 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-63453058-98a7-4009-8867-564dc0a22f9d</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Status</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection33</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-8d815c75-b321-4194-97ae-06a5ab46d75c</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -3057,78 +3144,6 @@
             </componentInstance>
         </itemInstances>
         <name>facet-4bb8d101-320f-4c10-9eb7-17568862c8b8</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Status__c</fieldItem>
-                <identifier>RecordStatus_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.StatusPrevious__c</fieldItem>
-                <identifier>RecordStatusPrevious_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-7557ef1e-977d-4622-93e2-cf96076cf835</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.StatusChangedOn__c</fieldItem>
-                <identifier>RecordStatusChangedOn_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.StatusChangedBy__c</fieldItem>
-                <identifier>RecordStatusChangedBy_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-2a6c745b-01e2-4fab-9ea4-a62dae0f3c38</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-7557ef1e-977d-4622-93e2-cf96076cf835</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>flexipage_column65</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-2a6c745b-01e2-4fab-9ea4-a62dae0f3c38</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>flexipage_column66</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-63453058-98a7-4009-8867-564dc0a22f9d</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -3910,24 +3925,6 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-63453058-98a7-4009-8867-564dc0a22f9d</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>General</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>flexipage_fieldSection33</identifier>
-            </componentInstance>
-        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
