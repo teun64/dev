@@ -17,6 +17,7 @@
     </assignments>
     <environments>Default</environments>
     <interviewLabel>rau - Lead - Converted - Address to (Acoount) Visiting {!$Flow.CurrentDateTime}</interviewLabel>
+    <description>Retired 2026-09-29: the standard lead mapping fills the Billing (establishment) address; rbb_Account mirrors Visiting/Invoice. Kept inactive so converting into an existing account does not overwrite its establishment address.</description>
     <label>rau - Lead - Converted - Address to (Acoount) Visiting</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -182,7 +183,7 @@
         </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <triggerOrder>601</triggerOrder>
     <variables>
         <name>vCommit</name>
