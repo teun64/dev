@@ -17,7 +17,7 @@
         <nameSegment>Inv_syncPlatformStatus</nameSegment>
     </actionCalls>
     <apiVersion>67.0</apiVersion>
-    <description>Status loop: when Salesforce changes the account status (Status__c), the account (incl. statusId) is pushed to every enabled platform (Label.PlatformStatusSyncPlatforms) that has a platform id for the account. The platform responds through Rest_UpsertAccount with its own status (extStatus_N__c).</description>
+    <description>INACTIVE until the platforms support the status loop (decision 2026-09-30). Status loop: when Salesforce changes the account status (Status__c), the account (incl. statusId) is pushed to every enabled platform (Label.PlatformStatusSyncPlatforms) that has a platform id for the account. The platform responds through Rest_UpsertAccount with its own status (extStatus_N__c).</description>
     <environments>Default</environments>
     <interviewLabel>rau - Account - Status - Sync to Platforms {!$Flow.CurrentDateTime}</interviewLabel>
     <label>rau - Account - Status - Sync to Platforms</label>
@@ -58,5 +58,5 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
 </Flow>
