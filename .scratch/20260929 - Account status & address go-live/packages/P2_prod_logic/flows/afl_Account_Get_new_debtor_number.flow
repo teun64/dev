@@ -295,6 +295,7 @@
         <queriedFields>Subscription25__Invoice_Layout__c</queriedFields>
         <queriedFields>Subscription25__Revision_Number__c</queriedFields>
         <queriedFields>Exact_Mandate_ID__c</queriedFields>
+        <queriedFields>Exact_Invoice_Address_ID__c</queriedFields>
     </recordLookups>
     <recordUpdates>
         <name>dur_01_Account</name>

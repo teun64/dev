@@ -44,9 +44,12 @@ Repo state: dev versions in `force-app`; the **prod-specific** packages exactly 
 
 13. **Platform status loop [dev DONE 2026-09-30, commit 890da68; acc/prod open]**: extStatus_1..6__c per platform, Rest_UpsertAccount stores the platform's statusId, status push on Status__c change (Label.PlatformStatusSyncPlatforms = 1; platforms 2–6 have no Named Credential Platform2–6 in any org yet), Health/Platform IDs formulas use the platform status (ended = left out). MI rejects the push for accounts without a debtor number (existing Util_Platform rule). For prod: flows deploy as Draft (activate rbb_Account + rau_Account_Status_Sync_to_Platforms), record types from prod's own versions, FLS read-only.
 
+14. **Fixed 2026-09-30 13:20 (prod v12)**: Replace Debtor Number gave an unhandled exception since the P2 deploy — prod's afl_Account_Get_new_debtor_number read rDebtorNumber.Exact_Invoice_Address_ID__c without that field in the Get Records queriedFields. Added the field (package updated), verified with a rolled-back run in prod.
+
 ## Lessons
 
 - A field rename is only safe when no **active** flow references the field by name; switch the flow off, rename, deploy the new flow, activate.
 - Prod deploys flows as Draft: plan an activation step for every flow in a package.
+- A flow Get Records with explicit queriedFields only returns those fields: when a new field is read later in the flow, add it to the lookup (tests without that path won't catch it).
 - Validate against acc with RunSpecifiedTests checks per-class coverage; prod RunLocalTests uses org-wide coverage.
 - WSONE_DATA (WebServices One) trigger is CPU-heavy on address changes: bulk address updates in batches of ≤5.
