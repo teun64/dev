@@ -3326,7 +3326,7 @@ RIGHT((&quot;00000000&quot; + BLANKVALUE({!$Record.Bank_6_Account_Number__c},&ap
 ,&apos;DE&apos;,&apos;5&apos;
 ,&apos;GB&apos;,&apos;6&apos;
 ,&apos;IE&apos;,&apos;6&apos;
-,BLANKVALUE({!$User.DefaultReseller__c},&apos;1&apos;))</expression>
+,BLANKVALUE(TEXT({!$Record.Reseller_Name__c}),BLANKVALUE({!$User.DefaultReseller__c},&apos;1&apos;)))</expression>
     </formulas>
     <formulas>
         <name>fInvoiceCycle</name>
@@ -3466,9 +3466,14 @@ TEXT({!$Record.BillingCountryCode})
         <expression>IF(ISBLANK({!$Record.VAT_Number__c}),&apos;&apos;,IF(({!$Record.VAT_Number__c}=&apos;-&apos;), {!$Record.VAT_Number__c}, UPPER({!$Record.VAT_Number__c})))</expression>
     </formulas>
     <formulas>
+        <description>Billing country; when empty, derived from the platform ids (1 MI / 5 EuropeTrack = NL, 2 Trackpilot = DE, 3 Chiron / 4 AMI = GB, 6 Echoes = FR), otherwise left empty. Never the running user&apos;s default country: that reset 1,353 accounts to NL / reseller 1 on 2026-08-28.</description>
         <name>fBillingCountryCode</name>
         <dataType>String</dataType>
-        <expression>BLANKVALUE(TEXT({!$Record.BillingCountryCode}),BLANKVALUE(TEXT({!$Record.BillingCountryCode}),BLANKVALUE({!$User.DefaultCountryCode__c},&apos;NL&apos;)))</expression>
+        <expression>BLANKVALUE(TEXT({!$Record.BillingCountryCode}),
+IF(OR(NOT(ISBLANK({!$Record.extId_1__c})),NOT(ISBLANK({!$Record.extId_5__c}))),&apos;NL&apos;,
+IF(NOT(ISBLANK({!$Record.extId_2__c})),&apos;DE&apos;,
+IF(OR(NOT(ISBLANK({!$Record.extId_3__c})),NOT(ISBLANK({!$Record.extId_4__c}))),&apos;GB&apos;,
+IF(NOT(ISBLANK({!$Record.extId_6__c})),&apos;FR&apos;,&apos;&apos;)))))</expression>
     </formulas>
     <formulas>
         <name>fWSONEDossierNumber</name>
