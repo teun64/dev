@@ -17,6 +17,19 @@ global without sharing class Rest_UpsertAccount {
 		Rest_UpsertAccount.AccountStatus.deactivated => '6'
 	};
 
+	// statusId -> Status__c API name (null for an empty or unknown statusId)
+	public static String getStatusName(String statusId) {
+		if (String.isBlank(statusId)) {
+			return null;
+		}
+		for (Rest_UpsertAccount.AccountStatus s : Rest_UpsertAccount.STATUS_IDS.keySet()) {
+			if (Rest_UpsertAccount.STATUS_IDS.get(s) == statusId.trim()) {
+				return s.name();
+			}
+		}
+		return null;
+	}
+
 	// Status__c API name -> statusId
 	public static String getStatusId(String status) {
 		for (Rest_UpsertAccount.AccountStatus s : Rest_UpsertAccount.AccountStatus.values()) {
@@ -146,6 +159,7 @@ global without sharing class Rest_UpsertAccount {
 			acc = existingAccounts[0];
 		}
 
+		Boolean isNewForPlatform = (acc == null);
 		if (acc == null) {
 			accountIsNew = true;
 			acc = new Account();
@@ -352,6 +366,7 @@ global without sharing class Rest_UpsertAccount {
 		}
 
 		acc.Status__c = Rest_UpsertAccount.getUpsertStatus(miAcc, acc.Status__c, accountIsNew);
+		Rest_UpsertAccount.setPlatformStatus(acc, miAcc, isNewForPlatform);
 
 		//System.debug(acc);
 		//System.debug(accountIsNew);
@@ -960,10 +975,11 @@ global without sharing class Rest_UpsertAccount {
 		}
 	}
 
-	// Status__c is managed by Salesforce. Platforms sending statusId: the incoming status is ignored, new -> active and an
-	// update only reactivates a deactivated account. Platforms without statusId (not supported yet) still drive the
-	// status with isBankrupt / isBlocked: bankrupt wins, then blocked, isBlocked = false releases a blocked account,
-	// otherwise new -> active and deactivated -> active.
+	// Status__c is managed by Salesforce (the status Salesforce requests from the platforms). Platforms sending statusId
+	// report their own status (stored in extStatus_<platformId>__c, see setPlatformStatus): new -> active, and a deactivated
+	// account only becomes active again when the platform reports active. Platforms without statusId (not supported yet)
+	// still drive the status with isBankrupt / isBlocked: bankrupt wins, then blocked, isBlocked = false releases a blocked
+	// account, otherwise new -> active and deactivated -> active.
 	@TestVisible
 	private static String getUpsertStatus(Rest_UpsertAccount.MiAccount miAcc, String currentStatus, Boolean accountIsNew) {
 		String active = Rest_UpsertAccount.AccountStatus.active.name();
@@ -981,11 +997,34 @@ global without sharing class Rest_UpsertAccount {
 			if (!accountIsNew && (currentStatus == blocked) && (miAcc.isBlocked == false)) {
 				return active;
 			}
+			if (accountIsNew || (currentStatus == deactivated)) {
+				return active;
+			}
+			return currentStatus;
 		}
-		if (accountIsNew || (currentStatus == deactivated)) {
+		if (accountIsNew) {
+			return active;
+		}
+		if ((currentStatus == deactivated) && (Rest_UpsertAccount.getStatusName(miAcc.statusId) == active)) {
 			return active;
 		}
 		return currentStatus;
+	}
+
+	// Status loop: the platform responds with its own status (statusId), stored per platform in extStatus_<platformId>__c.
+	// A new account for this platform without statusId starts as active; an unknown statusId is ignored.
+	@TestVisible
+	private static void setPlatformStatus(Account acc, Rest_UpsertAccount.MiAccount miAcc, Boolean isNewForPlatform) {
+		if ((miAcc.platformId == null) || (miAcc.platformId < 1) || (miAcc.platformId > 6)) {
+			return;
+		}
+		String extStatusField = 'extStatus_' + String.valueOf(miAcc.platformId) + '__c';
+		String reported = Rest_UpsertAccount.getStatusName(miAcc.statusId);
+		if (reported != null) {
+			acc.put(extStatusField, reported);
+		} else if (isNewForPlatform) {
+			acc.put(extStatusField, Rest_UpsertAccount.AccountStatus.active.name());
+		}
 	}
 
 	//these classes are used for deserializing the incoming JSON file.

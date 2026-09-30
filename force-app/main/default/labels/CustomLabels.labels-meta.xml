@@ -2398,4 +2398,12 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>InvoiceEstablishmentNotice</shortDescription>
         <value>In accordance with tax regulations, we are required to state the customer&apos;s establishment address in addition to the invoice address.</value>
     </labels>
+    <labels>
+        <fullName>PlatformStatusSyncPlatforms</fullName>
+        <categories>Platform</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Platforms that receive the account status</shortDescription>
+        <value>1</value>
+    </labels>
 </CustomLabels>

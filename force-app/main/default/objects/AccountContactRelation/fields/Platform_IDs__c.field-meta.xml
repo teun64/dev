@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Platform_IDs__c</fullName>
+        <description>Representation of all the platformID&apos;s</description>
+        <externalId>false</externalId>
+        <formula>IF(AND(NOT(ISBLANK( extId_1__c )), NOT(ISPICKVAL(Account.extStatus_1__c, &apos;ended&apos;))),&apos;|1|&apos; + extId_1__c,&apos;&apos;)
++ IF(AND(NOT(ISBLANK( extId_2__c )), NOT(ISPICKVAL(Account.extStatus_2__c, &apos;ended&apos;))),&apos;|2|&apos; + extId_2__c,&apos;&apos;)
++ IF(AND(NOT(ISBLANK( extId_3__c )), NOT(ISPICKVAL(Account.extStatus_3__c, &apos;ended&apos;))),&apos;|3|&apos; + extId_3__c,&apos;&apos;)
++ IF(AND(NOT(ISBLANK( extId_4__c )), NOT(ISPICKVAL(Account.extStatus_4__c, &apos;ended&apos;))),&apos;|4|&apos; + extId_4__c,&apos;&apos;)
++ IF(AND(NOT(ISBLANK( extId_5__c )), NOT(ISPICKVAL(Account.extStatus_5__c, &apos;ended&apos;))),&apos;|5|&apos; + extId_5__c,&apos;&apos;)
++ IF(AND(NOT(ISBLANK( extId_6__c )), NOT(ISPICKVAL(Account.extStatus_6__c, &apos;ended&apos;))),&apos;|6|&apos; + extId_6__c,&apos;&apos;)
++ IF(OR(AND(NOT(ISBLANK( extId_1__c )), NOT(ISPICKVAL(Account.extStatus_1__c, &apos;ended&apos;))), AND(NOT(ISBLANK( extId_2__c )), NOT(ISPICKVAL(Account.extStatus_2__c, &apos;ended&apos;))), AND(NOT(ISBLANK( extId_3__c )), NOT(ISPICKVAL(Account.extStatus_3__c, &apos;ended&apos;))), AND(NOT(ISBLANK( extId_4__c )), NOT(ISPICKVAL(Account.extStatus_4__c, &apos;ended&apos;))), AND(NOT(ISBLANK( extId_5__c )), NOT(ISPICKVAL(Account.extStatus_5__c, &apos;ended&apos;))), AND(NOT(ISBLANK( extId_6__c )), NOT(ISPICKVAL(Account.extStatus_6__c, &apos;ended&apos;)))),&apos;|&apos;,&apos;&apos;)</formula>
+        <inlineHelpText>Representation of all the platformID&apos;s</inlineHelpText>
+        <label>Platform IDs</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </CustomField>

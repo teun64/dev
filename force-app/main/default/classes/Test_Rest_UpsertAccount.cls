@@ -219,11 +219,18 @@ private class Test_Rest_UpsertAccount {
         Rest_UpsertAccount.handleAction();
         Account acc = [SELECT Id FROM Account WHERE extId_1__c = 't30'];
 
-        // a platform update reactivates a deactivated account
+        // a platform that reports its own status 'deactivated' does not reactivate the account (status loop)
         Database.update(new Account(Id = acc.Id, Status__c = 'deactivated'));
         System.RestContext.request = new RestRequest();
-        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"statusId":"4"', '"statusId":"6"'));
         Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        System.assertEquals('deactivated', [SELECT Status__c FROM Account WHERE Id = :acc.Id].Status__c, 'platform confirms deactivated');
+
+        // a platform that reports active reactivates a deactivated account
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"statusId":"4"', '"statusId":"0"'));
+        restResult = Rest_UpsertAccount.handleAction();
         System.assert(restResult.success, String.valueOf(restResult.messages));
         Account reactivated = [SELECT Status__c, StatusPrevious__c, StatusChangedOn__c, StatusChangedBy__c FROM Account WHERE Id = :acc.Id];
         System.assertEquals('active', reactivated.Status__c);
@@ -297,6 +304,69 @@ private class Test_Rest_UpsertAccount {
         miAcc.isBlocked = false;
         System.assertEquals('blocked', Rest_UpsertAccount.getUpsertStatus(miAcc, 'blocked', false), 'blocked stays');
         System.assertEquals('ended', Rest_UpsertAccount.getUpsertStatus(miAcc, 'ended', false), 'ended stays');
+        // status loop: a deactivated account only becomes active when the platform reports active
+        miAcc.statusId = '6';
+        System.assertEquals('deactivated', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'platform confirms deactivated');
+        miAcc.statusId = '4';
+        System.assertEquals('deactivated', Rest_UpsertAccount.getUpsertStatus(miAcc, 'deactivated', false), 'other platform status keeps deactivated');
+        System.assertEquals('active', Rest_UpsertAccount.getUpsertStatus(miAcc, null, true), 'new account -> active');
+    }
+
+    private static testMethod void testStatusNameLookup(){
+        System.assertEquals('active', Rest_UpsertAccount.getStatusName('0'));
+        System.assertEquals('blocked', Rest_UpsertAccount.getStatusName('1'));
+        System.assertEquals('defaulter', Rest_UpsertAccount.getStatusName('2'));
+        System.assertEquals('ended', Rest_UpsertAccount.getStatusName('3'));
+        System.assertEquals('bankrupt', Rest_UpsertAccount.getStatusName('4'));
+        System.assertEquals('deactivated', Rest_UpsertAccount.getStatusName(' 6 '));
+        System.assertEquals(null, Rest_UpsertAccount.getStatusName('5'), '5 is no longer used');
+        System.assertEquals(null, Rest_UpsertAccount.getStatusName(null));
+    }
+
+    // the platform status is stored per platform: new -> active, a reported statusId is taken over, an unknown one ignored
+    private static testMethod void testSetPlatformStatus(){
+        Rest_UpsertAccount.MiAccount miAcc = new Rest_UpsertAccount.MiAccount();
+        miAcc.platformId = 3;
+        Account acc = new Account();
+        Rest_UpsertAccount.setPlatformStatus(acc, miAcc, true);
+        System.assertEquals('active', acc.extStatus_3__c, 'new for the platform, no statusId -> active');
+        miAcc.statusId = '2';
+        Rest_UpsertAccount.setPlatformStatus(acc, miAcc, false);
+        System.assertEquals('defaulter', acc.extStatus_3__c, 'reported status taken over');
+        miAcc.statusId = '5';
+        Rest_UpsertAccount.setPlatformStatus(acc, miAcc, false);
+        System.assertEquals('defaulter', acc.extStatus_3__c, 'unknown statusId ignored');
+        miAcc.statusId = null;
+        Rest_UpsertAccount.setPlatformStatus(acc, miAcc, false);
+        System.assertEquals('defaulter', acc.extStatus_3__c, 'existing account without statusId unchanged');
+        System.assertEquals(null, acc.extStatus_1__c, 'other platforms untouched');
+        miAcc.platformId = 9;
+        Rest_UpsertAccount.setPlatformStatus(acc, miAcc, true);
+    }
+
+    // end-to-end: the platform reports its status on every call; clearing the platform id clears its status (rbb_Account)
+    private static testMethod void testRestPlatformStatusLoop(){
+        String jsonString = '{"id":"t31","salesforceId":null,"debtorNumber":null,"name":"Loop b.v.","isBusiness":true,"isDealer":false,"paymentMethodExactCode":"08","contactDTOs":[{"id":"t3101","salesforceId":null,"accountId":"t31","firstName":"Lars","surName":"Loop","email":"lars.loop@example.invalid","phoneNumber":"+31600000031","language":"nl","street":"Lusweg","houseNumber":"1","postalCode":"3131 LL","city":"Lusdorp","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t31v","accountId":"t31","firstName":"Lars","surName":"Loop","email":"lars.loop@example.invalid","street":"Lusweg","houseNumber":"1","postalCode":"3131 LL","city":"Lusdorp","country":"NL"},"resellerId":1,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString);
+        Util_Rest.RestResult restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        Account acc = [SELECT Id, Status__c, extStatus_1__c FROM Account WHERE extId_1__c = 't31'];
+        System.assertEquals('active', acc.Status__c);
+        System.assertEquals('active', acc.extStatus_1__c, 'new account without statusId -> platform status active');
+
+        Test.startTest();
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(jsonString.replace('"platformId":1}', '"platformId":1,"statusId":"1"}'));
+        restResult = Rest_UpsertAccount.handleAction();
+        System.assert(restResult.success, String.valueOf(restResult.messages));
+        acc = [SELECT Id, Status__c, extStatus_1__c FROM Account WHERE Id = :acc.Id];
+        System.assertEquals('blocked', acc.extStatus_1__c, 'platform reports blocked');
+        System.assertEquals('active', acc.Status__c, 'the Salesforce status is not taken over from the platform');
+
+        Database.update(new Account(Id = acc.Id, extId_1__c = null), AccessLevel.SYSTEM_MODE);
+        Test.stopTest();
+        System.assertEquals(null, [SELECT extStatus_1__c FROM Account WHERE Id = :acc.Id].extStatus_1__c, 'no platform id -> no platform status');
     }
 
     // no statusId: isBankrupt / isBlocked drive the status

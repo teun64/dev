@@ -5,12 +5,12 @@
     <externalId>false</externalId>
     <formula>TRIM(
 IF(ISBLANK(Text(Account.Status__c)),&apos;&apos;,IMAGE(&apos;/resource/accountStatus/&apos;+Text(Account.Status__c)+&apos;.svg&apos;,Text(Account.Status__c), 48, 48)) + &apos; &apos;
-+ IF(ISBLANK( extId_1__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/1&apos;+IF(NOT(ISPICKVAL(Account.Status__c, &apos;active&apos;)),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_1__c, 48, 48)) + &apos; &apos;
-+ IF(ISBLANK( extId_2__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/2&apos;+IF(NOT(ISPICKVAL(Account.Status__c, &apos;active&apos;)),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_2__c, 48, 48)) + &apos; &apos;
-+ IF(ISBLANK( extId_3__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/3&apos;+IF(NOT(ISPICKVAL(Account.Status__c, &apos;active&apos;)),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_3__c, 48, 48)) + &apos; &apos;
-+ IF(ISBLANK( extId_4__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/4&apos;+IF(NOT(ISPICKVAL(Account.Status__c, &apos;active&apos;)),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_4__c, 48, 48)) + &apos; &apos;
-+ IF(ISBLANK( extId_5__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/5&apos;+IF(NOT(ISPICKVAL(Account.Status__c, &apos;active&apos;)),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_5__c, 48, 48)) + &apos; &apos;
-+ IF(ISBLANK( extId_6__c ),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/6&apos;+IF(NOT(ISPICKVAL(Account.Status__c, &apos;active&apos;)),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_6__c, 48, 48))
++ IF(OR(ISBLANK( extId_1__c ), ISPICKVAL(Account.extStatus_1__c, &apos;ended&apos;)),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/1&apos;+IF(AND(NOT(ISBLANK(TEXT(Account.extStatus_1__c))), NOT(ISPICKVAL(Account.extStatus_1__c, &apos;active&apos;))),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_1__c, 48, 48)) + &apos; &apos;
++ IF(OR(ISBLANK( extId_2__c ), ISPICKVAL(Account.extStatus_2__c, &apos;ended&apos;)),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/2&apos;+IF(AND(NOT(ISBLANK(TEXT(Account.extStatus_2__c))), NOT(ISPICKVAL(Account.extStatus_2__c, &apos;active&apos;))),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_2__c, 48, 48)) + &apos; &apos;
++ IF(OR(ISBLANK( extId_3__c ), ISPICKVAL(Account.extStatus_3__c, &apos;ended&apos;)),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/3&apos;+IF(AND(NOT(ISBLANK(TEXT(Account.extStatus_3__c))), NOT(ISPICKVAL(Account.extStatus_3__c, &apos;active&apos;))),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_3__c, 48, 48)) + &apos; &apos;
++ IF(OR(ISBLANK( extId_4__c ), ISPICKVAL(Account.extStatus_4__c, &apos;ended&apos;)),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/4&apos;+IF(AND(NOT(ISBLANK(TEXT(Account.extStatus_4__c))), NOT(ISPICKVAL(Account.extStatus_4__c, &apos;active&apos;))),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_4__c, 48, 48)) + &apos; &apos;
++ IF(OR(ISBLANK( extId_5__c ), ISPICKVAL(Account.extStatus_5__c, &apos;ended&apos;)),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/5&apos;+IF(AND(NOT(ISBLANK(TEXT(Account.extStatus_5__c))), NOT(ISPICKVAL(Account.extStatus_5__c, &apos;active&apos;))),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_5__c, 48, 48)) + &apos; &apos;
++ IF(OR(ISBLANK( extId_6__c ), ISPICKVAL(Account.extStatus_6__c, &apos;ended&apos;)),&apos;&apos;,IMAGE(&apos;/resource/systemIcons/6&apos;+IF(AND(NOT(ISBLANK(TEXT(Account.extStatus_6__c))), NOT(ISPICKVAL(Account.extStatus_6__c, &apos;active&apos;))),&apos;_disabled&apos;,&apos;&apos;)+&apos;.svg&apos;, extId_6__c, 48, 48))
 )</formula>
     <label>Health (48)</label>
     <required>false</required>

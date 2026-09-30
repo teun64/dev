@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>extStatus_5__c</fullName>
+    <description>Status of this account as reported by platform 5 (Rest_UpsertAccount statusId). Salesforce requests Status__c, the platform responds with its own status. Empty when extId_5__c is empty (rbb_Account).</description>
+    <label>EuropeTrack Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>pvs_AccountStatus</valueSetName>
+    </valueSet>
+</CustomField>
