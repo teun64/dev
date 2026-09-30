@@ -3,6 +3,58 @@
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <description>The platform status (extStatus_N__c) is empty when the platform id (extId_N__c) is empty. The status itself is set by Rest_UpsertAccount (statusId of the platform).</description>
+        <name>ass_01_ExtStatus</name>
+        <label>1. Platform Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_1__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus1</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_2__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus2</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_3__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus3</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_4__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus4</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_5__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus5</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_6__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus6</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Billing_Country</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>ass_01_Account_Name_Bank</name>
         <label>1. Account Name (Bank)</label>
         <locationX>0</locationX>
@@ -2197,7 +2249,7 @@
         <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
             <name>dec_01_FinancialSystemSync_Yes</name>
-            <conditionLogic>((1 AND 2 AND 9) OR ((1 OR 3) AND 10)  OR ((1 OR 4) AND 11)  OR ((1 OR 5) AND 12) OR ((1 OR 6) AND 13)  OR ((1 OR 7) AND 14)  OR ((1 OR 8) AND 15))</conditionLogic>
+            <conditionLogic>((1 AND 2 AND 9) OR ((1 OR 3) AND 10)  OR ((1 OR 4) AND 11)  OR ((1 OR 5) AND 12) OR ((1 OR 6) AND 13)  OR ((1 OR 7) AND 14)  OR ((1 OR 8 OR 16 OR 17 OR 18 OR 19) AND 15))</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Id</leftValueReference>
                 <operator>IsBlank</operator>
@@ -2248,7 +2300,7 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.BillingAddress</leftValueReference>
+                <leftValueReference>$Record.BillingStreet</leftValueReference>
                 <operator>IsChanged</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -2297,10 +2349,38 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.BillingAddress</leftValueReference>
+                <leftValueReference>$Record.BillingStreet</leftValueReference>
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingPostalCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingCity</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingCountryCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingStateCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -3126,6 +3206,42 @@
     <description>Checks Account before update</description>
     <environments>Default</environments>
     <formulas>
+        <description>Platform 1 status, empty when extId_1__c is empty</description>
+        <name>fExtStatus1</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_1__c}), &apos;&apos;, TEXT({!$Record.extStatus_1__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 2 status, empty when extId_2__c is empty</description>
+        <name>fExtStatus2</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_2__c}), &apos;&apos;, TEXT({!$Record.extStatus_2__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 3 status, empty when extId_3__c is empty</description>
+        <name>fExtStatus3</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_3__c}), &apos;&apos;, TEXT({!$Record.extStatus_3__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 4 status, empty when extId_4__c is empty</description>
+        <name>fExtStatus4</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_4__c}), &apos;&apos;, TEXT({!$Record.extStatus_4__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 5 status, empty when extId_5__c is empty</description>
+        <name>fExtStatus5</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_5__c}), &apos;&apos;, TEXT({!$Record.extStatus_5__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 6 status, empty when extId_6__c is empty</description>
+        <name>fExtStatus6</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_6__c}), &apos;&apos;, TEXT({!$Record.extStatus_6__c}))</expression>
+    </formulas>
+    <formulas>
         <name>fAccountNumberUK</name>
         <dataType>String</dataType>
         <expression>RIGHT({!$Record.Bank_Account_Number__c},8)</expression>
@@ -3503,7 +3619,7 @@ TEXT({!$Record.BillingCountryCode})
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>ass_01_Billing_Country</targetReference>
+            <targetReference>ass_01_ExtStatus</targetReference>
         </connector>
         <object>Account</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
