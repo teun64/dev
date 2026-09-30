@@ -14,7 +14,7 @@ None has an active contract or contract product.
 
 ## Field default on Reseller_Name__c (the real source of "reseller 1" on insert)
 `Reseller_Name__c` has default `BLANKVALUE($User.DefaultReseller__c,'1')`, so a new account already has a reseller before rbb_Account runs and the flow's "reseller blank" branch never fires. For platform 1–3 accounts (no recalculation allowed) the user's default / '1' stuck.
-**[dev + acc DONE 2026-09-30, uncommitted; prod open]** default removed; rbb_Account now derives it (acc: rbb_Account v62). acc's field uses global value set `Reseller` (dev/prod: `BusinessEnitites`) → acc deployed from `packages/acc_prevention` (mdapi), repo file untouched. Verified (rolled back): MI/EuropeTrack → NL/1, Trackpilot → DE/5, Chiron/Nexus → GB/6, Echoes → FR/4, API-supplied reseller kept, nothing → country empty / reseller 1.
+**[dev + acc + prod DONE 2026-09-30]** default removed; rbb_Account now derives it (acc: rbb_Account v62). acc's field uses global value set `Reseller` (dev/prod: `BusinessEnitites`) → acc deployed from `packages/acc_prevention` (mdapi), repo file untouched. Verified (rolled back): MI/EuropeTrack → NL/1, Trackpilot → DE/5, Chiron/Nexus → GB/6, Echoes → FR/4, API-supplied reseller kept, nothing → country empty / reseller 1.
 
 ## What happened
 - 2026-08-28 08:17–10:20 UTC: one-off `Btch_SetAccountPrimaryBrand` updated `PrimaryBrand__c` on ~181K prod accounts (running user Teun Rietman).
@@ -50,7 +50,7 @@ Result: DE 974 · GB 343 · AT 15 · CH 10 · BE 10.
 Tests 2026-09-30: platform cases + 28-8 scenario in dev and acc (rolled back); REBEL Lease regression 4 calls in dev OK (roles, billing contact, reseller 1 stable); UK API account reseller 6 kept; dev RunLocalTests 420/458, none of the 38 failures related (integration user, MI connection config, LocalSetting__mdt fields, financial-sync WIP, pre-existing Stripe-id clear on insert in Test_Ctrl_HubPayment).
 Still in prod v63 / dev: `ass_01_Billing_Country` runs on **every** save and fills a blank Billing country with the running user's `DefaultCountryCode__c`; that counts as a change, so `fFinancialEntity` recalculates the reseller, falling back to `DefaultReseller__c` or '1'. The running user's profile silently decides a customer's Exact administration.
 
-1. **[dev (v72) + acc (v62) DONE 2026-09-30; prod open]** `fBillingCountryCode` no longer falls back to the user's default country. An empty Billing country is derived from the platform ids: extId_1 (MI) / extId_5 (EuropeTrack) = NL, extId_2 (Trackpilot) = DE, extId_3 (Chiron) / extId_4 (AMI) = GB, extId_6 (Echoes) = FR, otherwise it stays **empty**.
+1. **[dev (v72) + acc (v62) + prod (v64) DONE 2026-09-30]** `fBillingCountryCode` no longer falls back to the user's default country. An empty Billing country is derived from the platform ids: extId_1 (MI) / extId_5 (EuropeTrack) = NL, extId_2 (Trackpilot) = DE, extId_3 (Chiron) / extId_4 (AMI) = GB, extId_6 (Echoes) = FR, otherwise it stays **empty**.
 2. **[dev DONE, same version]** `fFinancialEntity`: a blank or unmapped country keeps the current reseller; `DefaultReseller__c` / '1' only when the account has no reseller at all.
    Verified in dev (rolled back): 28-8 scenario (reseller 6, no country, unrelated update) → country stays empty, reseller stays 6; country → DE gives 5; country → US keeps 5; new accounts get the country from their platform id.
    Pre-existing, not changed: on insert with extId_2/extId_3 the reseller stays 1 even with a country (the platform API sends the reseller itself).
@@ -60,3 +60,8 @@ Still in prod v63 / dev: `ass_01_Billing_Country` runs on **every** save and fil
    - after the prod run, check AccountHistory for fields other than the target (`GROUP BY Field` for the run window);
    - optional: a `Bypass_Account_Derivations` custom permission that rbb_Account checks at the start, assigned only for the duration of a technical batch.
 5. **Monitoring**: a report subscription / scheduled check on AccountHistory `Reseller_Name__c` changes per day (alert above e.g. 20).
+
+## Prod deploy 2026-09-30
+- Package `packages/prod_prevention` = prod v63 (`20260929 .../P2_prod_logic`, verified identical) + only the two formulas; the repo flow also carries the platform-status clear and the new Exact sync rule, which are NOT in prod yet (go-live runbook items 1 and 13).
+- Validated with RunSpecifiedTests (Test_Btch_SetAccountPrimaryBrand, Test_Rest_UpsertAccount) 19/19, quick-deployed, rbb_Account v64 activated by hand; Reseller_Name__c default removed. Active v64 verified identical to the package.
+- Functional test in prod (`scripts/test_prevention.apex`, everything rolled back) NOT run: blocked by the permission classifier. Same script passed in dev; dev/acc logs show the rolled-back inserts never start the async Exact sync.
