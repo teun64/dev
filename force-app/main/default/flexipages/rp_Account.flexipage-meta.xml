@@ -3183,22 +3183,18 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.extId_5__c</fieldItem>
-                <identifier>RecordextId_5_cField</identifier>
+                <fieldItem>Record.extId_4__c</fieldItem>
+                <identifier>RecordextId_4_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-4948df7b-7ad0-47d8-afeb-629a64afe4ad</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.extId_4__c</fieldItem>
-                <identifier>RecordextId_4_cField</identifier>
+                <fieldItem>Record.extId_5__c</fieldItem>
+                <identifier>RecordextId_5_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -3211,17 +3207,69 @@
                 <identifier>RecordextId_6_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-4948df7b-7ad0-47d8-afeb-629a64afe4ad</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
-            <componentInstance>
-                <componentName>flexipage:blankSpace</componentName>
-                <identifier>flexipage_blankSpace6</identifier>
-            </componentInstance>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.extStatus_1__c</fieldItem>
+                <identifier>RecordextStatus_1_cField</identifier>
+            </fieldInstance>
         </itemInstances>
         <itemInstances>
-            <componentInstance>
-                <componentName>flexipage:blankSpace</componentName>
-                <identifier>flexipage_blankSpace7</identifier>
-            </componentInstance>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.extStatus_2__c</fieldItem>
+                <identifier>RecordextStatus_2_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.extStatus_3__c</fieldItem>
+                <identifier>RecordextStatus_3_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.extStatus_4__c</fieldItem>
+                <identifier>RecordextStatus_4_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.extStatus_5__c</fieldItem>
+                <identifier>RecordextStatus_5_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.extStatus_6__c</fieldItem>
+                <identifier>RecordextStatus_6_cField</identifier>
+            </fieldInstance>
         </itemInstances>
         <name>Facet-038fea7a-41ba-49fe-ac85-d56f1c475f59</name>
         <type>Facet</type>
