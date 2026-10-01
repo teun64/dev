@@ -50,6 +50,8 @@ Repo state: dev versions in `force-app`; the **prod-specific** packages exactly 
 
 15. **2026-10-01 prod**: 77 stale Exact sync flags (FinancialSystemSync__c; all accounts in Exact, 75 without a sync attempt in 30 days, 2 completed) cleared.
 
+16. **2026-10-01 prod: data retention framework deployed** (P4: DataRetentionPolicy__mdt + fields + vr, Batch/Queue with chaining + continue-until-done, tests; 302/302). All 5 policies INACTIVE; Subscription25__Schedulable_Class__c 'Batch_DataRetentionCleanup' created (batch size 1, log ALL, type DataRetentionCleanup) WITHOUT Schedulable/cron — nothing scheduled. Prod log cleanup stays on Batch_CleanEventLogs/OauthLogs. Before activating anything: refine the Account policy filter (would deactivate ~163k accounts as is).
+
 ## Lessons
 
 - A field rename is only safe when no **active** flow references the field by name; switch the flow off, rename, deploy the new flow, activate.
