@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Data Retention Policy</label>
+    <pluralLabel>Data Retention Policies</pluralLabel>
+    <visibility>Public</visibility>
+    <fields>
+        <fullName>AdditionalFilter__c</fullName>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Filter (Additional)</label>
+        <length>32768</length>
+        <type>LongTextArea</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>DeleteMode__c</fullName>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Delete Mode</label>
+        <required>false</required>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>HARD</fullName>
+                    <default>false</default>
+                    <label>Permanent delete</label>
+                </value>
+                <value>
+                    <fullName>SOFT</fullName>
+                    <default>true</default>
+                    <label>Mark as for retention</label>
+                </value>
+                <value>
+                    <fullName>ARCHIVE</fullName>
+                    <default>false</default>
+                    <label>Move to the Archive (future)</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>DeleteModeSoftField__c</fullName>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Field (Soft - Delete Mode)</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DeleteModeSoftValue__c</fullName>
+        <description>Value written to the soft delete field, e.g. &apos;deactivated&apos; for a picklist. Empty = the field is a checkbox and is set to true.</description>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Value (Soft - Delete Mode)</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FilterField__c</fullName>
+        <defaultValue>&apos;CreatedDate&apos;</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Field (Filter)</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>IsActive__c</fullName>
+        <defaultValue>true</defaultValue>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Active</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Object__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Object</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>RetentionDays__c</fullName>
+        <defaultValue>7</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Retention (in Days)</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <validationRules>
+        <fullName>vr_DeleteMode_Soft</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(
+ISPICKVAL( DeleteMode__c , &apos;SOFT&apos;)
+,
+ISBLANK( DeleteModeSoftField__c)
+)</errorConditionFormula>
+        <errorDisplayField>DeleteModeSoftField__c</errorDisplayField>
+        <errorMessage>The Soft (Delete Mode) requires a valid Field (a checkbox, or any field together with Value (Soft - Delete Mode))</errorMessage>
+    </validationRules>
+</CustomObject>
