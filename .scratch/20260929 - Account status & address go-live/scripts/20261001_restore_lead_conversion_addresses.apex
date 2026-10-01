@@ -6,3 +6,5 @@ List<Account> fixes = new List<Account>{
         new Account(Id='001bR00000Sgrz3QAB', BillingStreet='Louisestratenusstraat 10', BillingPostalCode='4822vw', BillingCity='Breda', BillingCountryCode='NL')
 };
 for (Account a : fixes) update a;
+// 2026-10-01 BAG correction (PDOK locatieserver): Louisestratenusstraat 10, 4822vw -> Louise Stratenusstraat 10, 4822VW Breda (NB)
+update new Account(Id='001bR00000Sgrz3QAB', BillingStreet='Louise Stratenusstraat 10', BillingPostalCode='4822VW', BillingCity='Breda', BillingStateCode='NB', BillingCountryCode='NL', BillingLatitude=51.61167397, BillingLongitude=4.72622433);
