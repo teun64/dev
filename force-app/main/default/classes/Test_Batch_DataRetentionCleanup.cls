@@ -13,11 +13,7 @@ private class Test_Batch_DataRetentionCleanup {
     private static void testFullBatchRunLogsAndCompletesWithNoMatchingData() {
         insert new Subscription25__Schedulable_Class__c(Name = 'Batch_DataRetentionCleanup');
 
-        List<DataRetentionPolicy__mdt> activePolicies = [
-            SELECT Id FROM DataRetentionPolicy__mdt WHERE IsActive__c = true
-        ];
-        Assert.isTrue(!activePolicies.isEmpty(), 'Expected the deployed active retention policies to be visible in tests');
-
+        // works with or without active policies in the org (prod deploys them inactive): the batch run always logs
         Test.startTest();
         Database.executeBatch(new Batch_DataRetentionCleanup());
         Test.stopTest();
