@@ -34,11 +34,11 @@ Repo state: dev versions in `force-app`; the **prod-specific** packages exactly 
 3. **Address clean-up** (lists on the Desktop, not in git). Done 2026-09-30: group 1 (556 unticked), group 2 (312 corrected to BAG + unticked), group 3 A, A/B and B (228 corrected to BAG + unticked; 187 establishment changes flagged and synced to Exact, 2 Exact data errors). Still open: group 3 C = 167 accounts where both addresses exist in the BAG (needs KvK / account owner); group 3 D = 40 and group 2 = 40 not found in the BAG (mostly non-NL); 7 accounts whose Visiting mirror differs only in capitals.
 4. **Invoices**: confirm tonight's 351 invoices got their invoice number and PDF (Job_FinalizeInvoicesInExact runs hh:00/16/32/48). Status 21:35: 344/351 finalized in Exact; the last 7 (UK, I-2609-00757003..009, Exact orders 222528–222534) were in the 21:32 run. A manual run at 21:26 was aborted by hand (no data lost).
 5. **Data issues seen in the Exact log**: James Dyke duplicate FinancialIdAccount__c (with 001Tx00000zzpX8IAI); Reflex Insulation Group invalid VAT check digit / no bank account.
-6. **Setup (manual)**: rename the standard Billing Address label to "Establishment / Billing Address".
+6. **[DONE 2026-10-01]** **Setup (manual)**: rename the standard Billing Address label to "Establishment / Billing Address".
 7. Confirm Country_Code__c for Belgium / France (echoes) / Greece (G4S) (now NL).
-8. First real lead conversion after go-live: check Billing/Visiting/Invoice.
+8. **[DONE 2026-10-01]** First real lead conversion after go-live: check Billing/Visiting/Invoice.
 9. Later: retire VisitingAddress__c and useBillingAddress__c; approval process for status changes (four-eyes); REBEL/Horizon regression (blocked by the rab-Contact bulk bug).
-10. Send the key-user email (artifact "Account Go-Live Email").
+10. **[DONE 2026-10-01]** Send the key-user email (artifact "Account Go-Live Email").
 11. **Later — international address validation via WebServices One (webservices.nl), not the managed app.** The BAG/PDOK check only covers NL; there is no free official EU-wide register (free per country: BE BeST, FR BAN; DE/UK/GR not at house-number level; OpenStreetMap as unofficial fallback). Preferred route: phase out the WSONE_DATA managed package (its Account trigger is CPU-heavy and its Billing fields hold its own postal/correspondence data) but keep using webservices.nl's (international) address services directly through a Named Credential. First check what the webservices.nl contract covers internationally. Then validate the open non-NL cases (group 2/3 D) and add validation on entry.
 12. **Accounts without an establishment address**: 17,267 (17,207 active, 3,482 with a debtor number); the new Util_Exact blocks their Exact sync with a clear message. Unchanged by the migration (17,268 before). Make a list, starting with the ones that have a debtor number.
 
