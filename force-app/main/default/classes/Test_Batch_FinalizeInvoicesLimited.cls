@@ -1,8 +1,8 @@
 @isTest
 private class Test_Batch_FinalizeInvoicesLimited {
 
-    @IsTest
-    private static void Test_Batch_FinalizeInvoicesLimited_FinalizeInvoice() {
+    @TestSetup
+    private static void makeData() {
         Subscription25__Administration__c adminNL = Test_Data.createAdministration(true);
         Subscription25__Administration__c adminDE = Test_Data.createAdministration(false);
         adminDE.Name = 'DE Administration';
@@ -10,6 +10,7 @@ private class Test_Batch_FinalizeInvoicesLimited {
         adminDE.Subscription25__Invoice_Number_Prefix__c = 'TTD';
         adminDE.Reseller__c = '5';
         adminDE.External_ID__c = 5;
+        adminDE.Subscription25__Twinfield_Company_Code__c = '1234509875'; // unique in Subscription25 >= v2.67
         Database.insert(adminDE);
         Account accNL = Test_Data.createAccount('Account NL', '12345NL', 'B2B', true);
         Account accDE = Test_Data.createAccount('Account DE', '12345DE', 'B2B', false);
@@ -21,21 +22,34 @@ private class Test_Batch_FinalizeInvoicesLimited {
         Subscription25__Invoice__c invDE = Test_Data.createInvoice(adminDE.Id, accDE.Id, 'DRAFT', false);
         invDE.Subscription25__Exact_Order_Number__c = '1231';
         Database.insert(invDE);
+    }
 
+    private static String invoiceNumber(String exactOrderNumber) {
+        return [SELECT Subscription25__Invoice_Number__c FROM Subscription25__Invoice__c
+                WHERE Subscription25__Exact_Order_Number__c = :exactOrderNumber].Subscription25__Invoice_Number__c;
+    }
+
+    @IsTest
+    private static void Test_Batch_FinalizeInvoicesLimited_FinalizeInvoice() {
+        // ExactMock reports the invoice as already printed with InvoiceNumber 123: the batch stores prefix + number
         Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-        Batch_FinalizeInvoicesLimited batch = new Batch_FinalizeInvoicesLimited();
         Test.startTest();
-        Database.executeBatch(batch);
+        Database.executeBatch(new Batch_FinalizeInvoicesLimited());
         Test.stopTest();
 
-        id invNL_Id = invNL.Id;
-        id invDE_Id = invDE.Id;
-        invNL = [SELECT Id, Subscription25__Exact_Order_Number__c, Subscription25__Invoice_Number__c, Subscription25__Finalized_In_Exact__c FROM Subscription25__Invoice__c WHERE Id = :invNL.Id];
-        //System.assert(invNL.Subscription25__Finalized_In_Exact__c, 'Invoice should be set as printed');
-        system.assertEquals(invNL_Id,invNL.Id);
+        System.assertEquals('TTT123', invoiceNumber('1230'), 'Default run (reseller 1) loads the NL invoice number');
+        // finish() chains a run for the next reseller with open invoices (5), which completes within stopTest()
+        System.assertEquals('TTD123', invoiceNumber('1231'), 'Chained reseller 5 run loads the DE invoice number');
+    }
 
-        invDE = [SELECT Id, Subscription25__Exact_Order_Number__c, Subscription25__Invoice_Number__c, Subscription25__Finalized_In_Exact__c FROM Subscription25__Invoice__c WHERE Id = :invDE.Id];
-        //System.assert(invDE.Subscription25__Finalized_In_Exact__c, 'Invoice should be set as printed');
-        system.assertEquals(invDE_Id,invDE.Id);
+    @IsTest
+    private static void Test_Batch_FinalizeInvoicesLimited_Reseller5() {
+        Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
+        Test.startTest();
+        Database.executeBatch(new Batch_FinalizeInvoicesLimited('5'));
+        Test.stopTest();
+
+        System.assertEquals('TTD123', invoiceNumber('1231'), 'Reseller 5 run loads the DE invoice number');
+        System.assertEquals(null, invoiceNumber('1230'), 'NL invoice is not part of the reseller 5 run');
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>cp_AllowFinancialEntityChange</name>
+    </customPermissions>
+    <description>Allows changing an Account's Customer Entity (Reseller_Name__c), which decides the Exact administration. Without it (and without System Administrator) validation rule vr_FinancialEntityChange blocks the change, also when a flow derives it.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miAllowFinancialEntityChange (ps)</label>
+</PermissionSet>

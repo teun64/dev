@@ -10,7 +10,7 @@ None has an active contract or contract product.
 | Open opportunity (stale: close dates mostly 2022–2025) | 82 | 64 | – | 11 |
 | Closed Won, but no contract at all (latest 2026-03) | 96 | 16 | 2 | 104 |
 
-**2026-09-30 deactivated in prod** (`scripts/deactivate_inactive.py`): 1,238 accounts ("nothing active" 1,092 + "open opportunity" 146) active → deactivated, 0 failures; StatusPrevious/StatusChangedOn set by rbb_Account, no Exact sync flag. The 114 "Closed Won, no contract" accounts stay active for investigation. Before-snapshot: `deactivate_before_prod_*.csv`, run log: `deactivate_run_prod_*.csv`.
+**2026-09-30 deactivated in prod** (`scripts/deactivate_inactive.py`): 1,238 accounts ("nothing active" 1,092 + "open opportunity" 146) active → deactivated, 0 failures; StatusPrevious/StatusChangedOn set by rbb_Account, no Exact sync flag. The 114 "Closed Won, no contract" accounts stay active: user decision 2026-10-01, they are more or less active customers (no further action). Before-snapshot: `deactivate_before_prod_*.csv`, run log: `deactivate_run_prod_*.csv`.
 
 ## Field default on Reseller_Name__c (the real source of "reseller 1" on insert)
 `Reseller_Name__c` has default `BLANKVALUE($User.DefaultReseller__c,'1')`, so a new account already has a reseller before rbb_Account runs and the flow's "reseller blank" branch never fires. For platform 1–3 accounts (no recalculation allowed) the user's default / '1' stuck.
@@ -63,5 +63,6 @@ Still in prod v63 / dev: `ass_01_Billing_Country` runs on **every** save and fil
 
 ## Prod deploy 2026-09-30
 - Package `packages/prod_prevention` = prod v63 (`20260929 .../P2_prod_logic`, verified identical) + only the two formulas; the repo flow also carries the platform-status clear and the new Exact sync rule, which are NOT in prod yet (go-live runbook items 1 and 13).
+- **Rolled-back prod test 2026-10-01 PASSED** (`scripts/test_prevention.apex`, run with a final throw so the whole transaction fails and no async job survives; 0 RRTEST accounts left): MI/EuropeTrack → NL/1, Trackpilot → DE/5, Chiron/Nexus → GB/6, Echoes → FR/4, API reseller 3 kept, nothing → country empty / reseller 1; 28-8 scenario (reseller 6, unrelated update) → country empty, reseller 6; country DE → 5; country US → 5 kept.
 - Validated with RunSpecifiedTests (Test_Btch_SetAccountPrimaryBrand, Test_Rest_UpsertAccount) 19/19, quick-deployed, rbb_Account v64 activated by hand; Reseller_Name__c default removed. Active v64 verified identical to the package.
 - Functional test in prod (`scripts/test_prevention.apex`, everything rolled back) NOT run: blocked by the permission classifier. Same script passed in dev; dev/acc logs show the rolled-back inserts never start the async Exact sync.

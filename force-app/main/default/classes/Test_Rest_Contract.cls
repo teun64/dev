@@ -6,7 +6,9 @@ public with sharing class Test_Rest_Contract {
         RestRequest req = new RestRequest(); 
         RestResponse res = new RestResponse();
         //req.requestURI = 'https://movingintelligence--acc.sandbox.lightning.force.com/services/apexrest/contract?entity=9906915&platform=1';
-        req.requestURI = './services/apexrest/contract?entity=9906915&platform=1';
+        req.requestURI = '/services/apexrest/Contract';
+        req.addParameter('entity', '9906915');
+        req.addParameter('platform', '1');
     
         //req.addHeader('Content-Type', 'application/json');
         req.httpMethod = 'GET';
@@ -22,7 +24,25 @@ public with sharing class Test_Rest_Contract {
         Test.stopTest();
 
         System.assertEquals(true, restResult.success);
+        IntegrationAttempt__c log = [SELECT Calling_System__c FROM IntegrationAttempt__c ORDER BY CreatedDate DESC LIMIT 1];
+        System.assertEquals('1', log.Calling_System__c, 'Platform from the request parameter');
         //System.assertEquals(0, restResult.creditAmountNotice);
         //System.assertEquals(0, restResult.creditAmountDirect);   
+    }
+
+    static testMethod void testRestContract_withoutPlatform(){
+        RestRequest req = new RestRequest();
+        req.requestURI = '/services/apexrest/Contract';
+        req.addParameter('entity', '9906915');
+        req.httpMethod = 'GET';
+        req.requestBody = Blob.valueof('{}');
+        RestContext.request = req;
+        RestContext.response = new RestResponse();
+
+        Test.startTest();
+        Util_Rest.AbstractRestResult restResult = Rest_Contract.handleAction();
+        Test.stopTest();
+
+        System.assertEquals(true, restResult.success, 'A missing platform must not break the call or its log');
     }
 }

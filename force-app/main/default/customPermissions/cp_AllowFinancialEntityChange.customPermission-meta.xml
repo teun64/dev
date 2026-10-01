@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows changing Account.Reseller_Name__c (Customer Entity) once it is filled. Checked by validation rule vr_FinancialEntityChange; System Administrators are always allowed.</description>
+    <isLicensed>false</isLicensed>
+    <label>AllowFinancialEntityChange (cp)</label>
+</CustomPermission>

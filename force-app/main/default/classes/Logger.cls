@@ -366,7 +366,8 @@ public with sharing class Logger {
     }
     public void setCallingSystem(String logId, String callingSystem) {
         IntegrationAttempt__c log = this.getSessionLog(logId);
-        log.Calling_System__c = callingSystem;
+        // restricted picklist: an unknown value (e.g. '0' for a missing platform) must not fail saveAll()
+        log.Calling_System__c = Logger.intTransSystemMap.get(callingSystem);
     }
     public void updateSession(String logId, HttpRequest request, String receivingSystem) {
         IntegrationAttempt__c log = this.getSessionLog(logId);

@@ -122,11 +122,14 @@ private class Test_Ctrl_ProductImageManager {
             LocaleSidKey = 'en_US', ProfileId = p.Id, TimeZoneSidKey = 'Europe/Amsterdam',
             UserName = alias + '@mvsc.invalid.' + UserInfo.getOrganizationId()
         );
-        insert u;
-        insert new PermissionSetAssignment(
-            AssigneeId       = u.Id,
-            PermissionSetId  = [SELECT Id FROM PermissionSet WHERE Name = 'ps_miProducts' LIMIT 1].Id
-        );
+        // setup DML in its own context: callers may already have inserted ContentVersion (MIXED_DML)
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert u;
+            insert new PermissionSetAssignment(
+                AssigneeId       = u.Id,
+                PermissionSetId  = [SELECT Id FROM PermissionSet WHERE Name = 'ps_miProducts' LIMIT 1].Id
+            );
+        }
         return u;
     }
 
