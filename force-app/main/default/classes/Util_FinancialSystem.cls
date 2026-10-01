@@ -144,6 +144,41 @@ public without sharing class Util_FinancialSystem {
 		return EncodingUtil.urlEncode(retStr, 'UTF-8');
 	}
 
+	// ---------------------------------------------------------------- relation settings
+
+	private static Map<Id, Map<String, Map<String, String>>> relationIds;
+
+	/**
+	 * Exact GUID for a Salesforce value (Exact_Relation_Setting__c): classifications C1-C3, sales channel SC, warehouse WH.
+	 * Null when not configured.
+	 */
+	public static String getExactRelationId(Id adminId, String relation, String value) {
+		if (String.isBlank(value)) {
+			return null;
+		}
+		if (Util_FinancialSystem.relationIds == null) {
+			Util_FinancialSystem.relationIds = new Map<Id, Map<String, Map<String, String>>>();
+			for (Exact_Relation_Setting__c sett : [
+					SELECT Administration__c, Classification__c, Acting_Value__c, Exact_ID__c
+					FROM Exact_Relation_Setting__c WITH SYSTEM_MODE]) {
+				if (!Util_FinancialSystem.relationIds.containsKey(sett.Administration__c)) {
+					Util_FinancialSystem.relationIds.put(sett.Administration__c, new Map<String, Map<String, String>>());
+				}
+				Map<String, Map<String, String>> byType = Util_FinancialSystem.relationIds.get(sett.Administration__c);
+				if (!byType.containsKey(sett.Classification__c)) {
+					byType.put(sett.Classification__c, new Map<String, String>());
+				}
+				byType.get(sett.Classification__c).put(sett.Acting_Value__c, sett.Exact_ID__c);
+			}
+		}
+		Map<String, Map<String, String>> byType = Util_FinancialSystem.relationIds.get(adminId);
+		if (byType == null || !byType.containsKey(relation)) {
+			return null;
+		}
+		String id = byType.get(relation).get(value);
+		return String.isBlank(id) ? null : id;
+	}
+
 	// ---------------------------------------------------------------- logging
 
 	/**

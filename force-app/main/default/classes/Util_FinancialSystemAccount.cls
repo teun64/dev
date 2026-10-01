@@ -113,28 +113,60 @@ public without sharing class Util_FinancialSystemAccount {
 	}
 
 	/**
+	 * A changed contact (rau_Contact_AccountContactRelation) flags its AccountContactRelations; their accounts
+	 * are flagged here so the account batch picks them up.
+	 */
+	public static void flagAccountsOfChangedContacts() {
+		Set<Id> accountIds = new Set<Id>();
+		for (AccountContactRelation acr : [
+				SELECT AccountId FROM AccountContactRelation
+				WHERE Sync_To_Financial_System__c = true AND Account.SyncToFinancialSystem__c = false
+				WITH SYSTEM_MODE LIMIT 5000]) {
+			accountIds.add(acr.AccountId);
+		}
+		if (!accountIds.isEmpty()) {
+			Util_FinancialSystemAccount.flagAccounts(accountIds);
+		}
+	}
+
+	/**
 	 * Keeps Subscription25__Debtor_Number__c in line with Account.FinancialDebtorNumber__c: upsert on the
 	 * composite key (account + administration of the account's reseller). Only the number is stored there;
 	 * the financial system ids live on the Account / AccountContactRelation.
 	 */
 	public static void upsertDebtorNumbers(List<Account> newList, Map<Id, Account> oldMap) {
-		List<Subscription25__Debtor_Number__c> toUpsert = new List<Subscription25__Debtor_Number__c>();
+		Map<Id, Integer> adminExtIdByAccount = new Map<Id, Integer>();
 		for (Account acct : newList) {
 			Account old = oldMap == null ? null : oldMap.get(acct.Id);
 			Boolean changed = old == null
 				|| old.FinancialDebtorNumber__c != acct.FinancialDebtorNumber__c
 				|| old.Reseller_Name__c != acct.Reseller_Name__c;
-			if (String.isBlank(acct.FinancialDebtorNumber__c) || !changed) {
+			if (String.isBlank(acct.FinancialDebtorNumber__c) || String.isBlank(acct.Reseller_Name__c) || !changed) {
 				continue;
 			}
-			Subscription25__Administration__c admin = Util_FinancialSystem.getAdministrationForReseller(acct.Reseller_Name__c);
-			if (admin == null) {
+			adminExtIdByAccount.put(acct.Id, Util_System.getAdminExternalId(Long.valueOf(acct.Reseller_Name__c)));
+		}
+		if (adminExtIdByAccount.isEmpty()) {
+			return;
+		}
+		// own query: priming Util_System's administration cache from a trigger would hide administrations
+		// created later in the same transaction
+		Map<Integer, Id> adminIdByExtId = new Map<Integer, Id>();
+		for (Subscription25__Administration__c admin : [
+				SELECT Id, External_ID__c FROM Subscription25__Administration__c
+				WHERE External_ID__c IN :adminExtIdByAccount.values() WITH SYSTEM_MODE]) {
+			adminIdByExtId.put(Integer.valueOf(admin.External_ID__c), admin.Id);
+		}
+		List<Subscription25__Debtor_Number__c> toUpsert = new List<Subscription25__Debtor_Number__c>();
+		for (Account acct : newList) {
+			Id adminId = adminExtIdByAccount.containsKey(acct.Id) ? adminIdByExtId.get(adminExtIdByAccount.get(acct.Id)) : null;
+			if (adminId == null) {
 				continue;
 			}
 			toUpsert.add(new Subscription25__Debtor_Number__c(
 				Subscription25__Account__c = acct.Id,
-				Subscription25__Administration__c = admin.Id,
-				Subscription25__Composite_Key__c = '' + acct.Id + admin.Id,
+				Subscription25__Administration__c = adminId,
+				Subscription25__Composite_Key__c = '' + acct.Id + adminId,
 				Subscription25__Debtor_Number__c = acct.FinancialDebtorNumber__c
 			));
 		}
@@ -219,7 +251,7 @@ public without sharing class Util_FinancialSystemAccount {
 		for (AccountContactRelation acr : [
 				SELECT Id, AccountId, ContactId, FinancialIdContact__c, Sync_To_Financial_System__c
 				FROM AccountContactRelation
-				WHERE AccountId IN :accountIds AND ContactId IN :contactIds
+				WHERE AccountId IN :accountIds AND (ContactId IN :contactIds OR Sync_To_Financial_System__c = true)
 				WITH SYSTEM_MODE]) {
 			if (!acrs.containsKey(acr.AccountId)) {
 				acrs.put(acr.AccountId, new Map<Id, AccountContactRelation>());
@@ -712,6 +744,13 @@ public without sharing class Util_FinancialSystemAccount {
 			} else {
 				ctx.result.success = true;
 				upd.SyncToFinancialSystem__c = false;
+				// contact changes are handled with the account: no relation of it stays flagged
+				for (AccountContactRelation acr : ctx.acrByContact.values()) {
+					if (acr.Sync_To_Financial_System__c == true) {
+						acr.Sync_To_Financial_System__c = false;
+						ctx.acrsToUpdate.put(acr.Id, acr);
+					}
+				}
 				upd.FinancialSyncAttempts__c = 0;
 				upd.FinancialSyncNextAttempt__c = null;
 				upd.FinancialSyncLastError__c = null;
@@ -781,35 +820,6 @@ public without sharing class Util_FinancialSystemAccount {
 
 	// ---------------------------------------------------------------- Exact payloads
 
-	private static Map<Id, Map<String, Map<String, String>>> relationIds;
-
-	private static String getExactRelationId(Id adminId, String relation, String value) {
-		if (String.isBlank(value)) {
-			return null;
-		}
-		if (Util_FinancialSystemAccount.relationIds == null) {
-			Util_FinancialSystemAccount.relationIds = new Map<Id, Map<String, Map<String, String>>>();
-			for (Exact_Relation_Setting__c sett : [
-					SELECT Administration__c, Classification__c, Acting_Value__c, Exact_ID__c
-					FROM Exact_Relation_Setting__c WITH SYSTEM_MODE]) {
-				if (!Util_FinancialSystemAccount.relationIds.containsKey(sett.Administration__c)) {
-					Util_FinancialSystemAccount.relationIds.put(sett.Administration__c, new Map<String, Map<String, String>>());
-				}
-				Map<String, Map<String, String>> byType = Util_FinancialSystemAccount.relationIds.get(sett.Administration__c);
-				if (!byType.containsKey(sett.Classification__c)) {
-					byType.put(sett.Classification__c, new Map<String, String>());
-				}
-				byType.get(sett.Classification__c).put(sett.Acting_Value__c, sett.Exact_ID__c);
-			}
-		}
-		Map<String, Map<String, String>> byType = Util_FinancialSystemAccount.relationIds.get(adminId);
-		if (byType == null || !byType.containsKey(relation)) {
-			return null;
-		}
-		String id = byType.get(relation).get(value);
-		return String.isBlank(id) ? null : id;
-	}
-
 	@TestVisible
 	private class ExactAccount {
 		String Code;
@@ -847,9 +857,9 @@ public without sharing class Util_FinancialSystemAccount {
 			this.MainContact = String.isBlank(mainContact) ? null : mainContact;
 			try {
 				Subscription25__Administration__c admin = Util_FinancialSystem.getAdministrationForReseller(String.isBlank(acct.Reseller_Name__c) ? '1' : acct.Reseller_Name__c);
-				this.Classification1 = Util_FinancialSystemAccount.getExactRelationId(admin.Id, 'C1', acct.FinancialAccountClassification1__c);
-				this.Classification2 = Util_FinancialSystemAccount.getExactRelationId(admin.Id, 'C2', acct.FinancialAccountClassification2__c);
-				this.Classification3 = Util_FinancialSystemAccount.getExactRelationId(admin.Id, 'C3', acct.FinancialAccountClassification3__c);
+				this.Classification1 = Util_FinancialSystem.getExactRelationId(admin.Id, 'C1', acct.FinancialAccountClassification1__c);
+				this.Classification2 = Util_FinancialSystem.getExactRelationId(admin.Id, 'C2', acct.FinancialAccountClassification2__c);
+				this.Classification3 = Util_FinancialSystem.getExactRelationId(admin.Id, 'C3', acct.FinancialAccountClassification3__c);
 			} catch (Exception e) {
 				// classifications are optional
 			}

@@ -373,10 +373,11 @@ public with sharing class Test_Data {
         admin.Offer_Term_2__c = true;
         admin.Date_New_Branding__c = Date.today().addMonths(-12);
         admin.Invoice_General_Remark__c = true;
-        // financial system calls are only allowed from a sandbox for administrations with a test environment
-        admin.Acceptance_Environment_Available__c = true;
 
         if(doDml){
+            // financial system calls are only allowed from a sandbox for administrations with a test environment
+            // (set only here: callers that insert the record themselves in user mode have no FLS on this field)
+            admin.Acceptance_Environment_Available__c = true;
             Database.insert(admin);
         }
         return admin;

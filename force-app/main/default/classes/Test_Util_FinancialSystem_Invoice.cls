@@ -93,6 +93,7 @@ private class Test_Util_FinancialSystem_Invoice {
 		admin.Daily_Limit__c = 5000;
 		admin.FinancialRateLimitRemaining__c = 0;
 		admin.FinancialRateLimitResetOn__c = System.now().addHours(2);
+		admin.Acceptance_Environment_Available__c = true;
 		Database.insert(admin, AccessLevel.SYSTEM_MODE);
 		Subscription25__Invoice__c invoice = createInvoice(admin, false);
 		Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());

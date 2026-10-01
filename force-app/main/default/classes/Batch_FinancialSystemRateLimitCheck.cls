@@ -26,6 +26,7 @@ global class Batch_FinancialSystemRateLimitCheck extends Subscription25.Job_Abst
 			WHERE Subscription25__Active__c = true
 				AND Subscription25__Synchronisation__c = :Util_FinancialSystem.SYNC_EXACT
 				AND Subscription25__Named_Credential__c != null
+			WITH SYSTEM_MODE
 		]);
 	}
 

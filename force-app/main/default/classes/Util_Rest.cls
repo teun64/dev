@@ -178,7 +178,8 @@ global without sharing class Util_Rest {
 		String extIdField = 'extId_' + platformId + '__c';
 		String sSOQL = 'SELECT Id, FinancialDebtorNumber__c, Reseller_Name__c,' 
             + ' Contact_Person__c, Contact_Billing__c, Contact_Shipping__c,' 
-            + ' Payment_Method_Contracts__c, Payment_Method_Opportunities__c'
+            + ' Payment_Method_Contracts__c, Payment_Method_Opportunities__c,'
+            + ' FinancialIdAccount__c, FinancialIdBankAccount__c, FinancialIdBankMandate__c'
 			+ ' FROM Account WHERE '
 			+ extIdField
 			+ ' = \'' + accountId + '\' LIMIT 1';
@@ -229,9 +230,22 @@ global without sharing class Util_Rest {
             // Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = debNr.Subscription25__Debtor_Number__c), AccessLevel.SYSTEM_MODE);
             acc.FinancialDebtorNumber__c = debNr.Subscription25__Debtor_Number__c;
             Database.update(acc, AccessLevel.SYSTEM_MODE);
-        } else if ((String.isNotBlank(admin.Subscription25__Synchronisation__c)) && ((debNr == null) || String.isBlank(debNr.Exact_Id__c) || (String.isBlank(debNr.Exact_Contact_Id__c) && String.isNotBlank(acc.Contact_Person__c)) || (util_system.requireBankDetails.contains(acc.Payment_Method_Contracts__c) && (String.isBlank(debNr.Exact_Bank_Account_ID__c) || String.isBlank(debNr.Exact_Mandate_ID__c))))) {
-            if (Util_System.isFinancialSyncAllowed(admin)) {
-                Util_Exact.syncAccountAsync(acc.Id);
+        } else if (String.isNotBlank(admin.Subscription25__Synchronisation__c)) {
+            // the financial system ids live on the Account and the main contact's AccountContactRelation:
+            // anything missing in Exact queues the account for Batch_FinancialSystemAccountSync
+            String exactContactId;
+            if (acc.Contact_Person__c != null) {
+                for (AccountContactRelation acr : [SELECT FinancialIdContact__c FROM AccountContactRelation
+                        WHERE AccountId = :acc.Id AND ContactId = :acc.Contact_Person__c WITH SYSTEM_MODE LIMIT 1]) {
+                    exactContactId = acr.FinancialIdContact__c;
+                }
+            }
+            Boolean missing = String.isBlank(acc.FinancialIdAccount__c) || String.isBlank(acc.FinancialDebtorNumber__c)
+                || (acc.Contact_Person__c != null && String.isBlank(exactContactId))
+                || (Util_System.requireBankDetails.contains(acc.Payment_Method_Contracts__c)
+                    && (String.isBlank(acc.FinancialIdBankAccount__c) || String.isBlank(acc.FinancialIdBankMandate__c)));
+            if (missing && Util_System.isFinancialSyncAllowed(admin)) {
+                Util_FinancialSystemAccount.flagAccounts(new Set<Id>{ acc.Id });
             }
         }
         

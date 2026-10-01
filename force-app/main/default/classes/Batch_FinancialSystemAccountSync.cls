@@ -17,6 +17,7 @@ global class Batch_FinancialSystemAccountSync extends Subscription25.Job_Abstrac
 	}
 
 	public override Database.QueryLocator startBatch(Database.BatchableContext bc) {
+		Util_FinancialSystemAccount.flagAccountsOfChangedContacts();
 		// no bind variables: the Subscription25 job framework runs the locator outside this method's scope
 		String now = System.now().formatGmt('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
 		return Database.getQueryLocator(

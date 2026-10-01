@@ -18,6 +18,11 @@ private class Test_Controllers {
         debNr.Exact_Bank_Account_Id__c = '123';
         debNr.Exact_Mandate_Id__c = '123';
         Database.insert(debNr);
+        // the financial system ids live on the Account and the main contact's AccountContactRelation
+        Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = '123', FinancialDebtorNumber__c = '123',
+            FinancialIdBankAccount__c = '123', FinancialIdBankMandate__c = '123'), AccessLevel.SYSTEM_MODE);
+        AccountContactRelation acr = [SELECT Id FROM AccountContactRelation WHERE AccountId = :acc.Id AND ContactId = :con.Id];
+        Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = '123'), AccessLevel.SYSTEM_MODE);
         Order ord = test_data.createOrder(acc.Id, admin.Id, Date.today().addDays(-7), True);
         
 

@@ -31,6 +31,7 @@ private class Test_Util_FinancialSystem {
 	private static Subscription25__Administration__c admin() {
 		Subscription25__Administration__c admin = Test_Data.createAdministration(false);
 		admin.Subscription25__Synchronisation__c = 'Exact';
+		admin.Acceptance_Environment_Available__c = true;
 		Database.insert(admin, AccessLevel.SYSTEM_MODE);
 		return [
 			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c,

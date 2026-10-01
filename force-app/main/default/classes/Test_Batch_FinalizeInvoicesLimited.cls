@@ -11,6 +11,7 @@ private class Test_Batch_FinalizeInvoicesLimited {
         adminDE.Reseller__c = '5';
         adminDE.External_ID__c = 5;
         adminDE.Subscription25__Twinfield_Company_Code__c = '1234509875'; // unique in Subscription25 >= v2.67
+        adminDE.Acceptance_Environment_Available__c = true; // sandbox: financial system calls allowed
         Database.insert(adminDE);
         Account accNL = Test_Data.createAccount('Account NL', '12345NL', 'B2B', true);
         Account accDE = Test_Data.createAccount('Account DE', '12345DE', 'B2B', false);

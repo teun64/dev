@@ -167,6 +167,7 @@ public without sharing class Util_FinancialSystem_Invoice {
 			List<Payment_Setting__mdt> settings = [
 				SELECT Exact_Invoice_Template__c FROM Payment_Setting__mdt
 				WHERE Reseller__c = :reseller AND Method__c = :paymentCondition
+				WITH SYSTEM_MODE
 				LIMIT 1
 			];
 			// as in Util_Exact: without a layout setting the invoice is not printed

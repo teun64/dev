@@ -52,6 +52,7 @@ private class Test_Util_FinancialSystemAccount {
 	static void setup() {
 		Subscription25__Administration__c admin = Test_Data.createAdministration(false);
 		admin.Subscription25__Synchronisation__c = 'Exact';
+		admin.Acceptance_Environment_Available__c = true;
 		Database.insert(admin, AccessLevel.SYSTEM_MODE);
 
 		Account acc = Test_Data.createAccount('Sync Account', (String) null, 'B2B', false);
@@ -276,5 +277,49 @@ private class Test_Util_FinancialSystemAccount {
 	static void state_unreadable_meansFullResync() {
 		System.assertEquals(new Map<String, String>(), Util_FinancialSystemAccount.readState('not json'));
 		System.assertEquals(new Map<String, String>(), Util_FinancialSystemAccount.readState(null));
+	}
+
+	@IsTest
+	static void rbbAccount_nameChangeOnSyncedAccount_setsFlag() {
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-flow', SyncToFinancialSystem__c = false, FinancialSyncAttempts__c = 3), AccessLevel.SYSTEM_MODE);
+		Test.startTest();
+		Database.update(new Account(Id = acc.Id, Name = 'Sync Account Renamed'), AccessLevel.SYSTEM_MODE);
+		Test.stopTest();
+		Account after = account();
+		System.assertEquals(true, after.SyncToFinancialSystem__c, 'rbb_Account flags the name change');
+		System.assertEquals(0, after.FinancialSyncAttempts__c, 'Back-off reset by a new change');
+	}
+
+	@IsTest
+	static void changedContact_flagsItsAccount_andSuccessClearsTheRelation() {
+		Account acc = account();
+		AccountContactRelation acr = [SELECT Id FROM AccountContactRelation WHERE AccountId = :acc.Id AND ContactId = :acc.Contact_person__c WITH SYSTEM_MODE];
+		Database.update(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = acc.Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+
+		Util_FinancialSystemAccount.flagAccountsOfChangedContacts();
+		System.assertEquals(true, account().SyncToFinancialSystem__c, 'Account of the changed contact is flagged');
+
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, true);
+		Test.stopTest();
+		System.assertEquals(false, [SELECT Sync_To_Financial_System__c FROM AccountContactRelation WHERE Id = :acr.Id WITH SYSTEM_MODE].Sync_To_Financial_System__c);
+	}
+
+	@IsTest
+	static void draftHardwareOrder_withoutDebtorNumber_flagsAccount() {
+		Account acc = account();
+		Subscription25__Administration__c admin = [SELECT Id FROM Subscription25__Administration__c WITH SYSTEM_MODE LIMIT 1];
+		Test_Data.createDebtorNumber(admin.Id, acc.Id, true);
+		Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = null, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+		Order ord = Test_Data.createOrder(acc.Id, admin.Id, Date.today(), false);
+		ord.Type = 'Hardware';
+		ord.Status = 'Draft';
+		Test.startTest();
+		Database.insert(ord);
+		Test.stopTest();
+		System.assertEquals(true, account().SyncToFinancialSystem__c, 'Account queued for the financial system');
 	}
 }

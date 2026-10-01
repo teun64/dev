@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>add_04_Commit</name>
@@ -84,11 +84,26 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>rAccount.FinancialSystemSync__c</assignToReference>
+            <assignToReference>rAccount.SyncToFinancialSystem__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rAccount.FinancialSyncAttempts__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>0.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rAccount.FinancialSyncNextAttempt__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rAccount.FinancialSyncState__c</assignToReference>
+            <operator>Assign</operator>
         </assignmentItems>
         <connector>
             <targetReference>dur_01_Account</targetReference>

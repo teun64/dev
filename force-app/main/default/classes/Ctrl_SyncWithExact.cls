@@ -40,42 +40,37 @@ public with sharing class Ctrl_SyncWithExact {
 				WHERE Id = :syncId
 			];
 
-			list<Subscription25__Debtor_Number__c> debtorNumbers = new list<Subscription25__Debtor_Number__c>([
-				SELECT
-					id
-					, Exact_Id__c
-					, exact_Contact_Id__c
-					, Exact_Bank_Account_Id__c
-					, Exact_Mandate_Id__c
-				FROM 
-					Subscription25__Debtor_Number__c
-				WHERE
-					Subscription25__Account__c = :ord.AccountId
-					and Subscription25__Administration__c = :ord.Subscription25__Administration__c
-				LIMIT
-					1					
-			]);
-
-			Subscription25__Debtor_Number__c debNr = (debtorNumbers.size() == 0) ? null : debtorNumbers[0]; 
+			// the financial system ids live on the Account and the main contact's AccountContactRelation
+			Account acct = [
+				SELECT Id, FinancialIdAccount__c, FinancialDebtorNumber__c, FinancialIdBankAccount__c, FinancialIdBankMandate__c, Contact_Person__c
+				FROM Account WHERE Id = :ord.AccountId WITH SYSTEM_MODE
+			];
+			String exactContactId;
+			if (acct.Contact_Person__c != null) {
+				for (AccountContactRelation acr : [SELECT FinancialIdContact__c FROM AccountContactRelation
+						WHERE AccountId = :acct.Id AND ContactId = :acct.Contact_Person__c WITH SYSTEM_MODE LIMIT 1]) {
+					exactContactId = acr.FinancialIdContact__c;
+				}
+			}
 			boolean bSync = true;
 
 			msg = 'This action creates an Order in Exact!';
 			if (String.isNotBlank(ord.Exact_Id__c)) {
 				msg += '<br/>This Order is already synchronized.';
 				bsync = false;
-			} else if (debNr == null) {
+			} else if (String.isBlank(acct.FinancialIdAccount__c) || String.isBlank(acct.FinancialDebtorNumber__c)) {
 				msg +='<br/>This Order can not be synchronised because Account has no Debtor Number.';
 				bsync = false;
 			} else {
-				if (String.isBlank(debNr.Exact_Contact_Id__c)) {
+				if (String.isBlank(exactContactId)) {
 					msg += '<br>This order can not be synchronised because main (contact) on the account is missing or not synced to Exact';
 					bsync = false;
-				} 
-				if (Util_System.requireBankDetails.contains(ord.Payment_Method__c) && (String.isBlank(debNr.Exact_Bank_Account_Id__c) || String.isBlank(debNr.Exact_Mandate_Id__c))) {
-					msg += '<br>This order can not be synchronised because the bank account was not filled in on the Acoount or not sync to Exact.';
+				}
+				if (Util_System.requireBankDetails.contains(ord.Payment_Method__c) && (String.isBlank(acct.FinancialIdBankAccount__c) || String.isBlank(acct.FinancialIdBankMandate__c))) {
+					msg += '<br>This order can not be synchronised because the bank account was not filled in on the Account or not synced to Exact.';
 					bsync = false;
-				} 
-			} 
+				}
+			}
 			if (bsync) {
 				msg += '<br/><br/>When you want to continue, press "Synchronise".';
 			}			
