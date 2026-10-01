@@ -22,11 +22,7 @@ private class Test_Batch_DataRetentionCleanup {
         Database.executeBatch(new Batch_DataRetentionCleanup());
         Test.stopTest();
 
-        List<IntegrationTransaction__c> parentLogs = [
-            SELECT Id, Status__c
-            FROM IntegrationTransaction__c
-            WHERE Action__c = 'Generic Data Retention Cleanup'
-        ];
+        List<SObject> parentLogs = getLogs('Generic Data Retention Cleanup');
         Assert.areEqual(1, parentLogs.size(), 'Expected one parent log for the batch run');
     }
 
@@ -60,5 +56,12 @@ private class Test_Batch_DataRetentionCleanup {
             [SELECT Id FROM Account WHERE Id = :oldAccount.Id].isEmpty(),
             'The batch hook should enqueue the cleanup Queueable, which hard deletes the matched record'
         );
+    }
+
+    // The Logger writes to IntegrationTransaction__c (dev) or Event_Log__c (acc/prod, older Logger),
+    // both with Action__c / Status__c / Message__c - query whichever exists.
+    private static List<SObject> getLogs(String action) {
+        String logObject = Schema.getGlobalDescribe().containsKey('integrationtransaction__c') ? 'IntegrationTransaction__c' : 'Event_Log__c';
+        return Database.query('SELECT Id, Status__c, Message__c FROM ' + logObject + ' WHERE Action__c = :action');
     }
 }

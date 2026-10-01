@@ -84,12 +84,13 @@ global class Batch_DataRetentionCleanup extends Subscription25.Job_AbstractBatch
 
         //process every policy in this chunk, not just the first - getBatchSize()==1 is not honored by
         //the real invocation path (execute(SchedulableContext) hardcodes a scope of 2000), so a single
-        //chunk here reliably contains all active policies at once
+        //chunk here reliably contains all active policies at once. Only one queueable may be enqueued from a
+        //batch, so the policies are chained: one job per policy, each job enqueues the next.
+        List<DataRetentionPolicy__mdt> policies = new List<DataRetentionPolicy__mdt>();
         for (SObject s : scope) {
-            DataRetentionPolicy__mdt policy = (DataRetentionPolicy__mdt) s;
-            Queue_DataRetentionCleanup queue = new Queue_DataRetentionCleanup(policy, this.mainLogGuid);
-            System.enqueueJob(queue);
+            policies.add((DataRetentionPolicy__mdt) s);
         }
+        Queue_DataRetentionCleanup.enqueueChain(policies, this.mainLogGuid);
     }
 
     // =========================

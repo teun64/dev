@@ -1,8 +1,17 @@
 public class Queue_DataRetentionCleanup implements Queueable {
     private static final Integer MAX_RECORDS_PER_RUN = 9000;
+    // safety cap: reruns of the same policy within one batch run (100 x 9000 = 900k records)
+    private static final Integer MAX_RUNS_PER_POLICY = 100;
 
     private DataRetentionPolicy__mdt policy;
     private String parentGuid;
+    // policies still to process after this one: chained one job at a time (only one queueable may be enqueued
+    // from a batch or queueable context)
+    private List<DataRetentionPolicy__mdt> nextPolicies = new List<DataRetentionPolicy__mdt>();
+    // a full run (MAX_RECORDS_PER_RUN records) means more old records may remain: the same policy runs again first
+    @TestVisible
+    private Boolean moreRemaining = false;
+    private Integer runNumber = 1;
 
     public Queue_DataRetentionCleanup(
         DataRetentionPolicy__mdt policy,
@@ -10,6 +19,27 @@ public class Queue_DataRetentionCleanup implements Queueable {
     ) {
         this.policy = policy;
         this.parentGuid = parentGuid;
+    }
+
+    public Queue_DataRetentionCleanup(
+        DataRetentionPolicy__mdt policy,
+        String parentGuid,
+        List<DataRetentionPolicy__mdt> nextPolicies
+    ) {
+        this(policy, parentGuid);
+        if (nextPolicies != null) {
+            this.nextPolicies = nextPolicies;
+        }
+    }
+
+    // first policy now, the rest chained after it
+    public static Id enqueueChain(List<DataRetentionPolicy__mdt> policies, String parentGuid) {
+        if ((policies == null) || policies.isEmpty()) {
+            return null;
+        }
+        List<DataRetentionPolicy__mdt> rest = new List<DataRetentionPolicy__mdt>(policies);
+        DataRetentionPolicy__mdt first = rest.remove(0);
+        return System.enqueueJob(new Queue_DataRetentionCleanup(first, parentGuid, rest));
     }
 
     public void execute(QueueableContext context) {
@@ -25,6 +55,10 @@ public class Queue_DataRetentionCleanup implements Queueable {
         try {
 
             RetentionResult result = processRetention();
+            // only when the run was full AND removed records (records failing every run must not loop forever)
+            this.moreRemaining = (result.processedCount >= MAX_RECORDS_PER_RUN)
+                && (result.failedCount < result.processedCount)
+                && (this.runNumber < MAX_RUNS_PER_POLICY);
 
             log.finalizeProcess(
                 processGuid,
@@ -47,6 +81,18 @@ public class Queue_DataRetentionCleanup implements Queueable {
             //completeWorker(log);
 
             log.saveAll();
+
+            // continue in its own job (tests can't chain queueables): the same policy again while more old records
+            // remain, otherwise the next policy
+            if (!Test.isRunningTest()) {
+                if (this.moreRemaining) {
+                    Queue_DataRetentionCleanup again = new Queue_DataRetentionCleanup(this.policy, this.parentGuid, this.nextPolicies);
+                    again.runNumber = this.runNumber + 1;
+                    System.enqueueJob(again);
+                } else if (!this.nextPolicies.isEmpty()) {
+                    Queue_DataRetentionCleanup.enqueueChain(this.nextPolicies, this.parentGuid);
+                }
+            }
         }
 
     }

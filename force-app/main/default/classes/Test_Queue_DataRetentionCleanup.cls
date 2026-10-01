@@ -80,12 +80,10 @@ private class Test_Queue_DataRetentionCleanup {
         new Queue_DataRetentionCleanup(policy, null).execute(null);
         Test.stopTest();
 
-        List<IntegrationTransaction__c> logs = [
-            SELECT Message__c FROM IntegrationTransaction__c WHERE Action__c = 'Retention Cleanup - Test_Soft_Skip'
-        ];
+        List<SObject> logs = getLogs('Retention Cleanup - Test_Soft_Skip');
         Assert.areEqual(1, logs.size(), 'Expected one process log for the run');
         Assert.isTrue(
-            logs[0].Message__c.contains('Processed: 0'),
+            ((String) logs[0].get('Message__c')).contains('Processed: 0'),
             'Already-deactivated records must be excluded from the retention query, not reprocessed'
         );
     }
@@ -109,15 +107,11 @@ private class Test_Queue_DataRetentionCleanup {
         List<Account> result = [SELECT Id FROM Account WHERE Id = :oldAccount.Id];
         Assert.areEqual(1, result.size(), 'ARCHIVE mode is not implemented - the record must not be hard deleted as a fallback');
 
-        List<IntegrationTransaction__c> errorLogs = [
-            SELECT Status__c, Message__c
-            FROM IntegrationTransaction__c
-            WHERE Action__c = 'Retention Cleanup - Test_Archive'
-        ];
+        List<SObject> errorLogs = getLogs('Retention Cleanup - Test_Archive');
         Assert.areEqual(1, errorLogs.size(), 'Expected one process log for the failed run');
         Assert.areEqual(
             Util_Event.LogResultStatus.ERROR.name(),
-            errorLogs[0].Status__c,
+            ((String) errorLogs[0].get('Status__c')),
             'Unsupported delete mode should be logged as an error, not silently hard-deleted'
         );
     }
@@ -169,5 +163,12 @@ private class Test_Queue_DataRetentionCleanup {
             [SELECT Id FROM Account WHERE Id = :oldAccount.Id].isEmpty(),
             'Default 30-day HARD delete should have removed the old account'
         );
+    }
+
+    // The Logger writes to IntegrationTransaction__c (dev) or Event_Log__c (acc/prod, older Logger),
+    // both with Action__c / Status__c / Message__c - query whichever exists.
+    private static List<SObject> getLogs(String action) {
+        String logObject = Schema.getGlobalDescribe().containsKey('integrationtransaction__c') ? 'IntegrationTransaction__c' : 'Event_Log__c';
+        return Database.query('SELECT Id, Status__c, Message__c FROM ' + logObject + ' WHERE Action__c = :action');
     }
 }
