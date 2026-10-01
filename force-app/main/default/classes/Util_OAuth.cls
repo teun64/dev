@@ -72,6 +72,8 @@ public with sharing class Util_OAuth {
 			}
 		}
 		Database.insert(linksToCreate, Util_OAuth.runningMode);
+		// saved logs must not be saved again by a next saveToken() in the same transaction (batch execute)
+		this.logs.clear();
 	}
 
 	//some optional parameters here; addAuth and content, default values are true and null
@@ -101,9 +103,8 @@ public with sharing class Util_OAuth {
 		request.setCompressed(false);
 		request.setHeader('Cache-Control', 'private');
 		request.setHeader('Connection', 'Keep-Alive');
-		//if we're sending a payload, set the content length and the request body
+		//if we're sending a payload, set the request body
 		if(!String.isBlank(content)){
-			request.setHeader('Content-Length', String.valueOf(content.length()));
 			request.setBody(content);
 		}
 

@@ -15,9 +15,9 @@ public class Batch_FinalizeInvoices implements Database.Batchable<SObject>, Data
 		Subscription25__Invoice__c curInv = (Subscription25__Invoice__c)scope[0];
 		//if the invoice was already printed, just try to get the invoice number again
 		if(curInv.Subscription25__Finalized_In_Exact__c){
-			Util_Exact.loadInvoiceNumber(scope[0].Id);
+			Util_FinancialSystem_Invoice.loadInvoiceNumber(scope[0].Id);
 		} else {
-			Util_Exact.finalizeInvoice(scope[0].Id);
+			Util_FinancialSystem_Invoice.finalizeInvoice(scope[0].Id);
 		}
 	}
 

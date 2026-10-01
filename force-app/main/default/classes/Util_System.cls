@@ -86,7 +86,8 @@ public with sharing class Util_System {
             List<Subscription25__Administration__c> adms = [
                 SELECT Id, Name, Daily_Limit__c,  CurrencyIsoCode, External_ID__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
                     Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Invoice_Number_Prefix__c, Warehouse_Exact_Id__c, Reseller__c,
-                    Acceptance_Environment_Available__c
+                    Acceptance_Environment_Available__c, FinancialRateLimitMaxPercentage__c, FinancialRateLimitRemaining__c,
+                    FinancialRateLimitResetOn__c, FinancialRateLimitCheckedOn__c
                 FROM Subscription25__Administration__c
                 WITH SYSTEM_MODE
             ];

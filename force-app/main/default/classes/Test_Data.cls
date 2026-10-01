@@ -373,6 +373,8 @@ public with sharing class Test_Data {
         admin.Offer_Term_2__c = true;
         admin.Date_New_Branding__c = Date.today().addMonths(-12);
         admin.Invoice_General_Remark__c = true;
+        // financial system calls are only allowed from a sandbox for administrations with a test environment
+        admin.Acceptance_Environment_Available__c = true;
 
         if(doDml){
             Database.insert(admin);

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinancialRateLimitRemaining__c</fullName>
+    <description>Daily financial system API calls remaining (X-RateLimit-Remaining), as last seen by Batch_FinancialSystemRateLimitCheck or a sync batch.</description>
+    <externalId>false</externalId>
+    <label>Financial Rate Limit Remaining</label>
+    <precision>7</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

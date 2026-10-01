@@ -7,7 +7,7 @@ public with sharing class Inv_syncOrderToFinancialSystem {
         if (requestList.size() > 0) {
             //Util_Exact.syncOrderAsync(orderIds[0]);
             try {
-                List<string> returnValues = Util_FinancialSystem.syncOrder(requestList[0].orderId);
+                List<string> returnValues = Util_Exact.syncOrder(requestList[0].orderId);
 
                 if(returnValues.size() > 0) {
                     returnValue = returnValues[0];

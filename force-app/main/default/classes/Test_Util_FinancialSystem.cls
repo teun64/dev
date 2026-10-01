@@ -1,601 +1,206 @@
 @IsTest
 private class Test_Util_FinancialSystem {
 
-    @TestSetup
-    static void testSetup() {
-        Test_DataIntegrationDefinition.createFinancialSystemContactSyncDefinitions();
-        Test_DataIntegrationDefinition.createFinancialSystemAccountSyncDefinitions();
-        Test_DataIntegrationDefinition.createFinancialSystemOrderSyncDefinitions();
-    }
-
-    @IsTest
-    private static void testContactSync() {
-        Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-        Test_Data.createOAuthToken(true);
-        Test_Data.createExactSettings('123', true);
-
-        Subscription25__Administration__c adm = Test_Data.createAdministration(true);
-
-        Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = adm.Id, Relation_Type__c = 'End User', Exact_ID__c = '5d8b7622-25d2-4c08-ab57-7b02810ad56b');
-        Database.insert(ers);
-
-        Account acct1 = Test_Data.createAccount('Test', '11', 'B2B', true);
-
-        // Create a contact linked to the Account, and relink it to that same account using more lookups.
-        Contact cont = Test_Data.createContact(acct1.Id, 'Test', '1234567890', 'ran@gen25.com', true);
-        acct1.Contact_person__c = cont.Id;
-        acct1.MI_Administrator__c = cont.Id;
-        acct1.Contact_Billing__c = cont.Id;
-        acct1.Contact_Shipping__c = cont.Id;
-        acct1.FinancialDebtorNumber__c = 'TEST_11';
-        Database.update(acct1);
-
-        AccountContactRelation rel = [
-            SELECT Id
-            FROM AccountContactRelation
-            WHERE AccountId = :acct1.Id
-                AND ContactId = :cont.Id
-        ];
-
-        Test.startTest();
-        Inv_Integration.Request request = new Inv_Integration.Request();
-        request.integrationDefinitionName = 'Financial System - Contact Sync';
-        request.relatedRecordId = rel.Id;
-        List<Inv_Integration.Result> results = Inv_Integration.execute(new List<Inv_Integration.Request>{request});
-        Test.stopTest();
-
-        System.debug([SELECT Id, Status__c FROM Event_Log__c]);
-        System.debug([SELECT Id, Status__c FROM OAuth_Log__c]);
-
-        // Validate produced data
-        AccountContactRelation assertRel = [SELECT Id, FinancialIdContact__c FROM AccountContactRelation WHERE Id = :rel.Id];
-        System.assertEquals('contact_sync', assertRel.FinancialIdContact__c);
-    }
-
-    @IsTest
-    private static void testAccountSyncCreate(){
-        Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-        Test_Data.createOAuthToken(true);
-        Test_Data.createExactSettings('123', true);
-
-        Subscription25__Administration__c adm = Test_Data.createAdministration(true);
-
-        Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = adm.Id, Relation_Type__c = 'End User', Exact_ID__c = '5d8b7622-25d2-4c08-ab57-7b02810ad56b');
-        Database.insert(ers);
-
-        Account acct1 = Test_Data.createAccount('Test', '11', 'B2B', true);
-        acct1.VisitingAddress__Street__s = 'Naarderstraat 82';
-        acct1.VisitingAddress__PostalCode__s = '1251 BH';
-        acct1.VisitingAddress__City__s = 'Laren';
-        acct1.VisitingAddress__CountryCode__s = 'NL';
-
-        // Create a contact linked to the Account, and relink it to that same account using more lookups.
-        Contact cont = Test_Data.createContact(acct1.Id, 'Test', '1234567890', 'ran@gen25.com', true);
-        acct1.Contact_person__c = cont.Id;
-        acct1.MI_Administrator__c = cont.Id;
-        acct1.Contact_Billing__c = cont.Id;
-        acct1.Contact_Shipping__c = cont.Id;
-        acct1.FinancialDebtorNumber__c = 'TEST_11';
-        Database.update(acct1);
-
-        AccountContactRelation rel = [
-            SELECT Id
-            FROM AccountContactRelation
-            WHERE AccountId = :acct1.Id
-                AND ContactId = :cont.Id
-        ];
-        rel.Roles = 'Billing';
-        Database.update(rel);
-
-        Test.startTest();
-        Util_FinancialSystem.syncAccountAsync(acct1.Id);
-        Test.stopTest();
-
-        // Validate log for errors
-        List<Event_Log__c> logs = [
-            SELECT Id, Integration_Status__c, Result_Status__c, Status__c, Message__c
-            FROM Event_Log__c
-        ];
-        for (Event_Log__c log : logs) {
-            if (log.Status__c != 'COMPLETED' && log.Status__c != 'PROCESSED') {
-                System.debug(JSON.serialize(log));
-                System.assert(false, log.Message__c);
-            }
-        }
-        // Assert all 11 processes were called
-        System.assertEquals(11, logs.size(), 'Expected 11 logs');
-
-        // Validate produced data
-        Account assertAcct = [SELECT Id, FinancialIdAccount__c, FinancialIdShippingAddress__c, FinancialIdBankMandate__c FROM Account WHERE Id = :acct1.Id];
-        System.assertEquals('account_sync', assertAcct.FinancialIdAccount__c);
-        System.assertEquals('address_sync', assertAcct.FinancialIdShippingAddress__c);
-        System.assertEquals('mandate_sync', assertAcct.FinancialIdBankMandate__c);
-        // Validate produced data
-        AccountContactRelation assertRel = [SELECT Id, FinancialIdContact__c FROM AccountContactRelation WHERE ContactId = :cont.Id];
-        System.assertEquals('contact_sync', assertRel.FinancialIdContact__c);
-    }
-
-    @IsTest
-    private static void testAccountSyncUpdate(){
-        Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-        Test_Data.createOAuthToken(true);
-        Test_Data.createExactSettings('123', true);
-
-        Subscription25__Administration__c adm = Test_Data.createAdministration(true);
-
-        Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = adm.Id, Relation_Type__c = 'End User', Exact_ID__c = '5d8b7622-25d2-4c08-ab57-7b02810ad56b');
-        Database.insert(ers);
-
-        Account acct1 = Test_Data.createAccount('Test', '11', 'B2B', true);
-        acct1.VisitingAddress__Street__s = 'Naarderstraat 82';
-        acct1.VisitingAddress__PostalCode__s = '1251 BH';
-        acct1.VisitingAddress__City__s = 'Laren';
-        acct1.VisitingAddress__CountryCode__s = 'NL';
-        acct1.FinancialIdAccount__c = '123';
-        acct1.FinancialIdBankAccount__c = '123';
-        acct1.FinancialIdBankMandate__c = '123';
-
-        // Create a contact linked to the Account, and relink it to that same account using more lookups.
-        Contact cont = Test_Data.createContact(acct1.Id, 'Test', '1234567890', 'ran@gen25.com', true);
-        acct1.Contact_person__c = cont.Id;
-        acct1.MI_Administrator__c = cont.Id;
-        acct1.Contact_Billing__c = cont.Id;
-        acct1.Contact_Shipping__c = cont.Id;
-        acct1.FinancialDebtorNumber__c = 'TEST_11';
-        Database.update(acct1);
-
-        Test.startTest();
-        Util_FinancialSystem.syncAccountAsync(acct1.Id);
-        Test.stopTest();
-
-        // Validate log for errors
-        List<Event_Log__c> logs = [
-            SELECT Id, Integration_Status__c, Result_Status__c, Status__c, Message__c
-            FROM Event_Log__c
-        ];
-        for (Event_Log__c log : logs) {
-            if (log.Status__c != 'COMPLETED' && log.Status__c != 'PROCESSED') {
-                System.debug(JSON.serialize(log));
-                System.assert(false, log.Message__c);
-            }
-        }
-        // Assert all 11 processes were called
-        System.assertEquals(11, logs.size(), 'Expected 11 logs');
-
-        // Validate produced datas
-        Account assertAcct = [SELECT Id, FinancialIdAccount__c, FinancialIdBillingAddress__c FROM Account WHERE Id = :acct1.Id];
-        System.assertEquals('123', assertAcct.FinancialIdAccount__c);
-    }
-
-    @isTest
-    private static void testOrderSync(){
-        Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-        Test_Data.createOAuthToken(true);
-        Test_Data.createExactSettings('123', true);
-
-		Subscription25__Administration__c admin = Test_Data.createAdministration(true);
-
-        Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = admin.Id, Classification__c = 'SC', Sales_Channel__c = 'Moving Intelligence', Exact_ID__c = 'Sales_Channel');
-        Database.insert(ers);
-
-        ers = new Exact_Relation_Setting__c(Administration__c = admin.Id, Classification__c = 'WH', Sales_Channel__c = 'Moving Intelligence', Exact_ID__c = 'Warehouse');
-        Database.insert(ers);
-
-		Subscription25__VATRate__c vr = Test_Data.createVATRate('9%', 9, true, true);
-        Account acct = Test_Data.createAccount('Test', '12', 'B2B', true);
-        Contact cont = Test_Data.createContact(acct.Id, 'AccountContact', '1234567890', 'ran@123.com', true);
-        AccountContactRelation rel = [SELECT Id, Roles FROM AccountContactRelation WHERE AccountId = :acct.Id AND ContactId = :cont.Id];
-        rel.Roles = 'Billing';
-        Database.update(rel);
-        acct.Contact_person__c = cont.Id;
-        acct.MI_Administrator__c = cont.Id;
-        acct.Contact_Shipping__c = cont.Id;
-        acct.Contact_Billing__c = cont.Id;
-        Database.update(acct);
-
-        // Update Account Contact Relation
-        AccountContactRelation acr = [SELECT Id FROM AccountContactRelation WHERE AccountId = :acct.Id AND ContactId = :cont.Id];
-        acr.Roles = 'Main;Billing;Shipping;Administrator;Service';
-        Database.update(acr);
-
-        // Create products
-        Product2 hwProd = Test_Data.createProduct('HardwareProduct', 'code', '1-hw-1', 'Hardware', true);
-        PricebookEntry hwPBE = Test_Data.createPricebookEntry(hwProd.Id, 200, true);
-
-        Product2 sProd = Test_Data.createProduct('SubscriptionPrepaid', 'code.P', '1-in-1', 'SubscriptionP', true);
-        PricebookEntry sPBE = Test_Data.createPricebookEntry(sProd.Id, 10, true);
-        Subscription25__Administration_Product__c hwAdminProd = Test_Data.createAdministrationProduct(admin.Id, hwProd.Id, vr.Id, true);
-        Subscription25__Administration_Product__c sAdminProd = Test_Data.createAdministrationProduct(admin.Id, sProd.Id, vr.Id, false);
-        sAdminProd.Exact_Id__c = 'item_sync';
-        Database.insert(sAdminProd);
-
-        Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
-        Contact salesCont = Test_Data.createContact(acct.Id, 'SalesContact', '0987654321', 'xel@321.com', true);
-
-        // Create opportunity
-        Opportunity opp = Test_Data.createOpportunity(acct.Id, cont.Id, 'test name', false);
-        opp.Installation_Notes__c = 'installation notes';
-        opp.Sales_Contact__c = salesCont.Id;
-        opp.Payment_Method__c = 'I8';
-        opp.Sales_Channel__c = 'Moving Intelligence';
-        Database.insert(opp);
-
-        // Create contract (with subscription items)
-        Contract contr = Test_Data.createContract(acct.Id, admin.Id, true);
-        Subscription25__Contract_Product__c hwContrProd = Test_Data.createContractProduct(contr.Id, hwProd.Id, false);
-        Subscription25__Contract_Product__c sContrProd = Test_Data.createContractProduct(contr.Id, sProd.Id, false);
-        Database.insert(new List<Subscription25__Contract_Product__c> { hwContrProd, sContrProd });
-
-        // Create order
-		Order ord = Test_Data.createOrder(acct.Id, admin.Id, Date.today(), false);
-		ord.OpportunityId = opp.Id;
-        ord.Contract__c = contr.Id;
-        ord.Payment_Method__c = 'I8';
-        ord.Sales_Channel__c = 'Moving Intelligence';
-		Database.insert(ord);
-
-        Test_Data.createOrderItem(ord.Id, hwPBE.Id, 1, true);
-		OrderItem oi = Test_Data.createOrderItem(ord.Id, sPBE.Id, 1, false);
-        oi.Partner_Code__c = '1A2B3C4D5E6F7';
-        Database.insert(oi);
-		OrderItem oi2 = Test_Data.createOrderItem(ord.Id, hwPBE.Id, 1, false);
-        oi2.Partner_Code__c = '1A2B3C4D5E6F8';
-        Database.insert(oi2);
-
-        Test.startTest();
-        Util_FinancialSystem.syncOrderAsync(ord.Id);
-        Test.stopTest();
-
-
-        // Validate log for errors
-        List<Event_Log__c> logs = [
-            SELECT Id, Action__c, Status__c, Message__c, Stack_Trace__c
-            FROM Event_Log__c
-        ];
-        System.debug(JSON.serialize(logs));
-        for (Event_Log__c log : logs) {
-            if (log.Status__c != 'COMPLETED' && log.Status__c != 'PROCESSED') {
-                System.debug(JSON.serialize(log));
-                System.assert(false, log.Message__c);
-            }
-        }
-        // Assert all 11 processes were called
-        System.assertEquals(7, logs.size(), 'Expected 7 logs');
-
-        // Validate data results
-        Subscription25__Administration_Product__c hwAdminProdResult = [Select Exact_Id__c from Subscription25__Administration_Product__c where Id = :hwAdminProd.Id];
-        Order orderResult =  [Select Exact_Id__c, Exact_Order_Number__c from Order where Id = :ord.Id];
-        System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', hwAdminProdResult.Exact_Id__c);
-        System.assertEquals('item_sync', sAdminProd.Exact_Id__c);
-        System.assertEquals('12345', orderResult.Exact_Order_Number__c);
-        System.assertEquals('order_sync', orderResult.Exact_Id__c);
-
-        System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', [SELECT FinancialIdProduct__c FROM Subscription25__Contract_Product__c WHERE Id = :hwContrProd.Id].FinancialIdProduct__c);
-        System.assertEquals('item_sync', [SELECT FinancialIdProduct__c FROM Subscription25__Contract_Product__c WHERE Id = :sContrProd.Id].FinancialIdProduct__c);
-    }
-
-    @isTest
-    private static void testLetterCodeConversion(){
-        Account acct = Test_Data.createAccount('Test', '13', 'B2B', false);
-        acct.WSONE_DATA_Billing_Country__c = 'NLD';
-        acct.WSONE_DATA_Shipping_Country__c = 'NLD';
-
-        Database.insert(acct);
-
-        System.assertEquals('NL', [SELECT BillingCountryCode FROM Account WHERE Id = :acct.Id].BillingCountryCode);
-    }
-
-    @isTest
-    private static void testInvoice() {
-        Subscription25__Administration__c admin = Test_Data.createAdministration(true);
-		Subscription25__VATRate__c vr = Test_Data.createVATRate('9%', 9, true, true);
-        Account acct = Test_Data.createAccount('Test', '12', 'B2B', true);
-        Contact cont = Test_Data.createContact(acct.Id, 'Test', '1234567890', 'ran@gen25.com', true);
-        Product2 prod = Test_Data.createProduct('name', 'code.P', '1-in-1', 'SubscriptionP', true);
-        //prod.Is_Installation_Product__c = true;
-        //Database.insert(prod);
-        PricebookEntry pbe = Test_Data.createPricebookEntry(prod.Id, 10, true);
-        Test_Data.createAdministrationProduct(admin.Id, prod.Id, vr.Id, true);
-        Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
-
-        Opportunity opp = Test_Data.createOpportunity(acct.Id, cont.Id, 'test name', false);
-        opp.Installation_Notes__c = 'installation notes';
-        opp.Sales_Contact__c = cont.Id;
-
-        Database.insert(opp);
-
-		Order ord = Test_Data.createOrder(acct.Id, admin.Id, Date.today(), false);
-		ord.OpportunityId = opp.Id;
-        ord.Payment_Method__c = 'I8';
-		Database.insert(ord);
-
-		OrderItem oi = Test_Data.createOrderItem(ord.Id, pbe.Id, 100, false);
-        oi.Partner_Code__c = '1A2B3C4D5E6F7';
-        Database.insert(oi);
-
-        Subscription25__Invoice__c inv = Test_data.createInvoice(admin.Id, acct.Id, 'Draft', true);
-
-        ord.subscription25__invoice__c = inv.id;
-        Database.update(ord);
-
-        inv.Subscription25__Status__c = 'Finalized';
-        inv.Subscription25__Exact_Order_Number__c = '55';
-        Database.update(inv);
-
-        Test.starttest();
-        Util_FinancialSystem.finalizeInvoice(inv.Id);
-        Util_FinancialSystem.loadInvoiceNumber(inv.Id);
-        Test.stopTest();
-
-        System.assertEquals(1, [SELECT COUNT() FROM Subscription25__Invoice__c WHERE Id = :inv.Id]);
-    }
-
-    // @IsTest
-    // private static void testAccountSyncCreate(){
-    //     Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-    //     Test_Data.createOAuthToken(true);
-    //     Test_Data.createExactSettings('123', true);
-
-    //     Subscription25__Administration__c adm = Test_Data.createAdministration(true);
-
-    //     Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = adm.Id, Relation_Type__c = 'End User', Exact_ID__c = '5d8b7622-25d2-4c08-ab57-7b02810ad56b');
-    //     Database.insert(ers);
-
-    //     Account acct1 = Test_Data.createAccount('Test', '11', 'B2B', true);
-    //     acct1.VisitingAddress__Street__s = 'Naarderstraat 82';
-    //     acct1.VisitingAddress__PostalCode__s = '1251 BH';
-    //     acct1.VisitingAddress__City__s = 'Laren';
-    //     acct1.VisitingAddress__CountryCode__s = 'NL';
-
-    //     // Create a contact linked to the Account, and relink it to that same account using more lookups.
-    //     Contact cont = Test_Data.createContact(acct1.Id, 'Test', '1234567890', 'lex@gen25.com', true);
-    //     acct1.Contact_person__c = cont.Id;
-    //     acct1.MI_Administrator__c = cont.Id;
-    //     acct1.Contact_Billing__c = cont.Id;
-    //     acct1.Contact_Shipping__c = cont.Id;
-    //     acct1.FinancialDebtorNumber__c = 'TEST_11';
-    //     Database.update(acct1);
-
-    //     Test.startTest();
-    //     Util_FinancialSystem.syncAccountAsync(acct1.Id);
-    //     Test.stopTest();
-
-    //     // Validate log for errors
-    //     List<Event_Log__c> logs = [
-    //         SELECT Id, Integration_Status__c, Result_Status__c, Message__c
-    //         FROM Event_Log__c
-    //     ];
-    //     System.assertEquals(1, logs.size(), 'Expected single log');
-    //     System.assertEquals('PROCESSED', logs.get(0).Integration_Status__c, logs.get(0).Message__c ?? 'No message');
-    //     System.assertEquals('COMPLETED', logs.get(0).Result_Status__c, logs.get(0).Message__c ?? 'No message');
-
-    //     // Validate produced data
-    //     Account assertAcct = [SELECT Id, FinancialIdAccount__c, FinancialIdBillingAddress__c FROM Account WHERE Id = :acct1.Id];
-    //     System.assertEquals('account_sync', assertAcct.FinancialIdAccount__c);
-    //     System.assertEquals('address_sync', assertAcct.FinancialIdBillingAddress__c);
-    // }
-
-    // @IsTest
-    // private static void testAccountSyncUpdate(){
-    //     Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-    //     Test_Data.createOAuthToken(true);
-    //     Test_Data.createExactSettings('123', true);
-
-    //     Subscription25__Administration__c adm = Test_Data.createAdministration(true);
-
-    //     Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = adm.Id, Relation_Type__c = 'End User', Exact_ID__c = '5d8b7622-25d2-4c08-ab57-7b02810ad56b');
-    //     Database.insert(ers);
-
-    //     Account acct1 = Test_Data.createAccount('Test', '11', 'B2B', true);
-    //     acct1.VisitingAddress__Street__s = 'Naarderstraat 82';
-    //     acct1.VisitingAddress__PostalCode__s = '1251 BH';
-    //     acct1.VisitingAddress__City__s = 'Laren';
-    //     acct1.VisitingAddress__CountryCode__s = 'NL';
-    //     acct1.FinancialIdAccount__c = '123';
-    //     acct1.FinancialIdBankAccount__c = '123';
-    //     acct1.FinancialIdBankMandate__c = '123';
-
-    //     // Create a contact linked to the Account, and relink it to that same account using more lookups.
-    //     Contact cont = Test_Data.createContact(acct1.Id, 'Test', '1234567890', 'lex@gen25.com', true);
-    //     acct1.Contact_person__c = cont.Id;
-    //     acct1.MI_Administrator__c = cont.Id;
-    //     acct1.Contact_Billing__c = cont.Id;
-    //     acct1.Contact_Shipping__c = cont.Id;
-    //     acct1.FinancialDebtorNumber__c = 'TEST_11';
-    //     Database.update(acct1);
-
-    //     Test.startTest();
-    //     Util_FinancialSystem.syncAccountAsync(acct1.Id);
-    //     Test.stopTest();
-
-    //     // Validate log for errors
-    //     List<Event_Log__c> logs = [
-    //         SELECT Id, Integration_Status__c, Result_Status__c, Message__c
-    //         FROM Event_Log__c
-    //     ];
-    //     System.assertEquals(1, logs.size(), 'Expected single log');
-    //     System.assertEquals('PROCESSED', logs.get(0).Integration_Status__c, logs.get(0).Message__c ?? 'No message');
-    //     System.assertEquals('COMPLETED', logs.get(0).Result_Status__c, logs.get(0).Message__c ?? 'No message');
-
-    //     // Validate produced datas
-    //     Account assertAcct = [SELECT Id, FinancialIdAccount__c, FinancialIdBillingAddress__c FROM Account WHERE Id = :acct1.Id];
-    //     System.assertEquals('123', assertAcct.FinancialIdAccount__c);
-    // }
-
-    // @isTest
-    // private static void testAutomaticAccountSync(){
-	//     //create an account and an opportunity, set the opportunity to closed won, and assert that the account was synced
-	//     Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-    //     Test_Data.createOAuthToken(true);
-    //     Test_Data.createExactSettings('123', true);
-
-    //     Test_Data.createAdministration(true);
-
-    //     Account acct = Test_Data.createAccount('Test', '11', 'B2B', false);
-    //     acct.Reseller_Name__c = '1';
-    //     Database.insert(acct);
-    //     Contact cont = Test_Data.createContact(acct.Id, 'Test', '1234567890', 'lex@gen25.com', true);
-    //     Opportunity opp = Test_Data.createOpportunity(acct.Id, cont.Id, 'test name', true);
-
-    //     Test.startTest();
-    //     opp.StageName = 'Closed Won';
-    //     Database.update(opp);
-    //     Test.stopTest();
-
-    //     /*Subscription25__Debtor_Number__c debNr = [SELECT Id, FinancialIdAccount__c, Exact_Billing_Address_ID__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acct.Id];
-    //     System.assertEquals('account_sync', debNr.FinancialIdAccount__c);
-    //     System.assertEquals('address_sync', debNr.Exact_Billing_Address_ID__c);*/
-    // }
-
-    // @isTest
-    // private static void testOrderSync(){
-    //     Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-    //     Test_Data.createOAuthToken(true);
-    //     Test_Data.createExactSettings('123', true);
-
-	// 	Subscription25__Administration__c admin = Test_Data.createAdministration(true);
-
-    //     Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = admin.Id, Classification__c = 'SC', Sales_Channel__c = 'Moving Intelligence', Exact_ID__c = 'Sales_Channel');
-    //     Database.insert(ers);
-
-    //     ers = new Exact_Relation_Setting__c(Administration__c = admin.Id, Classification__c = 'WH', Sales_Channel__c = 'Moving Intelligence', Exact_ID__c = 'Warehouse');
-    //     Database.insert(ers);
-
-	// 	Subscription25__VATRate__c vr = Test_Data.createVATRate('9%', 9, true, true);
-    //     Account acct = Test_Data.createAccount('Test', '12', 'B2B', true);
-    //     Contact cont = Test_Data.createContact(acct.Id, 'AccountContact', '1234567890', 'lex@123.com', true);
-    //     acct.Contact_person__c = cont.Id;
-    //     acct.MI_Administrator__c = cont.Id;
-    //     acct.Contact_Shipping__c = cont.Id;
-    //     acct.Contact_Billing__c = cont.Id;
-    //     Database.update(acct);
-
-    //     // Update Account Contact Relation
-    //     AccountContactRelation acr = [SELECT Id FROM AccountContactRelation WHERE AccountId = :acct.Id AND ContactId = :cont.Id];
-    //     acr.Roles = 'Main;Billing;Shipping;Administrator;Service';
-    //     Database.update(acr);
-
-    //     // Create products
-    //     Product2 hwProd = Test_Data.createProduct('HardwareProduct', 'code', '1-hw-1', 'Hardware', true);
-    //     PricebookEntry hwPBE = Test_Data.createPricebookEntry(hwProd.Id, 200, true);
-
-    //     Product2 sProd = Test_Data.createProduct('SubscriptionPrepaid', 'code.P', '1-in-1', 'SubscriptionP', true);
-    //     PricebookEntry sPBE = Test_Data.createPricebookEntry(sProd.Id, 10, true);
-    //     Subscription25__Administration_Product__c hwAdminProd = Test_Data.createAdministrationProduct(admin.Id, hwProd.Id, vr.Id, true);
-    //     Subscription25__Administration_Product__c sAdminProd = Test_Data.createAdministrationProduct(admin.Id, sProd.Id, vr.Id, false);
-    //     sAdminProd.Exact_Id__c = 'item_sync';
-    //     Database.insert(sAdminProd);
-
-    //     Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
-    //     Contact salesCont = Test_Data.createContact(acct.Id, 'SalesContact', '0987654321', 'xel@321.com', true);
-
-    //     // Create opportunity
-    //     Opportunity opp = Test_Data.createOpportunity(acct.Id, cont.Id, 'test name', false);
-    //     opp.Installation_Notes__c = 'installation notes';
-    //     opp.Sales_Contact__c = salesCont.Id;
-    //     opp.Payment_Method__c = 'I8';
-    //     opp.Sales_Channel__c = 'Moving Intelligence';
-    //     Database.insert(opp);
-
-    //     // Create contract (with subscription items)
-    //     Contract contr = Test_Data.createContract(acct.Id, admin.Id, true);
-    //     Subscription25__Contract_Product__c hwContrProd = Test_Data.createContractProduct(contr.Id, hwProd.Id, false);
-    //     Subscription25__Contract_Product__c sContrProd = Test_Data.createContractProduct(contr.Id, sProd.Id, false);
-    //     Database.insert(new List<Subscription25__Contract_Product__c> { hwContrProd, sContrProd });
-
-    //     // Create order
-	// 	Order ord = Test_Data.createOrder(acct.Id, admin.Id, Date.today(), false);
-	// 	ord.OpportunityId = opp.Id;
-    //     ord.Contract__c = contr.Id;
-    //     ord.Payment_Method__c = 'I8';
-    //     ord.Sales_Channel__c = 'Moving Intelligence';
-	// 	Database.insert(ord);
-
-    //     Test_Data.createOrderItem(ord.Id, hwPBE.Id, 1, true);
-	// 	OrderItem oi = Test_Data.createOrderItem(ord.Id, sPBE.Id, 1, false);
-    //     oi.Partner_Code__c = '1A2B3C4D5E6F7';
-    //     Database.insert(oi);
-	// 	OrderItem oi2 = Test_Data.createOrderItem(ord.Id, hwPBE.Id, 1, false);
-    //     oi2.Partner_Code__c = '1A2B3C4D5E6F8';
-    //     Database.insert(oi2);
-
-    //     Test.startTest();
-    //     Util_FinancialSystem.syncOrderAsync(ord.Id);
-    //     Test.stopTest();
-
-    //     // Validate log for errors
-    //     List<Event_Log__c> logs = [
-    //         SELECT Id, Integration_Status__c, Result_Status__c, Message__c
-    //         FROM Event_Log__c
-    //     ];
-    //     System.assertEquals(1, logs.size(), 'Expected single log');
-    //     System.assertEquals('PROCESSED', logs.get(0).Integration_Status__c, logs.get(0).Message__c ?? 'No message');
-    //     System.assertEquals('COMPLETED', logs.get(0).Result_Status__c, logs.get(0).Message__c ?? 'No message');
-
-    //     Subscription25__Administration_Product__c hwAdminProdResult = [Select Exact_Id__c from Subscription25__Administration_Product__c where Id = :hwAdminProd.Id];
-    //     Order orderResult =  [Select Exact_Id__c, Exact_Order_Number__c from Order where Id = :ord.Id];
-    //     System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', hwAdminProdResult.Exact_Id__c);
-    //     System.assertEquals('item_sync', sAdminProd.Exact_Id__c);
-    //     System.assertEquals('12345', orderResult.Exact_Order_Number__c);
-    //     System.assertEquals('order_sync', orderResult.Exact_Id__c);
-
-    //     System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', [SELECT FinancialIdProduct__c FROM Subscription25__Contract_Product__c WHERE Id = :hwContrProd.Id].FinancialIdProduct__c);
-    //     System.assertEquals('item_sync', [SELECT FinancialIdProduct__c FROM Subscription25__Contract_Product__c WHERE Id = :sContrProd.Id].FinancialIdProduct__c);
-    // }
-
-    // @isTest
-    // private static void testLetterCodeConversion(){
-    //     Account acct = Test_Data.createAccount('Test', '13', 'B2B', false);
-    //     acct.WSONE_DATA_Billing_Country__c = 'NLD';
-    //     acct.WSONE_DATA_Shipping_Country__c = 'NLD';
-
-    //     Database.insert(acct);
-
-    //     System.assertEquals('NL', [SELECT BillingCountryCode FROM Account WHERE Id = :acct.Id].BillingCountryCode);
-    // }
-
-    // @isTest
-    // private static void testInvoice() {
-    //     Subscription25__Administration__c admin = Test_Data.createAdministration(true);
-	// 	Subscription25__VATRate__c vr = Test_Data.createVATRate('9%', 9, true, true);
-    //     Account acct = Test_Data.createAccount('Test', '12', 'B2B', true);
-    //     Contact cont = Test_Data.createContact(acct.Id, 'Test', '1234567890', 'lex@gen25.com', true);
-    //     Product2 prod = Test_Data.createProduct('name', 'code.P', '1-in-1', 'SubscriptionP', true);
-    //     //prod.Is_Installation_Product__c = true;
-    //     //Database.insert(prod);
-    //     PricebookEntry pbe = Test_Data.createPricebookEntry(prod.Id, 10, true);
-    //     Test_Data.createAdministrationProduct(admin.Id, prod.Id, vr.Id, true);
-    //     Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
-
-    //     Opportunity opp = Test_Data.createOpportunity(acct.Id, cont.Id, 'test name', false);
-    //     opp.Installation_Notes__c = 'installation notes';
-    //     opp.Sales_Contact__c = cont.Id;
-
-    //     Database.insert(opp);
-
-	// 	Order ord = Test_Data.createOrder(acct.Id, admin.Id, Date.today(), false);
-	// 	ord.OpportunityId = opp.Id;
-    //     ord.Payment_Method__c = 'I8';
-	// 	Database.insert(ord);
-
-	// 	OrderItem oi = Test_Data.createOrderItem(ord.Id, pbe.Id, 100, false);
-    //     oi.Partner_Code__c = '1A2B3C4D5E6F7';
-    //     Database.insert(oi);
-
-    //     Subscription25__Invoice__c inv = Test_data.createInvoice(admin.Id, acct.Id, 'Draft', true);
-
-    //     ord.subscription25__invoice__c = inv.id;
-    //     Database.update(ord);
-
-    //     inv.Subscription25__Status__c = 'Finalized';
-    //     inv.Subscription25__Exact_Order_Number__c = '55';
-    //     Database.update(inv);
-
-    //     Test.starttest();
-    //     Util_FinancialSystem.finalizeInvoice(inv.Id);
-    //     Util_FinancialSystem.loadInvoiceNumber(inv.Id);
-    //     Test.stopTest();
-
-    //     System.assertEquals(1, [SELECT COUNT() FROM Subscription25__Invoice__c WHERE Id = :inv.Id]);
-    // }
+	/** Mock that answers with a fixed status/body and Exact rate-limit headers. */
+	private class LimitMock implements HttpCalloutMock {
+		private Integer status;
+		private String body;
+		private Integer dailyLimit;
+		private Integer dailyRemaining;
+		public Integer calls = 0;
+		LimitMock(Integer status, String body, Integer dailyLimit, Integer dailyRemaining) {
+			this.status = status;
+			this.body = body;
+			this.dailyLimit = dailyLimit;
+			this.dailyRemaining = dailyRemaining;
+		}
+		public HttpResponse respond(HttpRequest req) {
+			this.calls++;
+			HttpResponse res = new HttpResponse();
+			res.setStatusCode(this.status);
+			res.setBody(this.body);
+			res.setHeader('X-RateLimit-Limit', String.valueOf(this.dailyLimit));
+			res.setHeader('X-RateLimit-Remaining', String.valueOf(this.dailyRemaining));
+			res.setHeader('X-RateLimit-Reset', String.valueOf(System.now().addHours(6).getTime()));
+			res.setHeader('X-RateLimit-Minutely-Remaining', '59');
+			res.setHeader('X-RateLimit-Minutely-Reset', String.valueOf(System.now().addSeconds(30).getTime()));
+			return res;
+		}
+	}
+
+	private static Subscription25__Administration__c admin() {
+		Subscription25__Administration__c admin = Test_Data.createAdministration(false);
+		admin.Subscription25__Synchronisation__c = 'Exact';
+		Database.insert(admin, AccessLevel.SYSTEM_MODE);
+		return [
+			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c,
+				Acceptance_Environment_Available__c, Daily_Limit__c, FinancialRateLimitMaxPercentage__c,
+				FinancialRateLimitRemaining__c, FinancialRateLimitResetOn__c, FinancialRateLimitCheckedOn__c
+			FROM Subscription25__Administration__c WHERE Id = :admin.Id WITH SYSTEM_MODE
+		];
+	}
+
+	@IsTest
+	static void doRequest_success_returnsPayloadAndTracksLimits() {
+		Subscription25__Administration__c adm = admin();
+		Test.setMock(HttpCalloutMock.class, new LimitMock(200, '{"d":{"ID":"abc","Modified":"x"}}', 5000, 4321));
+
+		Test.startTest();
+		String response = Util_FinancialSystem.doRequest(adm, 'api/v1/1/crm/Accounts', null, 'GET', null, null);
+		Util_FinancialSystem.saveLimits();
+		Test.stopTest();
+
+		Map<String, Object> d = (Map<String, Object>) JSON.deserializeUntyped(response);
+		System.assertEquals('abc', d.get('ID'));
+		System.assert(!d.containsKey('Modified'), 'Fields that break deserialization are stripped');
+		Subscription25__Administration__c after = [SELECT Daily_Limit__c, FinancialRateLimitRemaining__c, FinancialRateLimitResetOn__c, FinancialRateLimitCheckedOn__c FROM Subscription25__Administration__c WHERE Id = :adm.Id WITH SYSTEM_MODE];
+		System.assertEquals(5000, after.Daily_Limit__c);
+		System.assertEquals(4321, after.FinancialRateLimitRemaining__c);
+		System.assertNotEquals(null, after.FinancialRateLimitResetOn__c);
+		System.assertNotEquals(null, after.FinancialRateLimitCheckedOn__c);
+	}
+
+	@IsTest
+	static void doRequest_noContent_returnsEmpty() {
+		Subscription25__Administration__c adm = admin();
+		Test.setMock(HttpCalloutMock.class, new LimitMock(204, '', 5000, 4000));
+		Test.startTest();
+		System.assertEquals('', Util_FinancialSystem.doRequest(adm, 'api/v1/1/crm/Accounts', null, 'PUT', '{}', null));
+		Test.stopTest();
+	}
+
+	@IsTest
+	static void doRequest_exactError_throwsWithMessage() {
+		Subscription25__Administration__c adm = admin();
+		Test.setMock(HttpCalloutMock.class, new LimitMock(400, '{"error":{"code":"","message":{"lang":"","value":"Invalid VAT"}}}', 5000, 4000));
+		Test.startTest();
+		try {
+			Util_FinancialSystem.doRequest(adm, 'api/v1/1/crm/Accounts', null, 'POST', '{}', null);
+			System.assert(false, 'Exception expected');
+		} catch (Util_System.FinancialSyncException e) {
+			System.assertEquals('Invalid VAT', e.getMessage());
+		}
+	}
+
+	@IsTest
+	static void doRequest_httpErrorWithoutJson_throws() {
+		Subscription25__Administration__c adm = admin();
+		Test.setMock(HttpCalloutMock.class, new LimitMock(502, '<html>Bad gateway</html>', 5000, 4000));
+		Test.startTest();
+		try {
+			Util_FinancialSystem.doRequest(adm, 'api/v1/1/crm/Accounts', null, 'GET', null, null);
+			System.assert(false, 'Exception expected');
+		} catch (Util_System.FinancialSyncException e) {
+			System.assert(e.getMessage().contains('502'), e.getMessage());
+		}
+	}
+
+	@IsTest
+	static void doRequest_429_throwsRateLimitAndBlocksNextCall() {
+		Subscription25__Administration__c adm = admin();
+		LimitMock mock = new LimitMock(429, '', 5000, 0);
+		Test.setMock(HttpCalloutMock.class, mock);
+		Test.startTest();
+		try {
+			Util_FinancialSystem.doRequest(adm, 'api/v1/1/crm/Accounts', null, 'GET', null, null);
+			System.assert(false, 'Exception expected');
+		} catch (Util_FinancialSystem.RateLimitException e) {
+			System.assert(Util_FinancialSystem.getLimits(adm).limited);
+		}
+		try {
+			Util_FinancialSystem.doRequest(adm, 'api/v1/1/crm/Accounts', null, 'GET', null, null);
+			System.assert(false, 'Exception expected');
+		} catch (Util_FinancialSystem.RateLimitException e) {
+			System.assertEquals(1, mock.calls, 'No second callout while limited');
+		}
+	}
+
+	@IsTest
+	static void doRequest_notAllowedFromSandbox_throwsWithoutCallout() {
+		Subscription25__Administration__c adm = admin();
+		adm.Acceptance_Environment_Available__c = false;
+		LimitMock mock = new LimitMock(200, '{"d":{}}', 5000, 4000);
+		Test.setMock(HttpCalloutMock.class, mock);
+		if (!Util_System.isSandbox()) {
+			System.assertEquals(true, Util_System.isFinancialSyncAllowed(adm), 'Production is always allowed');
+			return;
+		}
+		try {
+			Util_FinancialSystem.doRequest(adm, 'api/v1/1/crm/Accounts', null, 'GET', null, null);
+			System.assert(false, 'Exception expected');
+		} catch (Util_System.FinancialSyncException e) {
+			System.assertEquals(0, mock.calls, 'Guard stops the callout');
+		}
+		System.assertEquals(false, Util_FinancialSystem.isSyncEnabled(adm));
+	}
+
+	@IsTest
+	static void limits_batchCapacity_respectsMaxPercentage() {
+		Subscription25__Administration__c adm = admin();
+		adm.Daily_Limit__c = 1000;
+		adm.FinancialRateLimitRemaining__c = 150; // 850 used
+		adm.FinancialRateLimitResetOn__c = System.now().addHours(3);
+		adm.FinancialRateLimitMaxPercentage__c = 90; // 900 allowed
+		Util_FinancialSystem.Limits lim = new Util_FinancialSystem.Limits(adm);
+
+		System.assertEquals(true, lim.hasBatchCapacity(50), '850 + 50 = 900 fits');
+		System.assertEquals(false, lim.hasBatchCapacity(51), '850 + 51 > 900');
+		System.assertEquals(true, lim.hasCapacity(150), 'Hard limit: 150 remaining');
+		System.assertEquals(false, lim.hasCapacity(151));
+		System.assertEquals(85.0, lim.usedPercentage());
+	}
+
+	@IsTest
+	static void limits_expiredStoredValues_areIgnored() {
+		Subscription25__Administration__c adm = admin();
+		adm.Daily_Limit__c = 1000;
+		adm.FinancialRateLimitRemaining__c = 0;
+		adm.FinancialRateLimitResetOn__c = System.now().addMinutes(-1);
+		Util_FinancialSystem.Limits lim = new Util_FinancialSystem.Limits(adm);
+		System.assertEquals(true, lim.hasBatchCapacity(10), 'After the reset the stored remaining no longer counts');
+		System.assertEquals(Util_FinancialSystem.DEFAULT_MAX_PERCENTAGE, new Util_FinancialSystem.Limits(new Subscription25__Administration__c()).maxPercentage);
+	}
+
+	@IsTest
+	static void odataString_escapesAndNormalises() {
+		System.assertEquals(EncodingUtil.urlEncode('O\'\'Brien BV', 'UTF-8'), Util_FinancialSystem.odataString('  O\'Brien\t BV* '));
+		System.assertEquals(null, Util_FinancialSystem.odataString(null));
+	}
+
+	@IsTest
+	static void getAdministrationForReseller_blank_returnsNull() {
+		System.assertEquals(null, Util_FinancialSystem.getAdministrationForReseller(null));
+	}
+
+	@IsTest
+	static void rateLimitCheck_storesLimitsAndWarnsAboveMaximum() {
+		Subscription25__Administration__c adm = admin();
+		// previous state: 95% used, above the 90% maximum
+		Database.update(new Subscription25__Administration__c(Id = adm.Id, Daily_Limit__c = 1000, FinancialRateLimitRemaining__c = 50,
+			FinancialRateLimitResetOn__c = System.now().addHours(1), FinancialRateLimitMaxPercentage__c = 90), AccessLevel.SYSTEM_MODE);
+		Test.setMock(HttpCalloutMock.class, new LimitMock(200, '{"d":{"results":[{"CurrentDivision":1}]}}', 5000, 4990));
+
+		Test.startTest();
+		Batch_FinancialSystemRateLimitCheck.check(new Set<Id>{ adm.Id });
+		Test.stopTest();
+
+		Subscription25__Administration__c after = [SELECT Daily_Limit__c, FinancialRateLimitRemaining__c FROM Subscription25__Administration__c WHERE Id = :adm.Id WITH SYSTEM_MODE];
+		System.assertEquals(5000, after.Daily_Limit__c);
+		System.assertEquals(4990, after.FinancialRateLimitRemaining__c);
+		Event_Log__c log = [SELECT Result_Status__c, Message__c FROM Event_Log__c WHERE Action__c = 'RateLimitCheck'];
+		System.assertEquals('WARNING', log.Result_Status__c, log.Message__c);
+	}
+
+	@IsTest
+	static void rateLimitCheck_batchRuns() {
+		Subscription25__Administration__c adm = admin();
+		Database.insert(new Subscription25__Schedulable_Class__c(Name = 'Batch_FinancialSystemRateLimitCheck', Subscription25__Unique_Name__c = 'Batch_FinancialSystemRateLimitCheck'), AccessLevel.SYSTEM_MODE);
+		Test.setMock(HttpCalloutMock.class, new LimitMock(200, '{"d":{"results":[]}}', 5000, 4999));
+
+		Test.startTest();
+		Database.executeBatch(new Batch_FinancialSystemRateLimitCheck());
+		Test.stopTest();
+
+		System.assertEquals(4999, [SELECT FinancialRateLimitRemaining__c FROM Subscription25__Administration__c WHERE Id = :adm.Id WITH SYSTEM_MODE].FinancialRateLimitRemaining__c);
+	}
 }

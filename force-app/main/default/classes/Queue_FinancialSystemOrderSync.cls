@@ -12,7 +12,7 @@ global with sharing class Queue_FinancialSystemOrderSync implements Queueable, D
 	}
 
 	global void execute(QueueableContext context) {
-		List<String> messages = Util_FinancialSystem.syncOrder(this.orderId, this.mainLogGuid);
+		List<String> messages = Util_Exact.syncOrder(this.orderId, this.mainLogGuid);
 
 		if (messages.isEmpty()) {
 			Database.update(new Order(
