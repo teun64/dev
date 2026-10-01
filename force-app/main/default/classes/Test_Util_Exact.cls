@@ -137,7 +137,7 @@ private class Test_Util_Exact {
         Database.insert(oi);
 
         Test.startTest();
-        Util_Exact.syncOrderAsync(ord.Id);
+        Util_Exact.syncOrder(ord.Id);
         Test.stopTest();
 
         Subscription25__Administration_Product__c hwAdminProdResult = [Select Exact_Id__c from Subscription25__Administration_Product__c where Id = :hwAdminProd.Id];

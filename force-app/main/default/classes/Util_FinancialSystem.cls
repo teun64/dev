@@ -144,6 +144,24 @@ public without sharing class Util_FinancialSystem {
 		return EncodingUtil.urlEncode(retStr, 'UTF-8');
 	}
 
+	// ---------------------------------------------------------------- retry back-off
+
+	// 15 min, 30 min, 1 h, ... capped at 24 h; parked for a week after MAX_ATTEMPTS failed attempts
+	public static final Integer MAX_ATTEMPTS = 8;
+	private static final Integer BACKOFF_BASE_MINUTES = 15;
+	private static final Integer BACKOFF_MAX_MINUTES = 24 * 60;
+
+	/**
+	 * When a record that failed its sync for the given number of times in a row may be tried again.
+	 */
+	public static Datetime nextAttempt(Integer attempts) {
+		if (attempts >= MAX_ATTEMPTS) {
+			return System.now().addDays(7);
+		}
+		Integer minutes = Math.min(BACKOFF_MAX_MINUTES, BACKOFF_BASE_MINUTES * (Integer) Math.pow(2, Math.max(attempts, 1) - 1));
+		return System.now().addMinutes(minutes);
+	}
+
 	// ---------------------------------------------------------------- relation settings
 
 	private static Map<Id, Map<String, Map<String, String>>> relationIds;

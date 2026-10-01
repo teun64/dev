@@ -40,7 +40,8 @@ private class Test_Controllers {
         System.assertEquals('This action creates an Order in Exact!<br/><br/>When you want to continue, press "Synchronise".', msgO);
         System.assertEquals(1, lstA.size());
         System.assertEquals(1, lstD.size());
-        System.assertEquals(1, lstO.size());
+        System.assertEquals(0, lstO.size(), 'Order queued: no error message');
+        System.assertEquals(true, [SELECT SyncToFinancialSystem__c FROM Order WHERE Id = :ord.Id WITH SYSTEM_MODE].SyncToFinancialSystem__c, 'Order marked for the order batch');
     }
     @IsTest
     private static void test_Ctrl_Email(){

@@ -25,10 +25,8 @@ public without sharing class Util_FinancialSystemAccount {
 	public static final Integer ADDRESS_TYPE_INVOICE = 3;
 	public static final Integer ADDRESS_TYPE_DELIVERY = 4;
 
-	// retry back-off: 15 min, 30 min, 1 h, ... capped at 24 h; parked for a week after MAX_ATTEMPTS
-	public static final Integer MAX_ATTEMPTS = 8;
-	private static final Integer BACKOFF_BASE_MINUTES = 15;
-	private static final Integer BACKOFF_MAX_MINUTES = 24 * 60;
+	// retry back-off: Util_FinancialSystem.nextAttempt
+	public static final Integer MAX_ATTEMPTS = Util_FinancialSystem.MAX_ATTEMPTS;
 
 	@TestVisible
 	private static final String STATE_ACCOUNT = 'account';
@@ -738,7 +736,7 @@ public without sharing class Util_FinancialSystemAccount {
 			} else if (ctx.failed || !ctx.warnings.isEmpty()) {
 				Integer attempts = (acct.FinancialSyncAttempts__c == null ? 0 : acct.FinancialSyncAttempts__c.intValue()) + 1;
 				upd.FinancialSyncAttempts__c = attempts;
-				upd.FinancialSyncNextAttempt__c = Util_FinancialSystemAccount.nextAttempt(attempts);
+				upd.FinancialSyncNextAttempt__c = Util_FinancialSystem.nextAttempt(attempts);
 				upd.FinancialSyncLastError__c = String.join(ctx.result.messages, ' | ').left(255);
 				upd.SyncToFinancialSystem__c = true;
 			} else {
@@ -782,15 +780,6 @@ public without sharing class Util_FinancialSystemAccount {
 		}
 		Util_FinancialSystem.saveLimits();
 		Util_FinancialSystem.saveLogs(logs, namedCredentials, null);
-	}
-
-	@TestVisible
-	private static Datetime nextAttempt(Integer attempts) {
-		if (attempts >= MAX_ATTEMPTS) {
-			return System.now().addDays(7);
-		}
-		Integer minutes = Math.min(BACKOFF_MAX_MINUTES, BACKOFF_BASE_MINUTES * (Integer) Math.pow(2, attempts - 1));
-		return System.now().addMinutes(minutes);
 	}
 
 	// ---------------------------------------------------------------- fingerprints

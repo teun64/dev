@@ -1,79 +1,33 @@
-global with sharing class Batch_FinancialSystemOrderSync extends Subscription25.Job_AbstractBatch2 implements Callable {
-	private static final Integer DEFAULT_BATCH_SIZE = 1;
-	private static final String CONTEXT_NAME = 'Sync Draft Opportunity Orders to FinancialSystem';
-
-	private String mainLogGuid;
+/**
+ * Creates flagged orders (SyncToFinancialSystem__c, set by the user's sync action) in the financial system
+ * (Exact Online) and activates them. Orders wait while their account is not in Exact yet; failures are
+ * retried with back-off; stays within the batch share of the daily API limit.
+ * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name).
+ */
+global class Batch_FinancialSystemOrderSync extends Subscription25.Job_AbstractBatch2 implements Database.AllowsCallouts {
+	// one POST per order (+ one item lookup per administration per chunk)
+	private static final Integer BATCH_SIZE = 20;
 
 	global Batch_FinancialSystemOrderSync() {
 		super('Batch_FinancialSystemOrderSync');
 	}
 
 	public override Integer getBatchSize() {
-		return DEFAULT_BATCH_SIZE;
+		return BATCH_SIZE;
 	}
 
-	public override Database.QueryLocator startBatch(Database.BatchableContext context) {
-		Logger2 log = Logger2.getInstance();
-		log.setContext('S', 'E', Batch_FinancialSystemOrderSync.CONTEXT_NAME, new Order(), context.getJobId());
-		log.saveAll();
-		this.mainLogGuid = log.getParentGuid();
-
-		return Database.getQueryLocator([
-			SELECT Id
-			FROM Order
-			WHERE Type = 'Opportunity'
-				AND Status = 'Draft'
-				AND CreatedDate = LAST_N_DAYS:30
-		]);
+	public override Database.QueryLocator startBatch(Database.BatchableContext bc) {
+		// no bind variables: the Subscription25 job framework runs the locator outside this method's scope
+		String now = System.now().formatGmt('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
+		return Database.getQueryLocator(
+			'SELECT Id FROM Order WHERE SyncToFinancialSystem__c = true'
+			+ ' AND (FinancialSyncNextAttempt__c = null OR FinancialSyncNextAttempt__c <= ' + now + ')'
+			+ ' ORDER BY FinancialSyncAttempts__c ASC NULLS FIRST, CreatedDate ASC', AccessLevel.SYSTEM_MODE);
 	}
 
-	@TestVisible
-	private void executeBatch(Database.BatchableContext context, List<SObject> scope, String logGuid) {
-		this.mainLogGuid = logGuid;
-		this.executeBatch(context, scope);
+	public override void executeBatch(Database.BatchableContext bc, List<SObject> scope) {
+		Util_FinancialSystem_Order.syncOrders(new Map<Id, SObject>(scope).keySet(), true);
 	}
 
-	public override void executeBatch(Database.BatchableContext context, List<SObject> scope) {
-		Queue_FinancialSystemOrderSync financialSystemQueue = new Queue_FinancialSystemOrderSync((Order)scope[0], this.mainLogGuid);
-		System.enqueueJob(financialSystemQueue);
-	}
-
-	public override void finishBatch(Database.BatchableContext context) {
-	}
-
-	public Object call(String action, Map<String, Object> args) {
-		if (String.isBlank(action) || action.equalsIgnoreCase('run')) {
-			return run();
-		}
-
-		throw new Util_System.CustomException('Unsupported action: ' + action);
-	}
-
-	@InvocableMethod(label='Sync Draft Opportunity Orders to FinancialSystem' description='Syncs Draft Opportunity Orders created in the last 30 days to FinancialSystem and activates successfully synced Orders.')
-	public static List<BatchResult> runFromFlow(List<BatchRequest> requests) {
-		List<BatchResult> results = new List<BatchResult>();
-		results.add(new BatchResult(run()));
-		return results;
-	}
-
-	public static Id run() {
-		return Database.executeBatch(new Batch_FinancialSystemOrderSync(), DEFAULT_BATCH_SIZE);
-	}
-
-	public class BatchRequest {
-		@InvocableVariable(label='Batch size')
-		public Integer batchSize;
-	}
-
-	public class BatchResult {
-		@InvocableVariable(label='Batch job ID')
-		public Id jobId;
-
-		public BatchResult() {
-		}
-
-		public BatchResult(Id jobId) {
-			this.jobId = jobId;
-		}
-	}
+	public override void finishBatch(Database.BatchableContext bc) {}
 }

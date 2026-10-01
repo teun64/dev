@@ -267,10 +267,10 @@ private class Test_Util_FinancialSystemAccount {
 	@IsTest
 	static void backoff_growsAndParks() {
 		Datetime now = System.now();
-		System.assert(Util_FinancialSystemAccount.nextAttempt(1) <= now.addMinutes(16));
-		System.assert(Util_FinancialSystemAccount.nextAttempt(3) >= now.addMinutes(59));
-		System.assert(Util_FinancialSystemAccount.nextAttempt(7) <= now.addHours(25));
-		System.assert(Util_FinancialSystemAccount.nextAttempt(Util_FinancialSystemAccount.MAX_ATTEMPTS) >= now.addDays(6), 'Parked');
+		System.assert(Util_FinancialSystem.nextAttempt(1) <= now.addMinutes(16));
+		System.assert(Util_FinancialSystem.nextAttempt(3) >= now.addMinutes(59));
+		System.assert(Util_FinancialSystem.nextAttempt(7) <= now.addHours(25));
+		System.assert(Util_FinancialSystem.nextAttempt(Util_FinancialSystemAccount.MAX_ATTEMPTS) >= now.addDays(6), 'Parked');
 	}
 
 	@IsTest

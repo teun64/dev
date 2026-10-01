@@ -102,11 +102,9 @@ public with sharing class Ctrl_SyncWithExact {
 			}
 		} else if (syncId.getSObjectType() == Order.getSObjectType()) {
 			try {			
-				if (!Test.isRunningTest()) {
-					msgs = Util_Exact.syncOrder(syncId);
-				} else {
-					msgs.add('syncOrder');
-				}
+				// the user marks the order; Batch_FinancialSystemOrderSync creates it in Exact and activates it
+				// (an empty list is shown as success by the SyncWithExact component)
+				Util_FinancialSystem_Order.flagOrders(new Set<Id>{ syncId });
 			} catch(Exception ex){
 				msgs.add(ex.getMessage());
 			}		

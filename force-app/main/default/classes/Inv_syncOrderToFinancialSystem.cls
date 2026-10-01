@@ -7,14 +7,9 @@ public with sharing class Inv_syncOrderToFinancialSystem {
         if (requestList.size() > 0) {
             //Util_Exact.syncOrderAsync(orderIds[0]);
             try {
-                List<string> returnValues = Util_Exact.syncOrder(requestList[0].orderId);
-
-                if(returnValues.size() > 0) {
-                    returnValue = returnValues[0];
-                } else {
-                    returnValue = 'This order (' + requestList[0].orderId + ') is synced to the financial system.';
-                }
-
+                // the user marks the order; Batch_FinancialSystemOrderSync creates it in Exact and activates it
+                Util_FinancialSystem_Order.flagOrders(new Set<Id>{ (Id) requestList[0].orderId });
+                returnValue = 'This order (' + requestList[0].orderId + ') is queued for the financial system and is created there within a few minutes.';
             } catch(Exception e) {
                 returnValue = 'Error: ' + e.getMessage();
             }
