@@ -3,7 +3,7 @@ Administration (Subscription25__Administration__c) access: edit only via ps_miFi
 
 usage: python3 transform.py <org>   (expects <org>/unpackaged/unpackaged/... from a metadata retrieve
                                      and fields_<org>.json from an EntityParticle query)
-- ps_Subscription25User: Read + View All on the object, READ on every permissionable field.
+- ps_miSubscription25_User: Read + View All on the object, READ on every permissionable field.
 - ps_Subscription25View, ps_miAPIPlatformIntegration, profile miDataAdministrator:
   object loses Create/Edit/Delete/Modify All (Read / View All kept), every Administration field read-only.
 - writes ps_miFinancialSystem_Admin (Read/Edit/View All, edit on all editable fields) next to them.
@@ -83,7 +83,7 @@ def write(tree, path):
     tree.write(path, xml_declaration=True, encoding='UTF-8')
 
 
-for name, kind in (('ps_Subscription25User', 'permissionsets/%s.permissionset'),
+for name, kind in (('ps_miSubscription25_User', 'permissionsets/%s.permissionset'),
                    ('ps_Subscription25View', 'permissionsets/%s.permissionset'),
                    ('ps_miAPIPlatformIntegration', 'permissionsets/%s.permissionset'),
                    ('miDataAdministrator', 'profiles/%s.profile')):
@@ -91,7 +91,7 @@ for name, kind in (('ps_Subscription25User', 'permissionsets/%s.permissionset'),
     tree = ET.parse(path)
     root = tree.getroot()
     changed = make_read_only(root)
-    added = grant_full_read(root) if name == 'ps_Subscription25User' else 0
+    added = grant_full_read(root) if name == 'ps_miSubscription25_User' else 0
     write(tree, path)
     print('%-30s %3d edit rights removed, %3d read fields added' % (name, changed, added))
 
@@ -99,7 +99,7 @@ for name, kind in (('ps_Subscription25User', 'permissionsets/%s.permissionset'),
 ps = ET.Element(q('PermissionSet'))
 ET.SubElement(ps, q('description')).text = (
     'Edit Subscription25 Administrations (financial system connection, rate-limit and document/payment settings). '
-    'Other users have read access via ps_Subscription25User.')
+    'Other users have read access via ps_miSubscription25_User.')
 for p in fields:
     fp = ET.SubElement(ps, q('fieldPermissions'))
     ET.SubElement(fp, q('editable')).text = 'true' if (p['IsUpdatable'] and not p['IsCalculated']) else 'false'

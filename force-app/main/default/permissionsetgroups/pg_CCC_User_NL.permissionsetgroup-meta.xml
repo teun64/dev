@@ -8,7 +8,7 @@
     <permissionSets>force__ContactCenterAgentExternalTelephony</permissionSets>
     <permissionSets>force__ServiceCatalogAgent</permissionSets>
     <permissionSets>force__ServiceCatalogUser</permissionSets>
-    <permissionSets>ps_Subscription25User</permissionSets>
+    <permissionSets>ps_miSubscription25_User</permissionSets>
     <permissionSets>ps_Subscription25_VisualForce</permissionSets>
     <permissionSets>ps_View_Alarm_Contacts</permissionSets>
     <permissionSets>ps_View_Current_Location</permissionSets>
