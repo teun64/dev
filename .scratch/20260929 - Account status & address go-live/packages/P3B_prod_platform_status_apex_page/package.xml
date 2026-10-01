@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Inv_syncPlatformStatus</members>
+        <members>Queue_PlatformStatusSync</members>
+        <members>Rest_UpsertAccount</members>
+        <members>Test_Queue_PlatformStatusSync</members>
+        <members>Test_Rest_UpsertAccount</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>PlatformStatusSyncPlatforms</members>
+        <name>CustomLabel</name>
+    </types>
+    <types>
+        <members>rp_Account</members>
+        <name>FlexiPage</name>
+    </types>
+    <types>
+        <members>rau_Account_Status_Sync_to_Platforms</members>
+        <name>Flow</name>
+    </types>
+    <version>67.0</version>
+</Package>
