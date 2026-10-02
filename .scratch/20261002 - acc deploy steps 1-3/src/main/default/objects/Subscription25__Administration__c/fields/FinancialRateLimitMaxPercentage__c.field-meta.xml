@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinancialRateLimitMaxPercentage__c</fullName>
+    <defaultValue>90</defaultValue>
+    <description>Maximum share of the financial system's daily API limit (Daily_Limit__c) that the account/order sync batches may use. The rest stays free for manual syncs and other processes.</description>
+    <inlineHelpText>Maximum % of the daily Exact API limit the sync batches may use.</inlineHelpText>
+    <label>Financial Rate Limit Max %</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Percent</type>
+</CustomField>
