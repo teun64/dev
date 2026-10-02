@@ -39,7 +39,7 @@ global class Batch_FinancialSystemRateLimitCheck extends Subscription25.Job_Abst
 	 */
 	public static void check(Set<Id> adminIds) {
 		List<Subscription25__Administration__c> admins = [
-			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c,
+			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
 				Acceptance_Environment_Available__c, Daily_Limit__c, FinancialRateLimitMaxPercentage__c,
 				FinancialRateLimitRemaining__c, FinancialRateLimitResetOn__c, FinancialRateLimitCheckedOn__c
 			FROM Subscription25__Administration__c

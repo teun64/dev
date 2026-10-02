@@ -3,8 +3,8 @@
  * Util_FinancialSystem_Order and Util_FinancialSystem_Invoice.
  *
  * - Every call goes through the administration's Named Credential (Util_OAuth: transport + OAuth_Log__c).
- * - Sandbox guard: a call is refused unless Util_System.isFinancialSyncAllowed(admin), so a sandbox can
- *   never reach the production financial system.
+ * - Sandbox guard: a call is refused unless Util_System.isFinancialSyncAllowed(admin), and a sandbox never
+ *   calls a production division (FinancialSystemProductionDivision__mdt), checked on the administration and the URL.
  * - Rate limits: Exact returns X-RateLimit-* headers on every response (minutely + daily, per app and
  *   division). Batch_FinancialSystemRateLimitCheck reads them daily into the administration; every
  *   response updates them in memory and saveLimits() stores them after the callouts. Batches ask
@@ -47,7 +47,9 @@ public without sharing class Util_FinancialSystem {
 			&& admin.Subscription25__Active__c
 			&& admin.Subscription25__Synchronisation__c == Util_FinancialSystem.SYNC_EXACT
 			&& String.isNotBlank(admin.Subscription25__Named_Credential__c)
-			&& Util_System.isFinancialSyncAllowed(admin);
+			&& Util_System.isFinancialSyncAllowed(admin)
+			&& !(Util_FinancialSystem.isSandbox() && admin.Subscription25__Twinfield_Company_Code__c != null
+				&& Util_FinancialSystem.getProductionDivisions().contains(admin.Subscription25__Twinfield_Company_Code__c.trim()));
 	}
 
 	// ---------------------------------------------------------------- requests
@@ -61,6 +63,7 @@ public without sharing class Util_FinancialSystem {
 		if (admin == null || !Util_System.isFinancialSyncAllowed(admin)) {
 			throw new Util_System.FinancialSyncException('Financial system sync is not allowed for this administration from this org.');
 		}
+		Util_FinancialSystem.assertNotProductionFromSandbox(admin, endpoint);
 		Util_FinancialSystem.Limits lim = Util_FinancialSystem.getLimits(admin);
 		if (!lim.hasCapacity(1)) {
 			throw new Util_FinancialSystem.RateLimitException('Financial system rate limit reached for ' + admin.Name + '; retry after the reset.');
@@ -114,6 +117,53 @@ public without sharing class Util_FinancialSystem {
 			throw new Util_System.FinancialSyncException('Financial system returned HTTP ' + status + ': ' + body?.left(255));
 		}
 		return parsed == null ? '' : JSON.serialize(parsed);
+	}
+
+	// ---------------------------------------------------------------- sandbox backstop
+
+	@TestVisible
+	private static Boolean sandboxOverride;
+	private static Set<String> productionDivisions;
+
+	private static Boolean isSandbox() {
+		return Util_FinancialSystem.sandboxOverride != null ? Util_FinancialSystem.sandboxOverride : Util_System.isSandbox();
+	}
+
+	/**
+	 * Production divisions of the financial system (FinancialSystemProductionDivision__mdt).
+	 */
+	public static Set<String> getProductionDivisions() {
+		if (Util_FinancialSystem.productionDivisions == null) {
+			Util_FinancialSystem.productionDivisions = new Set<String>();
+			for (FinancialSystemProductionDivision__mdt d : FinancialSystemProductionDivision__mdt.getAll().values()) {
+				if (String.isNotBlank(d.Division__c)) {
+					Util_FinancialSystem.productionDivisions.add(d.Division__c.trim());
+				}
+			}
+		}
+		return Util_FinancialSystem.productionDivisions;
+	}
+
+	/**
+	 * Backstop: a sandbox never calls a production division, whatever the Administration says (the Exact login
+	 * used in sandboxes can also reach production). Checks the administration's division and the URL.
+	 */
+	@TestVisible
+	private static void assertNotProductionFromSandbox(Subscription25__Administration__c admin, String endpoint) {
+		if (!Util_FinancialSystem.isSandbox()) {
+			return;
+		}
+		Set<String> prod = Util_FinancialSystem.getProductionDivisions();
+		String division = admin.Subscription25__Twinfield_Company_Code__c == null ? null : admin.Subscription25__Twinfield_Company_Code__c.trim();
+		String urlDivision;
+		Matcher m = Pattern.compile('api/v1/(\\d+)/').matcher(endpoint == null ? '' : endpoint);
+		if (m.find()) {
+			urlDivision = m.group(1);
+		}
+		if ((division != null && prod.contains(division)) || (urlDivision != null && prod.contains(urlDivision))) {
+			throw new Util_System.FinancialSyncException('Blocked: this sandbox may not call production division '
+				+ (urlDivision != null && prod.contains(urlDivision) ? urlDivision : division) + ' of the financial system (administration ' + admin.Name + ').');
+		}
 	}
 
 	private static String getErrorMessage(Map<String, Object> dirty) {

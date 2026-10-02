@@ -34,7 +34,7 @@ private class Test_Util_FinancialSystem {
 		admin.Acceptance_Environment_Available__c = true;
 		Database.insert(admin, AccessLevel.SYSTEM_MODE);
 		return [
-			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c,
+			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
 				Acceptance_Environment_Available__c, Daily_Limit__c, FinancialRateLimitMaxPercentage__c,
 				FinancialRateLimitRemaining__c, FinancialRateLimitResetOn__c, FinancialRateLimitCheckedOn__c
 			FROM Subscription25__Administration__c WHERE Id = :admin.Id WITH SYSTEM_MODE
@@ -203,5 +203,51 @@ private class Test_Util_FinancialSystem {
 		Test.stopTest();
 
 		System.assertEquals(4999, [SELECT FinancialRateLimitRemaining__c FROM Subscription25__Administration__c WHERE Id = :adm.Id WITH SYSTEM_MODE].FinancialRateLimitRemaining__c);
+	}
+
+	@IsTest
+	static void backstop_sandboxNeverCallsProductionDivision() {
+		Subscription25__Administration__c adm = admin();
+		LimitMock mock = new LimitMock(200, '{"d":{}}', 5000, 4000);
+		Test.setMock(HttpCalloutMock.class, mock);
+		String prodDivision = new List<String>(Util_FinancialSystem.getProductionDivisions())[0];
+		Util_FinancialSystem.sandboxOverride = true;
+
+		Test.startTest();
+		// production division on the administration
+		adm.Subscription25__Twinfield_Company_Code__c = prodDivision;
+		try {
+			Util_FinancialSystem.doRequest(adm, 'api/v1/' + prodDivision + '/crm/Accounts', null, 'GET', null, null);
+			System.assert(false, 'Blocked expected');
+		} catch (Util_System.FinancialSyncException e) {
+			System.assert(e.getMessage().contains('may not call production division'), e.getMessage());
+		}
+		System.assertEquals(false, Util_FinancialSystem.isSyncEnabled(adm), 'Not enabled for a production division in a sandbox');
+		// test division on the administration, production division in the URL
+		adm.Subscription25__Twinfield_Company_Code__c = '10006632';
+		try {
+			Util_FinancialSystem.doRequest(adm, 'api/v1/' + prodDivision + '/system/AllDivisions', null, 'GET', null, null);
+			System.assert(false, 'Blocked expected');
+		} catch (Util_System.FinancialSyncException e) {
+			System.assert(e.getMessage().contains(prodDivision), e.getMessage());
+		}
+		// test division everywhere: allowed
+		Util_FinancialSystem.doRequest(adm, 'api/v1/10006632/crm/Accounts', null, 'GET', null, null);
+		Test.stopTest();
+
+		System.assertEquals(1, mock.calls, 'Only the test-division call went out');
+	}
+
+	@IsTest
+	static void backstop_productionOrgIsNotAffected() {
+		Subscription25__Administration__c adm = admin();
+		Test.setMock(HttpCalloutMock.class, new LimitMock(200, '{"d":{}}', 5000, 4000));
+		String prodDivision = new List<String>(Util_FinancialSystem.getProductionDivisions())[0];
+		Util_FinancialSystem.sandboxOverride = false;
+		adm.Subscription25__Twinfield_Company_Code__c = prodDivision;
+		Test.startTest();
+		Util_FinancialSystem.doRequest(adm, 'api/v1/' + prodDivision + '/crm/Accounts', null, 'GET', null, null);
+		Test.stopTest();
+		System.assertEquals(3, Util_FinancialSystem.getProductionDivisions().size(), 'NL, DE and UK production divisions configured');
 	}
 }
