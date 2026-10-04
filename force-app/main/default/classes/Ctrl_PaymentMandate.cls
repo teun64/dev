@@ -11,6 +11,8 @@ public without sharing class Ctrl_PaymentMandate {
         @AuraEnabled public String  acceptanceType; // 'online' | 'offline'
         @AuraEnabled public String  ibanLast4;
         @AuraEnabled public String  bankCode;
+        @AuraEnabled public String  accountLast4;
+        @AuraEnabled public String  sortCode;
     }
 
     @AuraEnabled(cacheable=false)
@@ -96,6 +98,13 @@ public without sharing class Ctrl_PaymentMandate {
         if (sepaDebit != null) {
             result.ibanLast4 = (String) sepaDebit.get('last4');
             result.bankCode  = (String) sepaDebit.get('bank_code');
+            return;
+        }
+
+        Map<String, Object> bacsDebit = (Map<String, Object>) pm.get('bacs_debit');
+        if (bacsDebit != null) {
+            result.accountLast4 = (String) bacsDebit.get('last4');
+            result.sortCode     = (String) bacsDebit.get('sort_code');
         }
     }
 

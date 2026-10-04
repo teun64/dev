@@ -188,4 +188,22 @@ private class Test_Ctrl_PaymentMandate {
         System.assertEquals(null, result.ibanLast4);
         System.assertEquals(null, result.bankCode);
     }
+
+    @IsTest
+    static void testApplyPaymentMethodResponse_bacsDebit() {
+        Ctrl_PaymentMandate.MandateData result = new Ctrl_PaymentMandate.MandateData();
+
+        Ctrl_PaymentMandate.applyPaymentMethodResponse(result, new Map<String, Object>{
+            'id'         => 'pm_uk',
+            'bacs_debit' => new Map<String, Object>{
+                'last4'     => '6150',
+                'sort_code' => '309700'
+            }
+        });
+
+        System.assertEquals('6150', result.accountLast4);
+        System.assertEquals('309700', result.sortCode);
+        System.assertEquals(null, result.ibanLast4, 'bacs_debit must not populate the SEPA fields');
+        System.assertEquals(null, result.bankCode, 'bacs_debit must not populate the SEPA fields');
+    }
 }

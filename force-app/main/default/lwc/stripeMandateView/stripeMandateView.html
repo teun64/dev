@@ -33,6 +33,20 @@
                         </dd>
                     </template>
 
+                    <template if:true={hasBacs}>
+                        <dt class="slds-dl_horizontal__label slds-text-color_weak">Account</dt>
+                        <dd class="slds-dl_horizontal__detail">
+                            •••• {mandate.accountLast4}
+                        </dd>
+
+                        <template if:true={mandate.sortCode}>
+                            <dt class="slds-dl_horizontal__label slds-text-color_weak">Sort Code</dt>
+                            <dd class="slds-dl_horizontal__detail">
+                                {mandate.sortCode}
+                            </dd>
+                        </template>
+                    </template>
+
                     <template if:true={mandate.mandateReference}>
                         <dt class="slds-dl_horizontal__label slds-text-color_weak">Reference</dt>
                         <dd class="slds-dl_horizontal__detail slds-text-font_monospace">

@@ -35,6 +35,10 @@ export default class StripeMandateView extends LightningElement {
         return !!this.mandate?.ibanLast4;
     }
 
+    get hasBacs() {
+        return !!this.mandate?.accountLast4;
+    }
+
     get statusBadgeClass() {
         const s = this.mandate?.status;
         if (s === 'active')   return 'slds-badge slds-theme_success';
