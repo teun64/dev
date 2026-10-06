@@ -1,5 +1,5 @@
 @IsTest
-private class Test_Batch_ReconcileStripeMandates {
+private class Test_Batch_ReconcileStripeEvents {
 
     @TestSetup
     static void makeData() {
@@ -20,8 +20,8 @@ private class Test_Batch_ReconcileStripeMandates {
         update alreadyCorrect;
 
         Database.insert(new Subscription25__Schedulable_Class__c(
-            Name = 'Batch_ReconcileStripeMandates',
-            Subscription25__Unique_Name__c = 'Batch_ReconcileStripeMandates'
+            Name = 'Batch_ReconcileStripeEvents',
+            Subscription25__Unique_Name__c = 'Batch_ReconcileStripeEvents'
         ), AccessLevel.SYSTEM_MODE);
     }
 
@@ -37,7 +37,7 @@ private class Test_Batch_ReconcileStripeMandates {
         );
 
         Test.startTest();
-        Database.executeBatch(new Batch_ReconcileStripeMandates());
+        Database.executeBatch(new Batch_ReconcileStripeEvents());
         Test.stopTest();
 
         Account updated = [SELECT PayProv_MandateId__c FROM Account WHERE PayProv_PaymentMethodId__c = 'pm_orphan001'];
@@ -56,7 +56,7 @@ private class Test_Batch_ReconcileStripeMandates {
         );
 
         Test.startTest();
-        Database.executeBatch(new Batch_ReconcileStripeMandates());
+        Database.executeBatch(new Batch_ReconcileStripeEvents());
         Test.stopTest();
 
         Account updated = [SELECT PayProv_MandateId__c FROM Account WHERE PayProv_PaymentMethodId__c = 'pm_correct001'];
@@ -76,30 +76,36 @@ private class Test_Batch_ReconcileStripeMandates {
         insert evt;
 
         Test.startTest();
-        Database.executeBatch(new Batch_ReconcileStripeMandates());
+        Database.executeBatch(new Batch_ReconcileStripeEvents());
         Test.stopTest();
 
         stripeGC__Stripe_Event__c updated = [SELECT Retries__c FROM stripeGC__Stripe_Event__c WHERE Id = :evt.Id];
         System.assertEquals(1, updated.Retries__c, 'Retry count incremented when no Account matches yet');
     }
 
-    // ── inactive mandate.updated events are never picked up ──
+    // ── an inactive mandate.updated event never reaches this batch at all: Svc_StripeEventProcessor's
+    // parseBody() returns null before setting any custom fields on it, so it never gets a MandateId__c in
+    // the first place and can't match the query - no test needed for that, it's structurally unreachable.
+
+    // ── event resolved via CustomerId__c alone (e.g. a payment_intent./setup_intent. event that carried
+    // a mandate, with no matching PaymentMethodId__c) still gets backfilled, not just mandate.updated ──
     @IsTest
-    static void testInactiveMandateIgnored() {
+    static void testBackfillsViaCustomerIdResolution() {
         insert new stripeGC__Stripe_Event__c(
-            Type__c            = 'mandate.updated',
-            Status__c          = 'inactive',
-            PaymentMethodId__c = 'pm_orphan001',
-            MandateId__c       = 'mandate_should_not_apply',
+            Type__c            = 'payment_intent.succeeded',
+            Status__c          = 'succeeded',
+            CustomerId__c      = 'cus_orphan001',
+            MandateId__c       = 'mandate_from_payment_intent001',
             Processed__c       = true
         );
 
         Test.startTest();
-        Database.executeBatch(new Batch_ReconcileStripeMandates());
+        Database.executeBatch(new Batch_ReconcileStripeEvents());
         Test.stopTest();
 
-        Account updated = [SELECT PayProv_MandateId__c FROM Account WHERE PayProv_PaymentMethodId__c = 'pm_orphan001'];
-        System.assertNotEquals('mandate_should_not_apply', updated.PayProv_MandateId__c, 'Inactive mandate must not be applied');
+        Account updated = [SELECT PayProv_MandateId__c FROM Account WHERE PayProv_CustomerId__c = 'cus_orphan001'];
+        System.assertEquals('mandate_from_payment_intent001', updated.PayProv_MandateId__c,
+            'Mandate ID backfilled via CustomerId__c resolution, not just PaymentMethodId__c');
     }
 
     // ── finishBatch hands off to the dispatcher via Util_JobDispatcher.startNext, and is a
@@ -107,10 +113,10 @@ private class Test_Batch_ReconcileStripeMandates {
     @IsTest
     static void testFinishBatchIsNoOpAsLastDispatcherStep() {
         Util_JobDispatcher.testSteps = new List<JobDispatcherStep__mdt>{
-            new JobDispatcherStep__mdt(Dispatcher__c = 'TestDispatcher', ApexClass__c = 'Batch_ReconcileStripeMandates', Order__c = 40, IsActive__c = true)
+            new JobDispatcherStep__mdt(Dispatcher__c = 'TestDispatcher', ApexClass__c = 'Batch_ReconcileStripeEvents', Order__c = 40, IsActive__c = true)
         };
 
-        Batch_ReconcileStripeMandates batch = new Batch_ReconcileStripeMandates();
+        Batch_ReconcileStripeEvents batch = new Batch_ReconcileStripeEvents();
         batch.setDispatcher('TestDispatcher');
 
         Test.startTest();
@@ -118,7 +124,7 @@ private class Test_Batch_ReconcileStripeMandates {
         Test.stopTest();
 
         System.assertEquals(1,
-            [SELECT COUNT() FROM AsyncApexJob WHERE JobType = 'BatchApex' AND ApexClass.Name = 'Batch_ReconcileStripeMandates'],
+            [SELECT COUNT() FROM AsyncApexJob WHERE JobType = 'BatchApex' AND ApexClass.Name = 'Batch_ReconcileStripeEvents'],
             'Only the one run - last step of the dispatcher chain starts nothing further');
     }
 }

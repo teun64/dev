@@ -30,19 +30,7 @@ public without sharing class Svc_StripeEventProcessor {
         if (parsed.isEmpty()) return;
 
         // 2. Bulk lookups
-        Map<String, Id> customerToAccount = new Map<String, Id>();
-        for (Account a : [SELECT Id, PayProv_CustomerId__c FROM Account
-                          WHERE PayProv_CustomerId__c IN :customerIds]) {
-            customerToAccount.put(a.PayProv_CustomerId__c, a.Id);
-        }
-
-        Map<String, Id> pmToAccount = new Map<String, Id>();
-        if (!paymentMethodIds.isEmpty()) {
-            for (Account a : [SELECT Id, PayProv_PaymentMethodId__c FROM Account
-                              WHERE PayProv_PaymentMethodId__c IN :paymentMethodIds]) {
-                pmToAccount.put(a.PayProv_PaymentMethodId__c, a.Id);
-            }
-        }
+        Util_StripeEvent.AccountResolution accountResolution = Util_StripeEvent.resolveAccounts(customerIds, paymentMethodIds);
 
         Map<Id, Payment__c> paymentMap = new Map<Id, Payment__c>();
         if (!paymentSfIds.isEmpty()) {
@@ -112,12 +100,7 @@ public without sharing class Svc_StripeEventProcessor {
             eventUpdates.add(evtUpdate);
 
             // 3b. Resolve Account ID
-            Id accountId = null;
-            if (String.isNotBlank(p.customerId) && customerToAccount.containsKey(p.customerId)) {
-                accountId = customerToAccount.get(p.customerId);
-            } else if (String.isNotBlank(p.paymentMethodId) && pmToAccount.containsKey(p.paymentMethodId)) {
-                accountId = pmToAccount.get(p.paymentMethodId); // mandate.updated has no customer
-            }
+            Id accountId = accountResolution.resolve(p.customerId, p.paymentMethodId);
 
             if (accountId != null && (String.isNotBlank(p.paymentMethodId) || String.isNotBlank(p.mandateId))) {
                 if (!accountMap.containsKey(accountId)) {

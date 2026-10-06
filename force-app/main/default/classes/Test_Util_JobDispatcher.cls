@@ -147,4 +147,21 @@ private class Test_Util_JobDispatcher {
 		System.assertEquals(1, schedules.size());
 		System.assertEquals('0 13 0 * * ?', schedules[0].CronExpression, 'Fires once a day at 00:13');
 	}
+
+	@IsTest
+	static void scheduleHourly_createsOneScheduleAtMinute23() {
+		registerJobs();
+		// independent of the org's real steps: those also run when the schedule fires at stopTest
+		Util_JobDispatcher.testSteps = new List<JobDispatcherStep__mdt>();
+
+		Test.startTest();
+		Batch_JobDispatcher.scheduleHourly();
+		Test.stopTest();
+
+		List<CronTrigger> schedules = [
+			SELECT CronExpression FROM CronTrigger WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - Hour - %'
+		];
+		System.assertEquals(1, schedules.size());
+		System.assertEquals('0 23 * * * ?', schedules[0].CronExpression, 'Fires once an hour at minute 23');
+	}
 }

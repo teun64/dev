@@ -2,7 +2,8 @@
  * Starts a round of the job dispatcher's steps (JobDispatcherStep__mdt, see Util_JobDispatcher).
  * One schedule for all steps saves Scheduled Apex slots (max 100 per org).
  * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name),
- * one System.schedule() per cadence (scheduleEvery5Minutes() for Minut, scheduleDaily() for Day);
+ * one System.schedule() per cadence (scheduleEvery5Minutes() for Minut, scheduleHourly() for Hour,
+ * scheduleDaily() for Day);
  * the batch itself does no work, the round starts from finishBatch.
  */
 global class Batch_JobDispatcher extends Subscription25.Job_AbstractBatch2 {
@@ -54,5 +55,13 @@ global class Batch_JobDispatcher extends Subscription25.Job_AbstractBatch2 {
 	public static void scheduleDaily() {
 		String cron = '0 13 0 * * ?';
 		System.schedule('GoMeddo Subscription - Batch_JobDispatcher - Day - ' + cron, cron, new Batch_JobDispatcher('Day'));
+	}
+
+	/**
+	 * Schedules the Hour dispatcher once an hour at minute 23.
+	 */
+	public static void scheduleHourly() {
+		String cron = '0 23 * * * ?';
+		System.schedule('GoMeddo Subscription - Batch_JobDispatcher - Hour - ' + cron, cron, new Batch_JobDispatcher('Hour'));
 	}
 }
