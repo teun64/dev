@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Steps of a job dispatcher (Batch_JobDispatcher): our own Subscription25 batch classes, run one after another in Order__c order. Saves Scheduled Apex slots (max 100 per org): one dispatcher schedule replaces a schedule per batch. Subscription25 package jobs (Job_Synchronisation etc.) cannot be steps: their classes are not visible outside the package.</description>
+    <label>Job Dispatcher Step</label>
+    <pluralLabel>Job Dispatcher Steps</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

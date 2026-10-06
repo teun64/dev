@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ApexClass__c</fullName>
+    <description>Apex class of the step: a global class extending Subscription25.Job_AbstractBatch2 that implements Util_JobDispatcher.Step, with a Subscription25__Schedulable_Class__c record (Name = class name).</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Apex Class</label>
+    <length>255</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
