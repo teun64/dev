@@ -130,4 +130,21 @@ private class Test_Util_JobDispatcher {
 
 		System.assertEquals(12, [SELECT COUNT() FROM CronTrigger WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - %']);
 	}
+
+	@IsTest
+	static void scheduleDaily_createsOneScheduleAt0013() {
+		registerJobs();
+		// independent of the org's real steps: those also run when the schedule fires at stopTest
+		Util_JobDispatcher.testSteps = new List<JobDispatcherStep__mdt>();
+
+		Test.startTest();
+		Batch_JobDispatcher.scheduleDaily();
+		Test.stopTest();
+
+		List<CronTrigger> schedules = [
+			SELECT CronExpression FROM CronTrigger WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - Day - %'
+		];
+		System.assertEquals(1, schedules.size());
+		System.assertEquals('0 13 0 * * ?', schedules[0].CronExpression, 'Fires once a day at 00:13');
+	}
 }

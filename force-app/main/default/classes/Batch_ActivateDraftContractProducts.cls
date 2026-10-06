@@ -1,6 +1,13 @@
-global class Batch_ActivateDraftContractProducts extends Subscription25.Job_AbstractBatch2 {
+global class Batch_ActivateDraftContractProducts extends Subscription25.Job_AbstractBatch2 implements Util_JobDispatcher.Step {
 
     private static final AccessLevel RUNNING_MODE = AccessLevel.SYSTEM_MODE;
+
+    // set when started by Batch_JobDispatcher: finishBatch then starts the dispatcher's next step
+    private String dispatcher;
+
+    public void setDispatcher(String dispatcher) {
+        this.dispatcher = dispatcher;
+    }
 
     global Batch_ActivateDraftContractProducts() {
         super('Batch_ActivateDraftContractProducts');
@@ -78,5 +85,7 @@ global class Batch_ActivateDraftContractProducts extends Subscription25.Job_Abst
         return failLog;
     }
 
-    public override void finishBatch(Database.BatchableContext bc){}
+    public override void finishBatch(Database.BatchableContext bc){
+        Util_JobDispatcher.startNext(this.dispatcher, 'Batch_ActivateDraftContractProducts');
+    }
 }

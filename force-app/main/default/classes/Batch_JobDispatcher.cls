@@ -2,10 +2,11 @@
  * Starts a round of the job dispatcher's steps (JobDispatcherStep__mdt, see Util_JobDispatcher).
  * One schedule for all steps saves Scheduled Apex slots (max 100 per org).
  * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name),
- * with scheduleEvery5Minutes(); the batch itself does no work, the round starts from finishBatch.
+ * one System.schedule() per cadence (scheduleEvery5Minutes() for Minut, scheduleDaily() for Day);
+ * the batch itself does no work, the round starts from finishBatch.
  */
 global class Batch_JobDispatcher extends Subscription25.Job_AbstractBatch2 {
-	public static final String DEFAULT_DISPATCHER = 'Every5Min';
+	public static final String DEFAULT_DISPATCHER = 'Minut';
 	// same hours as the other 5-minute Subscription25 jobs
 	private static final String HOURS = '1-3,5-23';
 
@@ -45,5 +46,13 @@ global class Batch_JobDispatcher extends Subscription25.Job_AbstractBatch2 {
 			String cron = '0 ' + minute + ' ' + HOURS + ' * * ?';
 			System.schedule('GoMeddo Subscription - Batch_JobDispatcher - ' + cron, cron, new Batch_JobDispatcher());
 		}
+	}
+
+	/**
+	 * Schedules the Day dispatcher once a day at 00:13.
+	 */
+	public static void scheduleDaily() {
+		String cron = '0 13 0 * * ?';
+		System.schedule('GoMeddo Subscription - Batch_JobDispatcher - Day - ' + cron, cron, new Batch_JobDispatcher('Day'));
 	}
 }

@@ -4,9 +4,16 @@
  * retried with back-off; stays within the batch share of the daily API limit.
  * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name).
  */
-global class Batch_FinancialSystemOrderSync extends Subscription25.Job_AbstractBatch2 implements Database.AllowsCallouts {
+global class Batch_FinancialSystemOrderSync extends Subscription25.Job_AbstractBatch2 implements Database.AllowsCallouts, Util_JobDispatcher.Step {
 	// one POST per order (+ one item lookup per administration per chunk)
 	private static final Integer BATCH_SIZE = 20;
+
+	// set when started by Batch_JobDispatcher: finishBatch then starts the dispatcher's next step
+	private String dispatcher;
+
+	public void setDispatcher(String dispatcher) {
+		this.dispatcher = dispatcher;
+	}
 
 	global Batch_FinancialSystemOrderSync() {
 		super('Batch_FinancialSystemOrderSync');
@@ -29,5 +36,7 @@ global class Batch_FinancialSystemOrderSync extends Subscription25.Job_AbstractB
 		Util_FinancialSystem_Order.syncOrders(new Map<Id, SObject>(scope).keySet(), true);
 	}
 
-	public override void finishBatch(Database.BatchableContext bc) {}
+	public override void finishBatch(Database.BatchableContext bc) {
+		Util_JobDispatcher.startNext(this.dispatcher, 'Batch_FinancialSystemOrderSync');
+	}
 }
