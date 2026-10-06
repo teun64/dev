@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- acc delta for commits 3f32641, 6cbfdbc, 3cc5dad (2026-10-06). acc already has steps 1-3, backstop, FLS and the job dispatcher. -->
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Batch_FinancialSystemAccountSync</members>
+        <members>Batch_FinancialSystemContactSync</members>
+        <members>Svc_FinancialSystemContactRemoval</members>
+        <members>Test_Batches_FinancialSystem</members>
+        <members>Test_Svc_FinancialSystemContactRemoval</members>
+        <members>Test_Util_FinancialSystemAccount</members>
+        <members>Test_Util_FinancialSystem_Order</members>
+        <members>Trigger_AccountContactRelation</members>
+        <members>Trigger_Contact</members>
+        <members>Util_FinancialSystemAccount</members>
+        <members>Util_FinancialSystem_Order</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>AccountContactRelation</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>Account.FinancialContactsToRetire__c</members>
+        <members>OrderItem.FinancialId__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>JobDispatcherStep.Minut_ActivateDraftContractProducts</members>
+        <members>JobDispatcherStep.Minut_FinancialSystemAccountSync</members>
+        <members>JobDispatcherStep.Minut_FinancialSystemContactSync</members>
+        <members>JobDispatcherStep.Minut_FinancialSystemOrderSync</members>
+        <members>JobDispatcherStep.Minut_ReconcileStripeEvents</members>
+        <name>CustomMetadata</name>
+    </types>
+    <types>
+        <members>rbb_AccountContactRelation</members>
+        <name>Flow</name>
+    </types>
+    <version>67.0</version>
+</Package>
