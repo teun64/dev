@@ -4,7 +4,7 @@ public with sharing class Test_Batches_FinancialSystem  {
         // invoice finalisation tests: Test_Util_FinancialSystem_Invoice
     
         @IsTest
-        private static void testActivateDraftContractProducts_NoDebtorNumber_MarksAndSkips() {
+        private static void testActivateDraftContractProducts_NoDebtorNumber_SkipsWithoutLog() {
             Subscription25__Administration__c admin = Test_Data.createAdministration(true);
             Account acc = Test_Data.createAccount('Test Account', '12345', 'B2B', true);
             Contact con = Test_Data.createContact(acc.Id, 'Test', null, 'ran@gen25.com', true);
@@ -29,10 +29,8 @@ public with sharing class Test_Batches_FinancialSystem  {
             // Assert Contract Product is left untouched, not activated
             System.assertEquals('Draft', cp.Subscription25__Status__c, 'Contract Product should not be activated without a debtor number');
 
-            List<Event_Log__c> logs = [SELECT Id, Result_Status__c, Integration_Status__c, Context_Id__c, Related_Record_Id__c FROM Event_Log__c WHERE Context_Id__c = :acc.Id];
-            System.assertEquals(1, logs.size(), 'Expected a mark log for the missing debtor number');
-            System.assertEquals('WARNING', logs[0].Result_Status__c, 'Mark log should be a warning');
-            System.assertEquals('CANCELLED', logs[0].Integration_Status__c, 'Mark log should be cancelled, not retried');
+            // deliberately not logged: it recurs every run until the account gets a debtor number (Event_Log__c flood, 3c8fdc9)
+            System.assertEquals(0, [SELECT COUNT() FROM Event_Log__c WHERE Context_Id__c = :acc.Id], 'A skipped account is not logged');
         }
     
         @IsTest
