@@ -1,9 +1,9 @@
 /**
  * Contact update: pushes changed contacts (AccountContactRelation.Sync_To_Financial_System__c, set by
  * rau_Contact_AccountContactRelation) to the financial system (Exact Online) without a full account sync.
- * See Util_FinancialSystemAccount.syncFlaggedContacts. Runs before Batch_FinancialSystemAccountSync in the
- * dispatcher, so accounts it flags are synchronised in the same round.
- * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name).
+ * See Util_FinancialSystemAccount.syncFlaggedContacts. Runs in the Minut dispatcher after
+ * Batch_FinancialSystemAccountSync, so accounts keep the API budget first; accounts it flags are synchronised
+ * in the next round.
  */
 global class Batch_FinancialSystemContactSync extends Subscription25.Job_AbstractBatch2 implements Database.AllowsCallouts, Util_JobDispatcher.Step {
 	// one call per relation: keeps a queueable well below the 100 callouts / 120 s callout time per transaction
