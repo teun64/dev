@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>ass_01_Assign_Default_Roles</name>
@@ -150,6 +150,13 @@
             <operator>Assign</operator>
             <value>
                 <elementReference>fRolesStageUpdate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Sync_To_Financial_System__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fSyncToFinancialSystem</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -365,6 +372,12 @@ BLANKVALUE({!$Record.extId_6__c},IF(ISBLANK({!$Record.ContactId}),&apos;&apos;,{
         <dataType>Number</dataType>
         <expression>IF(({!$Record.RolesUpdateStage__c} = 2),0,IF(AND(OR(ISNEW(),ISCHANGED({!$Record.Roles})),NOT(ISBLANK({!$Record.RolesUpdateStage__c}))),1,0))</expression>
         <scale>0</scale>
+    </formulas>
+    <formulas>
+        <description>Changed roles of a relation with an Exact contact: the contact update (Batch_FinancialSystemContactSync) updates it in Exact, or marks it DO NOT USE and ends it when no role is left.</description>
+        <name>fSyncToFinancialSystem</name>
+        <dataType>Boolean</dataType>
+        <expression>OR({!$Record.Sync_To_Financial_System__c}, AND(NOT(ISNEW()), ISCHANGED({!$Record.Roles}), NOT(ISBLANK({!$Record.FinancialIdContact__c}))))</expression>
     </formulas>
     <interviewLabel>rbb - AccountContactRelation {!$Flow.CurrentDateTime}</interviewLabel>
     <label>rbb - Account Contact Relation</label>

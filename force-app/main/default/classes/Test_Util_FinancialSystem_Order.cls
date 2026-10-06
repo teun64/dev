@@ -1,20 +1,35 @@
 @IsTest
 private class Test_Util_FinancialSystem_Order {
 
-	/** Imitates Exact Items + SalesOrders and records every call. */
+	/** Imitates Exact Items + SalesOrders + SalesOrderLines and records every call. */
 	public class ExactSim implements HttpCalloutMock {
 		public List<String> calls = new List<String>();
 		public String items = '{"d":{"results":[{"ID":"item-guid-1","Code":"ORD.ITEM"}]}}';
+		public String lines = '{"d":{"results":[{"ID":"line-guid-1","LineNumber":1,"Item":"item-guid-1"}]}}';
+		public Integer linesStatus = 200;
 		public HttpResponse respond(HttpRequest req) {
 			String ep = req.getEndpoint();
-			this.calls.add(req.getMethod() + (ep.contains('Items') ? ' Items' : ep.contains('SalesOrders') ? ' SalesOrders' : ' Other'));
+			String entity = ep.contains('Items') ? 'Items' : ep.contains('SalesOrderLines') ? 'SalesOrderLines' : ep.contains('SalesOrders') ? 'SalesOrders' : 'Other';
+			this.calls.add(req.getMethod() + ' ' + entity);
 			HttpResponse res = new HttpResponse();
 			res.setHeader('X-RateLimit-Limit', '5000');
 			res.setHeader('X-RateLimit-Remaining', '4000');
 			res.setStatusCode(req.getMethod() == 'POST' ? 201 : 200);
-			res.setBody(ep.contains('Items') ? this.items : '{"d":{"OrderID":"order-guid-1","OrderNumber":54321}}');
+			if (entity == 'Items') {
+				res.setBody(this.items);
+			} else if (entity == 'SalesOrderLines') {
+				res.setStatusCode(this.linesStatus);
+				res.setBody(this.linesStatus == 200 ? this.lines : '{"error":{"message":{"value":"boom"}}}');
+			} else {
+				// Exact returns the created lines as deferred
+				res.setBody('{"d":{"OrderID":"order-guid-1","OrderNumber":54321,"SalesOrderLines":{"__deferred":{"uri":"x"}}}}');
+			}
 			return res;
 		}
+	}
+
+	private static String lineId() {
+		return [SELECT FinancialId__c FROM OrderItem WITH SYSTEM_MODE LIMIT 1].FinancialId__c;
 	}
 
 	@TestSetup
@@ -70,7 +85,8 @@ private class Test_Util_FinancialSystem_Order {
 		System.assertEquals('order-guid-1', after.Exact_Id__c);
 		System.assertEquals('54321', after.Exact_Order_Number__c);
 		System.assertEquals(false, after.SyncToFinancialSystem__c);
-		System.assertEquals(new List<String>{ 'GET Items', 'POST SalesOrders' }, sim.calls);
+		System.assertEquals(new List<String>{ 'GET Items', 'POST SalesOrders', 'GET SalesOrderLines' }, sim.calls);
+		System.assertEquals('line-guid-1', lineId(), 'Exact line id stored on the order item');
 		System.assertEquals('item-guid-1', [SELECT Exact_Id__c FROM Subscription25__Administration_Product__c WITH SYSTEM_MODE LIMIT 1].Exact_Id__c, 'Item GUID cached');
 		// activation may be refused by org validation in a test context; then the Exact id is still stored
 		System.assertEquals(Util_FinancialSystem_Order.STATUS_ACTIVATED, after.Status, 'err=' + after.FinancialSyncLastError__c);
@@ -87,7 +103,7 @@ private class Test_Util_FinancialSystem_Order {
 		Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true);
 		Test.stopTest();
 
-		System.assertEquals(new List<String>{ 'POST SalesOrders' }, sim.calls);
+		System.assertEquals(new List<String>{ 'POST SalesOrders', 'GET SalesOrderLines' }, sim.calls);
 	}
 
 	@IsTest
@@ -181,5 +197,35 @@ private class Test_Util_FinancialSystem_Order {
 		Util_Exact.syncOrderAsync(ord.Id);
 		Test.stopTest();
 		System.assertEquals(true, order().SyncToFinancialSystem__c, 'Async variant queues the order');
+	}
+
+	@IsTest
+	static void lineIdsUnreadable_orderStillSucceeds() {
+		Order ord = order();
+		ExactSim sim = new ExactSim();
+		sim.linesStatus = 500;
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, false).get(ord.Id);
+		Test.stopTest();
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assertEquals('order-guid-1', order().Exact_Id__c, 'The order is in Exact and must not be created twice');
+		System.assertEquals(false, order().SyncToFinancialSystem__c);
+		System.assertEquals(null, lineId());
+		System.assert(String.join(r.messages, ' ').contains('line ids could not be read'), r.messages);
+	}
+
+	@IsTest
+	static void lineOfOtherItem_isNotStored() {
+		Order ord = order();
+		ExactSim sim = new ExactSim();
+		sim.lines = '{"d":{"results":[{"ID":"line-guid-x","LineNumber":1,"Item":"other-item"}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, false).get(ord.Id);
+		Test.stopTest();
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assertEquals(null, lineId(), 'A line for another item is not linked');
+		System.assert(String.join(r.messages, ' ').contains('could not be matched'), r.messages);
 	}
 }

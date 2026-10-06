@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinancialContactsToRetire__c</fullName>
+    <description>Exact contacts (JSON) whose AccountContactRelation was deleted (contact deleted / merged, relation removed). The account sync marks them DO NOT USE, clears the email, excludes them from mailings and ends them, then removes them from this list. Set by Svc_FinancialSystemContactRemoval.</description>
+    <label>Financial Contacts To Retire</label>
+    <length>32768</length>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

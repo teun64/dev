@@ -4,7 +4,8 @@
  * syncOrders() handles many orders in one transaction: all callouts first, then one DML phase.
  *  - item GUIDs are cached on Subscription25__Administration_Product__c.Exact_Id__c; missing ones are
  *    fetched with ONE OR-filtered GET per administration for all orders in the chunk
- *  - one POST per order (the lines go inside the sales order)
+ *  - one POST per order (the lines go inside the sales order), then one GET of the created lines: their
+ *    Exact ids are stored on OrderItem.FinancialId__c
  *  - the account's Exact ids come from the Account (FinancialIdAccount__c) and the main contact's
  *    AccountContactRelation (FinancialIdContact__c); an account that is not in Exact yet is queued for
  *    Batch_FinancialSystemAccountSync and the order waits (no failed attempt counted)
@@ -13,6 +14,7 @@
  */
 public without sharing class Util_FinancialSystem_Order {
 	private static final String ORDER_ENDPOINT = 'api/v1/{0}/salesorder/SalesOrders';
+	private static final String ORDER_LINE_ENDPOINT = 'api/v1/{0}/salesorder/SalesOrderLines';
 	private static final String ARTICLE_GET_ENDPOINT = 'api/v1/{0}/bulk/Logistics/Items';
 	public static final String STATUS_ACTIVATED = 'Activated';
 	private static final Integer WAIT_FOR_ACCOUNT_MINUTES = 15;
@@ -90,7 +92,8 @@ public without sharing class Util_FinancialSystem_Order {
 					continue;
 				}
 				Util_FinancialSystem.Limits lim = Util_FinancialSystem.getLimits(ctx.admin);
-				if (!(batchMode ? lim.hasBatchCapacity(1) : lim.hasCapacity(1))) {
+				// POST + GET of the created lines
+				if (!(batchMode ? lim.hasBatchCapacity(2) : lim.hasCapacity(2))) {
 					ctx.postpone('No financial system capacity left for ' + ctx.admin.Name + '; retried in a next run.', null);
 					if (batchMode) {
 						limitedAdmins.add(ctx.admin.Id);
@@ -126,6 +129,8 @@ public without sharing class Util_FinancialSystem_Order {
 		Boolean done = false;
 		Boolean failed = false;
 		Datetime waitUntil;
+		// Exact SalesOrderLine id per OrderItem
+		Map<Id, String> lineIds = new Map<Id, String>();
 
 		void postpone(String message, Datetime until) {
 			this.done = true;
@@ -330,6 +335,56 @@ public without sharing class Util_FinancialSystem_Order {
 		ord.Exact_Order_Number__c = created.OrderNumber != null ? String.valueOf(created.OrderNumber) : '';
 		ctx.result.success = true;
 		ctx.done = true;
+		// the order exists in Exact now: a failure from here on is only a warning
+		try {
+			Util_FinancialSystem_Order.loadLineIds(ctx, body);
+		} catch (Exception e) {
+			String msg = 'The order is created, but its line ids could not be read: ' + e.getMessage();
+			ctx.result.messages.add(msg);
+			ctx.log.Result_Status__c = Util_Event.LogResultStatus.WARNING.name();
+			ctx.log.Message__c += msg + '\n';
+		}
+	}
+
+	/**
+	 * Exact returns the lines of a created sales order as deferred: one GET reads their ids. Exact numbers the
+	 * lines in the order they were posted, so line n belongs to order item n; the item is checked as well.
+	 */
+	private static void loadLineIds(Util_FinancialSystem_Order.Ctx ctx, Util_FinancialSystem_Order.ExactOrder body) {
+		Map<String, String> params = new Map<String, String>{
+			'$select' => 'ID,LineNumber,Item',
+			'$filter' => 'OrderID eq guid\'' + ctx.ord.Exact_Id__c + '\''
+		};
+		String endpoint = String.format(ORDER_LINE_ENDPOINT, new List<String>{ ctx.admin.Subscription25__Twinfield_Company_Code__c });
+		String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, params, 'GET', null, ctx.log.GUID__c);
+		ctx.result.calls++;
+		Util_FinancialSystem_Order.ExactOrderLines found = (Util_FinancialSystem_Order.ExactOrderLines) JSON.deserialize(response, Util_FinancialSystem_Order.ExactOrderLines.class);
+		Map<Integer, Util_FinancialSystem_Order.ExactOrderLineId> byNumber = new Map<Integer, Util_FinancialSystem_Order.ExactOrderLineId>();
+		if (found != null && found.results != null) {
+			for (Util_FinancialSystem_Order.ExactOrderLineId line : found.results) {
+				if (line.LineNumber != null) {
+					byNumber.put(line.LineNumber, line);
+				}
+			}
+		}
+		List<Integer> numbers = new List<Integer>(byNumber.keySet());
+		numbers.sort();
+		List<OrderItem> items = ctx.ord.OrderItems;
+		Integer unmatched = 0;
+		for (Integer i = 0; i < items.size(); i++) {
+			Util_FinancialSystem_Order.ExactOrderLineId line = i < numbers.size() ? byNumber.get(numbers[i]) : null;
+			if (line != null && String.isNotBlank(line.ID) && line.Item == body.SalesOrderLines[i].Item) {
+				ctx.lineIds.put(items[i].Id, line.ID);
+			} else {
+				unmatched++;
+			}
+		}
+		if (unmatched > 0) {
+			String msg = unmatched + ' of ' + items.size() + ' order lines could not be matched to their Exact line.';
+			ctx.result.messages.add(msg);
+			ctx.log.Result_Status__c = Util_Event.LogResultStatus.WARNING.name();
+			ctx.log.Message__c += msg + '\n';
+		}
 	}
 
 	// ---------------------------------------------------------------- DML phase
@@ -378,6 +433,16 @@ public without sharing class Util_FinancialSystem_Order {
 		if (!adminProdsToUpdate.isEmpty()) {
 			Database.update(adminProdsToUpdate, false, AccessLevel.SYSTEM_MODE);
 		}
+		// order lines before the order: an activated order restricts changes to its products
+		List<OrderItem> lines = new List<OrderItem>();
+		for (Util_FinancialSystem_Order.Ctx ctx : contexts) {
+			for (Id itemId : ctx.lineIds.keySet()) {
+				lines.add(new OrderItem(Id = itemId, FinancialId__c = ctx.lineIds.get(itemId)));
+			}
+		}
+		if (!lines.isEmpty()) {
+			Database.update(lines, false, AccessLevel.SYSTEM_MODE);
+		}
 		List<Database.SaveResult> srs = Database.update(orders, false, AccessLevel.SYSTEM_MODE);
 		for (Integer i = 0; i < srs.size(); i++) {
 			if (!srs[i].isSuccess()) {
@@ -412,6 +477,16 @@ public without sharing class Util_FinancialSystem_Order {
 	private class ExactOrderResponse {
 		String OrderID;
 		Integer OrderNumber;
+	}
+
+	private class ExactOrderLines {
+		List<Util_FinancialSystem_Order.ExactOrderLineId> results;
+	}
+
+	private class ExactOrderLineId {
+		String ID;
+		Integer LineNumber;
+		String Item;
 	}
 
 	@TestVisible

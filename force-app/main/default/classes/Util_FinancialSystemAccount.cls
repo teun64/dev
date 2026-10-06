@@ -6,13 +6,23 @@
  *  - account     : POST (new) / PUT (changed); duplicate-prevention match GET only for unchecked accounts,
  *                  never links an Exact account that another Salesforce account already uses
  *  - contacts    : main / invoice / shipping contact, one Exact contact per AccountContactRelation
- *                  (ACR.FinancialIdContact__c); Exact account MainContact = the main contact
- *  - addresses   : establishment (Billing) is the Exact account's own address; invoice (type 3) and
- *                  shipping (type 4) are sent separately unless address AND contact equal the establishment
+ *                  (ACR.FinancialIdContact__c); Exact account MainContact = the main contact. Any other relation
+ *                  with an Exact id that is flagged (changed contact) is maintained as well.
+ *  - addresses   : establishment (Billing) is the Exact account's own address; invoice (type 3) = invoice
+ *                  address when supplied, otherwise the establishment address, + invoice contact; shipping
+ *                  (type 4) likewise. Created only when address or contact differs from the establishment + main
+ *                  contact; once created it is kept up to date. Both are the Main address of their type.
  *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST
  * Only parts whose fingerprint (FinancialSyncState__c) changed are sent. Exact ids live on the Account
  * (FinancialId*__c) and the ACR, not on Subscription25__Debtor_Number__c.
  * Failed accounts keep SyncToFinancialSystem__c and are retried with exponential back-off.
+ *
+ * syncFlaggedContacts() (Batch_FinancialSystemContactSync) handles changed contacts without an account sync: a
+ * flagged relation with an Exact id is PUT directly; one without an Exact id but with a Main / Invoice / Shipping
+ * role flags its account (the account sync creates the contact and links it to the address).
+ * A relation with an Exact contact but no role left (and not the account's main / invoice / shipping contact) is
+ * retired in Exact: last name + " (DO NOT USE)", email cleared, excluded from mailings, EndDate = today (inactive).
+ * When it gets a role again, the contact is restored (EndDate cleared).
  */
 public without sharing class Util_FinancialSystemAccount {
 	private static final String ACCOUNT_ENDPOINT = 'api/v1/{0}/crm/Accounts';
@@ -38,6 +48,10 @@ public without sharing class Util_FinancialSystemAccount {
 	private static final String STATE_BANK = 'bank';
 	@TestVisible
 	private static final String STATE_CONTACT = 'contact:';
+	@TestVisible
+	private static final String STATE_RETIRED = 'retired:';
+	@TestVisible
+	private static final String DO_NOT_USE = ' (DO NOT USE)';
 
 	public class Result {
 		public Id accountId;
@@ -111,19 +125,119 @@ public without sharing class Util_FinancialSystemAccount {
 	}
 
 	/**
-	 * A changed contact (rau_Contact_AccountContactRelation) flags its AccountContactRelations; their accounts
-	 * are flagged here so the account batch picks them up.
+	 * Contact update: handles relations flagged by rau_Contact_AccountContactRelation (name / email / phone changed)
+	 * without a full account sync. Relations of accounts that are flagged themselves are left to the account sync.
+	 *  - account not in Exact yet         : flag cleared (the first account sync creates the contacts it needs)
+	 *  - relation has an Exact contact id : PUT when its fingerprint changed, flag cleared
+	 *  - no Exact id, Main/Invoice/Shipping role : account flagged (POST contact + address link in the account sync)
+	 *  - no Exact id, other role          : flag cleared
+	 * A failed PUT flags the account, so the account sync retries it with back-off.
 	 */
-	public static void flagAccountsOfChangedContacts() {
-		Set<Id> accountIds = new Set<Id>();
+	public static void syncFlaggedContacts(Set<Id> relationIds, Boolean batchMode) {
+		Map<Id, List<AccountContactRelation>> toSendByAccount = new Map<Id, List<AccountContactRelation>>();
+		Map<Id, Account> accounts = new Map<Id, Account>();
+		List<AccountContactRelation> toClear = new List<AccountContactRelation>();
+		Set<Id> accountsToFlag = new Set<Id>();
 		for (AccountContactRelation acr : [
-				SELECT AccountId FROM AccountContactRelation
-				WHERE Sync_To_Financial_System__c = true AND Account.SyncToFinancialSystem__c = false
-				WITH SYSTEM_MODE LIMIT 5000]) {
-			accountIds.add(acr.AccountId);
+				SELECT Id, AccountId, ContactId, FinancialIdContact__c, Roles, isMainContact__c, isInvoiceContact__c, isShippingContact__c,
+					Account.Contact_person__c, Account.Contact_Billing__c, Account.Contact_Shipping__c,
+					Contact.FirstName, Contact.MiddleName, Contact.LastName, Contact.Email, Contact.Phone,
+					Account.Name, Account.Exact_Account_Name__c, Account.Reseller_Name__c, Account.FinancialIdAccount__c,
+					Account.SyncToFinancialSystem__c, Account.FinancialSyncState__c
+				FROM AccountContactRelation
+				WHERE Id IN :relationIds AND Sync_To_Financial_System__c = true
+				WITH SYSTEM_MODE]) {
+			if (acr.Account.SyncToFinancialSystem__c) {
+				continue;
+			}
+			if (String.isBlank(acr.Account.FinancialIdAccount__c)) {
+				toClear.add(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = false));
+			} else if (String.isNotBlank(acr.FinancialIdContact__c)) {
+				if (!toSendByAccount.containsKey(acr.AccountId)) {
+					toSendByAccount.put(acr.AccountId, new List<AccountContactRelation>());
+					accounts.put(acr.AccountId, acr.Account);
+				}
+				toSendByAccount.get(acr.AccountId).add(acr);
+			} else if (acr.isMainContact__c || acr.isInvoiceContact__c || acr.isShippingContact__c) {
+				accountsToFlag.add(acr.AccountId);
+			} else {
+				toClear.add(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = false));
+			}
 		}
-		if (!accountIds.isEmpty()) {
-			Util_FinancialSystemAccount.flagAccounts(accountIds);
+
+		List<Account> stateUpdates = new List<Account>();
+		List<Event_Log__c> logs = new List<Event_Log__c>();
+		Set<String> namedCredentials = new Set<String>();
+		Set<Id> limitedAdmins = new Set<Id>();
+		for (Id accountId : toSendByAccount.keySet()) {
+			Account acct = accounts.get(accountId);
+			List<AccountContactRelation> acrs = toSendByAccount.get(accountId);
+			Subscription25__Administration__c admin = Util_FinancialSystem.getAdministrationForReseller(acct.Reseller_Name__c);
+			if (admin == null || admin.Subscription25__Synchronisation__c != Util_FinancialSystem.SYNC_EXACT || !admin.Subscription25__Active__c
+					|| !Util_System.isFinancialSyncAllowed(admin)) {
+				// the account sync reports why this account cannot be synchronised
+				accountsToFlag.add(accountId);
+				continue;
+			}
+			Util_FinancialSystem.Limits lim = Util_FinancialSystem.getLimits(admin);
+			if (limitedAdmins.contains(admin.Id) || !(batchMode ? lim.hasBatchCapacity(acrs.size()) : lim.hasCapacity(acrs.size()))) {
+				// no capacity: stays flagged for a next run
+				limitedAdmins.add(admin.Id);
+				continue;
+			}
+			namedCredentials.add(admin.Subscription25__Named_Credential__c);
+			Event_Log__c log = Util_Event.getLog(null, 'S', 'E', 'Account', 'contact2Exact', accountId, acct.Exact_Account_Name__c, null);
+			log.Message__c = '';
+			Map<String, String> state = Util_FinancialSystemAccount.readState(acct.FinancialSyncState__c);
+			String endpoint = String.format(CONTACT_ENDPOINT, new List<String>{ admin.Subscription25__Twinfield_Company_Code__c });
+			Integer calls = 0;
+			Boolean failed = false;
+			for (AccountContactRelation acr : acrs) {
+				String stateKey = STATE_CONTACT + acr.ContactId;
+				Util_FinancialSystemAccount.ContactRequest req = new Util_FinancialSystemAccount.ContactRequest(acct.FinancialIdAccount__c, acr,
+					Util_FinancialSystemAccount.isRetired(acr, acct), state.get(stateKey));
+				try {
+					if (req.fingerprint != state.get(stateKey)) {
+						Util_FinancialSystem.doRequest(admin, endpoint + '(guid\'' + acr.FinancialIdContact__c + '\')', null, 'PUT', req.body, log.GUID__c);
+						calls++;
+					}
+					state.put(stateKey, req.fingerprint);
+					toClear.add(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = false));
+				} catch (Util_FinancialSystem.RateLimitException e) {
+					// the rest stays flagged for a next run
+					limitedAdmins.add(admin.Id);
+					log.Message__c += e.getMessage() + '\n';
+					break;
+				} catch (Util_System.FinancialSyncException e) {
+					failed = true;
+					accountsToFlag.add(accountId);
+					log.Message__c += 'Contact ' + acr.ContactId + ': ' + e.getMessage() + '\n';
+				}
+			}
+			if (calls > 0) {
+				stateUpdates.add(new Account(Id = accountId, FinancialSyncState__c = JSON.serialize(state)));
+			}
+			if (calls > 0 || failed) {
+				log.Result_Status__c = failed ? Util_Event.LogResultStatus.ERROR.name() : log.Result_Status__c;
+				log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
+				log.extId__c = acct.FinancialIdAccount__c;
+				log.Message__c = (log.Message__c + 'Calls: ' + calls).left(131072);
+				logs.add(log);
+			}
+		}
+
+		if (!toClear.isEmpty()) {
+			Database.update(toClear, false, AccessLevel.SYSTEM_MODE);
+		}
+		if (!stateUpdates.isEmpty()) {
+			Database.update(stateUpdates, false, AccessLevel.SYSTEM_MODE);
+		}
+		if (!accountsToFlag.isEmpty()) {
+			Util_FinancialSystemAccount.flagAccounts(accountsToFlag);
+		}
+		Util_FinancialSystem.saveLimits();
+		if (!logs.isEmpty()) {
+			Util_FinancialSystem.saveLogs(logs, namedCredentials, null);
 		}
 	}
 
@@ -186,6 +300,8 @@ public without sharing class Util_FinancialSystemAccount {
 		Map<Id, AccountContactRelation> acrByContact = new Map<Id, AccountContactRelation>();
 		Map<Id, AccountContactRelation> acrsToUpdate = new Map<Id, AccountContactRelation>();
 		Boolean accountDirty = false;
+		// Exact contacts retired in this run (Account.FinancialContactsToRetire__c)
+		Set<String> retiredIds = new Set<String>();
 		Boolean isNewExactAccount = false;
 		Boolean matched = false;
 		String exactMainContact;
@@ -228,9 +344,8 @@ public without sharing class Util_FinancialSystemAccount {
 				FinancialIdInvoiceAddress__c, FinancialIdShippingAddress__c, FinancialIdBankAccount__c, FinancialIdBankMandate__c,
 				FinancialAccountClassification1__c, FinancialAccountClassification2__c, FinancialAccountClassification3__c,
 				SyncToFinancialSystem__c, FinancialSyncState__c, FinancialSyncAttempts__c, FinancialSyncNextAttempt__c, FinancialSyncLastError__c,
-				Contact_person__c, Contact_person__r.FirstName, Contact_person__r.MiddleName, Contact_person__r.LastName, Contact_person__r.Email, Contact_person__r.Phone,
-				Contact_Billing__c, Contact_Billing__r.FirstName, Contact_Billing__r.MiddleName, Contact_Billing__r.LastName, Contact_Billing__r.Email, Contact_Billing__r.Phone,
-				Contact_Shipping__c, Contact_Shipping__r.FirstName, Contact_Shipping__r.MiddleName, Contact_Shipping__r.LastName, Contact_Shipping__r.Email, Contact_Shipping__r.Phone
+				FinancialContactsToRetire__c,
+				Contact_person__c, Contact_Billing__c, Contact_Shipping__c
 			FROM Account
 			WHERE Id IN :accountIds
 			WITH SYSTEM_MODE
@@ -247,7 +362,8 @@ public without sharing class Util_FinancialSystemAccount {
 		}
 		Map<Id, Map<Id, AccountContactRelation>> acrs = new Map<Id, Map<Id, AccountContactRelation>>();
 		for (AccountContactRelation acr : [
-				SELECT Id, AccountId, ContactId, FinancialIdContact__c, Sync_To_Financial_System__c
+				SELECT Id, AccountId, ContactId, FinancialIdContact__c, Sync_To_Financial_System__c, Roles,
+					Contact.FirstName, Contact.MiddleName, Contact.LastName, Contact.Email, Contact.Phone
 				FROM AccountContactRelation
 				WHERE AccountId IN :accountIds AND (ContactId IN :contactIds OR Sync_To_Financial_System__c = true)
 				WITH SYSTEM_MODE]) {
@@ -288,8 +404,6 @@ public without sharing class Util_FinancialSystemAccount {
 				throw new Util_System.CustomException('This account can not be synchronised because the bank account is not filled in.');
 			} else if (String.isBlank(acct.BillingCountryCode) || String.isBlank(acct.BillingStreet) || String.isBlank(acct.BillingPostalCode) || String.isBlank(acct.BillingCity)) {
 				throw new Util_System.CustomException('This account can not be synchronised because the establishment / billing address is not filled in.');
-			} else if (String.isBlank(acct.InvoiceAddress__CountryCode__s) || String.isBlank(acct.InvoiceAddress__Street__s) || String.isBlank(acct.InvoiceAddress__PostalCode__s) || String.isBlank(acct.InvoiceAddress__City__s)) {
-				throw new Util_System.CustomException('This account can not be synchronised because the invoice address is not filled in.');
 			}
 		}
 
@@ -315,14 +429,13 @@ public without sharing class Util_FinancialSystemAccount {
 			calls++;
 		}
 		calls++; // account POST / PUT (a PUT is skipped when nothing changed)
-		for (Id cid : Util_FinancialSystemAccount.contactIds(acct)) {
-			calls++;
-		}
+		calls += Util_FinancialSystemAccount.contactsToSync(ctx).size();
+		calls += Svc_FinancialSystemContactRemoval.readEntries(acct.FinancialContactsToRetire__c).size();
 		calls++; // main contact on the account
-		if (Util_FinancialSystemAccount.invoiceAddressDiffers(acct)) {
+		if (Util_FinancialSystemAccount.invoiceAddressDiffers(acct) || String.isNotBlank(acct.FinancialIdInvoiceAddress__c)) {
 			calls++;
 		}
-		if (Util_FinancialSystemAccount.shippingAddressDiffers(acct)) {
+		if (Util_FinancialSystemAccount.shippingAddressDiffers(acct) || String.isNotBlank(acct.FinancialIdShippingAddress__c)) {
 			calls++;
 		}
 		if (String.isNotBlank(acct.Bank_Account_Number__c)) {
@@ -345,24 +458,46 @@ public without sharing class Util_FinancialSystemAccount {
 		return ids;
 	}
 
+	/** The main / invoice / shipping contact, plus any other flagged relation that has an Exact contact. */
+	private static List<Id> contactsToSync(Util_FinancialSystemAccount.Ctx ctx) {
+		List<Id> ids = Util_FinancialSystemAccount.contactIds(ctx.acct);
+		for (AccountContactRelation acr : ctx.acrByContact.values()) {
+			if (acr.Sync_To_Financial_System__c == true && String.isNotBlank(acr.FinancialIdContact__c) && !ids.contains(acr.ContactId)) {
+				ids.add(acr.ContactId);
+			}
+		}
+		return ids;
+	}
+
+	@TestVisible
+	private static Boolean hasInvoiceAddress(Account acct) {
+		return String.isNotBlank(acct.InvoiceAddress__Street__s) && String.isNotBlank(acct.InvoiceAddress__City__s);
+	}
+
+	@TestVisible
+	private static Boolean hasShippingAddress(Account acct) {
+		return String.isNotBlank(acct.ShippingStreet) && String.isNotBlank(acct.ShippingCity);
+	}
+
+	/**
+	 * The invoice address (invoice address when supplied, otherwise the establishment address) or its contact
+	 * differs from the establishment address + main contact.
+	 */
 	@TestVisible
 	private static Boolean invoiceAddressDiffers(Account acct) {
-		if (String.isBlank(acct.InvoiceAddress__City__s)) {
-			return false;
-		}
-		Boolean addressDiffers = acct.InvoiceAddress__Street__s != acct.BillingStreet || acct.InvoiceAddress__PostalCode__s != acct.BillingPostalCode
-			|| acct.InvoiceAddress__City__s != acct.BillingCity || acct.InvoiceAddress__CountryCode__s != acct.BillingCountryCode;
+		Boolean addressDiffers = Util_FinancialSystemAccount.hasInvoiceAddress(acct) && (acct.InvoiceAddress__Street__s != acct.BillingStreet
+			|| acct.InvoiceAddress__PostalCode__s != acct.BillingPostalCode || acct.InvoiceAddress__City__s != acct.BillingCity
+			|| acct.InvoiceAddress__CountryCode__s != acct.BillingCountryCode);
 		Boolean contactDiffers = acct.Contact_Billing__c != null && acct.Contact_Billing__c != acct.Contact_person__c;
 		return addressDiffers || contactDiffers;
 	}
 
+	/** Same as invoiceAddressDiffers, for the shipping address and contact. */
 	@TestVisible
 	private static Boolean shippingAddressDiffers(Account acct) {
-		if (String.isBlank(acct.ShippingStreet) || String.isBlank(acct.ShippingCity)) {
-			return false;
-		}
-		Boolean addressDiffers = acct.ShippingStreet != acct.BillingStreet || acct.ShippingPostalCode != acct.BillingPostalCode
-			|| acct.ShippingCity != acct.BillingCity || acct.ShippingCountryCode != acct.BillingCountryCode;
+		Boolean addressDiffers = Util_FinancialSystemAccount.hasShippingAddress(acct) && (acct.ShippingStreet != acct.BillingStreet
+			|| acct.ShippingPostalCode != acct.BillingPostalCode || acct.ShippingCity != acct.BillingCity
+			|| acct.ShippingCountryCode != acct.BillingCountryCode);
 		Boolean contactDiffers = acct.Contact_Shipping__c != null && acct.Contact_Shipping__c != acct.Contact_person__c;
 		return addressDiffers || contactDiffers;
 	}
@@ -382,14 +517,17 @@ public without sharing class Util_FinancialSystemAccount {
 		// 2. the account itself
 		Util_FinancialSystemAccount.syncAccountRecord(ctx, division, guid);
 
-		// 3. contacts (main / invoice / shipping), each as its own Exact contact
-		for (Id cid : Util_FinancialSystemAccount.contactIds(acct)) {
+		// 3. contacts (main / invoice / shipping + changed ones with an Exact id), each as its own Exact contact
+		for (Id cid : Util_FinancialSystemAccount.contactsToSync(ctx)) {
 			try {
 				Util_FinancialSystemAccount.syncContact(ctx, cid, division, guid);
 			} catch (Util_System.FinancialSyncException e) {
 				ctx.warn('Contact: ' + e.getMessage());
 			}
 		}
+
+		// 3b. Exact contacts of deleted relations (deleted / merged contact, removed relation)
+		Util_FinancialSystemAccount.retireRemovedContacts(ctx, division, guid);
 
 		// 4. main contact on the Exact account
 		String mainExactId = Util_FinancialSystemAccount.exactContactId(ctx, acct.Contact_person__c);
@@ -406,7 +544,7 @@ public without sharing class Util_FinancialSystemAccount {
 		}
 		ctx.newState.put(STATE_ACCOUNT, Util_FinancialSystemAccount.hash(new Util_FinancialSystemAccount.ExactAccount(acct, ctx.exactMainContact)));
 
-		// 5. invoice and shipping address (only when they differ from the establishment address or its contact)
+		// 5. invoice and shipping address (when they differ from the establishment address or its contact, or already exist)
 		try {
 			Util_FinancialSystemAccount.syncAddress(ctx, ADDRESS_TYPE_INVOICE, division, guid);
 			Util_FinancialSystemAccount.syncAddress(ctx, ADDRESS_TYPE_DELIVERY, division, guid);
@@ -564,24 +702,17 @@ public without sharing class Util_FinancialSystemAccount {
 		return ctx.acrByContact.get(contactId).FinancialIdContact__c;
 	}
 
-	private static Contact contactOf(Account acct, Id contactId) {
-		if (contactId == acct.Contact_person__c) {
-			return acct.Contact_person__r;
-		} else if (contactId == acct.Contact_Billing__c) {
-			return acct.Contact_Billing__r;
-		}
-		return acct.Contact_Shipping__r;
-	}
-
 	private static void syncContact(Util_FinancialSystemAccount.Ctx ctx, Id contactId, String division, String guid) {
 		AccountContactRelation acr = ctx.acrByContact.get(contactId);
 		if (acr == null) {
 			ctx.warn('Contact ' + contactId + ' has no relation with this account and is not synced.');
 			return;
 		}
-		Util_FinancialSystemAccount.ExactContact body = new Util_FinancialSystemAccount.ExactContact(ctx.acct.FinancialIdAccount__c, Util_FinancialSystemAccount.contactOf(ctx.acct, contactId));
+		Util_FinancialSystemAccount.ExactContact body = new Util_FinancialSystemAccount.ExactContact(ctx.acct.FinancialIdAccount__c, acr.Contact);
 		String stateKey = STATE_CONTACT + contactId;
-		String fingerprint = Util_FinancialSystemAccount.hash(body);
+		Util_FinancialSystemAccount.ContactRequest req = new Util_FinancialSystemAccount.ContactRequest(ctx.acct.FinancialIdAccount__c, acr,
+			String.isNotBlank(acr.FinancialIdContact__c) && Util_FinancialSystemAccount.isRetired(acr, ctx.acct), ctx.state.get(stateKey));
+		String fingerprint = req.fingerprint;
 		String endpoint = String.format(CONTACT_ENDPOINT, new List<String>{ division });
 		if (String.isBlank(acr.FinancialIdContact__c)) {
 			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
@@ -591,7 +722,7 @@ public without sharing class Util_FinancialSystemAccount {
 			acr.Sync_To_Financial_System__c = false;
 			ctx.acrsToUpdate.put(acr.Id, acr);
 		} else if (fingerprint != ctx.state.get(stateKey)) {
-			Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acr.FinancialIdContact__c + '\')', null, 'PUT', JSON.serialize(body), guid);
+			Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acr.FinancialIdContact__c + '\')', null, 'PUT', req.body, guid);
 			ctx.result.calls++;
 			if (acr.Sync_To_Financial_System__c == true) {
 				acr.Sync_To_Financial_System__c = false;
@@ -604,10 +735,77 @@ public without sharing class Util_FinancialSystemAccount {
 		ctx.newState.put(stateKey, fingerprint);
 	}
 
+	private static void retireRemovedContacts(Util_FinancialSystemAccount.Ctx ctx, String division, String guid) {
+		String endpoint = String.format(CONTACT_ENDPOINT, new List<String>{ division });
+		for (Svc_FinancialSystemContactRemoval.RetireEntry entry : Svc_FinancialSystemContactRemoval.readEntries(ctx.acct.FinancialContactsToRetire__c)) {
+			AccountContactRelation acr = new AccountContactRelation();
+			acr.Contact = new Contact(FirstName = entry.firstName, MiddleName = entry.middleName, LastName = entry.lastName);
+			Util_FinancialSystemAccount.ContactRequest req = new Util_FinancialSystemAccount.ContactRequest(ctx.acct.FinancialIdAccount__c, acr, true, null);
+			try {
+				Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + entry.id + '\')', null, 'PUT', req.body, guid);
+				ctx.result.calls++;
+				ctx.retiredIds.add(entry.id);
+			} catch (Util_System.FinancialSyncException e) {
+				ctx.warn('Retiring contact ' + entry.id + ': ' + e.getMessage());
+			}
+		}
+	}
+
+	/** No role left and not the account's main / invoice / shipping contact: the Exact contact is retired. */
+	@TestVisible
+	private static Boolean isRetired(AccountContactRelation acr, Account acct) {
+		return String.isBlank(acr.Roles)
+			&& acr.ContactId != acct.Contact_person__c && acr.ContactId != acct.Contact_Billing__c && acr.ContactId != acct.Contact_Shipping__c;
+	}
+
+	/**
+	 * PUT body + fingerprint of an Exact contact. Active: the plain contact (same fingerprint as before retiring
+	 * existed); after a retirement EndDate is cleared and mailing allowed again. Retired: " (DO NOT USE)" after the
+	 * last name, email cleared, excluded from mailings, EndDate = today (only when it is retired now, not on a
+	 * later change of a retired contact).
+	 */
+	@TestVisible
+	private class ContactRequest {
+		@TestVisible
+		String fingerprint;
+		@TestVisible
+		String body;
+
+		@TestVisible
+		ContactRequest(String exactAccountId, AccountContactRelation acr, Boolean retired, String previousFingerprint) {
+			Util_FinancialSystemAccount.ExactContact contact = new Util_FinancialSystemAccount.ExactContact(exactAccountId, acr.Contact);
+			String plain = Util_FinancialSystemAccount.hash(contact);
+			Boolean wasRetired = previousFingerprint != null && previousFingerprint.startsWith(STATE_RETIRED);
+			if (!retired) {
+				this.fingerprint = plain;
+				if (!wasRetired) {
+					this.body = JSON.serialize(contact);
+					return;
+				}
+				Map<String, Object> restore = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(contact));
+				restore.put('EndDate', null);
+				restore.put('IsMailingExcluded', false);
+				this.body = JSON.serialize(restore);
+				return;
+			}
+			this.fingerprint = STATE_RETIRED + plain;
+			Map<String, Object> retire = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(contact));
+			retire.put('LastName', (String.isBlank(acr.Contact?.LastName) ? '' : acr.Contact.LastName) + DO_NOT_USE);
+			retire.put('Email', '');
+			retire.put('IsMailingExcluded', true);
+			if (!wasRetired) {
+				retire.put('EndDate', Datetime.now().formatGmt('yyyy-MM-dd') + 'T00:00:00');
+			}
+			this.body = JSON.serialize(retire);
+		}
+	}
+
 	private static void syncAddress(Util_FinancialSystemAccount.Ctx ctx, Integer addressType, String division, String guid) {
 		Account acct = ctx.acct;
 		Boolean isInvoice = addressType == ADDRESS_TYPE_INVOICE;
-		if (!(isInvoice ? Util_FinancialSystemAccount.invoiceAddressDiffers(acct) : Util_FinancialSystemAccount.shippingAddressDiffers(acct))) {
+		String existingId = isInvoice ? acct.FinancialIdInvoiceAddress__c : acct.FinancialIdShippingAddress__c;
+		// a created address is kept up to date, also when it equals the establishment address again
+		if (String.isBlank(existingId) && !(isInvoice ? Util_FinancialSystemAccount.invoiceAddressDiffers(acct) : Util_FinancialSystemAccount.shippingAddressDiffers(acct))) {
 			return;
 		}
 		Id contactId = isInvoice ? acct.Contact_Billing__c : acct.Contact_Shipping__c;
@@ -618,7 +816,6 @@ public without sharing class Util_FinancialSystemAccount {
 		Util_FinancialSystemAccount.ExactAddress body = new Util_FinancialSystemAccount.ExactAddress(acct, addressType, exactContact);
 		String stateKey = isInvoice ? STATE_INVOICE : STATE_SHIPPING;
 		String fingerprint = Util_FinancialSystemAccount.hash(body);
-		String existingId = isInvoice ? acct.FinancialIdInvoiceAddress__c : acct.FinancialIdShippingAddress__c;
 		String endpoint = String.format(ADDRESS_ENDPOINT, new List<String>{ division });
 		if (String.isBlank(existingId)) {
 			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
@@ -764,6 +961,30 @@ public without sharing class Util_FinancialSystemAccount {
 			logs.add(ctx.log);
 		}
 
+		Map<Id, Set<String>> retiredByAccount = new Map<Id, Set<String>>();
+		for (Util_FinancialSystemAccount.Ctx ctx : contexts) {
+			if (!ctx.retiredIds.isEmpty()) {
+				retiredByAccount.put(ctx.acct.Id, ctx.retiredIds);
+			}
+		}
+		if (!retiredByAccount.isEmpty()) {
+			Map<Id, Account> current = new Map<Id, Account>([
+				SELECT Id, FinancialContactsToRetire__c FROM Account WHERE Id IN :retiredByAccount.keySet() WITH SYSTEM_MODE
+			]);
+			for (Account upd : accounts) {
+				if (!retiredByAccount.containsKey(upd.Id)) {
+					continue;
+				}
+				List<Svc_FinancialSystemContactRemoval.RetireEntry> remaining = new List<Svc_FinancialSystemContactRemoval.RetireEntry>();
+				for (Svc_FinancialSystemContactRemoval.RetireEntry e : Svc_FinancialSystemContactRemoval.readEntries(current.get(upd.Id)?.FinancialContactsToRetire__c)) {
+					if (!retiredByAccount.get(upd.Id).contains(e.id)) {
+						remaining.add(e);
+					}
+				}
+				upd.FinancialContactsToRetire__c = remaining.isEmpty() ? null : JSON.serialize(remaining);
+			}
+		}
+
 		List<Database.SaveResult> srs = Database.update(accounts, false, AccessLevel.SYSTEM_MODE);
 		for (Integer i = 0; i < srs.size(); i++) {
 			if (!srs[i].isSuccess()) {
@@ -876,16 +1097,32 @@ public without sharing class Util_FinancialSystemAccount {
 		String Country;
 		String Contact;
 		Integer Type; // Visit=1, Postal=2, Invoice=3, Delivery=4
+		Boolean Main;
 
 		ExactAddress(Account acct, Integer addressType, String exactContact) {
 			Boolean isInvoice = addressType == ADDRESS_TYPE_INVOICE;
+			// invoice / shipping address when supplied, otherwise the establishment address
+			Boolean own = isInvoice ? Util_FinancialSystemAccount.hasInvoiceAddress(acct) : Util_FinancialSystemAccount.hasShippingAddress(acct);
 			this.Account = acct.FinancialIdAccount__c;
-			this.AddressLine1 = isInvoice ? acct.InvoiceAddress__Street__s : acct.ShippingStreet;
-			this.Postcode = isInvoice ? acct.InvoiceAddress__PostalCode__s : acct.ShippingPostalCode;
-			this.City = isInvoice ? acct.InvoiceAddress__City__s : acct.ShippingCity;
-			this.Country = isInvoice ? acct.InvoiceAddress__CountryCode__s : acct.ShippingCountryCode;
+			if (!own) {
+				this.AddressLine1 = acct.BillingStreet;
+				this.Postcode = acct.BillingPostalCode;
+				this.City = acct.BillingCity;
+				this.Country = acct.BillingCountryCode;
+			} else if (isInvoice) {
+				this.AddressLine1 = acct.InvoiceAddress__Street__s;
+				this.Postcode = acct.InvoiceAddress__PostalCode__s;
+				this.City = acct.InvoiceAddress__City__s;
+				this.Country = acct.InvoiceAddress__CountryCode__s;
+			} else {
+				this.AddressLine1 = acct.ShippingStreet;
+				this.Postcode = acct.ShippingPostalCode;
+				this.City = acct.ShippingCity;
+				this.Country = acct.ShippingCountryCode;
+			}
 			this.Contact = String.isBlank(exactContact) ? null : exactContact;
 			this.Type = addressType;
+			this.Main = true; // the Salesforce invoice / shipping address is the default of its type
 		}
 	}
 
