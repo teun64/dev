@@ -7,9 +7,16 @@
  * Logs a WARNING Event_Log__c when the previous usage already exceeded that share.
  * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name).
  */
-global class Batch_FinancialSystemRateLimitCheck extends Subscription25.Job_AbstractBatch2 implements Database.AllowsCallouts {
+global class Batch_FinancialSystemRateLimitCheck extends Subscription25.Job_AbstractBatch2 implements Database.AllowsCallouts, Util_JobDispatcher.Step {
 	@TestVisible
 	private static final String ME_ENDPOINT = 'api/v1/current/Me';
+
+	// set when started by Batch_JobDispatcher: finishBatch then starts the dispatcher's next step
+	private String dispatcher;
+
+	public void setDispatcher(String dispatcher) {
+		this.dispatcher = dispatcher;
+	}
 
 	global Batch_FinancialSystemRateLimitCheck() {
 		super('Batch_FinancialSystemRateLimitCheck');
@@ -80,5 +87,7 @@ global class Batch_FinancialSystemRateLimitCheck extends Subscription25.Job_Abst
 		Util_FinancialSystem.saveLogs(logs, namedCredentials, null);
 	}
 
-	public override void finishBatch(Database.BatchableContext bc) {}
+	public override void finishBatch(Database.BatchableContext bc) {
+		Util_JobDispatcher.startNext(this.dispatcher, 'Batch_FinancialSystemRateLimitCheck');
+	}
 }

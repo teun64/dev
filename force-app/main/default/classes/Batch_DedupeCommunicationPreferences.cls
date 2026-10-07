@@ -3,13 +3,20 @@
 // Dry run (counts only, no DML): Database.executeBatch(new Batch_DedupeCommunicationPreferences(true), 200);
 // Real run:                      Database.executeBatch(new Batch_DedupeCommunicationPreferences(), 200);
 // Totals are written to the debug log of the finish transaction (needs a trace flag on the running user).
-global class Batch_DedupeCommunicationPreferences extends Subscription25.Job_AbstractBatch2 implements Database.Stateful {
+global class Batch_DedupeCommunicationPreferences extends Subscription25.Job_AbstractBatch2 implements Database.Stateful, Util_JobDispatcher.Step {
 
 	private Boolean dryRun = false;
 	private Integer deleted = 0;
 	private Integer keysRepaired = 0;
 	private Integer enabledConflicts = 0;
 	private List<String> errors = new List<String>();
+
+	// set when started by Batch_JobDispatcher: finishBatch then starts the dispatcher's next step
+	private String dispatcher;
+
+	public void setDispatcher(String dispatcher) {
+		this.dispatcher = dispatcher;
+	}
 
 	global Batch_DedupeCommunicationPreferences() {
 		super('Batch_DedupeCommunicationPreferences');
@@ -47,5 +54,6 @@ global class Batch_DedupeCommunicationPreferences extends Subscription25.Job_Abs
 			+ ', groups with conflicting IsEnabled ' + enabledConflicts
 			+ ', errors ' + errors.size() + ' ' + errors;
 		System.debug(LoggingLevel.INFO, 'Batch_DedupeCommunicationPreferences: ' + summary);
+		Util_JobDispatcher.startNext(this.dispatcher, 'Batch_DedupeCommunicationPreferences');
 	}
 }
