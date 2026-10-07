@@ -8,5 +8,5 @@
   "name": "dev",
   "namespace": "",
   "sfdcLoginUrl": "https://movingintelligence--dev.sandbox.my.salesforce.com",
-  "sourceApiVersion": "64.0"
+  "sourceApiVersion": "67.0"
 }
