@@ -97,3 +97,24 @@ Prod deploys flows as **Draft**: activate via Tooling PATCH on FlowDefinition (`
 ### After go-live
 - Exact flag backlog (247 BAG-corrected + 5 restored accounts) – parked by the user 2026-10-01.
 - `Batch_SyncAccountEuropeTrack` (12 slots, 0 items in 30 days) – phase out candidate.
+
+---
+
+## Job dispatcher in prod – status as of 2026-10-07
+
+The dispatcher framework (`Util_JobDispatcher`, `Batch_JobDispatcher`, `JobDispatcherStep__mdt`) is live in prod, running on the Minut (every 5 min, hours 1-3,5-23) and Day (00:13) schedules. State of each step:
+
+| CMDT record | Class | Dispatcher/Order | Status |
+|---|---|---|---|
+| `Minut_ActivateDraftContractProducts` | `Batch_ActivateDraftContractProducts` | Minut / – | **Active**. Verified against real data 2026-10-07 (a Draft Contract Product on an Account with a debtor number flipped to Activated; one without a debtor number stayed Draft; 0 errors). Legacy standalone CronTrigger (`0 X * * * ?`, all 24h) aborted. |
+| `Day_DedupeCommunicationPreferences` | `Batch_DedupeCommunicationPreferences` | Day / 30 | **Active**. Already ran daily for real in prod via its own native Subscription25 schedule since before this rollout (0 duplicates found in a 2026-10-07 dry-run – evidence it's keeping things clean, not that it's unneeded). Legacy `0 30 6 * * ?` standalone cron aborted; next real run via the dispatcher is tonight at 00:13. |
+| `Minut_ReconcileStripeEvents` | `Batch_ReconcileStripeEvents` | Minut / 50 | **Active**. Backfills `Account.PayProv_MandateId__c`/payment method from any Stripe event, covering the gap while a failed trigger-time webhook keeps retrying. Had no standalone legacy cron to kill. |
+| `Minut_FinancialSystemAccountSync` | `Batch_FinancialSystemAccountSync` | Minut / – | **Inactive** – class not deployed to prod yet (part of the financial system rebuild, see the acc/prod sections above). |
+| `Minut_FinancialSystemContactSync` | `Batch_FinancialSystemContactSync` | Minut / – | **Inactive** – same, not deployed to prod yet. |
+| `Minut_FinancialSystemOrderSync` | `Batch_FinancialSystemOrderSync` | Minut / – | **Inactive** – same. Batch size should be set to 10 (not the class default) once enabled – see acc's override, same risk of hitting the 120s Apex callout-time limit against Exact Online. |
+| `Day_UpdateContractProductPrice` | `Batch_UpdateContractProductPrice` | Day / 10 | **Inactive** – not deployed to prod yet. |
+| `Day_FinancialSystemRateLimitCheck` | `Batch_FinancialSystemRateLimitCheck` | Day / 20 | **Inactive** – not deployed to prod yet; prod currently has its own daily rate-limit job at 07:30 (see "Order (proposal)" step 5 above) which should be retired once this step takes over. |
+
+These 5 go live together with the rest of the financial system rebuild (prod section above) – no separate action needed, just remember to flip `IsActive__c` to `true` once each class is deployed and verified, same pattern as steps 1-3 above.
+
+**Gotcha hit during this rollout**: `Test_Util_JobDispatcher.scheduleEvery5Minutes_creates12Schedules` creates CronTrigger jobs with the exact same names the live Minut schedule now permanently holds in prod (`GoMeddo Subscription - Batch_JobDispatcher - 0 X 1-3,5-23 * * ?`), so it throws `AsyncException: already scheduled for execution` on every future `RunSpecifiedTests` deploy that includes it. Prod runs a patched copy of this test file with that one method removed (kept only in scratch, not committed – see `project_jobdispatcher_prod_cutover_todo` memory). If `scheduleDaily()`/`scheduleHourly()` ever go live for real in prod too, `scheduleDaily_createsOneScheduleAt0013` and `scheduleHourly_createsOneScheduleAtMinute23` will hit the same problem and need the same treatment.

@@ -83,6 +83,16 @@ private class Test_Util_JobDispatcher {
 		System.assertEquals(null, Util_JobDispatcher.startRound(DISPATCHER));
 	}
 
+	// ── a dispatcher with literally zero JobDispatcherStep__mdt records (not just none active) is just
+	// as safe - the scenario right after deploying the framework to a new org before any steps are added ──
+	@IsTest
+	static void startRound_emptyRecordSet_doesNothing() {
+		Util_JobDispatcher.testSteps = new List<JobDispatcherStep__mdt>();
+
+		System.assertEquals(0, Util_JobDispatcher.getSteps(DISPATCHER).size(), 'No steps at all for this dispatcher');
+		System.assertEquals(null, Util_JobDispatcher.startRound(DISPATCHER), 'Nothing to start - no error either');
+	}
+
 	@IsTest
 	static void startNext_startsFollowingStepWithItsBatchSize() {
 		registerJobs();
