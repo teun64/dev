@@ -64,6 +64,40 @@ private class Test_Batch_ActivateDraftContractProducts {
         System.assertEquals(0, [SELECT COUNT() FROM Event_Log__c], 'Deliberately not logged - would flood Event_Log__c every run for the same backlog');
     }
 
+    @IsTest
+    static void testGetBatchSize() {
+        System.assertEquals(100, new Batch_ActivateDraftContractProducts().getBatchSize());
+    }
+
+    // ── a DML failure on the activation update is logged, not silently dropped ──
+    @IsTest
+    static void testLogsFailureWhenActivationFails() {
+        Subscription25__Contract_Product__c cp = [
+            SELECT Id, Subscription25__Contract__r.AccountId
+            FROM Subscription25__Contract_Product__c
+            WHERE Subscription25__Contract__r.Account.FinancialDebtorNumber__c = '12345'
+        ];
+        Id accountId = cp.Subscription25__Contract__r.AccountId;
+        Id deletedId = cp.Id;
+        delete cp;
+
+        // a stale scope row (as if queried before the delete) - the activation update on it now fails
+        Subscription25__Contract_Product__c staleRow = new Subscription25__Contract_Product__c(
+            Id = deletedId,
+            Subscription25__Status__c = 'Draft',
+            Subscription25__Contract__r = new Contract(AccountId = accountId)
+        );
+
+        Test.startTest();
+        new Batch_ActivateDraftContractProducts().executeBatch(null, new List<SObject>{ staleRow });
+        Test.stopTest();
+
+        List<Event_Log__c> logs = [SELECT Message__c, Result_Status__c FROM Event_Log__c];
+        System.assertEquals(1, logs.size(), 'Failure to activate is logged');
+        System.assertEquals(Util_Event.LogResultStatus.ERROR.name(), logs[0].Result_Status__c);
+        System.assert(logs[0].Message__c.contains(String.valueOf(deletedId)), 'Log names the failed Contract Product');
+    }
+
     // ── finishBatch hands off to the dispatcher via Util_JobDispatcher.startNext, and is a
     // harmless no-op as the last (or only) step of a round ──
     @IsTest
