@@ -14,6 +14,21 @@
                 <elementReference>$Record__Prior.Subscription25__Termination_Date__c</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Termination_Date__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Service_End_Date__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fStatusReverted</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>dec_01_Base_Product</targetReference>
         </connector>
@@ -200,6 +215,13 @@
             </conditions>
             <conditions>
                 <leftValueReference>$Record__Prior.Subscription25__Termination_Date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Termination_Method__c</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -511,6 +533,12 @@
     </decisions>
     <description>Generic flow on contract on create and update before save</description>
     <environments>Default</environments>
+    <formulas>
+        <description>Status after a reverted termination: a Terminated or Closed contract becomes Activated again, any other status stays.</description>
+        <name>fStatusReverted</name>
+        <dataType>String</dataType>
+        <expression>IF(OR(ISPICKVAL({!$Record.Status}, &quot;Terminated&quot;), ISPICKVAL({!$Record.Status}, &quot;Closed&quot;)), &quot;Activated&quot;, TEXT({!$Record.Status}))</expression>
+    </formulas>
     <formulas>
         <name>fAsset</name>
         <dataType>String</dataType>

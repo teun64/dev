@@ -272,6 +272,9 @@
         <label>1. Order</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dur_99_Eru_Restore</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>None</defaultConnectorLabel>
         <rules>
             <name>dec_01_Order_Found</name>
@@ -294,6 +297,9 @@
         <label>3. Credit Order Item</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dur_99_Eru_Restore</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>None</defaultConnectorLabel>
         <rules>
             <name>dec_03_CreditOrderItem_Found</name>
@@ -442,6 +448,9 @@
         <label>7. Processed</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dur_99_Eru_Restore</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>None</defaultConnectorLabel>
         <rules>
             <name>dec_07_Processed_Yes</name>
@@ -514,6 +523,9 @@
         <label>14. Delete</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dur_99_Eru_Restore</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>None</defaultConnectorLabel>
         <rules>
             <name>dec_14_Delete_Yes</name>
@@ -531,8 +543,9 @@
             <label>Yes</label>
         </rules>
     </decisions>
-    <description>When a termination is reverted, the credit (correction) order of that termination stays behind, and Subscription25 keeps Corrected_Until__c on the original order lines and Exclude_From_Corrections__c on the contract products. A new termination then only corrects the difference (e.g. +1 day) instead of the full credit. This flow resets both markers and removes the credit: a Draft (not invoiced) credit order is deleted at the end of the flow, an invoiced (Activated) credit order is reversed with a Draft clone (ParentId__c = original, unit price * -1).
-Runs async (after commit), so Rest_UpsertContract can't overwrite the Exclude_From_Corrections__c reset in the same transaction. The prior termination date is stamped on Termination_Date_Reverted__c by rbb_Contract, because $Record__Prior isn't available in async paths.</description>
+    <description>When a termination is reverted, the credit (correction) order of that termination stays behind, and Subscription25 keeps Corrected_Until__c on the original order lines and Exclude_From_Corrections__c on the contract products. A new termination then only corrects the difference (e.g. +1 day) instead of the full credit. This flow reopens the contract products with the same termination date (dates cleared, Status Activated, Exclude_From_Corrections__c false; rbb_Contract does the same on the Contract itself), resets both markers and removes the credit: a Draft (not invoiced) credit order is deleted at the end of the flow, an invoiced (Activated) credit order is reversed with a Draft clone (ParentId__c = original, unit price * -1).
+Runs async (after commit), so Rest_UpsertContract can't overwrite the Exclude_From_Corrections__c reset in the same transaction. The prior termination date is stamped on Termination_Date_Reverted__c by rbb_Contract, because $Record__Prior isn't available in async paths.
+Subscription25 blocks updates on a Terminated contract product, so the flow switches the Subscription25 setting ERU_ILUVATAR on at the start and restores its original value at the end (same transaction, also on every early exit).</description>
     <environments>Default</environments>
     <formulas>
         <name>fUnitPriceReversed</name>
@@ -704,8 +717,34 @@ Runs async (after commit), so Rest_UpsertContract can't overwrite the Exclude_Fr
         <label>14. Order</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>dur_99_Eru_Restore</targetReference>
+        </connector>
         <inputReference>rcOrdersDelete</inputReference>
     </recordDeletes>
+    <recordLookups>
+        <name>dgr_00_Eru</name>
+        <label>0. ERU</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dur_00_Eru_On</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ERU_ILUVATAR</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Subscription25__Subscription25_Settings__c</object>
+        <outputReference>rEru</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Subscription25__BooleanValue__c</queriedFields>
+    </recordLookups>
     <recordLookups>
         <description>Invoiced credit orders that already have a reversal clone (earlier revert) must not be reversed again.</description>
         <name>dgr_03_ReversedOrder</name>
@@ -911,6 +950,73 @@ Runs async (after commit), so Rest_UpsertContract can't overwrite the Exclude_Fr
         <storeOutputAutomatically>false</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
+        <name>dur_00_Eru_On</name>
+        <label>0. ERU On</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dur_00_ContractProduct</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ERU_ILUVATAR</stringValue>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Subscription25__BooleanValue__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Subscription25__Subscription25_Settings__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>dur_00_ContractProduct</name>
+        <label>0. Contract Product</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dgr_01_Order</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Subscription25__Contract__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Subscription25__Termination_Date__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Termination_Date_Reverted__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Subscription25__Termination_Date__c</field>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Service_End_Date__c</field>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subscription25__Status__c</field>
+            <value>
+                <stringValue>Activated</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subscription25__Exclude_From_Corrections__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Subscription25__Contract_Product__c</object>
+    </recordUpdates>
+    <recordUpdates>
         <description>Original (invoiced) lines that Subscription25 marked as corrected by the credit: same recurring order product, Corrected_Until__c = start of the credit line.</description>
         <name>dur_07_OrderItem</name>
         <label>7. Order Item</label>
@@ -984,6 +1090,27 @@ Runs async (after commit), so Rest_UpsertContract can't overwrite the Exclude_Fr
         </inputAssignments>
         <object>Subscription25__Contract_Product__c</object>
     </recordUpdates>
+    <recordUpdates>
+        <name>dur_99_Eru_Restore</name>
+        <label>99. ERU Restore</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ERU_ILUVATAR</stringValue>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Subscription25__BooleanValue__c</field>
+            <value>
+                <elementReference>rEru.Subscription25__BooleanValue__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Subscription25__Subscription25_Settings__c</object>
+    </recordUpdates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -1013,13 +1140,21 @@ Runs async (after commit), so Rest_UpsertContract can't overwrite the Exclude_Fr
         <recordTriggerType>Update</recordTriggerType>
         <scheduledPaths>
             <connector>
-                <targetReference>dgr_01_Order</targetReference>
+                <targetReference>dgr_00_Eru</targetReference>
             </connector>
             <pathType>AsyncAfterCommit</pathType>
         </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>rEru</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Subscription25__Subscription25_Settings__c</objectType>
+    </variables>
     <variables>
         <name>rCreditOrderItem</name>
         <dataType>SObject</dataType>

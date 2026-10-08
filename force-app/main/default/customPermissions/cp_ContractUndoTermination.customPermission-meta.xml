@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows undoing a Contract termination (action Undo Termination, flow scr_Contract_Undo_Termination) up to 7 days after the termination date. System Administrators are always allowed.</description>
+    <isLicensed>false</isLicensed>
+    <label>ContractUndoTermination (cp)</label>
+</CustomPermission>

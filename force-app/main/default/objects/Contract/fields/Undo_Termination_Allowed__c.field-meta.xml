@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Undo_Termination_Allowed__c</fullName>
+    <description>True when the termination of this contract can still be undone: status Terminated or Closed, termination date filled and less than 7 days ago, termination method filled and not &quot;Termination Reverted&quot; (a termination without method, e.g. old contracts or the Subscription25 Terminate button, is not reverted by rbb_Contract). Used by the visibility of the Undo Termination action and by scr_Contract_Undo_Termination; the user check (cp_ContractUndoTermination or System Administrator) is done there.</description>
+    <formula>AND(
+    OR(ISPICKVAL(Status, &quot;Terminated&quot;), ISPICKVAL(Status, &quot;Closed&quot;)),
+    NOT(ISBLANK(Subscription25__Termination_Date__c)),
+    TODAY() &lt; Subscription25__Termination_Date__c + 7,
+    NOT(ISBLANK(TEXT(Termination_Method__c))),
+    NOT(ISPICKVAL(Termination_Method__c, &quot;Termination Reverted&quot;))
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>The termination can still be undone (less than 7 days after the termination date).</inlineHelpText>
+    <label>Undo Termination Allowed</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>
