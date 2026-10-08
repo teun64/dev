@@ -29,18 +29,17 @@ private class Test_Util_Exact {
 
         Database.update(acct1);
 
-        // the async variant only queues the account for Batch_FinancialSystemAccountSync now
         Test.startTest();
         Util_Exact.syncAccountAsync(acct1.Id);
         Test.stopTest();
-        System.assertEquals(true, [SELECT SyncToFinancialSystem__c FROM Account WHERE Id = :acct1.Id WITH SYSTEM_MODE].SyncToFinancialSystem__c);
 
-        // the direct variant syncs now (Util_FinancialSystemAccount): the ids are stored on the Account
-        Util_Exact.syncAccount(acct1.Id);
-        Account synced = [SELECT FinancialIdAccount__c, FinancialIdInvoiceAddress__c, SyncToFinancialSystem__c FROM Account WHERE Id = :acct1.Id WITH SYSTEM_MODE];
-        System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', synced.FinancialIdAccount__c, 'Matched existing Exact account');
+        Subscription25__Debtor_Number__c debNr = [SELECT Id, Subscription25__Debtor_Number__c,  Exact_Id__c, Exact_Invoice_Address_ID__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acct1.Id AND Subscription25__Administration__c = :adm.id];
+        /*System.assertEquals('account_sync_11', debNr2.Exact_ID__c);
+        System.assertEquals('address_sync_11', debNr2.Exact_Billing_Address_ID__c);*/
+        //System.assertEquals('87654321', debNr.Subscription25__Debtor_Number__c);
+        System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', debNr.Exact_ID__c);
         // the separate invoice address (Test_Data) is synced as Exact invoice address (type 3)
-        System.assertEquals('address_sync', synced.FinancialIdInvoiceAddress__c);
+        System.assertEquals('address_sync', debNr.Exact_Invoice_Address_ID__c);
     }
 
     @isTest
@@ -111,10 +110,6 @@ private class Test_Util_Exact {
         Database.insert(sAdminProd);
         
         Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
-        // the financial system ids live on the Account and the main contact's AccountContactRelation
-        Database.update(new Account(Id = acct.Id, FinancialIdAccount__c = 'account_sync', FinancialDebtorNumber__c = 'TEST_12'), AccessLevel.SYSTEM_MODE);
-        AccountContactRelation acr = [SELECT Id FROM AccountContactRelation WHERE AccountId = :acct.Id AND ContactId = :cont.Id];
-        Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'contact_sync'), AccessLevel.SYSTEM_MODE);
         Contact salesCont = Test_Data.createContact(acct.Id, 'SalesContact', '0987654321', 'xel@321.com', true);
 
         Opportunity opp = Test_Data.createOpportunity(acct.Id, cont.Id, 'test name', false);
@@ -137,7 +132,7 @@ private class Test_Util_Exact {
         Database.insert(oi);
 
         Test.startTest();
-        Util_Exact.syncOrder(ord.Id);
+        Util_Exact.syncOrderAsync(ord.Id);
         Test.stopTest();
 
         Subscription25__Administration_Product__c hwAdminProdResult = [Select Exact_Id__c from Subscription25__Administration_Product__c where Id = :hwAdminProd.Id];
@@ -205,23 +200,4 @@ private class Test_Util_Exact {
         System.assertEquals(1, [SELECT COUNT() FROM Subscription25__Invoice__c WHERE Id = :inv.Id]);      
     }
 
-
-    @isTest
-    private static void testOrderSync_accountNotInExact_queuesAccountAndWaits(){
-        Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-        Subscription25__Administration__c admin = Test_Data.createAdministration(true);
-        Account acct = Test_Data.createAccount('Test', '14', 'B2B', true);
-        // Subscription25 only accepts orders for accounts with a debtor number record in the administration
-        Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
-        Order ord = Test_Data.createOrder(acct.Id, admin.Id, Date.today(), true);
-
-        Test.startTest();
-        List<String> msgs = Util_Exact.syncOrder(ord.Id);
-        Test.stopTest();
-
-        System.assertEquals(1, msgs.size());
-        System.assert(msgs[0].contains('not synchronised with Exact yet'), msgs[0]);
-        System.assertEquals(true, [SELECT SyncToFinancialSystem__c FROM Account WHERE Id = :acct.Id WITH SYSTEM_MODE].SyncToFinancialSystem__c, 'Account queued for its sync');
-        System.assertEquals(null, [SELECT Exact_Id__c FROM Order WHERE Id = :ord.Id].Exact_Id__c, 'Order waits');
-    }
 }

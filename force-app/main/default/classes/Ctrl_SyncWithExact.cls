@@ -12,7 +12,6 @@ public with sharing class Ctrl_SyncWithExact {
 				SELECT Id, Exact_Account_Name__c, RecordType.DeveloperName
 					, ShippingStreet, ShippingPostalCode, ShippingCity, ShippingCountryCode
 					, BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode
-					, VisitingAddress__Street__s, VisitingAddress__PostalCode__s, VisitingAddress__City__s, VisitingAddress__CountryCode__s
 					, Bank_Account_Number__c, Bank_Account__c
 					, Reseller_Name__c, Block_Syncing_Exact__c
 					, Payment_Method_Opportunities__c, Payment_Method_Contracts__c
@@ -20,12 +19,10 @@ public with sharing class Ctrl_SyncWithExact {
 				WHERE Id = :syncId
 			];
 
-			if(acct.Reseller_Name__c == '1' && acct.RecordType.DeveloperName != 'B2C' && acct.VisitingAddress__CountryCode__s == 'NL' && acct.Block_Syncing_Exact__c){
+			if(acct.Reseller_Name__c == '1' && acct.RecordType.DeveloperName != 'B2C' && acct.ShippingCountryCode == 'NL' && acct.Block_Syncing_Exact__c){
 				msg += '<br/>This account was not validated by Web Services, this validation has to be completed before this account can be synchronised.';
 			} else if ((Util_System.requireBankDetails.contains(acct.Payment_Method_Opportunities__c) || Util_System.requireBankDetails.contains(acct.Payment_Method_Contracts__c))   && (String.isBlank(acct.Bank_Account_Number__c) || String.isBlank(acct.Bank_Account__c))){
 				msg +='<br/>This account can not be synchronised because the bank account was not filled in.';
-			} else if (String.isBlank(acct.VisitingAddress__CountryCode__s) || String.isBlank(acct.VisitingAddress__Street__s) || String.isBlank(acct.VisitingAddress__PostalCode__s) || String.isBlank(acct.VisitingAddress__City__s)){
-				msg += '<br>This account can not be synchronised because the visiting address was not filled in.';
 			} else if (String.isBlank(acct.ShippingCountryCode) || String.isBlank(acct.ShippingStreet) || String.isBlank(acct.ShippingPostalCode) || String.isBlank(acct.ShippingCity)){
 				msg += '<br>This account can not be synchronised because the shipping address was not filled in.';
 			} else if (String.isBlank(acct.BillingCountryCode) || String.isBlank(acct.BillingStreet) || String.isBlank(acct.BillingPostalCode) || String.isBlank(acct.BillingCity)){
@@ -40,37 +37,42 @@ public with sharing class Ctrl_SyncWithExact {
 				WHERE Id = :syncId
 			];
 
-			// the financial system ids live on the Account and the main contact's AccountContactRelation
-			Account acct = [
-				SELECT Id, FinancialIdAccount__c, FinancialDebtorNumber__c, FinancialIdBankAccount__c, FinancialIdBankMandate__c, Contact_Person__c
-				FROM Account WHERE Id = :ord.AccountId WITH SYSTEM_MODE
-			];
-			String exactContactId;
-			if (acct.Contact_Person__c != null) {
-				for (AccountContactRelation acr : [SELECT FinancialIdContact__c FROM AccountContactRelation
-						WHERE AccountId = :acct.Id AND ContactId = :acct.Contact_Person__c WITH SYSTEM_MODE LIMIT 1]) {
-					exactContactId = acr.FinancialIdContact__c;
-				}
-			}
+			list<Subscription25__Debtor_Number__c> debtorNumbers = new list<Subscription25__Debtor_Number__c>([
+				SELECT
+					id
+					, Exact_Id__c
+					, exact_Contact_Id__c
+					, Exact_Bank_Account_Id__c
+					, Exact_Mandate_Id__c
+				FROM 
+					Subscription25__Debtor_Number__c
+				WHERE
+					Subscription25__Account__c = :ord.AccountId
+					and Subscription25__Administration__c = :ord.Subscription25__Administration__c
+				LIMIT
+					1					
+			]);
+
+			Subscription25__Debtor_Number__c debNr = (debtorNumbers.size() == 0) ? null : debtorNumbers[0]; 
 			boolean bSync = true;
 
 			msg = 'This action creates an Order in Exact!';
 			if (String.isNotBlank(ord.Exact_Id__c)) {
 				msg += '<br/>This Order is already synchronized.';
 				bsync = false;
-			} else if (String.isBlank(acct.FinancialIdAccount__c) || String.isBlank(acct.FinancialDebtorNumber__c)) {
+			} else if (debNr == null) {
 				msg +='<br/>This Order can not be synchronised because Account has no Debtor Number.';
 				bsync = false;
 			} else {
-				if (String.isBlank(exactContactId)) {
+				if (String.isBlank(debNr.Exact_Contact_Id__c)) {
 					msg += '<br>This order can not be synchronised because main (contact) on the account is missing or not synced to Exact';
 					bsync = false;
-				}
-				if (Util_System.requireBankDetails.contains(ord.Payment_Method__c) && (String.isBlank(acct.FinancialIdBankAccount__c) || String.isBlank(acct.FinancialIdBankMandate__c))) {
-					msg += '<br>This order can not be synchronised because the bank account was not filled in on the Account or not synced to Exact.';
+				} 
+				if (Util_System.requireBankDetails.contains(ord.Payment_Method__c) && (String.isBlank(debNr.Exact_Bank_Account_Id__c) || String.isBlank(debNr.Exact_Mandate_Id__c))) {
+					msg += '<br>This order can not be synchronised because the bank account was not filled in on the Acoount or not sync to Exact.';
 					bsync = false;
-				}
-			}
+				} 
+			} 
 			if (bsync) {
 				msg += '<br/><br/>When you want to continue, press "Synchronise".';
 			}			
@@ -102,9 +104,11 @@ public with sharing class Ctrl_SyncWithExact {
 			}
 		} else if (syncId.getSObjectType() == Order.getSObjectType()) {
 			try {			
-				// the user marks the order; Batch_FinancialSystemOrderSync creates it in Exact and activates it
-				// (an empty list is shown as success by the SyncWithExact component)
-				Util_FinancialSystem_Order.flagOrders(new Set<Id>{ syncId });
+				if (!Test.isRunningTest()) {
+					msgs = Util_Exact.syncOrder(syncId);
+				} else {
+					msgs.add('syncOrder');
+				}
 			} catch(Exception ex){
 				msgs.add(ex.getMessage());
 			}		

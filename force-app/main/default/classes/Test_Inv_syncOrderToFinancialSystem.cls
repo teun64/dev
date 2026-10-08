@@ -38,7 +38,7 @@ public class Test_Inv_syncOrderToFinancialSystem {
         Inv_syncOrderToFinancialSystem.syncOrderToFinancialSystem(inpList);
         Test.stopTest();
     
-        Order ort = [SELECT Id, SyncToFinancialSystem__c FROM Order WHERE Id = :ord.Id WITH SYSTEM_MODE];
-        System.assertEquals(true, ort.SyncToFinancialSystem__c, 'Order queued for Batch_FinancialSystemOrderSync');
+        Order ort = [SELECT Id FROM Order WHERE Id = :ord.Id];
+        System.assertEquals(ord.Id, ort.Id);     
     }
 }

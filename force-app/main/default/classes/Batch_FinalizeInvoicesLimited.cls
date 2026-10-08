@@ -33,18 +33,18 @@ public class Batch_FinalizeInvoicesLimited implements Database.Batchable<SObject
 		Subscription25__Invoice__c curInv = (Subscription25__Invoice__c)scope[0];
 		//if the invoice was already printed, just try to get the invoice number again
 		if(curInv.Subscription25__Finalized_In_Exact__c){
-			Util_FinancialSystem_Invoice.loadInvoiceNumber(scope[0].Id);
+			Util_Exact.loadInvoiceNumber(scope[0].Id);
 		} else {
-			Util_FinancialSystem_Invoice.finalizeInvoice(scope[0].Id);
+			Util_Exact.finalizeInvoice(scope[0].Id);
 		}
 		/*
 		for(sObject s : scope){
 			curInv = (Subscription25__Invoice__c)s;
 			//if the invoice was already printed, just try to get the invoice number again
 			if (curInv.Subscription25__Finalized_In_Exact__c) ){
-				Util_FinancialSystem_Invoice.loadInvoiceNumber(curInv.Id);
+				Util_Exact.loadInvoiceNumber(curInv.Id);
 			} else {
-				Util_FinancialSystem_Invoice.finalizeInvoice(curInv.Id);
+				Util_Exact.finalizeInvoice(curInv.Id);
 			}
 			//System.debug('execute = ' + curInv.Id);
 		}

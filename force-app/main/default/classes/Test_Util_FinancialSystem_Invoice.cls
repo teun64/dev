@@ -106,37 +106,4 @@ private class Test_Util_FinancialSystem_Invoice {
 		System.assert(msgs[0].contains('rate limit'), msgs[0]);
 		System.assertEquals(null, reload(invoice.Id).Subscription25__Invoice_Number__c, 'Nothing stored');
 	}
-
-	@IsTest
-	static void utilExactWrappers_forwardToInvoiceClass() {
-		Subscription25__Invoice__c invoice = createInvoice(Test_Data.createAdministration(true), true);
-		Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-
-		Test.startTest();
-		Util_Exact.loadInvoiceNumber(invoice.Id);
-		Util_Exact.finalizeInvoice(invoice.Id);
-		Test.stopTest();
-
-		System.assertEquals('TTT123', reload(invoice.Id).Subscription25__Invoice_Number__c);
-	}
-
-	@IsTest
-	static void batchFinalizeInvoices_finalizesOpenInvoice() {
-		Subscription25__Invoice__c invoice = createInvoice(Test_Data.createAdministration(true), false);
-		Test.setMock(HttpCalloutMock.class, new Test_Mocks.ExactMock());
-
-		Test.startTest();
-		Database.executeBatch(new Batch_FinalizeInvoices(), 1);
-		Test.stopTest();
-
-		System.assertEquals('TTT123', reload(invoice.Id).Subscription25__Invoice_Number__c);
-	}
-
-	@IsTest
-	static void batchFinalizeInvoices_schedulable() {
-		Test.startTest();
-		String jobId = System.schedule('Test Batch_FinalizeInvoices', '0 0 5 * * ?', new Batch_FinalizeInvoices());
-		Test.stopTest();
-		System.assertNotEquals(null, jobId);
-	}
 }

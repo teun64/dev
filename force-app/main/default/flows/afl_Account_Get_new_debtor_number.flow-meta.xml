@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>67.0</apiVersion>
+    <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>add_04_Commit</name>
-        <label>4. Commit</label>
+        <name>add_03_Commit</name>
+        <label>3. Commit</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
@@ -14,100 +14,6 @@
                 <numberValue>1.0</numberValue>
             </value>
         </assignmentItems>
-    </assignments>
-    <assignments>
-        <name>ass_01_Account</name>
-        <label>1. Account</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialDebtorNumber__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialIdAccount__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialIdBankAccount__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialIdBankMandate__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialIdBillingAddress__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialIdInvoiceAddress__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialIdShippingAddress__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialIdVisitingAddress__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialReplaceDebtorNumber__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.SyncToFinancialSystem__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialSyncAttempts__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <numberValue>0.0</numberValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialSyncNextAttempt__c</assignToReference>
-            <operator>Assign</operator>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rAccount.FinancialSyncState__c</assignToReference>
-            <operator>Assign</operator>
-        </assignmentItems>
-        <connector>
-            <targetReference>dur_01_Account</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>ass_01_Commit</name>
@@ -122,62 +28,23 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>ass_01_CurrentRecord_Update</targetReference>
+            <targetReference>ddr_01_Debtor_Number</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_Current_Record_to_Collection</name>
-        <label>1. Current Record to Collection</label>
+        <name>ass_01_DebtorNumber</name>
+        <label>1. DebtorNumber</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>rcAccountContactRelationships</assignToReference>
-            <operator>Add</operator>
+            <assignToReference>rDebtorNumber</assignToReference>
+            <operator>Assign</operator>
             <value>
-                <elementReference>lp_01_AccountContactRelationship</elementReference>
+                <elementReference>lp_01_Debtor_Numbers</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>lp_01_AccountContactRelationship</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_CurrentRecord_Update</name>
-        <label>1. Current Record (Update)</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>lp_01_AccountContactRelationship.FinancialIdContact__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>ass_01_Current_Record_to_Collection</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_Digital</name>
-        <label>1. Digital</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.FinancialIdContactDigital__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>lp_01_AccountContactRelationship.FinancialIdContact__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.Contact_Digital__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>lp_01_AccountContactRelationship.ContactId</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>dec_01_Reminder</targetReference>
+            <targetReference>ass_01_Historical_Debtor_Number</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -196,7 +63,7 @@
             <assignToReference>rHistoricalDebtorNumber.Account__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rAccount.Id</elementReference>
+                <elementReference>rDebtorNumber.Subscription25__Account__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -217,35 +84,56 @@
             <assignToReference>rHistoricalDebtorNumber.Debtor_Number__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rAccount.FinancialDebtorNumber__c</elementReference>
+                <elementReference>rDebtorNumber.Subscription25__Debtor_Number__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rHistoricalDebtorNumber.DebtorNumberId__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rDebtorNumber.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>rHistoricalDebtorNumber.Exact_Bank_Account_ID__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rAccount.FinancialIdBankAccount__c</elementReference>
+                <elementReference>rDebtorNumber.Exact_Bank_Account_ID__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>rHistoricalDebtorNumber.Exact_Billing_Address_ID__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rAccount.FinancialIdBillingAddress__c</elementReference>
+                <elementReference>rDebtorNumber.Exact_Billing_Address_ID__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>rHistoricalDebtorNumber.Exact_Invoice_Address_ID__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rAccount.FinancialIdInvoiceAddress__c</elementReference>
+                <elementReference>rDebtorNumber.Exact_Invoice_Address_ID__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rHistoricalDebtorNumber.Exact_Contact_ID__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rDebtorNumber.Exact_Contact_ID__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>rHistoricalDebtorNumber.Exact_ID__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rAccount.FinancialIdAccount__c</elementReference>
+                <elementReference>rDebtorNumber.Exact_ID__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rHistoricalDebtorNumber.Exact_Mandate_ID__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rDebtorNumber.Exact_Mandate_ID__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -256,83 +144,30 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.Exact_Mandate_ID__c</assignToReference>
+            <assignToReference>rHistoricalDebtorNumber.Revision_Number__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rAccount.FinancialIdBankMandate__c</elementReference>
+                <elementReference>rDebtorNumber.Subscription25__Revision_Number__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dgr_01_AccountContactRelationship</targetReference>
+            <targetReference>ass_01_Historical_Debtor_Number_Collection</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_Invoice</name>
-        <label>1. Invoice</label>
+        <name>ass_01_Historical_Debtor_Number_Collection</name>
+        <label>1. Historical Debtor Number Collection</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.Exact_Contact_ID__c</assignToReference>
-            <operator>Assign</operator>
+            <assignToReference>rcHistoricalDebtorNumbers</assignToReference>
+            <operator>Add</operator>
             <value>
-                <elementReference>lp_01_AccountContactRelationship.FinancialIdContact__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.Contact_Billing__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>lp_01_AccountContactRelationship.ContactId</elementReference>
+                <elementReference>rHistoricalDebtorNumber</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_Digital</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_Reminder</name>
-        <label>1. Reminder</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.FinancialIdContactReminder__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>lp_01_AccountContactRelationship.FinancialIdContact__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.Contact_Reminder__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>lp_01_AccountContactRelationship.ContactId</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>dec_01_Shipping</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_Shipping</name>
-        <label>1. Shipping</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.FinancialIdContactShipping__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>lp_01_AccountContactRelationship.FinancialIdContact__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rHistoricalDebtorNumber.Contact_Shipping__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>lp_01_AccountContactRelationship.ContactId</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>ass_01_Commit</targetReference>
+            <targetReference>lp_01_Debtor_Numbers</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -348,168 +183,27 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_rcAccountContactRelationships</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_03_Commit</name>
-        <label>3. Commit</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>vCommit</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>ass_01_Account</targetReference>
+            <targetReference>dur_01_Account</targetReference>
         </connector>
     </assignments>
     <decisions>
-        <name>dec_01_Account</name>
-        <label>1. Account</label>
+        <name>dec_01_Historical_Debtor_Numbers</name>
+        <label>1. Historical Debtor Numbers</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <defaultConnectorLabel>Exit</defaultConnectorLabel>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
-            <name>dec_01_Account_Valid</name>
+            <name>dec_01_Historical_Debtor_Numbers_Yes</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>rAccount</leftValueReference>
+                <leftValueReference>rcHistoricalDebtorNumbers</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>dgr_01_Debtor_Number</targetReference>
-            </connector>
-            <label>Valid</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>dec_01_Digital</name>
-        <label>1. Digital</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>dec_01_Reminder</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_Digital_Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>lp_01_AccountContactRelationship.isDigitalContact__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_Digital</targetReference>
-            </connector>
-            <label>Yes</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>dec_01_Invoice</name>
-        <label>1. Invoice</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>dec_01_Digital</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_Invoice_Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>lp_01_AccountContactRelationship.isInvoiceContact__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_Invoice</targetReference>
-            </connector>
-            <label>Yes</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>dec_01_rcAccountContactRelationships</name>
-        <label>1. rcAccountContactRelationships</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>dur_01_Account_Contact_Relationship</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Update</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_rcAccountContactRelationships_Empty</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>rcAccountContactRelationships</leftValueReference>
-                <operator>IsEmpty</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_Account</targetReference>
-            </connector>
-            <label>Empty</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>dec_01_Reminder</name>
-        <label>1. Reminder</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>dec_01_Shipping</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_Reminder_Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>lp_01_AccountContactRelationship.isReminderContact__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_Reminder</targetReference>
-            </connector>
-            <label>Yes</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>dec_01_Shipping</name>
-        <label>1. Shipping</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>ass_01_Commit</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_Shipping_Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>lp_01_AccountContactRelationship.isShippingContact__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_Shipping</targetReference>
+                <targetReference>dcr_01_Historical_Debtor_Number</targetReference>
             </connector>
             <label>Yes</label>
         </rules>
@@ -518,17 +212,17 @@
     <interviewLabel>afl - Account - Get new debtor number {!$Flow.CurrentDateTime}</interviewLabel>
     <label>afl - Account - Get new debtor number</label>
     <loops>
-        <name>lp_01_AccountContactRelationship</name>
-        <label>1. Account Contact Relations</label>
+        <name>lp_01_Debtor_Numbers</name>
+        <label>1. Debtor Numbers</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <collectionReference>dgr_01_AccountContactRelationship</collectionReference>
+        <collectionReference>rcDebtorNumbers</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference>dec_01_Invoice</targetReference>
+            <targetReference>ass_01_DebtorNumber</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>dcr_01_Historical_Debtor_Number</targetReference>
+            <targetReference>dec_01_Historical_Debtor_Numbers</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -551,52 +245,33 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <description>Update only 1 debtor number</description>
         <name>dcr_01_Historical_Debtor_Number</name>
         <label>1. Historical Debtor Number</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>ass_02_Commit</targetReference>
+            <targetReference>ass_01_Commit</targetReference>
         </connector>
-        <inputReference>rHistoricalDebtorNumber</inputReference>
+        <inputReference>rcHistoricalDebtorNumbers</inputReference>
     </recordCreates>
-    <recordLookups>
-        <name>dgr_01_AccountContactRelationship</name>
-        <label>1. Account Contact Relationship</label>
+    <recordDeletes>
+        <name>ddr_01_Debtor_Number</name>
+        <label>1. Debtor Number</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>lp_01_AccountContactRelationship</targetReference>
+            <targetReference>ass_02_Commit</targetReference>
         </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>AccountId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>rAccount.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>FinancialIdContact__c</field>
-            <operator>IsNull</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>AccountContactRelation</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
+        <inputReference>rcDebtorNumbers</inputReference>
+    </recordDeletes>
     <recordLookups>
         <name>dgr_01_Debtor_Number</name>
         <label>1. Debtor Number</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>ass_01_Historical_Debtor_Number</targetReference>
+            <targetReference>lp_01_Debtor_Numbers</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -606,21 +281,21 @@
                 <elementReference>rAccount.Id</elementReference>
             </value>
         </filters>
-        <filters>
-            <field>Subscription25__Debtor_Number__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>rAccount.FinancialDebtorNumber__c</elementReference>
-            </value>
-        </filters>
         <object>Subscription25__Debtor_Number__c</object>
-        <outputReference>rDebtorNumber</outputReference>
+        <outputReference>rcDebtorNumbers</outputReference>
         <queriedFields>Id</queriedFields>
+        <queriedFields>CurrencyIsoCode</queriedFields>
+        <queriedFields>Exact_Bank_Account_ID__c</queriedFields>
+        <queriedFields>Exact_Billing_Address_ID__c</queriedFields>
+        <queriedFields>Exact_Contact_ID__c</queriedFields>
+        <queriedFields>Exact_ID__c</queriedFields>
         <queriedFields>Subscription25__Account__c</queriedFields>
         <queriedFields>Subscription25__Administration__c</queriedFields>
         <queriedFields>Subscription25__Debtor_Number__c</queriedFields>
         <queriedFields>Subscription25__Invoice_Layout__c</queriedFields>
         <queriedFields>Subscription25__Revision_Number__c</queriedFields>
+        <queriedFields>Exact_Mandate_ID__c</queriedFields>
+        <queriedFields>Exact_Invoice_Address_ID__c</queriedFields>
     </recordLookups>
     <recordUpdates>
         <name>dur_01_Account</name>
@@ -628,26 +303,42 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>add_04_Commit</targetReference>
+            <targetReference>add_03_Commit</targetReference>
         </connector>
-        <inputReference>rAccount</inputReference>
-    </recordUpdates>
-    <recordUpdates>
-        <name>dur_01_Account_Contact_Relationship</name>
-        <label>1. Account Contact Relationship</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>ass_03_Commit</targetReference>
-        </connector>
-        <inputReference>rcAccountContactRelationships</inputReference>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>rHistoricalDebtorNumber.Account__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>FinancialDebtorNumber__c</field>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FinancialReplaceDebtorNumber__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FinancialSystemSync__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
     </recordUpdates>
     <runInMode>SystemModeWithoutSharing</runInMode>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>dec_01_Account</targetReference>
+            <targetReference>dgr_01_Debtor_Number</targetReference>
         </connector>
     </start>
     <status>Active</status>
@@ -660,12 +351,20 @@
         <objectType>Account</objectType>
     </variables>
     <variables>
-        <name>rcAccountContactRelationships</name>
+        <name>rcDebtorNumbers</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-        <objectType>AccountContactRelation</objectType>
+        <objectType>Subscription25__Debtor_Number__c</objectType>
+    </variables>
+    <variables>
+        <name>rcHistoricalDebtorNumbers</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Historic_Debtor_Number__c</objectType>
     </variables>
     <variables>
         <name>rDebtorNumber</name>

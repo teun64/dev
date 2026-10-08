@@ -191,15 +191,6 @@ private class Test_Util_FinancialSystem_Order {
 	}
 
 	@IsTest
-	static void utilExactForwarders() {
-		Order ord = order();
-		Test.startTest();
-		Util_Exact.syncOrderAsync(ord.Id);
-		Test.stopTest();
-		System.assertEquals(true, order().SyncToFinancialSystem__c, 'Async variant queues the order');
-	}
-
-	@IsTest
 	static void lineIdsUnreadable_orderStillSucceeds() {
 		Order ord = order();
 		ExactSim sim = new ExactSim();

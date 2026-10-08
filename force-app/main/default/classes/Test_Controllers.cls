@@ -18,11 +18,6 @@ private class Test_Controllers {
         debNr.Exact_Bank_Account_Id__c = '123';
         debNr.Exact_Mandate_Id__c = '123';
         Database.insert(debNr);
-        // the financial system ids live on the Account and the main contact's AccountContactRelation
-        Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = '123', FinancialDebtorNumber__c = '123',
-            FinancialIdBankAccount__c = '123', FinancialIdBankMandate__c = '123'), AccessLevel.SYSTEM_MODE);
-        AccountContactRelation acr = [SELECT Id FROM AccountContactRelation WHERE AccountId = :acc.Id AND ContactId = :con.Id];
-        Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = '123'), AccessLevel.SYSTEM_MODE);
         Order ord = test_data.createOrder(acc.Id, admin.Id, Date.today().addDays(-7), True);
         
 
@@ -40,8 +35,7 @@ private class Test_Controllers {
         System.assertEquals('This action creates an Order in Exact!<br/><br/>When you want to continue, press "Synchronise".', msgO);
         System.assertEquals(1, lstA.size());
         System.assertEquals(1, lstD.size());
-        System.assertEquals(0, lstO.size(), 'Order queued: no error message');
-        System.assertEquals(true, [SELECT SyncToFinancialSystem__c FROM Order WHERE Id = :ord.Id WITH SYSTEM_MODE].SyncToFinancialSystem__c, 'Order marked for the order batch');
+        System.assertEquals(1, lstO.size());
     }
     @IsTest
     private static void test_Ctrl_Email(){

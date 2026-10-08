@@ -7,16 +7,7 @@ public class Trigger_Account {
 		Trigger_Account.updateVisitingAddressLabels();
 		Trigger_Account.updateInvoiceAddressLabels();
 		Trigger_Account.cascadeOrderCreationSettings();
-		Trigger_Account.upsertDebtorNumbers();
 		//Trigger_Account.syncToExact();
-	}
-
-	//a set / changed FinancialDebtorNumber__c is stored on the Subscription25 debtor number record (account + administration)
-	private static void upsertDebtorNumbers(){
-		if(!(Trigger.isAfter && (Trigger.isInsert || Trigger.isUpdate))){
-			return;
-		}
-		Util_FinancialSystemAccount.upsertDebtorNumbers((List<Account>)Trigger.new, (Map<Id, Account>)Trigger.oldMap);
 	}
 
 	private static void updateVisitingAddressLabels(){

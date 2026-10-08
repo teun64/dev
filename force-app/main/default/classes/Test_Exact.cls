@@ -30,12 +30,13 @@ private class Test_Exact {
         Util_Exact.syncAccountAsync(acct1.Id);
         Test.stopTest();
 
-        Subscription25__Debtor_Number__c debNr = [SELECT Id, Subscription25__Debtor_Number__c,  Exact_Id__c, Exact_Billing_Address_Id__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acct1.Id AND Subscription25__Administration__c = :adm.id];
+        Subscription25__Debtor_Number__c debNr = [SELECT Id, Subscription25__Debtor_Number__c,  Exact_Id__c, Exact_Billing_Address_Id__c, Exact_Invoice_Address_ID__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acct1.Id AND Subscription25__Administration__c = :adm.id];
         /*System.assertEquals('account_sync_11', debNr2.Exact_ID__c);
         System.assertEquals('address_sync_11', debNr2.Exact_Billing_Address_ID__c);*/
         //System.assertEquals('87654321', debNr.Subscription25__Debtor_Number__c);
         System.assertEquals('70c625f4-b8c9-4aa8-9272-06ac96d6a901', debNr.Exact_ID__c);
-        System.assertEquals('address_sync', debNr.Exact_Billing_Address_Id__c);
+        // the Exact invoice address (Type 3) is stored as the invoice address id (establishment address = Account.FinancialIdBillingAddress__c)
+        System.assertEquals('address_sync', debNr.Exact_Invoice_Address_ID__c);
     }
 
     @isTest
@@ -106,10 +107,6 @@ private class Test_Exact {
         Database.insert(sAdminProd);
         
         Test_Data.createDebtorNumber(admin.Id, acct.Id, true);
-        // the financial system ids live on the Account and the main contact's AccountContactRelation
-        Database.update(new Account(Id = acct.Id, FinancialIdAccount__c = 'account_sync', FinancialDebtorNumber__c = 'TEST_12'), AccessLevel.SYSTEM_MODE);
-        AccountContactRelation acr = [SELECT Id FROM AccountContactRelation WHERE AccountId = :acct.Id AND ContactId = :cont.Id];
-        Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'contact_sync'), AccessLevel.SYSTEM_MODE);
         Contact salesCont = Test_Data.createContact(acct.Id, 'SalesContact', '0987654321', 'xel@321.com', true);
 
         Opportunity opp = Test_Data.createOpportunity(acct.Id, cont.Id, 'test name', false);
@@ -132,7 +129,7 @@ private class Test_Exact {
         Database.insert(oi);
 
         Test.startTest();
-        Util_Exact.syncOrder(ord.Id);
+        Util_Exact.syncOrderAsync(ord.Id);
         Test.stopTest();
 
         Subscription25__Administration_Product__c hwAdminProdResult = [Select Exact_Id__c from Subscription25__Administration_Product__c where Id = :hwAdminProd.Id];
