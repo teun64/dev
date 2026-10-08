@@ -824,7 +824,6 @@ Subscription25 blocks updates on a Terminated contract product, so the flow swit
         <queriedFields>Remarks_Customer__c</queriedFields>
         <queriedFields>PoNumber__c</queriedFields>
         <queriedFields>Partner_Code__c</queriedFields>
-        <queriedFields>VAT_Code__c</queriedFields>
         <queriedFields>Subscription25__Alternative_Accounting_Start_Date__c</queriedFields>
         <queriedFields>Subscription25__Alternative_Accounting_End_Date__c</queriedFields>
         <storeOutputAutomatically>false</storeOutputAutomatically>
