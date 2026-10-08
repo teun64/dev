@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Termination_Date_Reverted__c</fullName>
+    <description>Termination date that was active before the last &quot;Termination Reverted&quot;. Set by rbb_Contract, used by rau_Contract_Termination_Reverted (async) to delete or reverse the credit order of the reverted termination and reset the correction markers.</description>
+    <inlineHelpText>Termination date of the last reverted termination.</inlineHelpText>
+    <label>Termination Date Reverted</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Date</type>
+</CustomField>

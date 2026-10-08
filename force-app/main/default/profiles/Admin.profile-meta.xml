@@ -7,6 +7,11 @@
     <custom>false</custom>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Contract.Termination_Date_Reverted__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Payment__c.Business_Entity__c</field>
         <readable>true</readable>
     </fieldPermissions>
