@@ -241,7 +241,7 @@ private class Test_Orders {
 		);
 		Database.insert(recOrder);
 
-		//Case A (the reported bug): the 1st order of this contract, EffectiveDate matches the contract product's
+		//Case A (the reported bug): the 1st order on this recurring order (Months_In_Advance -1); it used to be matched on the contract product's
 		//own Start_Date__c -> should align down to the same (already offset) month, not roll into the next one.
 		//Subscription25__Invoice_Date__c is pre-set here to mirror what the package itself does before our trigger
 		//runs (confirmed against real prod data: Months_In_Advance already shifted it to Aug 15 before this trigger saw it)
@@ -255,7 +255,7 @@ private class Test_Orders {
 		System.assertEquals(Date.newInstance(2026, 8, 1), firstOrd.Subscription25__Invoice_Date__c);
 
 		//Case B (regression guard): a later (non-first) order on the same recurring order/contract product -
-		//EffectiveDate no longer matches Start_Date__c, so the old (pre-fix) rounding still applies unchanged
+		//it is not the 1st order on the recurring order anymore, so the old (pre-fix) rounding still applies unchanged
 		Order laterOrd = Test_Data.createOrder(acct.Id, admin.Id, Date.newInstance(2026, 8, 15), false);
 		laterOrd.Type = 'Contract';
 		laterOrd.EndDate = Date.newInstance(2026, 8, 31);
@@ -265,8 +265,35 @@ private class Test_Orders {
 		laterOrd = [SELECT Id, Subscription25__Invoice_Date__c FROM Order WHERE Id = :laterOrd.Id];
 		System.assertEquals(Date.newInstance(2026, 10, 1), laterOrd.Subscription25__Invoice_Date__c);
 
+		//Case D (guard): 1st order on a new -1 recurring order whose period runs past the offset month (16 Aug - 30 Sep) -
+		//aligning down would land on 1 Sep, before the period ends, so it keeps rolling forward to 1 Oct
+		Subscription25__Recurring_Order__c longRecOrder = recOrder.clone(false, true);
+		longRecOrder.Subscription25__Start_Date__c = Date.newInstance(2026, 8, 16);
+		Database.insert(longRecOrder);
+		Order longOrd = Test_Data.createOrder(acct.Id, admin.Id, Date.newInstance(2026, 8, 16), false);
+		longOrd.Type = 'Contract';
+		longOrd.EndDate = Date.newInstance(2026, 9, 30);
+		longOrd.Subscription25__Recurring_Order__c = longRecOrder.Id;
+		longOrd.Subscription25__Invoice_Date__c = Date.newInstance(2026, 9, 16);
+		Database.insert(longOrd);
+		longOrd = [SELECT Id, Subscription25__Invoice_Date__c FROM Order WHERE Id = :longOrd.Id];
+		System.assertEquals(Date.newInstance(2026, 10, 1), longOrd.Subscription25__Invoice_Date__c);
+
+		//Case E (regression guard): 1st order on a -2 recurring order - only -1 aligns down, so the old rounding applies
+		Subscription25__Recurring_Order__c minusTwoRecOrder = recOrder.clone(false, true);
+		minusTwoRecOrder.Subscription25__Months_In_Advance__c = -2;
+		Database.insert(minusTwoRecOrder);
+		Order minusTwoOrd = Test_Data.createOrder(acct.Id, admin.Id, contractStart, false);
+		minusTwoOrd.Type = 'Contract';
+		minusTwoOrd.EndDate = Date.newInstance(2026, 7, 31);
+		minusTwoOrd.Subscription25__Recurring_Order__c = minusTwoRecOrder.Id;
+		minusTwoOrd.Subscription25__Invoice_Date__c = Date.newInstance(2026, 9, 15);
+		Database.insert(minusTwoOrd);
+		minusTwoOrd = [SELECT Id, Subscription25__Invoice_Date__c FROM Order WHERE Id = :minusTwoOrd.Id];
+		System.assertEquals(Date.newInstance(2026, 10, 1), minusTwoOrd.Subscription25__Invoice_Date__c);
+
 		//Case C (regression guard): an unrelated offset-0 account should keep behaving exactly as before -
-		//1st of the month FOLLOWING the (mid-month) effective date
+		//1st of the month FOLLOWING the effective date. Uses today: a past date gets moved to today before the rounding
 		Account baselineAcct = Test_Data.createAccount('test-baseline', '13', 'B2B', false);
 		Database.insert(baselineAcct);
 		baselineAcct.Invoice_Frequency__c = 'First of the month';
@@ -274,10 +301,11 @@ private class Test_Orders {
 		Database.update(baselineAcct);
 		Test_Data.createDebtorNumber(admin.Id, baselineAcct.Id, true);
 
-		Order baselineOrd = Test_Data.createOrder(baselineAcct.Id, admin.Id, Date.newInstance(2026, 8, 6), false);
+		Date baselineDate = Date.today();
+		Order baselineOrd = Test_Data.createOrder(baselineAcct.Id, admin.Id, baselineDate, false);
 		baselineOrd.Type = 'Contract';
 		Database.insert(baselineOrd);
 		baselineOrd = [SELECT Id, Subscription25__Invoice_Date__c FROM Order WHERE Id = :baselineOrd.Id];
-		System.assertEquals(Date.newInstance(2026, 9, 1), baselineOrd.Subscription25__Invoice_Date__c);
+		System.assertEquals((baselineDate.day() == 1) ? baselineDate : baselineDate.addMonths(1).toStartOfMonth(), baselineOrd.Subscription25__Invoice_Date__c);
 	}
 }
