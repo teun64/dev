@@ -57,17 +57,18 @@ private class Test_Util_FinancialSystemWarehouse {
 		Test.stopTest();
 
 		System.assertEquals(2, res.orderIds.size(), res.message);
-		Order main = [SELECT Id, FinancialSystemIdWarehouse__c, AccountId, (SELECT Product2.ProductCode FROM OrderItems) FROM Order WHERE Id = :res.orderId WITH SYSTEM_MODE];
+		Order main = [SELECT Id, FinancialSystemIdWarehouse__c, AccountId, SyncToFinancialSystem__c, (SELECT Product2.ProductCode FROM OrderItems) FROM Order WHERE Id = :res.orderId WITH SYSTEM_MODE];
 		System.assertEquals('1_ET', main.FinancialSystemIdWarehouse__c, 'Main order = warehouse of the first product');
 		System.assertEquals(2, main.OrderItems.size());
 		for (OrderItem oi : main.OrderItems) {
 			System.assertEquals('WH.ET', oi.Product2.ProductCode);
 		}
-		Order other = [SELECT FinancialSystemIdWarehouse__c, AccountId, (SELECT Product2.ProductCode FROM OrderItems) FROM Order WHERE Id = :res.orderIds[1] WITH SYSTEM_MODE];
+		Order other = [SELECT FinancialSystemIdWarehouse__c, AccountId, SyncToFinancialSystem__c, (SELECT Product2.ProductCode FROM OrderItems) FROM Order WHERE Id = :res.orderIds[1] WITH SYSTEM_MODE];
 		System.assertEquals('1_MI', other.FinancialSystemIdWarehouse__c, 'Administration default');
 		System.assertEquals(1, other.OrderItems.size());
 		System.assertEquals('WH.MI', other.OrderItems[0].Product2.ProductCode);
 		System.assertEquals(main.AccountId, other.AccountId, 'Every order is a copy of the template');
+		System.assert(main.SyncToFinancialSystem__c && other.SyncToFinancialSystem__c, 'Every order is flagged for the job dispatcher sync');
 	}
 
 	@IsTest

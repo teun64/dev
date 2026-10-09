@@ -3,7 +3,8 @@
  * warehouse, because Exact allows one warehouse per sales order (1 Salesforce Order = 1 Exact sales order).
  * Warehouse of a product: the Administration Product warehouse, otherwise the administration default
  * (Util_FinancialSystemWarehouse); only the order stores it. Products without a warehouse (administration without
- * warehouses) go together in one order, as before.
+ * warehouses) go together in one order, as before. The orders are flagged for the financial system sync
+ * (SyncToFinancialSystem__c): the job dispatcher sends them to Exact.
  * All or nothing: on any failure everything is rolled back and the error goes to the flow's fault path.
  */
 public without sharing class Inv_FinancialSystemCreateOrders {
@@ -67,6 +68,9 @@ public without sharing class Inv_FinancialSystemCreateOrders {
 			for (String warehouse : warehouseOrder) {
 				Order ord = template.clone(false, true, false, false);
 				ord.FinancialSystemIdWarehouse__c = String.isBlank(warehouse) ? null : warehouse;
+				// sent to the financial system by the job dispatcher (Minut order sync step), as Util_FinancialSystem_Order.flagOrders
+				ord.SyncToFinancialSystem__c = true;
+				ord.FinancialSyncAttempts__c = 0;
 				orders.add(ord);
 			}
 			Database.insert(orders, AccessLevel.SYSTEM_MODE);
