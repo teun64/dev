@@ -171,6 +171,11 @@ global with sharing class Rest_UpsertContract {
         Boolean isFirstContractTerm;
         Boolean otherBaseServiceActive = false;
         Boolean terminateProductOnly = false;
+        Date latestBaseServiceTerminationDate;
+        Date latestBaseServiceEndDate;
+        Set<Id> terminatedBaseServiceIds = new Set<Id>();
+        Date newContractTerminationDate;
+        Date newContractServiceEndDate;
         String currentTerminationMethod;
 
         Boolean isBaseService = false;
@@ -490,16 +495,24 @@ global with sharing class Rest_UpsertContract {
         // never the contract itself - in both termination processes
         currentTerminationMethod = contr.Termination_Method__c;
         if ((!contrIsNew) && (prd.isBaseService__c) && (contr.Id != null)) {
-            otherBaseServiceActive = ([
-                SELECT COUNT()
+            for (Subscription25__Contract_Product__c bs : [
+                SELECT Id, Subscription25__Status__c, Subscription25__Termination_Date__c, Service_End_Date__c
                 FROM Subscription25__Contract_Product__c
                 WHERE Subscription25__Contract__c = :contr.Id
                     AND Is_Base_Service__c = true
                     AND Id != :contrProd.Id
-                    AND Subscription25__Status__c IN :Rest_UpsertContract.activeBaseServiceStatuses
-                    AND Subscription25__Termination_Date__c = null
                 WITH SYSTEM_MODE
-            ] > 0);
+            ]) {
+                if (bs.Subscription25__Termination_Date__c == null) {
+                    otherBaseServiceActive |= Rest_UpsertContract.activeBaseServiceStatuses.contains(bs.Subscription25__Status__c);
+                } else {
+                    //already terminated on its own: when the last base service ends the contract, the contract ends on the
+                    //latest termination date of all its base services
+                    terminatedBaseServiceIds.add(bs.Id);
+                    latestBaseServiceTerminationDate = Rest_UpsertContract.latestDate(latestBaseServiceTerminationDate, bs.Subscription25__Termination_Date__c);
+                    latestBaseServiceEndDate = Rest_UpsertContract.latestDate(latestBaseServiceEndDate, bs.Service_End_Date__c);
+                }
+            }
         }
 
         // ==== termination process "terminationId" ====
@@ -632,9 +645,12 @@ global with sharing class Rest_UpsertContract {
             } else if ((productServiceEndDate != null) && ((contractTerminationDate == null) || ((contr.status == 'Closed') && (productTerminationDate < contractTerminationDate)))) {
                 //Termination date set base on cancelation period (wet van damme), service_end_date_c set base on the end date of the service -> termination date and invoice periods in sync
                 //20220603 - TRi - When creditfrom date is null, it will be set to the Subscription25__Current_End_Date__c or miContract.currentEndDate when Subscription25__Current_End_Date__c is null
-                contr.Subscription25__Termination_Date__c = productTerminationDate;
-                contr.Service_End_Date__c = productServiceEndDate;
-                doCorrection = ((contractCurrentEndDate != productTerminationDate) && (productTerminationDate != null) && (!contrIsNew));
+                //the last base service ends the contract: on the latest date of all its base services
+                newContractTerminationDate = Rest_UpsertContract.latestDate(productTerminationDate, latestBaseServiceTerminationDate);
+                newContractServiceEndDate = Rest_UpsertContract.latestDate(productServiceEndDate, latestBaseServiceEndDate);
+                contr.Subscription25__Termination_Date__c = newContractTerminationDate;
+                contr.Service_End_Date__c = newContractServiceEndDate;
+                doCorrection = (((contractCurrentEndDate != productTerminationDate) || (contractCurrentEndDate != newContractTerminationDate)) && (productTerminationDate != null) && (!contrIsNew));
             } else if((contr.Status != 'Terminated') && (productTerminationDate == null)) {
                 contr.Subscription25__Termination_Date__c = null;
                 contr.Service_End_Date__c = null;
@@ -719,10 +735,8 @@ global with sharing class Rest_UpsertContract {
             //20220822 - TRi - Added check on Start Date == Termination date, not equals requires an additonal day
             //if((contrProd.Id != null) && (terminationDate != Date.valueOf(miContract.currentEndDate)) && (contrProd.Subscription25__Exclude_From_Corrections__c == false)) {
             //instantiate the corrector with the termination date at the end of the current month
-            Subscription25.Neko_Contract_0.ContractProductCorrectorInput input = new Subscription25.Neko_Contract_0.ContractProductCorrectorInput();
 
 
-            Date createCorrectionsFrom = (contr.startdate  == productTerminationDate) ? productTerminationDate : productTerminationDate.addDays(1);
             //system.debug('createCorrectionsFrom -> ' + createCorrectionsFrom);
             //system.debug('productTerminationDate -> ' + productTerminationDate);
 
@@ -755,27 +769,25 @@ global with sharing class Rest_UpsertContract {
                 }
             }
 
-            input.contractProductIds = cps.keySet();
-            //input.createCorrectionsFrom = miContract.contractEndDate != null ? Date.valueOf(miContract.contractEndDate) : contrProd.Subscription25__Termination_Date__c;
-            input.createCorrectionsFrom = createCorrectionsFrom;
-            input.saveCorrections = true;
-
-            Subscription25.Neko_Contract_0.ContractProductCorrector corrector = new Subscription25.Neko_Contract_0.ContractProductCorrector(input);
-            corrector.runCorrection();
-            corrector.saveCorrection();
-
-            List<Subscription25__Contract_Product__c> cpu = new list<Subscription25__Contract_Product__c>();
-            for (ID id : cps.keySet()) {
-                cpu.add(new Subscription25__Contract_Product__c(
-                    Id = id,
-                    Subscription25__Exclude_From_Corrections__c = true,
-                    Service_End_Date__c = productServiceEndDate,
-                    Subscription25__Termination_Date__c = productTerminationDate));
+            //this contract product ends on its own date; when it is the last base service, the rest of the contract ends on the
+            //latest base service date (base services already terminated on their own keep their dates)
+            Set<Id> ownIds = new Set<Id>();
+            Set<Id> restIds = new Set<Id>();
+            for (Id cpId : cps.keySet()) {
+                if (cpId == contrProd.Id) {
+                    ownIds.add(cpId);
+                } else if (!terminatedBaseServiceIds.contains(cpId)) {
+                    restIds.add(cpId);
+                }
             }
-
-            if (cpu.size() > 0) {
-                Database.update(cpu, Rest_UpsertContract.runningMode);
+            Date restTerminationDate = (newContractTerminationDate != null) ? newContractTerminationDate : productTerminationDate;
+            Date restServiceEndDate = (newContractServiceEndDate != null) ? newContractServiceEndDate : productServiceEndDate;
+            if (restTerminationDate == productTerminationDate) {
+                ownIds.addAll(restIds);
+                restIds.clear();
             }
+            Rest_UpsertContract.correctAndTerminate(ownIds, productTerminationDate, productServiceEndDate, contr.StartDate, contractCurrentEndDate);
+            Rest_UpsertContract.correctAndTerminate(restIds, restTerminationDate, restServiceEndDate, contr.StartDate, contractCurrentEndDate);
 
         } else {
 
@@ -966,6 +978,49 @@ global with sharing class Rest_UpsertContract {
 
         //Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contService.Id));
         return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contrProd.Id));
+    }
+
+    private static Date latestDate(Date first, Date second) {
+        if (first == null) {
+            return second;
+        }
+        return ((second != null) && (second > first)) ? second : first;
+    }
+
+    //runs the Subscription25 credit correction for these contract products and stamps their termination. A termination on the
+    //date the contract is invoiced through needs no correction (nothing to credit): then only the dates are set
+    private static void correctAndTerminate(Set<Id> cpIds, Date terminationDate, Date serviceEndDate, Date contractStartDate, Date invoicedEndDate) {
+        if (cpIds.isEmpty()) {
+            return;
+        }
+
+        Boolean doCredit = (terminationDate != invoicedEndDate);
+
+        if (doCredit) {
+            //only one correction is allowed, Subscription25__Exclude_From_Corrections__c is set below
+            Subscription25.Neko_Contract_0.ContractProductCorrectorInput input = new Subscription25.Neko_Contract_0.ContractProductCorrectorInput();
+            input.contractProductIds = cpIds;
+            input.createCorrectionsFrom = (contractStartDate == terminationDate) ? terminationDate : terminationDate.addDays(1);
+            input.saveCorrections = true;
+
+            Subscription25.Neko_Contract_0.ContractProductCorrector corrector = new Subscription25.Neko_Contract_0.ContractProductCorrector(input);
+            corrector.runCorrection();
+            corrector.saveCorrection();
+        }
+
+        List<Subscription25__Contract_Product__c> cpu = new List<Subscription25__Contract_Product__c>();
+        for (Id cpId : cpIds) {
+            Subscription25__Contract_Product__c cp = new Subscription25__Contract_Product__c(
+                Id = cpId,
+                Service_End_Date__c = serviceEndDate,
+                Subscription25__Termination_Date__c = terminationDate);
+            if (doCredit) {
+                cp.Subscription25__Exclude_From_Corrections__c = true;
+            }
+            cpu.add(cp);
+        }
+
+        Database.update(cpu, Rest_UpsertContract.runningMode);
     }
 
     private class TerminationMethod {

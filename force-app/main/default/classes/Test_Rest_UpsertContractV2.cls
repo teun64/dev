@@ -514,6 +514,31 @@ private class Test_Rest_UpsertContractV2 {
         System.assertEquals(Date.newInstance(2026, 7, 31), contr.Subscription25__Termination_Date__c);
     }
 
+    private static testMethod void testLastBaseServiceUsesLatestDate(){
+        Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
+        //test contract products stay Draft, let Draft count as Activated here
+        Rest_UpsertContractV2.activeBaseServiceStatuses = new Set<String>{'Activated', 'Draft'};
+
+        Test.startTest();
+        Test_Rest_UpsertContractV2.createTwoBaseServices('900647', '900648');
+        //the first base service ends later (2026-11-30) than the last one (2026-06-30)
+        Map<String, Object> terminateFirst = Test_Rest_UpsertContractV2.baseServicePayload('900647', '900647');
+        terminateFirst.putAll(new Map<String, Object>{'terminationId' => '3', 'serviceEndDate' => '2026-11-30'});
+        Util_Rest.RestResult first = Test_Rest_UpsertContractV2.callRest(terminateFirst);
+        System.assertEquals(true, first.success, String.join(first.messages, '; '));
+        Map<String, Object> terminateLast = Test_Rest_UpsertContractV2.baseServicePayload('900648', '900647');
+        terminateLast.putAll(new Map<String, Object>{'terminationId' => '3', 'serviceEndDate' => '2026-06-30'});
+        Util_Rest.RestResult last = Test_Rest_UpsertContractV2.callRest(terminateLast);
+        Test.stopTest();
+
+        System.assertEquals(true, last.success, String.join(last.messages, '; '));
+        //the contract ends on the latest date of all its base services
+        Contract contr = Test_Rest_UpsertContractV2.getContract('900647-1');
+        System.assertEquals(Date.newInstance(2026, 11, 30), contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2026, 11, 30), contr.Service_End_Date__c);
+        System.assertEquals(Date.newInstance(2026, 11, 30), [SELECT Subscription25__Termination_Date__c FROM Subscription25__Contract_Product__c WHERE extId__c = '900647-1'].Subscription25__Termination_Date__c);
+    }
+
     private static testMethod void testDraftBaseServiceDoesNotBlock(){
         //the other base service is still Draft (not Activated): the contract is terminated as before
         Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
