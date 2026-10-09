@@ -60,6 +60,7 @@ private class Test_Util_FinancialSystem_Order {
 		Opportunity opp = Test_Data.createOpportunity(acct.Id, con.Id, 'Order Opp', true);
 		Order ord = Test_Data.createOrder(acct.Id, admin.Id, Date.today(), false);
 		ord.OpportunityId = opp.Id;
+		ord.Type = 'Opportunity';
 		ord.Payment_Method__c = '08';
 		Database.insert(ord);
 		Test_Data.createOrderItem(ord.Id, pbe.Id, 1, true);
@@ -140,6 +141,35 @@ private class Test_Util_FinancialSystem_Order {
 
 		System.assertEquals(0, sim.calls.size());
 		System.assertEquals(false, order().SyncToFinancialSystem__c);
+	}
+
+	@IsTest
+	static void contractOrder_notSentFlagCleared() {
+		Order ord = order();
+		Database.update(new Order(Id = ord.Id, Type = 'Contract', SyncToFinancialSystem__c = true), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Map<Id, Util_FinancialSystem_Order.Result> results = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true);
+
+		System.assertEquals(0, sim.calls.size(), 'Only Hardware/Opportunity orders go to Exact');
+		Order after = [SELECT SyncToFinancialSystem__c, FinancialSyncLastError__c, Status FROM Order WHERE Id = :ord.Id WITH SYSTEM_MODE];
+		System.assertEquals(false, after.SyncToFinancialSystem__c, 'No retry');
+		System.assert(after.FinancialSyncLastError__c.contains('type: Contract'), after.FinancialSyncLastError__c);
+		System.assertEquals('Draft', after.Status);
+		System.assert(String.join(results.get(ord.Id).messages, ' ').contains('type: Contract'));
+	}
+
+	@IsTest
+	static void batch_onlySyncOrderTypes() {
+		Order ord = order();
+		// Subscription25 v2.66 (acc/prod) needs the job configuration record
+		Database.insert(new Subscription25__Schedulable_Class__c(Name = 'Batch_FinancialSystemOrderSync', Subscription25__Unique_Name__c = 'Batch_FinancialSystemOrderSync'), AccessLevel.SYSTEM_MODE);
+		Database.update(new Order(Id = ord.Id, Type = 'Contract', SyncToFinancialSystem__c = true), AccessLevel.SYSTEM_MODE);
+		Database.QueryLocator ql = new Batch_FinancialSystemOrderSync().startBatch(null);
+		System.assertEquals(false, ql.iterator().hasNext(), 'A flagged Contract order is not picked up');
+		Database.update(new Order(Id = ord.Id, Type = 'Hardware'), AccessLevel.SYSTEM_MODE);
+		System.assertEquals(true, new Batch_FinancialSystemOrderSync().startBatch(null).iterator().hasNext());
 	}
 
 	@IsTest

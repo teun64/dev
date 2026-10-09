@@ -28,6 +28,7 @@ global class Batch_FinancialSystemOrderSync extends Subscription25.Job_AbstractB
 		String now = System.now().formatGmt('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
 		return Database.getQueryLocator(
 			'SELECT Id FROM Order WHERE SyncToFinancialSystem__c = true'
+			+ ' AND Type IN (\'' + String.join(new List<String>(Util_FinancialSystem_Order.SYNC_ORDER_TYPES), '\',\'') + '\')'
 			+ ' AND (FinancialSyncNextAttempt__c = null OR FinancialSyncNextAttempt__c <= ' + now + ')'
 			+ ' ORDER BY FinancialSyncAttempts__c ASC NULLS FIRST, CreatedDate ASC', AccessLevel.SYSTEM_MODE);
 	}

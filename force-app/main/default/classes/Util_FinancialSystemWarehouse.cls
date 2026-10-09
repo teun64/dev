@@ -101,7 +101,7 @@ public with sharing class Util_FinancialSystemWarehouse {
 
 	// ---------------------------------------------------------------- split (repair)
 
-	public static final Set<String> SPLIT_ORDER_TYPES = new Set<String>{ 'Hardware', 'Opportunity' };
+	public static final Set<String> SPLIT_ORDER_TYPES = Util_FinancialSystem_Order.SYNC_ORDER_TYPES;
 
 	/**
 	 * Repairs draft Hardware / Opportunity orders that are not in Exact yet: the order gets the warehouse API name

@@ -17,6 +17,8 @@ public without sharing class Util_FinancialSystem_Order {
 	private static final String ORDER_LINE_ENDPOINT = 'api/v1/{0}/salesorder/SalesOrderLines';
 	private static final String ARTICLE_GET_ENDPOINT = 'api/v1/{0}/bulk/Logistics/Items';
 	public static final String STATUS_ACTIVATED = 'Activated';
+	// only these order types are sales orders in the financial system (Contract orders are Subscription25's recurring orders)
+	public static final Set<String> SYNC_ORDER_TYPES = new Set<String>{ 'Hardware', 'Opportunity' };
 	private static final Integer WAIT_FOR_ACCOUNT_MINUTES = 15;
 
 	public class Result {
@@ -133,6 +135,8 @@ public without sharing class Util_FinancialSystem_Order {
 		Event_Log__c log;
 		Result result = new Result();
 		Boolean done = false;
+		// order type that is not sent to the financial system: flag cleared, no retry
+		Boolean rejected = false;
 		Boolean failed = false;
 		Datetime waitUntil;
 		// Exact SalesOrderLine id per OrderItem
@@ -234,6 +238,12 @@ public without sharing class Util_FinancialSystem_Order {
 			// already in Exact: nothing to send, the flag is cleared
 			ctx.done = true;
 			ctx.result.messages.add('This order was already synchronised');
+			return;
+		}
+		if (!SYNC_ORDER_TYPES.contains(ord.Type)) {
+			ctx.done = true;
+			ctx.rejected = true;
+			ctx.result.messages.add('Only ' + String.join(new List<String>(SYNC_ORDER_TYPES), ' and ') + ' orders are sent to the financial system (type: ' + ord.Type + ').');
 			return;
 		}
 		if (ctx.acct == null || String.isBlank(ctx.acct.Reseller_Name__c)) {
@@ -469,9 +479,9 @@ public without sharing class Util_FinancialSystem_Order {
 				upd.FinancialSyncLastError__c = null;
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
 			} else if (!ctx.failed && !ctx.result.postponed) {
-				// already synchronised
+				// already synchronised, or an order type that is not sent
 				upd.SyncToFinancialSystem__c = false;
-				upd.FinancialSyncLastError__c = null;
+				upd.FinancialSyncLastError__c = ctx.rejected ? String.join(ctx.result.messages, ' | ').left(255) : null;
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
 			} else if (ctx.result.postponed) {
 				upd.FinancialSyncNextAttempt__c = ctx.waitUntil;
