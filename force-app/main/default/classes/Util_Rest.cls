@@ -188,70 +188,20 @@ global without sharing class Util_Rest {
 		Integer iReseller = (String.isBlank(acc.Reseller_Name__c)) ? 1 :  Integer.valueOf(acc.Reseller_Name__c);
 		Integer adminExternalId = Util_System.getAdminExternalId(iReseller);
 
-		Subscription25__Debtor_Number__c debNr;
 		Subscription25__Administration__c admin = Util_System.getAdministration(adminExternalId);
 
-		/*if(String.isBlank(admin.Subscription25__Synchronisation__c)){
-			debNr = Util_Rest.createDebtorNumber(acc, admin);
-            Database.upsert(debNr, Subscription25__Debtor_Number__c.Subscription25__Composite_Key__c, true, AccessLevel.SYSTEM_MODE);
-		} else {*/
+		// administrations with a financial system (Exact): nothing to do here, a new platform account is flagged
+		// for the financial system sync by rbb_Account and gets its debtor number from Exact
+		if (admin == null || String.isNotBlank(admin.Subscription25__Synchronisation__c) || String.isNotBlank(acc.FinancialDebtorNumber__c)) {
+			return;
+		}
+		// administrations without a financial system: a generated debtor number on the account;
+		// rab_Account_Debtor_Number creates the Subscription25 debtor number record
+		acc.FinancialDebtorNumber__c = String.valueOf(acc.Id).left(15).right(9);
+		Database.update(acc, AccessLevel.SYSTEM_MODE);
 
-        list<Subscription25__Debtor_Number__c> debtorNumbers = [
-            SELECT
-                Id
-                , Subscription25__Account__c
-                , Subscription25__Administration__c
-                , Subscription25__Composite_Key__c
-                , Subscription25__Debtor_Number__c
-                , Exact_Id__c
-                , Exact_Contact_Id__c
-                , Exact_Bank_Account_ID__c
-                , Exact_Mandate_Id__c
-                , Exact_Billing_Address_ID__c
-            FROM
-                Subscription25__Debtor_Number__c
-            WHERE
-                Subscription25__Account__c = :acc.Id AND
-                Subscription25__Administration__c = :admin.Id
-            WITH SYSTEM_MODE
-            LIMIT 1
-        ];
-
-        debNr = (debtorNumbers.size() == 1) ? debtorNumbers[0] : null;
-
-        system.debug('debiteur -> ' + debNr);
-
-        if ((String.isBlank(admin.Subscription25__Synchronisation__c)) && (debNr == null)) {
-			debNr = Util_Rest.createDebtorNumber(acc, admin);
-            // upsert the debtor number (for subscription25)
-            Database.upsert(debNr, Subscription25__Debtor_Number__c.Subscription25__Composite_Key__c, true, AccessLevel.SYSTEM_MODE);
-            // bring the debtor number on the account
-            // Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = debNr.Subscription25__Debtor_Number__c), AccessLevel.SYSTEM_MODE);
-            acc.FinancialDebtorNumber__c = debNr.Subscription25__Debtor_Number__c;
-            Database.update(acc, AccessLevel.SYSTEM_MODE);
-        } else if ((String.isNotBlank(admin.Subscription25__Synchronisation__c)) && ((debNr == null) || String.isBlank(debNr.Exact_Id__c) || (String.isBlank(debNr.Exact_Contact_Id__c) && String.isNotBlank(acc.Contact_Person__c)) || (util_system.requireBankDetails.contains(acc.Payment_Method_Contracts__c) && (String.isBlank(debNr.Exact_Bank_Account_ID__c) || String.isBlank(debNr.Exact_Mandate_ID__c))))) {
-            if (Util_System.isFinancialSyncAllowed(admin)) {
-                Util_Exact.syncAccountAsync(acc.Id);
-            }
-        }
-        
 	}
 
-    public static Subscription25__Debtor_Number__c createDebtorNumber(Account acc, Subscription25__Administration__c admin) {
-        if (String.isBlank(acc.Id) || String.isBlank(admin.Id)) {
-            return null;
-        }
-
-        String tempDebtorNumber = String.valueOf(acc.Id).left(15).right(9);
-
-        Subscription25__Debtor_Number__c debtorNumber = new Subscription25__Debtor_Number__c(
-            Subscription25__Account__c = acc.Id,
-            Subscription25__Administration__c = admin.Id,
-            Subscription25__Composite_Key__c = '' + acc.Id + admin.Id,
-            Subscription25__Debtor_Number__c = String.isBlank(acc.FinancialDebtorNumber__c) ? tempDebtorNumber : acc.FinancialDebtorNumber__c
-        );
-        return debtorNumber;
-    }
     
     public static Map<String, AccountContactRelation> getAccountContactRelations(
 		Id accountId

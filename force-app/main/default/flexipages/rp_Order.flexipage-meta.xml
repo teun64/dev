@@ -7,7 +7,7 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Order.actSyncToFinancialSystem</value>
+                            <value>Order.actFinancialSystemSync</value>
                             <visibilityRule>
                                 <booleanFilter>((1 OR 2) AND 3 AND 4) AND (5 OR 6)</booleanFilter>
                                 <criteria>

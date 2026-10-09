@@ -5,6 +5,7 @@ private class Test_Util_Rest {
         Subscription25__Administration__c admin = Test_Data.createAdministration(false);
         admin.Subscription25__Synchronisation__c = null;
         admin.Reseller__c = '4';
+        admin.External_ID__c = 4;
         Database.insert(admin); 
         Account acct = Test_Data.createAccount('Test', '12', 'B2B', true);
         Contact cont = Test_Data.createContact(acct.Id, 'AccountContact', '1234567890', 'lex@123.com', true);

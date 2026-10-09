@@ -267,6 +267,14 @@ private class Test_Util_FinancialSystemAccount {
 	}
 
 	@IsTest
+	static void requiresBankDetails_ukDirectDebitExempt() {
+		for (String method : Util_System.requireBankDetails) {
+			System.assertEquals(false, Util_FinancialSystemAccount.requiresBankDetails(new Account(Reseller_Name__c = '6', Payment_Method_Contracts__c = method)), 'UK ' + method);
+			System.assertEquals(true, Util_FinancialSystemAccount.requiresBankDetails(new Account(Reseller_Name__c = '1', Payment_Method_Contracts__c = method)), 'NL ' + method);
+		}
+	}
+
+	@IsTest
 	static void debtorNumber_changeOnAccount_upsertsRecord() {
 		Account acc = account();
 		Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = '55555'), AccessLevel.SYSTEM_MODE);

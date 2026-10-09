@@ -29,6 +29,7 @@ public without sharing class Util_FinancialSystemAccount {
 	private static final String ACCOUNT_GET_ENDPOINT = 'api/v1/{0}/bulk/CRM/Accounts';
 	private static final String ADDRESS_ENDPOINT = 'api/v1/{0}/crm/Addresses';
 	private static final String BANK_ACCOUNT_ENDPOINT = 'api/v1/{0}/crm/BankAccounts';
+	private static final String RESELLER_UK = '6';
 	private static final String CONTACT_ENDPOINT = 'api/v1/{0}/crm/Contacts';
 	private static final String MANDATE_ENDPOINT = 'api/v1/{0}/cashflow/DirectDebitMandates';
 
@@ -241,52 +242,6 @@ public without sharing class Util_FinancialSystemAccount {
 		}
 	}
 
-	/**
-	 * Keeps Subscription25__Debtor_Number__c in line with Account.FinancialDebtorNumber__c: upsert on the
-	 * composite key (account + administration of the account's reseller). Only the number is stored there;
-	 * the financial system ids live on the Account / AccountContactRelation.
-	 */
-	public static void upsertDebtorNumbers(List<Account> newList, Map<Id, Account> oldMap) {
-		Map<Id, Integer> adminExtIdByAccount = new Map<Id, Integer>();
-		for (Account acct : newList) {
-			Account old = oldMap == null ? null : oldMap.get(acct.Id);
-			Boolean changed = old == null
-				|| old.FinancialDebtorNumber__c != acct.FinancialDebtorNumber__c
-				|| old.Reseller_Name__c != acct.Reseller_Name__c;
-			if (String.isBlank(acct.FinancialDebtorNumber__c) || String.isBlank(acct.Reseller_Name__c) || !changed) {
-				continue;
-			}
-			adminExtIdByAccount.put(acct.Id, Util_System.getAdminExternalId(Long.valueOf(acct.Reseller_Name__c)));
-		}
-		if (adminExtIdByAccount.isEmpty()) {
-			return;
-		}
-		// own query: priming Util_System's administration cache from a trigger would hide administrations
-		// created later in the same transaction
-		Map<Integer, Id> adminIdByExtId = new Map<Integer, Id>();
-		for (Subscription25__Administration__c admin : [
-				SELECT Id, External_ID__c FROM Subscription25__Administration__c
-				WHERE External_ID__c IN :adminExtIdByAccount.values() WITH SYSTEM_MODE]) {
-			adminIdByExtId.put(Integer.valueOf(admin.External_ID__c), admin.Id);
-		}
-		List<Subscription25__Debtor_Number__c> toUpsert = new List<Subscription25__Debtor_Number__c>();
-		for (Account acct : newList) {
-			Id adminId = adminExtIdByAccount.containsKey(acct.Id) ? adminIdByExtId.get(adminExtIdByAccount.get(acct.Id)) : null;
-			if (adminId == null) {
-				continue;
-			}
-			toUpsert.add(new Subscription25__Debtor_Number__c(
-				Subscription25__Account__c = acct.Id,
-				Subscription25__Administration__c = adminId,
-				Subscription25__Composite_Key__c = '' + acct.Id + adminId,
-				Subscription25__Debtor_Number__c = acct.FinancialDebtorNumber__c
-			));
-		}
-		if (!toUpsert.isEmpty()) {
-			Database.upsert(toUpsert, Subscription25__Debtor_Number__c.Subscription25__Composite_Key__c, false, AccessLevel.SYSTEM_MODE);
-		}
-	}
-
 	// ---------------------------------------------------------------- context
 
 	@TestVisible
@@ -392,6 +347,15 @@ public without sharing class Util_FinancialSystemAccount {
 	// ---------------------------------------------------------------- validation + planning
 
 	/**
+	 * Direct debit needs bank details (and an Exact mandate), except for the UK reseller: direct debit does not
+	 * work in Exact UK (it runs via the payment provider), so no bank account / mandate is required there.
+	 */
+	@TestVisible
+	private static Boolean requiresBankDetails(Account acct) {
+		return Util_System.requireBankDetails.contains(acct.Payment_Method_Contracts__c) && acct.Reseller_Name__c != RESELLER_UK;
+	}
+
+	/**
 	 * Validates the account (same rules as Util_Exact) and resolves the administration.
 	 */
 	@TestVisible
@@ -400,7 +364,7 @@ public without sharing class Util_FinancialSystemAccount {
 		if (!FeatureManagement.checkPermission('cp_miIntegrationSkipDataCheck')) {
 			if (acct.Reseller_Name__c == '1' && acct.RecordType.DeveloperName != 'B2C' && acct.BillingCountryCode == 'NL' && acct.Block_Syncing_Exact__c) {
 				throw new Util_System.CustomException('This account is not validated by Web Services, this validation has to be completed before this account can be synchronised.');
-			} else if (Util_System.requireBankDetails.contains(acct.Payment_Method_Contracts__c) && (String.isBlank(acct.Bank_Account_Number__c) || String.isBlank(acct.Bank_Account__c))) {
+			} else if (Util_FinancialSystemAccount.requiresBankDetails(acct) && (String.isBlank(acct.Bank_Account_Number__c) || String.isBlank(acct.Bank_Account__c))) {
 				throw new Util_System.CustomException('This account can not be synchronised because the bank account is not filled in.');
 			} else if (String.isBlank(acct.BillingCountryCode) || String.isBlank(acct.BillingStreet) || String.isBlank(acct.BillingPostalCode) || String.isBlank(acct.BillingCity)) {
 				throw new Util_System.CustomException('This account can not be synchronised because the establishment / billing address is not filled in.');
@@ -892,7 +856,7 @@ public without sharing class Util_FinancialSystemAccount {
 
 		// mandate: for a new / changed bank account, when the payment method needs one
 		if (String.isBlank(acct.FinancialIdBankMandate__c) && String.isNotBlank(acct.FinancialIdBankAccount__c)
-				&& Util_System.requireBankDetails.contains(acct.Payment_Method_Contracts__c)) {
+				&& Util_FinancialSystemAccount.requiresBankDetails(acct)) {
 			Util_FinancialSystemAccount.ExactMandate mandate = new Util_FinancialSystemAccount.ExactMandate(acct);
 			String response = Util_FinancialSystem.doRequest(ctx.admin, String.format(MANDATE_ENDPOINT, new List<String>{ division }), null, 'POST', JSON.serialize(mandate), guid);
 			ctx.result.calls++;

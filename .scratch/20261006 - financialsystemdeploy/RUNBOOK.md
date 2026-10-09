@@ -15,7 +15,57 @@ What today's work does (see commit `3f32641` for details):
 - Invoice address falls back to the establishment address; invoice/shipping addresses are `Main` of their type and kept up to date.
 - Order sync stores the Exact SalesOrderLine ids on `OrderItem.FinancialId__c`.
 - Minut dispatcher order: 10 AccountSync, 20 ContactSync, 30 ActivateDraftContractProducts, 40 OrderSync, 50 ReconcileStripeEvents.
-- Dispatcher steps need **no** `Subscription25__Schedulable_Class__c` record.
+- Dispatcher steps need **no** `Subscription25__Schedulable_Class__c` record **in dev only** (Sub25 v2.67) – acc/prod (v2.66) DO need one, see the 2026-10-08 gotcha below.
+
+---
+
+## Org check 2026-10-07 (before any deploy)
+
+Method: retrieved every file touched by the rebuild/dispatcher commits (`26378f4^..HEAD`) + the sync buttons from acc and prod into a scratch folder (not the repo), compared each file with HEAD and with every older git version. Nothing was deployed.
+
+### acc – ready for manual testing?
+**Not yet.**
+- **Blocker: data storage -398 MB (5120 MB quota).** Saving contacts/orders/merges fails → free storage first.
+- The 2026-10-06 delta (`acc/package.xml`) is **not** in acc: missing `Batch_FinancialSystemContactSync`, `Svc_FinancialSystemContactRemoval`, `AccountContactRelation` trigger + `Trigger_AccountContactRelation`, `Account.FinancialContactsToRetire__c`, CMDT `Minut_FinancialSystemContactSync`. `Util_FinancialSystemAccount`/`_Order` are on `505c1f8`, `Batch_FinancialSystemAccountSync` on `4a4e3e5`, `Trigger_Contact` on `825d05c`, `rbb_AccountContactRelation` v6 without `fSyncToFinancialSystem`. Minut order in acc is still 10/20/30/40 (Account/Activate/Order/Stripe).
+- Everything else of steps 1-3 is in acc and equal to HEAD (apart from `packageVersions`/`30` vs `30.0` noise). Permission sets equal to the repo.
+- Running: dispatcher 12× per hour (Account, Activate, Order, Stripe steps all complete); daily rate-limit check 07:30; NL administration = division 10006632, Daily_Limit 200000.
+- Tests in acc 2026-10-07: 53/54 (Test_Controllers, Test_Inv_sync*, Test_Util_FinancialSystem*, Test_Exact). Only `Test_Exact.testAccountSync` fails (known, pre-existing).
+- One-off `Batch_FinancialSystemOrderSync` failure 06:17 "List has no rows for assignment to SObject" during a manual dispatcher run; all runs since are clean. Code is replaced by the delta – if live check 6 hits it again, read the stack trace from the Apex log.
+- **Field visibility while testing**: `pg_Subscription25Admin` is **session-activated** (`hasActivationRequired = true`, acc and prod). Without activation the new fields (`SyncToFinancialSystem__c`, `FinancialSyncState__c`, `FinancialSyncLastError__c`, …) are invisible (UI and API). Also test the buttons as a normal pg_Subscription25User / CCC user.
+- acc-only variants (keep, do not overwrite from the repo): `Trigger_Account` = prod + `upsertDebtorNumbers`; `Trigger_Order` = prod + `queueAccountFinancialSync`.
+
+### Prod – what the repo would override (decide before building the package)
+| Component | Prod today | Repo HEAD | Use for prod |
+|---|---|---|---|
+| `Trigger_Account` | go-live P2 variant (09-29) | calls `updateVisitingAddressLabels` → `VisitingAddress_Country__c/_State__c` exist **only in dev** → won't compile | **acc's version** (prod + `upsertDebtorNumbers`) |
+| `Trigger_Order` | `610c3cf` | contains the **dev-only Months_In_Advance invoice-date fix** (2026-08-06) + api 62→66 | **HEAD** (user 2026-10-07: fix goes along) |
+| `afl_Account_Get_new_debtor_number` | v12 = P2_prod_logic (deletes `Subscription25__Debtor_Number__c` records, historical debtor numbers) | new model: clears Exact ids on Account/ACRs | intended model change (step 2b) – **confirm**; acc already runs the repo variant |
+| `rbb_Account` | v66 | only 4 elements differ (`ass_01_Sync_2_Exact`, `dec_01_FinancialSystemSync`, `vEstablishmentAddressSet`, `vFinancialSystemReset`) + api 66→67; start identical | repo version is OK (simpler than assumed above) – still diff once more just before deploy |
+| `rbb_AccountContactRelation` | v7 = `02b505d` | + `fSyncToFinancialSystem`, changed `ass_01_RolesStageUpdate` | repo version |
+| `Svc_StripeEventProcessor` | `d85d977` | `af49bad` (Stripe reconcile, live webhook path) | **leave out** of this package |
+| `Batch_UpdateContractProductPrice` + `Day_UpdateContractProductPrice` | not in prod | in candidate list | **not now** (user 2026-10-07) |
+| CMDT `JobDispatcherStep.*` | financial steps `IsActive__c = false` | **all `IsActive__c = true`** | ship with **false** (true = syncing to production Exact within 5 min); OrderSync batch size 10 |
+| `ps_miFinancialSystem_Admin` / `ps_miSubscription25_User` | no prod-only entries | + 13 new fields + `Include_CII_Hybrid_PDF__c` | strip `Include_CII_Hybrid_PDF__c` (EN16931 field, **does not exist in prod** → deploy fails) |
+| `Test_Exact` | P2 variant (asserts `Exact_Invoice_Address_ID__c`, `syncOrderAsync`) | Account/ACR model | repo version (prod's breaks against the forwarders) |
+| `Test_Util_JobDispatcher` | patched copy (no `scheduleEvery5Minutes` test) | full | keep prod's copy |
+| `Ctrl_SyncWithExact` (2023), `Inv_syncAccountToFinancialSystem` (2025), `Util_OAuth`, `Util_System`, `Util_Rest`, `Batch_FinalizeInvoices(Limited)`, `Test_Data`, `Util_Exact`, `Inv_syncOrderToFinancialSystem` | older versions, **no prod-only changes** | repo = prod + rebuild changes only | repo version |
+
+Also: `rac_`/`rau_Account_Sync_to_Financial_System` (prod v3/v7, active) fire on the old `FinancialSystemSync__c` flag that prod's `rbb_Account` sets, and call `Util_Exact.syncAccount`. Deploy Apex and the new `rbb_Account` in the **same** step (otherwise the new sync-now code runs from the old flag path); decide whether to deactivate these two flows after go-live.
+
+### User decisions 2026-10-07
+- acc delta deployed 2026-10-07 (deploy `0AfG500000Su9ZxKAJ`, 22/22, NoTestRun) incl. **`Trigger_Order` from HEAD** (invoice-date fix goes along, also to prod) and **`scr_Order_SyncToFinancialSystem` v3** (direct sync, see below). Flows active: `rbb_AccountContactRelation` v7, `scr_Order_SyncToFinancialSystem` v3. Minut 10/20/30/40/50 active. Tests: 89/90 (only `Test_Util_JobDispatcher.scheduleEvery5Minutes_creates12Schedules` – live schedule name collision, known) + `Test_Orders` 3/3.
+- Prod `Trigger_Order`: use **HEAD** (with the invoice-date fix), not acc's old variant.
+- `Batch_UpdateContractProductPrice` / `Day_UpdateContractProductPrice`: **not** in this prod package – goes later with the salesforceLead pricing + Rest_UpsertContract update.
+- Buttons: **direct sync** for account and order. Order screen flow now calls `Inv_FinancialSystemOrder` with `syncNow = true` (existing code, no Apex change) → order created in Exact immediately, message shown on the result screen. The batch still picks up flagged orders. Prod: deploy this flow version with the rebuild.
+
+### Gotcha found 2026-10-08: dispatcher steps DO need a Sub25 config record in acc/prod
+`Batch_FinancialSystemContactSync` failed on every Minut run in acc after the delta (211×, "List has no rows for assignment to SObject" in start), and because a failed step never reaches `finishBatch`, the chain stopped there – Activate, OrderSync and Stripe did not run from 2026-10-07 12:40 until the fix. Cause: acc/prod run Subscription25 **v2.66**, whose `Job_AbstractBatch2` needs a `Subscription25__Schedulable_Class__c` record (Name + Unique_Name) per class; dev (v2.67) does not – so "dispatcher steps need no record" only holds in dev. Fixed in acc 2026-10-08 08:14 (record `a1YG5000004KtpFMAS`, batch size 25 = class default); the 08:15 chain ran fully.
+**Prod**: before activating the steps, create records for `Batch_FinancialSystemAccountSync` (5), `Batch_FinancialSystemContactSync` (25), `Batch_FinancialSystemOrderSync` (10), `Batch_FinancialSystemRateLimitCheck` (10). Prod has only ActivateDraftContractProducts, Dedupe, DataRetentionCleanup, ReconcileStripeEvents, JobDispatcher.
+
+### Manual sync buttons (identical in acc and prod)
+- **Account "Send to Exact"** (`Account.Send_to_Exact` → Aura `SyncWithExact` → `Ctrl_SyncWithExact.doSync` → `Util_Exact.syncAccount` → `Util_FinancialSystemAccount.syncAccount`): still syncs **immediately** with the new code. Warnings/postpones are returned as messages → the Aura shows "Something went wrong in synchronisation: …" even when the sync succeeded with a warning (UX only).
+- **Order "Sync to Exact"** (`Order.actSyncToFinancialSystem` → `scr_Order_SyncToFinancialSystem` → `Inv_syncOrderToFinancialSystem`): now only **marks** the order (`flagOrders`, SYSTEM_MODE); the Minut OrderSync step sends it within ~5 min and activates it (user decision 2026-10-01). **In prod the button does nothing useful until `Minut_FinancialSystemOrderSync` is active** (~500 orders/week by hand today) → deploy the invocable and activate the step together.
+- `Test_Controllers` skips the real account sync under `Test.isRunningTest()` → add a real button click for both buttons to the live checks.
 
 ---
 
@@ -52,6 +102,8 @@ Use your own test records, not Trekhaken B.V.
 4. Delete a test contact with an Exact contact → `Account.FinancialContactsToRetire__c` filled, account flagged; after the round the Exact contact is retired and the field is empty.
 5. Merge two test contacts on the same account (master without Exact id) → master's ACR has the loser's Exact id; Exact contact shows the master's name after the round.
 6. Order sync of a test order → `OrderItem.FinancialId__c` filled on every line.
+7. Button "Send to Exact" on a test account → popup closes (success) or shows the message; account state/last error updated.
+8. Button "Sync to Exact" on a test order → "queued" message; within ~5 min the order has an Exact id and is Activated.
 
 Probe contacts left in acc Exact on account "test de tester" (12295621):
 - "DoNotUse Probe" `750039cf-147a-4c79-be93-6905407651dd` – retired state, for inspection.
@@ -91,12 +143,13 @@ Prod deploys flows as **Draft**: activate via Tooling PATCH on FlowDefinition (`
 3. Flows (rebuilt from prod, see above), then activate.
 4. Permission sets (FLS).
 5. Daily rate-limit job `Batch_FinancialSystemRateLimitCheck` (07:30).
-6. Dispatcher go-live: `Batch_JobDispatcher.scheduleEvery5Minutes()`; then abort prod's **12 standalone `Batch_ActivateDraftContractProducts` CronTriggers** (by explicit Id) and the standalone Stripe reconcile schedule if any – only once the dispatcher actually runs.
+6. Dispatcher already went live in prod 2026-10-07 for Activate Draft Contract Products, Dedupe Communication Preferences and Reconcile Stripe Events (see the status table below) – their legacy standalone crons are already gone. What's left here is only the 5 financial-system steps: once each class deploys, flip its CMDT `IsActive__c` to `true`, same pattern as the 3 already live.
 7. Order sync is currently manual in prod (~500/week): agree with the user when the batch takes over.
+8. Once `Minut_FinancialSystemAccountSync` is active and verified against real data: delete `Batch_SyncAccountEuropeTrack` from prod (already deleted from dev/acc 2026-10-07 – it was unscheduled there) and abort its one remaining daily CronTrigger (`0 0 6 * * ?`) – the new account sync covers any account regardless of source, making this EuropeTrack-only backstop fully redundant. Its schedule was already throttled from 12 slots/5 min down to this single daily run on 2026-10-07 as an interim step.
 
 ### After go-live
 - Exact flag backlog (247 BAG-corrected + 5 restored accounts) – parked by the user 2026-10-01.
-- `Batch_SyncAccountEuropeTrack` (12 slots, 0 items in 30 days) – phase out candidate.
+- ~~5 accounts permanently stuck by `Batch_SyncAccountEuropeTrack`'s silent-failure bug~~ – RESOLVED 2026-10-07: user removed the 5 accounts directly after investigating (`001bR000001pJD6QAM`, `001bR000000TrAbQAK`, `001bR000001CARGQA4`, `001bR00000RgruwQAB`, `001bR00000retgnQAA` – confirmed deleted from prod).
 
 ---
 
@@ -118,3 +171,129 @@ The dispatcher framework (`Util_JobDispatcher`, `Batch_JobDispatcher`, `JobDispa
 These 5 go live together with the rest of the financial system rebuild (prod section above) – no separate action needed, just remember to flip `IsActive__c` to `true` once each class is deployed and verified, same pattern as steps 1-3 above.
 
 **Gotcha hit during this rollout**: `Test_Util_JobDispatcher.scheduleEvery5Minutes_creates12Schedules` creates CronTrigger jobs with the exact same names the live Minut schedule now permanently holds in prod (`GoMeddo Subscription - Batch_JobDispatcher - 0 X 1-3,5-23 * * ?`), so it throws `AsyncException: already scheduled for execution` on every future `RunSpecifiedTests` deploy that includes it. Prod runs a patched copy of this test file with that one method removed (kept only in scratch, not committed – see `project_jobdispatcher_prod_cutover_todo` memory). If `scheduleDaily()`/`scheduleHourly()` ever go live for real in prod too, `scheduleDaily_createsOneScheduleAt0013` and `scheduleHourly_createsOneScheduleAtMinute23` will hit the same problem and need the same treatment.
+
+---
+
+## 2026-10-08: new code fully separate from the legacy Exact sync (user decision)
+
+User: the rebuild must **not overwrite existing (prod) code**; the legacy sync stays intact and is retired later as its own step. Record-level overlap (same Account/Debtor Number records) is fine.
+
+**Legacy path restored to the exact prod versions** (repo = prod, so deploying them is a no-op): `Util_Exact`, `Inv_syncAccountToFinancialSystem`, `Inv_syncOrderToFinancialSystem`, `Ctrl_SyncWithExact`, `Util_Rest`, `Batch_FinalizeInvoices`, `Batch_FinalizeInvoicesLimited`, `Test_Exact`, `Test_Inv_sync*`, `Test_Controllers`, flows `afl_Account_Get_new_debtor_number` (prod v12) and `scr_Order_SyncToFinancialSystem` (= prod). `Test_Util_Exact` (not in prod) back to its pre-rebuild version. Dropped with this: dev-only pre-rebuild edits that never reached prod (e.g. the visiting-address check in `Ctrl_SyncWithExact`).
+
+**Trigger hooks moved to their own triggers** (existing `Trigger_Account` / `Trigger_Order` / `Trigger_Contact` = pre-rebuild again):
+- `AccountFinancialSystem` (after insert/update) → `Trigger_AccountFinancialSystem` (debtor-number upsert)
+- `OrderFinancialSystem` (after insert) → `Trigger_OrderFinancialSystem` (queue account for hardware/opportunity draft orders)
+- `ContactFinancialSystem` (before/after delete) → `Trigger_ContactFinancialSystem` (delete/merge capture)
+- `AccountContactRelation` trigger was already new.
+
+**Still touching existing components (accepted by the user):** flag logic in `rbb_Account` / `rbb_AccountContactRelation`; `Util_System` (extra Administration fields) and `Util_OAuth` (log fix) as generic improvements; additive permission-set entries.
+
+**Removed from the go-live package** (they move to the switch-over package): `Util_Exact` forwarders, invocable/button/Util_Rest/invoice-batch redirection, `Test_Exact` rewrite.
+
+### Switch-over package (separate, later – retires the legacy sync)
+1. Backfill `AccountContactRelation.FinancialIdContact__c` from `Subscription25__Debtor_Number__c.Exact_Contact_Id__c` (ACR of `Account.Contact_person__c`). Prod 2026-10-08: 126,590 debtor numbers have a contact id, 0 ACRs → without this every first sync creates duplicate Exact contacts and orders wait.
+2. Deactivate `rac_` / `rau_Account_Sync_to_Financial_System`.
+3. Repoint entry points to the new classes: Account "Send to Exact" (`Ctrl_SyncWithExact`), order button (`switchover/scr_Order_SyncToFinancialSystem.flow-meta.xml` = acc v3, direct sync via `Inv_FinancialSystemOrder`), `Util_Rest` (flag instead of `Util_Exact.syncAccountAsync`), `afl_Opportuntity_Create_Order` (`Inv_syncOrderToFinancialSystem` + its `rDebtorNumber.Exact_ID__c` decision), `Batch_FinalizeInvoices(Limited)` → `Util_FinancialSystem_Invoice`.
+4. Activate the Minut financial steps.
+5. Later: delete `Util_Exact`, `Inv_sync*ToFinancialSystem`, their tests; stop reading `Debtor_Number.Exact_*`.
+
+---
+
+## 2026-10-08: rollout in 4 parts (user decision) – status: built + tested in dev only
+
+### Part 1 – codebase (new components only, no existing component changes)
+`Util_FinancialSystem*`, `Batch_FinancialSystem*`, `Inv_FinancialSystemAccount/Order`, `Svc_FinancialSystemContactRemoval`, triggers `OrderFinancialSystem` / `ContactFinancialSystem` / `AccountContactRelation` + handlers, dispatcher steps (inactive), new fields, CMDT, tests. Accepted touches: `Util_System`, `Util_OAuth`, `rbb_Account`, `rbb_AccountContactRelation`, permission sets (additive).
+- UK (reseller 6): direct debit does not work in Exact UK → no bank details / Exact mandate required for any direct-debit method (I0 / I3 / I4 / I8 / p0) (`Util_FinancialSystemAccount.requiresBankDetails`). A filled UK bank account is still sent as an Exact bank account.
+
+### Part 2 – debtor number + new buttons
+- Flow `rab_Account_Debtor_Number` (replaces the Apex trigger `AccountFinancialSystem`, removed): after update only, when the debtor number is set/changed or the reseller changes (not on create – no reason there, user 2026-10-08); one debtor number per account (composite key Account Id + Administration Id); other administrations deleted; Exact ids taken over from the Account when empty or changed; `Exact_Contact_ID__c` = `FinancialIdContact__c` of the ACR with role Invoice (`isInvoiceContact__c`). Errors → `Account.FinancialSyncLastError__c`.
+- Validation rule `vr_FinancialDebtorNumberClear`: debtor number can't be cleared while `FinancialIdAccount__c` is set.
+- Buttons: quick actions `Account.actFinancialSystemSync` / `Order.actFinancialSystemSync` ("Sync to Exact (new)") → `scr_Account_FinancialSystemSync` / `scr_Order_FinancialSystemSync`. Still to add to the page layouts / Lightning pages.
+- Prod data before activating: account `001bR00000wmFZdQAM` has 2 debtor numbers (Germany a0ZbR00000IM75JUAT, Netherlands a0ZbR00000IUajdUAD) – the flow deletes the one that isn't the reseller's administration on its next run.
+
+### Part 3 – replace the old pointers (existing components)
+- `pef_Internal`: `Sync_to_Exact` branch removed (no publisher of that action).
+- `Util_Rest.checkDebtorNumber`: no `Util_Exact.syncAccountAsync` any more (non-Exact administrations still get a debtor number).
+- `afl_Opportuntity_Create_Order`: order sync removed (`dec_01_BatchSync`, `pa_02_Wait`, `act_01_Sync_Order`, `ass_04_Commit`, `cBatchSync`; was already off in prod). Base = prod v35. **One more adjustment pending (user).**
+- `afl_Account_Get_new_debtor_number`: sets `SyncToFinancialSystem__c` (was `FinancialSystemSync__c`) and clears `FinancialIdAccount__c` with the number (new sync POSTs a new Exact account and resets the child ids; needed for `vr_FinancialDebtorNumberClear`).
+- Deactivate `rac_` / `rau_Account_Sync_to_Financial_System`; swap the old buttons for the new ones on the layouts; contact-id backfill (see switch-over above).
+- Still open: Account `Send to Exact` / Debtor Number `act_Sync_to_Exact` (Aura) → replace on layouts; `Batch_SyncAccountEuropeTrack` stays for now (user).
+
+### Part 4 – remove the old code
+`Util_Exact`, `Inv_sync*ToFinancialSystem`, `Ctrl_SyncWithExact` + Aura `SyncWithExact`, old quick actions, `scr_Order_SyncToFinancialSystem`, `rac_`/`rau_Account_Sync_to_Financial_System`, old tests; dead code in `Trigger_Account` / `Trigger_Opportunity` / `Rest_UpsertAccount`; flow `rac_Contract_Product_Activated` (inactive everywhere, replaced by `Batch_ActivateDraftContractProducts`; already deleted in dev – flows need a Tooling API delete per version, a destructive metadata deploy fails with "insufficient access rights on cross-reference id").
+
+## Warehouses: one Exact order per warehouse (built in dev 2026-10-08)
+
+**Status 2026-10-09:** dev committed (`b792413`, not pushed) + data set + live-tested; **acc deployed + data set + live-tested**; prod NOT deployed.
+
+Exact allows one warehouse per sales order; NL has 2 (Moving Intelligence, Europetrack), so an opportunity can now get more than one order (1 Salesforce Order = 1 Exact sales order).
+
+- `pvs_FinancialSystemWarehouse`: readable API names `<reseller>_<code>` (`1_MI`, `1_ET`, `5_MI`, `6_MI`); the GUID is NOT in the value set (it differs per org).
+- `FinancialSystemIdWarehouse__c` (picklist, value set) on: Administration ("Warehouse (Default)", dependent on Reseller__c), Administration Product ("Warehouse", vr_FinancialSystemIdWarehouse: prefix must match the administration's reseller), Order ("Warehouse"), Exact_Relation_Setting__c (WH rows: value -> org-specific Exact_ID__c). Not on OrderItem (user: the order is enough).
+- Warehouse of a product: Administration Product warehouse, else the administration default. Product warehouse wins over the sales channel (user decision A).
+- `Inv_FinancialSystemCreateOrders` (called by afl_Opportuntity_Create_Order): groups the products per warehouse, one Order per warehouse, all-or-nothing (savepoint); Opportunity.Order__c = order of the first product. **Every created order is flagged `SyncToFinancialSystem__c = true`** (user 2026-10-09: the sync belongs in the job dispatcher) -> Minut OrderSync step sends it to Exact (replaces acc's old cBatchSync=false direct sync at creation). In prod nothing is sent until the OrderSync step is active.
+- `Util_FinancialSystem_Order`: WarehouseID = Exact GUID of the order's warehouse; order without one takes its products' warehouse (must be one, else error); none at all -> old fallback (channel WH row / Warehouse_Exact_Id__c). Exact Description gets ` (<warehouse api name>)`.
+- rau_Opportunity dur_01_Order: payment method / sales channel now updates ALL orders of the opportunity not yet in Exact (was only Order__c); the decision no longer requires Order__r.Exact_Id__c to be empty. NOTE this file also carries the uncommitted Fitting Service change (Rest_UpsertOpportunity work).
+- Warehouse_Exact_Id__c stays for the legacy code; retire with Util_Exact (part 4).
+- Profiles (user rule 2026-10-09: FLS on System Administrator + every operational mi* profile; all mi* profiles are operational except miAPI(Integration), miNoAccess, miReadOnly and - user 2026-10-09 - miMinimum). Grant follows the profile's object access: Order edit where Order is editable (miAfterSales/DataAdministrator/Finance/Sales/Shareholders/StandardUser), read for miMarketing (Order read-only in prod); Administration read for miAfterSales/DataAdministrator/Sales/Shareholders; Admin Product + Exact Relation Setting edit for miDataAdministrator; System Administrator edit on all 4. Left out: miExperienceCloudSupport (guest licence, never), miCustomerCommunityPlus (community licence), miReadOnly (exists in no org). miShareholders exists in dev/acc only -> drop from the prod package. Minimal profile files: scratchpad `whprofiles` / `accperms`; miMinimum grant revoked again in dev (0Afbd00000Bc16QCAR) + acc (0AfG500000SvvUUKAZ) and its repo file removed; the operational profile files (Admin, miAfterSales, miDataAdministrator, miFinance, miMarketing, miSales, miStandardUser) are committed.
+- Perm sets: ps_miFinancialSystem_Admin (Administration + Order edit), ps_miProductPricebookEntry_Admin (Admin Product edit), ps_miOrderManagement (Order edit), ps_miSubscription25_User (read). Deployed to dev as minimal files (repo ps_miSubscription25_User does not deploy to dev: Contractor_Service__c missing there).
+
+### Data per org (after deploy) - in THIS order
+As soon as an administration default is set, every order without its own warehouse takes it from its products; without a WH mapping row that order fails with "No Exact warehouse id" (retry backoff). So:
+1. Exact_Relation_Setting__c WH rows FIRST: set FinancialSystemIdWarehouse__c (WH - Moving Intelligence -> `<adm>_MI`, WH - Europetrack -> `1_ET`) and check Exact_ID__c is filled. prod GUIDs: NL MI 4dab22b0…, NL ET a21af096…, DE 3fb070fb…, UK 07284896…. acc: NL MI d868f85d…, NL ET 96d18dda…, plus "WH - SlimmGPS" = a21af096… (= prod's ET GUID!) - no value; DE/UK rows have NO GUID in acc.
+2. Then administration defaults: NL `1_MI`, DE `5_MI`, UK `6_MI` - only where step 1 has a GUID (acc: NOT DE/UK until their rows have one; today those orders go with a blank warehouse, after this they would fail).
+3. Then Administration Product warehouses. Rule (user 2026-10-09): products whose platform is only Europetrack -> `1_ET` = NL Administration Products with `Product2.System_Platform__c = '5'` (every product has exactly one platform value; prod: 98 products, 95 active, e.g. 800.313.0130 -> so MI-channel orders with these products now also ship from ET, product wins). Everything else uses the administration default.
+   ```apex
+   List<Subscription25__Administration_Product__c> aps = [SELECT Id FROM Subscription25__Administration_Product__c
+       WHERE Subscription25__Administration__c = :nlAdminId AND Subscription25__Product__r.System_Platform__c = '5'];
+   for (Subscription25__Administration_Product__c ap : aps) ap.FinancialSystemIdWarehouse__c = '1_ET';
+   update aps;
+   ```
+4. acc/prod (Sub25 v2.66): `Subscription25__Schedulable_Class__c` Name = Unique_Name = `Batch_FinancialSystemOrderWarehouse`, batch size 20 - BEFORE the repair run / activating step 35 (else "List has no rows" and the whole Minut chain stops).
+- The FLS was the reason the fields were invisible to my user (System Administrator had no FLS; pg_Subscription25Admin is session-activated) - fixed by the profile grants.
+- dev data 2026-10-09: WH rows MI->1_MI, ET->1_ET, DE->5_MI, UK->6_MI (dev has no Exact GUIDs), NL default 1_MI, 81 NL admin products -> 1_ET.
+- afl_Opportuntity_Create_Order is started per interview by pef_Internal (Util_Flows), same as before; the invocable adds ~3 SOQL per opportunity.
+- Tests: Test_Util_FinancialSystemWarehouse, Test_Util_FinancialSystem_Order (warehouse tests), Test_afl_Opportuntity_Create_Order (runs the flow + rau_Opportunity).
+
+### Repair / split of existing draft orders
+- `Util_FinancialSystemWarehouse.splitOrders` + `Batch_FinancialSystemOrderWarehouse`: draft Hardware/Opportunity orders, not in Exact. Order keeps its own warehouse (or that of its first product) and those products; the products of each other warehouse move to a new draft order (copy of the order, same opportunity, flagged like the original). A move = copy + delete (OrderItem.OrderId can't change); Partner_Code__c moves along. Per order all or nothing.
+- Copy uses a fixed list of standard fields + all writable custom fields (not describe isCreateable: that depends on the running user's FLS).
+- One-off repair per org, AFTER the data steps: `Database.executeBatch(new Batch_FinancialSystemOrderWarehouse(true), 20);` (prod today: 3 draft Opportunity orders, 0 Hardware).
+- Ongoing: dispatcher step `Minut_FinancialSystemOrderWarehouse` (order 35, before the order sync at 40), ships INACTIVE; default mode only splits orders flagged for the sync (no split while someone still edits the order).
+- Parent order: Salesforce has OriginalOrderId (standard, reduction orders only, create-only, 0 used in prod) and Subscription25__Parent_Order__c ("the order that this credit (or clone) originated from", used by 205 Contract orders in prod). Exact SalesOrders have no parent/related order field. The split orders are NOT linked by a parent field (only OpportunityId + the same YourRef/Description) - **user 2026-10-09: do not use Subscription25__Parent_Order__c, keep them separate.**
+
+### acc deploy 2026-10-09
+- Pre-check: acc versions of everything overwritten = the base of `b792413` (Util_FinancialSystem_Order/Test = 3f32641, rau_Opportunity = 02b505d, perm sets equal apart from format noise: viewAllFields / calculated fields editable). **acc drift: afl_Opportuntity_Create_Order had `cBatchSync = false`** (= direct order sync to Exact at creation via Inv_syncOrderToFinancialSystem); the new flow has no sync step at all (order sync removed, user decision) -> orders created from opportunities in acc are now only sent via the button / flagged batch. Check prod's cBatchSync before the prod deploy.
+- `rau_Opportunity` deployed **as committed in b792413** (warehouse part only, WITHOUT the uncommitted Fitting Service elements; user 2026-10-09: leave the Fitting Service out).
+- Deploy `0AfG500000SvxKzKAJ`: 16/16 components (value set, 4 fields, VR, 7 classes, CMDT step 35 inactive, 2 flows), RunSpecifiedTests Test_Util_FinancialSystemWarehouse + Test_Util_FinancialSystem_Order + Test_afl_Opportuntity_Create_Order = 25/25 pass. Coverage: Util_FinancialSystemWarehouse 97%, Inv_FinancialSystemCreateOrders 98%, Batch_FinancialSystemOrderWarehouse 82%, Util_FinancialSystem_Order 87%.
+- Deploy `0AfG500000SvxT3KAJ`: 4 minimal perm sets + 9 minimal profiles (13/13), FieldPermissions verified.
+- Data: WH rows NL MI (d868f85d) -> 1_MI, NL ET (96d18dda) -> 1_ET, DE -> 5_MI, UK -> 6_MI (no GUID yet = not used), SlimmGPS left blank; NL default 1_MI (DE/UK no default); 81 NL admin products -> 1_ET; Sub25 config record Batch_FinancialSystemOrderWarehouse (20). getExactId check: 1_MI -> d868f85d…, 1_ET -> 96d18dda… OK.
+- Live test (anonymous Apex, own opportunity on "E2E Adrestest B.V.", rolled back): opportunity with a platform 1 + platform 5 product -> 2 draft orders (1_MI = Opportunity.Order__c, 1_ET); payment method change -> both orders updated; mixed Hardware draft -> split (original keeps 1_MI, new draft order 1_ET). Same run in dev (opportunity 006bd00000S9pjCAAR, rolled back): same result.
+- Repair batch run once (`707G500001XHiCP`): Completed, 0 errors (acc has 0 NL draft Hardware/Opportunity orders not in Exact).
+- NOT tested: real send to Exact (acc NL token can reach the prod division - see memory; do it by hand via the order button with a test order if wanted).
+
+- 2026-10-09 follow-up: order flag at creation deployed dev (0Afbd00000Bc309CAB) + acc (0AfG500000SvxBLKAZ), 25/25 tests each, live test repeated in both (rolled back). Flag itself verified by the unit test (SyncToFinancialSystem__c is invisible to my user even in dynamic SOQL).
+
+- 2026-10-09 order type guard (`4a5f320`, user: only Hardware/Opportunity orders may sync): `Util_FinancialSystem_Order.SYNC_ORDER_TYPES = {Hardware, Opportunity}`; Batch_FinancialSystemOrderSync only selects flagged orders of those types; any other flagged order (e.g. Contract via the button) is refused without callouts, flag cleared (no retry), FinancialSyncLastError__c = "Only Hardware and Opportunity orders are sent to the financial system (type: X)." Split step uses the same set. Automatic flagging only happens in Inv_FinancialSystemCreateOrders (Type is always Opportunity there). Prod context: 27,377 Opportunity orders have an Exact order number; Contract orders (~188k in 90 days) are Subscription25 recurring orders and never go to Exact as sales orders. dev 0Afbd00000Bc4dlCAB (27/27 + 40 related tests), acc 0AfG500000Sw0sLKAR (29/29; Test_Util_JobDispatcher left out = known live-schedule collision in acc).
+
+- 2026-10-09 user: the Hardware order type was renamed to Opportunity -> SYNC_ORDER_TYPES / split types = {Opportunity} only (no Hardware orders exist in dev/acc/prod; prod still has 'Hardware' as an active Order.Type picklist value - can be deactivated). Commit after 4a5f320, dev 0Afbd00000Bc5ErCAJ 29/29.
+
+- 2026-10-09 Order.Type value `Hardware` deactivated (user: yes): dev 0Afbd00000Bc5ZpCAJ, acc 0AfG500000Sw1YIKAZ. **prod: not done** (blocked by the auto-mode classifier as a prod deploy) - package in scratchpad `ordertype/deploy` (StandardValueSet OrderType = prod's current values + `<isActive>false</isActive>` on Hardware). Code only compares Type == 'Hardware' (Trigger_Order, Trigger_OrderFinancialSystem, rbb_Order, rbu_Order) - dead branches, clean up later.
+
+### Prod checklist (warehouses) - not run
+1. Check prod afl_Opportuntity_Create_Order `cBatchSync` + the versions of everything overwritten.
+2. Deploy the b792413 components (rau_Opportunity from the commit, not the working copy) with the 3 test classes; then minimal perm sets + profiles WITHOUT miShareholders and WITHOUT miMinimum.
+3. Data in order: WH rows (NL MI 4dab22b0…, NL ET a21af096…, DE 3fb070fb…, UK 07284896…), defaults, platform-5 products, Sub25 config record.
+4. One-off repair (3 draft Opportunity orders today), check results.
+5. Step 35 stays inactive until the order sync steps go live.
+
+## acc deploy of rollout parts 1-3 (DEPLOYED 2026-10-09)
+User 2026-10-09: deploy parts 1-3 to acc, **rac_/rau_Account_Sync_to_Financial_System deactivated in the same deploy** (else the legacy Util_Exact sync revives in acc next to the new batch), and the acc data mop-up (`subset/run_cleanup.sh full2`) runs FIRST.
+- Package (scratchpad `acc_parts/deploy`, mdapi `acc_parts/mdapi`, 35 components): legacy classes = repo/prod copies (Util_Exact, Inv_sync*, Ctrl_SyncWithExact, Batch_FinalizeInvoices(Limited), tests), Util_Rest + Test_Util_Rest (part 3), Trigger_Contact/Trigger_Order without hooks + new triggers ContactFinancialSystem/OrderFinancialSystem + handlers, Util_FinancialSystemAccount (UK, upsertDebtorNumbers removed) + test, flows rab_Account_Debtor_Number, scr_Account/Order_FinancialSystemSync, afl_Account_Get_new_debtor_number, pef_Internal, quick actions, vr_FinancialDebtorNumberClear, rp_Account/rp_Order (button swap only), FlowDefinitions rac_/rau_ activeVersionNumber 0.
+- **Trigger_Account = acc's version minus `upsertDebtorNumbers`** (repo version needs dev-only VisitingAddress_Country/State fields).
+- Left out on purpose: rbb_Account (repo has dev-only platform-status changes; acc already flags on Bank_Account_Number__c), rac_/rau_ flow bodies (repo uses other field names), scr_Order_SyncToFinancialSystem (acc v3 stays, off the page), JobDispatcherStep CMDT (Minut financial steps stay off during cleanup).
+- Dry run 0AfG500000Sw2e2KAB: 35/35 compile, 87/87 tests pass (only coverage warnings on legacy classes) -> real deploy with NoTestRun.
+- acc data cleanup done 2026-10-09 15:49: 1,796 accounts left (the keep subset), DataStorageMB 4,731 free of 5,120. Leftovers created during the run (1 payment, 2 Security Platform contracts) caught by the full2 mop-up.
+- Deployed 2026-10-09 (NoTestRun, 35/35): rac_/rau_Account_Sync_to_Financial_System inactive; active: afl_Account_Get_new_debtor_number v11, pef_Internal v2, rab_Account_Debtor_Number v1, scr_Account/Order_FinancialSystemSync v1. Tests after deploy: 116/116 (15 classes incl. Test_Exact, Test_Controllers, Test_rab_Account_Debtor_Number, Test_Orders).
+- Minut financial steps Account/Contact/OrderSync active again in acc (repo CMDT, live values otherwise equal); OrderWarehouse (35) stays inactive.
+- Open: live button checks with the new "Sync to Exact (new)" actions (account + order); prod not started.

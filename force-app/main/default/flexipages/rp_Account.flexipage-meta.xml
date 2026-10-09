@@ -7,7 +7,7 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Account.Send_to_Exact</value>
+                            <value>Account.actFinancialSystemSync</value>
                         </valueListItems>
                         <valueListItems>
                             <value>Account.act_Sync_to_MI_Platform</value>

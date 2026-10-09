@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- acc delta for commits 3f32641, 6cbfdbc, 3cc5dad (2026-10-06). acc already has steps 1-3, backstop, FLS and the job dispatcher. -->
+<!-- acc delta for commits 3f32641, 6cbfdbc, 3cc5dad (2026-10-06) + Trigger_Order (invoice-date fix, user 2026-10-07) + scr_Order_SyncToFinancialSystem (direct sync, user 2026-10-07). acc already has steps 1-3, backstop, FLS and the job dispatcher. -->
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
         <members>Batch_FinancialSystemAccountSync</members>
@@ -11,6 +11,7 @@
         <members>Test_Util_FinancialSystem_Order</members>
         <members>Trigger_AccountContactRelation</members>
         <members>Trigger_Contact</members>
+        <members>Trigger_Order</members>
         <members>Util_FinancialSystemAccount</members>
         <members>Util_FinancialSystem_Order</members>
         <name>ApexClass</name>
@@ -34,6 +35,7 @@
     </types>
     <types>
         <members>rbb_AccountContactRelation</members>
+        <members>scr_Order_SyncToFinancialSystem</members>
         <name>Flow</name>
     </types>
     <version>67.0</version>

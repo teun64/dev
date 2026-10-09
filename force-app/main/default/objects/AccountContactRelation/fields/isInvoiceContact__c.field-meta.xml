@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>isInvoiceContact__c</fullName>
+    <description>Checks if the Account Contact Relation has a Invoice role
+INCLUDES(Roles, &apos;Invoice&apos;)</description>
+    <formula>INCLUDES(Roles, &apos;Invoice&apos;)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Checks if the Account Contact Relation has a Invoice role</inlineHelpText>
+    <label>Invoice (Billing - Contact)</label>
+    <type>Checkbox</type>
+</CustomField>

@@ -320,13 +320,19 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>FinancialIdAccount__c</field>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>FinancialReplaceDebtorNumber__c</field>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>FinancialSystemSync__c</field>
+            <field>SyncToFinancialSystem__c</field>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
