@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "BMW dealer mailing2",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/jpeg",
+        "ref" : "0sNbR0000002TcDUAU",
+        "type" : "file",
+        "size" : 297858
+      }
+    }
+  },
+  "urlName" : "bmw-dealer-mailing2"
+}

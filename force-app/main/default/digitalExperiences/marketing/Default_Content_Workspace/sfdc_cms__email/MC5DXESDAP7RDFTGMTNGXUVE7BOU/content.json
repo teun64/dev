@@ -1,0 +1,313 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "20250807 - Follow-up incorrecte mail Email",
+  "contentBody" : {
+    "lightning:brandSource" : "MovingintelligenceGeneral",
+    "sfdc_cms:block" : {
+      "type" : "block",
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "79c5def4-3766-4a32-9400-52aae519e0cc",
+      "children" : [ {
+        "id" : "317c31ac-ee0a-4a91-923c-946fcc167b36",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:colorScheme" : "{!$brand.colorScheme}",
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:padding" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "98d299d9-0e55-46bc-8d0a-45ee67546ebb",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 12,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.none}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "e977c801-072e-4822-998a-3117b5b78f7c",
+            "type" : "block",
+            "definition" : "lightning/image",
+            "attributes" : {
+              "imageFitConfig" : {
+                "width" : {
+                  "value" : 45,
+                  "unit" : "%"
+                }
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : {
+                "top" : {
+                  "value" : 32,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 16,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 32,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 16,
+                  "unit" : "px"
+                }
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "imageInfo" : {
+                "source" : {
+                  "type" : "imageReference",
+                  "ref" : "DEFAULT_EMAIL_TEMPLATE_LOGO_96d707f867634f7eb04e2c9ee64748ea"
+                },
+                "url" : "/cms/media/MCR2ZBHOMVDFGQBD6FKZHSLV6TIU"
+              }
+            }
+          }, {
+            "id" : "56ba7ded-43aa-4d72-be80-5e8631cdc3e0",
+            "type" : "block",
+            "definition" : "lightning/image",
+            "attributes" : {
+              "imageFitConfig" : {
+                "width" : {
+                  "value" : 100,
+                  "unit" : "%"
+                }
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : {
+                "top" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 16,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 16,
+                  "unit" : "px"
+                }
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "imageInfo" : {
+                "source" : {
+                  "type" : "imageReference",
+                  "ref" : "DEFAULT_EMAIL_TEMPLATE_HEADER_7152ffdfe13246f0868d084dd7ab13a0"
+                },
+                "url" : "/cms/media/MCQSCPWCBL35EDTLV4DHDPEWUAOU"
+              }
+            }
+          }, {
+            "id" : "3599b0f8-39ea-4da9-bd02-5c1d86c15c69",
+            "type" : "block",
+            "definition" : "lightning/heading",
+            "attributes" : {
+              "level" : 3,
+              "align" : "center",
+              "lightning:typography" : "{!$brand.typography.heading.heading2}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "text" : "<html><body>Let&#39;s build an email.</body></html>"
+            }
+          }, {
+            "id" : "cd9d69a5-23de-4d8d-bbc3-e2494121755d",
+            "type" : "block",
+            "definition" : "lightning/paragraph",
+            "attributes" : {
+              "align" : "center",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : {
+                "top" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 16,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 16,
+                  "unit" : "px"
+                }
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "text" : "Ready to create some amazing email content? To get started, you can replace the Salesforce logo and header image with your company-branded logo and image. Simply click on the components and select your assets from the Settings or Style panel."
+            }
+          }, {
+            "id" : "5e81ea99-d634-4777-b360-1ed9e25ff303",
+            "type" : "block",
+            "definition" : "lightning/button",
+            "attributes" : {
+              "text" : "GET STARTED",
+              "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+              "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+              "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+              "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+              "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+              "lightning:horizontalAlignment" : "center",
+              "width" : "auto",
+              "uri" : "https://www.salesforce.com"
+            }
+          }, {
+            "id" : "3f0120a4-92f6-4972-8ac4-97d8d4caae5d",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"background-color:#F3F3F3; padding-top:40px; padding-bottom:84px;\">\n  <p style=\"text-align:center;font-size:16px; font-family:Arial; line-height:24px; margin-top:0px;margin-bottom:0px; \"><strong>Check out these tips</strong></p>\n  <hr style=\"color:#C9C9C9; margin-bottom:0px; margin-top:16px; margin-left:16px; margin-right:16px;\" />\n<div style=\"font-size:16px; font-family:Arial; line-height:24px; padding-top:32px;padding-left:16px; padding-right:16px;\">\n<p style=\"margin-top:0px; margin-bottom:0px;\">\n  When you&#39;re ready to change the look of your email, use the Email Style panel to set the background color and padding. Define the email layout to give your content a place to live. Click  <b>&#43; </b> on the canvas or drag an item from the Components panel to add and arrange the parts of your email. To add rows or columns, use the Section component.\n</p>\n<p style=\"margin-top:16px; margin-bottom:0px;\">  \nFor each component, you can change the padding, colors, and other properties in the Style panel. In the text components, like Paragraph and Heading, edit fonts, font size, and other formatting in the component itself. If you want to customize your message for each customer, add merge fields to a heading or paragraph by clicking <b>{}</b> in the component toolbar.\n</p>\n  </div>\n</div>"
+            }
+          }, {
+            "id" : "5c2f6943-acb0-4949-9bd9-3d4eea26f06e",
+            "type" : "block",
+            "definition" : "lightning/paragraph",
+            "attributes" : {
+              "align" : "center",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.xLarge}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "text" : "<html><body><a shape=\"rect\" target=\"_blank\" href=\"https://www.facebook.com/salesforce/\" rel=\"noopener noreferrer\">Facebook</a> | <a shape=\"rect\" target=\"_blank\" href=\"https://twitter.com/salesforce\" rel=\"noopener noreferrer\">Twitter</a> | <a shape=\"rect\" target=\"_blank\" href=\"https://www.instagram.com/salesforce/\" rel=\"noopener noreferrer\">Instagram</a></body></html>"
+            }
+          }, {
+            "id" : "1aeb3fe6-dae2-4645-85f0-d113eb07733d",
+            "type" : "block",
+            "definition" : "lightning/paragraph",
+            "attributes" : {
+              "align" : "center",
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.arial}",
+                "fontSize" : "{!$brand.fontSize.xSmall}",
+                "lineHeight" : 1.5,
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "textTransform" : "none"
+              },
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : {
+                "top" : {
+                  "value" : 54,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 16,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 54,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 16,
+                  "unit" : "px"
+                }
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "text" : "{!$organization.Address} | <a target=\"_blank\" href=\"{!$link.PreferenceCenterUrl}\" rel=\"noopener noreferrer\">Preference Manager</a> | <a target=\"_blank\" href=\"{!$link.EmailAddressOptOutUrl}\" rel=\"noopener noreferrer\">Unsubscribe</a><div><br clear=\"none\" /></div><div>© Salesforce, Inc. All rights reserved.</div>"
+            }
+          } ]
+        } ]
+      } ]
+    },
+    "messagePurpose" : "promotional",
+    "subjectLine" : "Build an Email!",
+    "backgroundColor" : "{!$brand.colorScheme.root}",
+    "preheader" : "Customize this draft with your own content.",
+    "sfdc_cms:title" : "20250807 - Follow-up incorrecte mail Email",
+    "lightning:dataProviders" : [ ],
+    "lightning:expressions" : [ ],
+    "lightning:backgroundImage" : {
+      "repeat" : "no-repeat",
+      "position" : "center center",
+      "size" : "cover"
+    },
+    "sfdc_cms:variants" : [ ]
+  },
+  "urlName" : "20250807---follow-up-incorrecte-mail-email"
+}

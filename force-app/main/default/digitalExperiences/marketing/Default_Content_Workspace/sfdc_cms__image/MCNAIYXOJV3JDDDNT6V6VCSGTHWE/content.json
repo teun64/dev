@@ -1,0 +1,15 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "topic 600x600 red arrow",
+  "contentBody" : {
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000007ebpUAA",
+        "type" : "file",
+        "size" : 869053
+      }
+    }
+  },
+  "urlName" : "topic-600x600-red-arrow"
+}

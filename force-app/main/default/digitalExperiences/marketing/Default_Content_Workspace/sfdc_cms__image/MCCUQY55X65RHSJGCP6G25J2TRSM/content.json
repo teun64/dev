@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "header mailing et",
+  "contentBody" : {
+    "altText" : "header mailing et",
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000000qkzUAA",
+        "type" : "file",
+        "size" : 464473
+      }
+    }
+  },
+  "urlName" : "header-mailing-et"
+}

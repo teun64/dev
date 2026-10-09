@@ -1,0 +1,8 @@
+{
+  "type" : "sfdc_cms__brandSettings",
+  "title" : "Brand Settings",
+  "contentBody" : {
+    "defaultBrand" : "content/Brand_Center.sfdc_cms__brand/br_M"
+  },
+  "urlName" : "brand-settings"
+}

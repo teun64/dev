@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "2g4g",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000006ZsjUAE",
+        "type" : "file",
+        "size" : 140710
+      }
+    }
+  },
+  "urlName" : "2g4g"
+}

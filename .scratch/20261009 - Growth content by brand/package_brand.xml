@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__brandSettings/brandSettings</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MC2JCSW5PXXNDSTLDYMFRO3G6UWI</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MC654XNCVCZND6FIT52SO7RLYIEQ</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MC72I5KGAWGFEOXORLWQS775BQK4</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MC76MEY6MYK5D6XE6CDCW4MDLEYU</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCCQH7JM3FEJCTTJOAO555NPGYVE</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCISU2ZRDDAFC6VMDEOSOQVOCOUY</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCJBSOCFWXJZCJLMFG2HS5JD2VEU</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCKQELHJOGPFC6VHFRVDXRVYCN74</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCLLIIAHZ6SFALVF5XKPDK74K4LY</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCM7GIUTM2IVEUXET7KK4OVPCNE4</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCMT6LUKXCBJCHLEV3QJVZ6WWK6E</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCPDFJMEOYF5HN5DBFVLMSHRQCPY</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCRD4M5MB6HRBMRMUEUZJPTTD3NE</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCSI5E34KNNBHIBBYGD6WX25DSIQ</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCWYC7TPGNKNC5XL6TQ37GC6HEOA</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCX7U5GXNTMFHT5ISRIYNICUTMVA</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCYEFMNRSE2NBP5NWT47Z4P6VODY</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCYTOZF3R5TZDZ3BIZKHHDD37EJ4</members>
+        <members>marketing/Default_Content_Workspace.sfdc_cms__email/MCZK5W6TUDIREBLLUU4BMT36NG5Q</members>
+        <name>DigitalExperience</name>
+    </types>
+    <version>67.0</version>
+</Package>

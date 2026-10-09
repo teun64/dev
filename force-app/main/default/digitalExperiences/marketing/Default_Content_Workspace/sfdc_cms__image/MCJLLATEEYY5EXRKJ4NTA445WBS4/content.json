@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "miremigreen img 3",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000004QQXUA2",
+        "type" : "file",
+        "size" : 220415
+      }
+    }
+  },
+  "urlName" : "miremigreen-img-3"
+}

@@ -1,0 +1,27 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "M20251219-Christmas-wish Email",
+  "contentBody" : {
+    "lightning:brandSource" : "MovingintelligenceGeneral",
+    "sfdc_cms:block" : {
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "c6f8758b-4bc9-4cf3-bc4f-20e57131bfce",
+      "type" : "block",
+      "children" : [ ]
+    },
+    "messagePurpose" : "promotional",
+    "subjectLine" : "(No Subject)",
+    "backgroundColor" : "{!$brand.colorScheme.root}",
+    "preheader" : "",
+    "sfdc_cms:title" : "M20251219-Christmas-wish Email",
+    "lightning:dataProviders" : [ ],
+    "lightning:expressions" : [ ],
+    "lightning:backgroundImage" : {
+      "repeat" : "no-repeat",
+      "position" : "center center",
+      "size" : "cover"
+    },
+    "sfdc_cms:variants" : [ ]
+  },
+  "urlName" : "m20251219-christmas-wish-email"
+}

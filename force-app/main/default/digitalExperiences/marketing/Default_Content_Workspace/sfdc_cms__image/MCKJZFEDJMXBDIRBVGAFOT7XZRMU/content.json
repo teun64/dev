@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "Een kerstwens van Moving Intelligence",
+  "contentBody" : {
+    "altText" : "Klik om naar de video te gaan",
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR00000054KjUAI",
+        "type" : "file",
+        "size" : 754627
+      }
+    }
+  },
+  "urlName" : "een-kerstwens-van-moving-intelligence"
+}

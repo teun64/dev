@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "body image",
+  "contentBody" : {
+    "altText" : "body image",
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000000qoDUAQ",
+        "type" : "file",
+        "size" : 679510
+      }
+    }
+  },
+  "urlName" : "body-image"
+}

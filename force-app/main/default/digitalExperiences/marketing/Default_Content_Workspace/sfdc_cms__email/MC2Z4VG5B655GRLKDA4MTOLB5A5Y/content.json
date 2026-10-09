@@ -1,0 +1,392 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "Service improvement mail ET (satisfaction - churn)",
+  "contentBody" : {
+    "backgroundColor" : "{!$brand.colorScheme.root}",
+    "lightning:backgroundImage" : {
+      "position" : "center center",
+      "repeat" : "no-repeat",
+      "size" : "cover"
+    },
+    "lightning:brandSource" : {
+      "defaultBrandOption" : "sfdcBrand"
+    },
+    "lightning:dataProviders" : [ {
+      "attributes" : {
+        "dataGraphApiName" : "Data_Graph"
+      },
+      "definition" : "sfdc_cms__dataGraphDataProvider",
+      "sfdcExpressionKey" : "$dataGraph"
+    } ],
+    "lightning:expressions" : [ ],
+    "messagePurpose" : "promotional",
+    "preheader" : "Verbeterde service en deskundig advies",
+    "sfdc_cms:block" : {
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "0ae3704b-e714-4941-aa44-dd988ca03ec7",
+      "type" : "block",
+      "children" : [ {
+        "attributes" : {
+          "lightning:backgroundImage" : {
+            "position" : "center center",
+            "repeat" : "no-repeat",
+            "size" : "cover"
+          },
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : "{!$brand.colorScheme}",
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:padding" : "{!$brand.spacing.none}",
+          "stackOnMobile" : true,
+          "reverseOrderOnMobile" : false
+        },
+        "definition" : "lightning/section",
+        "id" : "99220539-cea9-4ab6-a759-13b2c864c13a",
+        "type" : "block",
+        "children" : [ {
+          "attributes" : {
+            "columnWidth" : 12.0,
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.none}",
+            "lightning:verticalAlignment" : "top"
+          },
+          "definition" : "lightning/column",
+          "id" : "882e5ffd-cd4d-47d8-b131-23cfc95bea00",
+          "type" : "block",
+          "children" : [ {
+            "attributes" : {
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              },
+              "imageInfo" : {
+                "altText" : "",
+                "source" : {
+                  "ref" : "MCCUQY55X65RHSJGCP6G25J2TRSM",
+                  "type" : "imageReference"
+                },
+                "url" : "/cms/media/MCCUQY55X65RHSJGCP6G25J2TRSM"
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+            },
+            "definition" : "lightning/image",
+            "id" : "e4c8feb0-affc-4225-b1b2-22c59e428237",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "Geachte relatie,<br /><br />We verbeteren continu onze service en werken aan onze bereikbaarheid. Uw feedback staat daarbij centraal. We hebben daarom ons team uitgebreid. Onze experts staan klaar om u te helpen met uw vragen over rittenregistratie en wagenparkbeheer, onze producten en onze diensten.<br /><br />Vera, Berry en Leo maken nu deel uit van het support-team, net als Jesper die teruggekeerd is na een korte afwezigheid. U bereikt hen via <a rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\" href=\"tel:%20088%2099%20000%2000\" target=\"_blank\" part=\"link\">088 99 000 00</a> en <a rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\" part=\"link\" target=\"_blank\" href=\"mailto:%20aftersales&#64;movingintelligence.nl\">aftersales&#64;movingintelligence.nl</a>. <br /><br />"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "2da0e7e0-f706-404a-9410-f8cc0ae7edef",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              },
+              "imageInfo" : {
+                "altText" : "",
+                "overrideAltText" : false,
+                "source" : {
+                  "ref" : "MCYOCQ4OFQDND7NGSYUMHH5H5YDY",
+                  "type" : "imageReference"
+                },
+                "url" : "/cms/media/MCYOCQ4OFQDND7NGSYUMHH5H5YDY"
+              },
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+            },
+            "definition" : "lightning/image",
+            "id" : "999dfc9b-f46b-47ba-bc73-6b7941a32036",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "<strong>Naar 4G of voertuigdata zonder hardware?</strong><br />Wanneer uw systeem nog niet geschikt is voor het 4G-netwerk, bieden we u graag een upgrade. We laten een nieuw systeem installeren die aan al uw eisen voldoet. Of u schakelt met een druk op de knop over naar onze oplossing waarbij zelfs geen installatie van hardware nodig is. OEM-voertuigdata is nu beschikbaar voor nagenoeg alle automerken. Accountmanagers Renée, Ralph en Rob adviseren u hier graag over. Meer weten? Bel <a rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\" part=\"link\" target=\"_blank\" href=\"tel:%20088%2099%20000%2000\">088 99 000 00</a> of mail naar <a part=\"link\" target=\"_blank\" href=\"mailto:%20sales&#64;movingintelligence.nl\" rel=\"noopener noreferrer noopener noreferrer\">sales&#64;movingintelligence.nl</a>."
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "3166457a-b00b-4e53-b4b3-8e4802a16026",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "left",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 16.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 20.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "Moving Intelligence heeft in 2023 EuropeTrack en SlimmGPS overgenomen van Thijs van der Lugt en Ewout van der Kraan. Zij beëindigen hun werkzaamheden eind maart. We danken Thijs en Ewout voor alle inzet en zij danken u voor alle mooie contacten. Onze accountmanagers doen er alles aan om uw relatie met ons bedrijf op een plezierige manier voort te zetten."
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "0f79dead-36a1-4780-a0e4-044a808ed759",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                }
+              },
+              "lineStyle" : "solid",
+              "lineWeight" : {
+                "unit" : "px",
+                "value" : 1.0
+              },
+              "lineWidth" : {
+                "unit" : "%",
+                "value" : 100.0
+              }
+            },
+            "definition" : "lightning/divider",
+            "id" : "b4051c40-d7b7-4230-8cea-9b141646781a",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "center",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.xLarge}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+              "text" : "<a rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\" href=\"https://www.facebook.com/movingintelligence\" target=\"_blank\" part=\"link\">Facebook</a> | <a rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\" href=\"https://www.linkedin.com/company/movingintelligence/?viewAsMember&#61;true\" target=\"_blank\" part=\"link\">Linkedin</a> | <a rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\" href=\"https://www.instagram.com/movingintelligence/\" target=\"_blank\" part=\"link\">Instagram</a>"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "8b01cd9e-346a-4ef6-85d6-baaced086cbc",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:horizontalAlignment" : "center",
+              "lightning:padding" : {
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "top" : {
+                  "unit" : "px",
+                  "value" : 8.0
+                }
+              },
+              "lineStyle" : "solid",
+              "lineWeight" : {
+                "unit" : "px",
+                "value" : 1.0
+              },
+              "lineWidth" : {
+                "unit" : "%",
+                "value" : 100.0
+              }
+            },
+            "definition" : "lightning/divider",
+            "id" : "538b4892-0df3-4f33-84d1-c99bd41d4ecb",
+            "type" : "block"
+          }, {
+            "attributes" : {
+              "align" : "center",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "borderColor" : "{!$brand.colorScheme.neutral}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "textColor" : "{!$brand.colorScheme.contrast}"
+              },
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.trebuchetMs}",
+                "fontSize" : "{!$brand.fontSize.small}",
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "letterSpacing" : "normal",
+                "lineHeight" : 1.5,
+                "textTransform" : "none"
+              },
+              "text" : "{!$organization.Address}   |  <a rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\" href=\"{!$link.EmailAddressOptOutUrl}\" target=\"_blank\" part=\"link\">Uitschrijven</a>"
+            },
+            "definition" : "lightning/paragraph",
+            "id" : "230bca9a-474c-46a8-a5cd-3a51a6ddd666",
+            "type" : "block"
+          } ]
+        } ]
+      } ]
+    },
+    "sfdc_cms:title" : "Service improvement mail ET (satisfaction - churn)",
+    "subjectLine" : "Onze experts staan klaar voor vragen over Rittenregistratie",
+    "sfdc_cms:variants" : [ ]
+  },
+  "urlName" : "service-improvement-mail-et-satisfaction---churn"
+}

@@ -1,0 +1,15 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "Logo_Moving intelligence_Black_Red_RGB[33]",
+  "contentBody" : {
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000001gObUAI",
+        "type" : "file",
+        "size" : 39404
+      }
+    }
+  },
+  "urlName" : "logo-moving-intelligence-black-red-rgb-33"
+}

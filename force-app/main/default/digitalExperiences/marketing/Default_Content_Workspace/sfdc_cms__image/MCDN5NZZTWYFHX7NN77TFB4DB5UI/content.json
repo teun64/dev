@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "mail 2 img 1",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000003sALUAY",
+        "type" : "file",
+        "size" : 205421
+      }
+    }
+  },
+  "urlName" : "mail-2-img-1"
+}

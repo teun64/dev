@@ -1,0 +1,2032 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "Test template",
+  "contentBody" : {
+    "backgroundColor" : "#ECECE7",
+    "lightning:backgroundImage" : {
+      "position" : "center center",
+      "repeat" : "no-repeat",
+      "size" : "cover"
+    },
+    "lightning:brandSource" : "content/Brand_Center.sfdc_cms__brand/br_M",
+    "lightning:colorScheme" : "{!$brand.colorScheme}",
+    "lightning:dataProviders" : [
+      {
+        "attributes" : {
+          "dataGraphApiName" : "Data_Graph"
+        },
+        "definition" : "sfdc_cms__dataGraphDataProvider",
+        "sfdcExpressionKey" : "$dataGraph"
+      }
+    ],
+    "lightning:expressions" : [],
+    "lightning:padding" : "{!$brand.spacing.none}",
+    "messagePurpose" : "promotional",
+    "preheader" : "Preheader",
+    "sfdc_cms:attachments" : [],
+    "sfdc_cms:block" : {
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "1f99b5bf-39b2-43a7-b98d-1ad68614dfd2",
+      "type" : "block",
+      "children" : [
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "1ccae53a-318b-4d3a-8cf8-b72323168e7b",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "5d7683e3-2bd4-46c3-910b-9cd9556d106e",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCWI6TGQ23L5GFJJWQZMZ4LZE56E",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCWI6TGQ23L5GFJJWQZMZ4LZE56E?fileName=mail+header+algemeen+placeholder.png&fileHash=d653cd0812ff4937083f158f6bcbcb8a"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "800cd444-95bb-49ab-9424-34e9ab2f3c55",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading3}",
+                    "text" : "<div class=\"text-base my-auto mx-auto [--thread-content-margin:--spacing(4)] &#64;w-sm/main:[--thread-content-margin:--spacing(6)] &#64;w-lg/main:[--thread-content-margin:--spacing(16)] px-(--thread-content-margin)\"><div class=\"[--thread-content-max-width:40rem] &#64;w-lg/main:[--thread-content-max-width:48rem] mx-auto max-w-(--thread-content-max-width) flex-1 group/turn-messages focus-visible:outline-hidden relative flex w-full min-w-0 flex-col agent-turn\" tabindex=\"-1\"><div class=\"flex max-w-full flex-col grow\"><div dir=\"auto\" class=\"min-h-8 text-message relative flex w-full flex-col items-end gap-2 text-start break-words whitespace-normal [.text-message&#43;&amp;]:mt-1\"><div class=\"flex w-full flex-col gap-1 empty:hidden first:pt-[1px]\"><div class=\"markdown prose dark:prose-invert w-full wrap-break-word light markdown-new-styling\"><p><strong><span style=\"font-size: 16px; font-family: var(--b-typography-font-family, inherit); font-style: var(--b-typography-font-style); letter-spacing: var(--b-typography-letter-spacing); text-transform: var(--b-typography-text-transform);\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </span> </strong></p></div></div></div></div></div></div>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "7619293f-8b54-4237-b888-01281364390c",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : {
+              "contrast" : "#000000",
+              "neutral" : "#ECECE6",
+              "primaryAccent" : "#000000",
+              "primaryAccentContrast" : "#ffffff",
+              "primaryAccentContrastDerived" : "#e5e5e5",
+              "primaryAccentDerived" : "#000000",
+              "root" : "#FEFFFF"
+            },
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "0b20446e-81ae-43dd-8ace-459ab0ead1d0",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 4.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "55b50f2a-519d-4349-9739-39277c515e76",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCNAIYXOJV3JDDDNT6V6VCSGTHWE",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCNAIYXOJV3JDDDNT6V6VCSGTHWE?fileName=topic+600x600+red+arrow.png&fileHash=761beaac1165b4b53cae3f903b888c91"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.round}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "010c20d0-7504-40b5-b95e-a2228a99cfe7",
+                  "type" : "block"
+                }
+              ]
+            },
+            {
+              "attributes" : {
+                "columnWidth" : 8.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "1556c274-b53d-4440-ad98-92401dfcc856",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 2.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>1 afbeelding 2 tekst button</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "2612bd3c-f893-46fd-9e28-0e860a262efb",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "justify",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<span style=\"font-size: 16px;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. </span>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "d130833d-ef80-40e2-bdbc-a1ae1bc10690",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+                    "text" : "Button",
+                    "width" : "auto"
+                  },
+                  "definition" : "lightning/actionButton",
+                  "id" : "b674b076-f410-4197-b645-4933aa5d4a48",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "b0dc6afd-811a-41f8-a3e2-a33922068b2c",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 4.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "e2a94655-0d10-41ba-809c-bdd694da3ef1",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCNAIYXOJV3JDDDNT6V6VCSGTHWE",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCNAIYXOJV3JDDDNT6V6VCSGTHWE?fileName=topic+600x600+red+arrow.png&fileHash=761beaac1165b4b53cae3f903b888c91"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.round}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "2a74b915-c7c2-47a1-a1d4-17a7ab1e9e5c",
+                  "type" : "block"
+                }
+              ]
+            },
+            {
+              "attributes" : {
+                "columnWidth" : 8.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "eb9f118c-86f6-44d3-9d9f-ca3a53578426",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 2.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>1 afbeelding 2 tekst link</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "f245d68e-1ee8-4b6f-9f15-d7fa0734ff46",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "justify",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<span style=\"font-size: 16px;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. <u><strong><br /></strong></u></span>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "26a751c6-26cf-40e4-af67-e452a13c0ad2",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "right",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<u>Lees meer</u>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "0bc3c1d8-a84d-4276-bc6b-c9572bafac75",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "7ee0294e-3325-4aa5-82f5-f1c4a2838db7",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 4.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "5f7a5c40-68b1-4b7e-a5a7-a7da0044b183",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCNAG6N4NDN5GCRAE4OGE5S2KYEI",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCNAG6N4NDN5GCRAE4OGE5S2KYEI?fileName=topic+600x300+red+arrow.png&fileHash=e8be9194a75aaf48bcd9ecc04eee85c4"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.round}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "dce51210-bfcc-4307-83da-a9c69686cf0e",
+                  "type" : "block"
+                }
+              ]
+            },
+            {
+              "attributes" : {
+                "columnWidth" : 8.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "8b0e0fca-b6a2-481c-9ff4-ad7fefb17a6c",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "justify",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<span style=\"font-size: 16px;\">Kleine tekst  zonder header met button</span>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "5321e06a-dc93-4900-bf55-fc3d4f89b547",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+                    "text" : "Button",
+                    "width" : "auto"
+                  },
+                  "definition" : "lightning/actionButton",
+                  "id" : "ed8fd496-313a-4846-be70-065d8b0b314f",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "dc599a64-77ec-42bd-8c54-abdf308ba175",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 4.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "b875f1ec-bc7b-47eb-b2bb-fc61c1013716",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCNAG6N4NDN5GCRAE4OGE5S2KYEI",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCNAG6N4NDN5GCRAE4OGE5S2KYEI?fileName=topic+600x300+red+arrow.png&fileHash=e8be9194a75aaf48bcd9ecc04eee85c4"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.round}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "7bad717c-deca-4444-80de-9add39b5a8fe",
+                  "type" : "block"
+                }
+              ]
+            },
+            {
+              "attributes" : {
+                "columnWidth" : 8.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "7c21830c-05e6-45e2-b975-1727b6443068",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "justify",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<span style=\"font-size: 16px;\">Kleine tekst  zonder header </span>link"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "b386304f-4872-47fe-9030-707eef9b8582",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "right",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<u>Lees meer</u>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "9c89a8fe-7e2c-454d-8d1c-780664fb3461",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "31a02a75-5204-491c-adc1-cb149c217fed",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 6.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "bed525fa-42aa-4e30-a932-ac50c5ad943d",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCNAIYXOJV3JDDDNT6V6VCSGTHWE",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCNAIYXOJV3JDDDNT6V6VCSGTHWE?fileName=topic+600x600+red+arrow.png&fileHash=761beaac1165b4b53cae3f903b888c91"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.round}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "c39ed5b0-f026-488c-802c-40b0bb56811e",
+                  "type" : "block"
+                }
+              ]
+            },
+            {
+              "attributes" : {
+                "columnWidth" : 6.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "867509c9-96a8-4688-8882-d3918e953e7c",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 2.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>1 afbeelding 1 tekst</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "f5ca3f43-28ef-413e-a259-145d7f04967e",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<span style=\"font-size: 16px;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <br /><br />Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris <br />hhh</span>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "c07bf84d-97d6-41f1-841e-36cfbf827c1e",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+                    "text" : "Button",
+                    "width" : "auto"
+                  },
+                  "definition" : "lightning/actionButton",
+                  "id" : "a8ca0e59-d523-4a6e-9406-49a601805ec1",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "d2e7a9aa-5e19-458e-a500-8a0f1c2b2f72",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 6.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "604ee6ef-c8ea-40dd-90d8-1ee12406ae9d",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCNAIYXOJV3JDDDNT6V6VCSGTHWE",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCNAIYXOJV3JDDDNT6V6VCSGTHWE?fileName=topic+600x600+red+arrow.png&fileHash=761beaac1165b4b53cae3f903b888c91"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.round}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "d343e155-8d86-4ee9-bd95-fc479b9e9ff4",
+                  "type" : "block"
+                }
+              ]
+            },
+            {
+              "attributes" : {
+                "columnWidth" : 6.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "f32d6c00-bf04-4047-83cf-c1344b8a3096",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 2.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>1 afbeelding 1 tekst</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "aa76cc7d-d3f3-454f-950f-9f68f044e957",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<span style=\"font-size: 16px;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <br /><br />Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris <br />hhh</span>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "ad02620a-1da1-4a71-b1bc-273fe0a8acc9",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "right",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<u>Lees meer</u>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "f5b5a835-9e88-43e8-a10d-2d67581a9496",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "7630c997-363a-407c-89b7-dc2b25924b81",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "4b439b1e-e09f-4d97-bc31-38d125320850",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCKCPMSOTYZJFSZEUSUPL34H7SC4",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCKCPMSOTYZJFSZEUSUPL34H7SC4?fileName=topic+600x150.png&fileHash=ae4b6e5b1ef983218c2424d23e053fde"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "3bdfe79e-30aa-465b-9567-928d36e7f9eb",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>2G-4G migratieproject</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "983c4ae4-08a6-46b5-815a-b28774bb57c1",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "Telecomproviders hebben aangekondigd dat het 2G-netwerk de komende jaren wordt uitgefaseerd. Dit betekent dat voertuigen die gebruikmaken van 2G-connectiviteit op termijn geen data meer verzenden. <br /><br /><strong>Moving Intelligence levert sinds 2023 hardware die voorzien is van een 4G-modem</strong>. <br /><br />Zorg samen met ons dat je klanten verbonden blijven. Neem contact op met je accountmanager en we kijken waar nodig <span style=\"font-family: var(--b-typography-font-family, inherit); font-size: var(--b-typography-font-size, 1rem); font-style: var(--b-typography-font-style); letter-spacing: var(--b-typography-letter-spacing); text-transform: var(--b-typography-text-transform);\">hoe we de 2G-boxen van (fleet)klanten kunnen vervangen door toekomstbestendige 4G-hardware. </span><br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "c2058955-4e34-499e-8632-29ac02b81d63",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:click" : {
+                      "actions" : [
+                        {
+                          "attributes" : {
+                            "openInNewTab" : true,
+                            "url" : "https://movingintelligence.nl/blog/2g-4g-telematica-update"
+                          },
+                          "definition" : "sfdc_cms__navigateToUrlAction",
+                          "generatedUrl" : "https://movingintelligence.nl/blog/2g-4g-telematica-update"
+                        }
+                      ]
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+                    "text" : "Meer over uitfasering 2G",
+                    "width" : "auto"
+                  },
+                  "definition" : "lightning/actionButton",
+                  "id" : "8a9f1bda-9604-49b2-a3cd-04b7426abe82",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "3157cca0-08b0-481e-b8f1-f2bec41fa801",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "cd22dce7-59de-4a71-93f6-0e2c623bf03a",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "b34be51d-9594-4cdf-8f9a-33b6e2ac2b85",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCKCPMSOTYZJFSZEUSUPL34H7SC4",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCKCPMSOTYZJFSZEUSUPL34H7SC4?fileName=topic+600x150.png&fileHash=ae4b6e5b1ef983218c2424d23e053fde"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "7bcc2a71-410c-4762-913c-508267f7b96f",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>2G-4G migratieproject</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "f7f07479-476a-4b5a-94ec-9a638cacfc44",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "Telecomproviders hebben aangekondigd dat het 2G-netwerk de komende jaren wordt uitgefaseerd. Dit betekent dat voertuigen die gebruikmaken van 2G-connectiviteit op termijn geen data meer verzenden. <br /><br /><strong>Moving Intelligence levert sinds 2023 hardware die voorzien is van een 4G-modem</strong>. <br /><br />Zorg samen met ons dat je klanten verbonden blijven. Neem contact op met je accountmanager en we kijken waar nodig <span style=\"font-family: var(--b-typography-font-family, inherit); font-size: var(--b-typography-font-size, 1rem); font-style: var(--b-typography-font-style); letter-spacing: var(--b-typography-letter-spacing); text-transform: var(--b-typography-text-transform);\">hoe we de 2G-boxen van (fleet)klanten kunnen vervangen door toekomstbestendige 4G-hardware. </span><br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "8daf7e24-7629-476e-8cf5-5f858b45a303",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "right",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<u>Lees meer</u>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "862015fa-c0d4-4d7d-8960-38d64ab5aad1",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "24b55c59-acf1-4270-a181-f3ee931d5162",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "80815c69-6d5a-44ae-bd56-b645180a3904",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "451347d5-32aa-4a0a-89b1-b230a968a740",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCCHFNZWPEGVHJNECVI4FKNVVOGY",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCCHFNZWPEGVHJNECVI4FKNVVOGY?fileName=topic+600x200+red+arrow.png&fileHash=5db5671d60a58781dff8c85f58ad17a5"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "2ae155b2-6cc9-4d60-9a2a-361d5d7d1ad9",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>2G-4G migratieproject</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "6c47158b-fabd-4778-ae0e-88b6a3f221fb",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "Telecomproviders hebben aangekondigd dat het 2G-netwerk de komende jaren wordt uitgefaseerd. Dit betekent dat voertuigen die gebruikmaken van 2G-connectiviteit op termijn geen data meer verzenden. <br /><br /><strong>Moving Intelligence levert sinds 2023 hardware die voorzien is van een 4G-modem</strong>. <br /><br />Zorg samen met ons dat je klanten verbonden blijven. Neem contact op met je accountmanager en we kijken waar nodig <span style=\"font-family: var(--b-typography-font-family, inherit); font-size: var(--b-typography-font-size, 1rem); font-style: var(--b-typography-font-style); letter-spacing: var(--b-typography-letter-spacing); text-transform: var(--b-typography-text-transform);\">hoe we de 2G-boxen van (fleet)klanten kunnen vervangen door toekomstbestendige 4G-hardware. </span><br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "0cf30981-a2a3-4010-9405-37b33c0db079",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:click" : {
+                      "actions" : [
+                        {
+                          "attributes" : {
+                            "openInNewTab" : true,
+                            "url" : "https://movingintelligence.nl/blog/2g-4g-telematica-update"
+                          },
+                          "definition" : "sfdc_cms__navigateToUrlAction",
+                          "generatedUrl" : "https://movingintelligence.nl/blog/2g-4g-telematica-update"
+                        }
+                      ]
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+                    "text" : "Meer over uitfasering 2G",
+                    "width" : "auto"
+                  },
+                  "definition" : "lightning/actionButton",
+                  "id" : "41fe5fba-55e6-42b0-8948-38752c34f1e4",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "07b07128-bde5-44f1-813c-3b0b9eb34b7d",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : false,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "8b96e539-ecc6-4e3d-9dcf-bf0d4054d87f",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "ad61172d-82e4-44b0-a377-43e95d5227c7",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCCHFNZWPEGVHJNECVI4FKNVVOGY",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCCHFNZWPEGVHJNECVI4FKNVVOGY?fileName=topic+600x200+red+arrow.png&fileHash=5db5671d60a58781dff8c85f58ad17a5"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "0c2387cb-76d2-475f-9778-40e1724a7473",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>2G-4G migratieproject</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "326a4684-9b47-46fc-a2d2-201d6dd612e2",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "Telecomproviders hebben aangekondigd dat het 2G-netwerk de komende jaren wordt uitgefaseerd. Dit betekent dat voertuigen die gebruikmaken van 2G-connectiviteit op termijn geen data meer verzenden. <br /><br /><strong>Moving Intelligence levert sinds 2023 hardware die voorzien is van een 4G-modem</strong>. <br /><br />Zorg samen met ons dat je klanten verbonden blijven. Neem contact op met je accountmanager en we kijken waar nodig <span style=\"font-family: var(--b-typography-font-family, inherit); font-size: var(--b-typography-font-size, 1rem); font-style: var(--b-typography-font-style); letter-spacing: var(--b-typography-letter-spacing); text-transform: var(--b-typography-text-transform);\">hoe we de 2G-boxen van (fleet)klanten kunnen vervangen door toekomstbestendige 4G-hardware. </span><br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "07aa0e17-31e5-44cc-90b2-bff847b05201",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "right",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.none}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<u>Lees meer</u>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "4eefe833-22c0-499d-9c6a-a988b960f449",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "7b2d17ff-fc56-4abe-b58c-5eaae29a1a92",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "a7dfa12e-0a17-4159-a615-42d27981ee47",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "c12f3eea-e0c1-42b6-b759-640d49476e6e",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "Met vriendelijke groet,"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "b1edbd56-6c18-42ff-bad6-3dd22430fb25",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "579e9578-596b-44d5-95ef-dcf9407d2e37",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "c5a7b385-aaff-4394-808f-835a56dcf6df",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 25.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MC2N2AWKSBK5B6DENZ5S2WTZCK5M",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MC2N2AWKSBK5B6DENZ5S2WTZCK5M"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "left",
+                    "lightning:margin" : "{!$brand.spacing.xSmall}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "ffab6e86-8aea-4154-a8dc-8223cb4a5be3",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "df72d555-35c5-4043-a466-ab05af0b6f11",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "64797ff7-92f6-4828-a9bc-d6e05c353a66",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<strong>T</strong>  &#43;31 88 99 00 000<br /><strong>E </strong> sales&#64;movingintelligence.nl"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "aacfd1f0-6f0a-452d-ab28-6f510cee11f0",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "92296554-5e6a-45d4-86df-e4c5f2f319e8",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "42cda11e-2766-47fc-b599-ea5aeb17c4de",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "f1f26b20-dabf-4fae-91f4-323242883259",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "bc532f26-ea1f-45ff-a4df-9a3c245a732c",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "fe3228ce-6b79-47f6-bacd-d3c6eb6f968f",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "{!$organization.Address} | {!$link.EmailAddressOptOutUrl}<br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "9bf53aa0-ff5d-4c20-9979-fc448aaa97dc",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "sfdc_cms:description" : "Template met verschillende contentvormen",
+    "sfdc_cms:title" : "Test template",
+    "subjectLine" : "Subject line ",
+    "sfdc_cms:variants" : []
+  },
+  "urlName" : "test-template"
+}

@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "header mailing noodsleutel",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR00000024YzUAI",
+        "type" : "file",
+        "size" : 846212
+      }
+    }
+  },
+  "urlName" : "header-mailing-noodsleutel"
+}

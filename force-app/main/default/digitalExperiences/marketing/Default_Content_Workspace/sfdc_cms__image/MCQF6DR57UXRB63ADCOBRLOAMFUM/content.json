@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "Moving Intelligence Peilzender welkom",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000003pnZUAQ",
+        "type" : "file",
+        "size" : 158377
+      }
+    }
+  },
+  "urlName" : "moving-intelligence-peilzender-welkom"
+}

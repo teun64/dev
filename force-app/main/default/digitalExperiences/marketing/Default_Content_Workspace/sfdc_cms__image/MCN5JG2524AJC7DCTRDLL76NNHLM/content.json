@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "Header mail dealer 2025 q3",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000003YYDUA2",
+        "type" : "file",
+        "size" : 158377
+      }
+    }
+  },
+  "urlName" : "header-mail-dealer-2025-q3"
+}

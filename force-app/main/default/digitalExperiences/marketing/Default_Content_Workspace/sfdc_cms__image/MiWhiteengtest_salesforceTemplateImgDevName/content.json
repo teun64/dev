@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "SalesforceTemplateImage",
+  "contentBody" : {
+    "sfdc_cms:media" : {
+      "source" : {
+        "type" : "file",
+        "ref" : "0sNbR0000006Y5R",
+        "size" : 256152,
+        "mimeType" : "image/png"
+      }
+    },
+    "altText" : "Salesforce Template Image"
+  },
+  "urlName" : "salesforcetemplateimage"
+}

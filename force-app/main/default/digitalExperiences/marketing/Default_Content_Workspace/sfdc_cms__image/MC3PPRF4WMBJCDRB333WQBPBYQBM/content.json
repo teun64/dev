@@ -1,0 +1,15 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "mail footer",
+  "contentBody" : {
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000003wqfUAA",
+        "type" : "file",
+        "size" : 26045
+      }
+    }
+  },
+  "urlName" : "mail-footer"
+}

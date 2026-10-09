@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "co2dashboard",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000001gzhUAA",
+        "type" : "file",
+        "size" : 219278
+      }
+    }
+  },
+  "urlName" : "co2dashboard"
+}

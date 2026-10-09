@@ -1,0 +1,17 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "20260606miredmigreenrijstijl",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "fileSize" : 157050.0,
+        "mimeType" : "image/png",
+        "ref" : "0sNbR000000AHIvUAO",
+        "type" : "file",
+        "size" : 157050
+      }
+    }
+  },
+  "urlName" : "20260606miredmigreenrijstijl"
+}

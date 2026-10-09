@@ -1,0 +1,980 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "202406 - Leisure mailing noodsleutel",
+  "contentBody" : {
+    "backgroundColor" : "#E9EAEC",
+    "lightning:colorScheme" : {
+      "root" : "#FFFFFF",
+      "contrast" : "#000000",
+      "primaryAccent" : "#0176d3",
+      "primaryAccentContrast" : "#ffffff",
+      "neutral" : "#747474"
+    },
+    "lightning:padding" : {
+      "top" : {
+        "value" : 0,
+        "unit" : "px"
+      }
+    },
+    "messagePurpose" : "promotional",
+    "sfdc_cms:title" : "202406 - Leisure mailing noodsleutel",
+    "sfdc_cms:description" : "",
+    "subjectLine" : "Vergeet de noodsleutel niet op vakantie",
+    "preheader" : "Belangrijke informatie en handige tips voor als u met de auto naar het buitenland gaat.",
+    "sfdc_cms:block" : {
+      "type" : "block",
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "8fc4ae20-ef74-40c6-873b-10bfac9f879a",
+      "children" : [ {
+        "id" : "a7536b00-76ff-44f5-8b40-68fa7aa5c3e7",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "415a8e39-8efb-438f-96b8-5fa09d38fee4",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 12,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "504c38a6-2018-4e0e-b797-4a60a2f9044e",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"padding: 10px 5px; font-family:Arial, sans-serif; text-align: right; color: #5B625B; font-size: 12px;\"><a href=\"{!$other.View_Online}\" rel=\"nofollow,noreferrer\" style=\"color: #5B625B; font-weight: 500;\">Bekijk deze e-mail online</a></div>"
+            }
+          }, {
+            "definition" : "lightning/image",
+            "attributes" : {
+              "imageCaption" : "Fijne vakantie!",
+              "lightning:borderWidth" : {
+                "unit" : "px",
+                "value" : 0
+              },
+              "lightning:margin" : {
+                "top" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.arial}",
+                "letterSpacing" : "normal",
+                "fontSize" : {
+                  "unit" : "px",
+                  "value" : 16
+                },
+                "lineHeight" : 1.5,
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "textTransform" : "none"
+              },
+              "linkUrl" : "https://sfdc.co",
+              "lightning:horizontalAlignment" : "center",
+              "lightning:borderRadius" : {
+                "unit" : "px",
+                "value" : 0
+              },
+              "lightning:colorGroup" : {
+                "backgroundColor" : "#ffffff",
+                "borderColor" : "#747474",
+                "linkColor" : "#0176d3",
+                "textColor" : "#000000"
+              },
+              "lightning:padding" : {
+                "top" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                }
+              },
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              }
+            },
+            "type" : "block",
+            "id" : "23f74aab-a94e-4c7b-a25e-7401b068c47c"
+          } ]
+        } ]
+      }, {
+        "id" : "f42f4340-dc47-419c-9f0e-4547d97b20ba",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "74446bc0-c940-48be-86a3-6ea08b592519",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 12,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "295eb3d3-e4cc-4bbe-a7b4-a2d29b59b212",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:margin" : {
+                "top" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 0,
+                  "unit" : "px"
+                }
+              },
+              "rawHtml" : "<div style=\"margin: 40px 25px 0px;\">\n<p>Beste klant,</p>\n\n<p>Gaat u met uw auto of camper op vakantie? Vergeet niet de autorisatiepas, noodsleutel en/of active tag mee te nemen. Gaat het autoalarm af en blokkeert uw voertuig, dan kunt u dit snel oplossen.</p>\n\n<p style=\"font-family: Arial, sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; margin: 8px 0px 0px; color: rgb(91, 98, 91);\"> </p>\n</div>"
+            }
+          } ]
+        } ]
+      }, {
+        "id" : "0236fb5f-f2d0-45cc-8faf-c339f42087ea",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "9ffee839-c873-467c-8d44-cacf122f37b3",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 6,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "definition" : "lightning/image",
+            "attributes" : {
+              "imageCaption" : "Geen zorgen met de pas, noodsleutel of tag",
+              "lightning:borderWidth" : {
+                "unit" : "px",
+                "value" : 0
+              },
+              "lightning:margin" : {
+                "top" : {
+                  "unit" : "px",
+                  "value" : 40.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.arial}",
+                "letterSpacing" : "normal",
+                "fontSize" : {
+                  "unit" : "px",
+                  "value" : 16
+                },
+                "lineHeight" : 1.5,
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "textTransform" : "none"
+              },
+              "linkUrl" : "https://sfdc.co",
+              "lightning:horizontalAlignment" : "center",
+              "lightning:borderRadius" : {
+                "unit" : "px",
+                "value" : 0
+              },
+              "lightning:colorGroup" : {
+                "backgroundColor" : "#ffffff",
+                "borderColor" : "#747474",
+                "linkColor" : "#0176d3",
+                "textColor" : "#000000"
+              },
+              "lightning:padding" : {
+                "top" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                }
+              },
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              }
+            },
+            "type" : "block",
+            "id" : "46754195-891e-4870-803c-d463971a4559"
+          } ]
+        }, {
+          "id" : "f8e43660-1b1b-4575-adcf-56a166a72521",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 6,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "6818bddf-c996-45bc-b16f-c9af6a453fc3",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:margin" : {
+                "top" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 0,
+                  "unit" : "px"
+                }
+              },
+              "rawHtml" : "<div style=\"margin:40px 25px 0px 25px; font-family:Arial, sans-serif;\">De blokkade opheffen kan ook op afstand, via het platform of de app. Maar wanneer er geen gsm-verbinding is, bijvoorbeeld in een ondergrondse parkeergarage of afgelegen gebied, kan het systeem geen connectie maken met het platform. Met de pas, noodsleutel of active tag kunt u de blokkade ter plekke dan wel opheffen.</div>"
+            }
+          } ]
+        } ]
+      }, {
+        "id" : "c365392c-3714-4652-b566-bc4959d4f937",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "dbd8dfc6-91ae-40e8-85f9-894f9a301a22",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 12,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "65644f72-f354-4d25-ad9d-23fc464e1df0",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:margin" : {
+                "top" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 0,
+                  "unit" : "px"
+                }
+              },
+              "rawHtml" : "<div style=\"margin:40px 35px 40px 35px; font-family:Arial, sans-serif;\"><b>Let op: wanneer er geen verbinding is met het systeem in uw auto, kunnen wij de blokkade op afstand </b><b>niet </b><b>opheffen.</b><br />\n<br />\nBent u een pas, active tag of sleutel kwijt? Neem op tijd contact op met uw dealer voor een nieuwe.</div>\n\n<div style=\"margin:40px 35px 40px 35px; font-family:Arial, sans-serif;\"><span style=\"font-size:20px;\"><span style=\"color: rgb(14, 15, 14); font-weight: 700;\">Wat te doen bij calamiteiten?</span></span><br />\n<br />\nBel de alarmcentrale: <span style=\"color: rgb(231, 76, 60);\"><strong>&#43;31 20 569 31 11 </strong></span>(24/7 bereikbaar). Houd ter verificatie uw persoonlijk wachtwoord bij de hand.</div>\n\n<p style=\"margin: 40px 35px; font-family: Arial, sans-serif;\"><span style=\"font-size:20px;\"><strong>Naar of door Zwitserland?</strong></span><br />\n<br />\nIn Zwitserland is het 2G-netwerk uitgezet. Dat kan betekenen dat het modem in sommige Moving Intelligence-systemen geen verbinding maakt met het online platform. Reist u naar Zwitserland of bent u op doorreis naar Zwitserland? Neem ook dan de pas, sleutel en/of tag mee. <a href=\"https://movingintelligence.nl/blog/2G-4G-LTE-zwitserland\">Lees verder &gt;</a></p>\n\n<div style=\"margin:40px 35px 40px 35px; font-family:Arial, sans-serif;\"><span style=\"font-size:20px;\"><span style=\"color: rgb(14, 15, 14); font-weight: 700;\">Tips</span></span></div>\n\n<ul><li style=\"margin: 40px 35px; font-family: Arial, sans-serif;\"><strong>Voeg een extra alarmcontact toe in het platform voor noodgevallen</strong></li><li style=\"margin: 40px 35px; font-family: Arial, sans-serif;\"><strong>Informeer een thuisblijver over de startblokkering als uw auto thuis blijft of wordt uitgeleend</strong></li><li style=\"margin: 40px 35px; font-family: Arial, sans-serif;\"><strong>Controleer de kalenderfunctie en geofence-instellingen</strong></li></ul>"
+            }
+          } ]
+        } ]
+      }, {
+        "id" : "e3cfc5b9-640e-4588-a712-f5b8cb2a9476",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "49c3ce0b-ad37-4283-a893-5e5f3b20ebf4",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 6,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "definition" : "lightning/image",
+            "attributes" : {
+              "imageCaption" : "Goede reis en geniet van de vakantie!",
+              "lightning:borderWidth" : {
+                "unit" : "px",
+                "value" : 0
+              },
+              "lightning:margin" : {
+                "top" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                }
+              },
+              "lightning:typography" : {
+                "fontFamily" : "{!$brand.fontFamily.arial}",
+                "letterSpacing" : "normal",
+                "fontSize" : {
+                  "unit" : "px",
+                  "value" : 16
+                },
+                "lineHeight" : 1.5,
+                "fontWeight" : "{!$brand.fontWeight.normal}",
+                "textTransform" : "none"
+              },
+              "linkUrl" : "https://sfdc.co",
+              "lightning:horizontalAlignment" : "center",
+              "lightning:borderRadius" : {
+                "unit" : "px",
+                "value" : 0
+              },
+              "lightning:colorGroup" : {
+                "backgroundColor" : "#ffffff",
+                "borderColor" : "#747474",
+                "linkColor" : "#0176d3",
+                "textColor" : "#000000"
+              },
+              "lightning:padding" : {
+                "top" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "left" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "bottom" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                },
+                "right" : {
+                  "unit" : "px",
+                  "value" : 0.0
+                }
+              },
+              "imageFitConfig" : {
+                "width" : {
+                  "unit" : "%",
+                  "value" : 100.0
+                }
+              }
+            },
+            "type" : "block",
+            "id" : "a932a632-2b9c-4c24-8742-f389ff541c5f"
+          } ]
+        }, {
+          "id" : "f32fb7d1-43e1-4669-a8d5-c8971e9c7ce5",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 6,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "82e29fca-99e2-4e18-a501-7b73661d5532",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:margin" : {
+                "top" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "right" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "bottom" : {
+                  "value" : 0,
+                  "unit" : "px"
+                },
+                "left" : {
+                  "value" : 0,
+                  "unit" : "px"
+                }
+              },
+              "rawHtml" : "<div style=\"margin:40px 35px 40px 35px; font-family:Arial, sans-serif;\">\n<p style=\"color:#333333;font-family:Arial;font-size:16px;font-weight:normal;margin:0;\"><span style=\"font-size:14px;\"><span style=\"color:#000000;\">Login op het Moving Intelligence-platform en ga naar SUPPORT – DOWNLOADS voor uitgebreide handleidingen.</span></span></p>\n\n<p style=\"color:#333333;font-family:Arial;font-size:16px;font-weight:normal;margin:0;\"> </p>\n\n<p style=\"color:#333333;font-family:Arial;font-size:16px;font-weight:normal;margin:0;\"><span style=\"font-size:14px;\"><span style=\"color:#000000;\">Of kijk bij de </span><a href=\"https://movingintelligence.nl/support\"><span style=\"color:#000000;\">veelgestelde vragen</span></a><span style=\"color:#000000;\"> op onze website. </span></span></p>\n</div>"
+            }
+          } ]
+        } ]
+      }, {
+        "id" : "b5016339-bdfa-466d-8a3f-5c62562bb8a3",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "ba1eacc2-6156-4373-923c-68a95e6696e7",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 6,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "81f31f57-c84c-4ba4-a931-54cd27c90548",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"padding-top: 50px; padding-bottom: 50px; text-align: center; font-family:Arial, sans-serif;\">\n  <span style=\"font-weight: 700; font-size: 17px; color: #FFFFFF;\">Volg Moving Intelligence</span>\n<div style=\"margin-top: 10px;\">  \n<a href=\"https://www.facebook.com/movingintelligence/\" target=\"_blank\" rel=\"noopener noreferrer\"><img alt=\"\" border=\"0\" height=\"11%\" src=\"https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCXX7T4FFBSZDCDCEM3OWQANHXFY?oid&#61;00D1t000000uTfKEAU&amp;channelId&#61;0ap3W0000004C9DQAU\" style=\"width: 11%; height: 11%; border-width: 0px; border-style: solid;\" width=\"11%\" /></a>​​​    <a href=\"https://www.instagram.com/movingintelligence/\" target=\"_blank\" rel=\"noopener noreferrer\"><img alt=\"\" border=\"0\" height=\"11%\" src=\"https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCTQEQLN4HBFFZFNFYH5XEH3F2O4?oid&#61;00D1t000000uTfKEAU&amp;channelId&#61;0ap3W0000004C9DQAU\" style=\"width: 11%; height: 11%; border-width: 0px; border-style: solid;\" width=\"11%\" /></a>    <a href=\"https://www.youtube.com/channel/UCrEXcxlaMZTd4yOm-xcqykA\" target=\"_blank\" rel=\"noopener noreferrer\"><img alt=\"\" border=\"0\" height=\"33\" src=\"https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCW57WM3EFTZDSDPWMUQOHSOOQ5E?oid&#61;00D1t000000uTfKEAU&amp;channelId&#61;0ap3W0000004C9DQAU\" style=\"width: 11%; height: 11%; border-width: 0px; border-style: solid;\" width=\"11%\" /></a>    <a href=\"https://www.linkedin.com/company/movingintelligence\" target=\"_blank\" rel=\"noopener noreferrer\"><img alt=\"\" border=\"0\" height=\"11%\" src=\"https://movingintelligence.cdn.salesforce-experience.com/cms/delivery/media/MCVQUDDLF7FJG5JHHHMVWXYPV77A?oid&#61;00D1t000000uTfKEAU&amp;channelId&#61;0ap3W0000004C9DQAU\" style=\"width: 11%; height: 11%; border-width: 0px; border-style: solid;\" width=\"11%\" /></a>\n  </div></div>"
+            }
+          } ]
+        }, {
+          "id" : "5c4b8d97-5033-4063-a522-7919a30a1368",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 6,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "19ec311b-a461-409e-a80c-94e86fa1d191",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"padding-top: 50px; padding-bottom: 50px; text-align: center; font-family:Arial, sans-serif;\">\n  <span style=\"font-weight: 700; font-size: 17px; color: #FFFFFF;\">Uw gegevens updaten?</span>\n<div style=\"margin-top: 10px;\">  \n<a href=\"{!$other.EmailPreferenceCenter}\" rel=\"nofollow,noreferrer noopener noreferrer\" style=\"text-decoration:none;color:#0E0F0E;\" target=\"_blank\">\n  <div style=\"text-align:center; font-family:Arial,sans-serif; font-weight:700;background-color:#E5DFCE; width:fit-content; padding: 12px 0px; font-size: 14px; display: block; margin-left: auto; margin-right: auto;\">\n  <span style=\"padding: 20px;\">Update uw gegevens</span></div></a>\n  </div></div>"
+            }
+          } ]
+        } ]
+      }, {
+        "id" : "b477a108-ceda-4aa4-a286-8d19d84f8d89",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "e1f0672c-7259-4740-9049-9f0fb21c92d2",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 12,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "2bc69928-4723-49d4-9326-16b59c08f96d",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"border-top: 2px #E5DFCE solid;font-family:Arial, sans-serif; text-align: center;\">\n</div>"
+            }
+          } ]
+        } ]
+      }, {
+        "id" : "9d309e72-3423-4518-b3cb-88d178ea3954",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "4e512f66-380d-4bf0-9b2c-af26ce1befa8",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 4,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "07a28b56-07f6-4aad-ad3c-85982f0497fc",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"font-family:Arial, sans-serif; text-align: center;\">\n  <div style=\"padding: 20px 0px;\">\n    <div style=\"display: inline; color: #FFFFFF; font-weight: 700; font-size: 100%;\"><a href=\"https://www.movingintelligence.nl\" style=\"text-decoration: none;color: #FFFFFF;\">movingintelligence.nl</a></div></div>\n</div>"
+            }
+          } ]
+        }, {
+          "id" : "ba693b3a-62f3-42c7-8325-b88b62f77a7d",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 4,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "98ffca44-85ba-4659-8421-01195f4d55a1",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"font-family:Arial, sans-serif; text-align: center;\">\n  <div style=\"padding: 20px 0px;\">\n    <div style=\"display: inline; color: #FFFFFF; font-weight: 700; font-size: 100%;\"><a href=\"tel:0031889900000\" style=\"text-decoration: none;color: #FFFFFF;\">&#43;31 88 99 000 00</a></div></div>\n</div>"
+            }
+          } ]
+        }, {
+          "id" : "515123d7-009e-4e69-833f-37279c328d47",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 4,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "68f3d965-9f91-45fa-bd81-d60beb3666b0",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"font-family:Arial, sans-serif; text-align: center;\">\n  <div style=\"padding: 20px 0px;\">\n    <div style=\"display: inline; color: #FFFFFF; font-weight: 700; font-size: 100%\">Ma. - Vrij. : 8:30 - 17:30</div></div>\n</div>"
+            }
+          } ]
+        } ]
+      }, {
+        "id" : "2c78e9fa-0f3e-4949-8968-3a9077447f26",
+        "type" : "block",
+        "definition" : "lightning/section",
+        "attributes" : {
+          "stackOnMobile" : true,
+          "lightning:margin" : "{!$brand.spacing.none}",
+          "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+          "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+          "lightning:colorScheme" : {
+            "contrast" : "#000000",
+            "primaryAccent" : "#0176d3",
+            "primaryAccentContrast" : "#ffffff",
+            "neutral" : "#747474"
+          },
+          "lightning:backgroundImage" : {
+            "repeat" : "no-repeat",
+            "position" : "center center",
+            "size" : "cover"
+          },
+          "reverseOrderOnMobile" : false
+        },
+        "children" : [ {
+          "id" : "b1f14f5d-120a-4b25-a16b-bf6dda86158f",
+          "type" : "block",
+          "definition" : "lightning/column",
+          "attributes" : {
+            "columnWidth" : 12,
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:verticalAlignment" : "top",
+            "lightning:backgroundImage" : {
+              "repeat" : "no-repeat",
+              "position" : "center center",
+              "size" : "cover"
+            }
+          },
+          "children" : [ {
+            "id" : "9e0cc5ff-8970-4246-b5c5-fceda843ffaa",
+            "type" : "block",
+            "definition" : "lightning/html",
+            "attributes" : {
+              "lightning:colorGroup" : {
+                "backgroundColor" : "{!$brand.colorScheme.root}",
+                "textColor" : "{!$brand.colorScheme.contrast}",
+                "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                "borderColor" : "{!$brand.colorScheme.neutral}"
+              },
+              "lightning:padding" : "{!$brand.spacing.none}",
+              "lightning:margin" : "{!$brand.spacing.none}",
+              "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+              "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+              "rawHtml" : "<div style=\"color: #FFFFFF; font-weight: 700; text-align: center; font-family:Arial, sans-serif;\">\n  <div style=\"padding-bottom: 50px;\"><span style=\"color: #EAEAEA; font-weight: 500; font-size: 12px;\">Deze mails niet meer ontvangen? <a href=\"{!$other.Unsubscribe}\" rel=\"nofollow,noreferrer\" style=\"color: #EAEAEA;\">Meldt u hier af</a></span></div></div>"
+            }
+          } ]
+        } ]
+      } ]
+    },
+    "lightning:dataProviders" : [ ],
+    "lightning:expressions" : [ ],
+    "lightning:backgroundImage" : {
+      "repeat" : "no-repeat",
+      "position" : "center center",
+      "size" : "cover"
+    },
+    "sfdc_cms:variants" : [ ],
+    "lightning:brandSource" : {
+      "defaultBrandOption" : "sfdcBrand"
+    }
+  },
+  "urlName" : "202406---leisure-mailing-noodsleutel"
+}

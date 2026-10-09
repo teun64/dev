@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "headera",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000004ReLUAU",
+        "type" : "file",
+        "size" : 129906
+      }
+    }
+  },
+  "urlName" : "headera"
+}

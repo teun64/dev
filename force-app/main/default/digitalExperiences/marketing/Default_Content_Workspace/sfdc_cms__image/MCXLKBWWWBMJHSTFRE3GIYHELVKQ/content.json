@@ -1,0 +1,15 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "image app",
+  "contentBody" : {
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000001fcDUAQ",
+        "type" : "file",
+        "size" : 679070
+      }
+    }
+  },
+  "urlName" : "image-app"
+}

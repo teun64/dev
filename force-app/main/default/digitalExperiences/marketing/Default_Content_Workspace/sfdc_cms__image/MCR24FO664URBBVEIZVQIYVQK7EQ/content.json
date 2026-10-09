@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "BMW dealer mailing header",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000002TVlUAM",
+        "type" : "file",
+        "size" : 673710
+      }
+    }
+  },
+  "urlName" : "bmw-dealer-mailing-header"
+}

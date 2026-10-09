@@ -1,0 +1,125 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "Mailing template 2025",
+  "contentBody" : {
+    "backgroundColor" : "#E9EAEC",
+    "lightning:backgroundImage" : {
+      "position" : "center center",
+      "repeat" : "no-repeat",
+      "size" : "cover"
+    },
+    "lightning:brandSource" : "content/Brand_Center.sfdc_cms__brand/br_M",
+    "lightning:colorScheme" : {
+      "contrast" : "#000000",
+      "neutral" : "#747474",
+      "primaryAccent" : "#0176d3",
+      "primaryAccentContrast" : "#ffffff",
+      "root" : "#FFFFFF"
+    },
+    "lightning:dataProviders" : [
+      {
+        "attributes" : {
+          "dataGraphApiName" : "Data_Graph"
+        },
+        "definition" : "sfdc_cms__dataGraphDataProvider",
+        "sfdcExpressionKey" : "$dataGraph"
+      }
+    ],
+    "lightning:expressions" : [],
+    "lightning:padding" : {
+      "bottom" : {
+        "unit" : "px",
+        "value" : 10.0
+      },
+      "left" : {
+        "unit" : "px",
+        "value" : 10.0
+      },
+      "right" : {
+        "unit" : "px",
+        "value" : 10.0
+      },
+      "top" : {
+        "unit" : "px",
+        "value" : 10.0
+      }
+    },
+    "messagePurpose" : "promotional",
+    "sfdc_cms:block" : {
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "33dd1446-5654-43cf-b09b-f72aac56361f",
+      "type" : "block",
+      "children" : [
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : {
+              "contrast" : "#000000",
+              "neutral" : "#747474",
+              "primaryAccent" : "#0176d3",
+              "primaryAccentContrast" : "#ffffff"
+            },
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "8addd4ca-870d-4ad3-87b4-a1945960c6e0",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 6.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "1eb8638e-f294-47fe-99ce-e9a7da7d8563",
+              "type" : "block",
+              "children" : []
+            },
+            {
+              "attributes" : {
+                "columnWidth" : 6.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "ffd201fa-7e89-4a2b-b221-24a117081357",
+              "type" : "block",
+              "children" : []
+            }
+          ]
+        }
+      ]
+    },
+    "sfdc_cms:title" : "Mailing template 2025",
+    "subjectLine" : "Subjectline",
+    "sfdc_cms:variants" : []
+  },
+  "urlName" : "mailing-template-2025"
+}

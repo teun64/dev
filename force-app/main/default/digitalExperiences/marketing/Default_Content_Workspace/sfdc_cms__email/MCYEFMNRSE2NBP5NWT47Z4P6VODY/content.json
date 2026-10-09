@@ -1,0 +1,961 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "Welcome 2",
+  "contentBody" : {
+    "backgroundColor" : "#FFFDFD",
+    "lightning:backgroundImage" : {
+      "position" : "center center",
+      "repeat" : "no-repeat",
+      "size" : "cover"
+    },
+    "lightning:brandSource" : "content/Brand_Center.sfdc_cms__brand/br_M",
+    "lightning:colorScheme" : "{!$brand.colorScheme}",
+    "lightning:dataProviders" : [
+      {
+        "attributes" : {
+          "dataGraphApiName" : "Data_Graph"
+        },
+        "definition" : "sfdc_cms__dataGraphDataProvider",
+        "sfdcExpressionKey" : "$dataGraph"
+      }
+    ],
+    "lightning:expressions" : [],
+    "lightning:padding" : "{!$brand.spacing.none}",
+    "messagePurpose" : "promotional",
+    "preheader" : "En: waarom zie ik niet de livepostitie van mijn voertuig?",
+    "sfdc_cms:block" : {
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "1f99b5bf-39b2-43a7-b98d-1ad68614dfd2",
+      "type" : "block",
+      "children" : [
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "1ccae53a-318b-4d3a-8cf8-b72323168e7b",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "5d7683e3-2bd4-46c3-910b-9cd9556d106e",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCQF6DR57UXRB63ADCOBRLOAMFUM",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCQF6DR57UXRB63ADCOBRLOAMFUM?fileName=mail+1+header.png&fileHash=eb85992c01de4d7ab89e893f1c6ecc2a"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "800cd444-95bb-49ab-9424-34e9ab2f3c55",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading3}",
+                    "text" : "<strong>Beste MiWhite-abonnee,<br /><br /></strong>In deze tweede nieuwsbrief leggen we uit hoe u bewegingsnotificaties of geofencing kunt instellen en hoe de Peilzender precies werkt. "
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "7619293f-8b54-4237-b888-01281364390c",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "57494cc0-6c60-4471-b2f2-81d01566bc8f",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "623c4383-f9b7-4610-a14f-4afedcc5fcf3",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCLMQZWJ5EHJG75OECAEFZS3AFLY",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCLMQZWJ5EHJG75OECAEFZS3AFLY?fileName=mail+2+img+2.png&fileHash=bb6f957e3edab0f0a23fd3fcaa360fb1"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "1e6812bd-26ad-4637-a795-c52b0df2cf19",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 2.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>Geofencing: virtueel hek om het voertuig</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "9254eb66-e95f-434a-8f1a-2fc6e2a4ba9c",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "Met geofencing zet u een bepaald gebied rondom uw voertuig af met een virtueel hek. U krijgt dan een notificatie wanneer uw voertuig het gebied heeft verlaten of is binnengegaan bij de laatste peiling. In deze video leggen we uit hoe u geofencing kunt instellen:<br /><br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "30777cef-b26a-4ed5-b7a0-3205baac5a46",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:click" : {
+                      "actions" : [
+                        {
+                          "attributes" : {
+                            "openInNewTab" : true,
+                            "url" : "https://vimeo.com/351143077?fl=pl&fe=sh"
+                          },
+                          "definition" : "sfdc_cms__navigateToUrlAction",
+                          "generatedUrl" : "https://vimeo.com/351143077?fl=pl&fe=sh"
+                        }
+                      ]
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+                    "text" : "Hoe stel ik een geofence in?",
+                    "width" : "auto"
+                  },
+                  "definition" : "lightning/actionButton",
+                  "id" : "d1bbc319-784e-4b78-8edc-8b738d8a30a1",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "107ef238-78a3-42ab-a66a-67cf9f2c7b19",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "cd52668c-5320-41e0-9b27-6b06b98cf034",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "9eeb882c-44cc-4bff-8ec2-03da19e1197e",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCOCWDYVUVHZBJ5IXN24Q53EPRYM",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCOCWDYVUVHZBJ5IXN24Q53EPRYM?fileName=mail+2+img+3.png&fileHash=3c59a97041b195bf13090591f16195cd"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "e8990316-fccf-468f-9256-ff0a03b3a8a0",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>Waarom zie ik niet de livepositie van de Peilzender in de app?</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "f873414f-c99a-42d2-a8ac-a5a5552d504f",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "De Peilzender is een terugvindsysteem. Anders dan bij een live tracker of volgsysteem, geeft de Peilzender niet continu de locatie door. Met standaard 1 peiling per dag kunnen we een levensduur van 5 jaar waarmaken, zonder dat de Peilzender tussentijds uit de auto of ander object gehaald moet worden om op te laden. Dat heeft weer als voordeel dat we Peilzender op een goede plek kunnen verstoppen. Bovendien is de Peilzender zo veel minder gevoelig voor sabotage.  <br /> <br />Wordt uw voertuig gestolen? Dan verhogen we het aantal peilingen en kunnen we de locatie exact bepalen en uw voertuig terugvinden. U kunt zelf ook het aantal peilingen verhogen, voor als u vaker de locatie wilt weten. Let wel op dat u dit maar voor een korte periode doet, zodat de batterij niet al leeg is voor het einde van uw abonnement.  <br /><br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "452ca23b-eaab-460d-9256-13f096e8e949",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:borderRadius" : "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth" : "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup" : "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:click" : {
+                      "actions" : [
+                        {
+                          "attributes" : {
+                            "openInNewTab" : true,
+                            "url" : "https://movingintelligence.nl/blog/mi01-peilzender-retreever-uitleg"
+                          },
+                          "definition" : "sfdc_cms__navigateToUrlAction",
+                          "generatedUrl" : "https://movingintelligence.nl/blog/mi01-peilzender-retreever-uitleg"
+                        }
+                      ]
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography" : "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup" : "{!$brand.buttonStyleGroup.primary}",
+                    "text" : "Zo werkt de Mi01 Peilzender",
+                    "width" : "auto"
+                  },
+                  "definition" : "lightning/actionButton",
+                  "id" : "5ab980d7-d158-494e-b01c-a44b57d022a4",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "57bf76a9-9bfa-44cb-9e4c-f9b81071b363",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "84879963-c387-4218-9128-aeaf00aebb62",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "2a37176a-d2b0-476d-a60d-390340dc44ba",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 100.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MCBVDV5MGCBRFU5JG7NKP4ALJP4M",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MCBVDV5MGCBRFU5JG7NKP4ALJP4M?fileName=mail+2+img+4+.png&fileHash=6d17a4bbb99d500e8424df1abe3bc264"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "8ce996d1-cd04-4f0d-8c30-82c0693ea368",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "level" : 3.0,
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.heading.heading2}",
+                    "text" : "<strong>Support</strong>"
+                  },
+                  "definition" : "lightning/heading",
+                  "id" : "b69bf3a5-7e2c-4f77-be2d-d160f4a0a27e",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "In de app, op het platform en op de website vindt u uitgebreide supportinformatie en veelgestelde vragen. Heeft u een vraag die hier niet wordt beantwoord? De klantenservice is van maandag tot en met vrijdag van 8.30 uur tot 17.30 uur via &#43;3188 99 000 00. "
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "c29b63b6-00fd-4fa4-b112-62e32cd1a6e1",
+                  "type" : "block"
+                },
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : {
+                      "bottom" : {
+                        "unit" : "px",
+                        "value" : 8.0
+                      },
+                      "left" : {
+                        "unit" : "px",
+                        "value" : 0.0
+                      },
+                      "right" : {
+                        "unit" : "px",
+                        "value" : 0.0
+                      },
+                      "top" : {
+                        "unit" : "px",
+                        "value" : 8.0
+                      }
+                    },
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "e8e2454a-38db-4c1b-beed-84a32407d590",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "a7dfa12e-0a17-4159-a615-42d27981ee47",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "c12f3eea-e0c1-42b6-b759-640d49476e6e",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "Met vriendelijke groet,<br /><br /><strong>Team Moving Intelligence</strong>"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "b1edbd56-6c18-42ff-bad6-3dd22430fb25",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "579e9578-596b-44d5-95ef-dcf9407d2e37",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "c5a7b385-aaff-4394-808f-835a56dcf6df",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "imageFitConfig" : {
+                      "width" : {
+                        "unit" : "%",
+                        "value" : 25.0
+                      }
+                    },
+                    "imageInfo" : {
+                      "altText" : "",
+                      "overrideAltText" : false,
+                      "source" : {
+                        "ref" : "MC2N2AWKSBK5B6DENZ5S2WTZCK5M",
+                        "type" : "imageReference"
+                      },
+                      "url" : "/cms/media/MC2N2AWKSBK5B6DENZ5S2WTZCK5M"
+                    },
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "left",
+                    "lightning:margin" : "{!$brand.spacing.xSmall}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition" : "lightning/image",
+                  "id" : "ffab6e86-8aea-4154-a8dc-8223cb4a5be3",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "df72d555-35c5-4043-a466-ab05af0b6f11",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "64797ff7-92f6-4828-a9bc-d6e05c353a66",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "<strong>T</strong>  &#43;31 88 99 00 000<br /><strong>E </strong> info&#64;movingintelligence.nl"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "aacfd1f0-6f0a-452d-ab28-6f510cee11f0",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "92296554-5e6a-45d4-86df-e4c5f2f319e8",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "42cda11e-2766-47fc-b599-ea5aeb17c4de",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment" : "center",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lineStyle" : "solid",
+                    "lineWeight" : {
+                      "unit" : "px",
+                      "value" : 1.0
+                    },
+                    "lineWidth" : {
+                      "unit" : "%",
+                      "value" : 100.0
+                    }
+                  },
+                  "definition" : "lightning/divider",
+                  "id" : "f1f26b20-dabf-4fae-91f4-323242883259",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes" : {
+            "lightning:backgroundImage" : {
+              "position" : "center center",
+              "repeat" : "no-repeat",
+              "size" : "cover"
+            },
+            "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+            "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+            "lightning:colorScheme" : "{!$brand.colorScheme}",
+            "lightning:margin" : "{!$brand.spacing.none}",
+            "lightning:padding" : "{!$brand.spacing.xSmall}",
+            "stackOnMobile" : true,
+            "reverseOrderOnMobile" : false
+          },
+          "definition" : "lightning/section",
+          "id" : "bc532f26-ea1f-45ff-a4df-9a3c245a732c",
+          "type" : "block",
+          "children" : [
+            {
+              "attributes" : {
+                "columnWidth" : 12.0,
+                "lightning:backgroundImage" : {
+                  "position" : "center center",
+                  "repeat" : "no-repeat",
+                  "size" : "cover"
+                },
+                "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                "lightning:colorScheme" : "{!$brand.colorScheme}",
+                "lightning:margin" : "{!$brand.spacing.none}",
+                "lightning:padding" : "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment" : "top"
+              },
+              "definition" : "lightning/column",
+              "id" : "fe3228ce-6b79-47f6-bacd-d3c6eb6f968f",
+              "type" : "block",
+              "children" : [
+                {
+                  "attributes" : {
+                    "align" : "left",
+                    "lightning:borderRadius" : "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth" : "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup" : {
+                      "backgroundColor" : "{!$brand.colorScheme.root}",
+                      "borderColor" : "{!$brand.colorScheme.neutral}",
+                      "linkColor" : "{!$brand.colorScheme.primaryAccent}",
+                      "textColor" : "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin" : "{!$brand.spacing.none}",
+                    "lightning:padding" : "{!$brand.spacing.xSmall}",
+                    "lightning:typography" : "{!$brand.typography.paragraph.paragraph1}",
+                    "text" : "{!$organization.Address} | {!$link.EmailAddressOptOutUrl}<br />"
+                  },
+                  "definition" : "lightning/paragraph",
+                  "id" : "9bf53aa0-ff5d-4c20-9979-fc448aaa97dc",
+                  "type" : "block"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "sfdc_cms:title" : "Welcome 2",
+    "subjectLine" : "Mi01 Peilzender: bewegingsnotificatie en geofencing",
+    "sfdc_cms:variants" : []
+  },
+  "urlName" : "welcome-2"
+}

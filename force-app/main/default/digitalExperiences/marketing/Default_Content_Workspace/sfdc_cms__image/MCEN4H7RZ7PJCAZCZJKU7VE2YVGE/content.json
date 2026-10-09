@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "header mail",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000004h3BUAQ",
+        "type" : "file",
+        "size" : 278150
+      }
+    }
+  },
+  "urlName" : "header-mail"
+}

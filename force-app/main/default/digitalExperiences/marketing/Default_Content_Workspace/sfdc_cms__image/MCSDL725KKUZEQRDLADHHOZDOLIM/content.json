@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "peilzenderproefrit dealermail2025q3",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000003YbRUAU",
+        "type" : "file",
+        "size" : 148549
+      }
+    }
+  },
+  "urlName" : "peilzenderproefrit-dealermail2025q3"
+}

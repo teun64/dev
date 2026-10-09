@@ -1,0 +1,5 @@
+{
+  "apiName" : "brandSettings",
+  "type" : "sfdc_cms__brandSettings",
+  "path" : "_settings"
+}

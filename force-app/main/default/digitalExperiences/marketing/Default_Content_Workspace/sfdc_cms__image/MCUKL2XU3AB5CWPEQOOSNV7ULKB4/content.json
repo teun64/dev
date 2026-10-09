@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "miblockimm",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR00000057AXUAY",
+        "type" : "file",
+        "size" : 261209
+      }
+    }
+  },
+  "urlName" : "miblockimm"
+}

@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "mail voor dealers visual redlite",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000006l7VUAQ",
+        "type" : "file",
+        "size" : 163975
+      }
+    }
+  },
+  "urlName" : "mail-voor-dealers-visual-redlite"
+}

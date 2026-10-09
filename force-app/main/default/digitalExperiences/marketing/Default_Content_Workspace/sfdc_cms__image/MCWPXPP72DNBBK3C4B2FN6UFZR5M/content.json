@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "afbeelding2g",
+  "contentBody" : {
+    "sfdc_cms:media" : {
+      "source" : {
+        "fileSize" : 823784.0,
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000009IovUAE",
+        "type" : "file",
+        "size" : 823784
+      }
+    }
+  },
+  "urlName" : "afbeelding2g"
+}

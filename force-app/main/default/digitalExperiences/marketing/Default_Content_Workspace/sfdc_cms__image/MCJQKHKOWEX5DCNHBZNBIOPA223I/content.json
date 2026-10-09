@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "20250213 Header mailing",
+  "contentBody" : {
+    "altText" : "20250213 header mailing",
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000000WntUAE",
+        "type" : "file",
+        "size" : 485142
+      }
+    }
+  },
+  "urlName" : "20250213-header-mailing"
+}

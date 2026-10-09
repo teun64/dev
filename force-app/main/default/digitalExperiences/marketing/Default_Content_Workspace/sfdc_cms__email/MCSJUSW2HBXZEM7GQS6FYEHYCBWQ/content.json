@@ -37,7 +37,8 @@
           "lightning:colorScheme" : "{!$brand.colorScheme}",
           "lightning:margin" : "{!$brand.spacing.none}",
           "lightning:padding" : "{!$brand.spacing.none}",
-          "stackOnMobile" : true
+          "stackOnMobile" : true,
+          "reverseOrderOnMobile" : false
         },
         "definition" : "lightning/section",
         "id" : "99220539-cea9-4ab6-a759-13b2c864c13a",
@@ -321,7 +322,7 @@
                 "lineHeight" : 1.5,
                 "textTransform" : "none"
               },
-              "text" : "Hulp nodig? Bel ons via &#43;3188 999 000 00. Buiten onze kantoortijden is onze alarmcentrale 24/7 bereikbaar via &#43;31 20 569 31 11. Houd ter verificatie uw persoonlijk wachtwoord bij de hand. Bekijk ook de <a href=\"https://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/?language&#61;nl_NLhttps://movingintelligence--dev.sandbox.my.site.com/hubvforcesite/s/?language&#61;nl_NL\" target=\"_blank\" part=\"link\" rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\">supportpagina</a> voor de meest gestelde vragen en handleidingen.<br /><br />"
+              "text" : "Hulp nodig? Bel ons via &#43;3188 999 000 00. Buiten onze kantoortijden is onze alarmcentrale 24/7 bereikbaar via &#43;31 20 569 31 11. Houd ter verificatie uw persoonlijk wachtwoord bij de hand. Bekijk ook de <a href=\"https://movingintelligence.my.site.com/support/s/?language&#61;nl_NLhttps://movingintelligence.my.site.com/support/s/?language&#61;nl_NL\" target=\"_blank\" part=\"link\" rel=\"noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer noopener noreferrer\">supportpagina</a> voor de meest gestelde vragen en handleidingen.<br /><br />"
             },
             "definition" : "lightning/paragraph",
             "id" : "02a98456-af7b-4fd8-bf0f-e90796001489",

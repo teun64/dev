@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "mail voor delaers img miblue",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000006uxBUAQ",
+        "type" : "file",
+        "size" : 188695
+      }
+    }
+  },
+  "urlName" : "mail-voor-delaers-img-miblue"
+}

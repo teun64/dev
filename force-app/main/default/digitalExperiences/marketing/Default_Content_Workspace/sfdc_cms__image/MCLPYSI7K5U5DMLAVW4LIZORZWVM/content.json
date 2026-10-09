@@ -1,0 +1,16 @@
+{
+  "type" : "sfdc_cms__image",
+  "title" : "churn mail 2 img 2",
+  "contentBody" : {
+    "altText" : false,
+    "sfdc_cms:media" : {
+      "source" : {
+        "mimeType" : "image/png",
+        "ref" : "0sNbR0000003yyvUAA",
+        "type" : "file",
+        "size" : 146182
+      }
+    }
+  },
+  "urlName" : "churn-mail-2-img-2"
+}

@@ -1,0 +1,28 @@
+{
+  "type" : "sfdc_cms__email",
+  "title" : "Tst 00 Email",
+  "contentBody" : {
+    "lightning:brandSource" : "MovingintelligenceGeneral",
+    "sfdc_cms:block" : {
+      "definition" : "sfdc_cms/rootContentBlock",
+      "id" : "cc33b7d9-e057-4835-b652-41e7b4032d43",
+      "type" : "block",
+      "children" : [ ]
+    },
+    "messagePurpose" : "promotional",
+    "subjectLine" : "(No Subject)",
+    "backgroundColor" : "{!$brand.colorScheme.root}",
+    "preheader" : "",
+    "sfdc_cms:title" : "Tst 00 Email",
+    "lightning:dataProviders" : [ ],
+    "lightning:expressions" : [ ],
+    "lightning:backgroundImage" : {
+      "repeat" : "no-repeat",
+      "position" : "center center",
+      "size" : "cover"
+    },
+    "sfdc_cms:attachments" : [ ],
+    "sfdc_cms:variants" : [ ]
+  },
+  "urlName" : "tst-00-email"
+}
