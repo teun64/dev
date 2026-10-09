@@ -152,7 +152,7 @@ private class Test_Util_FinancialSystem_Order {
 
 		Map<Id, Util_FinancialSystem_Order.Result> results = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true);
 
-		System.assertEquals(0, sim.calls.size(), 'Only Hardware/Opportunity orders go to Exact');
+		System.assertEquals(0, sim.calls.size(), 'Only Opportunity orders go to Exact');
 		Order after = [SELECT SyncToFinancialSystem__c, FinancialSyncLastError__c, Status FROM Order WHERE Id = :ord.Id WITH SYSTEM_MODE];
 		System.assertEquals(false, after.SyncToFinancialSystem__c, 'No retry');
 		System.assert(after.FinancialSyncLastError__c.contains('type: Contract'), after.FinancialSyncLastError__c);
@@ -169,6 +169,8 @@ private class Test_Util_FinancialSystem_Order {
 		Database.QueryLocator ql = new Batch_FinancialSystemOrderSync().startBatch(null);
 		System.assertEquals(false, ql.iterator().hasNext(), 'A flagged Contract order is not picked up');
 		Database.update(new Order(Id = ord.Id, Type = 'Hardware'), AccessLevel.SYSTEM_MODE);
+		System.assertEquals(false, new Batch_FinancialSystemOrderSync().startBatch(null).iterator().hasNext(), 'Hardware was renamed to Opportunity');
+		Database.update(new Order(Id = ord.Id, Type = 'Opportunity'), AccessLevel.SYSTEM_MODE);
 		System.assertEquals(true, new Batch_FinancialSystemOrderSync().startBatch(null).iterator().hasNext());
 	}
 

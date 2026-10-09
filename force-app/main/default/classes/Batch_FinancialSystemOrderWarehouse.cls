@@ -1,5 +1,5 @@
 /**
- * Repairs draft Hardware / Opportunity orders not yet in Exact: sets the warehouse API name on the order and splits
+ * Repairs draft Opportunity orders not yet in Exact: sets the warehouse API name on the order and splits
  * orders with products of more than one warehouse (Exact allows one warehouse per sales order), see
  * Util_FinancialSystemWarehouse.splitOrders.
  * Default (dispatcher step before Batch_FinancialSystemOrderSync): only orders flagged for the sync, so an order is not
@@ -17,7 +17,7 @@ global class Batch_FinancialSystemOrderWarehouse extends Subscription25.Job_Abst
 		this.dispatcher = dispatcher;
 	}
 
-	// true: all draft Hardware / Opportunity orders (repair); false: only the ones flagged for the sync
+	// true: all draft Opportunity orders (repair); false: only the ones flagged for the sync
 	private Boolean allDrafts = false;
 
 	global Batch_FinancialSystemOrderWarehouse() {
@@ -36,7 +36,8 @@ global class Batch_FinancialSystemOrderWarehouse extends Subscription25.Job_Abst
 	public override Database.QueryLocator startBatch(Database.BatchableContext bc) {
 		// no bind variables: the Subscription25 job framework runs the locator outside this method's scope
 		return Database.getQueryLocator(
-			'SELECT Id FROM Order WHERE Status = \'Draft\' AND Exact_Id__c = null AND Type IN (\'Hardware\', \'Opportunity\')'
+			'SELECT Id FROM Order WHERE Status = \'Draft\' AND Exact_Id__c = null'
+			+ ' AND Type IN (\'' + String.join(new List<String>(Util_FinancialSystemWarehouse.SPLIT_ORDER_TYPES), '\',\'') + '\')'
 			+ (this.allDrafts ? '' : ' AND SyncToFinancialSystem__c = true')
 			+ ' ORDER BY CreatedDate ASC', AccessLevel.SYSTEM_MODE);
 	}

@@ -17,8 +17,9 @@ public without sharing class Util_FinancialSystem_Order {
 	private static final String ORDER_LINE_ENDPOINT = 'api/v1/{0}/salesorder/SalesOrderLines';
 	private static final String ARTICLE_GET_ENDPOINT = 'api/v1/{0}/bulk/Logistics/Items';
 	public static final String STATUS_ACTIVATED = 'Activated';
-	// only these order types are sales orders in the financial system (Contract orders are Subscription25's recurring orders)
-	public static final Set<String> SYNC_ORDER_TYPES = new Set<String>{ 'Hardware', 'Opportunity' };
+	// only these order types are sales orders in the financial system (Contract orders are Subscription25's recurring orders;
+	// the former Hardware type was renamed to Opportunity)
+	public static final Set<String> SYNC_ORDER_TYPES = new Set<String>{ 'Opportunity' };
 	private static final Integer WAIT_FOR_ACCOUNT_MINUTES = 15;
 
 	public class Result {

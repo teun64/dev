@@ -104,7 +104,7 @@ public with sharing class Util_FinancialSystemWarehouse {
 	public static final Set<String> SPLIT_ORDER_TYPES = Util_FinancialSystem_Order.SYNC_ORDER_TYPES;
 
 	/**
-	 * Repairs draft Hardware / Opportunity orders that are not in Exact yet: the order gets the warehouse API name
+	 * Repairs draft Opportunity orders that are not in Exact yet: the order gets the warehouse API name
 	 * of its first product and keeps the products of that warehouse; the products of every other warehouse move to a
 	 * new draft order of that warehouse (copy of the order, same opportunity). Order products can not change order,
 	 * so a move is a copy + delete. Per order all or nothing. Returns per order the result message.

@@ -116,7 +116,7 @@ private class Test_Util_FinancialSystemWarehouse {
 
 	static Order draftOrder(List<String> productCodes) {
 		Order ord = template();
-		ord.Type = 'Hardware';
+		ord.Type = 'Opportunity';
 		Database.insert(ord, AccessLevel.SYSTEM_MODE);
 		List<OrderItem> lines = new List<OrderItem>();
 		for (String code : productCodes) {
@@ -144,7 +144,7 @@ private class Test_Util_FinancialSystemWarehouse {
 		Order moved = [SELECT FinancialSystemIdWarehouse__c, Type, Status, AccountId, Sales_Channel__c, (SELECT Product2.ProductCode, Quantity, UnitPrice FROM OrderItems)
 			FROM Order WHERE Id != :ord.Id WITH SYSTEM_MODE];
 		System.assertEquals('1_ET', moved.FinancialSystemIdWarehouse__c);
-		System.assertEquals('Hardware', moved.Type);
+		System.assertEquals('Opportunity', moved.Type);
 		System.assertEquals('Draft', moved.Status);
 		System.assertEquals('Moving Intelligence', moved.Sales_Channel__c, 'Copy of the order');
 		System.assertEquals(1, moved.OrderItems.size());
