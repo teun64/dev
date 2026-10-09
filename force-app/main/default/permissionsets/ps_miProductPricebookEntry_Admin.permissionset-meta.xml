@@ -417,6 +417,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Subscription25__Administration_Product__c.FinancialSystemIdWarehouse__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Subscription25__Administration_Product__c.Subscription25__Compound_Key__c</field>
         <readable>true</readable>
     </fieldPermissions>

@@ -124,6 +124,12 @@ public without sharing class Util_FinancialSystem_Order {
 		Account acct;
 		String exactContactId;
 		Subscription25__Administration__c admin;
+		// Exact warehouse GUID from the order (or its products) warehouse; null = sales channel / administration fallback
+		String exactWarehouseId;
+		// warehouse API name (pvs_FinancialSystemWarehouse), shown in the Exact order description
+		String warehouse;
+		// warehouses of the order's products (orders without a warehouse of their own)
+		Set<String> productWarehouses = new Set<String>();
 		Event_Log__c log;
 		Result result = new Result();
 		Boolean done = false;
@@ -154,7 +160,7 @@ public without sharing class Util_FinancialSystem_Order {
 	private static List<Util_FinancialSystem_Order.Ctx> load(Set<Id> orderIds) {
 		List<Order> orders = [
 			SELECT Id, OrderNumber, Status, Type, Exact_Id__c, Exact_Order_Number__c, Payment_Method__c, Payment_Method_Result__c, Payment_Reference__c,
-				Sales_Channel__c, Reseller__c, AccountId, SyncToFinancialSystem__c, FinancialSyncAttempts__c,
+				Sales_Channel__c, Reseller__c, AccountId, FinancialSystemIdWarehouse__c, SyncToFinancialSystem__c, FinancialSyncAttempts__c,
 				Opportunity.Name, Opportunity.Customer_Reference__c, Opportunity.Installation_Notes__c,
 				Opportunity.Sales_Contact__c, Opportunity.Sales_Contact__r.Name, Opportunity.Sales_Contact__r.Email, Opportunity.Sales_Contact__r.Phone,
 				Account.Exact_Account_Name__c, Account.Reseller_Name__c, Account.Contact_Person__c, Account.Bank_Account_Number__c,
@@ -184,12 +190,37 @@ public without sharing class Util_FinancialSystem_Order {
 			}
 		}
 
+		// warehouses of the products of orders without a warehouse of their own (one query for all orders)
+		Set<Id> noWarehouseAccounts = new Set<Id>();
+		Set<Id> productIds = new Set<Id>();
+		for (Order ord : orders) {
+			if (String.isBlank(ord.FinancialSystemIdWarehouse__c) && ord.AccountId != null) {
+				noWarehouseAccounts.add(ord.AccountId);
+				for (OrderItem oi : ord.OrderItems) {
+					productIds.add(oi.PricebookEntry.Product2Id);
+				}
+			}
+		}
+		Map<Id, Subscription25__Administration__c> adminByAccount = noWarehouseAccounts.isEmpty() ? new Map<Id, Subscription25__Administration__c>()
+			: Util_FinancialSystemWarehouse.getAdministrations(noWarehouseAccounts);
+		Map<String, String> productWarehouses = adminByAccount.isEmpty() ? new Map<String, String>()
+			: Util_FinancialSystemWarehouse.getProductWarehouses(adminByAccount.values(), productIds);
+
 		List<Util_FinancialSystem_Order.Ctx> contexts = new List<Util_FinancialSystem_Order.Ctx>();
 		for (Order ord : orders) {
 			Util_FinancialSystem_Order.Ctx ctx = new Util_FinancialSystem_Order.Ctx();
 			ctx.ord = ord;
 			ctx.acct = ord.Account;
 			ctx.exactContactId = exactContactByAccount.get(ord.AccountId);
+			Subscription25__Administration__c whAdmin = adminByAccount.get(ord.AccountId);
+			if (whAdmin != null && String.isBlank(ord.FinancialSystemIdWarehouse__c)) {
+				for (OrderItem oi : ord.OrderItems) {
+					String wh = productWarehouses.get(Util_FinancialSystemWarehouse.key(whAdmin.Id, oi.PricebookEntry.Product2Id));
+					if (String.isNotBlank(wh)) {
+						ctx.productWarehouses.add(wh);
+					}
+				}
+			}
 			ctx.result.orderId = ord.Id;
 			ctx.log = Util_Event.getLog(null, 'S', 'E', 'Order', 'sync2Exact', ord.Id, String.valueOf(ord.OrderNumber), null);
 			contexts.add(ctx);
@@ -225,6 +256,34 @@ public without sharing class Util_FinancialSystem_Order {
 		if (ord.OrderItems == null || ord.OrderItems.isEmpty()) {
 			throw new Util_System.CustomException('The order has no order products.');
 		}
+		ctx.exactWarehouseId = Util_FinancialSystem_Order.resolveWarehouse(ctx);
+	}
+
+	/**
+	 * Exact allows one warehouse per sales order. The warehouse is the order's (set when the order is created per warehouse);
+	 * an order without one (e.g. created by hand) takes the warehouse of its products, which must all be the same.
+	 * Returns the Exact GUID of that warehouse, or null when there is none (then the sales channel / administration
+	 * warehouse is used, as before).
+	 */
+	private static String resolveWarehouse(Util_FinancialSystem_Order.Ctx ctx) {
+		String warehouse = ctx.ord.FinancialSystemIdWarehouse__c;
+		if (String.isBlank(warehouse)) {
+			if (ctx.productWarehouses.size() > 1) {
+				throw new Util_System.CustomException('The order has products from more than one warehouse (' + String.join(new List<String>(ctx.productWarehouses), ', ')
+					+ '); Exact allows one warehouse per sales order. Split the order per warehouse.');
+			}
+			warehouse = ctx.productWarehouses.isEmpty() ? null : new List<String>(ctx.productWarehouses)[0];
+		}
+		if (String.isBlank(warehouse)) {
+			return null;
+		}
+		ctx.warehouse = warehouse;
+		String exactId = Util_FinancialSystemWarehouse.getExactId(ctx.admin.Id, warehouse);
+		if (String.isBlank(exactId)) {
+			throw new Util_System.CustomException('No Exact warehouse id for warehouse ' + warehouse + ' in administration ' + ctx.admin.Name
+				+ ' (Exact Relation Setting, classification WH).');
+		}
+		return exactId;
 	}
 
 	private static void resolveItems(List<Util_FinancialSystem_Order.Ctx> ready, Map<Id, Map<String, String>> itemIdsByAdmin,
@@ -513,6 +572,10 @@ public without sharing class Util_FinancialSystem_Order {
 			this.PaymentCondition = ord.Payment_Method_Result__c;
 			this.PaymentReference = String.isBlank(ord.Payment_Reference__c) ? null : ord.Payment_Reference__c;
 			this.Description = ord.Opportunity?.Name;
+			if (String.isNotBlank(ctx.warehouse)) {
+				// one order per warehouse: the warehouse tells the split orders of an opportunity apart
+				this.Description = (String.isBlank(this.Description) ? '' : this.Description + ' ') + '(' + ctx.warehouse + ')';
+			}
 			this.YourRef = ord.Opportunity?.Customer_Reference__c;
 			this.Remarks = '';
 			if (ord.Opportunity?.Sales_Contact__c != null && ord.Opportunity.Sales_Contact__c != ctx.acct.Contact_Person__c) {
@@ -525,10 +588,12 @@ public without sharing class Util_FinancialSystem_Order {
 				}
 				this.Remarks = String.join(ll, '\r\n');
 			}
-			String warehouseId = '';
+			String warehouseId = ctx.exactWarehouseId;
 			if (ord.Reseller__c == '1') {
 				this.SalesChannel = Util_FinancialSystem.getExactRelationId(ctx.admin.Id, 'SC', ord.Sales_Channel__c);
-				warehouseId = Util_FinancialSystem.getExactRelationId(ctx.admin.Id, 'WH', ord.Sales_Channel__c);
+				if (String.isBlank(warehouseId)) {
+					warehouseId = Util_FinancialSystem.getExactRelationId(ctx.admin.Id, 'WH', ord.Sales_Channel__c);
+				}
 			}
 			this.WarehouseID = String.isNotBlank(warehouseId) ? warehouseId : ctx.admin.Warehouse_Exact_Id__c;
 			this.SalesOrderLines = new List<Util_FinancialSystem_Order.ExactOrderLine>();

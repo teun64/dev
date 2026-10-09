@@ -97,6 +97,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Order.FinancialSystemIdWarehouse__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Order.Invoice_Date_Invoice__c</field>
         <readable>true</readable>
     </fieldPermissions>

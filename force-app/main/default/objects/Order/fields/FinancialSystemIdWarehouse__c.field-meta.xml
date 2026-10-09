@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinancialSystemIdWarehouse__c</fullName>
+    <description>Financial system (Exact) warehouse of this order. One warehouse per order: afl_Opportuntity_Create_Order creates one order per warehouse (Exact allows one warehouse per sales order).</description>
+    <inlineHelpText>Warehouse this order ships from (one per order).</inlineHelpText>
+    <label>Warehouse</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>pvs_FinancialSystemWarehouse</valueSetName>
+    </valueSet>
+</CustomField>

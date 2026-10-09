@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinancialSystemIdWarehouse__c</fullName>
+    <description>Financial system (Exact) warehouse this product ships from in this administration. Empty = the administration default (Warehouse (Default)). Orders are split per warehouse (Exact allows one warehouse per sales order). Must belong to the administration (vr_FinancialSystemIdWarehouse).</description>
+    <inlineHelpText>Warehouse this product ships from. Empty = the administration default.</inlineHelpText>
+    <label>Warehouse</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>pvs_FinancialSystemWarehouse</valueSetName>
+    </valueSet>
+</CustomField>

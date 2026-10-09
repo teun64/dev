@@ -8,7 +8,7 @@
         <actionName>Inv_generateRandomString</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>ass_01_Add_OrderId</targetReference>
+            <targetReference>ass_01_OrderProductCreate</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -25,61 +25,185 @@
         </outputParameters>
     </actionCalls>
     <actionCalls>
-        <name>act_01_Sync_Order</name>
-        <label>1. Sync Order</label>
+        <description>One order per financial system warehouse (Exact allows one warehouse per sales order); all or nothing.</description>
+        <name>act_02_CreateOrders</name>
+        <label>2. Create Orders per Warehouse</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <actionName>Inv_syncOrderToFinancialSystem</actionName>
+        <actionName>Inv_FinancialSystemCreateOrders</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>ass_04_Commit</targetReference>
+            <targetReference>ass_03_Commit</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>dur_02_Opportunity</targetReference>
+        </faultConnector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
-            <name>orderId</name>
+            <name>order</name>
             <value>
-                <elementReference>vOrderId</elementReference>
+                <elementReference>rOrder</elementReference>
             </value>
         </inputParameters>
-        <nameSegment>Inv_syncOrderToFinancialSystem</nameSegment>
+        <inputParameters>
+            <name>orderItems</name>
+            <value>
+                <elementReference>rcOrderProductsInsert</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>Inv_FinancialSystemCreateOrders</nameSegment>
         <offset>0</offset>
         <outputParameters>
+            <assignToReference>vOrderId</assignToReference>
+            <name>orderId</name>
+        </outputParameters>
+        <outputParameters>
             <assignToReference>vResultOrder</assignToReference>
-            <name>resultMessage</name>
+            <name>message</name>
         </outputParameters>
     </actionCalls>
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>ass_01_Add_OrderId</name>
-        <label>1. Add OrderId</label>
+        <name>ass_01_Order</name>
+        <label>1. Order</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>rOrderProduct.OrderId</assignToReference>
+            <assignToReference>rOrder.AccountId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>vOrderId</elementReference>
+                <elementReference>dgr_01_Opportunity.AccountId</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <targetReference>ass_01_OrderProductCreate</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_Commit</name>
-        <label>1. Commit</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>vCommit</assignToReference>
-            <operator>Add</operator>
+            <assignToReference>rOrder.CurrencyIsoCode</assignToReference>
+            <operator>Assign</operator>
             <value>
-                <numberValue>1.0</numberValue>
+                <elementReference>dgr_01_Opportunity.CurrencyIsoCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.EffectiveDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.OpportunityId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Payment_Is_Paid__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.Payment_Is_Paid__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Payment_Method__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethod</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Payment_Reference__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.Payment_Reference__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.PoNumber</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.PO_Number__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Pricebook2Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.Pricebook2Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Sales_Channel__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.Sales_Channel__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.ShippingCity</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.ShippingCity__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.ShippingCountryCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.ShippingCountryCode__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.ShippingPostalCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.ShippingPostalCode__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.ShippingStateCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.ShippingStateCode__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.ShippingStreet</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.ShippingStreet__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Draft</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Subscription25__Administration__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dgr_01_Opportunity.Administration__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rOrder.Type</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Opportunity</stringValue>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>lp_02_OrderProducts</targetReference>
+            <targetReference>act_02_CreateOrders</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -198,22 +322,6 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_02_Commit</name>
-        <label>2. Commit</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>vCommit</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>dur_01_OrderItem</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <name>ass_02_rcOrderProducts</name>
         <label>2. rcOrderProducts</label>
         <locationX>0</locationX>
@@ -242,22 +350,6 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_BatchSync</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_04_Commit</name>
-        <label>4. Commit</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>vCommit</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </assignmentItems>
-        <connector>
             <targetReference>dur_01_Opportunity</targetReference>
         </connector>
     </assignments>
@@ -274,38 +366,6 @@
             </value>
         </assignmentItems>
     </assignments>
-    <constants>
-        <name>cBatchSync</name>
-        <dataType>Boolean</dataType>
-        <value>
-            <booleanValue>true</booleanValue>
-        </value>
-    </constants>
-    <decisions>
-        <name>dec_01_BatchSync</name>
-        <label>1. Batch Sync</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>pa_02_Wait</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No (Original)</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_BatchSync_Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>cBatchSync</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>dur_01_Opportunity</targetReference>
-            </connector>
-            <label>Yes</label>
-        </rules>
-    </decisions>
     <decisions>
         <name>dec_01_Package</name>
         <label>1. Package</label>
@@ -337,7 +397,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>ass_01_Add_OrderId</targetReference>
+            <targetReference>ass_01_OrderProductCreate</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
@@ -436,12 +496,13 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>dcr_Order</targetReference>
+                <targetReference>lp_02_OrderProducts</targetReference>
             </connector>
             <label>Create</label>
         </rules>
     </decisions>
-    <description>2026 - 05 - 18 - Removed Automatic Order Sync
+    <description>2026 - 10 - 08 - One order per financial system warehouse (Inv_FinancialSystemCreateOrders): Exact allows one warehouse per sales order; Opportunity.Order__c = the order of the first product. Order sync to Exact removed (financial system batch)
+2026 - 05 - 18 - Removed Automatic Order Sync
 2026 - 03 - 06 - Removed Account to Financial system and version upgrade
 2023 -12 - 12 - Update Version (59) and Opportunity Owner to Order Owner</description>
     <environments>Default</environments>
@@ -490,7 +551,7 @@
             <targetReference>ass_01_OrderProduct</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>dcr_02_OrderItem</targetReference>
+            <targetReference>ass_01_Order</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -512,163 +573,6 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <recordCreates>
-        <name>dcr_02_OrderItem</name>
-        <label>1. Order Product</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>ass_02_Commit</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>dur_02_Opportunity</targetReference>
-        </faultConnector>
-        <inputReference>rcOrderProductsInsert</inputReference>
-    </recordCreates>
-    <recordCreates>
-        <name>dcr_Order</name>
-        <label>1. Order</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignRecordIdToReference>vOrderId</assignRecordIdToReference>
-        <connector>
-            <targetReference>ass_01_Commit</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>AccountId</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.AccountId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CurrencyIsoCode</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.CurrencyIsoCode</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>EffectiveDate</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>OpportunityId</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>OwnerId</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.OwnerId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Payment_Is_Paid__c</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.Payment_Is_Paid__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Payment_Method__c</field>
-            <value>
-                <elementReference>fPaymentMethod</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Payment_Reference__c</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.Payment_Reference__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>PoNumber</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.PO_Number__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Pricebook2Id</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.Pricebook2Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Sales_Channel__c</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.Sales_Channel__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ShippingCity</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.ShippingCity__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ShippingCountryCode</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.ShippingCountryCode__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ShippingPostalCode</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.ShippingPostalCode__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ShippingStateCode</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.ShippingStateCode__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ShippingStreet</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.ShippingStreet__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Draft</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subscription25__Administration__c</field>
-            <value>
-                <elementReference>dgr_01_Opportunity.Administration__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Type</field>
-            <value>
-                <stringValue>Opportunity</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Order</object>
-    </recordCreates>
-    <recordDeletes>
-        <name>ddr_01_Order</name>
-        <label>1. Order</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>ass_05_commit</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>vOrderId</elementReference>
-            </value>
-        </filters>
-        <object>Order</object>
-    </recordDeletes>
     <recordLookups>
         <name>dgr_01_Debtor_Number</name>
         <label>1. Debtor Number</label>
@@ -785,37 +689,10 @@
         <object>Opportunity</object>
     </recordUpdates>
     <recordUpdates>
-        <name>dur_01_OrderItem</name>
-        <label>1. Order Product</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>ass_03_Commit</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>OrderId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>vOrderId</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>setProductName__c</field>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </inputAssignments>
-        <object>OrderItem</object>
-    </recordUpdates>
-    <recordUpdates>
         <name>dur_02_Opportunity</name>
         <label>2. Opportunity</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <connector>
-            <targetReference>ddr_01_Order</targetReference>
-        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -967,6 +844,14 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>rOrder</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Order</objectType>
+    </variables>
+    <variables>
         <name>rOrderProduct</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
@@ -1017,41 +902,4 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
-    <waits>
-        <name>pa_02_Wait</name>
-        <label>2. Wait</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>act_01_Sync_Order</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Default Path</defaultConnectorLabel>
-        <waitEvents>
-            <name>pa_02_Wait_OrderItem_Update</name>
-            <conditionLogic>and</conditionLogic>
-            <connector>
-                <targetReference>act_01_Sync_Order</targetReference>
-            </connector>
-            <eventType>AlarmEvent</eventType>
-            <inputParameters>
-                <name>AlarmTime</name>
-                <value>
-                    <elementReference>fDateTimeOffset</elementReference>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>TimeOffset</name>
-                <value>
-                    <numberValue>0.0</numberValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>TimeOffsetUnit</name>
-                <value>
-                    <stringValue>Hours</stringValue>
-                </value>
-            </inputParameters>
-            <label>Order Product Update</label>
-        </waitEvents>
-    </waits>
 </Flow>

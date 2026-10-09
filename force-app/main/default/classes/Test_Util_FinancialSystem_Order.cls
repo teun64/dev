@@ -7,10 +7,14 @@ private class Test_Util_FinancialSystem_Order {
 		public String items = '{"d":{"results":[{"ID":"item-guid-1","Code":"ORD.ITEM"}]}}';
 		public String lines = '{"d":{"results":[{"ID":"line-guid-1","LineNumber":1,"Item":"item-guid-1"}]}}';
 		public Integer linesStatus = 200;
+		public String orderBody;
 		public HttpResponse respond(HttpRequest req) {
 			String ep = req.getEndpoint();
 			String entity = ep.contains('Items') ? 'Items' : ep.contains('SalesOrderLines') ? 'SalesOrderLines' : ep.contains('SalesOrders') ? 'SalesOrders' : 'Other';
 			this.calls.add(req.getMethod() + ' ' + entity);
+			if (entity == 'SalesOrders' && req.getMethod() == 'POST') {
+				this.orderBody = req.getBody();
+			}
 			HttpResponse res = new HttpResponse();
 			res.setHeader('X-RateLimit-Limit', '5000');
 			res.setHeader('X-RateLimit-Remaining', '4000');
@@ -218,5 +222,83 @@ private class Test_Util_FinancialSystem_Order {
 		System.assert(r.success, r.messages + ' ' + sim.calls);
 		System.assertEquals(null, lineId(), 'A line for another item is not linked');
 		System.assert(String.join(r.messages, ' ').contains('could not be matched'), r.messages);
+	}
+
+	// ---------------------------------------------------------------- warehouses
+
+	private static void mapWarehouse(String warehouse, String exactId) {
+		Database.insert(new Exact_Relation_Setting__c(Administration__c = [SELECT Id FROM Subscription25__Administration__c WITH SYSTEM_MODE LIMIT 1].Id,
+			Classification__c = 'WH', Sales_Channel__c = 'Europetrack', FinancialSystemIdWarehouse__c = warehouse, Exact_ID__c = exactId), AccessLevel.SYSTEM_MODE);
+	}
+
+	@IsTest
+	static void warehouse_mappedGuidSent() {
+		Order ord = order();
+		Database.update(new Order(Id = ord.Id, FinancialSystemIdWarehouse__c = '1_ET'), AccessLevel.SYSTEM_MODE);
+		mapWarehouse('1_ET', 'wh-et-guid');
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true).get(ord.Id);
+		Test.stopTest();
+
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		Map<String, Object> body = (Map<String, Object>) JSON.deserializeUntyped(sim.orderBody);
+		System.assertEquals('wh-et-guid', body.get('WarehouseID'), sim.orderBody);
+		System.assertEquals('Order Opp (1_ET)', body.get('Description'), 'Warehouse API name in the description');
+	}
+
+	@IsTest
+	static void warehouse_noOrderWarehouse_fromProduct() {
+		Order ord = order();
+		Database.update(new Subscription25__Administration_Product__c(Id = [SELECT Id FROM Subscription25__Administration_Product__c WITH SYSTEM_MODE LIMIT 1].Id,
+			FinancialSystemIdWarehouse__c = '1_ET'), AccessLevel.SYSTEM_MODE);
+		mapWarehouse('1_ET', 'wh-et-guid');
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true).get(ord.Id);
+		Test.stopTest();
+
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assertEquals('wh-et-guid', ((Map<String, Object>) JSON.deserializeUntyped(sim.orderBody)).get('WarehouseID'), sim.orderBody);
+	}
+
+	@IsTest
+	static void warehouse_productsOfTwoWarehouses_notSent() {
+		Order ord = order();
+		Id adminId = [SELECT Id FROM Subscription25__Administration__c WITH SYSTEM_MODE LIMIT 1].Id;
+		Database.update(new Subscription25__Administration__c(Id = adminId, FinancialSystemIdWarehouse__c = '1_MI'), AccessLevel.SYSTEM_MODE);
+		Product2 prodET = Test_Data.createProduct('ET Item', 'ORD.ET', '1-hw-8', 'Hardware', true);
+		PricebookEntry pbeET = Test_Data.createPricebookEntry(prodET.Id, 100, true);
+		Subscription25__Administration_Product__c apET = Test_Data.createAdministrationProduct(adminId, prodET.Id,
+			[SELECT Id FROM Subscription25__VATRate__c WITH SYSTEM_MODE LIMIT 1].Id, false);
+		apET.FinancialSystemIdWarehouse__c = '1_ET';
+		Database.insert(apET, AccessLevel.SYSTEM_MODE);
+		Test_Data.createOrderItem(ord.Id, pbeET.Id, 1, true);
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true).get(ord.Id);
+
+		System.assert(!r.success);
+		System.assert(String.join(r.messages, ' ').contains('more than one warehouse'), r.messages);
+		System.assertEquals(0, sim.calls.size());
+	}
+
+	@IsTest
+	static void warehouse_notMapped_notSent() {
+		Order ord = order();
+		Database.update(new Order(Id = ord.Id, FinancialSystemIdWarehouse__c = '1_ET'), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true).get(ord.Id);
+
+		System.assert(!r.success);
+		System.assert(String.join(r.messages, ' ').contains('No Exact warehouse id'), r.messages);
+		System.assertEquals(0, sim.calls.size());
 	}
 }

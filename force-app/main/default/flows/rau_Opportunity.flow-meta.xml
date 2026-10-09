@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>ass_01_Commit</name>
@@ -26,7 +26,7 @@
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
             <name>dec_01_Sales_Channel_Changed</name>
-            <conditionLogic>((1 AND 2) OR (3 AND 4)) AND (5 AND 6)</conditionLogic>
+            <conditionLogic>((1 AND 2) OR (3 AND 4)) AND 5</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Sales_Channel__c</leftValueReference>
                 <operator>IsChanged</operator>
@@ -60,13 +60,6 @@
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.Order__r.Exact_Id__c</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -187,6 +180,22 @@
         <connector>
             <targetReference>dec_01_Stage</targetReference>
         </connector>
+        <description>All orders of the opportunity not yet in Exact (one order per warehouse).</description>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>OpportunityId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Exact_Id__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
         <inputAssignments>
             <field>Payment_Method__c</field>
             <value>
@@ -199,7 +208,7 @@
                 <elementReference>$Record.Sales_Channel__c</elementReference>
             </value>
         </inputAssignments>
-        <inputReference>$Record.Order__r</inputReference>
+        <object>Order</object>
     </recordUpdates>
     <start>
         <locationX>0</locationX>

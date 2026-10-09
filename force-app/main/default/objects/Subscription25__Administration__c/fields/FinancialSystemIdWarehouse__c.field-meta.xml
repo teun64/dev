@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinancialSystemIdWarehouse__c</fullName>
+    <description>Default financial system (Exact) warehouse of this administration, used for order lines whose product has no warehouse on its Administration Product. Replaces Warehouse_Exact_Id__c (legacy Util_Exact) for the new financial system sync.</description>
+    <inlineHelpText>Default warehouse for order lines whose product has no warehouse of its own.</inlineHelpText>
+    <label>Warehouse (Default)</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Reseller__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetName>pvs_FinancialSystemWarehouse</valueSetName>
+        <valueSettings>
+            <controllingFieldValue>1</controllingFieldValue>
+            <valueName>1_MI</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>1</controllingFieldValue>
+            <valueName>1_ET</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>5</controllingFieldValue>
+            <valueName>5_MI</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>6</controllingFieldValue>
+            <valueName>6_MI</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

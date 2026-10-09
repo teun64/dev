@@ -451,6 +451,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.FinancialSystemIdWarehouse__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.SyncToFinancialSystem__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1040,6 +1045,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Subscription25__Administration__c.FinancialSystemIdWarehouse__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Subscription25__Administration_Invoice_Layout__c.Subscription25__Default__c</field>
         <readable>true</readable>
@@ -1057,6 +1067,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Subscription25__Administration_Log__c.Subscription25__Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Subscription25__Administration_Product__c.FinancialSystemIdWarehouse__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
