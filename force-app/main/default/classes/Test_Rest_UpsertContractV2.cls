@@ -405,25 +405,193 @@ private class Test_Rest_UpsertContractV2 {
         System.assertEquals(null, contr.Service_End_Date__c);
     }
 
-    //termination process "terminationDate": no terminationId, the platform sends the dates itself
-    private static testMethod void testTerminationDate(){
+    // ---- termination process "terminationDate": no terminationId, the method is derived from the dates ----
+
+    private static testMethod void testTerminationDateNoCredit(){
+        Contract contr = Test_Rest_UpsertContractV2.createAndTerminateByDates('900631', new Map<String, Object>{'serviceEndDate' => '2026-06-30', 'contractEndDate' => '2027-01-09'});
+        System.assertEquals('No Credit', contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2027, 1, 9), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationDateAutoRenewalOff(){
+        Contract contr = Test_Rest_UpsertContractV2.createAndTerminateByDates('900632', new Map<String, Object>{'serviceEndDate' => '2027-01-09', 'contractEndDate' => '2027-01-09'});
+        System.assertEquals('Auto renewal off', contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2027, 1, 9), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationDateFullCredit(){
+        Contract contr = Test_Rest_UpsertContractV2.createAndTerminateByDates('900633', new Map<String, Object>{'serviceEndDate' => '2026-06-30', 'contractEndDate' => '2026-01-09'});
+        System.assertEquals('Full Credit', contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2026, 1, 9), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationDatePartialCreditImmediate(){
+        Contract contr = Test_Rest_UpsertContractV2.createAndTerminateByDates('900634', new Map<String, Object>{'serviceEndDate' => '2026-06-30', 'contractEndDate' => '2026-06-30'});
+        System.assertEquals('Partial Credit Immediate', contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationDatePartialCreditWithCancellationTerm(){
+        Contract contr = Test_Rest_UpsertContractV2.createAndTerminateByDates('900635', new Map<String, Object>{'serviceEndDate' => '2026-06-30', 'contractEndDate' => '2026-07-30'});
+        System.assertEquals('Partial Credit with Cancellation Term', contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2026, 7, 30), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationDateFallbackFirstTerm(){
+        //matches no method: never credit, No Credit on the date the contract is invoiced through
+        Contract contr = Test_Rest_UpsertContractV2.createAndTerminateByDates('900636', new Map<String, Object>{'serviceEndDate' => '2026-06-30', 'contractEndDate' => '2026-07-31'});
+        System.assertEquals('No Credit', contr.Termination_Method__c);
+        System.assertEquals(Test_Rest_UpsertContractV2.invoicedEndDate, contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Service_End_Date__c);
+    }
+
+    private static testMethod void testTerminationDateFallbackLaterTerm(){
+        //matches no method in a later contract term: also No Credit on the invoiced-through date, never a credit
+        Contract contr = Test_Rest_UpsertContractV2.createAndTerminateByDates('900638', new Map<String, Object>{'startDate' => '2024-01-10', 'serviceEndDate' => '2026-06-20', 'contractEndDate' => '2026-06-25'});
+        System.assertEquals('No Credit', contr.Termination_Method__c);
+        System.assertEquals(Test_Rest_UpsertContractV2.invoicedEndDate, contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationDateClearedIsNoRevert(){
         Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
 
-        Map<String, Object> terminate = Test_Rest_UpsertContractV2.basePayload('900608', 1);
-        terminate.put('serviceEndDate', '2026-06-30');
-        terminate.put('contractEndDate', '2026-07-31');
+        //a revert only works while the termination date is still in the future, so these dates are relative to today
+        String startDate = String.valueOf(Date.today().addMonths(-1));
+        String endDate = String.valueOf(Date.today().addMonths(1));
+        Map<String, Object> create = Test_Rest_UpsertContractV2.basePayload('900639', 1);
+        create.put('startDate', startDate);
+        Map<String, Object> terminate = create.clone();
+        terminate.put('serviceEndDate', endDate);
+        terminate.put('contractEndDate', endDate);
 
         Test.startTest();
-        Util_Rest.RestResult created = Test_Rest_UpsertContractV2.callRest(Test_Rest_UpsertContractV2.basePayload('900608', 1));
+        Util_Rest.RestResult created = Test_Rest_UpsertContractV2.callRest(create);
         System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        Util_Rest.RestResult terminated = Test_Rest_UpsertContractV2.callRest(terminate);
+        System.assertEquals(true, terminated.success, String.join(terminated.messages, '; '));
+        System.assertEquals('Partial Credit Immediate', Test_Rest_UpsertContractV2.getContract('900639-1').Termination_Method__c);
+        //no dates while a termination is on file: the termination is cleared, but it is not a revert (no credit cleanup)
+        Util_Rest.RestResult reverted = Test_Rest_UpsertContractV2.callRest(create);
+        Test.stopTest();
+
+        System.assertEquals(true, reverted.success, String.join(reverted.messages, '; '));
+        Contract contr = Test_Rest_UpsertContractV2.getContract('900639-1');
+        System.assertEquals(null, contr.Termination_Method__c);
+        System.assertEquals(null, contr.Subscription25__Termination_Date__c);
+        System.assertEquals(null, contr.Service_End_Date__c);
+    }
+
+    // ---- multiple base services on one contract ----
+
+    private static testMethod void testOtherBaseServiceBlocksTerminationId(){
+        Test_Rest_UpsertContractV2.assertOnlyProductTerminated(new Map<String, Object>{'terminationId' => '3', 'serviceEndDate' => '2026-06-30'});
+    }
+
+    private static testMethod void testOtherBaseServiceBlocksTerminationDate(){
+        Test_Rest_UpsertContractV2.assertOnlyProductTerminated(new Map<String, Object>{'serviceEndDate' => '2026-06-30', 'contractEndDate' => '2026-06-30'});
+    }
+
+    private static testMethod void testLastBaseServiceTerminatesContract(){
+        Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
+        //test contract products stay Draft, let Draft count as Activated here
+        Rest_UpsertContractV2.activeBaseServiceStatuses = new Set<String>{'Activated', 'Draft'};
+
+        Test.startTest();
+        Test_Rest_UpsertContractV2.createTwoBaseServices('900643', '900644');
+        Map<String, Object> terminateFirst = Test_Rest_UpsertContractV2.baseServicePayload('900643', '900643');
+        terminateFirst.putAll(new Map<String, Object>{'terminationId' => '3', 'serviceEndDate' => '2026-06-30'});
+        Util_Rest.RestResult first = Test_Rest_UpsertContractV2.callRest(terminateFirst);
+        System.assertEquals(true, first.success, String.join(first.messages, '; '));
+        Map<String, Object> terminateLast = Test_Rest_UpsertContractV2.baseServicePayload('900644', '900643');
+        terminateLast.putAll(new Map<String, Object>{'terminationId' => '3', 'serviceEndDate' => '2026-07-31'});
+        Util_Rest.RestResult last = Test_Rest_UpsertContractV2.callRest(terminateLast);
+        Test.stopTest();
+
+        System.assertEquals(true, last.success, String.join(last.messages, '; '));
+        //no other active base service left: the contract is terminated as before
+        Contract contr = Test_Rest_UpsertContractV2.getContract('900643-1');
+        System.assertEquals('Partial Credit Immediate', contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2026, 7, 31), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testDraftBaseServiceDoesNotBlock(){
+        //the other base service is still Draft (not Activated): the contract is terminated as before
+        Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
+
+        Test.startTest();
+        Test_Rest_UpsertContractV2.createTwoBaseServices('900645', '900646');
+        Map<String, Object> terminate = Test_Rest_UpsertContractV2.baseServicePayload('900645', '900645');
+        terminate.putAll(new Map<String, Object>{'terminationId' => '3', 'serviceEndDate' => '2026-06-30'});
+        Util_Rest.RestResult result = Test_Rest_UpsertContractV2.callRest(terminate);
+        Test.stopTest();
+
+        System.assertEquals(true, result.success, String.join(result.messages, '; '));
+        Contract contr = Test_Rest_UpsertContractV2.getContract('900645-1');
+        System.assertEquals('Partial Credit Immediate', contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Subscription25__Termination_Date__c);
+    }
+
+    //two base services (900641 terminates, 900642 stays active) on one contract: only the contract product is terminated
+    private static void assertOnlyProductTerminated(Map<String, Object> termination){
+        Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
+        //test contract products stay Draft, let Draft count as Activated here
+        Rest_UpsertContractV2.activeBaseServiceStatuses = new Set<String>{'Activated', 'Draft'};
+
+        Test.startTest();
+        Test_Rest_UpsertContractV2.createTwoBaseServices('900641', '900642');
+        Map<String, Object> terminate = Test_Rest_UpsertContractV2.baseServicePayload('900641', '900641');
+        terminate.putAll(termination);
+        Util_Rest.RestResult result = Test_Rest_UpsertContractV2.callRest(terminate);
+        Test.stopTest();
+
+        System.assertEquals(true, result.success, String.join(result.messages, '; '));
+
+        Contract contr = Test_Rest_UpsertContractV2.getContract('900641-1');
+        System.assertEquals(null, contr.Termination_Method__c);
+        System.assertEquals(null, contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), [SELECT Subscription25__Termination_Date__c FROM Subscription25__Contract_Product__c WHERE extId__c = '900641-1'].Subscription25__Termination_Date__c);
+        System.assertEquals(null, [SELECT Subscription25__Termination_Date__c FROM Subscription25__Contract_Product__c WHERE extId__c = '900642-1'].Subscription25__Termination_Date__c);
+    }
+
+    private static void createTwoBaseServices(String firstId, String secondId){
+        for (String id : new List<String>{firstId, secondId}) {
+            Util_Rest.RestResult created = Test_Rest_UpsertContractV2.callRest(Test_Rest_UpsertContractV2.baseServicePayload(id, firstId));
+            System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        }
+        System.assertEquals(2, [SELECT Count() FROM Subscription25__Contract_Product__c WHERE Is_Base_Service__c = true AND Subscription25__Contract__r.extId__c = :(firstId + '-1')]);
+    }
+
+    private static Map<String, Object> baseServicePayload(String id, String contractId){
+        Map<String, Object> payload = Test_Rest_UpsertContractV2.basePayload(id, 1);
+        payload.put('contractId', contractId);
+        return payload;
+    }
+
+    //Subscription25__Current_End_Date__c right after creation: the date the contract is invoiced through
+    private static Date invoicedEndDate;
+
+    private static Contract createAndTerminateByDates(String id, Map<String, Object> dates){
+        Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
+
+        Map<String, Object> create = Test_Rest_UpsertContractV2.basePayload(id, 1);
+        //contract settings in the dates map also apply to the create call
+        for (String key : new List<String>{'renewalTerm', 'startDate'}) {
+            if (dates.containsKey(key)) {
+                create.put(key, dates.get(key));
+            }
+        }
+        Map<String, Object> terminate = create.clone();
+        terminate.putAll(dates);
+
+        Test.startTest();
+        Util_Rest.RestResult created = Test_Rest_UpsertContractV2.callRest(create);
+        System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        Test_Rest_UpsertContractV2.invoicedEndDate = Test_Rest_UpsertContractV2.getContract(id + '-1').Subscription25__Current_End_Date__c;
         Util_Rest.RestResult terminated = Test_Rest_UpsertContractV2.callRest(terminate);
         Test.stopTest();
 
         System.assertEquals(true, terminated.success, String.join(terminated.messages, '; '));
-        Contract contr = Test_Rest_UpsertContractV2.getContract('900608-1');
-        System.assertEquals(null, contr.Termination_Method__c);
-        System.assertEquals(Date.newInstance(2026, 7, 31), contr.Subscription25__Termination_Date__c);
-        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Service_End_Date__c);
+        return Test_Rest_UpsertContractV2.getContract(id + '-1');
     }
 
     private static testMethod void testPartnerCodeDiscount(){

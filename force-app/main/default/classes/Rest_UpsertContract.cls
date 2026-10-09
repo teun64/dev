@@ -2,6 +2,9 @@
 global with sharing class Rest_UpsertContract {
     private static Contract record;
 	private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
+    //statuses in which another base service keeps the contract running (only Activated); tests widen it, as their
+    //contract products stay Draft (the package activates them asynchronously)
+    @TestVisible private static Set<String> activeBaseServiceStatuses = new Set<String>{'Activated'};
 
     @HttpPost
     global static Util_Rest.RestResult handleAction(){
@@ -166,6 +169,9 @@ global with sharing class Rest_UpsertContract {
         Product2 prd;
 
         Boolean isFirstContractTerm;
+        Boolean otherBaseServiceActive = false;
+        Boolean terminateProductOnly = false;
+        String currentTerminationMethod;
 
         Boolean isBaseService = false;
 
@@ -479,6 +485,23 @@ global with sharing class Rest_UpsertContract {
         contractCurrentEndDate = (contr.Subscription25__Current_End_Date__c != null) ? contr.Subscription25__Current_End_Date__c : contractFirstEndDate;
         isFirstContractTerm = (contractCurrentEndDate == contractFirstEndDate);
 
+        // 2026-10-09 - TRi - a contract can have more than one base service contract product. As long as another base service
+        // on the contract is still Activated (and not terminated itself), a terminating base service only terminates (and credits) its own contract product,
+        // never the contract itself - in both termination processes
+        currentTerminationMethod = contr.Termination_Method__c;
+        if ((!contrIsNew) && (prd.isBaseService__c) && (contr.Id != null)) {
+            otherBaseServiceActive = ([
+                SELECT COUNT()
+                FROM Subscription25__Contract_Product__c
+                WHERE Subscription25__Contract__c = :contr.Id
+                    AND Is_Base_Service__c = true
+                    AND Id != :contrProd.Id
+                    AND Subscription25__Status__c IN :Rest_UpsertContract.activeBaseServiceStatuses
+                    AND Subscription25__Termination_Date__c = null
+                WITH SYSTEM_MODE
+            ] > 0);
+        }
+
         // ==== termination process "terminationId" ====
         // the platform sends a terminationId (see Util_System.terminationOpions), Salesforce stores it as Termination_Method__c
         // and calculates the termination date itself from that method and the service end date
@@ -524,8 +547,7 @@ global with sharing class Rest_UpsertContract {
         } else {
             // ==== termination process "terminationDate" ====
             // 20240807 Original process based on serviceEndDate and contractEndDate: no terminationId, the platform sends the
-            // dates itself (serviceEndDate / contractEndDate) and Termination_Method__c is cleared
-            contr.Termination_Method__c =  null;
+            // dates itself (serviceEndDate / contractEndDate), Termination_Method__c is derived from those dates below
 
             //system.debug('contractCurrentEndDate');
             // before going in edit mode, check the end date -> terminated edit needed
@@ -560,6 +582,19 @@ global with sharing class Rest_UpsertContract {
                 productTerminationDate = null;
                 productServiceEndDate = null;
             }
+
+            // 2026-10-09 - TRi - derive Termination_Method__c from the dates (needed for Undo Termination and the Termination
+            // Reverted credit cleanup), see deriveTerminationMethod
+            if (productTerminationDate != null) {
+                TerminationMethod derived = Rest_UpsertContract.deriveTerminationMethod(productTerminationDate, productServiceEndDate, contractCurrentEndDate, contr.StartDate, contr.ContractTerm, renewalTerm);
+                contr.Termination_Method__c = derived.method;
+                productTerminationDate = derived.terminationDate;
+            } else if (contractTerminationDate != null) {
+                // no dates while a termination is on file: the termination is cleared as before, but this is NOT treated as a
+                // revert - a platform batch clears and later re-sets terminations, so credits are only reversed on an explicit
+                // terminationId '0' or the Undo Termination action
+                contr.Termination_Method__c = null;
+            }
         }
 
         // Allowed Changes isbaseSerivice
@@ -586,6 +621,14 @@ global with sharing class Rest_UpsertContract {
 
             if (contractBornTerminated) {
                 //deferred, handled after the contract product is created below
+            } else if ((productTerminationDate != null) && (otherBaseServiceActive)) {
+                //another base service keeps the contract running: leave the contract (and its termination method) untouched,
+                //only this contract product is terminated, and credited when it is already active
+                contr.Termination_Method__c = currentTerminationMethod;
+                terminateProductOnly = true;
+                doCorrection = ((contractCurrentEndDate != productTerminationDate) && (!contrProdIsNew)
+                    && (new Set<String>{'Ready', 'Activated', 'Closed'}.contains(contrProd.Subscription25__Status__c))
+                    && (!contrProd.Subscription25__Exclude_From_Corrections__c));
             } else if ((productServiceEndDate != null) && ((contractTerminationDate == null) || ((contr.status == 'Closed') && (productTerminationDate < contractTerminationDate)))) {
                 //Termination date set base on cancelation period (wet van damme), service_end_date_c set base on the end date of the service -> termination date and invoice periods in sync
                 //20220603 - TRi - When creditfrom date is null, it will be set to the Subscription25__Current_End_Date__c or miContract.currentEndDate when Subscription25__Current_End_Date__c is null
@@ -702,6 +745,15 @@ global with sharing class Rest_UpsertContract {
                     AND Subscription25__Contract__c = :contr.Id
                 WITH SYSTEM_MODE
             ]);
+
+            if (terminateProductOnly) {
+                //only this contract product, the other base service(s) keep the contract running
+                for (Id cpId : new Set<Id>(cps.keySet())) {
+                    if (cpId != contrProd.Id) {
+                        cps.remove(cpId);
+                    }
+                }
+            }
 
             input.contractProductIds = cps.keySet();
             //input.createCorrectionsFrom = miContract.contractEndDate != null ? Date.valueOf(miContract.contractEndDate) : contrProd.Subscription25__Termination_Date__c;
@@ -914,6 +966,52 @@ global with sharing class Rest_UpsertContract {
 
         //Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contService.Id));
         return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contrProd.Id));
+    }
+
+    private class TerminationMethod {
+        String method;
+        Date terminationDate;
+
+        TerminationMethod(String method, Date terminationDate) {
+            this.method = method;
+            this.terminationDate = terminationDate;
+        }
+    }
+
+    // termination process "terminationDate": derives Termination_Method__c from the dates the platform sent, with the same
+    // rules the terminationId process uses to calculate them. The term end for those rules is rebuilt from the start date,
+    // contract term and renewal term (the term the service ends in): Subscription25__Current_End_Date__c is only the expected
+    // end date. Whether a credit is created is decided by Subscription25__Current_End_Date__c (the date invoiced through):
+    // a termination on that date never creates a credit, and dates that match no method are NOT trusted with a credit -
+    // they fall back to No Credit, with the termination date moved to that invoiced-through date (no correction runs).
+    private static TerminationMethod deriveTerminationMethod(Date terminationDate, Date serviceEndDate, Date invoicedEndDate, Date startDate, Integer contractTerm, Integer renewalTerm) {
+        Date referenceDate = (serviceEndDate != null) ? serviceEndDate : terminationDate;
+
+        Integer termMonths = contractTerm;
+        Date firstEndDate = startDate.addMonths(termMonths).addDays(-1);
+        Date termEndDate = firstEndDate;
+        while (termEndDate < referenceDate) {
+            termMonths += renewalTerm;
+            termEndDate = startDate.addMonths(termMonths).addDays(-1);
+        }
+        Boolean isFirstTerm = (termEndDate == firstEndDate);
+        Date previousEndDate = (isFirstTerm) ? startDate.addDays(-1) : startDate.addMonths(termMonths - renewalTerm).addDays(-1);
+
+        if ((terminationDate == invoicedEndDate) || (terminationDate == termEndDate)) {
+            return new TerminationMethod(((serviceEndDate == terminationDate) ? 'Auto renewal off' : 'No Credit'), terminationDate);
+        }
+        if (terminationDate == previousEndDate) {
+            return new TerminationMethod('Full Credit', terminationDate);
+        }
+        if ((serviceEndDate != null) && (terminationDate == serviceEndDate) && (terminationDate < termEndDate)) {
+            return new TerminationMethod('Partial Credit Immediate', terminationDate);
+        }
+        if ((serviceEndDate != null) && (terminationDate == serviceEndDate.addMonths((renewalTerm == 12) ? 1 : renewalTerm))) {
+            return new TerminationMethod('Partial Credit with Cancellation Term', terminationDate);
+        }
+
+        //not sure what the platform meant: never credit, end on the date the customer is invoiced through
+        return new TerminationMethod('No Credit', invoicedEndDate);
     }
 
     private class ContractProduct {
