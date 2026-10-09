@@ -1,7 +1,7 @@
 // 2026-09-09 - TRi - refreshes Subscription25__Price__c from the pricebook for platforms where Salesforce
 // (not the platform) owns pricing (see Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS), right before a
 // contract's native renewal. Runs at 00:05 Amsterdam time, ahead of Sub25's own Job_ContractManagement
-// (01:16) on the same day - this is also the price refresh that Rest_UpsertContract's nightly no-op sync
+// (01:16) on the same day - this is also the price refresh that Rest_UpsertContract(V2)'s nightly no-op sync
 // call used to perform before it started being short-circuited; this batch replaces that side effect.
 global class Batch_UpdateContractProductPrice extends Subscription25.Job_AbstractBatch2 implements Util_JobDispatcher.Step {
 

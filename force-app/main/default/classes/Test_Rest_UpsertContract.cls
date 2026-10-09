@@ -199,73 +199,278 @@ private class Test_Rest_UpsertContract {
         System.assertEquals(Date.newInstance(2026, 8, 1), firstOrd.Subscription25__Invoice_Date__c);
     }
 
-    private static testMethod void testSkipNoOpSyncCall(){
-        //an open-ended/auto-renewing contract: no contractEndDate/serviceEndDate at creation, so
-        //Subscription25__Termination_Date__c stays null afterwards - matches the real-world contracts
-        //that later receive the nightly no-op sync call
-        String jsonCreate = '{"id":"900555","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":null,"salesforceId":null,"quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":null,"terminationId":null,"orderReference":"900555-orderReference"}';
-        //no contractEndDate/serviceEndDate/terminationId - the nightly no-op confirmation call shape
-        String jsonHeartbeat = '{"id":"900555","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":null,"salesforceId":"a0V000000000000AAA","quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":null,"terminationId":null,"orderReference":"900555-orderReference"}';
-        //same no-op shape, but terminationId '0' ("Termination Reverted") - should also be skipped
-        String jsonRevertNoop = jsonHeartbeat.replace('"terminationId":null', '"terminationId":"0"');
+    // ---- generic tests: keep identical in Test_Rest_UpsertContract and Test_Rest_UpsertContractV2 ----
 
+    private static testMethod void testValidationErrors(){
         Test_Rest_UpsertContract.setupSubscriptionFixtures();
 
+        Map<String, Object> noId = Test_Rest_UpsertContract.basePayload('900590', 1);
+        noId.put('id', null);
+        Map<String, Object> noPlatform = Test_Rest_UpsertContract.basePayload('900591', 1);
+        noPlatform.put('platformId', null);
+        Map<String, Object> noAccount = Test_Rest_UpsertContract.basePayload('900592', 1);
+        noAccount.put('accountId', null);
+        Map<String, Object> unknownAccount = Test_Rest_UpsertContract.basePayload('900593', 1);
+        unknownAccount.put('accountId', '999999');
+        Map<String, Object> unknownProduct = Test_Rest_UpsertContract.basePayload('900594', 1);
+        unknownProduct.put('productId', '0000000');
+
         Test.startTest();
-
-        System.RestContext.request = new RestRequest();
-        System.RestContext.request.requestBody = Blob.valueOf(jsonCreate);
-        Util_Rest.RestResult createResult = Rest_UpsertContract.handleAction();
-        System.assertEquals(true, createResult.success, String.join(createResult.messages, '; '));
-
-        System.RestContext.request = new RestRequest();
-        System.RestContext.request.requestBody = Blob.valueOf(jsonHeartbeat);
-        Util_Rest.RestResult heartbeatResult = Rest_UpsertContract.handleAction();
-
-        System.RestContext.request = new RestRequest();
-        System.RestContext.request.requestBody = Blob.valueOf(jsonRevertNoop);
-        Util_Rest.RestResult revertResult = Rest_UpsertContract.handleAction();
-
+        for (Map<String, Object> payload : new List<Map<String, Object>>{noId, noPlatform, noAccount, unknownAccount, unknownProduct}) {
+            Util_Rest.RestResult result = Test_Rest_UpsertContract.callRest(payload);
+            System.assertEquals(false, result.success, String.join(result.messages, '; '));
+        }
         Test.stopTest();
 
-        System.assertEquals(true, heartbeatResult.success, String.join(heartbeatResult.messages, '; '));
-        System.assert(String.join(heartbeatResult.messages, '; ').contains('Skipped'), String.join(heartbeatResult.messages, '; '));
-
-        System.assertEquals(true, revertResult.success, String.join(revertResult.messages, '; '));
-        System.assert(String.join(revertResult.messages, '; ').contains('Skipped'), String.join(revertResult.messages, '; '));
-
-        //the two no-op calls must not have created any duplicate/extra records
-        System.assertEquals(1, [SELECT Count() FROM Contract WHERE extId__c = '900555-1']);
-        System.assertEquals(1, [SELECT Count() FROM Subscription25__Contract_Product__c WHERE extId__c = '900555-1']);
+        System.assertEquals(0, [SELECT Count() FROM Contract]);
     }
 
-    private static testMethod void testNoSkipWhenTerminationPending(){
-        String jsonCreate = '{"id":"900556","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":"2027-01-09","salesforceId":null,"quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":"2027-01-09","orderReference":"900556-orderReference"}';
-        //otherwise no-op-shaped call, sent against a contract that has a real pending termination on file
-        String jsonHeartbeat = '{"id":"900556","platformId": 1,"accountId":"1","installationId":"7587","productId":"9999392","startDate":"2022-01-10","serviceEndDate":null,"salesforceId":"a0V000000000000AAA","quantity":1,"unitPrice":25.0,"contractTerm":36,"renewalTerm":12,"noticeTerm":12,"orderOffsetTerm":-1,"invoicePeriod":12,"firstInvoiceDate":null,"isBaseService":true,"prepaid":true,"contractEndDate":null,"terminationId":null,"orderReference":"900556-orderReference"}';
+    private static testMethod void testTerminationIdNoCredit(){
+        Contract contr = Test_Rest_UpsertContract.createAndTerminate('900601', '1', '2026-06-30');
+        System.assertEquals('No Credit', contr.Termination_Method__c);
+        //terminated at the end of the current contract period
+        System.assertEquals(Date.newInstance(2027, 1, 9), contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Service_End_Date__c);
+    }
 
+    private static testMethod void testTerminationIdFullCredit(){
+        Contract contr = Test_Rest_UpsertContract.createAndTerminate('900602', '2', '2026-06-30');
+        System.assertEquals('Full Credit', contr.Termination_Method__c);
+        //first contract term: terminated the day before the start date, everything is credited
+        System.assertEquals(Date.newInstance(2026, 1, 9), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationIdPartialCreditImmediate(){
+        Contract contr = Test_Rest_UpsertContract.createAndTerminate('900603', '3', '2026-06-30');
+        System.assertEquals('Partial Credit Immediate', contr.Termination_Method__c);
+        //terminated on the service end date
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Service_End_Date__c);
+    }
+
+    private static testMethod void testTerminationIdPartialCreditWithCancellationTerm(){
+        Contract contr = Test_Rest_UpsertContract.createAndTerminate('900604', '4', '2026-06-30');
+        System.assertEquals('Partial Credit with Cancellation Term', contr.Termination_Method__c);
+        //renewal term 12 -> service end date + 1 month cancellation term
+        System.assertEquals(Date.newInstance(2026, 7, 30), contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Service_End_Date__c);
+    }
+
+    private static testMethod void testTerminationIdAutoRenewalOff(){
+        Contract contr = Test_Rest_UpsertContract.createAndTerminate('900605', '5', null);
+        System.assertEquals('Auto renewal off', contr.Termination_Method__c);
+        //service and termination both end at the end of the current contract period
+        System.assertEquals(Date.newInstance(2027, 1, 9), contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2027, 1, 9), contr.Service_End_Date__c);
+    }
+
+    private static testMethod void testTerminationIdReverted(){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        //a revert only works while the termination date is still in the future: once it has passed the contract is
+        //Terminated and the call stops early, so these dates are relative to today
+        Map<String, Object> create = Test_Rest_UpsertContract.basePayload('900606', 1);
+        create.put('startDate', String.valueOf(Date.today().addMonths(-1)));
+        Map<String, Object> terminate = Test_Rest_UpsertContract.basePayload('900606', 1);
+        terminate.put('terminationId', '3');
+        terminate.put('serviceEndDate', String.valueOf(Date.today().addMonths(1)));
+        terminate.put('startDate', create.get('startDate'));
+        Map<String, Object> revert = Test_Rest_UpsertContract.basePayload('900606', 1);
+        revert.put('startDate', create.get('startDate'));
+        revert.put('terminationId', '0');
+
+        Test.startTest();
+        Util_Rest.RestResult created = Test_Rest_UpsertContract.callRest(create);
+        System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        Util_Rest.RestResult terminated = Test_Rest_UpsertContract.callRest(terminate);
+        System.assertEquals(true, terminated.success, String.join(terminated.messages, '; '));
+        Util_Rest.RestResult reverted = Test_Rest_UpsertContract.callRest(revert);
+        Test.stopTest();
+
+        System.assertEquals(true, reverted.success, String.join(reverted.messages, '; '));
+        //a real termination is on file, so the revert must run the full path (never skipped)
+        System.assert(!String.join(reverted.messages, '; ').contains('Skipped'), String.join(reverted.messages, '; '));
+
+        Contract contr = Test_Rest_UpsertContract.getContract('900606-1');
+        System.assertEquals('Termination Reverted', contr.Termination_Method__c);
+        System.assertEquals(null, contr.Subscription25__Termination_Date__c);
+        System.assertEquals(null, contr.Service_End_Date__c);
+    }
+
+    //termination process "terminationDate": no terminationId, the platform sends the dates itself
+    private static testMethod void testTerminationDate(){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        Map<String, Object> terminate = Test_Rest_UpsertContract.basePayload('900608', 1);
+        terminate.put('serviceEndDate', '2026-06-30');
+        terminate.put('contractEndDate', '2026-07-31');
+
+        Test.startTest();
+        Util_Rest.RestResult created = Test_Rest_UpsertContract.callRest(Test_Rest_UpsertContract.basePayload('900608', 1));
+        System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        Util_Rest.RestResult terminated = Test_Rest_UpsertContract.callRest(terminate);
+        Test.stopTest();
+
+        System.assertEquals(true, terminated.success, String.join(terminated.messages, '; '));
+        Contract contr = Test_Rest_UpsertContract.getContract('900608-1');
+        System.assertEquals(null, contr.Termination_Method__c);
+        System.assertEquals(Date.newInstance(2026, 7, 31), contr.Subscription25__Termination_Date__c);
+        System.assertEquals(Date.newInstance(2026, 6, 30), contr.Service_End_Date__c);
+    }
+
+    private static testMethod void testPartnerCodeDiscount(){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        Product2 discount = Test_Data.createProduct('Partner discount', 'Tst.Partner', 'partner-discount-1', 'Handling', false);
+        discount.Is_Partner_Code__c = true;
+        Database.insert(discount);
+        Database.insert(Test_Data.CreatePricebookEntry(discount.Id, 0, false));
+        Pricebook2 pb = [SELECT Id FROM Pricebook2 WHERE Name = 'Subscription - Test' LIMIT 1];
+        Database.insert(new PricebookEntry(Product2Id = discount.Id, Pricebook2Id = pb.Id, Unitprice = 0, UseStandardPrice = false, Isactive = true));
+        Test_Rest_UpsertContract.addAdministrationProduct(discount.Id);
+
+        Map<String, Object> payload = Test_Rest_UpsertContract.basePayload('900607', 1);
+        payload.put('partnerCode', 'PARTNER10');
+        payload.put('partnerCodePercentage', 10);
+
+        Test.startTest();
+        Util_Rest.RestResult result = Test_Rest_UpsertContract.callRest(payload);
+        Test.stopTest();
+
+        System.assertEquals(true, result.success, String.join(result.messages, '; '));
+
+        Subscription25__Contract_Product__c cp = Test_Rest_UpsertContract.getContractProduct('900607-1');
+        System.assertEquals(true, cp.Has_Partner_Code__c);
+        Subscription25__Contract_Product__c partnerCp = Test_Rest_UpsertContract.getContractProduct('900607-1p');
+        System.assertEquals(discount.Id, partnerCp.Subscription25__Product__c);
+        //10% discount on the subscription price, booked as a negative price
+        System.assertEquals(((cp.Subscription25__Price__c * 10) / 100).setScale(2, RoundingMode.HALF_DOWN) * -1, partnerCp.Subscription25__Price__c);
+        System.assertEquals(false, partnerCp.Update_Price_before_Renewal__c);
+    }
+
+    // ---- generic helpers ----
+
+    private static Util_Rest.RestResult callRest(Map<String, Object> payload){
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(JSON.serialize(payload));
+        return Rest_UpsertContract.handleAction();
+    }
+
+    //open-ended base service in its first contract term: 2026-01-10 .. 2027-01-09
+    private static Map<String, Object> basePayload(String id, Integer platformId){
+        return new Map<String, Object>{
+            'id' => id,
+            'platformId' => platformId,
+            'accountId' => '1',
+            'installationId' => '7587',
+            'productId' => '9999392',
+            'startDate' => '2026-01-10',
+            'quantity' => 1,
+            'unitPrice' => 25.0,
+            'contractTerm' => 12,
+            'renewalTerm' => 12,
+            'noticeTerm' => 1,
+            'orderOffsetTerm' => -1,
+            'isBaseService' => true,
+            'prepaid' => true,
+            'orderReference' => id + '-orderReference'
+        };
+    }
+
+    private static Contract createAndTerminate(String id, String terminationId, String serviceEndDate){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        Map<String, Object> terminate = Test_Rest_UpsertContract.basePayload(id, 1);
+        terminate.put('terminationId', terminationId);
+        terminate.put('serviceEndDate', serviceEndDate);
+
+        Test.startTest();
+        Util_Rest.RestResult created = Test_Rest_UpsertContract.callRest(Test_Rest_UpsertContract.basePayload(id, 1));
+        System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        Util_Rest.RestResult terminated = Test_Rest_UpsertContract.callRest(terminate);
+        Test.stopTest();
+
+        System.assertEquals(true, terminated.success, String.join(terminated.messages, '; '));
+        return Test_Rest_UpsertContract.getContract(id + '-1');
+    }
+
+    private static Contract getContract(String extId){
+        return [SELECT Id, Status, StartDate, Termination_Method__c, Subscription25__Termination_Date__c, Service_End_Date__c, Subscription25__Current_End_Date__c FROM Contract WHERE extId__c = :extId];
+    }
+
+    private static Subscription25__Contract_Product__c getContractProduct(String extId){
+        return [
+            SELECT Id, Subscription25__Product__c, Subscription25__Price__c, Update_Price_before_Renewal__c, Has_Partner_Code__c,
+                Subscription25__Quantity__c, Subscription25__Contract__r.Pricebook2Id, Subscription25__Contract__r.CurrencyIsoCode, Subscription25__Contract__r.AccountId
+            FROM Subscription25__Contract_Product__c
+            WHERE extId__c = :extId
+        ];
+    }
+
+    //makes the test account/product known on another platform (extId_<platform>__c, <product>-sv-<platform>)
+    private static void addPlatform(String platformId){
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = '1' LIMIT 1];
+        acc.put('extId_' + platformId + '__c', '1');
+        Database.update(acc);
+
+        Product2 pr = Test_Data.createProduct('MiBlack ' + platformId, 'Tst.Black.12.' + platformId, '9999392-sv-' + platformId, 'Subscription', false);
+        pr.contractTerm__c = 12;
+        pr.renewalTerm__c = 12;
+        pr.Invoice_Period__c = '0';
+        Database.insert(pr);
+        Database.insert(Test_Data.CreatePricebookEntry(pr.id, 8.95, false));
+        Pricebook2 pb = [SELECT Id FROM Pricebook2 WHERE Name = 'Subscription - Test' LIMIT 1];
+        Database.insert(new PricebookEntry(Product2Id = pr.id, Pricebook2Id = pb.Id, Unitprice = 21, UseStandardPrice = false, Isactive = true));
+
+        Test_Rest_UpsertContract.addAdministrationProduct(pr.Id);
+    }
+
+    private static void addAdministrationProduct(Id productId){
+        Subscription25__Administration__c adm = [SELECT Id FROM Subscription25__Administration__c LIMIT 1];
+        Subscription25__VATRate__c vr = [SELECT Id FROM Subscription25__VATRate__c LIMIT 1];
+        Database.insert(new Subscription25__Administration_Product__c(
+            Subscription25__Administration__c = adm.Id,
+            Subscription25__Product__c = productId,
+            Subscription25__Ledger_Account__c = '13100',
+            Subscription25__Ledger_Account_EU__c = '13200',
+            Subscription25__Ledger_Account_Non_EU__c = '13300',
+            Subscription25__VATRate__c = vr.Id,
+            Subscription25__VATRate_EU__c = vr.Id,
+            Subscription25__VATRate_Non_EU__c = vr.Id
+        ));
+    }
+
+    // ---- end generic ----
+
+    // ---- v1 only: pricing driven by the Product2.Pricing_Platform__c flag ----
+
+    private static testMethod void testPlatformPriceUsedWhenProductIsPricingPlatform(){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+        Product2 pr = [SELECT Id FROM Product2 WHERE extID__c = '9999392-sv-1'];
+        pr.Pricing_Platform__c = true;
+        Database.update(pr);
+
+        Test.startTest();
+        Util_Rest.RestResult result = Test_Rest_UpsertContract.callRest(Test_Rest_UpsertContract.basePayload('900621', 1));
+        Test.stopTest();
+
+        System.assertEquals(true, result.success, String.join(result.messages, '; '));
+        Subscription25__Contract_Product__c cp = Test_Rest_UpsertContract.getContractProduct('900621-1');
+        System.assertEquals(25, cp.Subscription25__Price__c);
+        System.assertEquals(false, cp.Update_Price_before_Renewal__c);
+    }
+
+    private static testMethod void testPriceCalculatedWhenProductIsNotPricingPlatform(){
         Test_Rest_UpsertContract.setupSubscriptionFixtures();
 
         Test.startTest();
-
-        System.RestContext.request = new RestRequest();
-        System.RestContext.request.requestBody = Blob.valueOf(jsonCreate);
-        Util_Rest.RestResult createResult = Rest_UpsertContract.handleAction();
-        System.assertEquals(true, createResult.success, String.join(createResult.messages, '; '));
-
-        //simulate a real pending termination already on file, bypassing the need to reconstruct the full
-        //package-managed cascade that would normally set it
-        Contract cont = [SELECT Id FROM Contract WHERE extId__c = '900556-1'];
-        Database.update(new Contract(Id = cont.Id, Subscription25__Termination_Date__c = Date.newInstance(2028, 1, 9)));
-
-        System.RestContext.request = new RestRequest();
-        System.RestContext.request.requestBody = Blob.valueOf(jsonHeartbeat);
-        Util_Rest.RestResult heartbeatResult = Rest_UpsertContract.handleAction();
-
+        Util_Rest.RestResult result = Test_Rest_UpsertContract.callRest(Test_Rest_UpsertContract.basePayload('900622', 1));
         Test.stopTest();
 
-        System.assertEquals(true, heartbeatResult.success, String.join(heartbeatResult.messages, '; '));
-        System.assert(!String.join(heartbeatResult.messages, '; ').contains('Skipped'), String.join(heartbeatResult.messages, '; '));
+        System.assertEquals(true, result.success, String.join(result.messages, '; '));
+        Subscription25__Contract_Product__c cp = Test_Rest_UpsertContract.getContractProduct('900622-1');
+        System.assertNotEquals(25, cp.Subscription25__Price__c);
+        System.assertEquals(true, cp.Update_Price_before_Renewal__c);
     }
 
     private static void setupSubscriptionFixtures(){

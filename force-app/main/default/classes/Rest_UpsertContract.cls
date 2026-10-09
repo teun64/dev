@@ -2,7 +2,6 @@
 global with sharing class Rest_UpsertContract {
     private static Contract record;
 	private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
-	private static String skipReason;
 
     @HttpPost
     global static Util_Rest.RestResult handleAction(){
@@ -12,7 +11,6 @@ global with sharing class Rest_UpsertContract {
 
     public static Util_Rest.RestResult handleAction(String req){
         Util_Rest.RestResult result = new Util_Rest.RestResult();
-        Rest_UpsertContract.skipReason = null;
         Logger logger = Logger.getInstance();
         String sessionId = logger.startSession(RestContext.request, 'RestUpsertContract', 'S'); // TODO: Set calling system?
         Savepoint savePoint = Database.setSavepoint();
@@ -92,10 +90,6 @@ global with sharing class Rest_UpsertContract {
             result.addedRecords.add(Rest_UpsertContract.upsertMiContract(miContract, platformId, acc));
             result.success = true;
             result.messages.add('Succes: An Contract was added with ID: ' + miContract.id);
-
-            if (String.isNotBlank(Rest_UpsertContract.skipReason)) {
-                result.messages.add('Skipped: ' + Rest_UpsertContract.skipReason + ' for Contract ' + miContract.id);
-            }
 
             Util_Rest.isRestEntry = false;
 
@@ -325,32 +319,13 @@ global with sharing class Rest_UpsertContract {
 
         Rest_UpsertContract.record = contr;
 
-        // 2026-09-09 - TRi - platforms (observed on platform 1) send a nightly no-op confirmation call for
-        // contracts sitting at their native renewal anniversary; Subscription25 already renews the contract
-        // itself (Job_ContractManagement), so this call carries no changes at all - contractEndDate,
-        // serviceEndDate and terminationId are all blank (or terminationId is '0', "Termination Reverted",
-        // sent when there's nothing left to revert). Short-circuit before running the full update/DML path.
-        // The Subscription25__Termination_Date__c == null check is the real safety net: a contract that
-        // actually has a pending/real termination on file never matches this and always runs the full path.
-        Boolean isNoOpSyncCall = (!contrIsNew)
-            && (miContract.contractEndDate == null)
-            && (miContract.serviceEndDate == null)
-            && (String.isBlank(miContract.terminationId) || (miContract.terminationId == '0'))
-            && (contr.Subscription25__Termination_Date__c == null);
-
-        if (isNoOpSyncCall) {
-            Rest_UpsertContract.skipReason = 'no-op sync call, no changes detected';
-            Util_System.setStatusCascadePrevention(false);
-            return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contr.Id));
-        }
-
         if (miContract.renewalTerm != null) {
             renewalTerm = miContract.renewalTerm;
         } else {
             renewalTerm = Rest_UpsertContract.getCurrentProductAccountOrDefaultValue(acc, acd, prd, 'RenewalTerm__c', contr.Subscription25__Renewal_Term__c);
         }
 
-        renewalTerm = ((renewalTerm == null) || (renewalTerm == 0)) ? 1 : renewalTerm;
+        renewalTerm = ((renewalTerm == null) || (renewalTerm == 0)) ? 1 : renewalTerm;        
 
         if(contr.Status == 'Terminated') {
             //if the salesforce contract was already terminated, stop now.
@@ -504,6 +479,9 @@ global with sharing class Rest_UpsertContract {
         contractCurrentEndDate = (contr.Subscription25__Current_End_Date__c != null) ? contr.Subscription25__Current_End_Date__c : contractFirstEndDate;
         isFirstContractTerm = (contractCurrentEndDate == contractFirstEndDate);
 
+        // ==== termination process "terminationId" ====
+        // the platform sends a terminationId (see Util_System.terminationOpions), Salesforce stores it as Termination_Method__c
+        // and calculates the termination date itself from that method and the service end date
         if (String.isNotBlank(miContract.terminationId)) {
             contr.Termination_Method__c = Util_System.getTerminationOption(miContract.terminationId);
             productTerminationDate = null;
@@ -544,7 +522,9 @@ global with sharing class Rest_UpsertContract {
             }
 
         } else {
-            // 20240807 Original process based on serviceEndDate and contractEndDate
+            // ==== termination process "terminationDate" ====
+            // 20240807 Original process based on serviceEndDate and contractEndDate: no terminationId, the platform sends the
+            // dates itself (serviceEndDate / contractEndDate) and Termination_Method__c is cleared
             contr.Termination_Method__c =  null;
 
             //system.debug('contractCurrentEndDate');
@@ -789,12 +769,10 @@ global with sharing class Rest_UpsertContract {
                 contrProd.Subscription25__Quantity__c = (miContract.quantity != null) ? miContract.quantity : ((contrProd.Subscription25__Quantity__c != null) ? contrProd.Subscription25__Quantity__c : 1.0);
                 decimal price = contrProd.Subscription25__Price__c;
 
-                //platform check replaces the old Pricing_Platform__c product flag: for platforms Salesforce
-                //now owns pricing for, always calculate via the pricebook instead of trusting the platform's
-                //own unitPrice (see Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS and Batch_UpdateContractProductPrice)
-                if ((!Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS.contains(platformId)) && (miContract.unitPrice != null)) {
+                if ((prd.Pricing_Platform__c) && (miContract.unitPrice != null)) {
                     price = miContract.unitPrice;
                 } else {
+                    prd.Pricing_Platform__c = false;
                     PricebookEntry pbe = Util_PriceCalculation.getPricebookEntry(
                     prd.Id,
                     contr.Pricebook2Id,
@@ -802,11 +780,7 @@ global with sharing class Rest_UpsertContract {
                     contr.accountId,
                     Math.round(contrProd.Subscription25__Quantity__c),
                     0.0);
-                    //no pricebook result isn't a price of 0 - it's "couldn't calculate", so leave price at
-                    //its existing value (initialized above) rather than zeroing it out
-                    if (pbe != null) {
-                        price = pbe.SalesPrice__c;
-                    }
+                    price = (pbe != null) ? pbe.SalesPrice__c : 0;
                 }
 
                 //system.debug('Rounding -> ' + price);
@@ -817,7 +791,7 @@ global with sharing class Rest_UpsertContract {
 
                 //system.debug('contrProd.Subscription25__Price__c -> ' + contrProd.Subscription25__Price__c);
 
-                contrProd.Update_Price_before_Renewal__c = Util_PriceCalculation.PRICE_CALCULATED_PLATFORMS.contains(platformId);
+                contrProd.Update_Price_before_Renewal__c = (!prd.Pricing_Platform__c);
                 //system.debug('Update_Price_before_Renewal__c -> ' + contrProd.Update_Price_before_Renewal__c);
 
                 if (String.isNotBlank(miContract.invoiceProductName)) {
