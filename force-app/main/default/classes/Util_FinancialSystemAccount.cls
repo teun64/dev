@@ -11,7 +11,8 @@
  *  - addresses   : establishment (Billing) is the Exact account's own address; invoice (type 3) = invoice
  *                  address when supplied, otherwise the establishment address, + invoice contact; shipping
  *                  (type 4) likewise. Created only when address or contact differs from the establishment + main
- *                  contact; once created it is kept up to date. Both are the Main address of their type.
+ *                  contact; once created it is kept up to date. Both are the Main address of their type: the
+ *                  first sync takes over (overwrites) the existing Main address of that type in Exact, if any.
  *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST
  * Only parts whose fingerprint (FinancialSyncState__c) changed are sent. Exact ids live on the Account
  * (FinancialId*__c) and the ACR, not on Subscription25__Debtor_Number__c.
@@ -397,10 +398,10 @@ public without sharing class Util_FinancialSystemAccount {
 		calls += Svc_FinancialSystemContactRemoval.readEntries(acct.FinancialContactsToRetire__c).size();
 		calls++; // main contact on the account
 		if (Util_FinancialSystemAccount.invoiceAddressDiffers(acct) || String.isNotBlank(acct.FinancialIdInvoiceAddress__c)) {
-			calls++;
+			calls += String.isBlank(acct.FinancialIdInvoiceAddress__c) && !isNew ? 2 : 1; // (GET Main) + POST/PUT
 		}
 		if (Util_FinancialSystemAccount.shippingAddressDiffers(acct) || String.isNotBlank(acct.FinancialIdShippingAddress__c)) {
-			calls++;
+			calls += String.isBlank(acct.FinancialIdShippingAddress__c) && !isNew ? 2 : 1;
 		}
 		if (String.isNotBlank(acct.Bank_Account_Number__c)) {
 			calls += isNew ? 2 : 3; // (GET) + POST/PUT, + mandate
@@ -781,6 +782,20 @@ public without sharing class Util_FinancialSystemAccount {
 		String stateKey = isInvoice ? STATE_INVOICE : STATE_SHIPPING;
 		String fingerprint = Util_FinancialSystemAccount.hash(body);
 		String endpoint = String.format(ADDRESS_ENDPOINT, new List<String>{ division });
+		Boolean takenOver = false;
+		if (String.isBlank(existingId) && !ctx.isNewExactAccount) {
+			// take over the existing Main address of this type (e.g. made by the legacy sync) instead of adding one
+			existingId = Util_FinancialSystemAccount.findMainAddress(ctx, endpoint, addressType, guid);
+			if (String.isNotBlank(existingId)) {
+				takenOver = true;
+				if (isInvoice) {
+					acct.FinancialIdInvoiceAddress__c = existingId;
+				} else {
+					acct.FinancialIdShippingAddress__c = existingId;
+				}
+				ctx.accountDirty = true;
+			}
+		}
 		if (String.isBlank(existingId)) {
 			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
 			ctx.result.calls++;
@@ -791,11 +806,23 @@ public without sharing class Util_FinancialSystemAccount {
 				acct.FinancialIdShippingAddress__c = created.ID;
 			}
 			ctx.accountDirty = true;
-		} else if (fingerprint != ctx.state.get(stateKey)) {
+		} else if (takenOver || fingerprint != ctx.state.get(stateKey)) {
 			Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + existingId + '\')', null, 'PUT', JSON.serialize(body), guid);
 			ctx.result.calls++;
 		}
 		ctx.newState.put(stateKey, fingerprint);
+	}
+
+	/** Id of the Exact account's Main address of this type, or null. */
+	private static String findMainAddress(Util_FinancialSystemAccount.Ctx ctx, String endpoint, Integer addressType, String guid) {
+		Map<String, String> params = new Map<String, String>{
+			'$select' => 'ID',
+			'$filter' => 'Account eq guid\'' + ctx.acct.FinancialIdAccount__c + '\' and Type eq ' + addressType + ' and Main eq true'
+		};
+		String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, params, 'GET', null, guid);
+		ctx.result.calls++;
+		Util_FinancialSystemAccount.ExactAddresses found = (Util_FinancialSystemAccount.ExactAddresses) JSON.deserialize(response, Util_FinancialSystemAccount.ExactAddresses.class);
+		return found != null && found.results != null && !found.results.isEmpty() ? found.results[0].ID : null;
 	}
 
 	private static void syncBank(Util_FinancialSystemAccount.Ctx ctx, String division, String guid) {
@@ -1049,6 +1076,10 @@ public without sharing class Util_FinancialSystemAccount {
 
 	private class ExactGetAccounts {
 		List<Util_FinancialSystemAccount.ExactGetAccount> results;
+	}
+
+	private class ExactAddresses {
+		List<Util_FinancialSystemAccount.ExactAddress> results;
 	}
 
 	@TestVisible

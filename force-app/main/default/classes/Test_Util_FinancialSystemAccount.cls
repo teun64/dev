@@ -7,6 +7,7 @@ private class Test_Util_FinancialSystemAccount {
 		public List<String> bodies = new List<String>();
 		public String matchResult = '{"d":{"results":[]}}';
 		public String bankLookup = '{"d":{"results":[]}}';
+		public String addressLookup = '{"d":{"results":[]}}';
 		private Integer seq = 0;
 
 		public HttpResponse respond(HttpRequest req) {
@@ -30,7 +31,7 @@ private class Test_Util_FinancialSystemAccount {
 			res.setStatusCode(m == 'POST' ? 201 : 200);
 			this.seq++;
 			if (m == 'GET') {
-				res.setBody(entity == 'Bank' ? this.bankLookup : this.matchResult);
+				res.setBody(entity == 'Bank' ? this.bankLookup : entity == 'Address' ? this.addressLookup : this.matchResult);
 			} else if (entity == 'Account') {
 				res.setBody('{"d":{"ID":"acc-guid-1","Code":"             12345","MainContact":null}}');
 			} else {
@@ -547,6 +548,28 @@ private class Test_Util_FinancialSystemAccount {
 		System.assertEquals(1, sim.count('PUT Address'), 'Existing invoice address updated, not abandoned: ' + sim.calls);
 		System.assertEquals(0, sim.count('POST Address'), sim.calls);
 		System.assertEquals('address-guid-old', account().FinancialIdInvoiceAddress__c);
+	}
+
+	@IsTest
+	static void invoiceAddress_firstSync_takesOverExistingMainAddress() {
+		// already in Exact (e.g. legacy sync) with a Main invoice address that Salesforce does not know yet
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-1', FinancialDebtorNumber__c = '12345', FinancialDebtorCheck__c = true,
+			InvoiceAddress__Street__s = 'Postbus 226', InvoiceAddress__PostalCode__s = '7600 AE', InvoiceAddress__City__s = 'Almelo',
+			InvoiceAddress__CountryCode__s = 'NL'), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		sim.addressLookup = '{"d":{"results":[{"ID":"address-guid-legacy"}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		System.assertEquals(0, sim.count('POST Address'), 'No second invoice address: ' + sim.calls);
+		System.assertEquals(1, sim.count('PUT Address'), 'Existing Main address overwritten: ' + sim.calls);
+		String body = sim.body('PUT Address');
+		System.assert(body.contains('Postbus 226') && body.contains('"Main":true'), body);
+		System.assertEquals('address-guid-legacy', account().FinancialIdInvoiceAddress__c);
 	}
 
 	@IsTest
