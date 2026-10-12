@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>58.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>ass_01_Record</name>
@@ -32,7 +32,7 @@
     <formulas>
         <name>fCompositeKey</name>
         <dataType>String</dataType>
-        <expression>{!$Record.Administration__c}+&apos;-&apos;+Text({!$Record.Classification__c})+&apos;-&apos;+{!$Record.Exact_ID__c} + IF(ISPICKVAL({!$Record.Classification__c},&apos;WH&apos;),(&apos;-&apos; + LEFT(Text({!$Record.Sales_Channel__c}),1)),&apos;&apos;)</expression>
+        <expression>{!$Record.Administration__c}+&apos;-&apos;+Text({!$Record.Classification__c})+&apos;-&apos;+{!$Record.Exact_ID__c} + IF(ISPICKVAL({!$Record.Classification__c},&apos;WH&apos;),(&apos;-&apos; + TEXT({!$Record.FinancialSystemIdWarehouse__c})),&apos;&apos;)</expression>
     </formulas>
     <formulas>
         <name>fDisplay</name>
@@ -47,7 +47,12 @@
 ,&apos;C2&apos;,BLANKVALUE(TEXT({!$Record.Market__c}),null)
 ,&apos;C3&apos;,BLANKVALUE(TEXT({!$Record.Sales_Channel__c}),null)
 ,&apos;SC&apos;,BLANKVALUE(TEXT({!$Record.Sales_Channel__c}),null)
-,&apos;WH&apos;,BLANKVALUE(TEXT({!$Record.Sales_Channel__c}),null)
+,&apos;WH&apos;,IF(ISBLANK(TEXT({!$Record.FinancialSystemIdWarehouse__c})),null,CASE(TEXT({!$Record.FinancialSystemIdWarehouse__c})
+    ,&apos;1_MI&apos;,&apos;Netherlands - Moving Intelligence&apos;
+    ,&apos;1_ET&apos;,&apos;Netherlands - Europetrack&apos;
+    ,&apos;5_MI&apos;,&apos;Germany - Moving Intelligence&apos;
+    ,&apos;6_MI&apos;,&apos;United Kingdom - Moving Intelligence&apos;
+    ,TEXT({!$Record.FinancialSystemIdWarehouse__c})))
 ,null)</expression>
     </formulas>
     <interviewLabel>rbb - Exact Relation Setting {!$Flow.CurrentDateTime}</interviewLabel>
