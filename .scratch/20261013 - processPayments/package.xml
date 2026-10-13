@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Batch_ProcessPayments</members>
+        <members>Test_Batch_ProcessPayments</members>
+        <members>Batch_JobDispatcher</members>
+        <members>Test_Util_JobDispatcher</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>JobDispatcherStep.Minut_ProcessPayments</members>
+        <name>CustomMetadata</name>
+    </types>
+    <types>
+        <members>rbb_Payment</members>
+        <name>Flow</name>
+    </types>
+    <version>67.0</version>
+</Package>

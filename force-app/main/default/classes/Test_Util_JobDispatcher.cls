@@ -138,7 +138,13 @@ private class Test_Util_JobDispatcher {
 		Batch_JobDispatcher.scheduleEvery5Minutes();
 		Test.stopTest();
 
-		System.assertEquals(12, [SELECT COUNT() FROM CronTrigger WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - %']);
+		// exactly 12, also in an org where the dispatcher already runs for real (existing schedules are skipped)
+		System.assertEquals(12, [
+			SELECT COUNT() FROM CronTrigger
+			WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - %'
+			AND (NOT CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - Day - %')
+			AND (NOT CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - Hour - %')
+		]);
 	}
 
 	@IsTest
@@ -154,8 +160,21 @@ private class Test_Util_JobDispatcher {
 		List<CronTrigger> schedules = [
 			SELECT CronExpression FROM CronTrigger WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - Day - %'
 		];
-		System.assertEquals(1, schedules.size());
+		System.assertEquals(1, schedules.size(), 'Exactly one, also when the Day dispatcher already runs for real');
 		System.assertEquals('0 13 0 * * ?', schedules[0].CronExpression, 'Fires once a day at 00:13');
+	}
+
+	@IsTest
+	static void scheduleDaily_calledTwice_keepsOneSchedule() {
+		registerJobs();
+		Util_JobDispatcher.testSteps = new List<JobDispatcherStep__mdt>();
+
+		Test.startTest();
+		Batch_JobDispatcher.scheduleDaily();
+		Batch_JobDispatcher.scheduleDaily();
+		Test.stopTest();
+
+		System.assertEquals(1, [SELECT COUNT() FROM CronTrigger WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - Day - %']);
 	}
 
 	@IsTest
@@ -171,7 +190,7 @@ private class Test_Util_JobDispatcher {
 		List<CronTrigger> schedules = [
 			SELECT CronExpression FROM CronTrigger WHERE CronJobDetail.Name LIKE 'GoMeddo Subscription - Batch_JobDispatcher - Hour - %'
 		];
-		System.assertEquals(1, schedules.size());
+		System.assertEquals(1, schedules.size(), 'Exactly one, also when the Hour dispatcher already runs for real');
 		System.assertEquals('0 23 * * * ?', schedules[0].CronExpression, 'Fires once an hour at minute 23');
 	}
 }

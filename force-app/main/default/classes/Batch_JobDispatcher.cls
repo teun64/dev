@@ -45,7 +45,7 @@ global class Batch_JobDispatcher extends Subscription25.Job_AbstractBatch2 {
 	public static void scheduleEvery5Minutes() {
 		for (Integer minute = 0; minute < 60; minute += 5) {
 			String cron = '0 ' + minute + ' ' + HOURS + ' * * ?';
-			System.schedule('GoMeddo Subscription - Batch_JobDispatcher - ' + cron, cron, new Batch_JobDispatcher());
+			scheduleOnce('GoMeddo Subscription - Batch_JobDispatcher - ' + cron, cron, new Batch_JobDispatcher());
 		}
 	}
 
@@ -54,7 +54,7 @@ global class Batch_JobDispatcher extends Subscription25.Job_AbstractBatch2 {
 	 */
 	public static void scheduleDaily() {
 		String cron = '0 13 0 * * ?';
-		System.schedule('GoMeddo Subscription - Batch_JobDispatcher - Day - ' + cron, cron, new Batch_JobDispatcher('Day'));
+		scheduleOnce('GoMeddo Subscription - Batch_JobDispatcher - Day - ' + cron, cron, new Batch_JobDispatcher('Day'));
 	}
 
 	/**
@@ -62,6 +62,16 @@ global class Batch_JobDispatcher extends Subscription25.Job_AbstractBatch2 {
 	 */
 	public static void scheduleHourly() {
 		String cron = '0 23 * * * ?';
-		System.schedule('GoMeddo Subscription - Batch_JobDispatcher - Hour - ' + cron, cron, new Batch_JobDispatcher('Hour'));
+		scheduleOnce('GoMeddo Subscription - Batch_JobDispatcher - Hour - ' + cron, cron, new Batch_JobDispatcher('Hour'));
+	}
+
+	/**
+	 * Skips a schedule that already exists: job names are unique per org, so calling the schedule methods again
+	 * (or running their tests in an org where the dispatcher is live) would otherwise throw.
+	 */
+	private static void scheduleOnce(String name, String cron, Batch_JobDispatcher job) {
+		if ([SELECT COUNT() FROM CronTrigger WHERE CronJobDetail.Name = :name WITH SYSTEM_MODE] == 0) {
+			System.schedule(name, cron, job);
+		}
 	}
 }

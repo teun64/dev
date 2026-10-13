@@ -635,7 +635,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>ass_01_Direct_Debit_Variables</targetReference>
+            <targetReference>dec_02_Pending_DD</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default</defaultConnectorLabel>
         <rules>
@@ -1083,10 +1083,15 @@
         <dataType>Date</dataType>
         <expression>{!$Record.Due_Date__c}
 -
-(
 IF(ISPICKVAL({!$Record.Method__c},&apos;I0&apos;)
 ,
 12
+,
+IF(ISPICKVAL({!$Record.Type__c}, &apos;psp-dd&apos;)
+,
+CASE(WEEKDAY({!$Record.Due_Date__c}),1,2,7,1,0)
++ BLANKVALUE({!$Record.ProcessingTime__c},0)
++ 2 * FLOOR((BLANKVALUE({!$Record.ProcessingTime__c},0) - CASE(WEEKDAY({!$Record.Due_Date__c}),1,4,7,4,WEEKDAY({!$Record.Due_Date__c})-2) + 4) / 5)
 ,
 ((FLOOR({!vProcessingTime}/5) * 7)  + MOD({!vProcessingTime}, 5))
 )
@@ -1196,7 +1201,10 @@ CASE(WEEKDAY({!$Record.Collection_Date__c}),1,2,7,1,0) )</expression>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Business_Entities__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <outputReference>businessEntityRecord</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>PayProv_Use__c</queriedFields>
+        <queriedFields>PayProv_DirectDebit_PaymentMethod__c</queriedFields>
     </recordLookups>
     <recordLookups>
         <name>dgr_01_Account_Contact_Relation</name>
