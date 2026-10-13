@@ -405,6 +405,42 @@ private class Test_Rest_UpsertContractV2 {
         System.assertEquals(null, contr.Service_End_Date__c);
     }
 
+    private static testMethod void testTerminationIdRevertedFullCreditWithdrawal(){
+        //a full refund within the withdrawal period puts the termination date on start date - 1, so the contract is Terminated
+        //right away; the revert must still go through (until start date + 14) instead of being silently skipped
+        Contract contr = Test_Rest_UpsertContractV2.revertFullCredit('900607', Date.today().addDays(-3), true);
+        System.assertEquals('Termination Reverted', contr.Termination_Method__c);
+        System.assertEquals(null, contr.Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testTerminationIdRevertedFullCreditTooLate(){
+        //start date + 14 has passed: the revert is refused with an error, the termination stays
+        Contract contr = Test_Rest_UpsertContractV2.revertFullCredit('900608', Date.today().addDays(-20), false);
+        System.assertEquals('Full Credit', contr.Termination_Method__c);
+        System.assertEquals(Date.today().addDays(-21), contr.Subscription25__Termination_Date__c);
+    }
+
+    private static Contract revertFullCredit(String id, Date startDate, Boolean expectSuccess){
+        Test_Rest_UpsertContractV2.setupSubscriptionFixtures();
+
+        Map<String, Object> create = Test_Rest_UpsertContractV2.basePayload(id, 1);
+        create.put('startDate', String.valueOf(startDate));
+        Map<String, Object> revert = create.clone();
+        revert.put('terminationId', '0');
+
+        Test.startTest();
+        Util_Rest.RestResult created = Test_Rest_UpsertContractV2.callRest(create);
+        System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        //the package terminates asynchronously, so put the contract in the state a full credit termination ('2') leaves it in production
+        update new Contract(Id = Test_Rest_UpsertContractV2.getContract(id + '-1').Id, Status = 'Terminated', Termination_Method__c = 'Full Credit',
+            Subscription25__Termination_Date__c = startDate.addDays(-1), Service_End_Date__c = Date.today());
+        Util_Rest.RestResult reverted = Test_Rest_UpsertContractV2.callRest(revert);
+        Test.stopTest();
+
+        System.assertEquals(expectSuccess, reverted.success, String.join(reverted.messages, '; '));
+        return Test_Rest_UpsertContractV2.getContract(id + '-1');
+    }
+
     // ---- termination process "terminationDate": no terminationId, the method is derived from the dates ----
 
     private static testMethod void testTerminationDateNoCredit(){

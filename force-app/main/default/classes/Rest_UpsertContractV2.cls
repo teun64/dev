@@ -290,7 +290,7 @@ global with sharing class Rest_UpsertContractV2 {
         List<Contract> existingConts;
         doSOQL = true;
         sSOQL = 'SELECT '
-                + 'Id, Name, AccountId, Status, StartDate, ContractTerm, Subscription25__Current_End_Date__c, Termination_Method__c, Subscription25__Termination_Date__c, Service_End_Date__c, Subscription25__Invoice_Cycle__c, Invoice_Period__c, Subscription25__First_Invoice_Date__c'
+                + 'Id, Name, AccountId, Status, StartDate, ContractTerm, Subscription25__Current_End_Date__c, Termination_Method__c, Undo_Termination_Allowed__c, Subscription25__Termination_Date__c, Service_End_Date__c, Subscription25__Invoice_Cycle__c, Invoice_Period__c, Subscription25__First_Invoice_Date__c'
                 + ', Subscription25__Renewal_Term__c, RenewalTerm__c, Subscription25__Notice_Term__c, Subscription25__Months_In_Advance__c, Hardware__c, Entity__c,Payment_Method__c, Is_Imported__c, isPrepaid__c'
                 + ', Pricebook2Id, CurrencyIsoCode, Managed_by_Salesforce__c, Account.FinancialDebtorNumber__c '
                 + 'FROM Contract WHERE';
@@ -369,6 +369,19 @@ global with sharing class Rest_UpsertContractV2 {
         renewalTerm = ((renewalTerm == null) || (renewalTerm == 0)) ? 1 : renewalTerm;
 
         if(contr.Status == 'Terminated') {
+            Util_System.setStatusCascadePrevention(false);
+
+            // 2026-10-13 - TRi - a revert (terminationId '0') of an already-Terminated contract (e.g. a full refund within the withdrawal period,
+            // termination date = start date - 1) only sets the method, exactly like the Undo Termination action: rbb_Contract reopens the contract
+            // and rau_Contract_Termination_Reverted reopens the contract products and rolls back the credit orders. Same window as the action.
+            if ((!contrIsNew) && (miContract.terminationId == '0')) {
+                if (!contr.Undo_Termination_Allowed__c) {
+                    throw new Util_System.UpsertException('Error: The termination of contract (' + miContract.id + ') can no longer be reverted.');
+                }
+                Database.update(new Contract(Id = contr.Id, Termination_Method__c = Util_System.getTerminationOption(miContract.terminationId)), Rest_UpsertContractV2.runningMode);
+                return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), (contrProdIsNew ? String.valueOf(contr.Id) : String.valueOf(contrProd.Id)));
+            }
+
             //if the salesforce contract was already terminated, stop now.
             //2025-11-27 - TRi - When contracts are terminated created, they have no contract product, in that case the contract Id is returned to the platform(s).
             //return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contrProd.Id));
