@@ -194,6 +194,75 @@ private class Test_Util_FinancialSystem_Order {
 		System.assertEquals(new List<String>{ 'GET Items' }, sim.calls, 'No order POST');
 	}
 
+	/** Exact unavailable (technical problem). */
+	public class DownSim implements HttpCalloutMock {
+		public HttpResponse respond(HttpRequest req) {
+			HttpResponse res = new HttpResponse();
+			res.setStatusCode(503);
+			res.setBody('{"error":{"code":"","message":{"lang":"","value":"Service unavailable"}}}');
+			return res;
+		}
+	}
+
+	private static void presetFailures(Id orderId, Integer hard) {
+		Database.update(new Order(Id = orderId, SyncToFinancialSystem__c = true, FinancialSyncAttempts__c = hard, FinancialSyncHardFailures__c = hard),
+			AccessLevel.SYSTEM_MODE);
+	}
+
+	private static Order blockState() {
+		return [SELECT Id, FinancialSyncBlocked__c, FinancialSyncHardFailures__c FROM Order WITH SYSTEM_MODE LIMIT 1];
+	}
+
+	@IsTest
+	static void itemUnknown_thirdHardFailure_blocksAndAlertsOnce() {
+		Order ord = order();
+		presetFailures(ord.Id, Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT - 1);
+		ExactSim sim = new ExactSim();
+		sim.items = '{"d":{"results":[]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, false);
+		Test.stopTest();
+
+		Order after = blockState();
+		System.assertEquals(true, after.FinancialSyncBlocked__c);
+		System.assertEquals(Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT, after.FinancialSyncHardFailures__c);
+		System.assertEquals(1, Svc_FinancialSystemSyncAlert.notified.size() + Svc_FinancialSystemSyncAlert.casesCreated.size(), 'One alert at the block');
+	}
+
+	@IsTest
+	static void technicalFailure_neverCountsOrBlocks() {
+		Order ord = order();
+		presetFailures(ord.Id, Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT - 1);
+		Test.setMock(HttpCalloutMock.class, new DownSim());
+
+		Test.startTest();
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, false).get(ord.Id);
+		Test.stopTest();
+
+		System.assert(!r.success);
+		Order after = blockState();
+		System.assertEquals(false, after.FinancialSyncBlocked__c, 'Exact down: retried until it works');
+		System.assertEquals(Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT - 1, after.FinancialSyncHardFailures__c);
+		System.assertEquals(0, Svc_FinancialSystemSyncAlert.notified.size() + Svc_FinancialSystemSyncAlert.casesCreated.size(), 'No alert, no case');
+	}
+
+	@IsTest
+	static void blockedOrder_skippedByBatch_flagLiftsBlock() {
+		Order ord = order();
+		Database.update(new Order(Id = ord.Id, SyncToFinancialSystem__c = true, FinancialSyncBlocked__c = true, FinancialSyncHardFailures__c = 3),
+			AccessLevel.SYSTEM_MODE);
+		Batch_FinancialSystemOrderSync job = new Batch_FinancialSystemOrderSync();
+		System.assert(!job.startBatch(null).iterator().hasNext(), 'Blocked order skipped');
+
+		Util_FinancialSystem_Order.flagOrders(new Set<Id>{ ord.Id });
+		Order after = blockState();
+		System.assertEquals(false, after.FinancialSyncBlocked__c, 'Explicit sync request lifts the block');
+		System.assertEquals(0, after.FinancialSyncHardFailures__c);
+		System.assert(job.startBatch(null).iterator().hasNext());
+	}
+
 	@IsTest
 	static void batch_syncsFlaggedOrders() {
 		Order ord = order();

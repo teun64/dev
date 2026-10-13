@@ -54,12 +54,16 @@ public without sharing class Util_FinancialSystem {
 
 	// ---------------------------------------------------------------- requests
 
+	/** HTTP status of the last failed request (null: no response); Svc_FinancialSystemSyncAlert.categorize reads it */
+	public static Integer lastErrorStatus;
+
 	/**
 	 * Calls the financial system and returns the serialized "d" payload ('' for 204 No Content).
 	 * Throws Util_System.FinancialSyncException on any failure; RateLimitException on 429 / no capacity.
 	 */
 	public static String doRequest(Subscription25__Administration__c admin, String endpoint, Map<String, String> params,
 			String method, String requestBody, String logGuid) {
+		Util_FinancialSystem.lastErrorStatus = null;
 		if (admin == null || !Util_System.isFinancialSyncAllowed(admin)) {
 			throw new Util_System.FinancialSyncException('Financial system sync is not allowed for this administration from this org.');
 		}
@@ -78,6 +82,9 @@ public without sharing class Util_FinancialSystem {
 		lim.register(res);
 
 		Integer status = res.getStatusCode();
+		if (status < 200 || status > 299) {
+			Util_FinancialSystem.lastErrorStatus = status;
+		}
 		if (status == 204) {
 			return '';
 		}

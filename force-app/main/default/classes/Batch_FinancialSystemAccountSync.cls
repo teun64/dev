@@ -28,6 +28,8 @@ global class Batch_FinancialSystemAccountSync extends Subscription25.Job_Abstrac
 		String now = System.now().formatGmt('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
 		return Database.getQueryLocator(
 			'SELECT Id FROM Account WHERE SyncToFinancialSystem__c = true'
+			// blocked after repeated hard failures; rbb_Account resets the attempts on a data change -> retried once more
+			+ ' AND (FinancialSyncBlocked__c = false OR FinancialSyncAttempts__c = null OR FinancialSyncAttempts__c = 0)'
 			+ ' AND (FinancialSyncNextAttempt__c = null OR FinancialSyncNextAttempt__c <= ' + now + ')'
 			+ ' ORDER BY FinancialSyncAttempts__c ASC NULLS FIRST, LastModifiedDate ASC', AccessLevel.SYSTEM_MODE);
 	}

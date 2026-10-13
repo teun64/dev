@@ -30,7 +30,7 @@ public without sharing class Inv_FinancialSystemAccount {
 			}
 		}
 		if (!flagIds.isEmpty()) {
-			Util_FinancialSystemAccount.flagAccounts(flagIds);
+			Util_FinancialSystemAccount.flagAccounts(flagIds, true);
 		}
 		Map<Id, Util_FinancialSystemAccount.Result> results = nowIds.isEmpty()
 			? new Map<Id, Util_FinancialSystemAccount.Result>()

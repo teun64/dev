@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomNotificationType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customNotifTypeName>Financial system sync failed</customNotifTypeName>
+    <description>Account owner alert: the account could not be synchronised to Exact (Svc_FinancialSystemSyncAlert).</description>
+    <desktop>true</desktop>
+    <masterLabel>Financial system sync failed</masterLabel>
+    <mobile>true</mobile>
+</CustomNotificationType>

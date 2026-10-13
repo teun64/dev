@@ -72,6 +72,32 @@ private class Test_Util_FinancialSystemWarehouse {
 	}
 
 	@IsTest
+	static void createOrders_secondRunForSameOpportunity_createsNothing() {
+		Account acct = account();
+		Contact con = Test_Data.createContact(acct.Id, 'Dup', null, 'dup@order.test', true);
+		Opportunity opp = Test_Data.createOpportunity(acct.Id, con.Id, 'Dup Opp', true);
+		List<Inv_FinancialSystemCreateOrders.Request> reqs = new List<Inv_FinancialSystemCreateOrders.Request>();
+		for (Integer i = 0; i < 2; i++) {
+			Inv_FinancialSystemCreateOrders.Request req = new Inv_FinancialSystemCreateOrders.Request();
+			req.order = template();
+			req.order.OpportunityId = opp.Id;
+			req.order.Type = 'Opportunity';
+			req.orderItems = new List<OrderItem>{ line('WH.ET'), line('WH.MI') };
+			reqs.add(req);
+		}
+
+		Test.startTest();
+		Inv_FinancialSystemCreateOrders.Response first = Inv_FinancialSystemCreateOrders.createOrders(new List<Inv_FinancialSystemCreateOrders.Request>{ reqs[0] })[0];
+		Inv_FinancialSystemCreateOrders.Response second = Inv_FinancialSystemCreateOrders.createOrders(new List<Inv_FinancialSystemCreateOrders.Request>{ reqs[1] })[0];
+		Test.stopTest();
+
+		System.assertEquals(2, first.orderIds.size(), first.message);
+		System.assertEquals(first.orderIds, second.orderIds, 'Existing orders returned');
+		System.assert(second.message.contains('nothing created'), second.message);
+		System.assertEquals(2, [SELECT COUNT() FROM Order WHERE OpportunityId = :opp.Id WITH SYSTEM_MODE], 'No duplicate orders');
+	}
+
+	@IsTest
 	static void createOrders_oneWarehouse_oneOrder() {
 		Inv_FinancialSystemCreateOrders.Response res = create(new List<OrderItem>{ line('WH.MI'), line('WH.MI') });
 		System.assertEquals(1, res.orderIds.size());

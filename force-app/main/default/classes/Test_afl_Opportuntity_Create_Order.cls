@@ -16,6 +16,8 @@ private class Test_afl_Opportuntity_Create_Order {
 		Subscription25__Debtor_Number__c debNr = Test_Data.createDebtorNumber(admin.Id, acct.Id, false);
 		debNr.Exact_ID__c = 'acc-guid-create';
 		Database.insert(debNr, AccessLevel.SYSTEM_MODE);
+		// the Closed Won check reads the account's own Exact id (the new sync does not fill the debtor number's Exact_ID__c)
+		Database.update(new Account(Id = acct.Id, FinancialIdAccount__c = 'acc-guid-create'), AccessLevel.SYSTEM_MODE);
 
 		Product2 prodET = Test_Data.createProduct('ET Tracker', 'CO.ET', '1-hw-11', 'Hardware', true);
 		Product2 prodMI = Test_Data.createProduct('MI Tracker', 'CO.MI', '1-hw-12', 'Hardware', true);

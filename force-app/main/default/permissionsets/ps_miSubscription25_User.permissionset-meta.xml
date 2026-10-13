@@ -480,6 +480,16 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Account.FinancialSyncBlocked__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Account.FinancialSyncHardFailures__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Account.Include_CSV_In_Email__c</field>
         <readable>true</readable>
@@ -930,6 +940,16 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.FinancialSyncBlocked__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.FinancialSyncHardFailures__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.Subscription25__Administration__c</field>
         <readable>true</readable>
@@ -1342,11 +1362,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Subscription25__Administration__c.Subscription25__Website__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Subscription25__Contract_Product__c.Contractor_Service__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

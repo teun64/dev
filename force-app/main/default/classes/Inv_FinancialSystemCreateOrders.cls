@@ -37,6 +37,10 @@ public without sharing class Inv_FinancialSystemCreateOrders {
 		if (template == null || lines == null || lines.isEmpty()) {
 			throw new Util_System.CustomException('No order or order products to create.');
 		}
+		Response existing = Inv_FinancialSystemCreateOrders.existingOrders(template);
+		if (existing != null) {
+			return existing;
+		}
 		Subscription25__Administration__c admin = Util_FinancialSystemWarehouse.getAdministrations(new Set<Id>{ template.AccountId }).get(template.AccountId);
 		Map<String, String> warehouses = new Map<String, String>();
 		if (admin != null) {
@@ -103,5 +107,33 @@ public without sharing class Inv_FinancialSystemCreateOrders {
 			Database.rollback(sp);
 			throw new Util_System.CustomException(e.getMessage());
 		}
+	}
+
+	/**
+	 * Duplicate guard: rau_Opportunity can publish Create_Order twice for one Closed Won (a second save in the same
+	 * transaction), and the two runs come in parallel. The opportunity lock makes the second run wait for the first
+	 * to commit; it then finds the orders and creates nothing.
+	 */
+	@TestVisible
+	private static Response existingOrders(Order template) {
+		if (template.OpportunityId == null) {
+			return null;
+		}
+		List<Opportunity> locked = [SELECT Id FROM Opportunity WHERE Id = :template.OpportunityId WITH SYSTEM_MODE FOR UPDATE];
+		List<Order> orders = [
+			SELECT Id FROM Order WHERE OpportunityId = :template.OpportunityId AND Type = :template.Type
+			WITH SYSTEM_MODE ORDER BY CreatedDate, OrderNumber
+		];
+		if (locked.isEmpty() || orders.isEmpty()) {
+			return null;
+		}
+		Response res = new Response();
+		res.orderId = orders[0].Id;
+		res.orderIds = new List<String>();
+		for (Order ord : orders) {
+			res.orderIds.add(ord.Id);
+		}
+		res.message = 'Orders already created for this opportunity (' + orders.size() + '); nothing created.';
+		return res;
 	}
 }

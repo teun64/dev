@@ -457,14 +457,14 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>rDebtorNumber.Exact_ID__c</leftValueReference>
+                <leftValueReference>dgr_01_Opportunity.Account.FinancialIdAccount__c</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>rDebtorNumber.Exact_ID__c</leftValueReference>
+                <leftValueReference>dgr_01_Opportunity.Account.FinancialIdAccount__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue></stringValue>
@@ -764,7 +764,7 @@
         <inputAssignments>
             <field>Order_Creation_Fault_Message__c</field>
             <value>
-                <stringValue>Linked account not Financial ready, sync aborted!</stringValue>
+                <stringValue>Account is not in Exact yet (no Exact id), order creation aborted! Use "Sync to Exact (new)" on the account (or wait for the automatic sync) and set the opportunity to Closed Won again. If the sync fails, the account owner is notified with the reason.</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>

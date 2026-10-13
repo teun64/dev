@@ -27,7 +27,7 @@ global class Batch_FinancialSystemOrderSync extends Subscription25.Job_AbstractB
 		// no bind variables: the Subscription25 job framework runs the locator outside this method's scope
 		String now = System.now().formatGmt('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
 		return Database.getQueryLocator(
-			'SELECT Id FROM Order WHERE SyncToFinancialSystem__c = true'
+			'SELECT Id FROM Order WHERE SyncToFinancialSystem__c = true AND FinancialSyncBlocked__c = false'
 			+ ' AND Type IN (\'' + String.join(new List<String>(Util_FinancialSystem_Order.SYNC_ORDER_TYPES), '\',\'') + '\')'
 			+ ' AND (FinancialSyncNextAttempt__c = null OR FinancialSyncNextAttempt__c <= ' + now + ')'
 			+ ' ORDER BY FinancialSyncAttempts__c ASC NULLS FIRST, CreatedDate ASC', AccessLevel.SYSTEM_MODE);

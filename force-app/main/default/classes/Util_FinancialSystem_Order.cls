@@ -37,12 +37,14 @@ public without sharing class Util_FinancialSystem_Order {
 	}
 
 	/**
-	 * Marks the orders for the next Batch_FinancialSystemOrderSync run (and resets the back-off).
+	 * Marks the orders for the next Batch_FinancialSystemOrderSync run (and resets the back-off). Only called on an explicit
+	 * request (sync action), so it also lifts a block (FinancialSyncBlocked__c).
 	 */
 	public static void flagOrders(Set<Id> orderIds) {
 		List<Order> orders = new List<Order>();
 		for (Id ordId : orderIds) {
-			orders.add(new Order(Id = ordId, SyncToFinancialSystem__c = true, FinancialSyncAttempts__c = 0, FinancialSyncNextAttempt__c = null));
+			orders.add(new Order(Id = ordId, SyncToFinancialSystem__c = true, FinancialSyncAttempts__c = 0, FinancialSyncNextAttempt__c = null,
+				FinancialSyncBlocked__c = false, FinancialSyncHardFailures__c = 0));
 		}
 		Database.update(orders, false, AccessLevel.SYSTEM_MODE);
 	}
@@ -65,10 +67,12 @@ public without sharing class Util_FinancialSystem_Order {
 				if (!ctx.done) {
 					ready.add(ctx);
 				}
+			} catch (Svc_FinancialSystemSyncAlert.DataException e) {
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Util_System.CustomException e) {
-				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR);
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Exception e) {
-				ctx.fail('Unhandled exception occurred: ' + e.getMessage(), Util_Event.LogResultStatus.UNHANDLED_EXCEPTION);
+				ctx.fail('Unhandled exception occurred: ' + e.getMessage(), Util_Event.LogResultStatus.UNHANDLED_EXCEPTION, e);
 			}
 		}
 
@@ -80,6 +84,12 @@ public without sharing class Util_FinancialSystem_Order {
 		} catch (Util_FinancialSystem.RateLimitException e) {
 			for (Util_FinancialSystem_Order.Ctx ctx : ready) {
 				ctx.postpone(e.getMessage(), null);
+			}
+			ready.clear();
+		} catch (Util_System.FinancialSyncException e) {
+			// Exact could not be read (technical): these orders are retried, never blocked
+			for (Util_FinancialSystem_Order.Ctx ctx : ready) {
+				ctx.fail('Reading the Exact items failed: ' + e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			}
 			ready.clear();
 		}
@@ -107,12 +117,14 @@ public without sharing class Util_FinancialSystem_Order {
 			} catch (Util_FinancialSystem.RateLimitException e) {
 				ctx.postpone(e.getMessage(), null);
 				limitedAdmins.add(ctx.admin.Id);
+			} catch (Svc_FinancialSystemSyncAlert.DataException e) {
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Util_System.CustomException e) {
-				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR);
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Util_System.FinancialSyncException e) {
-				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR);
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Exception e) {
-				ctx.fail('Unhandled exception occurred: ' + e.getMessage() + ' ' + e.getStackTraceString(), Util_Event.LogResultStatus.UNHANDLED_EXCEPTION);
+				ctx.fail('Unhandled exception occurred: ' + e.getMessage() + ' ' + e.getStackTraceString(), Util_Event.LogResultStatus.UNHANDLED_EXCEPTION, e);
 			}
 		}
 
@@ -153,7 +165,11 @@ public without sharing class Util_FinancialSystem_Order {
 			this.log.Message__c += message + '\n';
 		}
 
-		void fail(String message, Util_Event.LogResultStatus status) {
+		// failures with their alert category (Svc_FinancialSystemSyncAlert)
+		List<Svc_FinancialSystemSyncAlert.Issue> issues = new List<Svc_FinancialSystemSyncAlert.Issue>();
+
+		void fail(String message, Util_Event.LogResultStatus status, Exception e) {
+			this.issues.add(new Svc_FinancialSystemSyncAlert.Issue(Svc_FinancialSystemSyncAlert.categorize(e), message));
 			this.done = true;
 			this.failed = true;
 			this.result.messages.add(message);
@@ -166,6 +182,7 @@ public without sharing class Util_FinancialSystem_Order {
 		List<Order> orders = [
 			SELECT Id, OrderNumber, Status, Type, Exact_Id__c, Exact_Order_Number__c, Payment_Method__c, Payment_Method_Result__c, Payment_Reference__c,
 				Sales_Channel__c, Reseller__c, AccountId, FinancialSystemIdWarehouse__c, SyncToFinancialSystem__c, FinancialSyncAttempts__c,
+				OwnerId, FinancialSyncBlocked__c, FinancialSyncHardFailures__c, Account.Name,
 				Opportunity.Name, Opportunity.Customer_Reference__c, Opportunity.Installation_Notes__c,
 				Opportunity.Sales_Contact__c, Opportunity.Sales_Contact__r.Name, Opportunity.Sales_Contact__r.Email, Opportunity.Sales_Contact__r.Phone,
 				Account.Exact_Account_Name__c, Account.Reseller_Name__c, Account.Contact_Person__c, Account.Bank_Account_Number__c,
@@ -248,7 +265,7 @@ public without sharing class Util_FinancialSystem_Order {
 			return;
 		}
 		if (ctx.acct == null || String.isBlank(ctx.acct.Reseller_Name__c)) {
-			throw new Util_System.CustomException('The order has no account with a reseller.');
+			throw new Svc_FinancialSystemSyncAlert.DataException('The order has no account with a reseller.');
 		}
 		Subscription25__Administration__c admin = Util_FinancialSystem.getAdministrationForReseller(ctx.acct.Reseller_Name__c);
 		if (admin == null || ((admin.Subscription25__Synchronisation__c != Util_FinancialSystem.SYNC_EXACT || !admin.Subscription25__Active__c) && admin.Reseller__c != '1')) {
@@ -265,7 +282,7 @@ public without sharing class Util_FinancialSystem_Order {
 			return;
 		}
 		if (ord.OrderItems == null || ord.OrderItems.isEmpty()) {
-			throw new Util_System.CustomException('The order has no order products.');
+			throw new Svc_FinancialSystemSyncAlert.DataException('The order has no order products.');
 		}
 		ctx.exactWarehouseId = Util_FinancialSystem_Order.resolveWarehouse(ctx);
 	}
@@ -280,7 +297,7 @@ public without sharing class Util_FinancialSystem_Order {
 		String warehouse = ctx.ord.FinancialSystemIdWarehouse__c;
 		if (String.isBlank(warehouse)) {
 			if (ctx.productWarehouses.size() > 1) {
-				throw new Util_System.CustomException('The order has products from more than one warehouse (' + String.join(new List<String>(ctx.productWarehouses), ', ')
+				throw new Svc_FinancialSystemSyncAlert.DataException('The order has products from more than one warehouse (' + String.join(new List<String>(ctx.productWarehouses), ', ')
 					+ '); Exact allows one warehouse per sales order. Split the order per warehouse.');
 			}
 			warehouse = ctx.productWarehouses.isEmpty() ? null : new List<String>(ctx.productWarehouses)[0];
@@ -291,7 +308,7 @@ public without sharing class Util_FinancialSystem_Order {
 		ctx.warehouse = warehouse;
 		String exactId = Util_FinancialSystemWarehouse.getExactId(ctx.admin.Id, warehouse);
 		if (String.isBlank(exactId)) {
-			throw new Util_System.CustomException('No Exact warehouse id for warehouse ' + warehouse + ' in administration ' + ctx.admin.Name
+			throw new Svc_FinancialSystemSyncAlert.DataException('No Exact warehouse id for warehouse ' + warehouse + ' in administration ' + ctx.admin.Name
 				+ ' (Exact Relation Setting, classification WH).');
 		}
 		return exactId;
@@ -389,7 +406,7 @@ public without sharing class Util_FinancialSystem_Order {
 			}
 		}
 		if (!missing.isEmpty()) {
-			throw new Util_System.CustomException('Some of the order items are not available in exact: ' + String.join(new List<String>(missing), ', '));
+			throw new Svc_FinancialSystemSyncAlert.DataException('Some of the order items are not available in exact: ' + String.join(new List<String>(missing), ', '));
 		}
 		// a direct debit order without a bank account is invoiced "on account"
 		if (String.isBlank(ord.Payment_Method__c)
@@ -462,6 +479,8 @@ public without sharing class Util_FinancialSystem_Order {
 	private static void save(List<Util_FinancialSystem_Order.Ctx> contexts, List<Subscription25__Administration_Product__c> adminProdsToUpdate, Set<Id> accountsToQueue) {
 		List<Order> orders = new List<Order>();
 		List<Event_Log__c> logs = new List<Event_Log__c>();
+		List<Svc_FinancialSystemSyncAlert.Alert> alerts = new List<Svc_FinancialSystemSyncAlert.Alert>();
+		Map<Id, Event_Log__c> logByOrder = new Map<Id, Event_Log__c>();
 		Set<String> namedCredentials = new Set<String>();
 		for (Util_FinancialSystem_Order.Ctx ctx : contexts) {
 			Order ord = ctx.ord;
@@ -478,6 +497,8 @@ public without sharing class Util_FinancialSystem_Order {
 				upd.FinancialSyncAttempts__c = 0;
 				upd.FinancialSyncNextAttempt__c = null;
 				upd.FinancialSyncLastError__c = null;
+				upd.FinancialSyncHardFailures__c = 0;
+				upd.FinancialSyncBlocked__c = false;
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
 			} else if (!ctx.failed && !ctx.result.postponed) {
 				// already synchronised, or an order type that is not sent
@@ -494,6 +515,21 @@ public without sharing class Util_FinancialSystem_Order {
 				upd.FinancialSyncLastError__c = String.join(ctx.result.messages, ' | ').left(255);
 				upd.SyncToFinancialSystem__c = true;
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
+				// only DATA (hard) problems count: a technical failure never blocks or alerts, it is retried until it works
+				Boolean wasBlocked = ord.FinancialSyncBlocked__c == true;
+				Integer hard = ord.FinancialSyncHardFailures__c == null ? 0 : ord.FinancialSyncHardFailures__c.intValue();
+				String hardMessage = Svc_FinancialSystemSyncAlert.hardFailure(ctx.issues);
+				if (hardMessage != null) {
+					hard++;
+				}
+				upd.FinancialSyncHardFailures__c = hard;
+				upd.FinancialSyncBlocked__c = hard >= Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT;
+				if (upd.FinancialSyncBlocked__c && !wasBlocked && hardMessage != null) {
+					alerts.add(Svc_FinancialSystemSyncAlert.blocked(ord.Id, ord.AccountId, ord.OwnerId, ord.Account?.Reseller_Name__c,
+						'order ' + ord.OrderNumber + ' (' + ord.Account?.Name + ')', hardMessage,
+						'Correct the cause, then use "Sync to Exact (new)" on the order.'));
+				}
+				logByOrder.put(ord.Id, ctx.log);
 			}
 			ctx.log.extId__c = ord.Exact_Id__c;
 			ctx.log.Message__c = (ctx.log.Message__c + 'Calls: ' + ctx.result.calls).left(131072);
@@ -539,6 +575,12 @@ public without sharing class Util_FinancialSystem_Order {
 			}
 		}
 		Util_FinancialSystem.saveLimits();
+		// alerts only after the orders are saved: a failing alert never costs a sync result
+		Map<Id, String> alerted = Svc_FinancialSystemSyncAlert.send(alerts);
+		for (Id orderId : alerted.keySet()) {
+			Event_Log__c log = logByOrder.get(orderId);
+			log.Message__c = (log.Message__c + '\n' + alerted.get(orderId)).left(131072);
+		}
 		Util_FinancialSystem.saveLogs(logs, namedCredentials, null);
 	}
 

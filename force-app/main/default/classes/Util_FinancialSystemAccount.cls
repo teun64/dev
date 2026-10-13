@@ -103,12 +103,14 @@ public without sharing class Util_FinancialSystemAccount {
 				if (ctx.admin != null) {
 					limitedAdmins.add(ctx.admin.Id);
 				}
+			} catch (Svc_FinancialSystemSyncAlert.DataException e) {
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Util_System.CustomException e) {
-				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR);
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Util_System.FinancialSyncException e) {
-				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR);
+				ctx.fail(e.getMessage(), Util_Event.LogResultStatus.ERROR, e);
 			} catch (Exception e) {
-				ctx.fail('Unhandled exception occurred: ' + e.getMessage() + ' ' + e.getStackTraceString(), Util_Event.LogResultStatus.UNHANDLED_EXCEPTION);
+				ctx.fail('Unhandled exception occurred: ' + e.getMessage() + ' ' + e.getStackTraceString(), Util_Event.LogResultStatus.UNHANDLED_EXCEPTION, e);
 			}
 		}
 		Util_FinancialSystemAccount.save(contexts);
@@ -117,11 +119,31 @@ public without sharing class Util_FinancialSystemAccount {
 
 	/**
 	 * Marks the accounts for the next Batch_FinancialSystemAccountSync run (and resets the back-off).
+	 * A blocked account (FinancialSyncBlocked__c) stays blocked: automatic queueing (order / contact sync) must not
+	 * restart an account that failed HARD_FAILURE_LIMIT times.
 	 */
 	public static void flagAccounts(Set<Id> accountIds) {
+		Util_FinancialSystemAccount.flagAccounts(accountIds, false);
+	}
+
+	/**
+	 * unblock = true: explicit request (button / action) - also lifts the block.
+	 */
+	public static void flagAccounts(Set<Id> accountIds, Boolean unblock) {
+		Set<Id> blocked = new Set<Id>();
+		if (!unblock) {
+			for (Account acct : [SELECT Id FROM Account WHERE Id IN :accountIds AND FinancialSyncBlocked__c = true WITH SYSTEM_MODE]) {
+				blocked.add(acct.Id);
+			}
+		}
 		List<Account> accounts = new List<Account>();
 		for (Id accId : accountIds) {
-			accounts.add(new Account(Id = accId, SyncToFinancialSystem__c = true, FinancialSyncAttempts__c = 0, FinancialSyncNextAttempt__c = null));
+			if (blocked.contains(accId)) {
+				accounts.add(new Account(Id = accId, SyncToFinancialSystem__c = true));
+			} else {
+				accounts.add(new Account(Id = accId, SyncToFinancialSystem__c = true, FinancialSyncAttempts__c = 0, FinancialSyncNextAttempt__c = null,
+					FinancialSyncBlocked__c = false, FinancialSyncHardFailures__c = 0));
+			}
 		}
 		Database.update(accounts, false, AccessLevel.SYSTEM_MODE);
 	}
@@ -263,6 +285,8 @@ public without sharing class Util_FinancialSystemAccount {
 		String exactMainContact;
 		List<String> warnings = new List<String>();
 		Boolean failed = false;
+		// failures and warnings with their alert category (Svc_FinancialSystemSyncAlert)
+		List<Svc_FinancialSystemSyncAlert.Issue> issues = new List<Svc_FinancialSystemSyncAlert.Issue>();
 
 		void postpone(String message) {
 			this.result.postponed = true;
@@ -272,14 +296,21 @@ public without sharing class Util_FinancialSystemAccount {
 			this.log.Message__c += message + '\n';
 		}
 
-		void fail(String message, Util_Event.LogResultStatus status) {
+		void fail(String message, Util_Event.LogResultStatus status, Exception e) {
 			this.failed = true;
+			this.issues.add(new Svc_FinancialSystemSyncAlert.Issue(Svc_FinancialSystemSyncAlert.categorize(e), message));
 			this.result.messages.add(message);
 			this.log.Result_Status__c = status.name();
 			this.log.Message__c += message + '\n';
 		}
 
 		void warn(String message) {
+			this.warn(message, null);
+		}
+
+		void warn(String message, Exception e) {
+			this.issues.add(new Svc_FinancialSystemSyncAlert.Issue(
+				e == null ? Svc_FinancialSystemSyncAlert.Category.TECHNICAL : Svc_FinancialSystemSyncAlert.categorize(e), message));
 			this.warnings.add(message);
 			this.result.messages.add(message);
 			this.log.Result_Status__c = Util_Event.LogResultStatus.WARNING.name();
@@ -301,7 +332,8 @@ public without sharing class Util_FinancialSystemAccount {
 				FinancialAccountClassification1__c, FinancialAccountClassification2__c, FinancialAccountClassification3__c,
 				SyncToFinancialSystem__c, FinancialSyncState__c, FinancialSyncAttempts__c, FinancialSyncNextAttempt__c, FinancialSyncLastError__c,
 				FinancialContactsToRetire__c,
-				Contact_person__c, Contact_Billing__c, Contact_Shipping__c
+				Contact_person__c, Contact_Billing__c, Contact_Shipping__c,
+				OwnerId, FinancialSyncBlocked__c, FinancialSyncHardFailures__c
 			FROM Account
 			WHERE Id IN :accountIds
 			WITH SYSTEM_MODE
@@ -351,6 +383,12 @@ public without sharing class Util_FinancialSystemAccount {
 	 * Direct debit needs bank details (and an Exact mandate), except for the UK reseller: direct debit does not
 	 * work in Exact UK (it runs via the payment provider), so no bank account / mandate is required there.
 	 */
+	/** Direct debit without a complete bank account (checked unless the user may skip data checks). */
+	private static Boolean missesBankDetails(Account acct) {
+		return !FeatureManagement.checkPermission('cp_miIntegrationSkipDataCheck') && Util_FinancialSystemAccount.requiresBankDetails(acct)
+			&& (String.isBlank(acct.Bank_Account_Number__c) || String.isBlank(acct.Bank_Account__c));
+	}
+
 	@TestVisible
 	private static Boolean requiresBankDetails(Account acct) {
 		return Util_System.requireBankDetails.contains(acct.Payment_Method_Contracts__c) && acct.Reseller_Name__c != RESELLER_UK;
@@ -364,11 +402,9 @@ public without sharing class Util_FinancialSystemAccount {
 		Account acct = ctx.acct;
 		if (!FeatureManagement.checkPermission('cp_miIntegrationSkipDataCheck')) {
 			if (acct.Reseller_Name__c == '1' && acct.RecordType.DeveloperName != 'B2C' && acct.BillingCountryCode == 'NL' && acct.Block_Syncing_Exact__c) {
-				throw new Util_System.CustomException('This account is not validated by Web Services, this validation has to be completed before this account can be synchronised.');
-			} else if (Util_FinancialSystemAccount.requiresBankDetails(acct) && (String.isBlank(acct.Bank_Account_Number__c) || String.isBlank(acct.Bank_Account__c))) {
-				throw new Util_System.CustomException('This account can not be synchronised because the bank account is not filled in.');
+				throw new Svc_FinancialSystemSyncAlert.DataException('This account is not validated by Web Services, this validation has to be completed before this account can be synchronised.');
 			} else if (String.isBlank(acct.BillingCountryCode) || String.isBlank(acct.BillingStreet) || String.isBlank(acct.BillingPostalCode) || String.isBlank(acct.BillingCity)) {
-				throw new Util_System.CustomException('This account can not be synchronised because the establishment / billing address is not filled in.');
+				throw new Svc_FinancialSystemSyncAlert.DataException('This account can not be synchronised because the establishment / billing address is not filled in.');
 			}
 		}
 
@@ -487,7 +523,7 @@ public without sharing class Util_FinancialSystemAccount {
 			try {
 				Util_FinancialSystemAccount.syncContact(ctx, cid, division, guid);
 			} catch (Util_System.FinancialSyncException e) {
-				ctx.warn('Contact: ' + e.getMessage());
+				ctx.warn('Contact: ' + e.getMessage(), e);
 			}
 		}
 
@@ -504,7 +540,7 @@ public without sharing class Util_FinancialSystemAccount {
 				ctx.result.calls++;
 				ctx.exactMainContact = mainExactId;
 			} catch (Util_System.FinancialSyncException e) {
-				ctx.warn('Main contact: ' + e.getMessage());
+				ctx.warn('Main contact: ' + e.getMessage(), e);
 			}
 		}
 		ctx.newState.put(STATE_ACCOUNT, Util_FinancialSystemAccount.hash(new Util_FinancialSystemAccount.ExactAccount(acct, ctx.exactMainContact)));
@@ -514,11 +550,14 @@ public without sharing class Util_FinancialSystemAccount {
 			Util_FinancialSystemAccount.syncAddress(ctx, ADDRESS_TYPE_INVOICE, division, guid);
 			Util_FinancialSystemAccount.syncAddress(ctx, ADDRESS_TYPE_DELIVERY, division, guid);
 		} catch (Util_System.FinancialSyncException e) {
-			ctx.warn('Address: ' + e.getMessage());
+			ctx.warn('Address: ' + e.getMessage(), e);
 		}
 
-		// 6. bank account and mandate
-		if (String.isNotBlank(acct.Bank_Account_Number__c)) {
+		// 6. bank account and mandate - never blocks the account (soft warning: the account stays flagged and is
+		//    retried; a changed Bank_Account_Number__c re-flags it via rbb_Account)
+		if (Util_FinancialSystemAccount.missesBankDetails(acct)) {
+			ctx.warn('Bank account / mandate: the bank account is not filled in; synchronised without bank account and mandate.');
+		} else if (String.isNotBlank(acct.Bank_Account_Number__c)) {
 			try {
 				Util_FinancialSystemAccount.syncBank(ctx, division, guid);
 			} catch (Util_System.FinancialSyncException e) {
@@ -583,7 +622,7 @@ public without sharing class Util_FinancialSystemAccount {
 			WITH SYSTEM_MODE LIMIT 1
 		];
 		if (!others.isEmpty()) {
-			throw new Util_System.CustomException('Exact account ' + hit.Code + ' (' + hit.Name + ') is already linked to Salesforce account '
+			throw new Svc_FinancialSystemSyncAlert.DataException('Exact account ' + hit.Code + ' (' + hit.Name + ') is already linked to Salesforce account '
 				+ others[0].Name + ' (' + others[0].Id + '); check for a duplicate account before syncing.');
 		}
 
@@ -711,7 +750,7 @@ public without sharing class Util_FinancialSystemAccount {
 				ctx.result.calls++;
 				ctx.retiredIds.add(entry.id);
 			} catch (Util_System.FinancialSyncException e) {
-				ctx.warn('Retiring contact ' + entry.id + ': ' + e.getMessage());
+				ctx.warn('Retiring contact ' + entry.id + ': ' + e.getMessage(), e);
 			}
 		}
 	}
@@ -900,10 +939,15 @@ public without sharing class Util_FinancialSystemAccount {
 		List<AccountContactRelation> acrs = new List<AccountContactRelation>();
 		List<Event_Log__c> logs = new List<Event_Log__c>();
 		Set<String> namedCredentials = new Set<String>();
+		List<Svc_FinancialSystemSyncAlert.Alert> alerts = new List<Svc_FinancialSystemSyncAlert.Alert>();
+		final String restart = 'Correct the account (or its contacts), then use "Sync to Exact (new)" on the account. '
+			+ 'A change to the account data restarts the sync automatically.';
+		Map<Id, Event_Log__c> logByAccount = new Map<Id, Event_Log__c>();
 
 		for (Util_FinancialSystemAccount.Ctx ctx : contexts) {
 			Account acct = ctx.acct;
 			Account upd = new Account(Id = acct.Id);
+			logByAccount.put(acct.Id, ctx.log);
 			if (ctx.admin != null) {
 				namedCredentials.add(ctx.admin.Subscription25__Named_Credential__c);
 			}
@@ -917,7 +961,6 @@ public without sharing class Util_FinancialSystemAccount {
 			upd.FinancialDebtorCheck__c = acct.FinancialDebtorCheck__c;
 			upd.FinancialReplaceDebtorNumber__c = acct.FinancialReplaceDebtorNumber__c;
 			upd.FinancialNumberOfDebtors__c = acct.FinancialNumberOfDebtors__c;
-			upd.FinancialSyncState__c = JSON.serialize(ctx.newState);
 
 			if (ctx.result.postponed && !ctx.failed) {
 				// nothing failed: try again in a next run, no attempt counted
@@ -927,6 +970,21 @@ public without sharing class Util_FinancialSystemAccount {
 				upd.FinancialSyncNextAttempt__c = Util_FinancialSystem.nextAttempt(attempts);
 				upd.FinancialSyncLastError__c = String.join(ctx.result.messages, ' | ').left(255);
 				upd.SyncToFinancialSystem__c = true;
+				// rbb_Account re-flagged a blocked account (attempts reset to 0) after a data change: a fresh start
+				Boolean reflagged = acct.FinancialSyncAttempts__c == null || acct.FinancialSyncAttempts__c == 0;
+				Boolean wasBlocked = acct.FinancialSyncBlocked__c == true && !reflagged;
+				Integer hard = reflagged || acct.FinancialSyncHardFailures__c == null ? 0 : acct.FinancialSyncHardFailures__c.intValue();
+				// only DATA (hard) problems count: a technical failure never blocks or alerts, it is retried until it works
+				String hardMessage = Svc_FinancialSystemSyncAlert.hardFailure(ctx.issues);
+				if (hardMessage != null) {
+					hard++;
+				}
+				upd.FinancialSyncHardFailures__c = hard;
+				upd.FinancialSyncBlocked__c = hard >= Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT;
+				if (upd.FinancialSyncBlocked__c && !wasBlocked && hardMessage != null) {
+					alerts.add(Svc_FinancialSystemSyncAlert.blocked(acct.Id, acct.Id, acct.OwnerId, acct.Reseller_Name__c, acct.Name,
+						hardMessage, restart));
+				}
 			} else {
 				ctx.result.success = true;
 				upd.SyncToFinancialSystem__c = false;
@@ -940,8 +998,11 @@ public without sharing class Util_FinancialSystemAccount {
 				upd.FinancialSyncAttempts__c = 0;
 				upd.FinancialSyncNextAttempt__c = null;
 				upd.FinancialSyncLastError__c = null;
+				upd.FinancialSyncHardFailures__c = 0;
+				upd.FinancialSyncBlocked__c = false;
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
 			}
+			upd.FinancialSyncState__c = JSON.serialize(ctx.newState);
 			if (ctx.failed) {
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
 			}
@@ -991,6 +1052,12 @@ public without sharing class Util_FinancialSystemAccount {
 			Database.update(acrs, false, AccessLevel.SYSTEM_MODE);
 		}
 		Util_FinancialSystem.saveLimits();
+		// alerts only after the Exact ids are saved: a failing alert never costs a sync result
+		Map<Id, String> alerted = Svc_FinancialSystemSyncAlert.send(alerts);
+		for (Id accountId : alerted.keySet()) {
+			Event_Log__c log = logByAccount.get(accountId);
+			log.Message__c = (log.Message__c + '\n' + alerted.get(accountId)).left(131072);
+		}
 		Util_FinancialSystem.saveLogs(logs, namedCredentials, null);
 	}
 
