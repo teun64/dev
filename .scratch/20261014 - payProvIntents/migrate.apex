@@ -5,7 +5,7 @@ Map<String, String> overrideByName = new Map<String, String>{
     'PM#000201568' => 'pi_3UNEnbGliYpbpuQB1OgEokZV'   // Marc Stone: the real 05-10 checkout, not a refunded duplicate
 };
 List<Payment__c> src = [SELECT Id, Name, Processing_Date__c, PaymentIntentId__c, ProviderPaymentIntentID__c, PayProv_PaymentIntentId__c
-                        FROM Payment__c WHERE (PaymentIntentId__c != null OR ProviderPaymentIntentID__c != null) AND PayProv_PaymentIntentId__c = null];
+                        FROM Payment__c WHERE PaymentIntentId__c != null AND PayProv_PaymentIntentId__c = null];
 Set<String> skip = new Set<String>{'lastmodifieddate','systemmodstamp','lastmodifiedbyid','payprov_paymentintentid__c','lastvieweddate','lastreferenceddate'};
 List<String> fields = new List<String>(Schema.SObjectType.Payment__c.fields.getMap().keySet());
 Set<Id> ids = new Map<Id, Payment__c>(src).keySet();
