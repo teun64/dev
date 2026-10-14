@@ -3,6 +3,11 @@
 dev ✓ (38/38, live: UK PaymentIntent created upfront by flow+queueable and reused on page loads; NL SetupIntent created once, reused),
 acc ✓ (fields, FLS mirrored, code, flow, layout; 42/42). prod: blocked for Claude → user.
 
+Manuals (updated 2026-10-14):
+- Stripe Payments — User & Key-User Manual: https://claude.ai/code/artifact/536f1973-3f2a-420d-8e35-2caa38724511
+- Salesforce User Manual, section Finance → Payments (Stripe): https://claude.ai/code/artifact/b3267d51-7c96-42ac-a140-ec2bb25ba77b
+- REST manual, UpsertContract payment/partner field mapping: https://claude.ai/code/artifact/83d7b01c-0d5a-48cb-bb3c-3457eb3b9e0e
+
 ## Status 2026-10-14
 - prod DONE: deploy 38/38 (commit 7f1e66f), afl_Payment_Direct_Debit_Setup v5 activated (tooling FlowDefinition PATCH),
   FLS PayProv_SetupIntentId__c = PayProv_PaymentIntentId__c (6 grants), layout deployed.
