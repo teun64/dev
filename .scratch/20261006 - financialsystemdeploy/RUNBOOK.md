@@ -454,7 +454,7 @@ sf project deploy quick -o prod --job-id <validation id> --wait 30
 - `vr_FinancialDebtorNumberClear` + `vr_ERS_Classification_WH` inactive, `vr_FinancialSystemIdWarehouse` active.
 - Dispatcher: every financial step inactive (AccountSync 10, ContactSync 20, OrderWarehouse 35, OrderSync 40 with BatchSize 10, Day RateLimitCheck 20); Activate/Dedupe/Stripe/ProcessPayments untouched (active).
 - Triggers AccountContactRelation / ContactFinancialSystem / OrderFinancialSystem active but `Util_FinancialSystem.areTriggerHooksEnabled()` = **false** (checked with anonymous Apex) → no-op.
-- **Open:** `scr_Account_FinancialSystemSync` (300Tx00000lLe7UIAS) and `scr_Order_FinancialSystemSync` (300Tx00000lLe7VIAS) are Draft v1 – activation was blocked for me (auto-mode classifier, prod) → user activates (Setup → Flows, or the Tooling PATCH below). Until then the admin-only buttons can't run.
+- ✅ 2026-10-14 (user): `scr_Account_FinancialSystemSync` + `scr_Order_FinancialSystemSync` **activated (v1)** – admin-only buttons usable. (Was: Draft v1 – activation was blocked for me (auto-mode classifier, prod) → user activates (Setup → Flows, or the Tooling PATCH below). Until then the admin-only buttons can't run.
   ```bash
   sf api request rest "/services/data/v67.0/tooling/sobjects/FlowDefinition/300Tx00000lLe7UIAS" --method PATCH --body '{"Metadata":{"activeVersionNumber":1}}' -o prod
   sf api request rest "/services/data/v67.0/tooling/sobjects/FlowDefinition/300Tx00000lLe7VIAS" --method PATCH --body '{"Metadata":{"activeVersionNumber":1}}' -o prod
