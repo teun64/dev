@@ -434,3 +434,10 @@ sf project deploy quick -o prod --job-id <validation id> --wait 30
 - Order button: creates a real Exact sales order (with the mapped warehouse; WH rows have no warehouse value yet → old sales-channel fallback) and **activates** the order.
 - 3 hard (data) failures block the record and create a Case for `gqCaseAdministration<reseller>` (queues have no members yet) or a bell notification for an active owner.
 - The legacy `rac_`/`rau_Account_Sync_to_Financial_System` + `Trigger_Account.syncToExact` stay active; they react to address/VAT/bank changes, not to the fields the new sync writes.
+
+**Extra checks / caveats (2026-10-14)**
+- Permission sets compared entry by entry with prod: 0 removed, only the new-field entries added (FinancialSystem_Admin +19, Subscription25_User +20, OrderManagement +1, ProductPricebookEntry_Admin +1), all other elements identical.
+- The new screen flows / quick actions / invocables check no custom permission → a System Administrator can run them without extra assignments.
+- **Right before the prod validation:** re-retrieve `rp_Account`, `rp_Order`, the 4 permission sets, `Util_System`, `Util_OAuth`, `Test_Exact` and `JobDispatcherStep.Minut_FinancialSystemOrderSync` from prod and diff them with the copies the package was built from (session scratchpad `prodpkg`; prod versions = the `src/` files minus the documented additions). Rebuild if anything changed.
+- **acc dry run ≠ prod proof:** prod still has `rac_`/`rau_Account_Sync_to_Financial_System` active, `rbb_AccountContactRelation` v7 without `fSyncToFinancialSystem`, `rbb_Account` v66 without the new flagging. Tests that expect a flow-set flag pass in acc but may fail in prod → the prod `--dry-run` is the real check; a failing first round is possible.
+- **Go-live note:** activating `Minut_FinancialSystemAccountSync` also switches on the trigger hooks, incl. the Contact-merge take-over (master ACR gets the loser's `extId_1..6__c` / Roles, or a new ACR). That changes ACRs the platform integrations read → re-run the REBEL/Horizon regression payloads at go-live.
