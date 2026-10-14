@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>rp_ExactRelationSetting</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>rp_ExactRelationSetting</content>
+        <formFactor>Small</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableLicensing>false</enableLicensing>
+    <enableReports>false</enableReports>
+    <enableSearch>false</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <externalSharingModel>ControlledByParent</externalSharingModel>
+    <fields>
+        <fullName>Acting_Value__c</fullName>
+        <description>Calculated field, stores the field name to the value will be taken from</description>
+        <externalId>false</externalId>
+        <formula>CASE(TEXT( Classification__c )
+,&apos;C1&apos;,IF(OR(ISBLANK(TEXT(Market__c)),ISBLANK(TEXT(Relation_Type__c))), null , (TRIM(TEXT(Market__c)) + &apos; - &apos; + TRIM(TEXT(Relation_Type__c))))
+,&apos;C2&apos;,BLANKVALUE(TEXT(Market__c), null)
+,&apos;C3&apos;,BLANKVALUE(TEXT(Sales_Channel__c), null)
+,&apos;SC&apos;,BLANKVALUE(TEXT(Sales_Channel__c), null)
+,&apos;WH&apos;,BLANKVALUE(TEXT(Sales_Channel__c), null)
+,null
+)</formula>
+        <label>Acting Value</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Administration__c</fullName>
+        <description>Administration link</description>
+        <label>Administration</label>
+        <referenceTo>Subscription25__Administration__c</referenceTo>
+        <relationshipLabel>Exact Relation Settings</relationshipLabel>
+        <relationshipName>Exact_Relation_Setting_Administration</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>true</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Classification__c</fullName>
+        <description>Exact Classification, combined with a value</description>
+        <label>Classification</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>C1</fullName>
+                    <default>false</default>
+                    <label>Market - Relation Type</label>
+                </value>
+                <value>
+                    <fullName>C2</fullName>
+                    <default>false</default>
+                    <label>Market</label>
+                </value>
+                <value>
+                    <fullName>C3</fullName>
+                    <default>false</default>
+                    <label>Sales Channel (Account)</label>
+                </value>
+                <value>
+                    <fullName>SC</fullName>
+                    <default>false</default>
+                    <label>Sales Channel (Order, Invoice)</label>
+                </value>
+                <value>
+                    <fullName>WH</fullName>
+                    <default>false</default>
+                    <label>Warehouse</label>
+                </value>
+                <value>
+                    <fullName>T1</fullName>
+                    <default>false</default>
+                    <label>Template - Sales Channel 1</label>
+                </value>
+                <value>
+                    <fullName>T2</fullName>
+                    <default>false</default>
+                    <label>Template - Sales Channel 2</label>
+                </value>
+                <value>
+                    <fullName>T3</fullName>
+                    <default>false</default>
+                    <label>Template - Sales Channel 3</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Composite_Key__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <externalId>true</externalId>
+        <label>Composite Key</label>
+        <length>64</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Customer_Type__c</fullName>
+        <description>Classification 2</description>
+        <label>Customer Type</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>Customer_Type</valueSetName>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Exact_ID__c</fullName>
+        <externalId>false</externalId>
+        <label>Exact ID</label>
+        <length>40</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FinancialSystemIdWarehouse__c</fullName>
+        <description>WH rows: the warehouse value this Exact warehouse id (Exact_ID__c) belongs to. Maps pvs_FinancialSystemWarehouse to the org-specific Exact GUID for the new financial system sync.</description>
+        <inlineHelpText>WH rows: the warehouse this Exact id belongs to.</inlineHelpText>
+        <label>Warehouse</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>pvs_FinancialSystemWarehouse</valueSetName>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Market__c</fullName>
+        <description>The Market Definition, goes to Exact as Classification 4</description>
+        <label>Market</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>BusinessLine</valueSetName>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Relation_Type__c</fullName>
+        <description>Classification 1</description>
+        <label>Relation Type</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>Relation_Type</valueSetName>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Sales_Channel__c</fullName>
+        <description>Sales Channel related to Order and or Invoice</description>
+        <inlineHelpText>Sales Channel related to Order and or Invoice</inlineHelpText>
+        <label>Sales Channel</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>Sales_Channel</valueSetName>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Sales_Region__c</fullName>
+        <description>Classification 4</description>
+        <label>Sales Region</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>Sales_Region</valueSetName>
+        </valueSet>
+    </fields>
+    <label>Exact Relation Setting</label>
+    <nameField>
+        <label>Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Exact Relation Settings</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>vr_ERS_Classification_1</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(
+	ISPICKVAL( Classification__c, &apos;C1&apos; )
+	,OR(ISBLANK( TEXT(Market__c )),ISBLANK( TEXT(Relation_Type__c )))
+)</errorConditionFormula>
+        <errorDisplayField>Relation_Type__c</errorDisplayField>
+        <errorMessage>The chosen  &apos;Classification&apos;  requires a &apos;Market&apos; and  a &apos;Relation Type&apos;</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vr_ERS_Classification_2</fullName>
+        <active>true</active>
+        <errorConditionFormula>AND(
+	ISPICKVAL( Classification__c, &apos;C2&apos; )
+	,ISBLANK( TEXT(Market__c ))
+)</errorConditionFormula>
+        <errorDisplayField>Market__c</errorDisplayField>
+        <errorMessage>The chosen  &apos;Classification&apos;  requires a  &apos;Market&apos;</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vr_ERS_Classification_3_and_S_and_W</fullName>
+        <active>true</active>
+        <description>C3 and SC rows need a Sales Channel. WH rows are checked on the Warehouse only (vr_ERS_Classification_WH); their Sales Channel (legacy lookup via Acting_Value__c) is kept filled by hand until part 4.</description>
+        <errorConditionFormula>AND(
+	OR(
+		ISPICKVAL( Classification__c, &apos;C3&apos; )
+		,ISPICKVAL( Classification__c, &apos;SC&apos; )
+	)
+	,ISBLANK( TEXT(Sales_Channel__c ))
+)</errorConditionFormula>
+        <errorDisplayField>Sales_Channel__c</errorDisplayField>
+        <errorMessage>The chosen  &apos;Classification&apos;  requires a  &apos;Sales Channel&apos;</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>vr_ERS_Classification_WH</fullName>
+        <active>true</active>
+        <description>WH rows map a warehouse (pvs_FinancialSystemWarehouse) to its Exact id.</description>
+        <errorConditionFormula>AND(
+	ISPICKVAL( Classification__c, &apos;WH&apos; )
+	,ISBLANK( TEXT(FinancialSystemIdWarehouse__c ))
+)</errorConditionFormula>
+        <errorDisplayField>FinancialSystemIdWarehouse__c</errorDisplayField>
+        <errorMessage>The chosen  &apos;Classification&apos;  requires a  &apos;Warehouse&apos;</errorMessage>
+    </validationRules>
+    <visibility>Public</visibility>
+</CustomObject>

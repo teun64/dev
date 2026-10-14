@@ -466,3 +466,15 @@ sf project deploy quick -o prod --job-id <validation id> --wait 30
 3. 98 NL Administration Products with `Product2.System_Platform__c = '5'` → `1_ET`.
 4. Sub25 config record `Batch_FinancialSystemOrderWarehouse` (`a1YTx000005uI4DMAU`, batch size 20).
 ✅ 2026-10-14 16:30 (user: go): config records AccountSync `a1YTx000005uILxMAM` (5), ContactSync `a1YTx000005uILyMAM` (25), OrderSync `a1YTx000005uILzMAM` (10), RateLimitCheck `a1YTx000005uIM0MAM` (10) created – all 5 financial dispatcher steps now have their Sub25 record (activation = flip `IsActive__c` only). Still open from the warehouse checklist: ERS layout/record page, `vr_ERS_Classification_WH` activation. **One-off repair run dropped (user 2026-10-14: start with new opportunities only):** the new order sync only takes orders flagged with the new `SyncToFinancialSystem__c` (no existing prod order has it), new opportunities get one order per warehouse at creation, and step 35 splits any old draft that does get flagged before the order sync (40). Prod check 2026-10-14: 4 open draft Opportunity orders not in Exact, 0 with mixed MI/ET products.
+
+**Prod ERS warehouse package – BUILT 2026-10-14, NOT deployed (classifier blocked the deploy and the dry run)**
+`.scratch/20261014 - financialSystemProdSilent/warehouse_ers/mdapi` – built from prod's own files:
+- `Exact_Relation_Setting__c` object = prod + View override (Large/Small) → `rp_ExactRelationSetting` (as in dev/acc) + `vr_ERS_Classification_WH` **active** + `vr_ERS_Classification_3_and_S_and_W` = C3/SC only (repo).
+- Layout = prod + `FinancialSystemIdWarehouse__c` after Sales Channel (repo's dev-only excludeButtons/masterLabel left out).
+- `rp_ExactRelationSetting` (repo), `rbb_Exact_Relation_Setting` (repo: WH name "WH - <warehouse label>", key suffix -<warehouse>; prod active before = v?, deploys as Draft → activate).
+Run (user):
+```bash
+sf project deploy start -o prod --metadata-dir ".scratch/20261014 - financialSystemProdSilent/warehouse_ers/mdapi" --dry-run --test-level RunSpecifiedTests -t Test_Exact -t Test_Util_FinancialSystemWarehouse -t Test_Util_FinancialSystem_Order --wait 30
+sf project deploy quick -o prod --job-id <validation id> --wait 30
+```
+Then: activate the new `rbb_Exact_Relation_Setting` version, re-save the 4 WH rows (names/keys from the warehouse; Sales Channel stays filled).

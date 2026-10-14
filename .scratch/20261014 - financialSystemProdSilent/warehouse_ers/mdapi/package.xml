@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types><members>Exact_Relation_Setting__c</members><name>CustomObject</name></types>
+    <types><members>Exact_Relation_Setting__c-Exact Relation Setting Layout</members><name>Layout</name></types>
+    <types><members>rp_ExactRelationSetting</members><name>FlexiPage</name></types>
+    <types><members>rbb_Exact_Relation_Setting</members><name>Flow</name></types>
+    <version>67.0</version>
+</Package>
