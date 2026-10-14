@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>FinancialContactsToRetire__c</fullName>
+        <description>Exact contacts (JSON) whose AccountContactRelation was deleted (contact deleted / merged, relation removed). The account sync marks them DO NOT USE, clears the email, excludes them from mailings and ends them, then removes them from this list. Set by Svc_FinancialSystemContactRemoval.</description>
+        <label>Financial Contacts To Retire</label>
+        <length>32768</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>FinancialSyncAttempts__c</fullName>
+        <description>Failed financial system sync attempts in a row; drives the retry back-off (FinancialSyncNextAttempt__c). Reset after a successful sync.</description>
+        <externalId>false</externalId>
+        <label>Financial Sync Attempts</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FinancialSyncBlocked__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Financial system sync stopped after repeated hard (data) failures (Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT); the batch skips it until the data is corrected and the sync is restarted. Technical failures never block.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The Exact sync stopped because the same data problem failed several times (see Financial Sync Last Error). Correct it and use &quot;Sync to Exact (new)&quot;.</inlineHelpText>
+        <label>Exact Sync Blocked</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>FinancialSyncHardFailures__c</fullName>
+        <description>Hard (data) failures of the financial system sync since the last success or restart; at Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT the record is blocked (FinancialSyncBlocked__c). Technical failures are not counted.</description>
+        <externalId>false</externalId>
+        <label>Financial Sync Hard Failures</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FinancialSyncLastError__c</fullName>
+        <description>Last financial system sync error for this account (empty after a successful sync). Details in Event_Log__c / OAuth_Log__c.</description>
+        <externalId>false</externalId>
+        <label>Financial Sync Last Error</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FinancialSyncNextAttempt__c</fullName>
+        <description>After a failed financial system sync: the batch does not retry the account before this moment (exponential back-off).</description>
+        <externalId>false</externalId>
+        <label>Financial Sync Next Attempt</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>FinancialSyncState__c</fullName>
+        <description>Technical: fingerprints (hashes) of what was last sent to the financial system per part (account, invoice address, shipping address, bank, contacts). Only changed parts are sent again. Clear it to force a full resync.</description>
+        <externalId>false</externalId>
+        <label>Financial Sync State</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>SyncToFinancialSystem__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Set when the account (or one of its financial contacts) must be synced to the financial system; Batch_FinancialSystemAccountSync picks it up and clears it after a successful sync. Replaces FinancialSystemSync__c / FinancialSystemSyncBank__c / FinancialSystemSyncMandate__c.</description>
+        <inlineHelpText>The account is waiting to be synced to the financial system (Exact).</inlineHelpText>
+        <label>Sync To Financial System</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <listViews>
+        <fullName>Exact_Sync_Blocked</fullName>
+        <columns>ACCOUNT.NAME</columns>
+        <columns>FinancialDebtorNumber__c</columns>
+        <columns>Reseller_Name__c</columns>
+        <columns>FinancialSyncLastError__c</columns>
+        <columns>FinancialSyncHardFailures__c</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>ACCOUNT.LAST_UPDATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>FinancialSyncBlocked__c</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <label>Exact sync blocked</label>
+    </listViews>
+    <validationRules>
+        <fullName>vr_FinancialDebtorNumberClear</fullName>
+        <active>false</active>
+        <description>The debtor number may not be cleared while the account is linked to the financial system (FinancialIdAccount__c filled). Clearing both in the same save (e.g. Replace Debtor Number) is allowed. No exemptions.</description>
+        <errorConditionFormula>AND(
+    ISCHANGED(FinancialDebtorNumber__c),
+    ISBLANK(FinancialDebtorNumber__c),
+    NOT(ISBLANK(FinancialIdAccount__c))
+)</errorConditionFormula>
+        <errorDisplayField>FinancialDebtorNumber__c</errorDisplayField>
+        <errorMessage>The debtor number can not be cleared: this account is linked to the financial system (Exact). Use Replace Debtor Number instead.</errorMessage>
+    </validationRules>
+</CustomObject>

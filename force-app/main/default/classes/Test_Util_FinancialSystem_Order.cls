@@ -271,7 +271,10 @@ private class Test_Util_FinancialSystem_Order {
 		Test.setMock(HttpCalloutMock.class, new ExactSim());
 
 		Test.startTest();
-		Database.executeBatch(new Batch_FinancialSystemOrderSync());
+		Batch_FinancialSystemOrderSync batch = new Batch_FinancialSystemOrderSync();
+		batch.setDispatcher(null);
+		System.assertEquals(20, batch.getBatchSize());
+		Database.executeBatch(batch);
 		Test.stopTest();
 
 		System.assertEquals('order-guid-1', order().Exact_Id__c);

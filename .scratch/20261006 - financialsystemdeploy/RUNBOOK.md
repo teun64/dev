@@ -392,3 +392,45 @@ The other two (`ps_miFinancialSystem_Admin`, `ps_miSubscription25_User`) were de
 
 Restored: repo files (= prod + `Order.FinancialSystemIdWarehouse__c` / `Administration_Product__c.FinancialSystemIdWarehouse__c`, verified by diff) deployed to dev `0Afbd00000Bf67yCAB` + acc `0AfG500000T0EruKAF` (dry runs first, 2/2 each). Retrieve-diff after the deploy: dev and acc = prod + the one warehouse field each. No repo change needed.
 
+
+## Prod package "silent" – code + fields + permissions, nothing active (built 2026-10-14, NOT deployed)
+
+User 2026-10-14: deploy the Apex, fields and permissions to prod **without changing the current situation**; flows not activated, dispatcher steps inactive, only admin-visible buttons for manual tests.
+
+Package: `.scratch/20261014 - financialSystemProdSilent/` – `src/` (source, built from **prod's** files where prod has the component) and `mdapi/` (83 components, deploy this). `.scratch` is in `.forceignore` → convert in a temporary sfdx project (see git history of this section) if `src/` is changed.
+
+**Contents**
+- Apex (new): `Util_FinancialSystem`, `Util_FinancialSystemAccount`, `Util_FinancialSystemWarehouse`, `Util_FinancialSystem_Order`, `Batch_FinancialSystemAccountSync/ContactSync/OrderSync/OrderWarehouse/RateLimitCheck`, `Inv_FinancialSystemAccount/Order/CreateOrders`, `Svc_FinancialSystemContactRemoval`, `Svc_FinancialSystemSyncAlert`, `Trigger_AccountContactRelation/ContactFinancialSystem/OrderFinancialSystem` + tests.
+- Apex (existing, small): `Util_System` (+ 4 rate-limit fields in the administration query), `Util_OAuth` (logs cleared after save), `Test_Exact` (WH fixture).
+- Triggers (new): `AccountContactRelation`, `ContactFinancialSystem`, `OrderFinancialSystem` – **no-op in prod**: they only act once `Minut_FinancialSystemAccountSync` is active (`Util_FinancialSystem.areTriggerHooksEnabled()`, commit `7dc0623`). Without this gate a Contact merge would have copied extId_1..6/Roles onto the master's ACR and an Opportunity/Hardware draft order would have flagged its account.
+- Fields: Account 8, Order 7, Administration 5, Administration Product 1, Exact Relation Setting 1 (warehouse); CMDT type `FinancialSystemProductionDivision__mdt` + NL/DE/UK; `pvs_FinancialSystemWarehouse`; list views "Exact sync blocked" (Account, Order); CustomNotificationType `FinancialSystemSyncFailed`.
+- Validation rules: `vr_FinancialDebtorNumberClear` **inactive** (155k prod accounts have FinancialIdAccount__c – would block today's debtor-number changes), `vr_ERS_Classification_WH` **inactive**, `vr_FinancialSystemIdWarehouse` active (only fires when the new field is filled).
+- CMDT JobDispatcherStep: `Minut_FinancialSystemOrderWarehouse` (new, inactive), `Minut_FinancialSystemOrderSync` = prod + BatchSize 10 (still inactive). The other steps are not in the package.
+- Buttons: quick actions `Account/Order.actFinancialSystemSync` + screen flows `scr_Account/Order_FinancialSystemSync`; `rp_Account` / `rp_Order` = **prod's pages** + the new action right after the old button, visible only when `{!$User.isSysAdmin__c}` = true. Old buttons untouched.
+- Permission sets = **prod's files** + only the new-field entries: ps_miFinancialSystem_Admin (+19 edit), ps_miSubscription25_User (+20 read), ps_miOrderManagement (+1), ps_miProductPricebookEntry_Admin (+1). Profiles (additive, new-field entries only): Admin 18, miAfterSales 2, miDataAdministrator 4, miFinance 1, miMarketing 1, miSales 2, miStandardUser 1.
+
+**Not in the package (go-live / later):** record-triggered + changed flows (`rab_Account_Debtor_Number`, `rbb_Account`, `rbb_AccountContactRelation`, `afl_Account_Get_new_debtor_number`, `afl_Opportuntity_Create_Order`, `rau_Opportunity`, `pef_Internal`, `rbb_Exact_Relation_Setting`), `Trigger_Account`, `Util_Rest` (part 3), `Util_FinancialSystem_Invoice` (switch-over), ERS layout/record page/`vr_ERS_Classification_3_and_S_and_W`, `Test_Util_JobDispatcher` (prod keeps its patched copy), Sub25 config records, the other dispatcher steps.
+
+**Checks done 2026-10-14:** every custom field the package's Apex uses exists in prod or is in the package; coverage in dev with the test set below: every class ≥ 76% (Util_System 87% via Test_Util_System; ContactSync/AccountSync/OrderSync batches now covered by `setDispatcher`/`getBatchSize` asserts); **acc dry run `0AfG500000T0MxWKAV`: 83/83 components, 105/105 tests, no coverage warnings**.
+
+**Deploy (only on the user's explicit go)** – first a prod validation, then quick-deploy:
+```bash
+sf project deploy start -o prod --metadata-dir ".scratch/20261014 - financialSystemProdSilent/mdapi" --dry-run \
+  --test-level RunSpecifiedTests -t Test_Batches_FinancialSystem -t Test_Svc_FinancialSystemContactRemoval -t Test_Svc_FinancialSystemSyncAlert \
+  -t Test_Util_FinancialSystem -t Test_Util_FinancialSystemAccount -t Test_Util_FinancialSystemWarehouse -t Test_Util_FinancialSystem_Order \
+  -t Test_Exact -t Test_Util_System --wait 60
+sf project deploy quick -o prod --job-id <validation id> --wait 30
+```
+
+**After the deploy**
+1. Snapshot first (before the deploy): `FlowDefinition` active versions of rbb_Account, rbb_AccountContactRelation, afl_Opportuntity_Create_Order, rau_Opportunity, pef_Internal, afl_Account_Get_new_debtor_number, rac_/rau_Account_Sync_to_Financial_System → must be identical afterwards.
+2. `scr_Account_FinancialSystemSync` / `scr_Order_FinancialSystemSync`: prod deploys flows as Draft → activate both (Tooling PATCH FlowDefinition `activeVersionNumber` = 1). Only reachable via the admin-only buttons.
+3. Verify: the two VRs inactive; all `Minut_FinancialSystem*` + `Day_FinancialSystemRateLimitCheck` steps `IsActive__c = false`; `Util_FinancialSystem.areTriggerHooksEnabled()` = false (anonymous Apex, read-only).
+4. Rollback = redeploy prod's `rp_Account`/`rp_Order` (in `prodpkg` retrieve / git history) and deactivate the two screen flows; the rest is inert.
+
+**Manual tests in prod = real production Exact (NL 1946773 / DE 67822 / UK 112143):**
+- Contacts are **not** taken over: prod ACRs have no `FinancialIdContact__c` (backfill = switch-over step 1) → a new-code sync of an existing Exact account POSTs **new** contacts next to the legacy ones (duplicates, can't be deleted once used on invoices). Test with an account that is **not in Exact yet**, or backfill `FinancialIdContact__c` on that one test account first.
+- Invoice/delivery address: taken over (Main of its type) – safe.
+- Order button: creates a real Exact sales order (with the mapped warehouse; WH rows have no warehouse value yet → old sales-channel fallback) and **activates** the order.
+- 3 hard (data) failures block the record and create a Case for `gqCaseAdministration<reseller>` (queues have no members yet) or a bell notification for an active owner.
+- The legacy `rac_`/`rau_Account_Sync_to_Financial_System` + `Trigger_Account.syncToExact` stay active; they react to address/VAT/bank changes, not to the fields the new sync writes.

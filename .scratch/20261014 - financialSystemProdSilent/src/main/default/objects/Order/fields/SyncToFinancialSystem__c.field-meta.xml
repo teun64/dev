@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SyncToFinancialSystem__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Set by the user's "sync to financial system" action: Batch_FinancialSystemOrderSync creates the sales order in the financial system (Exact), stores Exact_Id__c / Exact_Order_Number__c, activates the order and clears this flag. The order waits while its account is not in the financial system yet.</description>
+    <inlineHelpText>The order is waiting to be created in the financial system (Exact).</inlineHelpText>
+    <label>Sync To Financial System</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

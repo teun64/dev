@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>vr_FinancialSystemIdWarehouse</fullName>
+    <active>true</active>
+    <description>The warehouse must belong to the administration of this record: the value prefix (before _) is the administration reseller (a dependent picklist is not possible on a lookup).</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(TEXT(FinancialSystemIdWarehouse__c))),
+    NOT(BEGINS(TEXT(FinancialSystemIdWarehouse__c), TEXT(Subscription25__Administration__r.Reseller__c) &amp; &apos;_&apos;))
+)</errorConditionFormula>
+    <errorDisplayField>FinancialSystemIdWarehouse__c</errorDisplayField>
+    <errorMessage>This warehouse does not belong to the administration of this product.</errorMessage>
+</ValidationRule>

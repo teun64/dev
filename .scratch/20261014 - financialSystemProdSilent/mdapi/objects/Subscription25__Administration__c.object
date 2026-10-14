@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>FinancialRateLimitCheckedOn__c</fullName>
+        <description>When the financial system rate limit was last read (daily check or sync batch).</description>
+        <externalId>false</externalId>
+        <label>Financial Rate Limit Checked On</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>FinancialRateLimitMaxPercentage__c</fullName>
+        <defaultValue>90</defaultValue>
+        <description>Maximum share of the financial system&apos;s daily API limit (Daily_Limit__c) that the account/order sync batches may use. The rest stays free for manual syncs and other processes.</description>
+        <inlineHelpText>Maximum % of the daily Exact API limit the sync batches may use.</inlineHelpText>
+        <label>Financial Rate Limit Max %</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
+        <fullName>FinancialRateLimitRemaining__c</fullName>
+        <description>Daily financial system API calls remaining (X-RateLimit-Remaining), as last seen by Batch_FinancialSystemRateLimitCheck or a sync batch.</description>
+        <externalId>false</externalId>
+        <label>Financial Rate Limit Remaining</label>
+        <precision>7</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FinancialRateLimitResetOn__c</fullName>
+        <description>When the financial system&apos;s daily API limit resets (X-RateLimit-Reset).</description>
+        <externalId>false</externalId>
+        <label>Financial Rate Limit Reset On</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>FinancialSystemIdWarehouse__c</fullName>
+        <description>Default financial system (Exact) warehouse of this administration, used for order lines whose product has no warehouse on its Administration Product. Replaces Warehouse_Exact_Id__c (legacy Util_Exact) for the new financial system sync.</description>
+        <inlineHelpText>Default warehouse for order lines whose product has no warehouse of its own.</inlineHelpText>
+        <label>Warehouse (Default)</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+        <valueSet>
+            <controllingField>Reseller__c</controllingField>
+            <restricted>true</restricted>
+            <valueSetName>pvs_FinancialSystemWarehouse</valueSetName>
+            <valueSettings>
+                <controllingFieldValue>1</controllingFieldValue>
+                <valueName>1_MI</valueName>
+            </valueSettings>
+            <valueSettings>
+                <controllingFieldValue>1</controllingFieldValue>
+                <valueName>1_ET</valueName>
+            </valueSettings>
+            <valueSettings>
+                <controllingFieldValue>5</controllingFieldValue>
+                <valueName>5_MI</valueName>
+            </valueSettings>
+            <valueSettings>
+                <controllingFieldValue>6</controllingFieldValue>
+                <valueName>6_MI</valueName>
+            </valueSettings>
+        </valueSet>
+    </fields>
+</CustomObject>

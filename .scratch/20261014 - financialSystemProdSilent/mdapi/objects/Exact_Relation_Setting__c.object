@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>FinancialSystemIdWarehouse__c</fullName>
+        <description>WH rows: the warehouse value this Exact warehouse id (Exact_ID__c) belongs to. Maps pvs_FinancialSystemWarehouse to the org-specific Exact GUID for the new financial system sync.</description>
+        <inlineHelpText>WH rows: the warehouse this Exact id belongs to.</inlineHelpText>
+        <label>Warehouse</label>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>pvs_FinancialSystemWarehouse</valueSetName>
+        </valueSet>
+    </fields>
+    <validationRules>
+        <fullName>vr_ERS_Classification_WH</fullName>
+        <active>false</active>
+        <description>WH rows map a warehouse (pvs_FinancialSystemWarehouse) to its Exact id.</description>
+        <errorConditionFormula>AND(
+	ISPICKVAL( Classification__c, &apos;WH&apos; )
+	,ISBLANK( TEXT(FinancialSystemIdWarehouse__c ))
+)</errorConditionFormula>
+        <errorDisplayField>FinancialSystemIdWarehouse__c</errorDisplayField>
+        <errorMessage>The chosen  &apos;Classification&apos;  requires a  &apos;Warehouse&apos;</errorMessage>
+    </validationRules>
+</CustomObject>

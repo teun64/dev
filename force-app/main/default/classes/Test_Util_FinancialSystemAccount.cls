@@ -389,7 +389,10 @@ private class Test_Util_FinancialSystemAccount {
 		Test.setMock(HttpCalloutMock.class, new ExactSim());
 
 		Test.startTest();
-		Database.executeBatch(new Batch_FinancialSystemAccountSync());
+		Batch_FinancialSystemAccountSync batch = new Batch_FinancialSystemAccountSync();
+		batch.setDispatcher(null);
+		System.assertEquals(5, batch.getBatchSize());
+		Database.executeBatch(batch);
 		Test.stopTest();
 
 		Account after = account();
@@ -659,7 +662,10 @@ private class Test_Util_FinancialSystemAccount {
 
 		Test.setMock(HttpCalloutMock.class, new ExactSim());
 		Test.startTest();
-		Database.executeBatch(new Batch_FinancialSystemContactSync());
+		Batch_FinancialSystemContactSync batch = new Batch_FinancialSystemContactSync();
+		batch.setDispatcher(null);
+		System.assertEquals(25, batch.getBatchSize());
+		Database.executeBatch(batch);
 		Test.stopTest();
 		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c);
 	}
