@@ -448,3 +448,14 @@ sf project deploy quick -o prod --job-id <validation id> --wait 30
 - 1st validation `0AfTx0000013FA1KAM`: 83/83 compiled, 99/105 tests – failures were prod differences: 2 rate-limit tests (prod's `Test_Data.createAdministration` sets no Named Credential/company code → administration "not syncing"), 3 tests of flow behaviour (rab_Account_Debtor_Number, rbb_Account, rbb_AccountContactRelation – not in this package), plus the debtor-number assert in the full-sync test (rab flow).
 - Fix (dev `0Afbd00000BfBh9CAF` + acc `0AfG500000T0SZtKAN`, 51/51): `Test_Util_FinancialSystem.admin()` sets Named Credential + company code itself; the 3 flow tests moved to the new **`Test_FinancialSystemFlows`** (ships with the flows at go-live – NOT in this package); debtor-number assert removed from the full-sync test (covered by `Test_rab_Account_Debtor_Number`).
 - **2nd validation `0AfTx0000013FLJKA2`: Succeeded, 83/83, 102/102, no coverage warnings.** Quick deploy (within 10 days, only on the user's go): `sf project deploy quick -o prod --job-id 0AfTx0000013FLJKA2 --wait 30`, then the "After the deploy" steps above.
+
+**DEPLOYED to prod 2026-10-14 (user: go) – quick deploy `0AfTx0000013Fd3KAE`, 83/83.**
+- Flow snapshot after = before (all 9 active versions unchanged).
+- `vr_FinancialDebtorNumberClear` + `vr_ERS_Classification_WH` inactive, `vr_FinancialSystemIdWarehouse` active.
+- Dispatcher: every financial step inactive (AccountSync 10, ContactSync 20, OrderWarehouse 35, OrderSync 40 with BatchSize 10, Day RateLimitCheck 20); Activate/Dedupe/Stripe/ProcessPayments untouched (active).
+- Triggers AccountContactRelation / ContactFinancialSystem / OrderFinancialSystem active but `Util_FinancialSystem.areTriggerHooksEnabled()` = **false** (checked with anonymous Apex) → no-op.
+- **Open:** `scr_Account_FinancialSystemSync` (300Tx00000lLe7UIAS) and `scr_Order_FinancialSystemSync` (300Tx00000lLe7VIAS) are Draft v1 – activation was blocked for me (auto-mode classifier, prod) → user activates (Setup → Flows, or the Tooling PATCH below). Until then the admin-only buttons can't run.
+  ```bash
+  sf api request rest "/services/data/v67.0/tooling/sobjects/FlowDefinition/300Tx00000lLe7UIAS" --method PATCH --body '{"Metadata":{"activeVersionNumber":1}}' -o prod
+  sf api request rest "/services/data/v67.0/tooling/sobjects/FlowDefinition/300Tx00000lLe7VIAS" --method PATCH --body '{"Metadata":{"activeVersionNumber":1}}' -o prod
+  ```
