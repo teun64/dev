@@ -32,6 +32,9 @@ private class Test_Util_FinancialSystem {
 		Subscription25__Administration__c admin = Test_Data.createAdministration(false);
 		admin.Subscription25__Synchronisation__c = 'Exact';
 		admin.Acceptance_Environment_Available__c = true;
+		// set here, not only in Test_Data: prod's Test_Data leaves them empty (administration would not sync)
+		admin.Subscription25__Named_Credential__c = 'Exact_NL';
+		admin.Subscription25__Twinfield_Company_Code__c = '1234509876';
 		Database.insert(admin, AccessLevel.SYSTEM_MODE);
 		return [
 			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,

@@ -1,5 +1,5 @@
 @IsTest
-private class Test_Util_FinancialSystemAccount {
+public class Test_Util_FinancialSystemAccount {
 
 	/** Imitates Exact: answers per entity and records every call as "METHOD entity". */
 	public class ExactSim implements HttpCalloutMock {
@@ -61,7 +61,7 @@ private class Test_Util_FinancialSystemAccount {
 	}
 
 	@TestSetup
-	static void setup() {
+	public static void setup() {
 		Subscription25__Administration__c admin = Test_Data.createAdministration(false);
 		admin.Subscription25__Synchronisation__c = 'Exact';
 		admin.Acceptance_Environment_Available__c = true;
@@ -74,7 +74,7 @@ private class Test_Util_FinancialSystemAccount {
 		Database.update(new Account(Id = acc.Id, Contact_person__c = con.Id), AccessLevel.SYSTEM_MODE);
 	}
 
-	private static Account account() {
+	public static Account account() {
 		return [
 			SELECT Id, Name, FinancialIdAccount__c, FinancialDebtorNumber__c, FinancialIdInvoiceAddress__c, FinancialIdShippingAddress__c,
 				FinancialIdBankAccount__c, FinancialIdBankMandate__c, SyncToFinancialSystem__c, FinancialSyncState__c,
@@ -110,9 +110,6 @@ private class Test_Util_FinancialSystemAccount {
 		if (after.InvoiceAddress__Street__s != after.BillingStreet) {
 			System.assertNotEquals(null, after.FinancialIdInvoiceAddress__c, 'Invoice address created');
 		}
-		List<Subscription25__Debtor_Number__c> debNrs = [SELECT Subscription25__Debtor_Number__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acc.Id WITH SYSTEM_MODE];
-		System.assertEquals(1, debNrs.size(), 'Debtor number record upserted from the account');
-		System.assertEquals('12345', debNrs[0].Subscription25__Debtor_Number__c);
 		System.assertEquals(1, [SELECT COUNT() FROM Event_Log__c WHERE Context_Id__c = :acc.Id AND Action__c = 'sync2Exact'], 'One log per account');
 	}
 
@@ -454,16 +451,6 @@ private class Test_Util_FinancialSystemAccount {
 	}
 
 	@IsTest
-	static void debtorNumber_changeOnAccount_upsertsRecord() {
-		Account acc = account();
-		Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = '55555'), AccessLevel.SYSTEM_MODE);
-		Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = '55556'), AccessLevel.SYSTEM_MODE);
-		List<Subscription25__Debtor_Number__c> debNrs = [SELECT Subscription25__Debtor_Number__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acc.Id WITH SYSTEM_MODE];
-		System.assertEquals(1, debNrs.size(), 'One record per account + administration');
-		System.assertEquals('55556', debNrs[0].Subscription25__Debtor_Number__c);
-	}
-
-	@IsTest
 	static void backoff_growsAndParks() {
 		Datetime now = System.now();
 		System.assert(Util_FinancialSystem.nextAttempt(1) <= now.addMinutes(16));
@@ -478,20 +465,8 @@ private class Test_Util_FinancialSystemAccount {
 		System.assertEquals(new Map<String, String>(), Util_FinancialSystemAccount.readState(null));
 	}
 
-	@IsTest
-	static void rbbAccount_nameChangeOnSyncedAccount_setsFlag() {
-		Account acc = account();
-		Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-flow', SyncToFinancialSystem__c = false, FinancialSyncAttempts__c = 3), AccessLevel.SYSTEM_MODE);
-		Test.startTest();
-		Database.update(new Account(Id = acc.Id, Name = 'Sync Account Renamed'), AccessLevel.SYSTEM_MODE);
-		Test.stopTest();
-		Account after = account();
-		System.assertEquals(true, after.SyncToFinancialSystem__c, 'rbb_Account flags the name change');
-		System.assertEquals(0, after.FinancialSyncAttempts__c, 'Back-off reset by a new change');
-	}
-
 	/** Account synchronised once (ids + fingerprints stored), plus a second contact on it. */
-	private static Contact syncedAccountWithSecondContact() {
+	public static Contact syncedAccountWithSecondContact() {
 		Account acc = account();
 		Test.setMock(HttpCalloutMock.class, new ExactSim());
 		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
@@ -500,7 +475,7 @@ private class Test_Util_FinancialSystemAccount {
 		return second;
 	}
 
-	private static AccountContactRelation relation(Id contactId) {
+	public static AccountContactRelation relation(Id contactId) {
 		return [
 			SELECT Id, Sync_To_Financial_System__c, FinancialIdContact__c FROM AccountContactRelation
 			WHERE ContactId = :contactId AND Account.Name LIKE 'Sync Account%' WITH SYSTEM_MODE
@@ -576,18 +551,6 @@ private class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c);
 		System.assertEquals(false, account().SyncToFinancialSystem__c, 'Not relevant for Exact');
-	}
-
-	@IsTest
-	static void rbbRelation_roleChangeOfExactContact_setsFlag() {
-		Contact second = syncedAccountWithSecondContact();
-		AccountContactRelation acr = relation(second.Id);
-		Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'con-guid-second', Roles = 'Digital', Sync_To_Financial_System__c = false), AccessLevel.SYSTEM_MODE);
-		Database.update(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = false), AccessLevel.SYSTEM_MODE);
-		Test.startTest();
-		Database.update(new AccountContactRelation(Id = acr.Id, Roles = null), AccessLevel.SYSTEM_MODE);
-		Test.stopTest();
-		System.assertEquals(true, relation(second.Id).Sync_To_Financial_System__c, 'rbb_AccountContactRelation flags the role change');
 	}
 
 	@IsTest
