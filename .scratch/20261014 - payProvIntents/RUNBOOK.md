@@ -3,6 +3,15 @@
 dev ✓ (38/38, live: UK PaymentIntent created upfront by flow+queueable and reused on page loads; NL SetupIntent created once, reused),
 acc ✓ (fields, FLS mirrored, code, flow, layout; 42/42). prod: blocked for Claude → user.
 
+## Status 2026-10-14
+- prod DONE: deploy 38/38 (commit 7f1e66f), afl_Payment_Direct_Debit_Setup v5 activated (tooling FlowDefinition PATCH),
+  FLS PayProv_SetupIntentId__c = PayProv_PaymentIntentId__c (6 grants), layout deployed.
+- Migration DONE for the 3 current payments only: PM#000196930, PM#000205903 (C J Blinco), PM#000201568 (Marc Stone → pi_3UNEnb…,
+  the real checkout; the two 07-10 duplicates were refunded by the user). The 13 legacy p1 rows (Nov/Dec 2025) were NOT migrated:
+  user thinks they can be deleted — awaiting confirmation.
+- C J Blinco: the 6 canceled PaymentIntents of 04-10 (reason "duplicate") were canceled manually in the Stripe dashboard by the user.
+- dev: 6 unused dev-only PayProv_ fields removed from the dev layout and deleted (recycle bin 15 days).
+
 ## prod
 1. Deploy (fields + code + flow):
    sf project deploy start -o prod -d force-app/main/default/objects/Payment__c/fields/PayProv_PaymentIntentId__c.field-meta.xml -d force-app/main/default/objects/Payment__c/fields/PayProv_SetupIntentId__c.field-meta.xml -d force-app/main/default/classes/Svc_PaymentIntent.cls -d force-app/main/default/classes/Test_Svc_PaymentIntent.cls -d force-app/main/default/classes/Ctrl_Payment.cls -d force-app/main/default/classes/Test_Ctrl_Payment.cls -d force-app/main/default/classes/Batch_ProcessPayments.cls -d force-app/main/default/classes/Test_Batch_ProcessPayments.cls -d force-app/main/default/classes/Svc_StripeEventProcessor.cls -d force-app/main/default/classes/Test_Svc_StripeEventProcessor.cls -d force-app/main/default/flows/afl_Payment_Direct_Debit_Setup.flow-meta.xml --test-level RunSpecifiedTests --tests Test_Svc_PaymentIntent --tests Test_Ctrl_Payment --tests Test_Batch_ProcessPayments --tests Test_Svc_StripeEventProcessor -w 40
