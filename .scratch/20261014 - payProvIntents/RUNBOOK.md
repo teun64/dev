@@ -10,6 +10,11 @@ acc ✓ (fields, FLS mirrored, code, flow, layout; 42/42). prod: blocked for Cla
   the real checkout; the two 07-10 duplicates were refunded by the user). The 13 legacy p1 rows (Nov/Dec 2025) were NOT migrated:
   user thinks they can be deleted — awaiting confirmation.
 - C J Blinco: the 6 canceled PaymentIntents of 04-10 (reason "duplicate") were canceled manually in the Stripe dashboard by the user.
+- Stripe check of all 16 stored intents (2026-10-14): 13 match. PM#000149538 (Ian Ross) and PM#000154553 (Paul Wild): Stripe
+  intent canceled but SF Paid is correct — paid via Opayo (Processor__c=Opayo + Opayo reference); the Stripe intent was an
+  abandoned attempt. PM#000149534 (Spinney Flintshire, £4,074, opp "order 28.11.25" Closed Won, no other payment!) and
+  PM#000149715 (test opp) were New in SF, canceled in Stripe (canceled_at 2026-10-14 11:15/11:35 UTC, manual dashboard) →
+  set to Cancelled with Processing_Date = canceled_at.
 - dev: 6 unused dev-only PayProv_ fields removed from the dev layout and deleted (recycle bin 15 days).
 
 ## prod
