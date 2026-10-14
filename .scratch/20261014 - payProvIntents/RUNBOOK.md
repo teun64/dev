@@ -41,5 +41,8 @@ Payment__c stream mappings first. Do NOT touch stripeGC__Stripe_Event__c.Payment
 
 ## Open checks
 - Reminder stop: PM#000110385 (dev, 'Mail Sent' 2026-10-14) should get its D+2 reminder; flip a second record to see the scheduled path cancel.
-- Batch cancel path (stored open intent + mandate) not exercised live.
+- Batch cancel path TESTED dev 2026-10-14: PM#000110387 (Darran Hiscox, mandate) with stored open intent pi_3UQQsI… →
+  batch canceled it (reason abandoned) and created exactly one off-session intent pi_3UQQsV… (succeeded); payment Processing
+  with the new id; no Cases. Webhook leg NOT tested: dev receives no Stripe webhook events since 2026-07-01 (last
+  stripeGC__Stripe_Event__c), so payment stays Processing in dev. Test the webhook leg in acc if needed.
 - dev-only leftover Payment fields: PayProv_Message__c, PayProv_Mode__c, PayProv_PaymentIntentStatus__c, PayProv_SetupIntentStatus__c, PayProv_SetupNeeded__c, PayProv_DirectDebitSetup__c (not in repo/acc/prod).
