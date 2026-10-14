@@ -85,7 +85,7 @@ private class Test_Exact {
         Exact_Relation_Setting__c ers = new Exact_Relation_Setting__c(Administration__c = admin.Id, Classification__c = 'SC', Sales_Channel__c = 'Moving Intelligence', Exact_ID__c = 'Sales_Channel');
         Database.insert(ers);
 
-        ers = new Exact_Relation_Setting__c(Administration__c = admin.Id, Classification__c = 'WH', Sales_Channel__c = 'Moving Intelligence', Exact_ID__c = 'Warehouse');
+        ers = new Exact_Relation_Setting__c(Administration__c = admin.Id, Classification__c = 'WH', Sales_Channel__c = 'Moving Intelligence', FinancialSystemIdWarehouse__c = '1_MI', Exact_ID__c = 'Warehouse');
         Database.insert(ers);
 
 		Subscription25__VATRate__c vr = Test_Data.createVATRate('9%', 9, true, true);
