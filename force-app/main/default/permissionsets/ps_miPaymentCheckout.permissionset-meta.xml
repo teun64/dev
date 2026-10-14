@@ -164,11 +164,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Payment__c.PaymentIntentId__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Payment__c.Payment_Batch__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -230,11 +225,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Payment__c.Sender_Name__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Payment__c.SetupIntentId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

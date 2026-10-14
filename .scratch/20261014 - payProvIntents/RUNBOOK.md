@@ -27,7 +27,14 @@ acc ✓ (fields, FLS mirrored, code, flow, layout; 42/42). prod: blocked for Cla
 5. Migration: migrate.apex with DRY=true → only PayProv_PaymentIntentId__c (and Processing_Date +1 s) may change → DRY=false.
    16 rows: 13 legacy ProviderPaymentIntentID__c (p1, Nov/Dec 2025), PM#000196930, PM#000205903, PM#000201568 (Marc → pi_3UNEnb…).
 
-## Later (after confirmation): delete old fields
+## Old fields DELETED 2026-10-14 (dev 2, acc 7, prod 7; prod 38/38 tests)
+- Before deletion: no Data Cloud stream on Payment__c (dev/acc/prod), no metadata dependencies left; remaining values migrated to
+  PayProv_PaymentIntentId__c (prod: 13 legacy ProviderPaymentIntentID__c rows — rbb_Payment also filled the empty Type__c
+  (psp-immediate) and Business_Entity__c on 11 of them; dev: 6 test payments).
+- Cancelled PM#000149534 / PM#000149715 kept: both linked to an opportunity (149534 also to activated Order 01953695).
+- Repo: field files removed, grants removed from ps_miPaymentCheckout (and from the untracked ps_miAPIPlatformIntegration file).
+
+## (was) Later: delete old fields
 PaymentIntentId__c, SetupIntentId__c, ProviderPaymentIntentID__c, ProviderPaymentMessage__c, ProviderPaymentStatus__c,
 ProviderPaymentType__c, Provider_Dashboard_Link__c (+ their grants in ps_miPaymentCheckout / ps_miAPI*). Check Data Cloud
 Payment__c stream mappings first. Do NOT touch stripeGC__Stripe_Event__c.PaymentIntentId__c / SetupIntentId__c (different object).
