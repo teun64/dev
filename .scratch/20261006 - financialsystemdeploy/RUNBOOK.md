@@ -459,3 +459,10 @@ sf project deploy quick -o prod --job-id <validation id> --wait 30
   sf api request rest "/services/data/v67.0/tooling/sobjects/FlowDefinition/300Tx00000lLe7UIAS" --method PATCH --body '{"Metadata":{"activeVersionNumber":1}}' -o prod
   sf api request rest "/services/data/v67.0/tooling/sobjects/FlowDefinition/300Tx00000lLe7VIAS" --method PATCH --body '{"Metadata":{"activeVersionNumber":1}}' -o prod
   ```
+
+**Prod warehouse data – DONE 2026-10-14 16:23 (user: run it)**, one anonymous-Apex transaction with asserts (all values were empty before → rollback = clear the field / delete the record):
+1. WH rows: NL MI `a1gAO000000NidnYAC` → `1_MI` (4dab22b0), NL Europetrack `a1gAO000000NidsYAC` → `1_ET` (a21af096), DE `a1gAO000000Nie7YAC` → `5_MI` (3fb070fb), UK `a1gAO000000Nif5YAC` → `6_MI` (07284896). Names/Sales Channel unchanged (prod still runs the old rbb_Exact_Relation_Setting).
+2. Administration defaults: Netherlands `1_MI`, Germany `5_MI`, United Kingdom `6_MI` (Greece/Belgium/France none).
+3. 98 NL Administration Products with `Product2.System_Platform__c = '5'` → `1_ET`.
+4. Sub25 config record `Batch_FinancialSystemOrderWarehouse` (`a1YTx000005uI4DMAU`, batch size 20).
+Still before activating the other steps: config records for AccountSync (5), ContactSync (25), OrderSync (10), RateLimitCheck (10). Still open from the warehouse checklist: one-off repair run (draft Opportunity orders), ERS layout/record page, `vr_ERS_Classification_WH` activation.
