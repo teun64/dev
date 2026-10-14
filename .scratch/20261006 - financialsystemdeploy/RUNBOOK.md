@@ -465,4 +465,4 @@ sf project deploy quick -o prod --job-id <validation id> --wait 30
 2. Administration defaults: Netherlands `1_MI`, Germany `5_MI`, United Kingdom `6_MI` (Greece/Belgium/France none).
 3. 98 NL Administration Products with `Product2.System_Platform__c = '5'` → `1_ET`.
 4. Sub25 config record `Batch_FinancialSystemOrderWarehouse` (`a1YTx000005uI4DMAU`, batch size 20).
-Still before activating the other steps: config records for AccountSync (5), ContactSync (25), OrderSync (10), RateLimitCheck (10). Still open from the warehouse checklist: one-off repair run (draft Opportunity orders), ERS layout/record page, `vr_ERS_Classification_WH` activation.
+✅ 2026-10-14 16:30 (user: go): config records AccountSync `a1YTx000005uILxMAM` (5), ContactSync `a1YTx000005uILyMAM` (25), OrderSync `a1YTx000005uILzMAM` (10), RateLimitCheck `a1YTx000005uIM0MAM` (10) created – all 5 financial dispatcher steps now have their Sub25 record (activation = flip `IsActive__c` only). Still open from the warehouse checklist: one-off repair run (draft Opportunity orders), ERS layout/record page, `vr_ERS_Classification_WH` activation.
