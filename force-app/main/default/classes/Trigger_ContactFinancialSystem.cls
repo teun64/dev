@@ -4,7 +4,7 @@
  */
 public class Trigger_ContactFinancialSystem {
 	public static void run(){
-		if(!Trigger.isExecuting){
+		if(!Trigger.isExecuting || !Util_FinancialSystem.areTriggerHooksEnabled()){
 			return;
 		}
 

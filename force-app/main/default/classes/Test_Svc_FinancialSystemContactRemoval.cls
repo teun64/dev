@@ -63,6 +63,32 @@ private class Test_Svc_FinancialSystemContactRemoval {
 	}
 
 	@IsTest
+	static void hooksDisabled_deletedContact_changesNothing() {
+		Account x = acct('Removal X');
+		Contact keep = contact(x.Id, 'Keep');
+		Contact gone = contact(x.Id, 'Gone');
+		setRelation(x.Id, gone.Id, new Map<String, Object>{ 'FinancialIdContact__c' => 'g-gone' });
+		// as in an org where Minut_FinancialSystemAccountSync is not active yet
+		Util_FinancialSystem.triggerHooksOverride = false;
+
+		Test.startTest();
+		Database.delete(gone, AccessLevel.SYSTEM_MODE);
+		Test.stopTest();
+
+		System.assertEquals(0, queued('Removal X').size(), 'Nothing queued while the hooks are off');
+		System.assertEquals(false, acct('Removal X').SyncToFinancialSystem__c, 'Account not flagged');
+	}
+
+	@IsTest
+	static void hooksEnabled_followsTheAccountSyncStep() {
+		JobDispatcherStep__mdt step = JobDispatcherStep__mdt.getInstance('Minut_FinancialSystemAccountSync');
+		System.assertEquals(true, Util_FinancialSystem.areTriggerHooksEnabled(), 'Always on in tests');
+		Util_FinancialSystem.triggerHooksOverride = false;
+		System.assertEquals(false, Util_FinancialSystem.areTriggerHooksEnabled());
+		System.assertNotEquals(null, step, 'Step record exists in every org');
+	}
+
+	@IsTest
 	static void removedRelation_queuesItsExactContact() {
 		Account x = acct('Removal X');
 		Account y = acct('Removal Y');

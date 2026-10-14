@@ -52,6 +52,24 @@ public without sharing class Util_FinancialSystem {
 				&& Util_FinancialSystem.getProductionDivisions().contains(admin.Subscription25__Twinfield_Company_Code__c.trim()));
 	}
 
+	// ---------------------------------------------------------------- trigger hooks
+
+	@TestVisible
+	private static Boolean triggerHooksOverride;
+
+	/**
+	 * True when the record trigger hooks (OrderFinancialSystem, ContactFinancialSystem, AccountContactRelation)
+	 * may act: only once the account sync step (JobDispatcherStep Minut_FinancialSystemAccountSync) is active,
+	 * so the rebuild can be deployed to an org without changing its current behaviour. Always on in tests.
+	 */
+	public static Boolean areTriggerHooksEnabled() {
+		if (Util_FinancialSystem.triggerHooksOverride != null) {
+			return Util_FinancialSystem.triggerHooksOverride;
+		}
+		JobDispatcherStep__mdt step = JobDispatcherStep__mdt.getInstance('Minut_FinancialSystemAccountSync');
+		return Test.isRunningTest() || (step != null && step.IsActive__c == true);
+	}
+
 	// ---------------------------------------------------------------- requests
 
 	/** HTTP status of the last failed request (null: no response); Svc_FinancialSystemSyncAlert.categorize reads it */
