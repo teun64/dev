@@ -45,4 +45,16 @@ Payment__c stream mappings first. Do NOT touch stripeGC__Stripe_Event__c.Payment
   batch canceled it (reason abandoned) and created exactly one off-session intent pi_3UQQsV… (succeeded); payment Processing
   with the new id; no Cases. Webhook leg NOT tested: dev receives no Stripe webhook events since 2026-07-01 (last
   stripeGC__Stripe_Event__c), so payment stays Processing in dev. Test the webhook leg in acc if needed.
+- Webhook leg TESTED 2026-10-14 after the user re-authorized the stripeGC webhook events in acc and dev (no account
+  reconnect needed; first events arrived within seconds):
+  - acc: PM#000136951 (£2.50, "Test the UK Tester", no contact) open pi_3UQRt6… → canceled (abandoned), pi_3UQRts…
+    succeeded → webhook set Paid + Interaction_Status 'Request Processed by Customer'; 0 "charged twice" Cases.
+    Mandate pm_1U8ber…/mandate_1U8ber… set on that Account by hand (missed 2026-08-26 webhook). PM#000133927 set to
+    Paid + pi_3U8baq… + 'Request Processed by Customer' by hand (Stripe: succeeded 2026-08-26, event too old to resend).
+  - dev: PM#000110388 (£2.50, Darran Hiscox) same result: pi_3UQSWo… canceled, pi_3UQSXO… succeeded, Paid, 0 Cases.
+    PM#000110387's payment_intent.succeeded was still in Stripe's retry queue (pending=1).
+- Prod NL/DE Stripe accounts checked (read-only): live webhook endpoints enabled, but 0 PaymentIntents and 0 events
+  ever, 0 psp-dd payments → nothing missed. First NL/DE payment: check a stripeGC__Stripe_Event__c lands.
+- Force a webhook: Stripe Dashboard → Developers → Webhooks → endpoint → event → Resend (events ≤ 30 days), or
+  `stripe trigger <event>` (test mode; not linked to a Payment, only proves delivery).
 - dev-only leftover Payment fields: PayProv_Message__c, PayProv_Mode__c, PayProv_PaymentIntentStatus__c, PayProv_SetupIntentStatus__c, PayProv_SetupNeeded__c, PayProv_DirectDebitSetup__c (not in repo/acc/prod).
