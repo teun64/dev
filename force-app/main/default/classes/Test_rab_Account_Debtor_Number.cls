@@ -1,6 +1,6 @@
 /**
- * Tests the record-triggered flow rab_Account_Debtor_Number (one Subscription25 debtor number per account)
- * and the validation rule vr_FinancialDebtorNumberClear.
+ * Tests the record-triggered flow rab_Account_Debtor_Number (one Subscription25 debtor number per account).
+ * The validation rule vr_FinancialDebtorNumberClear is tested in Test_FinancialSystemFlows (goes live later).
  */
 @IsTest
 private class Test_rab_Account_Debtor_Number {
@@ -90,17 +90,5 @@ private class Test_rab_Account_Debtor_Number {
 		List<Subscription25__Debtor_Number__c> debNrs = debtorNumbers(acc.Id);
 		System.assertEquals(1, debNrs.size(), 'Only one debtor number per account: the old administration is deleted');
 		System.assertEquals(6, debNrs[0].Subscription25__Administration__r.External_ID__c);
-	}
-
-	@IsTest
-	static void clearDebtorNumber_blockedWhileLinkedToExact() {
-		Account acc = account();
-		Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = '55555', FinancialIdAccount__c = 'acc-guid'), AccessLevel.SYSTEM_MODE);
-
-		Database.SaveResult blocked = Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = null), false, AccessLevel.SYSTEM_MODE);
-		System.assert(!blocked.isSuccess(), 'Clearing the number while linked to Exact is not allowed');
-
-		Database.SaveResult allowed = Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = null, FinancialIdAccount__c = null), false, AccessLevel.SYSTEM_MODE);
-		System.assert(allowed.isSuccess(), 'Clearing both together (Replace Debtor Number) is allowed');
 	}
 }

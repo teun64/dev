@@ -1,7 +1,8 @@
 @IsTest
 private class Test_FinancialSystemFlows {
-	// Financial-system behaviour of the flows rab_Account_Debtor_Number, rbb_Account and rbb_AccountContactRelation.
-	// Deployed with those flow versions (prod: at go-live), not with the Apex package that precedes them.
+	// Financial-system behaviour of the flows rab_Account_Debtor_Number, rbb_Account and rbb_AccountContactRelation
+	// and the validation rule vr_FinancialDebtorNumberClear. Deployed when those go live in prod (go-live), not with
+	// the packages that precede them.
 
 	@TestSetup
 	static void setup() {
@@ -40,5 +41,17 @@ private class Test_FinancialSystemFlows {
 		Database.update(new AccountContactRelation(Id = acr.Id, Roles = null), AccessLevel.SYSTEM_MODE);
 		Test.stopTest();
 		System.assertEquals(true, Test_Util_FinancialSystemAccount.relation(second.Id).Sync_To_Financial_System__c, 'rbb_AccountContactRelation flags the role change');
+	}
+
+	@IsTest
+	static void clearDebtorNumber_blockedWhileLinkedToExact() {
+		Account acc = Test_Util_FinancialSystemAccount.account();
+		Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = '55555', FinancialIdAccount__c = 'acc-guid'), AccessLevel.SYSTEM_MODE);
+
+		Database.SaveResult blocked = Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = null), false, AccessLevel.SYSTEM_MODE);
+		System.assert(!blocked.isSuccess(), 'Clearing the number while linked to Exact is not allowed');
+
+		Database.SaveResult allowed = Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = null, FinancialIdAccount__c = null), false, AccessLevel.SYSTEM_MODE);
+		System.assert(allowed.isSuccess(), 'Clearing both together (Replace Debtor Number) is allowed');
 	}
 }
