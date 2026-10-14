@@ -70,10 +70,10 @@ private class Test_Ctrl_Payment {
         System.assertEquals('setup', d.mode, 'Mode consistent after Stripe error');
     }
 
-    // ── getPaymentData – payment mode (mandate present) ───────────────────────
+    // ── getPaymentData – mandate on file: collected by Batch_ProcessPayments, page creates no intent ──
 
     @IsTest
-    static void testGetPaymentData_paymentMode() {
+    static void testGetPaymentData_mandateOnFileIsScheduled() {
         Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
         acc.PayProv_MandateId__c       = 'mandate_abc';
         acc.PayProv_PaymentMethodId__c = 'pm_abc';
@@ -84,7 +84,10 @@ private class Test_Ctrl_Payment {
         Test.stopTest();
 
         System.assertEquals(true, d.found);
-        System.assertEquals('payment', d.mode, 'Mandate present → payment mode');
+        System.assertEquals(true, d.alreadyScheduled, 'Mandate present → collected by the batch, not on the page');
+        System.assertEquals(null, d.mode, 'No checkout mode: nothing to confirm on the page');
+        System.assertEquals(null, d.clientSecret, 'No PaymentIntent created on page load');
+        System.assertNotEquals(null, d.collectionDate, 'Collection date shown to the customer');
     }
 
     // ── getPaymentData – contact fallback to main contact ─────────────────────
@@ -173,6 +176,20 @@ private class Test_Ctrl_Payment {
         System.assertEquals(true, d.found);
         System.assertEquals(true, d.alreadyProcessed, 'Paid payment should be flagged as already processed');
         System.assertNotEquals(null, d.paymentId);
+    }
+
+    @IsTest
+    static void testGetPaymentData_processingIsAlreadyProcessed() {
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+        pmt.Status__c = 'Processing';
+        update pmt;
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
+        Test.stopTest();
+
+        System.assertEquals(true, d.alreadyProcessed, 'A debit in progress must not get a second PaymentIntent');
+        System.assertEquals(null, d.clientSecret);
     }
 
     @IsTest

@@ -35,7 +35,7 @@ public without sharing class Svc_StripeEventProcessor {
         Map<Id, Payment__c> paymentMap = new Map<Id, Payment__c>();
         if (!paymentSfIds.isEmpty()) {
             paymentMap = new Map<Id, Payment__c>([
-                SELECT Id, Account__c, externalId__c, Amount_Gross__c, CurrencyIsoCode,
+                SELECT Id, Name, Status__c, Account__c, externalId__c, Amount_Gross__c, CurrencyIsoCode, PayProv_PaymentIntentId__c,
                        Account__r.Reseller_Name__c
                 FROM Payment__c
                 WHERE Id IN :paymentSfIds
@@ -81,6 +81,9 @@ public without sharing class Svc_StripeEventProcessor {
         Map<Id, Account>                accountMap     = new Map<Id, Account>();
         Map<Id, Payment__c>             paymentUpdates = new Map<Id, Payment__c>();
         List<Case>                      newCases       = new List<Case>();
+        // PaymentIntent each payment is bound to (stored, or set by an earlier event in this same run)
+        Map<Id, String>                 boundIntent    = new Map<Id, String>();
+        Set<String>                     duplicateCased = new Set<String>();
 
         for (ParsedEvent p : parsed) {
             // 3a. Populate event custom fields
@@ -115,20 +118,42 @@ public without sharing class Svc_StripeEventProcessor {
             Id resolvedPaymentId = String.isNotBlank(p.paymentSfId) ? (Id) p.paymentSfId : null;
             if (resolvedPaymentId != null && paymentMap.containsKey(resolvedPaymentId)) {
                 Payment__c payment = paymentMap.get(resolvedPaymentId);
-                String newStatus = statusForEvent(p.eventType, p.errorCode);
-                if (newStatus != null) {
-                    Payment__c pu = new Payment__c(Id = payment.Id, Status__c = newStatus);
-                    if (String.isNotBlank(p.paymentIntentId)) pu.PaymentIntentId__c = p.paymentIntentId;
-                    if (String.isNotBlank(p.setupIntentId))   pu.SetupIntentId__c   = p.setupIntentId;
-                    if ('setup_intent.succeeded'.equals(p.eventType) || 'payment_intent.succeeded'.equals(p.eventType)) {
-                        pu.Interaction_Status__c = 'Request Processed by Customer';
-                        pu.Processed_Date__c     = Date.today();
-                    }
-                    paymentUpdates.put(payment.Id, pu);
-                }
                 String queueName = 'gqPayment' + payment.Account__r?.Reseller_Name__c;
                 Id queueId   = resellerToQueue.get(queueName);
                 Id contactId = accountToContact.get(payment.Account__c);
+
+                // A payment is bound to one PaymentIntent. Once that intent is debiting (Processing/Paid/Collected),
+                // an event of another intent is a second debit for the same payment: flag it once for follow-up
+                // (refund) and leave the payment alone. Before that, a newer intent simply replaces an open one
+                // (e.g. Batch_ProcessPayments cancels an abandoned checkout intent and debits off-session).
+                if (!boundIntent.containsKey(payment.Id)) boundIntent.put(payment.Id, payment.PayProv_PaymentIntentId__c);
+                String bound = boundIntent.get(payment.Id);
+                String currentStatus = paymentUpdates.containsKey(payment.Id) ? paymentUpdates.get(payment.Id).Status__c : payment.Status__c;
+                if (String.isNotBlank(p.paymentIntentId) && String.isNotBlank(bound) && p.paymentIntentId != bound
+                        && DEBITING_STATUSES.contains(currentStatus)) {
+                    if (isCharge(p.eventType) && duplicateCased.add(p.paymentIntentId)) {
+                        newCases.add(buildDuplicateCase(payment, p.paymentIntentId, bound, queueId, contactId));
+                    }
+                    continue;
+                }
+
+                String newStatus = statusForEvent(p.eventType, p.errorCode);
+                if (newStatus != null) {
+                    Payment__c pu = new Payment__c(Id = payment.Id, Status__c = newStatus);
+                    if (String.isNotBlank(p.paymentIntentId)) {
+                        pu.PayProv_PaymentIntentId__c = p.paymentIntentId;
+                        boundIntent.put(payment.Id, p.paymentIntentId);
+                    }
+                    if (String.isNotBlank(p.setupIntentId)) pu.PayProv_SetupIntentId__c = p.setupIntentId;
+                    // customer completed the checkout / debit started: ends the D+2/D+4 reminders
+                    if ('setup_intent.succeeded'.equals(p.eventType) || isCharge(p.eventType)) {
+                        pu.Interaction_Status__c = 'Request Processed by Customer';
+                    }
+                    if ('setup_intent.succeeded'.equals(p.eventType) || 'payment_intent.succeeded'.equals(p.eventType)) {
+                        pu.Processed_Date__c = Date.today();
+                    }
+                    paymentUpdates.put(payment.Id, pu);
+                }
                 if (isFailure(p.eventType, p.errorCode)) {
                     newCases.add(buildFailureCase(payment, p.errorMessage, p.errorCode, queueId, contactId));
                 }
@@ -217,6 +242,29 @@ public without sharing class Svc_StripeEventProcessor {
         if ('setup_intent.succeeded'.equals(evtType))         return 'Setup';
         if ('setup_intent.setup_failed'.equals(evtType))      return 'Failed';
         return null;
+    }
+
+    private static final Set<String> DEBITING_STATUSES = new Set<String>{ 'Processing', 'Paid', 'Collected' };
+
+    private static Boolean isCharge(String evtType) {
+        return 'payment_intent.processing'.equals(evtType) || 'payment_intent.succeeded'.equals(evtType);
+    }
+
+    private static Case buildDuplicateCase(Payment__c p, String duplicateIntentId, String boundIntentId, Id queueId, Id contactId) {
+        Case c = new Case(
+            AccountId   = p.Account__c,
+            ContactId   = contactId,
+            Subject     = 'Direct Debit charged twice – ' + p.Name,
+            Description = 'A second Stripe PaymentIntent was charged for this payment. Check it in Stripe and refund the duplicate.\n\n'
+                        + 'Payment: ' + p.Name + '\n'
+                        + 'Payment Intent of the payment: ' + boundIntentId + '\n'
+                        + 'Duplicate Payment Intent: ' + duplicateIntentId + '\n'
+                        + 'Amount: ' + p.CurrencyIsoCode + ' ' + p.Amount_Gross__c,
+            Origin      = 'Direct Debit',
+            Status      = 'New'
+        );
+        if (queueId != null) c.OwnerId = queueId;
+        return c;
     }
 
     private static Boolean isFailure(String evtType, String errorCode) {

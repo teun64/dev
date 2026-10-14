@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PayProv_PaymentIntentId__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>Payment provider (Stripe) PaymentIntent of this payment: created upfront for a first BACS payment (customer confirms on the payment page) or by Batch_ProcessPayments for an off-session debit. Reused, never replaced while it can still be completed.</description>
+    <externalId>true</externalId>
+    <label>Payment Intent Id (Payment Provider)</label>
+    <length>255</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

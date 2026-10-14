@@ -72,7 +72,7 @@ private class Test_Svc_StripeEventProcessor {
 
         Account updAcc = [SELECT PayProv_PaymentMethodId__c, PayProv_MandateId__c FROM Account WHERE Id = :acc.Id];
         Payment__c updPmt = (Payment__c) Database.queryWithBinds(
-            'SELECT Status__c, Interaction_Status__c, Processed_Date__c, SetupIntentId__c FROM Payment__c WHERE Id = :pmtId',
+            'SELECT Status__c, Interaction_Status__c, Processed_Date__c, PayProv_SetupIntentId__c FROM Payment__c WHERE Id = :pmtId',
             new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
 
         System.assertEquals('pm_test001',     updAcc.PayProv_PaymentMethodId__c,  'Payment method set on account');
@@ -80,7 +80,7 @@ private class Test_Svc_StripeEventProcessor {
         System.assertEquals('Setup',          updPmt.Status__c,                   'Payment status = Setup');
         System.assertEquals('Request Processed by Customer', updPmt.Interaction_Status__c, 'Interaction status updated');
         System.assertEquals(Date.today(),     updPmt.Processed_Date__c,           'Processed date = today');
-        System.assertEquals('si_test001',     updPmt.SetupIntentId__c,            'Setup intent ID stored on payment');
+        System.assertEquals('si_test001',     updPmt.PayProv_SetupIntentId__c,            'Setup intent ID stored on payment');
     }
 
     // ── setup_intent.setup_failed ─────────────────────────────────────────────
@@ -200,12 +200,12 @@ private class Test_Svc_StripeEventProcessor {
         Test.stopTest();
 
         Payment__c updPmt = (Payment__c) Database.queryWithBinds(
-            'SELECT Status__c, Interaction_Status__c, PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
+            'SELECT Status__c, Interaction_Status__c, PayProv_PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
             new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
         System.assertEquals('Paid',        updPmt.Status__c,             'Payment status = Paid');
         System.assertEquals('Request Processed by Customer', updPmt.Interaction_Status__c,
             'BACS payments complete via payment_intent.succeeded (no separate SetupIntent step) - the escalation flow only checks Interaction_Status__c, so this must flip here too or a completed BACS payment keeps getting reminder emails');
-        System.assertEquals('pi_test001', updPmt.PaymentIntentId__c,    'Payment intent ID stored on payment');
+        System.assertEquals('pi_test001', updPmt.PayProv_PaymentIntentId__c,    'Payment intent ID stored on payment');
     }
 
     // ── payment_intent.payment_failed (BACS reversal) — Reversed + Case ────────
@@ -236,10 +236,10 @@ private class Test_Svc_StripeEventProcessor {
         Test.stopTest();
 
         Payment__c updPmt = (Payment__c) Database.queryWithBinds(
-            'SELECT Status__c, PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
+            'SELECT Status__c, PayProv_PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
             new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
         System.assertEquals('Reversed',  updPmt.Status__c,          'Payment status = Reversed after BACS reversal');
-        System.assertEquals('pi_rev001', updPmt.PaymentIntentId__c, 'Payment intent ID stored on reversal');
+        System.assertEquals('pi_rev001', updPmt.PayProv_PaymentIntentId__c, 'Payment intent ID stored on reversal');
 
         List<Case> cases = [SELECT Subject FROM Case];
         System.assertEquals(1, cases.size(), 'One reversal case created');
@@ -279,5 +279,62 @@ private class Test_Svc_StripeEventProcessor {
             new Map<String, Object>{ 'pmtId' => pmtBefore.Id }, AccessLevel.SYSTEM_MODE)[0];
         System.assertEquals(pmtBefore.Status__c,             pmtAfter.Status__c,             'Status unchanged — event skipped');
         System.assertEquals(pmtBefore.Interaction_Status__c, pmtAfter.Interaction_Status__c, 'Interaction status unchanged — event skipped');
+    }
+
+    // ── a second PaymentIntent charged for a payment that is already debiting → Case, payment untouched ──
+
+    private static stripeGC__Stripe_Event__c piEvent(String eventName, String intentId, String status, Id paymentId) {
+        return new stripeGC__Stripe_Event__c(
+            stripeGC__Event_Name__c   = eventName,
+            stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
+                'data' => new Map<String, Object>{
+                    'object' => new Map<String, Object>{
+                        'id'       => intentId,
+                        'status'   => status,
+                        'customer' => 'cus_test001',
+                        'metadata' => new Map<String, Object>{ 'PaymentID' => paymentId }
+                    }
+                }
+            })
+        );
+    }
+
+    @IsTest
+    static void testDuplicateChargeCreatesCase() {
+        Payment__c pmt = [SELECT Id, Name FROM Payment__c LIMIT 1];
+        Database.update(new Payment__c(Id = pmt.Id, Status__c = 'Processing', PayProv_PaymentIntentId__c = 'pi_first001'), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        insert piEvent('payment_intent.processing', 'pi_dup001', 'processing', pmt.Id);
+        Test.stopTest();
+
+        Payment__c upd = (Payment__c) Database.queryWithBinds(
+            'SELECT Status__c, PayProv_PaymentIntentId__c FROM Payment__c WHERE Id = :pmtId',
+            new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
+        System.assertEquals('pi_first001', upd.PayProv_PaymentIntentId__c, 'Payment stays bound to its own intent');
+        System.assertEquals('Processing', upd.Status__c);
+        List<Case> cases = [SELECT Subject, Description FROM Case WHERE Subject LIKE 'Direct Debit charged twice%'];
+        System.assertEquals(1, cases.size(), 'Duplicate debit flagged');
+        System.assert(cases[0].Description.contains('pi_dup001'), cases[0].Description);
+    }
+
+    // ── an open (never debited) intent is replaced by a newer one without a Case ──
+
+    @IsTest
+    static void testNewerIntentReplacesOpenIntent() {
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+        Database.update(new Payment__c(Id = pmt.Id, Status__c = 'Setup', PayProv_PaymentIntentId__c = 'pi_open001'), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        insert piEvent('payment_intent.processing', 'pi_batch001', 'processing', pmt.Id);
+        Test.stopTest();
+
+        Payment__c upd = (Payment__c) Database.queryWithBinds(
+            'SELECT Status__c, PayProv_PaymentIntentId__c, Interaction_Status__c FROM Payment__c WHERE Id = :pmtId',
+            new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
+        System.assertEquals('pi_batch001', upd.PayProv_PaymentIntentId__c);
+        System.assertEquals('Processing', upd.Status__c);
+        System.assertEquals('Request Processed by Customer', upd.Interaction_Status__c, 'Debit started → reminders stop');
+        System.assertEquals(0, [SELECT COUNT() FROM Case WHERE Subject LIKE 'Direct Debit charged twice%']);
     }
 }

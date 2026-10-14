@@ -30,6 +30,26 @@
             <name>encryptedString</name>
         </outputParameters>
     </actionCalls>
+    <actionCalls>
+        <name>act_02_Prepare_Payment_Provider_Intent</name>
+        <label>2. Prepare Payment Provider Intent</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Svc_PaymentIntent</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>ass_01_Commit</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>paymentIds</name>
+            <value>
+                <elementReference>paymentRecord.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>Svc_PaymentIntent</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -125,7 +145,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>ass_02_Payment</targetReference>
+            <targetReference>dgr_01_Acoount</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -181,22 +201,6 @@
         </assignmentItems>
         <connector>
             <targetReference>ass_01_Payment_Message</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_02_Payment</name>
-        <label>2. Payment</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>vProviderPaymentId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>paymentRecord.PayProv_PaymentIntentId__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>dgr_01_Acoount</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -387,7 +391,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_02_Payment</targetReference>
+                <targetReference>dgr_01_Acoount</targetReference>
             </connector>
             <label>Record</label>
         </rules>
@@ -665,7 +669,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>ass_01_Commit</targetReference>
+            <targetReference>act_02_Prepare_Payment_Provider_Intent</targetReference>
         </connector>
         <inputReference>paymentRecord</inputReference>
     </recordUpdates>
@@ -826,13 +830,6 @@
     </variables>
     <variables>
         <name>vProviderMandateId</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>vProviderPaymentId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

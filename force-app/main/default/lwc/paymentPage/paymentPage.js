@@ -40,6 +40,8 @@ const I18N = {
         successBody: 'Thank you. Your payment has been processed successfully.',
         alreadyProcessedTitle: 'Already completed',
         alreadyProcessedBody: 'This payment has already been processed. No further action is needed.',
+        alreadyScheduledTitle: 'Direct Debit scheduled',
+        alreadyScheduledBody: 'This payment will be collected automatically by Direct Debit on {0}. No further action is needed.',
         lineNumber: 'Line',
         productCode: 'Code',
         productName: 'Product',
@@ -61,6 +63,8 @@ const I18N = {
         successBody: 'Bedankt. Uw betaling is succesvol verwerkt.',
         alreadyProcessedTitle: 'Al voltooid',
         alreadyProcessedBody: 'Deze betaling is al verwerkt. Geen verdere actie nodig.',
+        alreadyScheduledTitle: 'Incasso gepland',
+        alreadyScheduledBody: 'Deze betaling wordt op {0} automatisch geïncasseerd. Geen verdere actie nodig.',
         lineNumber: 'Regel',
         productCode: 'Code',
         productName: 'Product',
@@ -82,6 +86,8 @@ const I18N = {
         successBody: 'Vielen Dank. Ihre Zahlung wurde erfolgreich verarbeitet.',
         alreadyProcessedTitle: 'Bereits abgeschlossen',
         alreadyProcessedBody: 'Diese Zahlung wurde bereits verarbeitet. Keine weitere Aktion erforderlich.',
+        alreadyScheduledTitle: 'Lastschrift geplant',
+        alreadyScheduledBody: 'Diese Zahlung wird am {0} automatisch per Lastschrift eingezogen. Keine weitere Aktion erforderlich.',
         lineNumber: 'Zeile',
         productCode: 'Code',
         productName: 'Produkt',
@@ -103,6 +109,8 @@ const I18N = {
         successBody: 'Merci. Votre paiement a été traité avec succès.',
         alreadyProcessedTitle: 'Déjà effectué',
         alreadyProcessedBody: 'Ce paiement a déjà été traité. Aucune action supplémentaire n\'est requise.',
+        alreadyScheduledTitle: 'Prélèvement programmé',
+        alreadyScheduledBody: 'Ce paiement sera prélevé automatiquement le {0}. Aucune action supplémentaire n\'est requise.',
         lineNumber: 'Ligne',
         productCode: 'Code',
         productName: 'Produit',
@@ -134,6 +142,8 @@ export default class PaymentPage extends LightningElement {
     // whatever it was on initial load (the currency/date/amount getters below already did this
     // correctly via Intl formatting — these plain-text labels were the gap).
     _alreadyProcessed = false;
+    _alreadyScheduled = false;
+    _scheduledDate;
 
     get _t() { return I18N[this.languageSet] || I18N.en; }
 
@@ -147,8 +157,20 @@ export default class PaymentPage extends LightningElement {
     get labelCurrency()       { return this._t.currency; }
     get labelDate()           { return this._t.date; }
     get labelAmount()         { return this._t.amount; }
-    get labelSuccessTitle()   { return this._alreadyProcessed ? this._t.alreadyProcessedTitle : this._t.successTitle; }
-    get labelSuccessBody()    { return this._alreadyProcessed ? this._t.alreadyProcessedBody  : this._t.successBody; }
+    get labelSuccessTitle() {
+        if (this._alreadyScheduled) return this._t.alreadyScheduledTitle;
+        return this._alreadyProcessed ? this._t.alreadyProcessedTitle : this._t.successTitle;
+    }
+    get labelSuccessBody() {
+        if (this._alreadyScheduled) {
+            const lang = this.languageSet || 'en';
+            const date = this._scheduledDate
+                ? new Date(this._scheduledDate).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })
+                : '';
+            return this._t.alreadyScheduledBody.replace('{0}', date);
+        }
+        return this._alreadyProcessed ? this._t.alreadyProcessedBody : this._t.successBody;
+    }
     get labelLineNumber()     { return this._t.lineNumber; }
     get labelProductCode()    { return this._t.productCode; }
     get labelProductName()    { return this._t.productName; }
@@ -354,6 +376,11 @@ export default class PaymentPage extends LightningElement {
                     this.errorMessage = data.errorMessage || 'Payment not found.';
                 } else if (data.alreadyProcessed) {
                     this._alreadyProcessed = true;
+                    this.viewState         = 'success';
+                } else if (data.alreadyScheduled) {
+                    this._alreadyScheduled = true;
+                    this._scheduledDate    = data.collectionDate;
+                    this._applyLocale(LOCALE);
                     this.viewState         = 'success';
                 } else if (data.errorMessage) {
                     this.hasError     = true;

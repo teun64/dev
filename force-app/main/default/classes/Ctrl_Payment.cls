@@ -3,6 +3,7 @@ public without sharing class Ctrl_Payment {
     public class PaymentData {
         @AuraEnabled public Boolean found;
         @AuraEnabled public Boolean alreadyProcessed;
+        @AuraEnabled public Boolean alreadyScheduled;
         @AuraEnabled public String errorMessage;
         @AuraEnabled public String paymentId;
         @AuraEnabled public String publishableKey;
@@ -48,6 +49,7 @@ public without sharing class Ctrl_Payment {
 
         List<Payment__c> payments = Database.queryWithBinds(
             'SELECT Id, Name, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
+            '       PayProv_PaymentIntentId__c, PayProv_SetupIntentId__c,' +
             '       Invoice__c,' +
             '       Account__c,' +
             '       Account__r.Name,' +
@@ -75,10 +77,10 @@ public without sharing class Ctrl_Payment {
 
         Payment__c p = payments[0];
 
-        // Customer followed a link for a payment that already completed (e.g. reused an old
-        // email, double-clicked) — tell them rather than silently spinning up a second Stripe
-        // PaymentIntent for the same Payment__c.
-        if (p.Status__c == 'Paid' || p.Status__c == 'Collected') {
+        // Customer followed a link for a payment that is already on its way or completed (e.g. reused
+        // an old email or a reminder, double-clicked) — tell them rather than spinning up a second
+        // Stripe PaymentIntent for the same Payment__c. Bank debits stay Processing for days.
+        if (p.Status__c == 'Processing' || p.Status__c == 'Paid' || p.Status__c == 'Collected') {
             result.found            = true;
             result.alreadyProcessed = true;
             result.paymentId        = p.Id;
@@ -134,7 +136,6 @@ public without sharing class Ctrl_Payment {
         // Product line: first line ordered by cost type (recurring before NON_RECURRING)
         result.productLine = resolveProductLine(p.Invoice__c, language);
 
-        String stripeAccountId  = businessEntity?.PayProv_Account__c;
         String stripeCustomerId = p.Account__r?.PayProv_CustomerId__c;
         String mandateId        = p.Account__r?.PayProv_MandateId__c;
         String paymentMethodId  = p.Account__r?.PayProv_PaymentMethodId__c;
@@ -147,38 +148,28 @@ public without sharing class Ctrl_Payment {
             return result;
         }
 
-        if ('bacs_debit'.equals(ddMethod)) {
-            // BACS: always PaymentIntent — Payment Element collects bank details and establishes mandate in one step
-            result.mode = 'payment';
-            try {
-                result.clientSecret = createPaymentIntent(
-                    stripeAccountId, stripeCustomerId, paymentMethodId, mandateId,
-                    result.amountCents, result.currency_x, ddMethod, p.Id
-                );
-            } catch (Exception e) {
-                result.errorMessage = 'Could not initialise payment: ' + e.getMessage();
+        // Mandate already on file: Batch_ProcessPayments collects it off-session on the collection date.
+        // The page never creates a PaymentIntent then — opening the link must not debit the customer.
+        if (String.isNotBlank(mandateId) && String.isNotBlank(paymentMethodId)) {
+            result.alreadyScheduled = true;
+            return result;
+        }
+
+        // No mandate yet: the customer completes the stored intent (created upfront by afl_Payment_Direct_Debit_Setup,
+        // or here on first use). Reused on every visit — a page load never creates a second intent.
+        result.mode = 'bacs_debit'.equals(ddMethod) ? 'payment' : 'setup';
+        try {
+            Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreate(p, businessEntity);
+            if (c.processed) {
+                result.alreadyProcessed = true;
+                return result;
             }
-        } else {
-            // SEPA / ACH: SetupIntent first to collect bank details and create mandate; PaymentIntent once mandate is on file
-            Boolean setupFinalized = String.isNotBlank(mandateId) && String.isNotBlank(paymentMethodId);
-            if (!setupFinalized) {
-                result.mode = 'setup';
-                try {
-                    result.clientSecret = createSetupIntent(stripeAccountId, stripeCustomerId, ddMethod, p.Id);
-                } catch (Exception e) {
-                    result.errorMessage = 'Could not initialise setup: ' + e.getMessage();
-                }
-            } else {
-                result.mode = 'payment';
-                try {
-                    result.clientSecret = createPaymentIntent(
-                        stripeAccountId, stripeCustomerId, paymentMethodId, mandateId,
-                        result.amountCents, result.currency_x, ddMethod, p.Id
-                    );
-                } catch (Exception e) {
-                    result.errorMessage = 'Could not initialise payment: ' + e.getMessage();
-                }
-            }
+            result.mode         = c.mode;
+            result.clientSecret = c.clientSecret;
+            Payment__c stored = Svc_PaymentIntent.storeUpdate(p, c);
+            if (stored != null) Database.update(stored, AccessLevel.SYSTEM_MODE);
+        } catch (Exception e) {
+            result.errorMessage = 'Could not initialise ' + result.mode + ': ' + e.getMessage();
         }
 
         return result;
@@ -257,54 +248,6 @@ public without sharing class Ctrl_Payment {
         return pl;
     }
 
-    private static String createPaymentIntent(
-        String accountId, String customerId, String paymentMethodId, String mandateId,
-        Integer amountCents, String currencyCode, String ddMethod, String paymentId
-    ) {
-        List<String> body = new List<String>{
-            'amount=' + amountCents,
-            'currency=' + currencyCode.toLowerCase(),
-            'customer=' + customerId,
-            'payment_method_types[]=' + ddMethod,
-            'metadata[PaymentID]=' + paymentId,
-            'metadata[PaymentType]=Direct Debit'
-        };
-        if (String.isNotBlank(paymentMethodId)) {
-            body.add('payment_method=' + paymentMethodId);
-        }
-        if (String.isNotBlank(mandateId)) {
-            // Recurring charge against an existing mandate — Stripe requires confirming
-            // in the same request, and off_session signals no customer is present.
-            body.add('mandate=' + mandateId);
-            body.add('confirm=true');
-            body.add('off_session=true');
-        }
-        // BACS first-time: no existing mandate yet — instruct Stripe to create one for future off-session charges
-        if ('bacs_debit'.equals(ddMethod) && String.isBlank(mandateId)) {
-            body.add('setup_future_usage=off_session');
-        }
-        stripeGC.RawInvocableParameters params = new stripeGC.RawInvocableParameters();
-        params.method    = 'POST';
-        params.endpoint  = '/v1/payment_intents';
-        params.accountId = accountId;
-        params.requestBody = String.join(body, '&');
-        return callStripe(params);
-    }
-
-    private static String createSetupIntent(String accountId, String customerId, String ddMethod, String paymentId) {
-        stripeGC.RawInvocableParameters params = new stripeGC.RawInvocableParameters();
-        params.method    = 'POST';
-        params.endpoint  = '/v1/setup_intents';
-        params.accountId = accountId;
-        params.requestBody = String.join(new List<String>{
-            'customer=' + customerId,
-            'usage=off_session',
-            'payment_method_types[]=' + ddMethod,
-            'metadata[PaymentID]=' + paymentId
-        }, '&');
-        return callStripe(params);
-    }
-
     @AuraEnabled(cacheable=false)
     public static void finalizeCheckout(String token, String intentMode, Boolean futureConsent) {
         if (String.isBlank(token)) return;
@@ -321,8 +264,13 @@ public without sharing class Ctrl_Payment {
 
         // Payment method and mandate are stored by the Stripe_Event_c trigger (Svc_StripeEventProcessor).
         // Here we only update the Payment status so the customer sees the result immediately.
+        // Interaction status also ends the D+2/D+4 reminders (rab_Payment_Direct_Debit_Escalation waits on 'Mail Sent').
         String newStatus = ('setup'.equals(intentMode)) ? 'Setup' : 'Processing';
-        Database.update(new Payment__c(Id = payments[0].Id, Status__c = newStatus), AccessLevel.SYSTEM_MODE);
+        Database.update(new Payment__c(
+            Id = payments[0].Id,
+            Status__c = newStatus,
+            Interaction_Status__c = 'Request Processed by Customer'
+        ), AccessLevel.SYSTEM_MODE);
 
         // Disclosure only - the mandate is already reused for future subscription payments
         // regardless of this checkbox (see Ctrl_PaymentMandate). This just records that the
@@ -334,14 +282,6 @@ public without sharing class Ctrl_Payment {
                 DirectDebit_Future_Payments_Consent_Date__c = Datetime.now()
             ), AccessLevel.SYSTEM_MODE);
         }
-    }
-
-    private static String callStripe(stripeGC.RawInvocableParameters params) {
-        List<stripeGC.RawInvocableParameters> batch = new List<stripeGC.RawInvocableParameters>{ params };
-        List<String> results = stripeGC.AgnosticInvocable.callStripeEndpoint(batch);
-        if (results == null || results.isEmpty()) return null;
-        Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(results[0]);
-        return (String) parsed.get('client_secret');
     }
 
     @AuraEnabled(cacheable=false)

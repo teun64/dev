@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PayProv_SetupIntentId__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>Payment provider (Stripe) SetupIntent that collects the SEPA mandate for this payment. Created upfront and reused on the payment page; the debit itself is a PaymentIntent created by Batch_ProcessPayments.</description>
+    <externalId>true</externalId>
+    <label>Setup Intent Id (Payment Provider)</label>
+    <length>255</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

@@ -7,7 +7,9 @@
  * A successful request moves the payment to Processing; Svc_StripeEventProcessor takes it from there (Paid/Failed).
  * A Stripe error or missing configuration sets Failed and opens a Case in the reseller's gqPayment queue.
  * Each request carries an idempotency key (payment + collection date): if the status update after a successful
- * request fails, the next run gets the same PaymentIntent back from Stripe instead of charging twice.
+ * request fails, the next run gets the same PaymentIntent back from Stripe instead of charging twice. An intent
+ * already stored on the payment (PayProv_PaymentIntentId__c) is checked first: processing/succeeded → only the
+ * status is set; still open (customer never completed it) → canceled before the off-session debit.
  * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name);
  * chained as a step of the Minut job dispatcher (Util_JobDispatcher, JobDispatcherStep__mdt).
  * Manual run: Database.executeBatch(new Batch_ProcessPayments(), 20);
@@ -37,7 +39,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
     public override Database.QueryLocator startBatch(Database.BatchableContext bc) {
         // no bind variables: the Subscription25 job framework runs the locator outside this method's scope
         return Database.getQueryLocator(
-            'SELECT Id, Name, Status__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c,' +
+            'SELECT Id, Name, Status__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c, PayProv_PaymentIntentId__c,' +
             ' Account__r.PayProv_CustomerId__c, Account__r.PayProv_PaymentMethodId__c, Account__r.PayProv_MandateId__c,' +
             ' Account__r.Reseller_Name__c, Administration__r.Reseller__c' +
             ' FROM Payment__c' +
@@ -107,7 +109,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             Business_Entities__c businessEntity = resellerToBusinessEntity.get(p.Administration__r?.Reseller__c);
             String  stripeAccountId = businessEntity?.PayProv_Account__c;
             String  ddMethod        = businessEntity?.PayProv_DirectDebit_PaymentMethod__c;
-            Integer amountCents     = p.Amount_Gross__c != null ? (p.Amount_Gross__c * 100).round(System.RoundingMode.HALF_UP).intValue() : 0;
+            Integer amountCents     = Svc_PaymentIntent.amountCents(p.Amount_Gross__c);
             if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
 
             String preflightError = null;
@@ -121,6 +123,21 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             }
 
             try {
+                // an intent already stored on the payment (e.g. an upfront BACS intent the customer never completed)
+                // is checked first: never a second debit next to one that is already on its way
+                if (String.isNotBlank(p.PayProv_PaymentIntentId__c)) {
+                    String storedStatus = (String) Svc_PaymentIntent.call(
+                        'GET', '/v1/payment_intents/' + p.PayProv_PaymentIntentId__c, stripeAccountId, null, null).get('status');
+                    Svc_PaymentIntent.Action a = Svc_PaymentIntent.decide(storedStatus);
+                    if (a == Svc_PaymentIntent.Action.PROCESSED) {
+                        statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing'));
+                        continue;
+                    }
+                    if (a == Svc_PaymentIntent.Action.REUSE) {
+                        Svc_PaymentIntent.call('POST', '/v1/payment_intents/' + p.PayProv_PaymentIntentId__c + '/cancel',
+                            stripeAccountId, 'cancellation_reason=abandoned', null);
+                    }
+                }
                 String paymentIntentId = issuePaymentIntent(
                     stripeAccountId,
                     p.Account__r.PayProv_CustomerId__c,
@@ -129,7 +146,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
                     amountCents, p.CurrencyIsoCode, ddMethod, p.Id,
                     p.Id + '-' + String.valueOf(p.Collection_Date__c)
                 );
-                statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing', PaymentIntentId__c = paymentIntentId));
+                statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing', PayProv_PaymentIntentId__c = paymentIntentId));
             } catch (Exception e) {
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed'));
                 failureCases.add(buildFailureCase(p, 'Stripe error: ' + e.getMessage(), resellerToQueue, accountToContact));
@@ -202,23 +219,6 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             'metadata[PaymentID]=' + paymentId,
             'metadata[PaymentType]=Direct Debit'
         };
-        stripeGC.RawInvocableParameters params = new stripeGC.RawInvocableParameters();
-        params.method         = 'POST';
-        params.endpoint       = '/v1/payment_intents';
-        params.accountId      = stripeAccountId;
-        params.requestBody    = String.join(body, '&');
-        params.idempotencyKey = idempotencyKey;
-
-        List<String> results = stripeGC.AgnosticInvocable.callStripeEndpoint(
-            new List<stripeGC.RawInvocableParameters>{ params }
-        );
-        if (results == null || results.isEmpty()) throw new CalloutException('No response from Stripe');
-
-        Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(results[0]);
-        if (parsed.containsKey('error')) {
-            Map<String, Object> err = (Map<String, Object>) parsed.get('error');
-            throw new CalloutException((String) err.get('message'));
-        }
-        return (String) parsed.get('id');
+        return (String) Svc_PaymentIntent.call('POST', '/v1/payment_intents', stripeAccountId, String.join(body, '&'), idempotencyKey).get('id');
     }
 }
