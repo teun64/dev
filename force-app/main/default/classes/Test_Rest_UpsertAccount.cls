@@ -515,9 +515,9 @@ private class Test_Rest_UpsertAccount {
         AccountContactRelation acr = [SELECT Id, ContactId, Roles FROM AccountContactRelation WHERE AccountId = :acc.Id LIMIT 1];
         String afterCreate = acr.Roles;
         Set<String> created = new Set<String>(afterCreate.split(';'));
-        System.assert(created.containsAll(new Set<String>{'Main', 'Shipping', 'Invoice', 'Digital'}), 'New B2B account, visit = billing: ' + afterCreate);
+        System.assert(created.containsAll(new Set<String>{'Main', 'Shipping', 'Payment', 'Invoice', 'Reminder', 'Digital'}), 'New B2B account, visit = billing: ' + afterCreate);
         Database.update(new Account(Id = acc.Id, Contact_person__c = acr.ContactId, Contact_Billing__c = acr.ContactId, Contact_Shipping__c = acr.ContactId), AccessLevel.SYSTEM_MODE);
-        Database.update(new AccountContactRelation(Id = acr.Id, Roles = 'Main;Invoice;Shipping;Digital;Reminder;Payment'), AccessLevel.SYSTEM_MODE);
+        Database.update(new AccountContactRelation(Id = acr.Id, Roles = 'Main;Invoice;Shipping;Digital;Reminder;Payment;Sales;Service;ASR'), AccessLevel.SYSTEM_MODE);
 
         // same account again = an ordinary update from the platform
         System.RestContext.request = new RestRequest();
@@ -529,14 +529,21 @@ private class Test_Rest_UpsertAccount {
         System.assert(roles.contains('Main'), msg);
         System.assert(roles.contains('Invoice'), msg);
         System.assert(roles.contains('Shipping'), 'Shipping lookup still points to the contact - ' + msg);
-        System.assert(roles.contains('Reminder'), 'Salesforce-only role - ' + msg);
-        System.assert(roles.contains('Payment'), 'Salesforce-only role - ' + msg);
+        System.assert(roles.contains('Reminder'), msg);
+        System.assert(roles.contains('Payment'), msg);
+        System.assert(roles.containsAll(new Set<String>{'Sales', 'Service', 'ASR'}), 'Salesforce-only roles - ' + msg);
     }
 
     // Role rules of a platform update on an existing relation (Rest_UpsertAccount.platformRoles)
     private static testMethod void testPlatformRolesRules(){
-        // another contact is the visit + invoice contact now: Main, Invoice (and Digital, B2B) move away; Reminder stays
-        System.assertEquals('Reminder', Rest_UpsertAccount.platformRoles('Main;Invoice;Digital;Reminder', null, true, true, true));
+        // another contact is the visit + invoice contact now: Main (+ Shipping, Payment) and Invoice (+ Reminder, Digital) move away;
+        // Sales, Service and ASR stay
+        System.assertEquals('Sales;Service;ASR', Rest_UpsertAccount.platformRoles('Main;Shipping;Payment;Invoice;Reminder;Digital;Sales;Service;ASR', null, true, true, true));
+        // the visit + invoice contact gets everything back, its own Sales / ASR untouched
+        System.assertEquals('Sales;ASR;Main;Shipping;Payment;Invoice;Reminder;Digital',
+            Rest_UpsertAccount.platformRoles('Sales;ASR', 'Main;Shipping;Payment;Invoice;Reminder;Digital', true, true, true));
+        // Reminder / Payment on a relation without Invoice / Main are left alone
+        System.assertEquals('Reminder;Payment', Rest_UpsertAccount.platformRoles('Reminder;Payment', null, true, true, false));
         // no visit address in the payload: Main is left alone
         System.assertEquals('Main', Rest_UpsertAccount.platformRoles('Main', null, false, false, true));
         // B2C: Digital is never changed
@@ -550,8 +557,8 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals('Sales', Rest_UpsertAccount.platformRoles('Main;Shipping;Sales', null, true, false, false));
         // Shipping on a relation without Main is left alone
         System.assertEquals('Shipping;Sales', Rest_UpsertAccount.platformRoles('Shipping;Sales', null, true, true, true));
-        // Main kept: missing Shipping is added again
-        System.assertEquals('Main;Reminder;Shipping', Rest_UpsertAccount.platformRoles('Main;Reminder', 'Main;Shipping', true, false, false));
+        // Main kept: missing Shipping and Payment are added again, Reminder without Invoice stays
+        System.assertEquals('Main;Reminder;Shipping;Payment', Rest_UpsertAccount.platformRoles('Main;Reminder', 'Main;Shipping;Payment', true, false, false));
         // nothing left
         System.assertEquals(null, Rest_UpsertAccount.platformRoles('Main', null, true, false, true));
     }

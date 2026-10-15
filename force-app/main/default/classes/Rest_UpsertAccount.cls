@@ -516,8 +516,8 @@ global without sharing class Rest_UpsertAccount {
 			miVisitContact.language = miAccount.visitAddress.language;
 			miVisitContact.country = miAccount.visitAddress.country;
 			miVisitContact.newsLetter = miAccount.visitAddress.newsLetter;
-			// Shipping goes with Main (see platformRoles), on create and on update
-			miVisitContact.type = 'Main;Shipping';
+			// Shipping and Payment go with Main (see platformRoles), on create and on update
+			miVisitContact.type = 'Main;Shipping;Payment';
 			miVisitContact.isActive = true; // value of has account
 			miVisitContact.hasDealerTaskAccess = false; //dealer tasks
 			miVisitContact.isAdministrator = false;
@@ -542,7 +542,8 @@ global without sharing class Rest_UpsertAccount {
 			miBillingContact.otherPhone = miAccount.billingAddress.otherPhone;
 			miBillingContact.language = miAccount.billingAddress.language;
 			miBillingContact.newsLetter = miAccount.billingAddress.newsLetter;
-			miBillingContact.type = 'Invoice';
+			// Reminder goes with Invoice, Digital too when B2B (see platformRoles)
+			miBillingContact.type = 'Invoice;Reminder';
 			if (miAccount.isBusiness) {
 				miBillingContact.type += ';Digital';
 			}
@@ -555,7 +556,7 @@ global without sharing class Rest_UpsertAccount {
 			billingName += (String.isNotBlank(miBillingContact.surName)) ? (' ' + miBillingContact.surName) : '';
 			billingName = (String.isNotBlank(billingName)) ? billingName.trim() : '';
 		} else if (String.isNotBlank(miAccount.visitAddress.Id)) {
-			miVisitContact.type += ';Invoice';
+			miVisitContact.type += ';Invoice;Reminder';
 
 			if (miAccount.isBusiness) {
 				miVisitContact.type += ';Digital';
@@ -853,9 +854,11 @@ global without sharing class Rest_UpsertAccount {
 	 *  - Invoice  : follows the billing contact (or the visit contact when billing is empty / the same)
 	 *               - only changed when the payload has an invoice contact
 	 *  - Digital  : B2B only, and only on a relation that has Invoice (before or after): follows the payload
-	 *  - Shipping : only on a relation that has Main (before or after): follows the payload (the visit contact
-	 *               carries Main;Shipping), so it moves with Main; no B2B check
-	 *  - Reminder, Payment, Sales, Service, ASR and any other role: never touched
+	 *  - Shipping, Payment : only on a relation that has Main (before or after): follow the payload (the visit
+	 *               contact carries Main;Shipping;Payment), so they move with Main; no B2B check
+	 *  - Reminder : only on a relation that has Invoice (before or after): follows the payload (the invoice
+	 *               contact carries Invoice;Reminder), so it moves with Invoice; no B2B check
+	 *  - Sales, Service, ASR and any other role: never touched
 	 * One Main / Invoice / Shipping per account is kept by afl_AccountContactRelation_Roles (moves the lookups).
 	 */
 	@TestVisible
@@ -878,8 +881,12 @@ global without sharing class Rest_UpsertAccount {
 		Boolean hadInvoice = roles.contains('Invoice');
 
 		Rest_UpsertAccount.setRole(roles, 'Main', payloadHasVisit, wanted.contains('Main'));
-		Rest_UpsertAccount.setRole(roles, 'Shipping', payloadHasVisit && (hadMain || roles.contains('Main')), wanted.contains('Shipping'));
+		Boolean withMain = payloadHasVisit && (hadMain || roles.contains('Main'));
+		Rest_UpsertAccount.setRole(roles, 'Shipping', withMain, wanted.contains('Shipping'));
+		Rest_UpsertAccount.setRole(roles, 'Payment', withMain, wanted.contains('Payment'));
 		Rest_UpsertAccount.setRole(roles, 'Invoice', payloadHasInvoice, wanted.contains('Invoice'));
+		Boolean withInvoice = payloadHasInvoice && (hadInvoice || roles.contains('Invoice'));
+		Rest_UpsertAccount.setRole(roles, 'Reminder', withInvoice, wanted.contains('Reminder'));
 		Rest_UpsertAccount.setRole(roles, 'Digital', isBusiness && (hadInvoice || roles.contains('Invoice')), wanted.contains('Digital'));
 		return roles.isEmpty() ? null : String.join(roles, ';');
 	}

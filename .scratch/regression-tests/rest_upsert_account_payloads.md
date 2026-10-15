@@ -73,9 +73,11 @@ landing with no role. Ask Teun for the actual request bodies to fill this in.
 - Main follows the visit contact (only changed when the payload has a visit address).
 - Invoice follows the billing contact, or the visit contact when billing is empty / the same.
 - Digital: B2B only, and only on a relation that has Invoice (before or after); then follows the payload.
-- Shipping: moves with Main (only changed on a relation that has Main before or after; the visit
-  contact always carries Main;Shipping), no B2B check.
-- Reminder, Payment, Sales, Service, ASR: never touched. Payload wins over the lookups;
+- Shipping and Payment: move with Main (only changed on a relation that has Main before or after; the
+  visit contact always carries Main;Shipping;Payment), no B2B check.
+- Reminder: moves with Invoice (only changed on a relation that has Invoice before or after; the invoice
+  contact carries Invoice;Reminder), no B2B check.
+- Sales, Service, ASR: never touched. Payload wins over the lookups;
   afl_AccountContactRelation_Roles moves the lookups and keeps one Main/Invoice/Shipping per account.
 Dev run 2026-10-15 (external id 948767): 3 calls stable + Reminder/Payment kept on a 4th call; rerun after the Shipping-with-Main change (848768): 3 calls stable.
 
@@ -98,3 +100,14 @@ Dev run 2026-10-15 (external id 948767): 3 calls stable + Reminder/Payment kept 
 | a1ITx0000047rq5MAA | Open Minded IT B.V. (54970, 1) B2B | 001G500001Tg1wEIAR | Simon van Sleuwen: Main;Invoice;Shipping;Digital |
 | a1ITx0000047lW9MAI | J Kane (85062, 3) B2C | 001G500001TgS9yIAF | J Kane: Main;Invoice;Shipping |
 | a1ITx0000045z3lMAA | FOUTHOUT Academy B.V. (91394, 5) B2B | 001G500001Tg38YIAR | Peter van Eijsden: Main;Invoice;Shipping;Digital |
+
+### acc retest 2026-10-15 with Payment/Reminder rules (acc 0AfG500000T16U6KAJ, dev 0Afbd00000Bfk6zCAB, 23/23)
+Per account: call 1, then random Sales/Service/ASR on every relation (+ Payment on non-Main, Reminder on non-Invoice
+relations), wait for the roles flow, call 2. REBEL Lease 748768 (001G500001TgOuMIAV) + the 12 accounts above.
+- Sales/Service/ASR untouched on every relation of all 13 accounts.
+- Payment back on the visit contact, Reminder back on the invoice contact after call 2 (REBEL, Roundabout).
+- The roles flow keeps Main/Invoice/Shipping/Reminder/Digital/Payment unique per account, so hand-added Payment /
+  Reminder on another contact are moved by the flow, not by the REST call.
+- **Found: lost-update race in afl_AccountContactRelation_Roles.** Two role changes in one transaction (Chris gets
+  Payment, Afdeling gets Reminder) start two async runs that both rewrite Mart from the same snapshot; the last one
+  wins → REBEL ends with Payment on Chris AND Mart. Pre-existing flow issue, not the REST code.
