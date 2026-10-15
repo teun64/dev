@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Rest_UpsertAccount</members>
+        <members>Svc_AccountContactRelationRoles</members>
+        <members>Test_Rest_UpsertAccount</members>
+        <members>Test_Svc_AccountContactRelationRoles</members>
+        <members>Test_Svc_FinancialSystemContactRemoval</members>
+        <members>Test_Util_FinancialSystemAccount</members>
+        <members>Trigger_AccountContactRelation</members>
+        <members>Util_FinancialSystemAccount</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>AccountContactRelation</members>
+        <name>ApexTrigger</name>
+    </types>
+    <version>67.0</version>
+</Package>

@@ -1,0 +1,770 @@
+@IsTest
+public class Test_Util_FinancialSystemAccount {
+
+	/** Imitates Exact: answers per entity and records every call as "METHOD entity". */
+	public class ExactSim implements HttpCalloutMock {
+		public List<String> calls = new List<String>();
+		public List<String> bodies = new List<String>();
+		public String matchResult = '{"d":{"results":[]}}';
+		public String bankLookup = '{"d":{"results":[]}}';
+		public String addressLookup = '{"d":{"results":[]}}';
+		private Integer seq = 0;
+
+		public HttpResponse respond(HttpRequest req) {
+			String ep = req.getEndpoint();
+			String m = req.getMethod();
+			String entity = ep.contains('DirectDebitMandates') ? 'Mandate'
+				: ep.contains('BankAccounts') ? 'Bank'
+				: ep.contains('Addresses') ? 'Address'
+				: ep.contains('Contacts') ? 'Contact'
+				: ep.contains('Accounts') ? 'Account' : 'Other';
+			this.calls.add(m + ' ' + entity);
+			this.bodies.add(m + ' ' + entity + ' ' + req.getBody());
+			HttpResponse res = new HttpResponse();
+			res.setHeader('X-RateLimit-Limit', '5000');
+			res.setHeader('X-RateLimit-Remaining', '4000');
+			res.setHeader('X-RateLimit-Minutely-Remaining', '50');
+			if (m == 'PUT') {
+				res.setStatusCode(204);
+				return res;
+			}
+			res.setStatusCode(m == 'POST' ? 201 : 200);
+			this.seq++;
+			if (m == 'GET') {
+				res.setBody(entity == 'Bank' ? this.bankLookup : entity == 'Address' ? this.addressLookup : this.matchResult);
+			} else if (entity == 'Account') {
+				res.setBody('{"d":{"ID":"acc-guid-1","Code":"             12345","MainContact":null}}');
+			} else {
+				res.setBody('{"d":{"ID":"' + entity.toLowerCase() + '-guid-' + this.seq + '"}}');
+			}
+			return res;
+		}
+
+		public String body(String call) {
+			for (String b : this.bodies) {
+				if (b.startsWith(call + ' ')) {
+					return b;
+				}
+			}
+			return null;
+		}
+
+		public Integer count(String call) {
+			Integer n = 0;
+			for (String c : this.calls) {
+				if (c == call) {
+					n++;
+				}
+			}
+			return n;
+		}
+	}
+
+	@TestSetup
+	public static void setup() {
+		Subscription25__Administration__c admin = Test_Data.createAdministration(false);
+		admin.Subscription25__Synchronisation__c = 'Exact';
+		admin.Acceptance_Environment_Available__c = true;
+		Database.insert(admin, AccessLevel.SYSTEM_MODE);
+
+		Account acc = Test_Data.createAccount('Sync Account', (String) null, 'B2B', false);
+		acc.Reseller_Name__c = '1';
+		Database.insert(acc, AccessLevel.SYSTEM_MODE);
+		Contact con = Test_Data.createContact(acc.Id, 'Main', null, 'main@sync.test', true);
+		Database.update(new Account(Id = acc.Id, Contact_person__c = con.Id), AccessLevel.SYSTEM_MODE);
+	}
+
+	public static Account account() {
+		return [
+			SELECT Id, Name, FinancialIdAccount__c, FinancialDebtorNumber__c, FinancialIdInvoiceAddress__c, FinancialIdShippingAddress__c,
+				FinancialIdBankAccount__c, FinancialIdBankMandate__c, SyncToFinancialSystem__c, FinancialSyncState__c,
+				FinancialSyncAttempts__c, FinancialSyncNextAttempt__c, FinancialSyncLastError__c, FinancialDebtorCheck__c,
+				Contact_person__c, Reseller_Name__c, BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode,
+				InvoiceAddress__Street__s, ShippingStreet, Payment_Method_Contracts__c
+			FROM Account WHERE Name LIKE 'Sync Account%' WITH SYSTEM_MODE
+		];
+	}
+
+	@IsTest
+	static void newAccount_fullSync_storesIdsOnAccountAndRelation() {
+		Account acc = account();
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, String.join(r.messages, ' | ') + ' calls: ' + sim.calls);
+		Account after = account();
+		System.assertEquals('acc-guid-1', after.FinancialIdAccount__c);
+		System.assertEquals('12345', after.FinancialDebtorNumber__c, 'Debtor number from the POST response (trimmed)');
+		System.assertEquals(false, after.SyncToFinancialSystem__c, 'Flag cleared after success');
+		System.assertNotEquals(null, after.FinancialSyncState__c, 'Fingerprints stored');
+		System.assertEquals(1, sim.count('GET Account'), 'Duplicate check for a new account: ' + sim.calls);
+		System.assertEquals(1, sim.count('POST Account'), sim.calls);
+		System.assertEquals(1, sim.count('POST Contact'), sim.calls);
+		AccountContactRelation acr = [SELECT FinancialIdContact__c FROM AccountContactRelation WHERE AccountId = :acc.Id AND ContactId = :acc.Contact_person__c WITH SYSTEM_MODE];
+		System.assert(acr.FinancialIdContact__c.startsWith('contact-guid-'), 'Exact contact id on the relation');
+		System.assertEquals(1, sim.count('PUT Account'), 'Main contact set on the new Exact account: ' + sim.calls);
+		if (after.InvoiceAddress__Street__s != after.BillingStreet) {
+			System.assertNotEquals(null, after.FinancialIdInvoiceAddress__c, 'Invoice address created');
+		}
+		System.assertEquals(1, [SELECT COUNT() FROM Event_Log__c WHERE Context_Id__c = :acc.Id AND Action__c = 'sync2Exact'], 'One log per account');
+	}
+
+	@IsTest
+	static void secondRun_withoutChanges_makesNoCalls() {
+		Account acc = account();
+		ExactSim first = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, first);
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+
+		ExactSim second = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, second);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, String.join(r.messages, ' | '));
+		System.assertEquals(new List<String>(), second.calls, 'Nothing changed, nothing sent');
+	}
+
+	@IsTest
+	static void changedAccountName_onlyAccountIsSentAgain() {
+		Account acc = account();
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Database.update(new Account(Id = acc.Id, Name = 'Sync Account B.V.'), AccessLevel.SYSTEM_MODE);
+
+		ExactSim second = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, second);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		System.assertEquals(new List<String>{ 'PUT Account' }, second.calls, 'Only the changed part');
+	}
+
+	@IsTest
+	static void match_exactAccountLinkedToOtherAccount_isRefused() {
+		Account other = Test_Data.createAccount('Other Account', (String) null, 'B2B', false);
+		other.FinancialIdAccount__c = 'acc-guid-dup';
+		Database.insert(other, AccessLevel.SYSTEM_MODE);
+		Account acc = account();
+		ExactSim sim = new ExactSim();
+		sim.matchResult = '{"d":{"results":[{"ID":"acc-guid-dup","Code":"   999","Name":"Sync Account","MainContact":null}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, true).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(!r.success);
+		System.assert(r.messages[0].contains('already linked'), r.messages[0]);
+		Account after = account();
+		System.assertEquals(null, after.FinancialIdAccount__c, 'Not linked');
+		System.assertEquals(true, after.SyncToFinancialSystem__c, 'Stays flagged');
+		System.assertEquals(1, after.FinancialSyncAttempts__c);
+		System.assert(after.FinancialSyncNextAttempt__c > System.now(), 'Back-off');
+		System.assertEquals(0, sim.count('POST Account'), 'No duplicate created');
+	}
+
+	private static ExactSim duplicateLinkSim() {
+		Account other = Test_Data.createAccount('Other Account', (String) null, 'B2B', false);
+		other.FinancialIdAccount__c = 'acc-guid-dup';
+		Database.insert(other, AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		sim.matchResult = '{"d":{"results":[{"ID":"acc-guid-dup","Code":"   999","Name":"Sync Account","MainContact":null}]}}';
+		return sim;
+	}
+
+	private static Integer alerts() {
+		return Svc_FinancialSystemSyncAlert.notified.size() + Svc_FinancialSystemSyncAlert.casesCreated.size();
+	}
+
+	private static void presetFailures(Id accountId, Integer attempts, Integer hard, Boolean blocked) {
+		Database.update(new Account(Id = accountId, SyncToFinancialSystem__c = true, FinancialSyncAttempts__c = attempts,
+			FinancialSyncHardFailures__c = hard, FinancialSyncBlocked__c = blocked), AccessLevel.SYSTEM_MODE);
+	}
+
+	private static Account blockState() {
+		return [SELECT Id, FinancialSyncBlocked__c, FinancialSyncHardFailures__c, FinancialSyncAttempts__c FROM Account
+			WHERE Name = 'Sync Account' WITH SYSTEM_MODE LIMIT 1];
+	}
+
+	@IsTest
+	static void dataError_belowLimit_countsWithoutAlert() {
+		ExactSim sim = duplicateLinkSim();
+		Account acc = account();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		Account after = blockState();
+		System.assertEquals(1, after.FinancialSyncHardFailures__c);
+		System.assertEquals(false, after.FinancialSyncBlocked__c);
+		System.assertEquals(0, alerts(), 'The block is the only alert moment');
+	}
+
+	@IsTest
+	static void dataError_thirdTime_blocksAndAlertsOwner() {
+		ExactSim sim = duplicateLinkSim();
+		Account acc = account();
+		presetFailures(acc.Id, 2, 2, false);
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		Account after = blockState();
+		System.assertEquals(true, after.FinancialSyncBlocked__c);
+		System.assertEquals(1, Svc_FinancialSystemSyncAlert.notified.size(), 'Owner (test user = active person) notified');
+		Integer logged = 0;
+		for (Event_Log__c log : [SELECT Message__c FROM Event_Log__c WHERE Action__c = 'sync2Exact' WITH SYSTEM_MODE]) {
+			logged += log.Message__c.contains('Sync stopped; owner notified') ? 1 : 0;
+		}
+		System.assertEquals(1, logged, 'Alert outcome written to the sync log');
+	}
+
+	@IsTest
+	static void alreadyBlocked_failsAgainViaButton_noSecondAlert() {
+		ExactSim sim = duplicateLinkSim();
+		Account acc = account();
+		presetFailures(acc.Id, 4, 3, true);
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		System.assertEquals(true, blockState().FinancialSyncBlocked__c);
+		System.assertEquals(0, alerts());
+	}
+
+	@IsTest
+	static void blocked_reflaggedByDataChange_startsCountingAgain() {
+		ExactSim sim = duplicateLinkSim();
+		Account acc = account();
+		presetFailures(acc.Id, 0, 3, true);
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, true);
+		Test.stopTest();
+
+		Account after = blockState();
+		System.assertEquals(1, after.FinancialSyncHardFailures__c, 'Fresh start after rbb_Account reset the attempts');
+		System.assertEquals(false, after.FinancialSyncBlocked__c);
+	}
+
+	@IsTest
+	static void success_liftsBlock() {
+		Account acc = account();
+		presetFailures(acc.Id, 4, 3, true);
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, r.messages + '');
+		Account after = blockState();
+		System.assertEquals(false, after.FinancialSyncBlocked__c);
+		System.assertEquals(0, after.FinancialSyncHardFailures__c);
+	}
+
+	@IsTest
+	static void technicalError_neverCountsOrBlocks() {
+		Account acc = account();
+		presetFailures(acc.Id, 2, 2, false);
+		Test.setMock(HttpCalloutMock.class, new ForbiddenSim());
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(!r.success);
+		Account after = blockState();
+		System.assertEquals(2, after.FinancialSyncHardFailures__c, 'HTTP 403 is technical');
+		System.assertEquals(false, after.FinancialSyncBlocked__c);
+		System.assertEquals(0, alerts(), 'No alert, no case');
+	}
+
+	@IsTest
+	static void blocked_automaticFlagKeepsBlock_explicitFlagLiftsIt() {
+		Account acc = account();
+		presetFailures(acc.Id, 4, 3, true);
+
+		Util_FinancialSystemAccount.flagAccounts(new Set<Id>{ acc.Id });
+		Account after = blockState();
+		System.assertEquals(true, after.FinancialSyncBlocked__c, 'Order / contact sync queueing does not restart it');
+		System.assertEquals(4, after.FinancialSyncAttempts__c);
+		System.assert(!new Batch_FinancialSystemAccountSync().startBatch(null).iterator().hasNext(), 'Batch skips it');
+
+		Util_FinancialSystemAccount.flagAccounts(new Set<Id>{ acc.Id }, true);
+		after = blockState();
+		System.assertEquals(false, after.FinancialSyncBlocked__c, 'Button / action lifts the block');
+		System.assertEquals(0, after.FinancialSyncHardFailures__c);
+		System.assert(new Batch_FinancialSystemAccountSync().startBatch(null).iterator().hasNext());
+	}
+
+	/** Exact refuses everything with 403 (e.g. an Exact id of another division). */
+	public class ForbiddenSim implements HttpCalloutMock {
+		public HttpResponse respond(HttpRequest req) {
+			HttpResponse res = new HttpResponse();
+			res.setStatusCode(403);
+			res.setBody('{"error":{"code":"","message":{"lang":"","value":"Forbidden"}}}');
+			return res;
+		}
+	}
+
+	@IsTest
+	static void match_existingExactAccount_isLinkedAndUpdated() {
+		Account acc = account();
+		ExactSim sim = new ExactSim();
+		sim.matchResult = '{"d":{"results":[{"ID":"acc-guid-found","Code":"   777","Name":"Sync Account","MainContact":null}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, true);
+		Test.stopTest();
+
+		Account after = account();
+		System.assertEquals('acc-guid-found', after.FinancialIdAccount__c);
+		System.assertEquals('777', after.FinancialDebtorNumber__c.trim());
+		System.assertEquals(0, sim.count('POST Account'), 'Existing Exact account reused: ' + sim.calls);
+		System.assert(sim.count('PUT Account') >= 1, sim.calls);
+	}
+
+	@IsTest
+	static void noCapacity_postponesWithoutAttempt() {
+		Subscription25__Administration__c admin = [SELECT Id FROM Subscription25__Administration__c WITH SYSTEM_MODE LIMIT 1];
+		Database.update(new Subscription25__Administration__c(Id = admin.Id, Daily_Limit__c = 1000, FinancialRateLimitRemaining__c = 100,
+			FinancialRateLimitResetOn__c = System.now().addHours(1), FinancialRateLimitMaxPercentage__c = 90), AccessLevel.SYSTEM_MODE);
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, SyncToFinancialSystem__c = true), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, true).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.postponed, r.messages + '');
+		System.assertEquals(new List<String>(), sim.calls, '900 of 1000 used: batch budget exhausted');
+		Account after = account();
+		System.assertEquals(true, after.SyncToFinancialSystem__c);
+		System.assert(after.FinancialSyncAttempts__c == null || after.FinancialSyncAttempts__c == 0, 'Postponing is not a failed attempt');
+	}
+
+	@IsTest
+	static void validationError_countsAttempt() {
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, InvoiceAddress__Street__s = null, InvoiceAddress__City__s = null), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, true).get(acc.Id);
+
+		Account after = account();
+		if (!FeatureManagement.checkPermission('cp_miIntegrationSkipDataCheck') && after.InvoiceAddress__Street__s == null) {
+			System.assert(!r.success);
+			System.assertEquals(1, after.FinancialSyncAttempts__c);
+			System.assertEquals(0, sim.calls.size(), 'No callouts for an invalid account');
+		}
+	}
+
+	@IsTest
+	static void batch_syncsFlaggedAccounts() {
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, SyncToFinancialSystem__c = true), AccessLevel.SYSTEM_MODE);
+		Database.insert(new Subscription25__Schedulable_Class__c(Name = 'Batch_FinancialSystemAccountSync', Subscription25__Unique_Name__c = 'Batch_FinancialSystemAccountSync'), AccessLevel.SYSTEM_MODE);
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+
+		Test.startTest();
+		Batch_FinancialSystemAccountSync batch = new Batch_FinancialSystemAccountSync();
+		batch.setDispatcher(null);
+		System.assertEquals(5, batch.getBatchSize());
+		Database.executeBatch(batch);
+		Test.stopTest();
+
+		Account after = account();
+		List<Event_Log__c> logs = [SELECT Result_Status__c, Message__c FROM Event_Log__c WHERE Context_Id__c = :acc.Id];
+		List<Subscription25__Cron_Log__c> cron = [SELECT Subscription25__Status__c, Subscription25__Log__c, Subscription25__Total_Record_Count__c, Subscription25__Total_Error_Count__c FROM Subscription25__Cron_Log__c];
+		System.assertEquals('acc-guid-1', after.FinancialIdAccount__c, 'flag=' + after.SyncToFinancialSystem__c + ' err=' + after.FinancialSyncLastError__c + ' logs=' + logs + ' cronlogs=' + cron);
+		System.assertEquals(false, after.SyncToFinancialSystem__c);
+	}
+
+	@IsTest
+	static void invocable_flagsOrSyncsNow() {
+		Account acc = account();
+		Inv_FinancialSystemAccount.Request flagReq = new Inv_FinancialSystemAccount.Request();
+		flagReq.accountId = acc.Id;
+		List<Inv_FinancialSystemAccount.Response> flagged = Inv_FinancialSystemAccount.syncAccounts(new List<Inv_FinancialSystemAccount.Request>{ flagReq });
+		System.assert(flagged[0].success);
+		System.assertEquals(true, account().SyncToFinancialSystem__c, 'Flagged for the batch');
+
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+		Inv_FinancialSystemAccount.Request nowReq = new Inv_FinancialSystemAccount.Request();
+		nowReq.accountId = acc.Id;
+		nowReq.syncNow = true;
+		Test.startTest();
+		List<Inv_FinancialSystemAccount.Response> synced = Inv_FinancialSystemAccount.syncAccounts(new List<Inv_FinancialSystemAccount.Request>{ nowReq });
+		Test.stopTest();
+		System.assert(synced[0].success, synced[0].message);
+		System.assertEquals(false, account().SyncToFinancialSystem__c);
+	}
+
+	@IsTest
+	static void directDebitWithoutBankAccount_syncsAccount_softWarning() {
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, Payment_Method_Contracts__c = 'I8', Bank_Account_Number__c = null, Bank_Account__c = null),
+			AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		Account after = account();
+		System.assertEquals('acc-guid-1', after.FinancialIdAccount__c, 'Account is in Exact despite the missing bank account');
+		if (!FeatureManagement.checkPermission('cp_miIntegrationSkipDataCheck')) {
+			System.assert(!r.success);
+			System.assert(String.join(r.messages, ' ').contains('bank account is not filled in'), r.messages + '');
+			System.assertEquals(true, after.SyncToFinancialSystem__c, 'Stays flagged until the bank account is filled in');
+			System.assertEquals(0, Svc_FinancialSystemSyncAlert.notified.size() + Svc_FinancialSystemSyncAlert.casesCreated.size(), 'Soft: never alerts');
+		}
+		System.assertEquals(0, sim.count('POST Bank') + sim.count('POST Mandate'), sim.calls);
+	}
+
+	@IsTest
+	static void requiresBankDetails_ukDirectDebitExempt() {
+		for (String method : Util_System.requireBankDetails) {
+			System.assertEquals(false, Util_FinancialSystemAccount.requiresBankDetails(new Account(Reseller_Name__c = '6', Payment_Method_Contracts__c = method)), 'UK ' + method);
+			System.assertEquals(true, Util_FinancialSystemAccount.requiresBankDetails(new Account(Reseller_Name__c = '1', Payment_Method_Contracts__c = method)), 'NL ' + method);
+		}
+	}
+
+	@IsTest
+	static void backoff_growsAndParks() {
+		Datetime now = System.now();
+		System.assert(Util_FinancialSystem.nextAttempt(1) <= now.addMinutes(16));
+		System.assert(Util_FinancialSystem.nextAttempt(3) >= now.addMinutes(59));
+		System.assert(Util_FinancialSystem.nextAttempt(7) <= now.addHours(25));
+		System.assert(Util_FinancialSystem.nextAttempt(Util_FinancialSystemAccount.MAX_ATTEMPTS) >= now.addDays(6), 'Parked');
+	}
+
+	@IsTest
+	static void state_unreadable_meansFullResync() {
+		System.assertEquals(new Map<String, String>(), Util_FinancialSystemAccount.readState('not json'));
+		System.assertEquals(new Map<String, String>(), Util_FinancialSystemAccount.readState(null));
+	}
+
+	/** Account synchronised once (ids + fingerprints stored), plus a second contact on it. */
+	public static Contact syncedAccountWithSecondContact() {
+		Account acc = account();
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Contact second = Test_Data.createContact(acc.Id, 'Second', null, 'second@sync.test', true);
+		Database.update(new Account(Id = acc.Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+		return second;
+	}
+
+	public static AccountContactRelation relation(Id contactId) {
+		return [
+			SELECT Id, Sync_To_Financial_System__c, FinancialIdContact__c FROM AccountContactRelation
+			WHERE ContactId = :contactId AND Account.Name LIKE 'Sync Account%' WITH SYSTEM_MODE
+		];
+	}
+
+	@IsTest
+	static void contactStep_relationWithExactId_isPutWithoutAccountSync() {
+		Contact second = syncedAccountWithSecondContact();
+		AccountContactRelation acr = relation(second.Id);
+		Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'con-guid-second', Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Contact(Id = second.Id, LastName = 'Renamed'), AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = account().Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncFlaggedContacts(new Set<Id>{ acr.Id }, true);
+		Test.stopTest();
+
+		System.assertEquals(new List<String>{ 'PUT Contact' }, sim.calls, 'Only the contact is sent');
+		System.assert(sim.body('PUT Contact').contains('Renamed'), sim.bodies);
+		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c, 'Relation flag cleared');
+		System.assertEquals(false, account().SyncToFinancialSystem__c, 'No account sync needed');
+		System.assert(account().FinancialSyncState__c.contains('contact:' + second.Id), 'Contact fingerprint stored on the account');
+	}
+
+	@IsTest
+	static void contactStep_unchangedContact_noCall() {
+		// the main contact was sent by the account sync: its fingerprint is in the account state
+		syncedAccountWithSecondContact();
+		Account acc = account();
+		AccountContactRelation acr = relation(acc.Contact_person__c);
+		System.assertNotEquals(null, acr.FinancialIdContact__c);
+		Database.update(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncFlaggedContacts(new Set<Id>{ acr.Id }, true);
+		Test.stopTest();
+		System.assertEquals(new List<String>(), sim.calls, 'Fingerprint unchanged');
+		System.assertEquals(false, relation(acc.Contact_person__c).Sync_To_Financial_System__c);
+	}
+
+	@IsTest
+	static void contactStep_noExactId_withShippingRole_flagsAccount() {
+		Contact second = syncedAccountWithSecondContact();
+		AccountContactRelation acr = relation(second.Id);
+		Database.update(new AccountContactRelation(Id = acr.Id, Roles = 'Shipping'), AccessLevel.SYSTEM_MODE);
+		Database.update(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = account().Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncFlaggedContacts(new Set<Id>{ acr.Id }, true);
+		Test.stopTest();
+		System.assertEquals(new List<String>(), sim.calls);
+		System.assertEquals(true, account().SyncToFinancialSystem__c, 'The account sync creates the contact and links it to the address');
+		System.assertEquals(true, relation(second.Id).Sync_To_Financial_System__c, 'Left to the account sync');
+	}
+
+	@IsTest
+	static void contactStep_noExactId_noRole_isCleared() {
+		Contact second = syncedAccountWithSecondContact();
+		AccountContactRelation acr = relation(second.Id);
+		Database.update(new AccountContactRelation(Id = acr.Id, Roles = null, Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = account().Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncFlaggedContacts(new Set<Id>{ acr.Id }, true);
+		Test.stopTest();
+		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c);
+		System.assertEquals(false, account().SyncToFinancialSystem__c, 'Not relevant for Exact');
+	}
+
+	@IsTest
+	static void contactStep_roleRemoved_retiresExactContact() {
+		Contact second = syncedAccountWithSecondContact();
+		AccountContactRelation acr = relation(second.Id);
+		Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'con-guid-second', Roles = null, Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = account().Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncFlaggedContacts(new Set<Id>{ acr.Id }, true);
+		Test.stopTest();
+
+		String body = sim.body('PUT Contact');
+		System.assertNotEquals(null, body, sim.calls);
+		System.assert(body.contains(Util_FinancialSystemAccount.DO_NOT_USE.trim()), body);
+		System.assert(body.contains('"Email":""'), 'Email cleared: ' + body);
+		System.assert(body.contains('"IsMailingExcluded":true'), body);
+		System.assert(body.contains('"EndDate":"' + Datetime.now().formatGmt('yyyy-MM-dd')), 'Ended today (inactive): ' + body);
+		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c);
+		System.assert(account().FinancialSyncState__c.contains(Util_FinancialSystemAccount.STATE_RETIRED), 'Retired state stored');
+	}
+
+	@IsTest
+	static void contactStep_roleBack_restoresExactContact() {
+		Contact second = syncedAccountWithSecondContact();
+		AccountContactRelation acr = relation(second.Id);
+		Account acc = account();
+		Map<String, Object> state = (Map<String, Object>) JSON.deserializeUntyped(acc.FinancialSyncState__c);
+		state.put('contact:' + second.Id, Util_FinancialSystemAccount.STATE_RETIRED + 'old');
+		Database.update(new Account(Id = acc.Id, FinancialSyncState__c = JSON.serialize(state), SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+		Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'con-guid-second', Roles = 'Digital', Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = acc.Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncFlaggedContacts(new Set<Id>{ acr.Id }, true);
+		Test.stopTest();
+
+		String body = sim.body('PUT Contact');
+		System.assertNotEquals(null, body, sim.calls);
+		System.assert(!body.contains(Util_FinancialSystemAccount.DO_NOT_USE.trim()), body);
+		System.assert(body.contains('"EndDate":null') && body.contains('"IsMailingExcluded":false'), 'Reactivated: ' + body);
+		System.assert(body.contains('second@sync.test'), 'Email back: ' + body);
+	}
+
+	@IsTest
+	static void contactRequest_alreadyRetired_keepsEndDate() {
+		Contact con = new Contact(FirstName = 'A', LastName = 'B', Email = 'a@b.test');
+		AccountContactRelation acr = new AccountContactRelation(Roles = null);
+		acr.Contact = con;
+		Util_FinancialSystemAccount.ContactRequest first = new Util_FinancialSystemAccount.ContactRequest('acc', acr, true, 'plainhash');
+		Util_FinancialSystemAccount.ContactRequest again = new Util_FinancialSystemAccount.ContactRequest('acc', acr, true, first.fingerprint);
+		System.assert(first.body.contains('EndDate'), first.body);
+		System.assert(!again.body.contains('EndDate'), 'A change of a retired contact does not move its end date: ' + again.body);
+		System.assertEquals(first.fingerprint, again.fingerprint);
+		Util_FinancialSystemAccount.ContactRequest active = new Util_FinancialSystemAccount.ContactRequest('acc', acr, false, null);
+		System.assert(!active.body.contains('EndDate') && !active.body.contains('IsMailingExcluded'), 'Active contact body unchanged: ' + active.body);
+	}
+
+	@IsTest
+	static void contactBatch_runsTheContactStep() {
+		Contact second = syncedAccountWithSecondContact();
+		AccountContactRelation acr = relation(second.Id);
+		Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'con-guid-second', Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Contact(Id = second.Id, LastName = 'Batch'), AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = account().Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+		insert new Subscription25__Schedulable_Class__c(Name = 'Batch_FinancialSystemContactSync', Subscription25__Unique_Name__c = 'Batch_FinancialSystemContactSync');
+
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+		Test.startTest();
+		Batch_FinancialSystemContactSync batch = new Batch_FinancialSystemContactSync();
+		batch.setDispatcher(null);
+		System.assertEquals(25, batch.getBatchSize());
+		Database.executeBatch(batch);
+		Test.stopTest();
+		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c);
+	}
+
+	@IsTest
+	static void accountSync_alsoSendsFlaggedRelationOutsideTheRoles() {
+		Contact second = syncedAccountWithSecondContact();
+		AccountContactRelation acr = relation(second.Id);
+		Database.update(new AccountContactRelation(Id = acr.Id, FinancialIdContact__c = 'con-guid-second', Sync_To_Financial_System__c = true), AccessLevel.SYSTEM_MODE);
+		Database.update(new Contact(Id = second.Id, LastName = 'Changed'), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ account().Id }, true);
+		Test.stopTest();
+		System.assertEquals(1, sim.count('PUT Contact'), sim.calls);
+		System.assert(sim.body('PUT Contact').contains('con-guid-second') || sim.body('PUT Contact').contains('Changed'), sim.bodies);
+		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c);
+	}
+
+	@IsTest
+	static void invoiceAddress_notSupplied_otherInvoiceContact_usesEstablishmentAddress() {
+		Account acc = account();
+		Contact billing = Test_Data.createContact(acc.Id, 'Billing', null, 'billing@sync.test', true);
+		Database.update(new Account(Id = acc.Id, Contact_Billing__c = billing.Id,
+			InvoiceAddress__Street__s = null, InvoiceAddress__PostalCode__s = null, InvoiceAddress__City__s = null), AccessLevel.SYSTEM_MODE);
+		acc = account();
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		String body = sim.body('POST Address');
+		System.assertNotEquals(null, body, 'Invoice address created for the other invoice contact: ' + sim.calls);
+		System.assert(body.contains('"Type":3') && body.contains('"Main":true'), body);
+		if (String.isBlank(acc.InvoiceAddress__Street__s)) {
+			System.assert(body.contains(acc.BillingStreet.escapeJava()) || body.contains(acc.BillingStreet), 'Establishment address used: ' + body);
+		}
+		System.assertNotEquals(null, account().FinancialIdInvoiceAddress__c);
+	}
+
+	@IsTest
+	static void invoiceAddress_existing_keptUpToDate_whenEqualToEstablishmentAgain() {
+		// in Exact with an invoice address created earlier; now address and contact equal the establishment again
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-1', FinancialDebtorNumber__c = '12345', FinancialDebtorCheck__c = true,
+			FinancialIdInvoiceAddress__c = 'address-guid-old', Contact_Billing__c = acc.Contact_person__c,
+			InvoiceAddress__Street__s = acc.BillingStreet, InvoiceAddress__PostalCode__s = acc.BillingPostalCode,
+			InvoiceAddress__City__s = acc.BillingCity, InvoiceAddress__CountryCode__s = acc.BillingCountryCode), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		System.assertEquals(1, sim.count('PUT Address'), 'Existing invoice address updated, not abandoned: ' + sim.calls);
+		System.assertEquals(0, sim.count('POST Address'), sim.calls);
+		System.assertEquals('address-guid-old', account().FinancialIdInvoiceAddress__c);
+	}
+
+	@IsTest
+	static void invoiceAddress_firstSync_takesOverExistingMainAddress() {
+		// already in Exact (e.g. legacy sync) with a Main invoice address that Salesforce does not know yet
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-1', FinancialDebtorNumber__c = '12345', FinancialDebtorCheck__c = true,
+			InvoiceAddress__Street__s = 'Postbus 226', InvoiceAddress__PostalCode__s = '7600 AE', InvoiceAddress__City__s = 'Almelo',
+			InvoiceAddress__CountryCode__s = 'NL'), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		sim.addressLookup = '{"d":{"results":[{"ID":"address-guid-legacy"}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		System.assertEquals(0, sim.count('POST Address'), 'No second invoice address: ' + sim.calls);
+		System.assertEquals(1, sim.count('PUT Address'), 'Existing Main address overwritten: ' + sim.calls);
+		String body = sim.body('PUT Address');
+		System.assert(body.contains('Postbus 226') && body.contains('"Main":true'), body);
+		System.assertEquals('address-guid-legacy', account().FinancialIdInvoiceAddress__c);
+	}
+
+	@IsTest
+	static void accountSync_retiresQueuedRemovedContacts() {
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-1', FinancialDebtorNumber__c = '12345', FinancialDebtorCheck__c = true,
+			FinancialContactsToRetire__c = '[{"id":"con-removed","firstName":"Old","lastName":"Person"}]'), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		String body;
+		for (String b : sim.bodies) {
+			if (b.startsWith('PUT Contact') && b.contains('Person (DO NOT USE)')) {
+				body = b;
+			}
+		}
+		System.assertNotEquals(null, body, 'Removed contact retired: ' + sim.bodies);
+		System.assert(body.contains('"Email":""') && body.contains('"IsMailingExcluded":true') && body.contains('EndDate'), body);
+		System.assertEquals(null, [SELECT FinancialContactsToRetire__c FROM Account WHERE Id = :acc.Id WITH SYSTEM_MODE].FinancialContactsToRetire__c, 'Queue emptied');
+	}
+
+	@IsTest
+	static void draftHardwareOrder_withoutDebtorNumber_flagsAccount() {
+		Account acc = account();
+		Subscription25__Administration__c admin = [SELECT Id FROM Subscription25__Administration__c WITH SYSTEM_MODE LIMIT 1];
+		Test_Data.createDebtorNumber(admin.Id, acc.Id, true);
+		Database.update(new Account(Id = acc.Id, FinancialDebtorNumber__c = null, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+		Order ord = Test_Data.createOrder(acc.Id, admin.Id, Date.today(), false);
+		ord.Type = 'Hardware';
+		ord.Status = 'Draft';
+		Test.startTest();
+		Database.insert(ord);
+		Test.stopTest();
+		System.assertEquals(true, account().SyncToFinancialSystem__c, 'Account queued for the financial system');
+	}
+
+	@IsTest
+	static void save_writesOnlyTheSyncFieldsOfARelation() {
+		Account acc = account();
+		AccountContactRelation acr = [SELECT Id, Roles, FinancialIdContact__c, Sync_To_Financial_System__c, isMainContact__c
+			FROM AccountContactRelation WHERE AccountId = :acc.Id LIMIT 1];
+		acr.FinancialIdContact__c = 'con-guid';
+		acr.Sync_To_Financial_System__c = false;
+		Map<String, Object> saved = Util_FinancialSystemAccount.syncOwnedFields(acr).getPopulatedFieldsAsMap();
+		System.assertEquals(new Set<String>{ 'Id', 'FinancialIdContact__c', 'Sync_To_Financial_System__c' }, saved.keySet(),
+			'Roles (and the rest of the queried record) are never written back');
+		System.assertEquals('con-guid', saved.get('FinancialIdContact__c'));
+	}
+}
