@@ -120,3 +120,11 @@ Dev rerun of the acc race (848768): Mart held Payment;Reminder;Service, platform
 → Mart = Service only, Chris Sales;Main;Shipping;Payment, Afdeling ASR;Reminder;Invoice;Digital, lookups correct immediately.
 Tests: Test_Svc_AccountContactRelationRoles 6/6 (90%), with Test_Rest_UpsertAccount + Test_Svc_FinancialSystemContactRemoval 36/36;
 20 role/lookup test classes: 177/190, the 13 failures are dev setup only (no integration user, no MI connection config).
+
+### acc round 2026-10-15 – Apex roles logic (acc 0AfG500000T1DiTKAV, 36/36; rab_AccountContactRelation_Roles deactivated in acc)
+- REBEL Lease 748769 (001G500001Th3RGIAZ): 3 calls → Chris Main;Payment;Shipping, Afdeling Digital;Invoice;Reminder, Mart none.
+  Race scenario (Mart Payment;Reminder;Service, Chris/Afdeling without) + platform call → Mart Service only, Chris
+  Main;Payment;Sales;Shipping, Afdeling ASR;Digital;Invoice;Reminder.
+- 12 replayed prod accounts with random roles first: every unique role on at most one contact, lookups on the owners,
+  Sales/Service/ASR untouched on all.
+- Leftover test data from the flow era: REBEL 748768 (001G500001TgOuMIAV) still has Payment on Chris and Mart (pre-fix).
