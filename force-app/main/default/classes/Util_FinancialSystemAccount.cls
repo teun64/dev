@@ -15,6 +15,8 @@
  *                  first sync takes over (overwrites) the existing Main address of that type in Exact, if any.
  *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST;
  *                  an existing, not cancelled mandate of the bank account is reused before a new one is created
+ *                  (first sync); after a real change of IBAN / holder name the old mandate is deleted (else
+ *                  cancelled), the old bank account deleted when Exact allows it, and a new mandate created
  * A relation without an Exact contact id is first matched against the Exact account's contacts (email, then name)
  * before a new Exact contact is created (no duplicates on the first sync of an existing account); a stored id that no
  * longer exists in Exact (403 / 404 and not among the account's Exact contacts) is dropped and matched again.
@@ -994,7 +996,12 @@ public without sharing class Util_FinancialSystemAccount {
 		String fingerprint = Util_FinancialSystemAccount.hash(body);
 		String endpoint = String.format(BANK_ACCOUNT_ENDPOINT, new List<String>{ division });
 		String previousBankId = acct.FinancialIdBankAccount__c;
+		String previousMandateId = acct.FinancialIdBankMandate__c;
 		Boolean bankChanged = String.isBlank(previousBankId) || fingerprint != ctx.state.get(STATE_BANK);
+		// a real change of the bank details since this sync last sent them (IBAN or holder name): the old mandate cannot be
+		// used any more (deleted, else cancelled) and a new one is created. Not on the first sync of an account (no bank
+		// fingerprint yet): then the existing bank account and mandate in Exact are taken over (user 2026-10-15)
+		Boolean realChange = ctx.state.containsKey(STATE_BANK) && fingerprint != ctx.state.get(STATE_BANK);
 
 		if (bankChanged) {
 			String bankId;
@@ -1025,6 +1032,7 @@ public without sharing class Util_FinancialSystemAccount {
 						ctx.result.calls++;
 						resetMandate = existing.Main != true;
 					}
+					resetMandate |= realChange;
 				} else {
 					response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
 					ctx.result.calls++;
@@ -1034,6 +1042,13 @@ public without sharing class Util_FinancialSystemAccount {
 					bankId = ((Util_FinancialSystemAccount.ExactBankAccount) JSON.deserialize(response, Util_FinancialSystemAccount.ExactBankAccount.class)).ID;
 					resetMandate = true;
 				}
+			}
+			if (realChange && String.isNotBlank(previousMandateId)) {
+				Util_FinancialSystemAccount.retireMandate(ctx, previousMandateId, division, guid);
+			}
+			if (realChange && String.isNotBlank(previousBankId) && bankId != previousBankId) {
+				// an Exact bank account number cannot be changed: the old bank account goes when Exact allows it
+				Util_FinancialSystemAccount.deleteBankAccount(ctx, previousBankId, endpoint, guid);
 			}
 			if (bankId != previousBankId || resetMandate) {
 				// a new / re-activated bank account needs a new mandate
@@ -1050,7 +1065,8 @@ public without sharing class Util_FinancialSystemAccount {
 		if (String.isBlank(acct.FinancialIdBankMandate__c) && String.isNotBlank(acct.FinancialIdBankAccount__c)
 				&& Util_FinancialSystemAccount.requiresBankDetails(acct)) {
 			String mandateEndpoint = String.format(MANDATE_ENDPOINT, new List<String>{ division });
-			String existingId = Util_FinancialSystemAccount.findMandate(ctx, mandateEndpoint, guid);
+			// after a real change of the bank details a new mandate is always created
+			String existingId = realChange ? null : Util_FinancialSystemAccount.findMandate(ctx, mandateEndpoint, guid);
 			if (existingId != null) {
 				acct.FinancialIdBankMandate__c = existingId;
 			} else {
@@ -1062,6 +1078,41 @@ public without sharing class Util_FinancialSystemAccount {
 			}
 			ctx.accountDirty = true;
 		}
+	}
+
+	/** Fingerprint of the bank details as the sync stores it (tests set up a previous sync with it). */
+	@TestVisible
+	private static String bankFingerprint(Account acct) {
+		return Util_FinancialSystemAccount.hash(new Util_FinancialSystemAccount.ExactBankAccount(acct));
+	}
+
+	/** Removes a mandate that can no longer be used: DELETE, else (already used for a collection) cancelled. */
+	private static void retireMandate(Util_FinancialSystemAccount.Ctx ctx, String mandateId, String division, String guid) {
+		String endpoint = String.format(MANDATE_ENDPOINT, new List<String>{ division }) + '(guid\'' + mandateId + '\')';
+		try {
+			Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'DELETE', null, guid);
+			ctx.result.calls++;
+		} catch (Util_System.FinancialSyncException e) {
+			ctx.result.calls++;
+			try {
+				Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'PUT',
+					JSON.serialize(new Map<String, Object>{ 'CancellationDate' => Util_System.formatDate(Date.today(), 'yyyy-MM-dd') }), guid);
+				ctx.result.calls++;
+			} catch (Util_System.FinancialSyncException e2) {
+				ctx.result.calls++;
+				ctx.warn('Old mandate ' + mandateId + ' could not be deleted or cancelled: ' + e2.getMessage(), e2);
+			}
+		}
+	}
+
+	/** Best effort: Exact refuses to delete a bank account that is in use; it then stays (not Main any more). */
+	private static void deleteBankAccount(Util_FinancialSystemAccount.Ctx ctx, String bankId, String endpoint, String guid) {
+		try {
+			Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + bankId + '\')', null, 'DELETE', null, guid);
+		} catch (Util_System.FinancialSyncException e) {
+			// in use (collections / payments): kept
+		}
+		ctx.result.calls++;
 	}
 
 	/** The id of a mandate in Exact for the account's bank account that is not cancelled (Main first), or null. */

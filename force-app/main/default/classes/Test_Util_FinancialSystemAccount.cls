@@ -10,6 +10,8 @@ public class Test_Util_FinancialSystemAccount {
 		public String addressLookup = '{"d":{"results":[]}}';
 		public String contactLookup = '{"d":{"results":[]}}';
 		public String mandateLookup = '{"d":{"results":[]}}';
+		// Exact refuses to delete a mandate that was used for a collection
+		public Boolean mandateDeleteRefused = false;
 		// an Exact contact id that no longer exists: a PUT on it answers 404
 		public String missingContact;
 		private Integer seq = 0;
@@ -38,6 +40,14 @@ public class Test_Util_FinancialSystemAccount {
 				// Exact refuses an account whose main contact does not exist (Xajo / Van Lith, prod 2026-10-15)
 				res.setStatusCode(500);
 				res.setBody('{"error":{"code":"","message":{"lang":"","value":"Ongeldige referentie: Hoofdcontactpersoon"}}}');
+				return res;
+			}
+			if (m == 'DELETE') {
+				Boolean refused = entity == 'Mandate' && this.mandateDeleteRefused;
+				res.setStatusCode(refused ? 400 : 204);
+				if (refused) {
+					res.setBody('{"error":{"code":"","message":{"lang":"","value":"Mandate in use"}}}');
+				}
 				return res;
 			}
 			if (m == 'PUT') {
@@ -951,6 +961,86 @@ public class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 
 		System.assertEquals(1, sim.count('GET Mandate'), sim.calls);
+		System.assertEquals(1, sim.count('POST Mandate'), sim.calls);
+	}
+
+	// ---------------------------------------------------------------- bank details changed after a sync
+
+	/** An account whose bank account + mandate were sent by a previous sync (ids + bank fingerprint stored). */
+	private static Account syncedWithBank() {
+		Account acc = existingInExact(false);
+		Account bank = new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-1', Payment_Method_Contracts__c = 'I8',
+			Bank_Account_Number__c = 'NL91ABNA0417164300', Bank_Account__c = 'Sync Account',
+			FinancialIdBankAccount__c = 'bank-old', FinancialIdBankMandate__c = 'mandate-old');
+		bank.FinancialSyncState__c = JSON.serialize(new Map<String, String>{ 'bank' => Util_FinancialSystemAccount.bankFingerprint(bank) });
+		Database.update(bank, AccessLevel.SYSTEM_MODE);
+		return [SELECT Id, FinancialIdBankAccount__c, FinancialIdBankMandate__c FROM Account WHERE Id = :acc.Id WITH SYSTEM_MODE];
+	}
+
+	private static Boolean called(ExactSim sim, String method, String entity, String id) {
+		for (String b : sim.bodies) {
+			if (b.startsWith(method + ' ' + entity)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@IsTest
+	static void ibanChanged_newBankAccount_oldMandateDeleted_newMandate() {
+		Account before = syncedWithBank();
+		Database.update(new Account(Id = before.Id, Bank_Account_Number__c = 'NL02RABO0123456789'), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ before.Id }, false).get(before.Id);
+		Test.stopTest();
+
+		Account after = [SELECT FinancialIdBankAccount__c, FinancialIdBankMandate__c FROM Account WHERE Id = :before.Id WITH SYSTEM_MODE];
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assertEquals(1, sim.count('POST Bank'), 'New IBAN = new Exact bank account: ' + sim.calls);
+		System.assertEquals(1, sim.count('DELETE Mandate'), 'Old mandate deleted: ' + sim.calls);
+		System.assertEquals(1, sim.count('DELETE Bank'), 'Old bank account removed: ' + sim.calls);
+		System.assertEquals(0, sim.count('GET Mandate'), 'No reuse after a change: ' + sim.calls);
+		System.assertEquals(1, sim.count('POST Mandate'), sim.calls);
+		System.assertNotEquals(before.FinancialIdBankAccount__c, after.FinancialIdBankAccount__c);
+		System.assertNotEquals(before.FinancialIdBankMandate__c, after.FinancialIdBankMandate__c);
+	}
+
+	@IsTest
+	static void holderNameChanged_sameBankAccount_newMandate() {
+		Account before = syncedWithBank();
+		Database.update(new Account(Id = before.Id, Bank_Account__c = 'Sync Account B.V.'), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		sim.bankLookup = '{"d":{"results":[{"ID":"bank-old","BankAccount":"NL91ABNA0417164300","BankAccountHolderName":"Sync Account","Main":true}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ before.Id }, false);
+		Test.stopTest();
+
+		System.assertEquals(1, sim.count('PUT Bank'), 'Holder name updated: ' + sim.calls);
+		System.assertEquals(0, sim.count('DELETE Bank'), 'Same bank account stays: ' + sim.calls);
+		System.assertEquals(1, sim.count('DELETE Mandate'), sim.calls);
+		System.assertEquals(1, sim.count('POST Mandate'), sim.calls);
+	}
+
+	@IsTest
+	static void oldMandateInUse_isCancelledInstead() {
+		Account before = syncedWithBank();
+		Database.update(new Account(Id = before.Id, Bank_Account_Number__c = 'NL02RABO0123456789'), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		sim.mandateDeleteRefused = true;
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ before.Id }, false).get(before.Id);
+		Test.stopTest();
+
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assertEquals(1, sim.count('PUT Mandate'), 'Cancelled (CancellationDate): ' + sim.calls);
+		System.assert(sim.body('PUT Mandate').contains('CancellationDate'), sim.body('PUT Mandate'));
 		System.assertEquals(1, sim.count('POST Mandate'), sim.calls);
 	}
 }
