@@ -1,0 +1,13 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<div style="margin:0 0 24px 0;padding:16px 20px;border:1px solid #E0E0E0;background-color:#F7F7F5;font-family:Arial,sans-serif;">
+<p style="font-size:14px;margin:0 0 12px 0;color:#0E0F0E;"><strong>Please authorise your Direct Debit</strong></p>
+<p style="font-size:14px;margin:0 0 16px 0;color:#5B625B;">This invoice will be collected by Direct Debit. To make this possible, we kindly ask you to authorise your bank account via the secure link below. It only takes a few minutes and your bank details are handled securely.</p>
+<table cellpadding="0" cellspacing="0" style="margin:0 0 16px 0;"><tr><td style="background-color:#003087;padding:0;"><a href="{{{Payment__c.Setup_URL__c}}}" style="display:inline-block;padding:12px 28px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;color:#FFFFFF;text-decoration:none;">Authorise Direct Debit</a></td></tr></table>
+<p style="font-size:12px;margin:0;color:#777777;">Or copy this link into your browser:<br/><a href="{{{Payment__c.Setup_URL__c}}}" style="color:#003087;">{{{Payment__c.Setup_URL__c}}}</a></p>
+</div>
+</body>
+</html>

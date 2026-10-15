@@ -50,6 +50,37 @@
         <nameSegment>Svc_PaymentIntent</nameSegment>
         <offset>0</offset>
     </actionCalls>
+    <actionCalls>
+        <description>The invoice email (package, ~nightly) carries the mandate request: put the direct debit block on the invoice.</description>
+        <name>act_03_Invoice_Payment_Block</name>
+        <label>3. Invoice Payment Block</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Svc_InvoicePaymentBlock</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>dec_05_Invoice_Payment_Block</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>action</name>
+            <value>
+                <stringValue>fill</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>paymentId</name>
+            <value>
+                <elementReference>paymentRecord.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>Svc_InvoicePaymentBlock</nameSegment>
+        <offset>0</offset>
+        <outputParameters>
+            <assignToReference>vInvoiceBlockDone</assignToReference>
+            <name>done</name>
+        </outputParameters>
+    </actionCalls>
     <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -251,6 +282,47 @@
             <targetReference>ass_01_Payment_Message</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <description>Invoice email still PENDING: the mandate request goes out with the invoice email. 'Mail Sent' (and with it the reminders) follows when the invoice email is sent (rau_Subscription25_Invoice_c_Email_Status) or after the safety net (rab_Payment_Direct_Debit_Awaiting_Invoice).</description>
+        <name>ass_02_Awaiting_Invoice_Email</name>
+        <label>2. Awaiting Invoice Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vInvoiceBlock</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>paymentRecord.Interaction_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Awaiting Invoice Email</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Payment_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>The block could not be put on the invoice (no link / render failed): send the separate setup email after all.</description>
+        <name>ass_03_Mail_Sent_Fallback</name>
+        <label>3. Mail Sent (Fallback)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>paymentRecord.Interaction_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Mail Sent</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dur_02_Payment</targetReference>
+        </connector>
+    </assignments>
     <constants>
         <name>cPaymentIntentSetupFutureUsage</name>
         <dataType>String</dataType>
@@ -303,6 +375,21 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_DirectDebitSetupMail_InvoiceBlock</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>vInvoiceBlock</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>act_03_Invoice_Payment_Block</targetReference>
+            </connector>
+            <label>Invoice Block</label>
+        </rules>
         <rules>
             <name>dec_01_DirectDebitSetupMail_Send</name>
             <conditionLogic>and</conditionLogic>
@@ -492,7 +579,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
+                <targetReference>dgr_04_Invoice</targetReference>
             </connector>
             <label>Customer Exists</label>
         </rules>
@@ -517,9 +604,63 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
+                <targetReference>dgr_04_Invoice</targetReference>
             </connector>
             <label>Created</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_04_Invoice_Email</name>
+        <label>4. Invoice Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_Sent_Direct_Debit_Setup_Mail</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Separate Setup Mail</defaultConnectorLabel>
+        <rules>
+            <name>dec_04_Invoice_Email_Pending</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>invoiceRecord.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>invoiceRecord.Subscription25__Email_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>PENDING</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_02_Awaiting_Invoice_Email</targetReference>
+            </connector>
+            <label>Pending</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_05_Invoice_Payment_Block</name>
+        <label>5. Invoice Payment Block</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_03_Mail_Sent_Fallback</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Done</defaultConnectorLabel>
+        <rules>
+            <name>dec_05_Invoice_Payment_Block_Done</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>vInvoiceBlockDone</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Done</label>
         </rules>
     </decisions>
     <environments>Default</environments>
@@ -663,6 +804,29 @@
         <object>Payment__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>dgr_04_Invoice</name>
+        <label>4. Invoice</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_04_Invoice_Email</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>paymentRecord.Invoice__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Subscription25__Invoice__c</object>
+        <outputReference>invoiceRecord</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Subscription25__Email_Status__c</queriedFields>
+    </recordLookups>
     <recordUpdates>
         <name>dur_01_Payment</name>
         <label>1. Payment</label>
@@ -670,6 +834,16 @@
         <locationY>0</locationY>
         <connector>
             <targetReference>act_02_Prepare_Payment_Provider_Intent</targetReference>
+        </connector>
+        <inputReference>paymentRecord</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>dur_02_Payment</name>
+        <label>2. Payment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>act_01_Payment_Direct_Debit_Setup_Send_Mail</targetReference>
         </connector>
         <inputReference>paymentRecord</inputReference>
     </recordUpdates>
@@ -834,5 +1008,33 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>invoiceRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Subscription25__Invoice__c</objectType>
+    </variables>
+    <variables>
+        <name>vInvoiceBlock</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>vInvoiceBlockDone</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
     </variables>
 </Flow>

@@ -11,6 +11,11 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
+                <fullName>Awaiting Invoice Email</fullName>
+                <default>false</default>
+                <label>Awaiting Invoice Email</label>
+            </value>
+            <value>
                 <fullName>Mail Sent</fullName>
                 <default>false</default>
                 <label>Mail Sent</label>

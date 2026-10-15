@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Payment - Direct Debit Reminder 1 - DE</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>paymentDirectDebitReminder1_DE</name>
+    <relatedEntityType>Payment__c</relatedEntityType>
+    <style>none</style>
+    <subject>Erinnerung: Lastschriftmandat noch nicht erteilt – {{{Payment__c.Name}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

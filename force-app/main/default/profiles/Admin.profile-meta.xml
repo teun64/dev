@@ -102,6 +102,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Subscription25__Administration__c.CustomerHub_Site_URL__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Subscription25__Administration__c.CustomerHub_URL__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Subscription25__Administration_Product__c.FinancialSystemIdWarehouse__c</field>
         <readable>true</readable>
     </fieldPermissions>

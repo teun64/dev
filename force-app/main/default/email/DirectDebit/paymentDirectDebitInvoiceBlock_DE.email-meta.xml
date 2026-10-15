@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Payment - Direct Debit block for the invoice email - DE. Not sent on its own: rendered by Svc_InvoicePaymentBlock into Subscription25__Invoice__c.Payment_Setup_Block__c, which the InvoiceNL/UK/DE templates merge.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>paymentDirectDebitInvoiceBlock_DE</name>
+    <relatedEntityType>Payment__c</relatedEntityType>
+    <style>none</style>
+    <subject>Direct Debit block (internal) – {{{Payment__c.Name}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

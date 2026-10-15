@@ -255,6 +255,34 @@
         <dataType>String</dataType>
         <expression>&apos;Direct Debit Escalation — No Authorisation Received: &apos; &amp; {!$Record.Name}</expression>
     </formulas>
+    <formulas>
+        <description>Same country->language mapping as afl_PaymentDirectDebitSetup_SendMail.fMailTemplate (Contact.Language__c is a country code); EN for every language without its own template (FR included).</description>
+        <name>fTemplateReminder1</name>
+        <dataType>String</dataType>
+        <expression>&apos;paymentDirectDebitReminder1_&apos; + CASE(TEXT({!$Record.Contact__r.Language__c}),
+&apos;NL&apos;,&apos;NL&apos;,
+&apos;BE&apos;,&apos;NL&apos;,
+&apos;AN&apos;,&apos;NL&apos;,
+&apos;DE&apos;,&apos;DE&apos;,
+&apos;AT&apos;,&apos;DE&apos;,
+&apos;CH&apos;,&apos;DE&apos;,
+&apos;LU&apos;,&apos;DE&apos;,
+&apos;EN&apos;)</expression>
+    </formulas>
+    <formulas>
+        <description>Same country->language mapping as afl_PaymentDirectDebitSetup_SendMail.fMailTemplate (Contact.Language__c is a country code); EN for every language without its own template (FR included).</description>
+        <name>fTemplateReminder2</name>
+        <dataType>String</dataType>
+        <expression>&apos;paymentDirectDebitReminder2_&apos; + CASE(TEXT({!$Record.Contact__r.Language__c}),
+&apos;NL&apos;,&apos;NL&apos;,
+&apos;BE&apos;,&apos;NL&apos;,
+&apos;AN&apos;,&apos;NL&apos;,
+&apos;DE&apos;,&apos;DE&apos;,
+&apos;AT&apos;,&apos;DE&apos;,
+&apos;CH&apos;,&apos;DE&apos;,
+&apos;LU&apos;,&apos;DE&apos;,
+&apos;EN&apos;)</expression>
+    </formulas>
     <interviewLabel>rab - Payment - Direct Debit - Escalation {!$Flow.CurrentDateTime}</interviewLabel>
     <label>rab - Payment - Direct Debit - Escalation</label>
     <processMetadataValues>
@@ -451,7 +479,7 @@
             <field>DeveloperName</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>paymentDirectDebitReminder1_EN</stringValue>
+                <elementReference>fTemplateReminder1</elementReference>
             </value>
         </filters>
         <object>EmailTemplate</object>
@@ -474,7 +502,7 @@
             <field>DeveloperName</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>paymentDirectDebitReminder2_EN</stringValue>
+                <elementReference>fTemplateReminder2</elementReference>
             </value>
         </filters>
         <object>EmailTemplate</object>

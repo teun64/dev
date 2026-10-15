@@ -1,0 +1,13 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<div style="margin:0 0 24px 0;padding:16px 20px;border:1px solid #E0E0E0;background-color:#F7F7F5;font-family:Arial,sans-serif;">
+<p style="font-size:14px;margin:0 0 12px 0;color:#0E0F0E;"><strong>Machtig uw automatische incasso</strong></p>
+<p style="font-size:14px;margin:0 0 16px 0;color:#5B625B;">Deze factuur wordt via automatische incasso voldaan. Om dit mogelijk te maken, vragen wij u vriendelijk uw bankrekening te machtigen via de beveiligde link hieronder. Het invullen duurt slechts een paar minuten en uw bankgegevens worden veilig verwerkt.</p>
+<table cellpadding="0" cellspacing="0" style="margin:0 0 16px 0;"><tr><td style="background-color:#003087;padding:0;"><a href="{{{Payment__c.Setup_URL__c}}}" style="display:inline-block;padding:12px 28px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;color:#FFFFFF;text-decoration:none;">Machtig automatische incasso</a></td></tr></table>
+<p style="font-size:12px;margin:0;color:#777777;">Of kopieer deze link in uw browser:<br/><a href="{{{Payment__c.Setup_URL__c}}}" style="color:#003087;">{{{Payment__c.Setup_URL__c}}}</a></p>
+</div>
+</body>
+</html>

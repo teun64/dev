@@ -2,7 +2,12 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Setup_URL__c</fullName>
     <externalId>false</externalId>
-    <formula>IF(NOT(ISBLANK(externalId__c)), $Label.CustomerHubBaseURL &amp; &quot;/payment/&quot; &amp; externalId__c, null)</formula>
+    <description>Customer Hub payment page (direct debit authorisation) for this payment: Business Entity CustomerHub_URL__c + /payment?token= + externalId__c. Used as the link in the direct debit email templates and in the invoice email block.</description>
+    <formula>IF(
+    AND(NOT(ISBLANK(externalId__c)), NOT(ISBLANK(Business_Entity__r.CustomerHub_URL__c))),
+    Business_Entity__r.CustomerHub_URL__c &amp; &quot;/payment?token=&quot; &amp; externalId__c,
+    null
+)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Setup URL</label>
     <required>false</required>

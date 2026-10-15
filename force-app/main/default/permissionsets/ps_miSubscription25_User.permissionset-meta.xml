@@ -1690,6 +1690,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Subscription25__Invoice__c.Payment_Setup_Block__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Subscription25__Invoice__c.Subscription25__Administration_Message__c</field>
         <readable>true</readable>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Payment_Setup_Block__c</fullName>
+    <description>HTML block with the direct debit authorisation link, merged into the Lightning invoice email (InvoiceNL/UK/DE). Filled by the payment setup flow only when the invoice email carries the mandate request; empty otherwise.</description>
+    <inlineHelpText>Direct debit authorisation block shown in the invoice email. Filled automatically, do not edit.</inlineHelpText>
+    <label>Payment Setup Block</label>
+    <length>32768</length>
+    <trackHistory>false</trackHistory>
+    <type>Html</type>
+    <visibleLines>10</visibleLines>
+</CustomField>

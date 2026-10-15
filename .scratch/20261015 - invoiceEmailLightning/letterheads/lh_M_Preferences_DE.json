@@ -1,0 +1,6 @@
+{
+ "Name": "lh_M_Preferences_DE",
+ "Description": "Moving Intelligence letterhead (German): lh_M_Service header + footer line with terms and conditions and privacy statement links (logo/knowledge in motion block lives in the template body)",
+ "LetterheadHeader": "<div><img alt=\"mi-email-header\" src=\"https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK\" style=\"max-width: 600px\" title=\"mi-email-header\" /></div>",
+ "LetterheadFooter": "<div style=\"padding: 0px 10px 10px 10px; font-family:Arial, sans-serif; font-size: 11px; line-height: 18px; color: #8A8F8A;\">F&uuml;r alle unsere Leistungen gelten unsere Allgemeinen Gesch&auml;ftsbedingungen. Lesen Sie unsere <a href=\"https://movingintelligence.de/agb\" style=\"color:#5B625B;\">AGB</a> und unsere <a href=\"https://movingintelligence.de/datenschutzerklaerung\" style=\"color:#5B625B;\">Datenschutzerkl&auml;rung</a>.</div>"
+}

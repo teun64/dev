@@ -1,0 +1,46 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="height: auto; min-height: auto;">
+<div style="padding: 10px 28px; font-family:Arial,sans-serif; font-size:14px; color:#5B625B;">
+
+<p style="font-size:16px;line-height:1.6;margin:0 0 16px 0;color:#0E0F0E;"><strong>Beste {{{Recipient.Salutation}}} {{{Recipient.Full_Name__c}}},</strong></p>
+
+<p style="font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+    Bedankt dat u klant bent van Moving Intelligence.
+</p>
+
+<p style="font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+    Graag verwijzen wij u naar de bijlage van dit e-mailbericht, hierin treft u onze verkoopfactuur met nummer
+    <strong>{{{Subscription25__Invoice__c.Subscription25__Invoice_Number__c}}}</strong> aan.
+</p>
+
+{{{Subscription25__Invoice__c.Payment_Setup_Block__c}}}
+
+<p style="font-size:14px;line-height:1.6;margin:0 0 24px 0;">
+    Indien u vragen heeft over deze factuur, kunt u contact opnemen via
+    <a href="mailto:aftersales@movingintelligence.nl" style="color:#0E0F0E;font-weight:bold;">e-mail</a>.
+</p>
+
+<p style="font-size:14px;line-height:1.6;margin:0 0 8px 0;">
+    Met vriendelijke groet,<br/><br/>
+    <img alt="mi-signature-red-arrow" src="https://movingintelligence.file.force.com/file-asset-public/misignatureredarrow?oid=00D1t000000uTfK" title="mi-signature-red-arrow" />
+</p>
+
+<div style="margin:24px 0 0 0; font-family:Arial,sans-serif;">
+<div style="margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
+<div style="width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&nbsp;</div>
+<div style="font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong>knowledge in motion<span style="color:#FF0000;">.</span></strong><br/>
+<a href="https://movingintelligence.nl" style="color:#5B625B">movingintelligence.nl</a></div>
+</div>
+
+
+<div style="margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:12px; line-height:1.6; color:#5B625B;">
+    Hulp nodig? Bekijk onze <a href="https://movingintelligence.nl/support" style="color:#5B625B;font-weight:bold;">veelgestelde vragen</a>.<br/>
+    U ontvangt deze e-mail omdat u (of namens u) een verzoek bij Moving Intelligence heeft ingediend.
+</div>
+
+</div>
+</body>
+</html>
