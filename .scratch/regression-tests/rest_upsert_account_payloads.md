@@ -78,3 +78,23 @@ landing with no role. Ask Teun for the actual request bodies to fill this in.
 - Reminder, Payment, Sales, Service, ASR: never touched. Payload wins over the lookups;
   afl_AccountContactRelation_Roles moves the lookups and keeps one Main/Invoice/Shipping per account.
 Dev run 2026-10-15 (external id 948767): 3 calls stable + Reminder/Payment kept on a 4th call; rerun after the Shipping-with-Main change (848768): 3 calls stable.
+
+### acc run 2026-10-15 (fix deployed 0AfG500000T16kDKAR, role flows activated to the prod versions afl v5 / rab v2)
+- REBEL Lease 748767 (acc 001G500001TfKeSIAV): 3 calls stable, Reminder/Payment kept on a 4th call.
+- 12 prod requests replayed twice each (OAuth_Log__c.Request_Body__c of RestUpsertAccount, salesforceIds cleared):
+  roles identical after create and update; lookups set by the async roles flow.
+
+| Prod event log | Account (ext id, platform) | acc account | Roles after 2 calls |
+| --- | --- | --- | --- |
+| a1ITx0000049JFdMAM | Nerisa Research B.V. (99239, 1) B2B | 001G500001TgSY9IAN | Felipe Admiraal: Main;Invoice;Shipping;Digital |
+| a1ITx0000049IY5MAM | Jelle van der Sanden (124732, 1) B2C | 001G500001TgElLIAV | Jelle van der Sanden: Main;Invoice;Shipping |
+| a1ITx0000049G1eMAE | Roundabout Food & Beverage B.V. (89268, 1) B2B, separate billing | 001G500001TgB5MIAV | Petro Blesing (petro@): Main;Shipping; Petro Blesing (finance@): Invoice;Digital |
+| a1ITx0000049FvBMAU | Thomas Roeleveld (15105, 5) B2C | 001G500001Tg8wiIAB | Thomas Roeleveld: Main;Invoice;Shipping |
+| a1ITx0000048WtFMAU | Klaas Bakker (124735, 1) B2C | 001G500001TgQZaIAN | Klaas Bakker: Main;Invoice;Shipping |
+| a1ITx0000048WWfMAM | Newboyz (31007, 1) B2B | 001G500001TgQXyIAN | Ralph Ernst: Main;Invoice;Shipping;Digital |
+| a1ITx0000048O4TMAU | L.I. Holding Zeeland B.V. (124733, 1) B2B | 001G500001TgDsWIAV | Pelo De Cock: Main;Invoice;Shipping;Digital |
+| a1ITx0000048BonMAE | Schoen Transport B.V. (75281, 5) B2B | 001G500001TgSjRIAV | Nicolaas Schoen: Main;Invoice;Shipping;Digital |
+| a1ITx00000489BtMAI | Dawn Cottam (84991, 3) B2C | 001G500001TgPAWIA3 | Dawn Cottam: Main;Invoice;Shipping |
+| a1ITx0000047rq5MAA | Open Minded IT B.V. (54970, 1) B2B | 001G500001Tg1wEIAR | Simon van Sleuwen: Main;Invoice;Shipping;Digital |
+| a1ITx0000047lW9MAI | J Kane (85062, 3) B2C | 001G500001TgS9yIAF | J Kane: Main;Invoice;Shipping |
+| a1ITx0000045z3lMAA | FOUTHOUT Academy B.V. (91394, 5) B2B | 001G500001Tg38YIAR | Peter van Eijsden: Main;Invoice;Shipping;Digital |
