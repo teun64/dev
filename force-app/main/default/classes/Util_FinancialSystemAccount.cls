@@ -934,6 +934,23 @@ public without sharing class Util_FinancialSystemAccount {
 
 	// ---------------------------------------------------------------- DML phase
 
+	/**
+	 * A relation as the sync saves it: only the fields the sync owns. The queried record also carries Roles etc. as
+	 * they were when the sync started; saving it whole after the callouts would undo a role change made meanwhile
+	 * (seen in acc 2026-10-15: an UpsertAccount call 12 s earlier was reverted).
+	 */
+	@TestVisible
+	private static AccountContactRelation syncOwnedFields(AccountContactRelation acr) {
+		AccountContactRelation upd = new AccountContactRelation(Id = acr.Id);
+		Map<String, Object> populated = acr.getPopulatedFieldsAsMap();
+		for (String field : new List<String>{ 'FinancialIdContact__c', 'Sync_To_Financial_System__c' }) {
+			if (populated.containsKey(field)) {
+				upd.put(field, populated.get(field));
+			}
+		}
+		return upd;
+	}
+
 	private static void save(List<Util_FinancialSystemAccount.Ctx> contexts) {
 		List<Account> accounts = new List<Account>();
 		List<AccountContactRelation> acrs = new List<AccountContactRelation>();
@@ -1009,7 +1026,9 @@ public without sharing class Util_FinancialSystemAccount {
 			ctx.log.extId__c = acct.FinancialIdAccount__c;
 			ctx.log.Message__c = (ctx.log.Message__c + 'Calls: ' + ctx.result.calls).left(131072);
 			accounts.add(upd);
-			acrs.addAll(ctx.acrsToUpdate.values());
+			for (AccountContactRelation acr : ctx.acrsToUpdate.values()) {
+				acrs.add(Util_FinancialSystemAccount.syncOwnedFields(acr));
+			}
 			logs.add(ctx.log);
 		}
 

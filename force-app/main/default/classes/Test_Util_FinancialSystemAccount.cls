@@ -754,4 +754,17 @@ public class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 		System.assertEquals(true, account().SyncToFinancialSystem__c, 'Account queued for the financial system');
 	}
+
+	@IsTest
+	static void save_writesOnlyTheSyncFieldsOfARelation() {
+		Account acc = account();
+		AccountContactRelation acr = [SELECT Id, Roles, FinancialIdContact__c, Sync_To_Financial_System__c, isMainContact__c
+			FROM AccountContactRelation WHERE AccountId = :acc.Id LIMIT 1];
+		acr.FinancialIdContact__c = 'con-guid';
+		acr.Sync_To_Financial_System__c = false;
+		Map<String, Object> saved = Util_FinancialSystemAccount.syncOwnedFields(acr).getPopulatedFieldsAsMap();
+		System.assertEquals(new Set<String>{ 'Id', 'FinancialIdContact__c', 'Sync_To_Financial_System__c' }, saved.keySet(),
+			'Roles (and the rest of the queried record) are never written back');
+		System.assertEquals('con-guid', saved.get('FinancialIdContact__c'));
+	}
 }
