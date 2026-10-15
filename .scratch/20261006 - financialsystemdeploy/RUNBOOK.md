@@ -505,3 +505,24 @@ sf project deploy start -o prod --metadata-dir ".scratch/20261014 - financialSys
 
 ## Fix 2026-10-15: account sync wrote back stale relation roles (833c9fa)
 `Util_FinancialSystemAccount.save` updated the queried AccountContactRelation records whole after the Exact callouts, so Roles (and every other queried field) went back to how they were when the sync started. acc: the Minut AccountSync reverted an UpsertAccount call made 12 s earlier (Gerard de Nijs, 001G500000sZ6t4IAC). Now only FinancialIdContact__c / Sync_To_Financial_System__c are written (`syncOwnedFields`). dev 0Afbd00000BfvbtCAB + acc 0AfG500000T1G5HKAV, 44/44. **Prod runs the faulty version** (silent package): only the admin "Sync to Exact (new)" button uses it today (short window); deploy the fix before any account step goes live – ship it with the roles package.
+
+## Account contacts & roles – status 2026-10-15 (continue 2026-10-16)
+
+**Live in prod**
+- 09:15 UTC `0AfTx0000013IUTKA2`: Rest_UpsertAccount role rules (platformRoles), Svc_AccountContactRelationRoles (Apex roles logic on the AccountContactRelation trigger, replaces rab_/afl_AccountContactRelation_Roles – rab deactivated), Util_FinancialSystemAccount writes only its own relation fields. 11 live platform calls checked: roles as expected.
+- 10:17 UTC `0AfTx0000013IxVKAU`: Rest_UpsertAccount 64f920c – a visit / billing contact keeps the relation's real platform id + administrator / visible / deleted checkboxes, and is matched by name when its email changed (prod De Duikenburg duplicate of 09:10).
+
+**Data update – prepared, NOT run (needs the user's go)** – `.scratch/20261015 - rolesBackfill/` (README + `run_datafix.py`)
+Run in this order (each step re-reads prod; output in `run/prod/<timestamp>/`, git-ignored – contains e-mails):
+1. `python3 run_datafix.py plan` – (already run once 12:01 local: 3,476 duplicate-contact groups to merge = 3,503 contacts; 2,373 groups to `merge_review.csv`). Re-run tomorrow first: the numbers move.
+2. `python3 run_datafix.py merge` – same account + email + name, ≤ 1 real platform id per platform; master = real platform id > most roles > oldest; roles unioned onto the master, loser's real platform id + checkboxes moved when the master has none; Database.merge. Chunks of 20, failed group rolled back, stops after 50 failures. Irreversible beyond the 15-day Recycle Bin (children are not moved back).
+3. `python3 run_datafix.py ids` – real platform ids from OAuth_Log__c request bodies (kept since 2026-10-06): ~18 relations. The other ~21,800 synthetic ids heal on the next platform call with the contactDTO.
+4. `python3 run_datafix.py roles` – variant A backfill (role only where the account lookup already points to the contact; ~71,500 relations, no account fields change), bulk update with backup CSV.
+5. `python3 run_datafix.py recount`.
+Rehearsed end-to-end in acc (`DATAFIX_ORG=acc`): clean; it caught CRLF line endings and the locale column delimiter in the bulk CSV (fixed: LF + `--column-delimiter COMMA`).
+Review afterwards: `merge_review.csv` (two platform users / different names) and `review_skipped.csv` (roles without email, conflicting holders).
+
+**Other open points from today**
+- acc: 1,720 of 2,083 relations without CompositeKey__c → REST relation upsert fails silently there (prod: 0). Rest_UpsertAccount ignores relation upsert errors (`allOrNone=false`) → log or return them.
+- acc test data to clean up: REBEL Lease / replayed prod accounts / De Duikenburg copies (ext ids 7487xx, 6851xx, 7851xx, 8851xx, 9851xx, the 12 + 21 replayed accounts), "Merge Test Duplicates".
+- Prod go-live of the financial sync steps still pending (see above): account sync fix is now in prod.
