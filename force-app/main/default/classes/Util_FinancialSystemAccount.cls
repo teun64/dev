@@ -13,7 +13,8 @@
  *                  (type 4) likewise. Created only when address or contact differs from the establishment + main
  *                  contact; once created it is kept up to date. Both are the Main address of their type: the
  *                  first sync takes over (overwrites) the existing Main address of that type in Exact, if any.
- *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST
+ *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST;
+ *                  an existing, not cancelled mandate of the bank account is reused before a new one is created
  * A relation without an Exact contact id is first matched against the Exact account's contacts (email, then name)
  * before a new Exact contact is created (no duplicates on the first sync of an existing account); a stored id that no
  * longer exists in Exact (403 / 404 and not among the account's Exact contacts) is dropped and matched again.
@@ -453,7 +454,7 @@ public without sharing class Util_FinancialSystemAccount {
 			calls += String.isBlank(acct.FinancialIdShippingAddress__c) && !isNew ? 2 : 1;
 		}
 		if (String.isNotBlank(acct.Bank_Account_Number__c)) {
-			calls += isNew ? 2 : 3; // (GET) + POST/PUT, + mandate
+			calls += isNew ? 2 : 4; // (GET) + POST/PUT, + mandate lookup + mandate
 		}
 		return calls;
 	}
@@ -1043,16 +1044,53 @@ public without sharing class Util_FinancialSystemAccount {
 			ctx.newState.put(STATE_BANK, fingerprint);
 		}
 
-		// mandate: for a new / changed bank account, when the payment method needs one
+		// mandate: for a new / changed bank account, when the payment method needs one. An existing (not cancelled)
+		// mandate of that bank account in Exact is reused: most accounts synced by the legacy code have a bank account
+		// and mandate in Exact but no ids on the Account, and a second mandate gets a new mandate reference
 		if (String.isBlank(acct.FinancialIdBankMandate__c) && String.isNotBlank(acct.FinancialIdBankAccount__c)
 				&& Util_FinancialSystemAccount.requiresBankDetails(acct)) {
-			Util_FinancialSystemAccount.ExactMandate mandate = new Util_FinancialSystemAccount.ExactMandate(acct);
-			String response = Util_FinancialSystem.doRequest(ctx.admin, String.format(MANDATE_ENDPOINT, new List<String>{ division }), null, 'POST', JSON.serialize(mandate), guid);
-			ctx.result.calls++;
-			Util_FinancialSystemAccount.ExactMandate created = (Util_FinancialSystemAccount.ExactMandate) JSON.deserialize(response, Util_FinancialSystemAccount.ExactMandate.class);
-			acct.FinancialIdBankMandate__c = created?.ID;
+			String mandateEndpoint = String.format(MANDATE_ENDPOINT, new List<String>{ division });
+			String existingId = Util_FinancialSystemAccount.findMandate(ctx, mandateEndpoint, guid);
+			if (existingId != null) {
+				acct.FinancialIdBankMandate__c = existingId;
+			} else {
+				Util_FinancialSystemAccount.ExactMandate mandate = new Util_FinancialSystemAccount.ExactMandate(acct);
+				String response = Util_FinancialSystem.doRequest(ctx.admin, mandateEndpoint, null, 'POST', JSON.serialize(mandate), guid);
+				ctx.result.calls++;
+				Util_FinancialSystemAccount.ExactMandate created = (Util_FinancialSystemAccount.ExactMandate) JSON.deserialize(response, Util_FinancialSystemAccount.ExactMandate.class);
+				acct.FinancialIdBankMandate__c = created?.ID;
+			}
 			ctx.accountDirty = true;
 		}
+	}
+
+	/** The id of a mandate in Exact for the account's bank account that is not cancelled (Main first), or null. */
+	@TestVisible
+	private static String findMandate(Util_FinancialSystemAccount.Ctx ctx, String endpoint, String guid) {
+		Map<String, String> params = new Map<String, String>{
+			'$select' => 'ID,Main,CancellationDate',
+			'$filter' => 'Account eq guid\'' + ctx.acct.FinancialIdAccount__c + '\' and BankAccount eq guid\'' + ctx.acct.FinancialIdBankAccount__c + '\''
+		};
+		String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, params, 'GET', null, guid);
+		ctx.result.calls++;
+		// untyped: Exact returns Main of a mandate as 1 / 0, not as a boolean (acc 2026-10-15)
+		Object d = String.isBlank(response) ? null : JSON.deserializeUntyped(response);
+		List<Object> rows = d instanceof Map<String, Object> && ((Map<String, Object>) d).get('results') instanceof List<Object>
+			? (List<Object>) ((Map<String, Object>) d).get('results') : new List<Object>();
+		String fallback;
+		for (Object o : rows) {
+			Map<String, Object> m = (Map<String, Object>) o;
+			String id = (String) m.get('ID');
+			if (String.isBlank(id) || m.get('CancellationDate') != null) {
+				continue;
+			}
+			Object main = m.get('Main');
+			if (main == true || main == 1) {
+				return id;
+			}
+			fallback = fallback == null ? id : fallback;
+		}
+		return fallback;
 	}
 
 	// ---------------------------------------------------------------- DML phase

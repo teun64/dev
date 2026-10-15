@@ -9,6 +9,7 @@ public class Test_Util_FinancialSystemAccount {
 		public String bankLookup = '{"d":{"results":[]}}';
 		public String addressLookup = '{"d":{"results":[]}}';
 		public String contactLookup = '{"d":{"results":[]}}';
+		public String mandateLookup = '{"d":{"results":[]}}';
 		// an Exact contact id that no longer exists: a PUT on it answers 404
 		public String missingContact;
 		private Integer seq = 0;
@@ -47,7 +48,7 @@ public class Test_Util_FinancialSystemAccount {
 			this.seq++;
 			if (m == 'GET') {
 				res.setBody(entity == 'Bank' ? this.bankLookup : entity == 'Address' ? this.addressLookup
-					: entity == 'Contact' ? this.contactLookup : this.matchResult);
+					: entity == 'Contact' ? this.contactLookup : entity == 'Mandate' ? this.mandateLookup : this.matchResult);
 			} else if (entity == 'Account') {
 				res.setBody('{"d":{"ID":"acc-guid-1","Code":"             12345","MainContact":null}}');
 			} else {
@@ -912,5 +913,44 @@ public class Test_Util_FinancialSystemAccount {
 		System.assert(!r.success, sim.calls + '');
 		System.assertEquals(0, sim.count('POST Contact'), sim.calls);
 		System.assertEquals('locked-guid', mainRelation(acc).FinancialIdContact__c, 'Id kept');
+	}
+
+	@IsTest
+	static void existingMandateInExact_isReused_noSecondMandate() {
+		Account acc = existingInExact(false);
+		Database.update(new Account(Id = acc.Id, Payment_Method_Contracts__c = 'I8', Bank_Account_Number__c = 'NL91ABNA0417164300',
+			Bank_Account__c = 'Sync Account', FinancialIdBankAccount__c = null, FinancialIdBankMandate__c = null), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		// the legacy sync created bank account + mandate in Exact, the Account has no ids yet
+		sim.bankLookup = '{"d":{"results":[{"ID":"bank-legacy","BankAccount":"NL91ABNA0417164300","BankAccountHolderName":"Sync Account","Main":true}]}}';
+		sim.mandateLookup = '{"d":{"results":[{"ID":"mandate-cancelled","Main":0,"CancellationDate":"/Date(1700000000000)/"},{"ID":"mandate-legacy","Main":1,"CancellationDate":null}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		Account after = [SELECT FinancialIdBankAccount__c, FinancialIdBankMandate__c FROM Account WHERE Id = :acc.Id WITH SYSTEM_MODE];
+		System.assertEquals('bank-legacy', after.FinancialIdBankAccount__c);
+		System.assertEquals('mandate-legacy', after.FinancialIdBankMandate__c, 'Existing mandate reused');
+		System.assertEquals(0, sim.count('POST Mandate'), 'No second mandate: ' + sim.calls);
+		System.assertEquals(0, sim.count('POST Bank'), sim.calls);
+	}
+
+	@IsTest
+	static void noMandateInExact_oneIsCreated() {
+		Account acc = existingInExact(false);
+		Database.update(new Account(Id = acc.Id, Payment_Method_Contracts__c = 'I8', Bank_Account_Number__c = 'NL91ABNA0417164300',
+			Bank_Account__c = 'Sync Account', FinancialIdBankAccount__c = null, FinancialIdBankMandate__c = null), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		sim.bankLookup = '{"d":{"results":[{"ID":"bank-legacy","BankAccount":"NL91ABNA0417164300","BankAccountHolderName":"Sync Account","Main":true}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		System.assertEquals(1, sim.count('GET Mandate'), sim.calls);
+		System.assertEquals(1, sim.count('POST Mandate'), sim.calls);
 	}
 }
