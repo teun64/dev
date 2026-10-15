@@ -69,7 +69,7 @@ private class Test_Util_FinancialSystem_Order {
 	private static Order order() {
 		return [
 			SELECT Id, Status, Exact_Id__c, Exact_Order_Number__c, SyncToFinancialSystem__c, FinancialSyncAttempts__c,
-				FinancialSyncNextAttempt__c, FinancialSyncLastError__c, AccountId
+				FinancialSyncNextAttempt__c, FinancialSyncLastError__c, AccountId, FinancialSystemLastSyncDate__c
 			FROM Order WITH SYSTEM_MODE LIMIT 1
 		];
 	}
@@ -90,6 +90,7 @@ private class Test_Util_FinancialSystem_Order {
 		System.assertEquals('order-guid-1', after.Exact_Id__c);
 		System.assertEquals('54321', after.Exact_Order_Number__c);
 		System.assertEquals(false, after.SyncToFinancialSystem__c);
+		System.assertNotEquals(null, after.FinancialSystemLastSyncDate__c, 'Last sync moment stamped');
 		System.assertEquals(new List<String>{ 'GET Items', 'POST SalesOrders', 'GET SalesOrderLines' }, sim.calls);
 		System.assertEquals('line-guid-1', lineId(), 'Exact line id stored on the order item');
 		System.assertEquals('item-guid-1', [SELECT Exact_Id__c FROM Subscription25__Administration_Product__c WITH SYSTEM_MODE LIMIT 1].Exact_Id__c, 'Item GUID cached');
@@ -127,6 +128,25 @@ private class Test_Util_FinancialSystem_Order {
 		System.assertEquals(true, after.SyncToFinancialSystem__c, 'Order keeps waiting');
 		System.assert(after.FinancialSyncNextAttempt__c > System.now());
 		System.assert(after.FinancialSyncAttempts__c == null || after.FinancialSyncAttempts__c == 0, 'Waiting is no failed attempt');
+		System.assertEquals(true, [SELECT SyncToFinancialSystem__c FROM Account WHERE Id = :ord.AccountId WITH SYSTEM_MODE].SyncToFinancialSystem__c, 'Account queued');
+	}
+
+	@IsTest
+	static void forcedAccount_orderWaitsForFullAccountSync() {
+		Order ord = order();
+		Database.update(new Account(Id = ord.AccountId, FinancialSyncForce__c = true, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
+		Util_FinancialSystem_Order.flagOrders(new Set<Id>{ ord.Id });
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Util_FinancialSystem_Order.Result r = Util_FinancialSystem_Order.syncOrders(new Set<Id>{ ord.Id }, true).get(ord.Id);
+
+		System.assert(r.postponed, r.messages + '');
+		System.assert(String.join(r.messages, ' ').contains('in full'), r.messages + '');
+		System.assertEquals(0, sim.calls.size(), 'Nothing sent before the account');
+		Order after = order();
+		System.assertEquals(true, after.SyncToFinancialSystem__c, 'Order keeps waiting');
+		System.assertEquals(null, after.FinancialSystemLastSyncDate__c);
 		System.assertEquals(true, [SELECT SyncToFinancialSystem__c FROM Account WHERE Id = :ord.AccountId WITH SYSTEM_MODE].SyncToFinancialSystem__c, 'Account queued');
 	}
 

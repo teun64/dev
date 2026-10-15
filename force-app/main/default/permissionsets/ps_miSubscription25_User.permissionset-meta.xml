@@ -416,6 +416,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Account.FinancialSyncForce__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Account.FinancialSyncLastError__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -431,7 +436,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Account.FinancialSystemLastSyncDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Account.SyncToFinancialSystem__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>AccountContactRelation.FinancialSystemLastSyncDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -452,6 +467,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.FinancialSystemIdWarehouse__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.FinancialSystemLastSyncDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1687,6 +1707,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Subscription25__Indexation_Rate__c.Subscription25__Provisional__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Subscription25__Invoice__c.FinancialSystemLastSyncDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

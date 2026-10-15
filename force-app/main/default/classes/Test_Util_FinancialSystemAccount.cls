@@ -8,6 +8,9 @@ public class Test_Util_FinancialSystemAccount {
 		public String matchResult = '{"d":{"results":[]}}';
 		public String bankLookup = '{"d":{"results":[]}}';
 		public String addressLookup = '{"d":{"results":[]}}';
+		public String contactLookup = '{"d":{"results":[]}}';
+		// an Exact contact id that no longer exists: a PUT on it answers 404
+		public String missingContact;
 		private Integer seq = 0;
 
 		public HttpResponse respond(HttpRequest req) {
@@ -24,6 +27,11 @@ public class Test_Util_FinancialSystemAccount {
 			res.setHeader('X-RateLimit-Limit', '5000');
 			res.setHeader('X-RateLimit-Remaining', '4000');
 			res.setHeader('X-RateLimit-Minutely-Remaining', '50');
+			if (m == 'PUT' && this.missingContact != null && ep.contains(this.missingContact)) {
+				res.setStatusCode(404);
+				res.setBody('{"error":{"code":"","message":{"lang":"","value":"Record not found"}}}');
+				return res;
+			}
 			if (m == 'PUT') {
 				res.setStatusCode(204);
 				return res;
@@ -31,7 +39,8 @@ public class Test_Util_FinancialSystemAccount {
 			res.setStatusCode(m == 'POST' ? 201 : 200);
 			this.seq++;
 			if (m == 'GET') {
-				res.setBody(entity == 'Bank' ? this.bankLookup : entity == 'Address' ? this.addressLookup : this.matchResult);
+				res.setBody(entity == 'Bank' ? this.bankLookup : entity == 'Address' ? this.addressLookup
+					: entity == 'Contact' ? this.contactLookup : this.matchResult);
 			} else if (entity == 'Account') {
 				res.setBody('{"d":{"ID":"acc-guid-1","Code":"             12345","MainContact":null}}');
 			} else {
@@ -80,7 +89,7 @@ public class Test_Util_FinancialSystemAccount {
 				FinancialIdBankAccount__c, FinancialIdBankMandate__c, SyncToFinancialSystem__c, FinancialSyncState__c,
 				FinancialSyncAttempts__c, FinancialSyncNextAttempt__c, FinancialSyncLastError__c, FinancialDebtorCheck__c,
 				Contact_person__c, Reseller_Name__c, BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode,
-				InvoiceAddress__Street__s, ShippingStreet, Payment_Method_Contracts__c
+				InvoiceAddress__Street__s, ShippingStreet, Payment_Method_Contracts__c, FinancialSyncForce__c, FinancialSystemLastSyncDate__c
 			FROM Account WHERE Name LIKE 'Sync Account%' WITH SYSTEM_MODE
 		];
 	}
@@ -100,6 +109,7 @@ public class Test_Util_FinancialSystemAccount {
 		System.assertEquals('acc-guid-1', after.FinancialIdAccount__c);
 		System.assertEquals('12345', after.FinancialDebtorNumber__c, 'Debtor number from the POST response (trimmed)');
 		System.assertEquals(false, after.SyncToFinancialSystem__c, 'Flag cleared after success');
+		System.assertNotEquals(null, after.FinancialSystemLastSyncDate__c, 'Last sync moment stamped');
 		System.assertNotEquals(null, after.FinancialSyncState__c, 'Fingerprints stored');
 		System.assertEquals(1, sim.count('GET Account'), 'Duplicate check for a new account: ' + sim.calls);
 		System.assertEquals(1, sim.count('POST Account'), sim.calls);
@@ -422,8 +432,8 @@ public class Test_Util_FinancialSystemAccount {
 	@IsTest
 	static void directDebitWithoutBankAccount_syncsAccount_softWarning() {
 		Account acc = account();
-		Database.update(new Account(Id = acc.Id, Payment_Method_Contracts__c = 'I8', Bank_Account_Number__c = null, Bank_Account__c = null),
-			AccessLevel.SYSTEM_MODE);
+		Database.update(new Account(Id = acc.Id, Payment_Method_Contracts__c = 'I8', Bank_Account_Number__c = null, Bank_Account__c = null,
+			FinancialSyncForce__c = true), AccessLevel.SYSTEM_MODE);
 		ExactSim sim = new ExactSim();
 		Test.setMock(HttpCalloutMock.class, sim);
 
@@ -437,6 +447,8 @@ public class Test_Util_FinancialSystemAccount {
 			System.assert(!r.success);
 			System.assert(String.join(r.messages, ' ').contains('bank account is not filled in'), r.messages + '');
 			System.assertEquals(true, after.SyncToFinancialSystem__c, 'Stays flagged until the bank account is filled in');
+			System.assertEquals(false, after.FinancialSyncForce__c, 'Soft warning only: the account is in Exact, orders / invoices need not wait');
+			System.assertEquals(null, after.FinancialSystemLastSyncDate__c, 'Not a full success');
 			System.assertEquals(0, Svc_FinancialSystemSyncAlert.notified.size() + Svc_FinancialSystemSyncAlert.casesCreated.size(), 'Soft: never alerts');
 		}
 		System.assertEquals(0, sim.count('POST Bank') + sim.count('POST Mandate'), sim.calls);
@@ -766,5 +778,107 @@ public class Test_Util_FinancialSystemAccount {
 		System.assertEquals(new Set<String>{ 'Id', 'FinancialIdContact__c', 'Sync_To_Financial_System__c' }, saved.keySet(),
 			'Roles (and the rest of the queried record) are never written back');
 		System.assertEquals('con-guid', saved.get('FinancialIdContact__c'));
+	}
+
+	// ---------------------------------------------------------------- go-live: contact match, stale ids, force marker
+
+	private static Account existingInExact(Boolean force) {
+		Account acc = account();
+		Database.update(new Account(Id = acc.Id, FinancialIdAccount__c = 'acc-guid-1', FinancialDebtorNumber__c = '12345',
+			FinancialDebtorCheck__c = true, FinancialSyncForce__c = force), AccessLevel.SYSTEM_MODE);
+		return account();
+	}
+
+	private static AccountContactRelation mainRelation(Account acc) {
+		return [SELECT Id, FinancialIdContact__c, FinancialSystemLastSyncDate__c, Contact.FirstName, Contact.LastName FROM AccountContactRelation
+			WHERE AccountId = :acc.Id AND ContactId = :acc.Contact_person__c WITH SYSTEM_MODE];
+	}
+
+	@IsTest
+	static void existingAccount_contactMatchedByEmail_noDuplicate_forceCleared() {
+		Account acc = existingInExact(true);
+		ExactSim sim = new ExactSim();
+		sim.contactLookup = '{"d":{"results":[{"ID":"exact-con-other","FirstName":"Someone","LastName":"Else","Email":"other@sync.test"},'
+			+ '{"ID":"exact-con-1","FirstName":"X","LastName":"Y","Email":" MAIN@Sync.test"}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assertEquals(1, sim.count('GET Contact'), 'Exact contacts read once: ' + sim.calls);
+		System.assertEquals(0, sim.count('POST Contact'), 'No duplicate contact: ' + sim.calls);
+		System.assertEquals(1, sim.count('PUT Contact'), 'Matched contact updated: ' + sim.calls);
+		AccountContactRelation acr = mainRelation(acc);
+		System.assertEquals('exact-con-1', acr.FinancialIdContact__c, 'Matched on email (case / spaces ignored)');
+		System.assertNotEquals(null, acr.FinancialSystemLastSyncDate__c);
+		Account after = account();
+		System.assertEquals(false, after.FinancialSyncForce__c, 'Marker cleared after a successful sync');
+		System.assertNotEquals(null, after.FinancialSystemLastSyncDate__c);
+	}
+
+	@IsTest
+	static void existingAccount_contactMatchedByName_whenNoEmailMatch() {
+		Account acc = existingInExact(false);
+		AccountContactRelation rel = mainRelation(acc);
+		ExactSim sim = new ExactSim();
+		sim.contactLookup = '{"d":{"results":[' + JSON.serialize(new Map<String, Object>{ 'ID' => 'exact-con-name',
+			'FirstName' => rel.Contact.FirstName, 'LastName' => rel.Contact.LastName.toUpperCase(), 'Email' => 'old@address.test' }) + ']}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		System.assertEquals('exact-con-name', mainRelation(acc).FinancialIdContact__c, sim.calls + '');
+		System.assertEquals(0, sim.count('POST Contact'), sim.calls);
+	}
+
+	@IsTest
+	static void existingAccount_noMatchingContact_createsOne() {
+		Account acc = existingInExact(false);
+		ExactSim sim = new ExactSim();
+		sim.contactLookup = '{"d":{"results":[{"ID":"exact-con-other","FirstName":"Someone","LastName":"Else","Email":"other@sync.test"}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		System.assertEquals(1, sim.count('POST Contact'), sim.calls);
+		System.assert(mainRelation(acc).FinancialIdContact__c.startsWith('contact-guid-'));
+	}
+
+	@IsTest
+	static void staleContactId_404_isReplaced() {
+		Account acc = existingInExact(false);
+		AccountContactRelation rel = mainRelation(acc);
+		Database.update(new AccountContactRelation(Id = rel.Id, FinancialIdContact__c = 'gone-guid'), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		sim.missingContact = 'gone-guid';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assertEquals(1, sim.count('GET Contact'), 'Matched again after the 404: ' + sim.calls);
+		System.assertEquals(1, sim.count('POST Contact'), sim.calls);
+		System.assert(mainRelation(acc).FinancialIdContact__c.startsWith('contact-guid-'), 'Stale id replaced');
+	}
+
+	@IsTest
+	static void newExactAccount_noContactLookup() {
+		Account acc = account();
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+
+		System.assertEquals(0, sim.count('GET Contact'), 'A new Exact account has no contacts to match: ' + sim.calls);
 	}
 }

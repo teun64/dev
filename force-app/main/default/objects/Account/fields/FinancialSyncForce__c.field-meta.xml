@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinancialSyncForce__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Set (once, at the financial system go-live) on accounts whose Exact data may be out of date. The account is then pushed in full before its next order sync and before its next invoice (Batch_FinancialSystemForceSync, invoice due within a few days). Any successful account sync (button, batch) clears it; false = assumed in sync with Exact.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Checked: the account is synchronised in full with Exact before its next order or invoice. Cleared automatically after a successful Exact sync.</inlineHelpText>
+    <label>Exact Sync before Order/Invoice</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

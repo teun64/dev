@@ -8,8 +8,10 @@
  *    Exact ids are stored on OrderItem.FinancialId__c
  *  - the account's Exact ids come from the Account (FinancialIdAccount__c) and the main contact's
  *    AccountContactRelation (FinancialIdContact__c); an account that is not in Exact yet is queued for
- *    Batch_FinancialSystemAccountSync and the order waits (no failed attempt counted)
- *  - success: Exact_Id__c, Exact_Order_Number__c, Status = Activated, SyncToFinancialSystem__c cleared
+ *    Batch_FinancialSystemAccountSync and the order waits (no failed attempt counted); the same happens while the
+ *    account still has FinancialSyncForce__c (go-live marker: push the account in full before its next order)
+ *  - success: Exact_Id__c, Exact_Order_Number__c, Status = Activated, SyncToFinancialSystem__c cleared,
+ *    FinancialSystemLastSyncDate__c stamped
  *  - failures keep the flag and are retried with exponential back-off
  */
 public without sharing class Util_FinancialSystem_Order {
@@ -186,7 +188,7 @@ public without sharing class Util_FinancialSystem_Order {
 				Opportunity.Name, Opportunity.Customer_Reference__c, Opportunity.Installation_Notes__c,
 				Opportunity.Sales_Contact__c, Opportunity.Sales_Contact__r.Name, Opportunity.Sales_Contact__r.Email, Opportunity.Sales_Contact__r.Phone,
 				Account.Exact_Account_Name__c, Account.Reseller_Name__c, Account.Contact_Person__c, Account.Bank_Account_Number__c,
-				Account.FinancialIdAccount__c, Account.FinancialDebtorNumber__c,
+				Account.FinancialIdAccount__c, Account.FinancialDebtorNumber__c, Account.FinancialSyncForce__c,
 				(SELECT Id, UnitPrice, Quantity, Product_Name__c, Product_Code_Customer__c, Partner_Code__c,
 					PricebookEntry.Product2Id, PricebookEntry.Product2.Name, PricebookEntry.Product2.ProductCode,
 					PricebookEntry.Product2.Generate_Partner_Code__c, PricebookEntry.Product2.RecordType.DeveloperName
@@ -278,6 +280,12 @@ public without sharing class Util_FinancialSystem_Order {
 		if (String.isBlank(ctx.acct.FinancialIdAccount__c) || String.isBlank(ctx.acct.FinancialDebtorNumber__c) || String.isBlank(ctx.exactContactId)) {
 			accountsToQueue.add(ord.AccountId);
 			ctx.postpone('The account (' + ctx.acct.Exact_Account_Name__c + ') is not synchronised with Exact yet (debtor number or contact person missing); it is queued for the account sync, the order waits.',
+				System.now().addMinutes(WAIT_FOR_ACCOUNT_MINUTES));
+			return;
+		}
+		if (ctx.acct.FinancialSyncForce__c == true) {
+			accountsToQueue.add(ord.AccountId);
+			ctx.postpone('The account (' + ctx.acct.Exact_Account_Name__c + ') is synchronised in full with Exact first (Exact Sync before Order/Invoice); it is queued for the account sync, the order waits.',
 				System.now().addMinutes(WAIT_FOR_ACCOUNT_MINUTES));
 			return;
 		}
@@ -499,6 +507,7 @@ public without sharing class Util_FinancialSystem_Order {
 				upd.FinancialSyncLastError__c = null;
 				upd.FinancialSyncHardFailures__c = 0;
 				upd.FinancialSyncBlocked__c = false;
+				upd.FinancialSystemLastSyncDate__c = System.now();
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
 			} else if (!ctx.failed && !ctx.result.postponed) {
 				// already synchronised, or an order type that is not sent

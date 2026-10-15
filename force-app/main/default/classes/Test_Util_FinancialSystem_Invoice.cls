@@ -11,7 +11,7 @@ private class Test_Util_FinancialSystem_Invoice {
 	}
 
 	private static Subscription25__Invoice__c reload(Id invoiceId) {
-		return [SELECT Subscription25__Invoice_Number__c, Subscription25__Finalized_In_Exact__c FROM Subscription25__Invoice__c WHERE Id = :invoiceId];
+		return [SELECT Subscription25__Invoice_Number__c, Subscription25__Finalized_In_Exact__c, FinancialSystemLastSyncDate__c FROM Subscription25__Invoice__c WHERE Id = :invoiceId];
 	}
 
 	@IsTest
@@ -25,6 +25,7 @@ private class Test_Util_FinancialSystem_Invoice {
 
 		System.assert(msgs.isEmpty(), 'No errors expected: ' + msgs);
 		System.assertEquals('TTT123', reload(invoice.Id).Subscription25__Invoice_Number__c, 'Prefix + Exact invoice number');
+		System.assertNotEquals(null, reload(invoice.Id).FinancialSystemLastSyncDate__c, 'Last sync moment stamped');
 		System.assertEquals(1, [SELECT COUNT() FROM Event_Log__c WHERE Context_Id__c = :invoice.Id AND Result_Status__c = 'COMPLETED'], 'One completed log');
 	}
 
@@ -71,6 +72,7 @@ private class Test_Util_FinancialSystem_Invoice {
 
 		System.assert(msgs.isEmpty(), 'No errors expected: ' + msgs);
 		System.assertEquals('TTT123', reload(invoice.Id).Subscription25__Invoice_Number__c);
+		System.assertNotEquals(null, reload(invoice.Id).FinancialSystemLastSyncDate__c, 'Last sync moment stamped');
 	}
 
 	@IsTest

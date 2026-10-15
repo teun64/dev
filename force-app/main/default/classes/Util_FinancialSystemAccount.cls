@@ -14,6 +14,12 @@
  *                  contact; once created it is kept up to date. Both are the Main address of their type: the
  *                  first sync takes over (overwrites) the existing Main address of that type in Exact, if any.
  *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST
+ * A relation without an Exact contact id is first matched against the Exact account's contacts (email, then name)
+ * before a new Exact contact is created (no duplicates on the first sync of an existing account); a stored id that no
+ * longer exists in Exact (404) is dropped and matched again.
+ * A sync without a hard failure (soft warnings allowed) clears FinancialSyncForce__c (go-live marker: push before the next
+ * order / invoice); a fully successful one stamps FinancialSystemLastSyncDate__c on the account. Every relation whose
+ * contact was sent gets FinancialSystemLastSyncDate__c.
  * Only parts whose fingerprint (FinancialSyncState__c) changed are sent. Exact ids live on the Account
  * (FinancialId*__c) and the ACR, not on Subscription25__Debtor_Number__c.
  * Failed accounts keep SyncToFinancialSystem__c and are retried with exponential back-off.
@@ -164,7 +170,7 @@ public without sharing class Util_FinancialSystemAccount {
 		Set<Id> accountsToFlag = new Set<Id>();
 		for (AccountContactRelation acr : [
 				SELECT Id, AccountId, ContactId, FinancialIdContact__c, Roles, isMainContact__c, isInvoiceContact__c, isShippingContact__c,
-					Account.Contact_person__c, Account.Contact_Billing__c, Account.Contact_Shipping__c,
+					FinancialSystemLastSyncDate__c, Account.Contact_person__c, Account.Contact_Billing__c, Account.Contact_Shipping__c,
 					Contact.FirstName, Contact.MiddleName, Contact.LastName, Contact.Email, Contact.Phone,
 					Account.Name, Account.Exact_Account_Name__c, Account.Reseller_Name__c, Account.FinancialIdAccount__c,
 					Account.SyncToFinancialSystem__c, Account.FinancialSyncState__c
@@ -218,15 +224,17 @@ public without sharing class Util_FinancialSystemAccount {
 			Boolean failed = false;
 			for (AccountContactRelation acr : acrs) {
 				String stateKey = STATE_CONTACT + acr.ContactId;
+				String previous = state.get(stateKey);
 				Util_FinancialSystemAccount.ContactRequest req = new Util_FinancialSystemAccount.ContactRequest(acct.FinancialIdAccount__c, acr,
-					Util_FinancialSystemAccount.isRetired(acr, acct), state.get(stateKey));
+					Util_FinancialSystemAccount.isRetired(acr, acct), previous);
 				try {
 					if (req.fingerprint != state.get(stateKey)) {
 						Util_FinancialSystem.doRequest(admin, endpoint + '(guid\'' + acr.FinancialIdContact__c + '\')', null, 'PUT', req.body, log.GUID__c);
 						calls++;
 					}
 					state.put(stateKey, req.fingerprint);
-					toClear.add(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = false));
+					toClear.add(new AccountContactRelation(Id = acr.Id, Sync_To_Financial_System__c = false,
+						FinancialSystemLastSyncDate__c = req.fingerprint != previous ? System.now() : acr.FinancialSystemLastSyncDate__c));
 				} catch (Util_FinancialSystem.RateLimitException e) {
 					// the rest stays flagged for a next run
 					limitedAdmins.add(admin.Id);
@@ -283,6 +291,8 @@ public without sharing class Util_FinancialSystemAccount {
 		Boolean isNewExactAccount = false;
 		Boolean matched = false;
 		String exactMainContact;
+		// contacts of the Exact account, read once per sync when a relation has no Exact contact id yet
+		List<Util_FinancialSystemAccount.ExactContact> exactContacts;
 		List<String> warnings = new List<String>();
 		Boolean failed = false;
 		// failures and warnings with their alert category (Svc_FinancialSystemSyncAlert)
@@ -431,6 +441,9 @@ public without sharing class Util_FinancialSystemAccount {
 		}
 		calls++; // account POST / PUT (a PUT is skipped when nothing changed)
 		calls += Util_FinancialSystemAccount.contactsToSync(ctx).size();
+		if (!isNew && Util_FinancialSystemAccount.needsContactMatch(ctx)) {
+			calls++; // GET the Exact account's contacts once
+		}
 		calls += Svc_FinancialSystemContactRemoval.readEntries(acct.FinancialContactsToRetire__c).size();
 		calls++; // main contact on the account
 		if (Util_FinancialSystemAccount.invoiceAddressDiffers(acct) || String.isNotBlank(acct.FinancialIdInvoiceAddress__c)) {
@@ -468,6 +481,17 @@ public without sharing class Util_FinancialSystemAccount {
 			}
 		}
 		return ids;
+	}
+
+	/** A contact to sync has no Exact contact id yet: the Exact account's contacts are read to match it. */
+	private static Boolean needsContactMatch(Util_FinancialSystemAccount.Ctx ctx) {
+		for (Id cid : Util_FinancialSystemAccount.contactIds(ctx.acct)) {
+			AccountContactRelation acr = ctx.acrByContact.get(cid);
+			if (acr != null && String.isBlank(acr.FinancialIdContact__c)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@TestVisible
@@ -718,25 +742,96 @@ public without sharing class Util_FinancialSystemAccount {
 			String.isNotBlank(acr.FinancialIdContact__c) && Util_FinancialSystemAccount.isRetired(acr, ctx.acct), ctx.state.get(stateKey));
 		String fingerprint = req.fingerprint;
 		String endpoint = String.format(CONTACT_ENDPOINT, new List<String>{ division });
-		if (String.isBlank(acr.FinancialIdContact__c)) {
-			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
-			ctx.result.calls++;
-			Util_FinancialSystemAccount.ExactContact created = (Util_FinancialSystemAccount.ExactContact) JSON.deserialize(response, Util_FinancialSystemAccount.ExactContact.class);
-			acr.FinancialIdContact__c = created.ID;
-			acr.Sync_To_Financial_System__c = false;
-			ctx.acrsToUpdate.put(acr.Id, acr);
-		} else if (fingerprint != ctx.state.get(stateKey)) {
-			Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acr.FinancialIdContact__c + '\')', null, 'PUT', req.body, guid);
-			ctx.result.calls++;
-			if (acr.Sync_To_Financial_System__c == true) {
+		if (String.isNotBlank(acr.FinancialIdContact__c) && fingerprint != ctx.state.get(stateKey)) {
+			try {
+				Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acr.FinancialIdContact__c + '\')', null, 'PUT', req.body, guid);
+				ctx.result.calls++;
+				acr.FinancialSystemLastSyncDate__c = System.now();
 				acr.Sync_To_Financial_System__c = false;
 				ctx.acrsToUpdate.put(acr.Id, acr);
+				ctx.newState.put(stateKey, fingerprint);
+				return;
+			} catch (Util_System.FinancialSyncException e) {
+				ctx.result.calls++;
+				if (Util_FinancialSystem.lastErrorStatus != 404) {
+					throw e;
+				}
+				// the stored Exact contact no longer exists (deleted / merged in Exact): match or create it again
+				acr.FinancialIdContact__c = null;
+				acr.Sync_To_Financial_System__c = false;
+				ctx.acrsToUpdate.put(acr.Id, acr);
+				if (Util_FinancialSystemAccount.isRetired(acr, ctx.acct)) {
+					// nothing left to retire: the relation simply loses its Exact contact
+					ctx.newState.remove(stateKey);
+					return;
+				}
 			}
+		}
+		if (String.isBlank(acr.FinancialIdContact__c)) {
+			Util_FinancialSystemAccount.ExactContact match = ctx.isNewExactAccount ? null
+				: Util_FinancialSystemAccount.matchExactContact(ctx, acr, division, guid);
+			if (match != null) {
+				acr.FinancialIdContact__c = match.ID;
+				Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + match.ID + '\')', null, 'PUT', req.body, guid);
+			} else {
+				String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
+				Util_FinancialSystemAccount.ExactContact created = (Util_FinancialSystemAccount.ExactContact) JSON.deserialize(response, Util_FinancialSystemAccount.ExactContact.class);
+				acr.FinancialIdContact__c = created.ID;
+			}
+			ctx.result.calls++;
+			acr.FinancialSystemLastSyncDate__c = System.now();
+			acr.Sync_To_Financial_System__c = false;
+			ctx.acrsToUpdate.put(acr.Id, acr);
 		} else if (acr.Sync_To_Financial_System__c == true) {
 			acr.Sync_To_Financial_System__c = false;
 			ctx.acrsToUpdate.put(acr.Id, acr);
 		}
 		ctx.newState.put(stateKey, fingerprint);
+	}
+
+	/**
+	 * An existing Exact contact of this account for the relation: same email (case-insensitive), else same first + last
+	 * name. Contacts already linked to another relation of the account are never used twice. Null = create a new one.
+	 */
+	@TestVisible
+	private static Util_FinancialSystemAccount.ExactContact matchExactContact(Util_FinancialSystemAccount.Ctx ctx, AccountContactRelation acr, String division, String guid) {
+		if (ctx.exactContacts == null) {
+			Map<String, String> params = new Map<String, String>{
+				'$select' => 'ID,FirstName,MiddleName,LastName,Email',
+				'$filter' => 'Account eq guid\'' + ctx.acct.FinancialIdAccount__c + '\''
+			};
+			String response = Util_FinancialSystem.doRequest(ctx.admin, String.format(CONTACT_ENDPOINT, new List<String>{ division }), params, 'GET', null, guid);
+			ctx.result.calls++;
+			Util_FinancialSystemAccount.ExactContacts found = String.isBlank(response) ? null
+				: (Util_FinancialSystemAccount.ExactContacts) JSON.deserialize(response, Util_FinancialSystemAccount.ExactContacts.class);
+			ctx.exactContacts = found == null || found.results == null ? new List<Util_FinancialSystemAccount.ExactContact>() : found.results;
+		}
+		Set<String> used = new Set<String>();
+		for (AccountContactRelation other : ctx.acrByContact.values()) {
+			if (other.Id != acr.Id && String.isNotBlank(other.FinancialIdContact__c)) {
+				used.add(other.FinancialIdContact__c.toLowerCase());
+			}
+		}
+		String email = acr.Contact?.Email == null ? null : acr.Contact.Email.trim().toLowerCase();
+		String name = Util_FinancialSystemAccount.nameKey(acr.Contact?.FirstName, acr.Contact?.LastName);
+		Util_FinancialSystemAccount.ExactContact byName;
+		for (Util_FinancialSystemAccount.ExactContact c : ctx.exactContacts) {
+			if (String.isBlank(c.ID) || used.contains(c.ID.toLowerCase())) {
+				continue;
+			}
+			if (String.isNotBlank(email) && String.isNotBlank(c.Email) && c.Email.trim().toLowerCase() == email) {
+				return c;
+			}
+			if (byName == null && String.isNotBlank(name) && Util_FinancialSystemAccount.nameKey(c.FirstName, c.LastName) == name) {
+				byName = c;
+			}
+		}
+		return byName;
+	}
+
+	private static String nameKey(String firstName, String lastName) {
+		String key = ((firstName == null ? '' : firstName) + ' ' + (lastName == null ? '' : lastName)).normalizeSpace().toLowerCase();
+		return String.isBlank(key) ? null : key;
 	}
 
 	private static void retireRemovedContacts(Util_FinancialSystemAccount.Ctx ctx, String division, String guid) {
@@ -943,7 +1038,7 @@ public without sharing class Util_FinancialSystemAccount {
 	private static AccountContactRelation syncOwnedFields(AccountContactRelation acr) {
 		AccountContactRelation upd = new AccountContactRelation(Id = acr.Id);
 		Map<String, Object> populated = acr.getPopulatedFieldsAsMap();
-		for (String field : new List<String>{ 'FinancialIdContact__c', 'Sync_To_Financial_System__c' }) {
+		for (String field : new List<String>{ 'FinancialIdContact__c', 'Sync_To_Financial_System__c', 'FinancialSystemLastSyncDate__c' }) {
 			if (populated.containsKey(field)) {
 				upd.put(field, populated.get(field));
 			}
@@ -998,6 +1093,11 @@ public without sharing class Util_FinancialSystemAccount {
 				}
 				upd.FinancialSyncHardFailures__c = hard;
 				upd.FinancialSyncBlocked__c = hard >= Svc_FinancialSystemSyncAlert.HARD_FAILURE_LIMIT;
+				if (!ctx.failed) {
+					// only soft warnings (e.g. bank details): the account itself is in Exact, so orders / invoices need not
+					// wait for it any longer; the warnings are retried through SyncToFinancialSystem__c
+					upd.FinancialSyncForce__c = false;
+				}
 				if (upd.FinancialSyncBlocked__c && !wasBlocked && hardMessage != null) {
 					alerts.add(Svc_FinancialSystemSyncAlert.blocked(acct.Id, acct.Id, acct.OwnerId, acct.Reseller_Name__c, acct.Name,
 						hardMessage, restart));
@@ -1017,6 +1117,9 @@ public without sharing class Util_FinancialSystemAccount {
 				upd.FinancialSyncLastError__c = null;
 				upd.FinancialSyncHardFailures__c = 0;
 				upd.FinancialSyncBlocked__c = false;
+				// in sync with Exact now: no forced push before the next order / invoice
+				upd.FinancialSyncForce__c = false;
+				upd.FinancialSystemLastSyncDate__c = System.now();
 				ctx.log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
 			}
 			upd.FinancialSyncState__c = JSON.serialize(ctx.newState);
@@ -1205,6 +1308,10 @@ public without sharing class Util_FinancialSystemAccount {
 			this.Type = addressType;
 			this.Main = true; // the Salesforce invoice / shipping address is the default of its type
 		}
+	}
+
+	private class ExactContacts {
+		List<Util_FinancialSystemAccount.ExactContact> results;
 	}
 
 	private class ExactBankAccounts {

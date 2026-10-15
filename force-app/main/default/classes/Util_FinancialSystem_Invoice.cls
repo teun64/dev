@@ -2,6 +2,9 @@
  * Invoice finalisation in the financial system (Exact Online), moved from Util_Exact.
  * Used by Batch_FinalizeInvoices / Batch_FinalizeInvoicesLimited (one invoice per execute).
  * Note: in production the Subscription25 package job Job_FinalizeInvoicesInExact finalises invoices too.
+ * A successful finalise / invoice-number load stamps FinancialSystemLastSyncDate__c on the invoice.
+ * The account is pushed before its invoice by Batch_FinancialSystemForceSync (FinancialSyncForce__c), not here:
+ * the invoice itself reaches Exact through the Subscription25 package.
  */
 public without sharing class Util_FinancialSystem_Invoice {
 	private static final String SALES_INVOICE_GET_ENDPOINT = 'api/v1/{0}/bulk/salesinvoice/SalesInvoices';
@@ -52,6 +55,7 @@ public without sharing class Util_FinancialSystem_Invoice {
 					//if loading the invoice number fails, leave it; next time the job runs it reloads the invoice number
 				}
 			}
+			inv.FinancialSystemLastSyncDate__c = System.now();
 			Util_FinancialSystem_Invoice.updateInvoice(inv);
 		} catch (Util_System.FinancialSyncException e) {
 			mainlog.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
@@ -103,6 +107,7 @@ public without sharing class Util_FinancialSystem_Invoice {
 			} else {
 				inv.Subscription25__Invoice_Number__c = admin.Subscription25__Invoice_Number_Prefix__c + invoiceDetails.get('InvoiceNumber');
 			}
+			inv.FinancialSystemLastSyncDate__c = System.now();
 			Util_FinancialSystem_Invoice.updateInvoice(inv);
 		} catch (Util_System.FinancialSyncException e) {
 			mainlog.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
