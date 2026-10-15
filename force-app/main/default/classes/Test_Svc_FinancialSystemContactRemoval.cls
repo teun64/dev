@@ -70,6 +70,8 @@ private class Test_Svc_FinancialSystemContactRemoval {
 		setRelation(x.Id, gone.Id, new Map<String, Object>{ 'FinancialIdContact__c' => 'g-gone' });
 		// as in an org where Minut_FinancialSystemAccountSync is not active yet
 		Util_FinancialSystem.triggerHooksOverride = false;
+		// the new contacts' lookups may have flagged the account already (rbb_Account): only the delete counts here
+		Database.update(new Account(Id = x.Id, SyncToFinancialSystem__c = false), AccessLevel.SYSTEM_MODE);
 
 		Test.startTest();
 		Database.delete(gone, AccessLevel.SYSTEM_MODE);

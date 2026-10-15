@@ -111,3 +111,12 @@ relations), wait for the roles flow, call 2. REBEL Lease 748768 (001G500001TgOuM
 - **Found: lost-update race in afl_AccountContactRelation_Roles.** Two role changes in one transaction (Chris gets
   Payment, Afdeling gets Reminder) start two async runs that both rewrite Mart from the same snapshot; the last one
   wins → REBEL ends with Payment on Chris AND Mart. Pre-existing flow issue, not the REST code.
+
+### Roles flow replaced by Apex (dev 2026-10-15, 0Afbd00000BfkYRCAZ)
+`Svc_AccountContactRelationRoles` (AccountContactRelation trigger, after insert/update) replaces rab_/afl_AccountContactRelation_Roles
+(rab deactivated in dev, repo status Obsolete). Per account once per save: owner per unique role = the relation that gained it
+(last one wins), others lose it, lookups follow the owners, no-email removal + alert; synchronous.
+Dev rerun of the acc race (848768): Mart held Payment;Reminder;Service, platform call gave Chris Payment and Afdeling Reminder
+→ Mart = Service only, Chris Sales;Main;Shipping;Payment, Afdeling ASR;Reminder;Invoice;Digital, lookups correct immediately.
+Tests: Test_Svc_AccountContactRelationRoles 6/6 (90%), with Test_Rest_UpsertAccount + Test_Svc_FinancialSystemContactRemoval 36/36;
+20 role/lookup test classes: 177/190, the 13 failures are dev setup only (no integration user, no MI connection config).

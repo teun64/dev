@@ -75,7 +75,7 @@
         </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <subflows>
         <name>afl_01_Account_Contact_Relation_Roles</name>
         <label>1. Account Contact Relation - Roles</label>
