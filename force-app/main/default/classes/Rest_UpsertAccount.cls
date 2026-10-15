@@ -516,10 +516,8 @@ global without sharing class Rest_UpsertAccount {
 			miVisitContact.language = miAccount.visitAddress.language;
 			miVisitContact.country = miAccount.visitAddress.country;
 			miVisitContact.newsLetter = miAccount.visitAddress.newsLetter;
-			miVisitContact.type = 'Main';
-			if (Rest_UpsertAccount.accountIsNew) {
-				miVisitContact.type += ';Shipping';
-			}
+			// Shipping goes with Main (see platformRoles), on create and on update
+			miVisitContact.type = 'Main;Shipping';
 			miVisitContact.isActive = true; // value of has account
 			miVisitContact.hasDealerTaskAccess = false; //dealer tasks
 			miVisitContact.isAdministrator = false;
@@ -850,12 +848,13 @@ global without sharing class Rest_UpsertAccount {
 	}
 
 	/**
-	 * Roles of an existing relation after a platform update (user decision 2026-10-15):
+	 * Roles of an existing relation after a platform update (user decisions 2026-10-15):
 	 *  - Main     : follows the visit contact - only changed when the payload has a visit address
 	 *  - Invoice  : follows the billing contact (or the visit contact when billing is empty / the same)
 	 *               - only changed when the payload has an invoice contact
 	 *  - Digital  : B2B only, and only on a relation that has Invoice (before or after): follows the payload
-	 *  - Shipping : only set when the account is created (type of the visit contact), never removed
+	 *  - Shipping : only on a relation that has Main (before or after): follows the payload (the visit contact
+	 *               carries Main;Shipping), so it moves with Main; no B2B check
 	 *  - Reminder, Payment, Sales, Service, ASR and any other role: never touched
 	 * One Main / Invoice / Shipping per account is kept by afl_AccountContactRelation_Roles (moves the lookups).
 	 */
@@ -875,14 +874,13 @@ global without sharing class Rest_UpsertAccount {
 				wanted.add(role.trim());
 			}
 		}
+		Boolean hadMain = roles.contains('Main');
 		Boolean hadInvoice = roles.contains('Invoice');
 
 		Rest_UpsertAccount.setRole(roles, 'Main', payloadHasVisit, wanted.contains('Main'));
+		Rest_UpsertAccount.setRole(roles, 'Shipping', payloadHasVisit && (hadMain || roles.contains('Main')), wanted.contains('Shipping'));
 		Rest_UpsertAccount.setRole(roles, 'Invoice', payloadHasInvoice, wanted.contains('Invoice'));
 		Rest_UpsertAccount.setRole(roles, 'Digital', isBusiness && (hadInvoice || roles.contains('Invoice')), wanted.contains('Digital'));
-		if (wanted.contains('Shipping') && !roles.contains('Shipping')) {
-			roles.add('Shipping');
-		}
 		return roles.isEmpty() ? null : String.join(roles, ';');
 	}
 

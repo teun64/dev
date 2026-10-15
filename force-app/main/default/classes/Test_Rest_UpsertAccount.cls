@@ -514,6 +514,8 @@ private class Test_Rest_UpsertAccount {
         Account acc = [SELECT Id FROM Account WHERE extId_1__c = 'r40' LIMIT 1];
         AccountContactRelation acr = [SELECT Id, ContactId, Roles FROM AccountContactRelation WHERE AccountId = :acc.Id LIMIT 1];
         String afterCreate = acr.Roles;
+        Set<String> created = new Set<String>(afterCreate.split(';'));
+        System.assert(created.containsAll(new Set<String>{'Main', 'Shipping', 'Invoice', 'Digital'}), 'New B2B account, visit = billing: ' + afterCreate);
         Database.update(new Account(Id = acc.Id, Contact_person__c = acr.ContactId, Contact_Billing__c = acr.ContactId, Contact_Shipping__c = acr.ContactId), AccessLevel.SYSTEM_MODE);
         Database.update(new AccountContactRelation(Id = acr.Id, Roles = 'Main;Invoice;Shipping;Digital;Reminder;Payment'), AccessLevel.SYSTEM_MODE);
 
@@ -543,9 +545,13 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals('Digital', Rest_UpsertAccount.platformRoles('Digital', null, true, true, true));
         // B2B, relation gets Invoice: Digital follows the payload
         System.assertEquals('Payment;Invoice;Digital', Rest_UpsertAccount.platformRoles('Payment', 'Invoice;Digital', true, true, true));
-        // Shipping: added when sent (new account), never removed
-        System.assertEquals('Main;Shipping', Rest_UpsertAccount.platformRoles(null, 'Main;Shipping', true, false, true));
+        // Shipping moves with Main (no B2B check): the visit contact gets both, the old Main contact loses both
+        System.assertEquals('Main;Shipping', Rest_UpsertAccount.platformRoles(null, 'Main;Shipping', true, false, false));
+        System.assertEquals('Sales', Rest_UpsertAccount.platformRoles('Main;Shipping;Sales', null, true, false, false));
+        // Shipping on a relation without Main is left alone
         System.assertEquals('Shipping;Sales', Rest_UpsertAccount.platformRoles('Shipping;Sales', null, true, true, true));
+        // Main kept: missing Shipping is added again
+        System.assertEquals('Main;Reminder;Shipping', Rest_UpsertAccount.platformRoles('Main;Reminder', 'Main;Shipping', true, false, false));
         // nothing left
         System.assertEquals(null, Rest_UpsertAccount.platformRoles('Main', null, true, false, true));
     }

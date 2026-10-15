@@ -44,8 +44,8 @@ behavior). Repeat several times.
 **Expected result — must NOT change on repeat calls:**
 - Mart van den Heuvel stays roleless.
 - Afdeling Administratie stays `Invoice;Digital`.
-- Chris Jonker **keeps** `Main;Shipping` (since 2026-10-15: Shipping is only set on
-  create and never removed by a platform update; before, it dropped to `Main`).
+- Chris Jonker **keeps** `Main;Shipping` (since 2026-10-15 Shipping moves with Main;
+  before, it dropped to `Main` on every update).
 - Roles set in Salesforce (Reminder, Payment, Sales, Service, ASR) survive every call.
 - `Contact_Billing__c` never moves off Afdeling Administratie.
 
@@ -73,7 +73,8 @@ landing with no role. Ask Teun for the actual request bodies to fill this in.
 - Main follows the visit contact (only changed when the payload has a visit address).
 - Invoice follows the billing contact, or the visit contact when billing is empty / the same.
 - Digital: B2B only, and only on a relation that has Invoice (before or after); then follows the payload.
-- Shipping: only set when the account is created; never removed.
+- Shipping: moves with Main (only changed on a relation that has Main before or after; the visit
+  contact always carries Main;Shipping), no B2B check.
 - Reminder, Payment, Sales, Service, ASR: never touched. Payload wins over the lookups;
   afl_AccountContactRelation_Roles moves the lookups and keeps one Main/Invoice/Shipping per account.
-Dev run 2026-10-15 (external id 948767): 3 calls stable + Reminder/Payment kept on a 4th call.
+Dev run 2026-10-15 (external id 948767): 3 calls stable + Reminder/Payment kept on a 4th call; rerun after the Shipping-with-Main change (848768): 3 calls stable.
