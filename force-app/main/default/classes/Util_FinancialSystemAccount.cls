@@ -16,7 +16,7 @@
  *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST
  * A relation without an Exact contact id is first matched against the Exact account's contacts (email, then name)
  * before a new Exact contact is created (no duplicates on the first sync of an existing account); a stored id that no
- * longer exists in Exact (404) is dropped and matched again.
+ * longer exists in Exact (403 / 404 and not among the account's Exact contacts) is dropped and matched again.
  * A sync without a hard failure (soft warnings allowed) clears FinancialSyncForce__c (go-live marker: push before the next
  * order / invoice); a fully successful one stamps FinancialSystemLastSyncDate__c on the account. Every relation whose
  * contact was sent gets FinancialSystemLastSyncDate__c.
@@ -707,9 +707,17 @@ public without sharing class Util_FinancialSystemAccount {
 			ctx.exactMainContact = body.MainContact;
 			return;
 		}
-		Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acct.FinancialIdAccount__c + '\')', null, 'PUT', JSON.serialize(body), guid);
+		// MainContact is not sent here but set in step 4, after the contacts: a stored contact id may no longer exist in
+		// Exact ("Ongeldige referentie: Hoofdcontactpersoon" fails the whole account) and an empty one clears it in Exact
+		Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(body));
+		payload.remove('MainContact');
+		Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acct.FinancialIdAccount__c + '\')', null, 'PUT', JSON.serialize(payload), guid);
 		ctx.result.calls++;
-		ctx.exactMainContact = body.MainContact;
+		// main contact in Exact: known from the match, or the one this sync set before (its contact fingerprint exists);
+		// otherwise unknown, so step 4 sets it
+		if (!ctx.matched) {
+			ctx.exactMainContact = ctx.state.containsKey(STATE_CONTACT + acct.Contact_person__c) ? body.MainContact : null;
+		}
 	}
 
 	private static String getDebtorNumber(Util_FinancialSystemAccount.Ctx ctx, String exactId, String division, String guid) {
@@ -753,7 +761,10 @@ public without sharing class Util_FinancialSystemAccount {
 				return;
 			} catch (Util_System.FinancialSyncException e) {
 				ctx.result.calls++;
-				if (Util_FinancialSystem.lastErrorStatus != 404) {
+				// Exact answers 403 Forbidden (seen in acc 2026-10-15) or 404 for a contact id it does not have; a 403 can also be
+				// a real permission problem, so the id only counts as gone when it is not among the account's Exact contacts
+				Integer status = Util_FinancialSystem.lastErrorStatus;
+				if ((status != 403 && status != 404) || Util_FinancialSystemAccount.isExactContactOfAccount(ctx, acr.FinancialIdContact__c, division, guid)) {
 					throw e;
 				}
 				// the stored Exact contact no longer exists (deleted / merged in Exact): match or create it again
@@ -795,17 +806,7 @@ public without sharing class Util_FinancialSystemAccount {
 	 */
 	@TestVisible
 	private static Util_FinancialSystemAccount.ExactContact matchExactContact(Util_FinancialSystemAccount.Ctx ctx, AccountContactRelation acr, String division, String guid) {
-		if (ctx.exactContacts == null) {
-			Map<String, String> params = new Map<String, String>{
-				'$select' => 'ID,FirstName,MiddleName,LastName,Email',
-				'$filter' => 'Account eq guid\'' + ctx.acct.FinancialIdAccount__c + '\''
-			};
-			String response = Util_FinancialSystem.doRequest(ctx.admin, String.format(CONTACT_ENDPOINT, new List<String>{ division }), params, 'GET', null, guid);
-			ctx.result.calls++;
-			Util_FinancialSystemAccount.ExactContacts found = String.isBlank(response) ? null
-				: (Util_FinancialSystemAccount.ExactContacts) JSON.deserialize(response, Util_FinancialSystemAccount.ExactContacts.class);
-			ctx.exactContacts = found == null || found.results == null ? new List<Util_FinancialSystemAccount.ExactContact>() : found.results;
-		}
+		Util_FinancialSystemAccount.loadExactContacts(ctx, division, guid);
 		Set<String> used = new Set<String>();
 		for (AccountContactRelation other : ctx.acrByContact.values()) {
 			if (other.Id != acr.Id && String.isNotBlank(other.FinancialIdContact__c)) {
@@ -827,6 +828,33 @@ public without sharing class Util_FinancialSystemAccount {
 			}
 		}
 		return byName;
+	}
+
+	/** Reads the Exact account's contacts once per sync (one GET). */
+	private static void loadExactContacts(Util_FinancialSystemAccount.Ctx ctx, String division, String guid) {
+		if (ctx.exactContacts != null) {
+			return;
+		}
+		Map<String, String> params = new Map<String, String>{
+			'$select' => 'ID,FirstName,MiddleName,LastName,Email',
+			'$filter' => 'Account eq guid\'' + ctx.acct.FinancialIdAccount__c + '\''
+		};
+		String response = Util_FinancialSystem.doRequest(ctx.admin, String.format(CONTACT_ENDPOINT, new List<String>{ division }), params, 'GET', null, guid);
+		ctx.result.calls++;
+		Util_FinancialSystemAccount.ExactContacts found = String.isBlank(response) ? null
+			: (Util_FinancialSystemAccount.ExactContacts) JSON.deserialize(response, Util_FinancialSystemAccount.ExactContacts.class);
+		ctx.exactContacts = found == null || found.results == null ? new List<Util_FinancialSystemAccount.ExactContact>() : found.results;
+	}
+
+	/** The Exact contact id belongs to this account in Exact. */
+	private static Boolean isExactContactOfAccount(Util_FinancialSystemAccount.Ctx ctx, String exactContactId, String division, String guid) {
+		Util_FinancialSystemAccount.loadExactContacts(ctx, division, guid);
+		for (Util_FinancialSystemAccount.ExactContact c : ctx.exactContacts) {
+			if (String.isNotBlank(c.ID) && c.ID.equalsIgnoreCase(exactContactId)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static String nameKey(String firstName, String lastName) {

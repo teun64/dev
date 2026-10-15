@@ -28,8 +28,15 @@ public class Test_Util_FinancialSystemAccount {
 			res.setHeader('X-RateLimit-Remaining', '4000');
 			res.setHeader('X-RateLimit-Minutely-Remaining', '50');
 			if (m == 'PUT' && this.missingContact != null && ep.contains(this.missingContact)) {
-				res.setStatusCode(404);
-				res.setBody('{"error":{"code":"","message":{"lang":"","value":"Record not found"}}}');
+				// what Exact answers for a contact id it does not have (acc, 2026-10-15)
+				res.setStatusCode(403);
+				res.setBody('{"error":{"code":"","message":{"lang":"","value":"Forbidden"}}}');
+				return res;
+			}
+			if (m == 'PUT' && entity == 'Account' && this.missingContact != null && req.getBody().contains(this.missingContact)) {
+				// Exact refuses an account whose main contact does not exist (Xajo / Van Lith, prod 2026-10-15)
+				res.setStatusCode(500);
+				res.setBody('{"error":{"code":"","message":{"lang":"","value":"Ongeldige referentie: Hoofdcontactpersoon"}}}');
 				return res;
 			}
 			if (m == 'PUT') {
@@ -807,6 +814,8 @@ public class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 
 		System.assert(r.success, r.messages + ' ' + sim.calls);
+		System.assert(!sim.body('PUT Account').contains('MainContact'), 'Account data is sent without the main contact: ' + sim.body('PUT Account'));
+		System.assert(sim.bodies.contains('PUT Account {"MainContact":"exact-con-1"}'), 'Main contact set after the contact match: ' + sim.bodies);
 		System.assertEquals(1, sim.count('GET Contact'), 'Exact contacts read once: ' + sim.calls);
 		System.assertEquals(0, sim.count('POST Contact'), 'No duplicate contact: ' + sim.calls);
 		System.assertEquals(1, sim.count('PUT Contact'), 'Matched contact updated: ' + sim.calls);
@@ -851,7 +860,7 @@ public class Test_Util_FinancialSystemAccount {
 	}
 
 	@IsTest
-	static void staleContactId_404_isReplaced() {
+	static void staleContactId_forbidden_isReplaced() {
 		Account acc = existingInExact(false);
 		AccountContactRelation rel = mainRelation(acc);
 		Database.update(new AccountContactRelation(Id = rel.Id, FinancialIdContact__c = 'gone-guid'), AccessLevel.SYSTEM_MODE);
@@ -864,9 +873,12 @@ public class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 
 		System.assert(r.success, r.messages + ' ' + sim.calls);
-		System.assertEquals(1, sim.count('GET Contact'), 'Matched again after the 404: ' + sim.calls);
+		System.assertEquals(1, sim.count('GET Contact'), 'One GET: checks the id and matches again after the 403: ' + sim.calls);
 		System.assertEquals(1, sim.count('POST Contact'), sim.calls);
-		System.assert(mainRelation(acc).FinancialIdContact__c.startsWith('contact-guid-'), 'Stale id replaced');
+		String newId = mainRelation(acc).FinancialIdContact__c;
+		System.assert(newId.startsWith('contact-guid-'), 'Stale id replaced');
+		System.assertEquals(2, sim.count('PUT Account'), 'Account data, then the main contact (step 4): ' + sim.calls);
+		System.assert(sim.bodies.contains('PUT Account {"MainContact":"' + newId + '"}'), 'Main contact set to the new contact: ' + sim.bodies);
 	}
 
 	@IsTest
@@ -880,5 +892,25 @@ public class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 
 		System.assertEquals(0, sim.count('GET Contact'), 'A new Exact account has no contacts to match: ' + sim.calls);
+	}
+
+	@IsTest
+	static void forbiddenOnContactOfTheAccount_staysAnError() {
+		Account acc = existingInExact(false);
+		AccountContactRelation rel = mainRelation(acc);
+		Database.update(new AccountContactRelation(Id = rel.Id, FinancialIdContact__c = 'locked-guid'), AccessLevel.SYSTEM_MODE);
+		ExactSim sim = new ExactSim();
+		sim.missingContact = 'locked-guid';
+		// the contact does exist on the Exact account: a real permission problem, never replaced by a new contact
+		sim.contactLookup = '{"d":{"results":[{"ID":"locked-guid","FirstName":"X","LastName":"Y","Email":"main@sync.test"}]}}';
+		Test.setMock(HttpCalloutMock.class, sim);
+
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(!r.success, sim.calls + '');
+		System.assertEquals(0, sim.count('POST Contact'), sim.calls);
+		System.assertEquals('locked-guid', mainRelation(acc).FinancialIdContact__c, 'Id kept');
 	}
 }
