@@ -496,4 +496,57 @@ private class Test_Rest_UpsertAccount {
         Database.insert(new Asset(Name = 'testAsset', AccountId = dealerAcc.Id, extID__c = '123-hw-1', Product2Id = hwProd.Id, RecordTypeId = Schema.SObjectType.Asset.getRecordTypeInfosByDeveloperName().get('Hardware').getRecordTypeId()));
         Database.insert(new Asset(Name = 'testAssetEntity', AccountId = dealerAcc.Id, extID__c = '7587-in-1', RecordTypeId = Schema.SObjectType.Asset.getRecordTypeInfosByDeveloperName().get('Entity').getRecordTypeId()));
     }
+
+    // An ordinary platform update must not strip roles: Salesforce-only roles (Reminder, Payment) set by a user,
+    // and Main / Invoice / Shipping while the account lookups still point to the contact.
+    private static testMethod void testUpdateKeepsUserAndLookupRoles(){
+        String payload = '{"id":"r40","salesforceId":null,"debtorNumber":null,"name":"Roles b.v.","isBusiness":true,"isDealer":false,'
+            + '"paymentMethodExactCode":"08","contactDTOs":[],'
+            + '"visitAddress":{"id":"r40v","accountId":"r40","firstName":"Rita","insertion":null,"surName":"Roles","email":"rita.roles@roles.test",'
+            + '"phoneNumber":"+31655667788","street":"Straat","houseNumber":"1","postalCode":"1111 AA","city":"Plaats","country":"NL","language":"nl"},'
+            + '"billingAddress":{"id":"r40v","accountId":"r40","firstName":"Rita","insertion":null,"surName":"Roles","email":"rita.roles@roles.test",'
+            + '"phoneNumber":"+31655667788","street":"Straat","houseNumber":"1","postalCode":"1111 AA","city":"Plaats","country":"NL","language":"nl"},'
+            + '"isBlocked":false,"isBankrupt":false,"resellerId":1,"platformId":1}';
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(payload);
+        Rest_UpsertAccount.handleAction();
+
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = 'r40' LIMIT 1];
+        AccountContactRelation acr = [SELECT Id, ContactId, Roles FROM AccountContactRelation WHERE AccountId = :acc.Id LIMIT 1];
+        String afterCreate = acr.Roles;
+        Database.update(new Account(Id = acc.Id, Contact_person__c = acr.ContactId, Contact_Billing__c = acr.ContactId, Contact_Shipping__c = acr.ContactId), AccessLevel.SYSTEM_MODE);
+        Database.update(new AccountContactRelation(Id = acr.Id, Roles = 'Main;Invoice;Shipping;Digital;Reminder;Payment'), AccessLevel.SYSTEM_MODE);
+
+        // same account again = an ordinary update from the platform
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(payload);
+        Rest_UpsertAccount.handleAction();
+
+        Set<String> roles = new Set<String>([SELECT Roles FROM AccountContactRelation WHERE Id = :acr.Id].Roles.split(';'));
+        String msg = 'after create: ' + afterCreate + ' | after update: ' + roles;
+        System.assert(roles.contains('Main'), msg);
+        System.assert(roles.contains('Invoice'), msg);
+        System.assert(roles.contains('Shipping'), 'Shipping lookup still points to the contact - ' + msg);
+        System.assert(roles.contains('Reminder'), 'Salesforce-only role - ' + msg);
+        System.assert(roles.contains('Payment'), 'Salesforce-only role - ' + msg);
+    }
+
+    // Role rules of a platform update on an existing relation (Rest_UpsertAccount.platformRoles)
+    private static testMethod void testPlatformRolesRules(){
+        // another contact is the visit + invoice contact now: Main, Invoice (and Digital, B2B) move away; Reminder stays
+        System.assertEquals('Reminder', Rest_UpsertAccount.platformRoles('Main;Invoice;Digital;Reminder', null, true, true, true));
+        // no visit address in the payload: Main is left alone
+        System.assertEquals('Main', Rest_UpsertAccount.platformRoles('Main', null, false, false, true));
+        // B2C: Digital is never changed
+        System.assertEquals('Invoice;Digital', Rest_UpsertAccount.platformRoles('Invoice;Digital', 'Invoice', true, true, false));
+        // B2B, relation without Invoice: Digital is left alone
+        System.assertEquals('Digital', Rest_UpsertAccount.platformRoles('Digital', null, true, true, true));
+        // B2B, relation gets Invoice: Digital follows the payload
+        System.assertEquals('Payment;Invoice;Digital', Rest_UpsertAccount.platformRoles('Payment', 'Invoice;Digital', true, true, true));
+        // Shipping: added when sent (new account), never removed
+        System.assertEquals('Main;Shipping', Rest_UpsertAccount.platformRoles(null, 'Main;Shipping', true, false, true));
+        System.assertEquals('Shipping;Sales', Rest_UpsertAccount.platformRoles('Shipping;Sales', null, true, true, true));
+        // nothing left
+        System.assertEquals(null, Rest_UpsertAccount.platformRoles('Main', null, true, false, true));
+    }
 }

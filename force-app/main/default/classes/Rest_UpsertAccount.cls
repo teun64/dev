@@ -564,6 +564,8 @@ global without sharing class Rest_UpsertAccount {
 			}
 		}
 
+		Boolean payloadHasInvoice = (miBillingContact != null) || ((miVisitContact != null) && miVisitContact.type.contains('Invoice'));
+
 		// check visit and or billing exists in changed contact, then override other wise add
 		boolean visitNotFound = true;
 		boolean billingNotFound = true;
@@ -658,7 +660,6 @@ global without sharing class Rest_UpsertAccount {
 		Map<String, Contact> newContacts = new Map<String, Contact>();
 		Map<String, Contact> updateContacts = new Map<String, Contact>();
 		Map<String, AccountContactRelation> upsertACRs = new Map<String, AccountContactRelation>();
-		Map<String, AccountContactRelation> updateRoles = new Map<String, AccountContactRelation>();
 		Map<String, String> rolesACRs = new Map<String, String>();
 		Map<String, Schema.SObjectField> contFieldMap = Schema.SObjectType.Contact.fields.getMap();
 		Contact cont;
@@ -689,50 +690,7 @@ global without sharing class Rest_UpsertAccount {
 				nameContacts.put(curContact.Name.Trim().toUpperCase(), curContact);
 			}
 
-			// determine roles for existing ACRs, to be able to update them it the roles need to be added
-			Boolean emptyRoles = (curACR.roles == null) || (curACR.roles == '');
-			Boolean rolesUpdate = false;
-
-			if ( ((emptyRoles) || (!curACR.roles.contains('Invoice'))) && (acc.Contact_Billing__c == curACR.ContactId)) {
-				if (emptyRoles) {
-					curACR.roles = '';
-					emptyRoles = false;
-				} else {
-					curACR.roles += ';';
-				}
-
-				curACR.roles += 'Invoice';
-				rolesUpdate = true;
-			}
-
-			if (((emptyRoles) || (!curACR.roles.contains('Shipping'))) && (acc.Contact_Shipping__c == curACR.ContactId )) {
-				if (emptyRoles) {
-					curACR.roles = '';
-					emptyRoles = false;
-				} else {
-					curACR.roles += ';';
-				}
-
-				curACR.roles += 'Shipping';
-				rolesUpdate = true;
-			}
-
-			if (((emptyRoles) || (!curACR.roles.contains('Main'))) && (acc.Contact_Person__c == curACR.ContactId)) {
-				if (emptyRoles) {
-					curACR.roles = '';
-					emptyRoles = false;
-				} else {
-					curACR.roles += ';';
-				}
-
-				curACR.roles += 'Main';
-				rolesUpdate = true;
-			}
-
-			if (rolesUpdate) {
-				updateRoles.put(curAcr.CompositeKey__c, curACR);
-			}
-
+			// existing roles per relation: a platform update only changes the roles it controls (see platformRoles)
 			rolesACRs.put(curAcr.CompositeKey__c, curACR.Roles);
 		}
 
@@ -857,46 +815,9 @@ global without sharing class Rest_UpsertAccount {
 			//System.debug('running platfromccontact: ' + platCont);
 			//System.debug('Remove: ' + acr.CompositeKey__c);
 
-			updateRoles.remove(acr.CompositeKey__c);
-
 			if (rolesACRs.containsKey(acr.CompositeKey__c)) {
-				acr.Roles = rolesACRs.get(acr.CompositeKey__c);
-
-				//System.debug('requested platfrom roles: ' + platCont.type);
-
-				if (acr.Roles != null) {
-					for (String role : acr.Roles.split(';')) {
-						if ((role == null) || (String.isBlank(role))) continue;
-
-						if ((platCont.type == null) || (String.isBlank(platCont.type)) || (!platCont.type.contains(role))) {
-							// role is in ACR but not in the incoming contact, so remove it
-							acr.Roles = acr.Roles.replace(role, '').replace(';;', ';');
-
-							if (acr.Roles.startsWith(';')) {
-								acr.Roles = acr.Roles.substring(1);
-							}
-							if (acr.Roles.endsWith(';')) {
-								acr.Roles = acr.Roles.substring(0, acr.Roles.length() - 1);
-							}
-						}
-					}
-				}
-
-				//System.debug('currenct acr.roles ' + acr.Roles);
-
-				if (platCont.type != null) {
-
-					for (String role : platCont.type.split(';')) {
-						if ((role == null) || (String.isBlank(role))) continue;
-
-						if ((acr.Roles == null) || (String.isBlank(acr.Roles))) {
-							acr.Roles = role;
-						} else if (!acr.Roles.contains(role)) {
-							acr.Roles += ';' + role;
-						}
-					}
-					//System.debug('Roles to be set: ' + acr.Roles);
-				}
+				acr.Roles = Rest_UpsertAccount.platformRoles(rolesACRs.get(acr.CompositeKey__c), platCont.type, miVisitContact != null,
+					payloadHasInvoice, miAccount.isBusiness == true);
 			} else {
 				acr.Roles = platCont.type;
 			}
@@ -919,12 +840,6 @@ global without sharing class Rest_UpsertAccount {
 			}
 		}
 
-		// maintain existing roles on ACRs, if the contact is updated with no role information, the existing roles will be kept, so only update when there is a change needed
-		if (!updateRoles.isEmpty()) {
-			//System.debug('updateRoles');
-			Database.update(updateRoles.values(), Rest_UpsertAccount.runningMode);
-		}
-
 		if ((accountUpdate) || (accUpdateVisit) || (accUpdateShipping) || (accUpdateBilling) || (accUpdateAdmin)) {
 			//System.debug('Account = ' + acc);
 			Database.update(acc, Rest_UpsertAccount.runningMode);
@@ -932,6 +847,54 @@ global without sharing class Rest_UpsertAccount {
 		}
 
 		return records;
+	}
+
+	/**
+	 * Roles of an existing relation after a platform update (user decision 2026-10-15):
+	 *  - Main     : follows the visit contact - only changed when the payload has a visit address
+	 *  - Invoice  : follows the billing contact (or the visit contact when billing is empty / the same)
+	 *               - only changed when the payload has an invoice contact
+	 *  - Digital  : B2B only, and only on a relation that has Invoice (before or after): follows the payload
+	 *  - Shipping : only set when the account is created (type of the visit contact), never removed
+	 *  - Reminder, Payment, Sales, Service, ASR and any other role: never touched
+	 * One Main / Invoice / Shipping per account is kept by afl_AccountContactRelation_Roles (moves the lookups).
+	 */
+	@TestVisible
+	private static String platformRoles(String currentRoles, String payloadType, Boolean payloadHasVisit, Boolean payloadHasInvoice, Boolean isBusiness) {
+		List<String> roles = new List<String>();
+		if (String.isNotBlank(currentRoles)) {
+			for (String role : currentRoles.split(';')) {
+				if (String.isNotBlank(role) && !roles.contains(role.trim())) {
+					roles.add(role.trim());
+				}
+			}
+		}
+		Set<String> wanted = new Set<String>();
+		if (String.isNotBlank(payloadType)) {
+			for (String role : payloadType.split(';')) {
+				wanted.add(role.trim());
+			}
+		}
+		Boolean hadInvoice = roles.contains('Invoice');
+
+		Rest_UpsertAccount.setRole(roles, 'Main', payloadHasVisit, wanted.contains('Main'));
+		Rest_UpsertAccount.setRole(roles, 'Invoice', payloadHasInvoice, wanted.contains('Invoice'));
+		Rest_UpsertAccount.setRole(roles, 'Digital', isBusiness && (hadInvoice || roles.contains('Invoice')), wanted.contains('Digital'));
+		if (wanted.contains('Shipping') && !roles.contains('Shipping')) {
+			roles.add('Shipping');
+		}
+		return roles.isEmpty() ? null : String.join(roles, ';');
+	}
+
+	private static void setRole(List<String> roles, String role, Boolean controlled, Boolean present) {
+		if (!controlled) {
+			return;
+		}
+		if (present && !roles.contains(role)) {
+			roles.add(role);
+		} else if (!present && roles.contains(role)) {
+			roles.remove(roles.indexOf(role));
+		}
 	}
 
 	public class MiContactWrapper implements Comparable {
