@@ -1,0 +1,72 @@
+# Invoice email + direct debit mandate request in one email — RUNBOOK
+
+Status 2026-10-15 (end of day): **built and tested in dev, committed `8f743de` (not pushed). acc/prod: nothing done.**
+Continue: see "Next session" at the bottom.
+
+## Goal
+One email per invoice: the Subscription25 invoice email (Lightning template, PDF attached) also carries the direct debit
+authorisation link, instead of a separate DD setup email minutes after finalize. Classic invoice templates retired.
+
+## What is built (dev)
+
+### Templates
+| Template | Folder | Letterhead | Notes |
+|---|---|---|---|
+| `InvoiceNL` / `InvoiceUK` / `InvoiceDE` | Invoicing (Lightning) | `lh_M_Preferences_NL` / `_EN` / `_DE` | original names kept → Administration values unchanged; merge `{{{Subscription25__Invoice__c.Payment_Setup_Block__c}}}`; brand block under signature; UK/DE signature with T./E. lines |
+| `InvoiceNL_Classic` / `UK_Classic` / `DE_Classic` | Invoicing_Classic ("Invoicing (Classic)") | — | Classic originals, renamed in the org via data API (Ids kept); not in the repo |
+| `paymentDirectDebitSetupInitial_*`, `Reminder1_*`, `Reminder2_*` (EN/NL/**DE new**) | DirectDebit | `lh_M_Preferences_EN/NL/DE` | link = `{{{Payment__c.Setup_URL__c}}}` (no hard-coded host); inline brand block moved under signature; generic "personal, secure link" text |
+| `paymentDirectDebitInvoiceBlock_EN/NL/DE` | DirectDebit | — | not sent; rendered into the invoice block |
+
+Letterheads `lh_M_Preferences_EN/NL/DE/FR` (EnhancedLetterhead = **data, not metadata**): header = MI email header, footer =
+terms & conditions + privacy statement line per language. JSON in `letterheads/` — recreate by hand per org
+(`POST /services/data/v67.0/sobjects/EnhancedLetterhead/`), then set `EmailTemplate.EnhancedLetterheadId` via data API
+(a template redeploy keeps the link). FR links to movingintelligence.ai (no French MI site).
+
+### Data model / code
+- `Subscription25__Invoice__c.Payment_Setup_Block__c` (rich text) — read FLS on `ps_miSubscription25_User` (in pg_Subscription25User + pg_Subscription25Admin).
+- `Payment__c.Setup_URL__c` = `Business_Entity__r.CustomerHub_URL__c & "/payment?token=" & externalId__c`.
+- `Payment__c.Interaction_Status__c` + value **Awaiting Invoice Email**.
+- `Svc_InvoicePaymentBlock` (invocable fill/clear; language from the Administration's invoice template) + test (3/3, 96%).
+
+### Flows
+| Flow | Change |
+|---|---|
+| `afl_Payment_Direct_Debit_Setup` (v28) | invoice email still PENDING → payment `Awaiting Invoice Email` + block on invoice, no separate mail; block fill fails → `Mail Sent` + separate mail |
+| `rau_Subscription25_Invoice_c_Email_Status_Payment` (new) | invoice Email_Status SENT → payment `Mail Sent` (reminders start); ERROR / WILL_NOT_BE_SENT → separate setup mail, clear block, `Mail Sent` |
+| `rab_Payment_Direct_Debit_Awaiting_Invoice` (new) | D+3 still awaiting → separate setup mail, clear block, `Mail Sent` |
+| `rab_Payment_Direct_Debit_Processed` (new) | mandate done (`Request Processed by Customer`) → clear block |
+| `rab_Payment_Direct_Debit_Escalation` (v3) | reminder template by Contact.Language__c (was always `_EN`) |
+
+### Tests in dev (account Teun Rietman 001bd00000kl0ruAAA, UK)
+- Render of all templates: OK (merge fields, letterheads, links).
+- SENT path: PM#000110390 / GB26000018 → Awaiting + block → user sent invoice via package → `Mail Sent`, only the invoice mail. ✅
+- ERROR path (simulated Email_Status=ERROR): separate setup mail 10:05 UTC, block cleared, `Mail Sent`. ✅ Side effect: existing flow created Case **MI00234163** "Invoice delivery failure" (test, still open).
+- Safety net D+3: ⏳ not tested. Reminder 1 for PM#000110390 due ~2026-10-17 (checks reminder language).
+- PM#000110389 set to Cancelled (test only).
+
+## Decisions taken
+- Mandate request goes out with the invoice email (prod example: 1–2 days later than today). Reminders count from that moment.
+- Payment contact ≠ invoice contact (prod: UK 17 / NL ~7,000 / DE ~680 accounts): **leave as is** (user, 2026-10-15).
+- DE in scope (templates ready); DE customers only get DD once Germany Business Entity `PayProv_Use__c` + Payment_Setting autocreate are switched on (config decision).
+
+## Known issues / findings
+- **Customer Hub URL empty** on NL/UK/DE Business Entities in acc + prod (root cause: mirrored from the Administration field, which was empty and invisible to the admin user despite pg_Subscription25Admin FLS). Fixed in dev; acc/prod → `customerHubFill/RUNBOOK.md`. **Must be done before the new DD templates go live, or all DD links are empty.**
+- Prod DD templates have the prod host hard-coded and differ from the repo (repo had the dev host) → retrieve-diff prod templates before deploying.
+- `ps_miSubscription25_User` prod is 1 field behind dev/repo (`Subscription25__Administration__c.Include_…`) — comes along with the next deploy; permission set deploys REPLACE the whole set (retrieve-diff before/after).
+- dev has 99 PENDING invoices and no Sub25 send job: never run `Job_EmailInvoice` in dev.
+- Classic folder `Invoicing` (prod) vs Lightning folder `Invoicing`: in the org both may exist; prod cutover renames Classic first (data API), then deploys Lightning.
+
+## Deploy plan (acc first, prod only on explicit go)
+1. Customer Hub URL fill — `customerHubFill/RUNBOOK.md`.
+2. Rename Classic templates `InvoiceNL/UK/DE` → `*_Classic` and folder → `Invoicing_Classic` (data API). **From here the Administrations point to templates that don't exist until step 3 → do 2–4 back-to-back, outside the Job_EmailInvoice window (prod: 21:16 UTC).**
+3. Deploy (commit `8f743de` content): field Payment_Setup_Block__c, Setup_URL__c, Interaction_Status__c, Svc_InvoicePaymentBlock (+test), templates (Invoicing + DirectDebit), flows, ps_miSubscription25_User (full file, retrieve-diff), Admin profile.
+4. Recreate letterheads `lh_M_Preferences_EN/NL/DE/FR` from `letterheads/*.json`, link to the 3 invoice + 9 DD templates.
+5. Smoke test in acc with a test account (not a real customer): finalize → Awaiting + block → send → Mail Sent; ERROR path.
+6. Prod: same, with explicit go; afterwards monitor first nightly run (payments `Awaiting Invoice Email` → `Mail Sent`).
+
+## Next session
+- [ ] Close test Case MI00234163 (ask user).
+- [ ] Check reminder 1 for PM#000110390 (~2026-10-17), language + link.
+- [ ] Optionally test the D+3 safety net.
+- [ ] Push `8f743de` (on request).
+- [ ] acc deploy following the plan above.
