@@ -562,4 +562,47 @@ private class Test_Rest_UpsertAccount {
         // nothing left
         System.assertEquals(null, Rest_UpsertAccount.platformRoles('Main', null, true, false, true));
     }
+
+    // De Duikenburg (prod 2026-10-15): visit = billing, with and without the contactDTO of the same person
+    private static String duikenburg(String email, Boolean withDto) {
+        String person = '"firstName":"Hemmy","insertion":"de","surName":"Heus","email":"' + email + '","phoneNumber":"+31600000000",'
+            + '"street":"Straat","houseNumber":"1","postalCode":"1111 AA","city":"Plaats","country":"NL","language":"nl"';
+        String dto = withDto ? '{"id":"d223","salesforceId":null,"accountId":"r50",' + person + ',"isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}' : '';
+        return '{"id":"r50","salesforceId":null,"debtorNumber":null,"name":"Duikenburg b.v.","isBusiness":true,"isDealer":false,"paymentMethodExactCode":"08",'
+            + '"contactDTOs":[' + dto + '],'
+            + '"visitAddress":{"id":"v916","accountId":"r50",' + person + '},'
+            + '"billingAddress":{"id":"v916","accountId":"r50",' + person + '},'
+            + '"isBlocked":false,"isBankrupt":false,"resellerId":1,"platformId":1}';
+    }
+
+    private static void post(String body) {
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf(body);
+        Util_Rest.RestResult result = Rest_UpsertAccount.handleAction();
+        System.assert(result.success, result.messages);
+    }
+
+    private static testMethod void testAddressWithoutDtoKeepsRealPlatformIdAndMatchesByName(){
+        post(duikenburg('new@duikenburg.test', true));
+        List<AccountContactRelation> acrs = [SELECT Id, ContactId, extId_1__c, isAdministrator_1__c FROM AccountContactRelation WHERE Account.extId_1__c = 'r50'];
+        System.assertEquals(1, acrs.size(), 'visit = billing = the DTO person: one contact');
+        System.assertEquals('d223', acrs[0].extId_1__c);
+        System.assertEquals(true, acrs[0].isAdministrator_1__c);
+
+        // visit-only call: the synthetic address id (v916a) must not replace the real id, nor reset the checkbox
+        post(duikenburg('new@duikenburg.test', false));
+        acrs = [SELECT Id, ContactId, extId_1__c, isAdministrator_1__c FROM AccountContactRelation WHERE Account.extId_1__c = 'r50'];
+        System.assertEquals(1, acrs.size());
+        System.assertEquals('d223', acrs[0].extId_1__c, 'real platform id kept');
+        System.assertEquals(true, acrs[0].isAdministrator_1__c, 'administrator checkbox kept');
+
+        // the contact's email differs from the address (prod 09:10): matched by name, no second contact, email updated
+        Database.update(new Contact(Id = acrs[0].ContactId, Email = 'old@duikenburg.test'), AccessLevel.SYSTEM_MODE);
+        post(duikenburg('new@duikenburg.test', false));
+        acrs = [SELECT Id, ContactId, Contact.Email, extId_1__c, isAdministrator_1__c FROM AccountContactRelation WHERE Account.extId_1__c = 'r50'];
+        System.assertEquals(1, acrs.size(), 'no duplicate contact');
+        System.assertEquals('new@duikenburg.test', acrs[0].Contact.Email);
+        System.assertEquals('d223', acrs[0].extId_1__c);
+        System.assertEquals(true, acrs[0].isAdministrator_1__c);
+    }
 }

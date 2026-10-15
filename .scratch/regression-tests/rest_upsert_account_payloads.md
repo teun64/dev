@@ -160,3 +160,14 @@ ignored = silent); call 2 fixed them after a save had filled the key. acc data d
 | a1ITx0000048PQLMA2 | Kübra Özge Yiğit (124734, 1) | camel / B2C / billing=visit / dtos0 | 001G500001TgfOzIAJ |
 | a1ITx0000048hwlMAA | Sanft Mobil GmbH (15569, 2) | Pascal / B2B / billing=visit / dtos1 | 001G500001ThCj3IAF |
 | a1ITx0000048ncLMAQ | Janus Diagnostik GmbH (13698, 2) | Pascal / B2B / billing=visit / dtos1 | 001G500001ThCr7IAF |
+
+### Visit / billing contact matching + real platform id (2026-10-15, dev 0Afbd00000Bfzu1CAB, acc 0AfG500000T1A1SKAV, 30/30)
+Prod De Duikenburg (85132): a visit-only call (no contactDTOs) at 09:10 created a second Hemmy de Heus because the existing
+contact still had another email; with the DTO, the synthetic address id (91630a) overwrote the real platform id (223709) and
+reset isAdministrator. Fixes: (1) a visit / billing contact on a relation that already has a real platform id keeps that id and
+its administrator / visible / deleted checkboxes; (2) a visit / billing contact without an id or email match is matched by name
+among all contacts of the account (not when two contacts share the name).
+acc replay with fresh ids (685132, DTO 6223709, visit 691630): A → 1 contact, 6223709, admin ✓; B (visit only) → kept;
+B after the email changed → matched by name, email updated, still 1 contact; A again → same. REBEL Lease 748771: stable.
+Note for replays: AccountContactRelation.extId_N__c is unique – reusing a platform id on another account makes the relation
+upsert fail silently.

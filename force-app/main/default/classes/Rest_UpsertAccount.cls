@@ -656,9 +656,15 @@ global without sharing class Rest_UpsertAccount {
 		Map<String, Contact> emailContacts = new Map<String, Contact>();
 		Map<String, Contact> extIdContacts = new Map<String, Contact>();
 		Map<String, Contact> nameContacts = new Map<String, Contact>();
+		// all contacts by name (also those with an email address), for a visit / billing address only;
+		// a name used by more than one contact of the account is never matched on
+		Map<String, Contact> anyNameContacts = new Map<String, Contact>();
+		Set<String> ambiguousNames = new Set<String>();
 		Map<String, Contact> newContacts = new Map<String, Contact>();
 		Map<String, Contact> updateContacts = new Map<String, Contact>();
 		Map<String, AccountContactRelation> upsertACRs = new Map<String, AccountContactRelation>();
+		// relations of a visit / billing address that kept their real platform id: not reported back as added
+		Set<String> keptPlatformIds = new Set<String>();
 		Map<String, String> rolesACRs = new Map<String, String>();
 		Map<String, Schema.SObjectField> contFieldMap = Schema.SObjectType.Contact.fields.getMap();
 		Contact cont;
@@ -687,6 +693,13 @@ global without sharing class Rest_UpsertAccount {
 			}
 			if ((String.isNotBlank(curContact.Name)) && (String.isBlank(curContact.Email))) {
 				nameContacts.put(curContact.Name.Trim().toUpperCase(), curContact);
+			}
+			if (String.isNotBlank(curContact.Name)) {
+				String nameKey = curContact.Name.Trim().toUpperCase();
+				if (anyNameContacts.containsKey(nameKey)) {
+					ambiguousNames.add(nameKey);
+				}
+				anyNameContacts.put(nameKey, curContact);
 			}
 
 			// existing roles per relation: a platform update only changes the roles it controls (see platformRoles)
@@ -719,6 +732,10 @@ global without sharing class Rest_UpsertAccount {
 				cont = emailContacts.get(miCont.email);
 			} else if ((String.isNotBlank(contName)) && (nameContacts.containsKey(contName.toUpperCase()))) {
 				cont = nameContacts.get(contName.toUpperCase());
+			} else if (Rest_UpsertAccount.isAddressContact(miCont.id) && String.isNotBlank(contName)
+					&& anyNameContacts.containsKey(contName.toUpperCase()) && !ambiguousNames.contains(contName.toUpperCase())) {
+				// visit / billing address whose email changed: the same person by name, not a new contact
+				cont = anyNameContacts.get(contName.toUpperCase());
 			} else {
 				cont = new Contact();
 				cont.LeadSource = 'Platform';
@@ -821,10 +838,22 @@ global without sharing class Rest_UpsertAccount {
 				acr.Roles = platCont.type;
 			}
 
-			acr.put(extIdField, platCont.Id);
-			acr.put(extAdministratorField, platCont.isAdministrator);
-			acr.put(extVisibleField, platCont.isActive);
-			acr.put(extDeletedField, false);
+			AccountContactRelation existing = acrByContactId.get(String.valueOf(cont.Id));
+			Object existingExtId = (existing == null) ? null : existing.get(extIdField);
+			if (Rest_UpsertAccount.isAddressContact(platCont.Id) && existingExtId != null && !Rest_UpsertAccount.isAddressContact(String.valueOf(existingExtId))) {
+				// a visit / billing address on a relation the platform already knows under its real contact id: keep that
+				// id and its checkboxes (the address carries a synthetic id + 'a' and isAdministrator = false)
+				acr.put(extIdField, existingExtId);
+				acr.put(extAdministratorField, existing.get(extAdministratorField));
+				acr.put(extVisibleField, existing.get(extVisibleField));
+				acr.put(extDeletedField, existing.get(extDeletedField));
+				keptPlatformIds.add(acr.CompositeKey__c);
+			} else {
+				acr.put(extIdField, platCont.Id);
+				acr.put(extAdministratorField, platCont.isAdministrator);
+				acr.put(extVisibleField, platCont.isActive);
+				acr.put(extDeletedField, false);
+			}
 
 			upsertACRs.put(acr.CompositeKey__c, acr);
 		}
@@ -833,7 +862,7 @@ global without sharing class Rest_UpsertAccount {
 			Database.upsert(upsertACRs.values(), AccountContactRelation.Fields.CompositeKey__c, false, Rest_UpsertAccount.runningMode);
 
 			for (AccountContactRelation curACR : upsertACRs.values()) {
-				if (String.valueOf(curACR.get(extIdField)).right(1) != 'a') {
+				if (String.valueOf(curACR.get(extIdField)).right(1) != 'a' && !keptPlatformIds.contains(curACR.CompositeKey__c)) {
 					records.add(Util_Rest.makeAddedRecord( 'Contact', String.valueOf(curACR.get(extIdField)), String.isNotBlank(curACR.Id) ? curACR.Id : String.isNotBlank(curACR.ContactId) ? curACR.ContactId : '07k000000000000AAA'));
 				}
 			}
@@ -861,6 +890,11 @@ global without sharing class Rest_UpsertAccount {
 	 *  - Sales, Service, ASR and any other role: never touched
 	 * One Main / Invoice / Shipping per account is kept by afl_AccountContactRelation_Roles (moves the lookups).
 	 */
+	/** A contact built from the visit / billing address: its platform id is the address id + 'a'. */
+	private static Boolean isAddressContact(String platformId) {
+		return String.isNotBlank(platformId) && platformId.endsWith('a');
+	}
+
 	@TestVisible
 	private static String platformRoles(String currentRoles, String payloadType, Boolean payloadHasVisit, Boolean payloadHasInvoice, Boolean isBusiness) {
 		List<String> roles = new List<String>();
