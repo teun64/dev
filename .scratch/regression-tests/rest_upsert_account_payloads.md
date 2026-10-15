@@ -128,3 +128,35 @@ Tests: Test_Svc_AccountContactRelationRoles 6/6 (90%), with Test_Rest_UpsertAcco
 - 12 replayed prod accounts with random roles first: every unique role on at most one contact, lookups on the owners,
   Sales/Service/ASR untouched on all.
 - Leftover test data from the flow era: REBEL 748768 (001G500001TgOuMIAV) still has Payment on Chris and Mart (pre-fix).
+
+### acc run 2 – 21 fresh prod requests (2026-10-15, Apex roles + REST rules live in acc)
+Each request: call 1, random Sales/Service/ASR (+ Payment on non-Main, Reminder on non-Invoice contacts), call 2. Checks: visit contact
+(by payload email) has Main;Shipping;Payment, invoice contact Invoice;Reminder (+ Digital B2B), every unique role on at most one
+contact, lookups on the owners, Sales/Service/ASR untouched. **All 21: both calls OK, no issues, Sales/Service/ASR untouched.**
+Includes 4 German PascalCase payloads (platform 2). Found: 1,720 of 2,083 acc relations have no CompositeKey__c (prod: 0 of 229,085),
+so on 3 pre-existing acc accounts call 1 could not update the relations (upsert on CompositeKey__c, allOrNone=false, failures
+ignored = silent); call 2 fixed them after a save had filled the key. acc data drift; the silent failure is an open point.
+
+| Prod event log | Account (ext id, platform) | Case | acc account |
+| --- | --- | --- | --- |
+| a1ITx0000049a8PMAQ | J W van Heezik (124740, 1) | camel / B2C / billing=visit / dtos1 | 001G500001TgEx8IAF |
+| a1ITx0000049XyXMAU | Theo Laport (124739, 1) | camel / B2C / billing=visit / dtos1 | 001G500001Tgxc2IAB |
+| a1ITx0000049a6nMAA | Koot Infrawerken (9685, 1) | camel / B2B / sep-billing / dtos0 | 001G500001TgnLFIAZ |
+| a1ITx0000049TbZMAU | Gerard de Nijs Transport en Kraanverhuur (97868, 1) | camel / B2B / sep-billing / dtos0 | 001G500000sZ6t4IAC |
+| a1ITx0000049a3ZMAQ | John Trainor (16461, 3) | camel / B2C / billing=visit / dtos1 | 001G500001Tgs63IAB |
+| a1ITx0000049Xk1MAE | M__ Tustian (85055, 3) | camel / B2C / billing=visit / dtos1 | 001G500001TgHBnIAN |
+| a1ITx0000049OvGMAU | Moving Intelligence B.V. (1, 1) | camel / B2B / billing=visit / dtos1 | 001G500000rBs9pIAC |
+| a1ITx0000049S2nMAE | Hanneman B.V. (124737, 1) | camel / B2B / billing=visit / dtos1 | 001G500001Th3uKIAR |
+| a1ITx0000049Jp8MAE | Solutio 365 B.V. (76483, 1) | camel / B2B / billing=visit / dtos0 | 001G500001ThAyzIAF |
+| a1ITx0000049PJRMA2 | Schoenmaker Elektrotechniek (53266, 1) | camel / B2B / billing=visit / dtos0 | 001G500001TgWA8IAN |
+| a1ITx0000049VwjMAE | E.S.J. Dudok (51318, 1) | camel / B2C / sep-billing / dtos0 | 001G500001Th024IAB |
+| a1ITx0000049M5SMAU | HDR elektrotechniek (37424, 5) | camel / B2B / billing=visit / dtos0 | 001G500001ThBAHIA3 |
+| a1ITx0000049UhJMAU | VSJ Cleaning (78131, 5) | camel / B2B / billing=visit / dtos0 | 001G500001Th8CSIAZ |
+| a1ITx0000049Qx3MAE | Pouw Dealer B.V. (3685, 1) | camel / B2B / sep-billing / dtos1 | 001G500000sW0c6IAC |
+| a1ITx0000047hU9MAI | Multicom B.V. (15304, 1) | camel / B2B / sep-billing / dtos1 | 001G500001Th4lUIAR |
+| a1ITx0000049PMfMAM | GastroPfaff AG (9724, 2) | Pascal / B2B / sep-billing / dtos1 | 001G500001Th1YEIAZ |
+| a1ITx0000048najMAA | FDB Frischdienst Berlin GmbH & Co. KG (7510, 2) | Pascal / B2B / sep-billing / dtos1 | 001G500001TgtqEIAR |
+| a1ITx0000049JifMAE | Peter Meijers (17964, 1) | camel / B2C / billing=visit / dtos0 | 001G500001Tgu6GIAR |
+| a1ITx0000048PQLMA2 | Kübra Özge Yiğit (124734, 1) | camel / B2C / billing=visit / dtos0 | 001G500001TgfOzIAJ |
+| a1ITx0000048hwlMAA | Sanft Mobil GmbH (15569, 2) | Pascal / B2B / billing=visit / dtos1 | 001G500001ThCj3IAF |
+| a1ITx0000048ncLMAQ | Janus Diagnostik GmbH (13698, 2) | Pascal / B2B / billing=visit / dtos1 | 001G500001ThCr7IAF |
