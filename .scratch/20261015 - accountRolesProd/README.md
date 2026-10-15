@@ -1,4 +1,6 @@
-# Account roles – prod package (built + validated 2026-10-15, NOT deployed)
+# Account roles – prod package – DEPLOYED 2026-10-15 09:15 UTC (user: yes)
+
+Quick deploy `0AfTx0000013IUTKA2` (9/9); rab_AccountContactRelation_Roles deactivated right after (was v2; afl_ stays active but is only its subflow).
 
 Contents (9, from commits 5ac2c98..833c9fa; prod versions checked = the bases, nothing prod-only overwritten):
 - `Rest_UpsertAccount` + `Test_Rest_UpsertAccount` – platform updates no longer strip roles (platformRoles rules).
