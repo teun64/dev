@@ -502,3 +502,6 @@ sf project deploy start -o prod --metadata-dir ".scratch/20261014 - financialSys
 # activate: FlowDefinition rab_Account_Debtor_Number -> 1, afl_Account_Get_new_debtor_number -> 13 (check LatestVersion first)
 sf project deploy start -o prod --metadata-dir ".scratch/20261014 - financialSystemProdSilent/debtor_number/2_test" --test-level RunSpecifiedTests -t Test_rab_Account_Debtor_Number --wait 15
 ```
+
+## Fix 2026-10-15: account sync wrote back stale relation roles (833c9fa)
+`Util_FinancialSystemAccount.save` updated the queried AccountContactRelation records whole after the Exact callouts, so Roles (and every other queried field) went back to how they were when the sync started. acc: the Minut AccountSync reverted an UpsertAccount call made 12 s earlier (Gerard de Nijs, 001G500000sZ6t4IAC). Now only FinancialIdContact__c / Sync_To_Financial_System__c are written (`syncOwnedFields`). dev 0Afbd00000BfvbtCAB + acc 0AfG500000T1G5HKAV, 44/44. **Prod runs the faulty version** (silent package): only the admin "Sync to Exact (new)" button uses it today (short window); deploy the fix before any account step goes live – ship it with the roles package.
