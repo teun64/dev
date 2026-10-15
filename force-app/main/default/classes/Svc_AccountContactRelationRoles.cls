@@ -7,7 +7,8 @@
  * and one for the accounts.
  *
  * Per changed relation (inserted, or Roles changed):
- *  - contact without an email address: Main, Invoice, Digital, Reminder and Payment are removed (Shipping stays),
+ *  - contact without an email address: Invoice, Digital, Reminder and Payment are removed (Main and Shipping stay:
+ *    an account's only contact often has no email address and must still be its main contact - user 2026-10-15),
  *    RoleRemovalAlert__c says which
  *  - owner of a unique role (Main, Invoice, Shipping, Reminder, Digital, Payment) = the changed relation that
  *    gained it in this save (the last one when several did), else a changed relation that still holds it;
@@ -20,7 +21,7 @@
  */
 public without sharing class Svc_AccountContactRelationRoles {
 	public static final List<String> UNIQUE_ROLES = new List<String>{ 'Main', 'Invoice', 'Shipping', 'Reminder', 'Digital', 'Payment' };
-	private static final Set<String> EMAIL_ROLES = new Set<String>{ 'Main', 'Invoice', 'Digital', 'Reminder', 'Payment' };
+	private static final Set<String> EMAIL_ROLES = new Set<String>{ 'Invoice', 'Digital', 'Reminder', 'Payment' };
 
 	// the relations this class updates itself are not handled again
 	private static Boolean running = false;

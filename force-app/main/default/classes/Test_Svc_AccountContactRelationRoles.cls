@@ -89,7 +89,7 @@ private class Test_Svc_AccountContactRelationRoles {
 	}
 
 	@IsTest
-	static void noEmail_rolesRemovedWithAlert_shippingStays() {
+	static void noEmail_rolesRemovedWithAlert_mainAndShippingStay() {
 		setRoles(new Map<String, String>{ 'Chris' => 'Main' });
 
 		Test.startTest();
@@ -98,11 +98,11 @@ private class Test_Svc_AccountContactRelationRoles {
 		Test.stopTest();
 
 		AccountContactRelation acr = relation('Noemail');
-		System.assertEquals(new Set<String>{ 'Shipping', 'Sales' }, roles('Noemail'));
-		System.assert(acr.RoleRemovalAlert__c.contains('Main, Payment'), acr.RoleRemovalAlert__c);
-		System.assertEquals(new Set<String>{ 'Main' }, roles('Chris'), 'Main stays with Chris: Noemail could not take it');
+		System.assertEquals(new Set<String>{ 'Main', 'Shipping', 'Sales' }, roles('Noemail'), 'Main needs no email address');
+		System.assert(acr.RoleRemovalAlert__c.contains('Payment') && !acr.RoleRemovalAlert__c.contains('Main'), acr.RoleRemovalAlert__c);
+		System.assertEquals(new Set<String>(), roles('Chris'), 'Main moved to Noemail');
 		Account acc = account();
-		System.assertEquals(relation('Chris').ContactId, acc.Contact_person__c);
+		System.assertEquals(acr.ContactId, acc.Contact_person__c);
 		System.assertEquals(acr.ContactId, acc.Contact_Shipping__c);
 	}
 
