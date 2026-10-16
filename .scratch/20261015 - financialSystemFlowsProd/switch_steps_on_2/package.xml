@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>JobDispatcherStep.Minut_FinancialSystemContactSync</members>
+        <members>JobDispatcherStep.Minut_FinancialSystemOrderWarehouse</members>
+        <members>JobDispatcherStep.Minut_FinancialSystemOrderSync</members>
+        <name>CustomMetadata</name>
+    </types>
+    <version>67.0</version>
+</Package>

@@ -526,3 +526,221 @@ Review afterwards: `merge_review.csv` (two platform users / different names) and
 - acc: 1,720 of 2,083 relations without CompositeKey__c → REST relation upsert fails silently there (prod: 0). Rest_UpsertAccount ignores relation upsert errors (`allOrNone=false`) → log or return them.
 - acc test data to clean up: REBEL Lease / replayed prod accounts / De Duikenburg copies (ext ids 7487xx, 6851xx, 7851xx, 8851xx, 9851xx, the 12 + 21 replayed accounts), "Merge Test Duplicates".
 - Prod go-live of the financial sync steps still pending (see above): account sync fix is now in prod.
+
+## Legacy sync error "Ongeldige referentie: Hoofdcontactpersoon" (2026-10-15)
+- Accounts: Xajo Holding B.V. `001AO000003HnbiYAC` (12247437, 17 failed attempts today) and Uitvaartverzorging van Lith B.V. `0013W000009QDvEQAW` (12218829, failing since 2026-10-12, incl. the Security Platform's automatic sync after Rest_UpsertAccount). Only these 2 accounts in the logs since 2026-10-06 → data fix, no code change.
+- Cause: the debtor record's `Exact_Contact_ID__c` (from 2023) pointed to an Exact contact that no longer exists; Exact has another MainContact. `Util_Exact.syncAccount` reads Exact's MainContact into the debtor record (l. 402-405) but the line that puts it into the PUT body is commented out → PUT sends the stale id → 500, nothing saved, every click repeats.
+- Read-only Exact GET (anonymous Apex, log "readonlyMainContactCheck"): `eca6c01d…` = Diana Broos (only Xajo contact), `85cb55cb…` = Wim Muller (Van Lith); old ids `227b1c80…` / `43c4d3c8…` gone. Van Lith has Erwin van der Park twice in Exact (2020, not in SF).
+- Fixed (user: go): ACR `07kAO000000O3sJYAS` / `07k3W000001FAQfQAO` `FinancialIdContact__c` backfilled with those ids (new sync reuses the contact, no duplicate); DN-0099721 / DN-0037104 `Exact_Contact_ID__c` set to the same ids (old button + platform sync work again).
+- 13:53 local, Xajo "Sync to Exact (new)" (user): 4 calls, all OK – match GET (same Exact account, MainContact eca6c01d) → account PUT 204 with MainContact eca6c01d → contact PUT 204 on the existing Diana Broos (no new contact) → bank GET by IBAN found c1eb4030 (Main, holder name equal → no PUT); mandate kept. Account: DebtorCheck true, attempts 0, no error, not blocked, fingerprints stored (account/contact/bank). Debtor record untouched, legacy sync not triggered.
+- 13:55 local, Van Lith "Sync to Exact (new)" (user): 5 calls, all OK – match GET (same account, MainContact 85cb55cb) → account PUT 204 → contact PUT 204 on the existing Wim Muller → bank GET found a08e02fc (Main) → bank PUT 204 because the holder name differed only in case/punctuation (Exact "Uitvaartverzorging van Lith B.V." → SF "UITVAARTVERZORGING VAN LITH BV"); mandate kept (Main was already true). ACR sync flag cleared, no error, fingerprints stored. Note: the holder-name compare is exact (case-sensitive) → the SF value overwrites Exact's spelling; harmless, but SF is the master here.
+- 2026-10-15 16:00 local: roles data fix started staged (merge test round 10/10 OK; replay test of 10 pre-fix accounts: repaired roles survive a platform call). Details + logs: `.scratch/20261015 - rolesBackfill/README.md` "Prod runs 2026-10-15".
+
+## Exact up to date at go-live – options (analysis 2026-10-15, user question; no decision yet)
+Facts: 155,588 prod accounts linked to Exact (NL 111,423 · UK 41,424 · DE 2,734 · other 7). New sync has no fingerprints yet → first sync of an
+account = full push (match GET + account PUT + contact PUT(s) + bank GET/PUT ≈ 4-6 calls). Exact limit ~60/min + ~5,000/day per division
+(real values: Day_FinancialSystemRateLimitCheck, not yet active). Today's legacy traffic ≈ 700 calls/day. Today's finding: SF ids can be stale
+(Xajo / Van Lith main contact deleted in Exact) and Exact holds duplicates (Erwin van der Park ×2).
+- A. Push everything once: NL ≈ 550k calls ≈ 110+ days at the full daily quota. Not feasible (blocks normal sync).
+- B. Push just in time (before order / invoice sync): spreads orders (~500/week) fine, but invoicing is monthly for all active customers →
+  tens of thousands of account pushes on invoice day, invoices wait. Good as a safety net, not as the main mechanism.
+- C. Exact "export": manual UI export is not reliable (no GUIDs, formatting, partial fields). Reading Exact through the API in bulk is exact
+  (live data incl. GUIDs): sync/bulk endpoints return up to 1,000 rows per call → accounts + contacts + addresses + bank accounts for NL
+  ≈ 400-600 calls (worst case standard endpoints, 60/page: ≈ 2,000-6,000 → 1-2 days).
+- Proposal (C + B + trickle): 1) read-only compare batch per division: page through Exact, compare per account part with what the new sync
+  would send (same body builders) → report match / differ / missing per part, plus main-contact + contact ids (replaces the stale
+  Debtor_Number source for the contact-id backfill), duplicates, Exact accounts SF no longer knows. 2) parts that match → seed
+  FinancialSyncState__c fingerprints (no call ever needed); parts that differ → flag SyncToFinancialSystem__c. 3) flagged accounts trickle
+  through the AccountSync step under the rate-limit cap, active customers / upcoming invoices first; inactive accounts only on their next
+  change. 4) safety net B: order (and later invoice) sync pushes an account that has no fingerprint yet before the order.
+- **User's alternative (2026-10-15): skip monthly-invoiced customers unless billing contact / invoice role changed; force a sync for the
+  others once; an Account marker records it and is never forced again; orders use the same marker.** Prod sizes (active contracts):
+  monthly (Invoice_Cycle 1) 7,786 accounts – 776 with a billing contact ≠ main contact, 156 with a separate invoice address; non-monthly
+  72,532 accounts (NL 62,648 · UK 9,648 · DE 144); ~75k linked accounts without an active contract. Invoices ≈ 580/day (17,472 / 30 d),
+  Invoice_Frequency 'Daily' on 148k accounts → invoice moments are spread. Assessment: sound, if the forced sync of the 72k happens just
+  before their (yearly, spread) invoice / order, not all at once (NL ≈ 313k calls ≈ 60+ days of quota at once vs ≈ 170 accounts ≈ 900
+  calls/day spread). Additions: marker = datetime + how (Seeded / Synced); monthly with billing contact ≠ main or invoice address → force
+  (legacy never sent the billing contact, so "changed" = these ~900); first sync matches Exact contacts of the account by email/name
+  before POSTing (1 GET; replaces the stale Debtor_Number contact-id backfill, fixes Xajo-type ids); optional background trickle on spare quota.
+- **Decision direction (user 2026-10-15): marker = checkbox, default false.** True = "push this account before its next order / invoice".
+  Order / invoice sync sees true → queues the account (SyncToFinancialSystem__c, same "account first, order waits" path) → any successful
+  account sync (button, batch, forced) clears it. Go-live: set true on non-monthly active accounts (72,532) + monthly with billing contact ≠
+  main or invoice address (~900); everything else stays false = assumed in sync. Still to add: contact match in Exact on first sync;
+  field history on the checkbox for audit; optional night trickle on spare quota. Not built yet.
+
+## Go-live marker + last sync dates + contact match – BUILT in dev 2026-10-15 (uncommitted; acc/prod not deployed)
+User: checkbox marker (default false), cleared after a successful account sync; FinancialSystemLastSyncDate on Account, ACR, Invoice, Order.
+- Fields: `Account.FinancialSyncForce__c` ("Exact Sync before Order/Invoice", checkbox, no field history: Account is at 20/20 tracked
+  fields in dev + prod), `FinancialSystemLastSyncDate__c` (DateTime) on Account / AccountContactRelation / Order / Subscription25__Invoice__c.
+- `Util_FinancialSystemAccount`: full success → marker false + Account date; no hard failure (soft warnings, e.g. missing bank details)
+  → marker false too (otherwise orders would wait forever), no date; every relation whose contact is created / updated / matched gets
+  its date (also the contact step). **Contact match**: a relation without Exact id on an existing Exact account → one GET of the
+  account's Exact contacts → match on email (case/space-insensitive), else first + last name, never an id another relation uses →
+  PUT instead of POST. A stored id that answers 404 is dropped and matched / created again (retired relation: just dropped).
+- `Util_FinancialSystem_Order`: account with the marker → account queued, order waits (same path as "account not in Exact"); success → Order date.
+- `Util_FinancialSystem_Invoice` (switch-over code): finalise / load-number success → Invoice date. The invoice itself reaches Exact via the
+  Subscription25 package, so the account push before an invoice is a new **Day dispatcher step `Batch_FinancialSystemForceSync`**
+  (`Day_FinancialSystemForceSync`, order 25, **inactive**): queues marker accounts (not blocked, in Exact) with an active contract whose
+  `Subscription25__Next_Date__c` (next invoice date; derived by the package from StartDate) is within 7 days. Prod: ~1,350 such accounts/week.
+- FLS: ps_miFinancialSystem_Admin (marker edit, dates read), ps_miSubscription25_User (read); profiles Admin (marker edit) + miAfterSales,
+  miDataAdministrator, miFinance, miMarketing, miSales, miShareholders, miStandardUser (read) – minimal profile deploy.
+- dev deploys: fields + perm sets `0Afbd00000BgEg9CAF`, profiles `0Afbd00000BgEhlCAF`, Apex `0Afbd00000BgFIrCAN` (102/102: account,
+  order, invoice, force-sync step, batches, contact removal, dispatcher, generic). Coverage: Account 87 %, Order 87 %, Invoice 75 %, step 76 %.
+- acc/prod rollout needs: Sub25 config record `Batch_FinancialSystemForceSync` (v2.66), the step activated, and at go-live the marker set
+  on: active non-monthly accounts (72,532) + monthly with billing contact ≠ main or separate invoice address (~900).
+- Open: an account that stays blocked keeps its orders waiting (same as today for "account not in Exact").
+- **Committed `cb6b317`** (marker build) + **`a18207a`** (two fixes found in the acc live test). **acc DEPLOYED 2026-10-15**: fields + perm sets
+  `0AfG500000T1ZfnKAF` (ps_miSubscription25_User without the dev-only Invoice.Payment_Setup_Block__c entry), profiles `0AfG500000T1Z6IKAV`,
+  Apex `0AfG500000T1ctlKAB` (102/102), fixes `0AfG500000T1drSKAR` + `0AfG500000T1ep7KAB` (84/84). Sub25 config record
+  `Batch_FinancialSystemForceSync` created in acc (`a1YG5000004MuqrMAC`, size 200); step `Day_FinancialSystemForceSync` still inactive.
+- **acc live test (Exact division 10006632, own test account "test de tester" 001G500001SphYZIAZ):**
+  1. Contact match: relation id cleared + marker → GET contacts → PUT on the existing 4df423cb, no POST; marker cleared, dates set. ✅
+     Found: first account PUT sent `MainContact: null` (clears it in Exact until step 4).
+  2. Stale contact id: **Exact answers 403 Forbidden, not 404**, and the account PUT with that id failed the whole sync ("Ongeldige
+     referentie: Hoofdcontactpersoon" = Xajo case). Fixed (a18207a): account PUT never carries MainContact (step 4 sets it after the
+     contacts; skipped when this sync set that main contact before); 403/404 → id dropped only when not among the account's Exact
+     contacts (else a real permission error). Rerun: PUT 403 → GET → PUT 4df423cb → MainContact → success. ✅
+  3. Order gate: test Opportunity order, marker on → postponed, 0 calls, account queued; acc Minut AccountSync synced it 5 min later,
+     marker cleared. ✅
+  4. Day step: test contract (Next_Date +3 days) → scope = only the test account → queued → Minut synced → marker cleared. ✅
+  Test order 801G500001TisrfIAB + contract 800G500000pwv3zIAA deleted; test account left synced, marker false.
+- **Prod package (marker) BUILT + VALIDATED 2026-10-15:** `.scratch/20261015 - financialSystemMarkerProd/mdapi` (21 comps: 5 fields,
+  Util_FinancialSystemAccount + _Order + tests, Batch/Test_Batch_FinancialSystemForceSync, CMDT Day_FinancialSystemForceSync inactive,
+  perm sets = prod files + 5 new-field entries, 7 profiles minimal; Util_FinancialSystem_Invoice NOT included – not in prod yet, goes with the
+  switch-over). Prod classes/perm sets checked identical to the repo base first. **Validation `0AfTx0000013LAbKAM`: 21/21, 89/89.**
+  Quick deploy (user's go): `sf project deploy quick -o prod --job-id 0AfTx0000013LAbKAM --wait 30`; then create Sub25 config record
+  Batch_FinancialSystemForceSync (Schedulable false, size 200). Effect in prod right away: only the admin "Sync to Exact (new)" button path
+  (contact match, MainContact after the contacts) – marker false everywhere, step inactive.
+- **Prod marker package DEPLOYED 2026-10-15 (user: go):** quick deploy `0AfTx0000013LDpKAM` 21/21. FLS checked: marker edit = System
+  Administrator + ps_miFinancialSystem_Admin (+ pg_Subscription25Admin), read for the 7 profiles + ps_miSubscription25_User; dates read-only;
+  extra read rows from View-All-Fields sets / permission set groups are automatic. Step Day_FinancialSystemForceSync inactive, 0 accounts
+  with the marker. Sub25 config record Batch_FinancialSystemForceSync created (`a1YTx000005umWvMAI`, size 200). Prod 56 scheduled Apex jobs.
+- **afl_Opportuntity_Create_Order (user 2026-10-15): the pending adjustment = one order per warehouse** – already in the repo version
+  (b792413 + 365ef3f). Repo vs prod v35: order creation via Inv_FinancialSystemCreateOrders (split per warehouse; duplicate-order guard in that
+  class), Closed Won "in Exact" check also on Account.FinancialIdAccount__c, old order-sync branch removed (was off in prod). Nothing else open
+  → goes with the go-live flows package.
+- **Exact ids before go-live (user question 2026-10-15):** gaps where the debtor record has an id and the Account not: account 17 (all
+  FinancialDebtorCheck__c false → the sync matches them by debtor number), bank 47, mandate 37, invoice address 6 – the sync finds them
+  itself, no data fix needed. **Real risk found:** 14,738 NL/DE direct-debit accounts in Exact with an IBAN but no Account bank id (+529
+  with bank id, no mandate id): the first new sync found the bank by IBAN, treated it as new and POSTed a second mandate. Fixed
+  (commit "reuse the existing Exact mandate"): GET DirectDebitMandates of that bank account, reuse a not-cancelled one (Main first; Exact
+  returns Main as 1/0). dev `0Afbd00000BgU0ACAV` + acc `0AfG500000T1fGbKAJ` 85/85; acc live test: ids cleared → bank + mandate found and
+  reused, no POST. **Must go to prod before any automatic account sync** (with the flows package or before).
+- **Go-live flows package BUILT + VALIDATED 2026-10-15:** `.scratch/20261015 - financialSystemFlowsProd/` – `mdapi` (8: rbb_Account,
+  rbb_AccountContactRelation, afl_Opportuntity_Create_Order, rau_Opportunity, pef_Internal, afl_Account_Get_new_debtor_number from repo HEAD
+  8a9edc8 = acc's active versions (rau_Opportunity without the uncommitted Fitting Service part) + Util_FinancialSystemAccount/test with the
+  mandate fix) and `2_test` (Test_FinancialSystemFlows, after activation). **Validation `0AfTx0000013LKHKA2`: 8/8, 91/91.**
+  Prod vs acc per flow: rbb_Account + afl_Account_Get_new_debtor_number switch the change flag FinancialSystemSync__c → SyncToFinancialSystem__c
+  (+ attempts/next attempt reset, extra triggers); rbb_AccountContactRelation + fSyncToFinancialSystem; pef_Internal without the
+  Sync_to_Exact branch; rau_Opportunity updates all open orders of the opportunity (per warehouse); afl_Opportuntity_Create_Order one order
+  per warehouse + Closed Won check on FinancialIdAccount__c, old order-sync branch gone.
+  **Deploying = inert (prod deploys flows as Draft); ACTIVATING = the switch-over moment** – do it together with: rac_/rau_Account_Sync_to_
+  Financial_System off, Minut AccountSync (+ RateLimitCheck) on, then Test_FinancialSystemFlows. Quick deploy:
+  `sf project deploy quick -o prod --job-id 0AfTx0000013LKHKA2 --wait 30`.
+
+## SWITCH-OVER PLAN (prepared 2026-10-15, not run – every step on the user's go)
+**State now:** prod has the whole new codebase, the marker fields/step, the mandate fix and the 6 go-live flows as **Draft**
+(deploy `0AfTx0000013LLtKAM`). Old flow versions still active. All financial dispatcher steps inactive. 0 accounts / 0 orders flagged;
+3,747 stale relation flags (no Exact contact id; set by prod rbb_AccountContactRelation v7 on role changes, 2,564 by today's data fix).
+
+**A. Before the moment (any day)**
+1. Clear the 3,747 stale `AccountContactRelation.Sync_To_Financial_System__c` flags (backup CSV first; none has FinancialIdContact__c, the
+   new flows flag real changes from the switch on). Otherwise the contact step queues ~3,000 accounts at once.
+2. Build + validate the CMDT package for the steps (prod refuses NoTestRun): Day_FinancialSystemRateLimitCheck + Minut_FinancialSystemAccountSync
+   active (ContactSync in a second package, a day later).
+3. REBEL / Horizon regression payload set ready (trigger hooks switch on with AccountSync: contact-merge take-over, order hook).
+4. Case queues gqCaseAdministration1/5/6: members + Omni (blocked-account alerts land there) – or accept bell-only for the first days.
+
+**B. The moment (quiet hour: after Job_InvoiceCreation 19:16 and before Job_InvoicePDFCreation 22:16, or early morning; Job_Synchronisation /
+FinalizeInvoicesInExact of the package keep running, they are not affected)**
+1. Snapshot (rollback list) – active now: afl_Account_Get_new_debtor_number 13, afl_Opportuntity_Create_Order 35, pef_Internal 1,
+   rau_Opportunity 16, rbb_Account 66, rbb_AccountContactRelation 7, rac_Account_Sync_to_Financial_System 3, rau_Account_Sync_to_Financial_System 7.
+2. Activate the new versions (Tooling PATCH FlowDefinition `{"Metadata":{"activeVersionNumber":N}}`):
+   300AO00000005B9YAI → 14 · 3003W000000CesYQAS → 36 · 300bR00000kDcxxQAC → 2 · 3003W0000008S1RQAU → 17 · 3003W0000008RkNQAU → 67 · 300bR00000Qhrv7QAB → 8
+3. Legacy off: 300bR00000M0ihCQAR (rac_) → 0 · 300bR00000HrmMUQAZ (rau_) → 0.
+4. Quick-deploy the CMDT package (RateLimitCheck + AccountSync active); run Batch_FinancialSystemRateLimitCheck once by hand.
+5. Deploy `.scratch/20261015 - financialSystemFlowsProd/2_test` (Test_FinancialSystemFlows, RunSpecifiedTests with itself).
+6. Verify: first Minut rounds (Event_Log sync2Exact, no ERROR), a test change on an own account → flagged → synced; REBEL/Horizon regression.
+**Rollback:** PATCH the 6 flows back to the snapshot versions, rac_/rau_ back to 3/7, steps inactive. Data written by the new sync stays (ids only).
+
+**C. Days after**
+1. ContactSync step active (after A1).
+2. Entry points: old account button (Ctrl_SyncWithExact / Aura) and order button (scr_Order_SyncToFinancialSystem) → new ones for everyone
+   (rp_Account / rp_Order without the isSysAdmin filter); Util_Rest part 3.
+3. Marker on 72,532 non-monthly + ~900 monthly accounts (backup), Day_FinancialSystemForceSync active.
+4. OrderWarehouse (35) + OrderSync (40) active – when the batch takes over the manual order sync (~500/week; 4 draft Opportunity orders now).
+5. Batch_SyncAccountEuropeTrack + old 07:30 rate-limit job out; later legacy code removal (part 4).
+- **2026-10-15 user rules for the sync triggers + bank change (commit see git log "Financial sync triggers (user rules)"):** rbb_Account
+  rewritten: new account only from profile miAPIIntegration (Integration_User__c also covers sysadmins); all change triggers only with
+  FinancialIdAccount__c (else manual); payment method (subscriptions), holder name, IBAN, establishment address, name / invoice name,
+  Billing_Email__c / Billing_Phone__c (= Exact account email / phone), main / billing / delivery contact lookups (which contact is main /
+  invoice / delivery in Exact – the contact flow only flags relations that already have an Exact id); invoice address only with
+  useInvoiceAddress__c, delivery address only with useShippingAddress__c (or a change of those checkboxes). Debtor-number replace already
+  = full new sync without duplicate check (afl sets FinancialReplaceDebtorNumber__c). Bank change: old mandate DELETE (else cancel), old
+  bank account DELETE when allowed, new mandate; first sync still adopts. dev 95/95, acc `0AfG500000T1sVVKAZ` 95/95 (rbb_Account acc v64);
+  acc live IBAN change OK. **Prod: rbb_Account v67 (Draft) + Util_FinancialSystemAccount are OLDER – rebuild + validate the flows package
+  before the switch-over.**
+- **2026-10-15 prod:** rbb_Account new criteria + bank-change handling deployed (`0AfTx0000013LVZKA2`, the CLI lost the response but the
+  deploy succeeded; prod overwrote the inactive Draft v67, so v67 = new rules, still Draft). **Apex class access:** the 21 rebuild classes
+  (no tests) added to ps_miAPEXOperationalClasses in dev/acc/prod (prod `0AfTx0000013LXBKA2`, 343 → 364). That set is only in the pg_miAPI*
+  integration groups. Internal users reach the legacy entry classes via their profiles (Util_Exact / Ctrl_SyncWithExact: Admin, miAfterSales,
+  miStandardUser, miDataAdministrator, miFinance, miSales, miMarketing) and ps_miFinancialSystem (in pg_miWorkSpace, 58 active users).
+  **For the switch-over (buttons for everyone):** add Inv_FinancialSystemAccount / Inv_FinancialSystemOrder (screen-flow invocables) to
+  ps_miFinancialSystem – DONE 2026-10-15 (+ Inv_FinancialSystemCreateOrders), prod `0AfTx0000013LYnKAM`.
+- **2026-10-15 19:2x local – buttons swapped in prod (user):** rp_Account: actFinancialSystemSync ("Sync to Exact (new)") always visible,
+  Send_to_Exact admin-only; rp_Order: actFinancialSystemSync gets the old button's rule ((Hardware OR Opportunity) AND not ignored AND no
+  Exact id) AND (cp_miOrderActionFinancialSync OR admin), actSyncToFinancialSystem same record rule AND admin only. Deploy
+  `0AfTx0000013LfFKAU` (first attempt refused: unused filter condition). Package + prod originals: `.scratch/20261015 - financialSystemFlowsProd/buttons_swap`.
+  Inv_FinancialSystemAccount/Order/CreateOrders also in ps_miFinancialSystem (pg_miWorkSpace). pg_miAPIPlatformIntegration "recalculation
+  failed" notice: status Updated again 17:22 UTC and contains the new classes (overlapping recalcs); pg_miAPIArchiveIntegration Failed since 2026-02-26 (old).
+- **Step package VALIDATED:** `.scratch/20261015 - financialSystemFlowsProd/switch_steps_on` (Minut_FinancialSystemAccountSync +
+  Day_FinancialSystemRateLimitCheck IsActive true; originals in prod_before/) – validation `0AfTx0000013LgrKAE` 2/2, 14/14.
+  Quick deploy at the moment: `sf project deploy quick -o prod --job-id 0AfTx0000013LgrKAE --wait 30`.
+- rp_Account / rp_Order copied prod → dev + acc + repo (equal on all three, verified), 2026-10-15.
+
+## SWITCH-OVER DONE 2026-10-15 ~19:40 local (user: "do the switch")
+- 17:3x UTC: 6 flows activated (rbb_Account 67, rbb_AccountContactRelation 8, afl_Opportuntity_Create_Order 36, rau_Opportunity 17,
+  pef_Internal 2, afl_Account_Get_new_debtor_number 14); legacy rac_/rau_Account_Sync_to_Financial_System deactivated (were 3 / 7).
+- Steps on: quick deploy `0AfTx0000013LiTKAU` (Minut_FinancialSystemAccountSync + Day_FinancialSystemRateLimitCheck active).
+  Sub25 job records left Schedulable = false (correct for dispatcher steps; Batch_JobDispatcher already runs on its 12 + Day CronTriggers).
+- Rate limit check run by hand 17:41 UTC: **NL daily 200,000** (3.1 % used), **UK 10,000**, **DE: Exact returns no daily-limit headers**
+  (call 200 OK) → batch only applies the minutely limit for DE (low volume, watch).
+- Test_FinancialSystemFlows NOT deployed: clearDebtorNumber_blockedWhileLinkedToExact needs vr_FinancialDebtorNumberClear active, which
+  stays inactive while legacy Util_Exact (old admin-only buttons) can still clear debtor numbers → deploy with the VR at legacy clean-up.
+- First Minut round 17:45 UTC: AccountSync ran (0 queued), chain continued, 0 errors.
+- Rollback: FlowDefinition PATCH back to the snapshot versions above, rac_/rau_ → 3 / 7, steps inactive (prod_before/ in switch_steps_on).
+- **First live syncs after the switch (2026-10-15 17:56–18:05 UTC):** 1 platform-triggered (Richard In t Veld, 17:50 Security Platform
+  change) + 10 random accounts queued by hand (user: "make 10 account sync"; 6 NL / 2 UK / 2 DE, all direct debit with IBAN, active
+  contract). **11/11 COMPLETED, 0 blocked, 5–7 calls each.** Contacts: NL/DE matched the existing Exact contact (GET + PUT, no POST);
+  UK Eileen St John / Ian Mccabe: their Exact accounts had no contacts at all → POST (correct, no duplicate); Frank Ahrens GmbH: separate
+  invoice contact created (billing contact ≠ main) + invoice address PUT; Kaoru GmbH invoice address POST. Bank: existing found by IBAN,
+  mandate ids already on the accounts → no mandate calls. FinancialIdContact__c + FinancialSystemLastSyncDate__c filled on all relations.
+  Note: 11 accounts took two rounds (18:00 round picked up only part; batch size 5, rest at 18:05).
+- **Legacy still active via platform calls:** Karl Raw 18:00/18:01 UNHANDLED_EXCEPTION in Util_Exact.syncAccountAsync (debtor record
+  DUPLICATE_VALUE Exact_ID__c) – prod Util_Rest still calls the legacy sync (part 3 not deployed) → deploy Util_Rest part 3 next.
+- **2026-10-15 ~20:15 local:**
+  - **Util_Rest part 3 DEPLOYED** (`0AfTx0000013LvNKAU`, validation `0AfTx0000013Ls9KAE` 74/74 incl. Test_Rest_UpsertAccount): platform calls no
+    longer start Util_Exact.syncAccountAsync; non-Exact administrations (GR/BE/FR) keep the generated debtor number (same formula), the
+    debtor record now comes from rab_Account_Debtor_Number. Prod originals in `.scratch/20261015 - financialSystemFlowsProd/part3_util_rest/prod_before`.
+  - **Case queues filled (user):** active miSales + miAfterSales by User.Reseller__c → gqCaseAdministration1 NL 22, 5 DE 6, 6 UK 11 (DE/UK have
+    no after-sales users). Left out: "Exact Online Moving Intelligence" (miAfterSales, looks like a technical account).
+  - **Inactive owner (user question):** already handled – Svc_FinancialSystemSyncAlert sends a bell only to an active standard non-integration
+    owner; inactive / integration / queue owner → Case in gqCaseAdministration<reseller>.
+  - Marker / ForceSync: user wants AccountSync to run a day or two first. ContactSync + order sync: explained, waiting for the user.
+  - State 18:20 UTC: 0 relations flagged, 23 relations with an Exact contact id, 0 orders flagged.
+- **2026-10-15 20:23 local (user: ContactSync if low risk – yes, 0 flagged / 23 relations with an Exact id; order sync "go"):** steps
+  Minut_FinancialSystemContactSync (20), Minut_FinancialSystemOrderWarehouse (35), Minut_FinancialSystemOrderSync (40, batch 10) ACTIVE –
+  validation `0AfTx0000013LwzKAE`, quick deploy `0AfTx0000013LybKAE` (originals in switch_steps_on_2/prod_before). First full chain 18:25 UTC:
+  all steps Completed, 0 errors. **Only the Day_FinancialSystemForceSync step (marker) and Day_UpdateContractProductPrice stay inactive.**
+- **2026-10-15/16 (user: "1 go, 2 tomorrow, 3 equal to UK, 4 mark, 5 go"):**
+  - **Step 5:** Batch_SyncAccountEuropeTrack schedule aborted (CronTrigger 08eTx00000fqMUfIAM) + class deleted from prod (`0AfTx0000013M0DKAU`,
+    copy in remove_europetrack/prod_before). The "old 07:30 rate-limit job" never existed in prod (07:30 = MciDashboardUpdateJobType, Salesforce internal).
+  - **Step 3:** Exact DE sends no X-RateLimit headers → Util_FinancialSystem.ASSUMED_DAILY_LIMIT 10,000 (= UK) + own call count until midnight UTC
+    (commit 877fd3c; dev/acc 88/88; prod `0AfTx0000013M1pKAE` 82/82 – CLI lost the reply, DeployRequest Succeeded).
+  - **Step 1 – marker SET:** FinancialSyncForce__c = true on **73,109** accounts (in Exact, active contract: 72,437 non-monthly + 672 monthly with
+    billing contact ≠ main or useInvoiceAddress; 11 already synced by the new sync skipped). Pilot 100 (`750Tx00000ffXzhIAE`) + rest 73,009
+    (`750Tx00000ffP7iIAE`), 0 failed. Rollback file: `.scratch/20261015 - financialSystemFlowsProd/marker_set/marker_rollback.csv`.
+    **Day_FinancialSystemForceSync ACTIVE** (`0AfTx0000013NM5KAM`): first run queues ~2,040 accounts (invoice due ≤ 7 days incl. overdue).
+  - Step 2 (order sync check) → 2026-10-16; step 4 (legacy clean-up incl. VR + Test_FinancialSystemFlows) marked for later.
+  - "Exact Online Moving Intelligence" (005bR00000E8urNQAR): technical account (exactonline@…, created 2026-02-09 by Teun, last login that day,
+    owns nothing) → not in the NL queue; user to decide whether the licence is still needed.

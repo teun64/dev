@@ -12,7 +12,7 @@ Order: code fix live first (Rest_UpsertAccount 64f920c), then plan → merge →
 DATAFIX_ORG=acc runs the same against acc (test). A duplicate platform id makes that one update fail (unique field), logged.
 Everything reads prod fresh; nothing is taken from an older export.
 """
-import csv, json, os, subprocess, sys, time, collections, glob
+import csv, json, os, subprocess, sys, time, collections, glob, random
 
 csv.field_size_limit(10 ** 9)
 ORG = os.environ.get('DATAFIX_ORG', 'prod')
@@ -36,6 +36,50 @@ def sf(args, parse=True):
 def export(soql, path):
     sf(['data', 'export', 'bulk', '-o', ORG, '-q', soql, '--output-file', path, '--result-format', 'csv', '--wait', '30'], parse=False)
     return list(csv.DictReader(open(path, encoding='utf-8')))
+
+
+def log(d, msg):
+    line = time.strftime('%Y-%m-%d %H:%M:%S') + ' ' + msg
+    print(line, flush=True)
+    with open(os.path.join(d, 'datafix.log'), 'a') as f:
+        f.write(line + '\n')
+
+
+def q(soql, all_rows=False):
+    args = ['data', 'query', '-o', ORG, '-q', soql, '--json']
+    if all_rows:
+        args.append('--all-rows')
+    res = sf(args)
+    if res.get('status') not in (0, None):
+        raise RuntimeError('query failed: %s' % res.get('message'))
+    return res.get('result', {}).get('records', [])
+
+
+def ids_in(ids):
+    return "('" + "','".join(sorted(set(ids))) + "')"
+
+
+def snapshot(account_ids, contact_ids):
+    """Accounts (lookups), contacts (incl. deleted / merged), their relations and preference counts."""
+    accs = q("SELECT Id, Name, Contact_person__c, Contact_Billing__c, Contact_Shipping__c, Subscription25__Reminder_Contact__c, "
+             "Subscription25__UBL_Billing_Attendant_To__c FROM Account WHERE Id IN " + ids_in(account_ids))
+    cons = q("SELECT Id, Name, Email, AccountId, IsDeleted, MasterRecordId FROM Contact WHERE Id IN " + ids_in(contact_ids), all_rows=True)
+    acrs = q("SELECT Id, AccountId, ContactId, Roles, FinancialIdContact__c, extId_1__c, extId_2__c, extId_3__c, extId_4__c, extId_5__c, extId_6__c, "
+             "isAdministrator_1__c, isAdministrator_2__c, isAdministrator_3__c, isAdministrator_4__c, isAdministrator_5__c, isAdministrator_6__c "
+             "FROM AccountContactRelation WHERE AccountId IN " + ids_in(account_ids) + " AND ContactId IN " + ids_in(contact_ids))
+    prefs = q("SELECT Contact__c c, COUNT(Id) n FROM CommunicationPreference__c WHERE Contact__c IN " + ids_in(contact_ids) + " GROUP BY Contact__c")
+    strip = lambda rs: [{k: v for k, v in r.items() if k != 'attributes'} for r in rs]
+    return {'accounts': {r['Id']: r for r in strip(accs)}, 'contacts': {r['Id']: r for r in strip(cons)},
+            'relations': {r['ContactId']: r for r in strip(acrs)}, 'prefs': {r['c']: r['n'] for r in prefs}}
+
+
+def error_logs(since_iso):
+    return q("SELECT Id, CreatedDate, Action__c, Context_Id__c, Result_Status__c, Message__c FROM Event_Log__c "
+             "WHERE CreatedDate >= " + since_iso + " AND Result_Status__c IN ('ERROR','UNHANDLED_EXCEPTION')")
+
+
+def utcnow():
+    return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
 
 
 def latest_run():
@@ -91,28 +135,109 @@ def plan():
     print('merge automatically:', len(auto), 'groups,', sum(len(e['losers']) for e in auto), 'contacts | review:', len(review))
 
 
+def done_masters(d):
+    """Groups already handled (OK / SKIP) in an earlier round; FAIL groups are retried."""
+    path = d + '/merge_results.txt'
+    if not os.path.exists(path):
+        return set()
+    return {l.split('|')[1] for l in open(path) if l.split('|')[0] in ('OK', 'SKIP')}
+
+
 def merge():
+    """merge [N]: N random groups not handled yet (a test round), or all remaining groups without N."""
     d = latest_run()
+    only_failed = len(sys.argv) > 2 and sys.argv[2] == 'failed'
+    n = int(sys.argv[2]) if len(sys.argv) > 2 and not only_failed else None
     groups = json.load(open(d + '/merge_plan.json'))
-    template = open(os.path.join(HERE, 'merge', 'merge_template.apex')).read()
-    log = open(d + '/merge_results.txt', 'a')
+    done = done_masters(d)
+    todo = [g for g in groups if g['master'] not in done]
+    if only_failed:
+        failed = {l.split('|')[1] for l in open(d + '/merge_results.txt') if l.split('|')[0] in ('FAIL', 'CHUNKERROR')}
+        todo = [g for g in todo if g['master'] in failed]
+    if n:
+        random.seed()
+        todo = random.sample(todo, min(n, len(todo)))
+    rnd = os.path.join(d, 'merge_round_%s_%s' % (time.strftime('%H%M%S'), 'failed' if only_failed else (n or 'all')))
+    os.makedirs(rnd)
+    log(d, 'merge round %s: %d groups (%d of %d already handled) -> %s' % (n or 'all', len(todo), len(done), len(groups), rnd))
+    json.dump(todo, open(rnd + '/groups.json', 'w'), indent=1)
+    sample = n is not None or only_failed
+    account_ids = [g['account'] for g in todo]
+    contact_ids = [c for g in todo for c in [g['master']] + g['losers']]
+    if sample:
+        before = snapshot(account_ids, contact_ids)
+        json.dump(before, open(rnd + '/before.json', 'w'), indent=1)
+    start = utcnow()
+    template = open(os.path.join(HERE, 'merge', os.environ.get('DATAFIX_TEMPLATE', 'merge_template.apex'))).read()
+    out_all = open(d + '/merge_results.txt', 'a')
+    out_rnd = open(rnd + '/results.txt', 'w')
     counts = collections.Counter()
-    for i in range(0, len(groups), 20):
-        chunk = groups[i:i + 20]
+    results = {}
+    def run_chunk(chunk, tag):
         body = json.dumps([{'account': g['account'], 'master': g['master'], 'losers': g['losers']} for g in chunk])
-        path = d + '/chunk.apex'
+        path = rnd + '/chunk.apex'
         open(path, 'w').write(template.replace('__PLAN__', body.replace("'", "\\'")))
         out = sf(['apex', 'run', '-o', ORG, '-f', path], parse=False)
         lines = [l.split('RESULT ', 1)[1].replace('&#124;', '|') for l in out.splitlines() if '|DEBUG|RESULT ' in l]
         if len(lines) != len(chunk):
-            lines.append('CHUNKERROR|%d|%s' % (i, out[-300:].replace('\n', ' ')))
+            open(rnd + '/chunk_%s_output.txt' % tag, 'w').write(out)
+            return None, out
+        return lines, out
+
+    CHUNK = 5
+    for i in range(0, len(todo), CHUNK):
+        chunk = todo[i:i + CHUNK]
+        lines, out = run_chunk(chunk, i)
+        if lines is None:
+            # whole transaction rolled back (e.g. SOQL limit): retry the groups one by one
+            lines = []
+            for j, g in enumerate(chunk):
+                one, out1 = run_chunk([g], '%d_%d' % (i, j))
+                lines += one if one is not None else ['CHUNKERROR|%s|%s' % (g['master'], out1[-200:].replace('\n', ' '))]
         for l in lines:
-            log.write(l + '\n')
+            out_all.write(l + '\n')
+            out_rnd.write(l + '\n')
             counts[l.split('|')[0]] += 1
-        log.flush()
-        print('groups %d-%d: %s' % (i + 1, i + len(chunk), dict(counts)), flush=True)
+            results[l.split('|')[1]] = l
+        out_all.flush()
+        out_rnd.flush()
+        if i % 200 == 0 or i + CHUNK >= len(todo):
+            log(d, 'groups %d-%d: %s' % (i + 1, i + len(chunk), dict(counts)))
         if counts['FAIL'] + counts['CHUNKERROR'] > 50:
-            sys.exit('stopped: more than 50 failures, see merge_results.txt')
+            log(d, 'STOPPED: more than 50 failures, see merge_results.txt')
+            sys.exit(1)
+    errs = error_logs(start)
+    json.dump(errs, open(rnd + '/error_logs_during_run.json', 'w'), indent=1)
+    log(d, 'merge round done: %s | Event_Log errors during the run (any source): %d' % (dict(counts), len(errs)))
+    if sample:
+        after = snapshot(account_ids, contact_ids)
+        json.dump(after, open(rnd + '/after.json', 'w'), indent=1)
+        write_merge_check(rnd, todo, before, after, results)
+        log(d, 'check file: ' + rnd + '/check.csv')
+
+
+def write_merge_check(rnd, todo, before, after, results):
+    look = ['Contact_person__c', 'Contact_Billing__c', 'Contact_Shipping__c', 'Subscription25__Reminder_Contact__c', 'Subscription25__UBL_Billing_Attendant_To__c']
+    ext = lambda r: ' '.join('p%d=%s' % (p, r.get('extId_%d__c' % p)) for p in range(1, 7) if r and r.get('extId_%d__c' % p))
+    with open(rnd + '/check.csv', 'w', newline='') as f:
+        w = csv.writer(f, lineterminator='\n')
+        w.writerow(['Result', 'Account', 'AccountId', 'Email', 'Master', 'MasterId', 'LoserIds', 'LosersMergedIntoMaster',
+                    'MasterRolesBefore', 'LoserRolesBefore', 'MasterRolesAfter', 'MasterPlatformIdsBefore', 'LoserPlatformIdsBefore',
+                    'MasterPlatformIdsAfter', 'LookupsPointingToLosersBefore', 'LookupsPointingToLosersAfter',
+                    'PreferencesBefore(master+losers)', 'PreferencesAfter(master)', 'RelationUrl'])
+        for g in todo:
+            m, ls = g['master'], g['losers']
+            acc_b, acc_a = before['accounts'].get(g['account'], {}), after['accounts'].get(g['account'], {})
+            merged = all(after['contacts'].get(x, {}).get('IsDeleted') and after['contacts'][x].get('MasterRecordId') == m for x in ls)
+            mr_b, mr_a = before['relations'].get(m), after['relations'].get(m)
+            w.writerow([
+                (results.get(m) or 'NO RESULT').split('|')[0] + ('' if (results.get(m) or '').startswith('OK') else ': ' + (results.get(m) or '').split('|')[-1]),
+                acc_b.get('Name'), g['account'], g.get('email', g.get('masterEmail')), g['name'], m, ';'.join(ls), 'yes' if merged else 'NO',
+                (mr_b or {}).get('Roles'), ' | '.join('%s' % ((before['relations'].get(x) or {}).get('Roles')) for x in ls), (mr_a or {}).get('Roles'),
+                ext(mr_b), ' | '.join(ext(before['relations'].get(x)) for x in ls), ext(mr_a),
+                ';'.join(k for k in look if acc_b.get(k) in ls), ';'.join(k for k in look if acc_a.get(k) in ls),
+                sum(before['prefs'].get(x, 0) for x in [m] + ls), after['prefs'].get(m, 0),
+                'https://movingintelligence.lightning.force.com/lightning/r/AccountContactRelation/%s/view' % (mr_a or {}).get('Id', '')])
 
 
 def ids():
@@ -156,10 +281,14 @@ def ids():
 
 
 def roles():
+    """roles [N]: N random relations (a test round), or all without N."""
     d = latest_run()
+    n = int(sys.argv[2]) if len(sys.argv) > 2 else None
+    rnd = os.path.join(d, 'roles_round_%s_%s' % (time.strftime('%H%M%S'), n or 'all'))
+    os.makedirs(rnd)
     rows = export("SELECT Id, AccountId, ContactId, Roles, Contact.Email, Account.Contact_person__c, Account.Contact_Billing__c, "
                   "Account.Contact_Shipping__c, Account.Subscription25__Reminder_Contact__c, Account.Subscription25__UBL_Billing_Attendant_To__c "
-                  "FROM AccountContactRelation", d + '/roles_export.csv')
+                  "FROM AccountContactRelation", rnd + '/roles_export.csv')
     by = collections.defaultdict(list)
     for r in rows:
         by[r['AccountId']].append(r)
@@ -182,26 +311,48 @@ def roles():
             add.setdefault(r['Id'], set()).add(role)
     byid = {r['Id']: r for r in rows}
     ordered = sorted(add, key=lambda rid: byid[rid]['AccountId'])
-    with open(d + '/roles_backup.csv', 'w', newline='') as f:
+    log(d, 'roles round %s: %d relations need a role' % (n or 'all', len(ordered)))
+    if n:
+        random.seed()
+        ordered = sorted(random.sample(ordered, min(n, len(ordered))), key=lambda rid: byid[rid]['AccountId'])
+    start = utcnow()
+    with open(rnd + '/roles_backup.csv', 'w', newline='') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerow(['Id', 'Roles'])
         for rid in ordered:
             w.writerow([rid, byid[rid]['Roles'] or ''])
-    with open(d + '/roles_update.csv', 'w', newline='') as f:
+    with open(rnd + '/roles_update.csv', 'w', newline='') as f:
         w = csv.writer(f, lineterminator='\n')
         w.writerow(['Id', 'Roles'])
         for rid in ordered:
             cur = roles_of(byid[rid]['Roles'])
             w.writerow([rid, ';'.join(cur + [x for x in ['Main', 'Invoice', 'Shipping', 'Reminder', 'Digital'] if x in add[rid] and x not in cur])])
-    print('relations to update:', len(ordered))
+    log(d, 'roles round: updating %d relations -> %s' % (len(ordered), rnd))
     if not ordered:
         return
-    res = sf(['data', 'update', 'bulk', '-o', ORG, '--sobject', 'AccountContactRelation', '--file', d + '/roles_update.csv', '--column-delimiter', 'COMMA', '--line-ending', 'LF', '--wait', '60', '--json'])
-    json.dump(res, open(d + '/roles_bulk_output.json', 'w'))
+    res = sf(['data', 'update', 'bulk', '-o', ORG, '--sobject', 'AccountContactRelation', '--file', rnd + '/roles_update.csv', '--column-delimiter', 'COMMA', '--line-ending', 'LF', '--wait', '60', '--json'])
+    json.dump(res, open(rnd + '/roles_bulk_output.json', 'w'), indent=1)
     r = res.get('result', {})
-    print('bulk job', r.get('jobId'), '| processed', r.get('processedRecords'), '| successful', r.get('successfulRecords'), '| failed', r.get('failedRecords'))
+    log(d, 'bulk job %s | processed %s | successful %s | failed %s' % (r.get('jobId'), r.get('processedRecords'), r.get('successfulRecords'), r.get('failedRecords')))
     if r.get('failedRecords'):
-        print('failed rows: sf data bulk results -o %s --job-id %s' % (ORG, r.get('jobId')))
+        out = sf(['data', 'bulk', 'results', '-o', ORG, '--job-id', r.get('jobId')], parse=False)
+        open(rnd + '/bulk_results_output.txt', 'w').write(out)
+        log(d, 'failed rows saved via: sf data bulk results -o %s --job-id %s (output in bulk_results_output.txt)' % (ORG, r.get('jobId')))
+    errs = error_logs(start)
+    json.dump(errs, open(rnd + '/error_logs_during_run.json', 'w'), indent=1)
+    log(d, 'Event_Log errors during the run (any source): %d' % len(errs))
+    if n:
+        after = {r['Id']: r for r in q("SELECT Id, Account.Name, AccountId, Contact.Name, Roles FROM AccountContactRelation WHERE Id IN " + ids_in(ordered))}
+        with open(rnd + '/check.csv', 'w', newline='') as f:
+            w = csv.writer(f, lineterminator='\n')
+            w.writerow(['Account', 'AccountId', 'Contact', 'RelationId', 'RolesBefore', 'RolesAdded', 'RolesAfter', 'AsExpected', 'RelationUrl'])
+            for rid in ordered:
+                a = after.get(rid, {})
+                want = set(roles_of(byid[rid]['Roles'])) | add[rid]
+                w.writerow([(a.get('Account') or {}).get('Name'), byid[rid]['AccountId'], (a.get('Contact') or {}).get('Name'), rid, byid[rid]['Roles'],
+                            ';'.join(sorted(add[rid])), a.get('Roles'), 'yes' if set(roles_of(a.get('Roles'))) == want else 'NO',
+                            'https://movingintelligence.lightning.force.com/lightning/r/AccountContactRelation/%s/view' % rid])
+        log(d, 'check file: ' + rnd + '/check.csv')
 
 
 def recount():

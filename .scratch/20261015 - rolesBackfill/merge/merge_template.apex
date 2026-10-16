@@ -62,16 +62,17 @@ for (Object o : plan) {
 			}
 			if (loserChanged) { loserUpds.add(lu); }
 		}
-		if (!loserUpds.isEmpty()) { update loserUpds; }
-		if (masterChanged) {
-			masterUpd.Roles = String.join(roles, ';');
-			update masterUpd;
-		}
+		// merge first: it deletes the losers' relations on this account, so the real platform id (unique extId_N__c) is
+		// free when the master's relation takes it over (clearing it on the loser first still collided, prod 2026-10-15)
 		Contact masterContact = new Contact(Id = masterId);
 		for (Integer i = 0; i < loserIds.size(); i += 2) {
 			List<Id> batch = new List<Id>{ loserIds[i] };
 			if (i + 1 < loserIds.size()) { batch.add(loserIds[i + 1]); }
 			Database.merge(masterContact, batch);
+		}
+		if (masterChanged) {
+			masterUpd.Roles = String.join(roles, ';');
+			update masterUpd;
 		}
 		out.add('OK|' + masterId + '|' + String.join(loserIds, ',') + '|' + String.join(roles, ';'));
 	} catch (Exception e) {

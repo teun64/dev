@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Minut - Order Warehouse (split)</label>
+    <protected>false</protected>
+    <values>
+        <field>ApexClass__c</field>
+        <value xsi:type="xsd:string">Batch_FinancialSystemOrderWarehouse</value>
+    </values>
+    <values>
+        <field>BatchSize__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Dispatcher__c</field>
+        <value xsi:type="xsd:string">Minut</value>
+    </values>
+    <values>
+        <field>IsActive__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Order__c</field>
+        <value xsi:type="xsd:double">35.0</value>
+    </values>
+</CustomMetadata>

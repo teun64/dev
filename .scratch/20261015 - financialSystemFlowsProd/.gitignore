@@ -1,0 +1,3 @@
+# data exports, backups and bulk results stay local (account / contact ids, roles)
+*.csv
+*_output.json
