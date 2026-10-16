@@ -155,6 +155,23 @@ private class Test_Util_FinancialSystem {
 	}
 
 	@IsTest
+	static void limits_noHeaders_assumedLimitAndOwnCount() {
+		Subscription25__Administration__c adm = admin();
+		adm.Daily_Limit__c = null;
+		Util_FinancialSystem.Limits lim = new Util_FinancialSystem.Limits(adm);
+		System.assertEquals(Util_FinancialSystem.ASSUMED_DAILY_LIMIT, lim.dailyLimit, 'No limit known: treated like the smallest administration');
+		HttpResponse res = new HttpResponse();
+		res.setStatusCode(200);
+		lim.register(res);
+		lim.register(res);
+		System.assertEquals(Util_FinancialSystem.ASSUMED_DAILY_LIMIT - 2, lim.dailyRemaining, 'Own count without headers');
+		System.assert(lim.dailyReset > System.now().getTime(), 'Counts until midnight UTC');
+		lim.maxPercentage = 90;
+		lim.dailyRemaining = Util_FinancialSystem.ASSUMED_DAILY_LIMIT / 10 - 1; // more than 90 % used
+		System.assertEquals(false, lim.hasBatchCapacity(1), 'Batch share of the assumed limit respected');
+	}
+
+	@IsTest
 	static void limits_expiredStoredValues_areIgnored() {
 		Subscription25__Administration__c adm = admin();
 		adm.Daily_Limit__c = 1000;

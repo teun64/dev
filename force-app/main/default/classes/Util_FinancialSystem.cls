@@ -20,6 +20,9 @@ public without sharing class Util_FinancialSystem {
 	public static final Integer MINUTELY_RESERVE = 5;
 	// daily reserve used only when the daily limit itself is unknown
 	public static final Integer DAILY_RESERVE = 250;
+	// an administration whose Exact returns no X-RateLimit headers (Exact DE, 2026-10-15) is treated like the smallest
+	// known one (UK: 10,000 a day, user decision); its calls are then counted by the sync itself until midnight UTC
+	public static final Integer ASSUMED_DAILY_LIMIT = 10000;
 
 	private static final Set<String> RESPONSE_FIELDS_TO_STRIP = new Set<String>{
 		'SalesOrderLines', 'Approved', 'Created', 'DeliveryDate', 'Modified', 'OrderDate', 'BankAccounts'
@@ -343,7 +346,7 @@ public without sharing class Util_FinancialSystem {
 		public Integer callsMade = 0;
 
 		public Limits(Subscription25__Administration__c admin) {
-			this.dailyLimit = admin.Daily_Limit__c == null ? null : admin.Daily_Limit__c.intValue();
+			this.dailyLimit = admin.Daily_Limit__c == null ? Util_FinancialSystem.ASSUMED_DAILY_LIMIT : admin.Daily_Limit__c.intValue();
 			this.maxPercentage = admin.FinancialRateLimitMaxPercentage__c == null
 				? Util_FinancialSystem.DEFAULT_MAX_PERCENTAGE : admin.FinancialRateLimitMaxPercentage__c;
 			// the stored remaining value only counts until its reset moment
@@ -406,8 +409,18 @@ public without sharing class Util_FinancialSystem {
 		public void register(HttpResponse res) {
 			this.callsMade++;
 			this.dailyLimit = Util_FinancialSystem.headerInt(res, 'X-RateLimit-Limit', this.dailyLimit);
-			this.dailyRemaining = Util_FinancialSystem.headerInt(res, 'X-RateLimit-Remaining', this.dailyRemaining);
-			this.dailyReset = Util_FinancialSystem.headerLong(res, 'X-RateLimit-Reset', this.dailyReset);
+			if (String.isBlank(res.getHeader('X-RateLimit-Remaining'))) {
+				// Exact sends no counters (DE): count this call ourselves, the day ends at midnight UTC
+				Long now = System.now().getTime();
+				if (this.dailyReset == null || this.dailyReset <= now || this.dailyRemaining == null) {
+					this.dailyRemaining = this.dailyLimit;
+					this.dailyReset = Datetime.newInstanceGmt(System.now().dateGmt().addDays(1), Time.newInstance(0, 0, 0, 0)).getTime();
+				}
+				this.dailyRemaining = Math.max(0, this.dailyRemaining - 1);
+			} else {
+				this.dailyRemaining = Util_FinancialSystem.headerInt(res, 'X-RateLimit-Remaining', this.dailyRemaining);
+				this.dailyReset = Util_FinancialSystem.headerLong(res, 'X-RateLimit-Reset', this.dailyReset);
+			}
 			this.minutelyRemaining = Util_FinancialSystem.headerInt(res, 'X-RateLimit-Minutely-Remaining', this.minutelyRemaining);
 			this.minutelyReset = Util_FinancialSystem.headerLong(res, 'X-RateLimit-Minutely-Reset', this.minutelyReset);
 			if (res.getStatusCode() == 429) {
