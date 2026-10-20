@@ -898,7 +898,7 @@
             <targetReference>dgr_01_Case</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>EmailWarningMark</name>
         <dataType>SObject</dataType>
