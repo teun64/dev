@@ -69,14 +69,21 @@
     </assignments>
     <assignments>
         <name>X1_Assign_EmailWarningMark_Spam</name>
-        <label>1. Assign EmailWarningMark Spam</label>
+        <label>1. Assign EmailWarningMark Spam and Type</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>EmailWarningMark.Spam__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>dgr_01_Email_Warning_Mark.Spam__c</elementReference>
+                <elementReference>Existing_EWM_Spam</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>EmailWarningMark.Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Existing_EWM_Type</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -323,7 +330,7 @@
         <inputAssignments>
             <field>Subject_String__c</field>
             <value>
-                <stringValue>41c78fdc-7171-4fc0-a1a6-9200acd0ef39</stringValue>
+                <elementReference>Existing_EWM_Subject_String</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
