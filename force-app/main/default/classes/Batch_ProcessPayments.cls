@@ -1,5 +1,5 @@
 /**
- * Collects Stripe direct debits (Type__c 'psp-dd') off-session against the mandate on the Account, on or after
+ * Collects Stripe recurring payments (Type__c 'psp-recurring'; legacy 'psp-dd' until migrated) off-session against the mandate on the Account, on or after
  * the Collection_Date__c that rbb_Payment derives from Due_Date__c minus the DirectDebit_Method_Setting__mdt
  * processing time (working days).
  *   - New:   recurring payment, the Account already had a mandate when the payment was created.
@@ -43,7 +43,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             ' Account__r.PayProv_CustomerId__c, Account__r.PayProv_PaymentMethodId__c, Account__r.PayProv_MandateId__c,' +
             ' Account__r.Reseller_Name__c, Administration__r.Reseller__c' +
             ' FROM Payment__c' +
-            ' WHERE Type__c = \'psp-dd\'' +
+            ' WHERE Type__c IN (\'psp-recurring\', \'psp-dd\')' +
             ' AND Status__c IN (\'New\', \'Setup\')' +
             ' AND Payment_Batch__c = null' +
             ' AND Collection_Date__c <= TODAY' +

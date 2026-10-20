@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Payment_Method_Type__c</fullName>
+    <description>Optional scheme: the payment provider's payment method type (sepa_debit, bacs_debit, card), from Account.PayProv_PaymentMethodType__c, else the business entity's direct debit method. A row with a type wins over the row of the same code without one.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Payment Method Type</label>
+    <length>20</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

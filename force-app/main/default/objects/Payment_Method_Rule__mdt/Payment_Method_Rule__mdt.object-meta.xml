@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Which payment method (Payment_Method global value set) is allowed for which reseller. Checked by Util_PaymentMethodRule on the Account payment methods when they or the reseller change. A code without a rule is allowed everywhere.</description>
+    <label>Payment Method Rule</label>
+    <pluralLabel>Payment Method Rules</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

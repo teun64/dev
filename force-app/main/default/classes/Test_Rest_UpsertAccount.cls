@@ -605,4 +605,19 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals('d223', acrs[0].extId_1__c);
         System.assertEquals(true, acrs[0].isAdministrator_1__c);
     }
+
+    // pi / pr (payment provider): the provider holds the bank details, so the code is kept without an IBAN
+    @isTest
+    static void testPaymentProviderCodeWithoutIban() {
+        Database.insert(new Business_Entities__c(Name = 'NL Stripe', Reseller__c = '1', PayProv_Use__c = true), AccessLevel.SYSTEM_MODE);
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf('{"id":"t70","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":"pr","bankAccountHolder":"Business b.v.","bankAccountNumber":null,"bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t7001","salesforceId":null,"accountId":"t70","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t7002","salesforceId":null,"accountId":"t70","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t70v","accountId":"t70","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t70b","accountId":"t70","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":1,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}');
+
+        Test.startTest();
+        Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        Account acc = [SELECT Payment_Method_Contracts__c FROM Account WHERE extID_1__c = 't70' LIMIT 1];
+        System.assertEquals('pr', acc.Payment_Method_Contracts__c, 'pr kept without IBAN');
+    }
 }

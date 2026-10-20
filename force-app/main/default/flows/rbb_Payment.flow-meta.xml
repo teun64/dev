@@ -460,10 +460,17 @@
         </value>
     </constants>
     <constants>
-        <name>cTypePSPDirectDebit</name>
+        <name>cTypePSPDirectDebitLegacy</name>
         <dataType>String</dataType>
         <value>
             <stringValue>psp-dd</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>cTypePSPRecurring</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>psp-recurring</stringValue>
         </value>
     </constants>
     <constants>
@@ -484,7 +491,7 @@
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
             <name>dec_01_Collection_Date_Set</name>
-            <conditionLogic>((1 OR 2 OR 3) AND (4 OR 5 OR 6 OR 7)) OR 8</conditionLogic>
+            <conditionLogic>((1 OR 2 OR 3) AND (4 OR 5 OR 6 OR 7 OR 9)) OR 8</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Request_Date__c</leftValueReference>
                 <operator>IsChanged</operator>
@@ -541,6 +548,13 @@
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>$Record.Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>pr</stringValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>ass_01_Collection_Date</targetReference>
             </connector>
@@ -595,7 +609,14 @@
                 <leftValueReference>$Record.Type__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>cTypePSPDirectDebit</elementReference>
+                    <elementReference>cTypePSPRecurring</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>cTypePSPDirectDebitLegacy</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -640,7 +661,7 @@
         <defaultConnectorLabel>Default</defaultConnectorLabel>
         <rules>
             <name>dec_01_DirectDebit_Variables_Get</name>
-            <conditionLogic>((1 OR 2) AND 3 AND 4 AND 5)</conditionLogic>
+            <conditionLogic>((1 OR 2) AND (3 OR 6) AND 4 AND 5)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Id</leftValueReference>
                 <operator>IsBlank</operator>
@@ -659,7 +680,7 @@
                 <leftValueReference>$Record.Type__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>cTypePSPDirectDebit</elementReference>
+                    <elementReference>cTypePSPRecurring</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
@@ -674,6 +695,13 @@
                 <operator>IsBlank</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>cTypePSPDirectDebitLegacy</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -886,7 +914,7 @@
     </decisions>
     <decisions>
         <name>dec_02_Pending_DD</name>
-        <label>1. Pending/New &amp; pspdd</label>
+        <label>1. Pending/New &amp; psp-recurring</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -895,7 +923,7 @@
         <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
             <name>dec_02_Pending_Yes</name>
-            <conditionLogic>(1 OR 3) AND 2</conditionLogic>
+            <conditionLogic>(1 OR 3) AND (2 OR 4)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Status__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -907,7 +935,7 @@
                 <leftValueReference>$Record.Type__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>psp-dd</stringValue>
+                    <elementReference>cTypePSPRecurring</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
@@ -915,6 +943,13 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>New</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Type__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>cTypePSPDirectDebitLegacy</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -1087,7 +1122,7 @@ IF(ISPICKVAL({!$Record.Method__c},&apos;I0&apos;)
 ,
 12
 ,
-IF(ISPICKVAL({!$Record.Type__c}, &apos;psp-dd&apos;)
+IF(OR(ISPICKVAL({!$Record.Type__c}, &apos;psp-recurring&apos;), ISPICKVAL({!$Record.Type__c}, &apos;psp-dd&apos;))
 ,
 CASE(WEEKDAY({!$Record.Due_Date__c}),1,2,7,1,0)
 + BLANKVALUE({!$Record.ProcessingTime__c},0)
@@ -1117,7 +1152,7 @@ CASE(WEEKDAY({!$Record.Collection_Date__c}),1,2,7,1,0) )</expression>
     <formulas>
         <name>fType</name>
         <dataType>String</dataType>
-        <expression>CASE(TEXT({!$Record.Method__c}),&apos;C&apos;,{!cTypeFSInCash},CASE(LEFT(LOWER(TEXT({!$Record.Method__c})),1),&apos;i&apos;,IF(ISPICKVAL({!$Record.Processor__c},&apos;Stripe&apos;),{!cTypePSPDirectDebit},{!cTypeFSDirectDebit}),&apos;p&apos;,{!cTypePSPImmediate},{!cTypeFSOnAccount}))</expression>
+        <expression>CASE(TEXT({!$Record.Method__c}),&apos;C&apos;,{!cTypeFSInCash},&apos;pr&apos;,{!cTypePSPRecurring},&apos;pi&apos;,{!cTypePSPImmediate},CASE(LEFT(LOWER(TEXT({!$Record.Method__c})),1),&apos;i&apos;,IF(ISPICKVAL({!$Record.Processor__c},&apos;Stripe&apos;),{!cTypePSPRecurring},{!cTypeFSDirectDebit}),&apos;p&apos;,{!cTypePSPImmediate},{!cTypeFSOnAccount}))</expression>
     </formulas>
     <interviewLabel>rbb - Payment {!$Flow.CurrentDateTime}</interviewLabel>
     <label>rbb - Payment</label>

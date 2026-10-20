@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customLabels>
+        <label>Bitte bezahlen Sie den Rechnungsbetrag bis zum {0, date,d-M-yyyy} über den Zahlungslink in der Rechnungs-E-Mail.</label>
+        <name>paymentRemarkPI</name>
+    </customLabels>
+    <customLabels>
+        <label>Der Rechnungsbetrag wird gegen {0, date,d-M-yyyy} über Ihre hinterlegte Zahlungsmethode eingezogen.</label>
+        <name>paymentRemarkPR</name>
+    </customLabels>
+    <customLabels>
         <label>Niederlassungsanschrift</label>
         <name>InvoiceEstablishmentTitle</name>
     </customLabels>

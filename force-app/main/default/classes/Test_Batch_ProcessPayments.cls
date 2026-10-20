@@ -34,7 +34,7 @@ private class Test_Batch_ProcessPayments {
             Account__c        = accountId,
             Administration__c = admin.Id,
             Method__c         = method,
-            Type__c           = method == 'I0' ? 'fs-dd' : 'psp-dd',
+            Type__c           = method == 'I0' ? 'fs-dd' : 'psp-recurring',
             Status__c         = 'New',
             CurrencyIsoCode   = 'EUR',
             Amount_Gross__c   = 13.50,

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>paymentRemarkPI</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>paymentRemarkPI</shortDescription>
+        <value>Please pay the invoice amount before {0, date,d-M-yyyy} using the payment link in the invoice email.</value>
+    </labels>
+    <labels>
+        <fullName>paymentRemarkPR</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>paymentRemarkPR</shortDescription>
+        <value>The invoice amount will be collected from your saved payment method around {0, date,d-M-yyyy}.</value>
+    </labels>
+</CustomLabels>

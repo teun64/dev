@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Gelieve het factuurbedrag voor {0, date,d-M-yyyy} te voldoen via de betaallink in de factuurmail.</label>
+        <name>paymentRemarkPI</name>
+    </customLabels>
+    <customLabels>
+        <label>Het factuurbedrag wordt rond {0, date,d-M-yyyy} geïncasseerd via uw opgeslagen betaalmethode.</label>
+        <name>paymentRemarkPR</name>
+    </customLabels>
+</Translations>

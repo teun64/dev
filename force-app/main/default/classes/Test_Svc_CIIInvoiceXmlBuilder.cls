@@ -59,4 +59,23 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
         System.assert(xml.contains('>S<'), 'Expected VAT category code S in XML');
         System.assert(xml.contains('urn:cen.eu:en16931:2017'), 'Expected EN16931 guideline ID in XML');
     }
+
+    // payment means scheme of a pr invoice: the account's saved method, else the business entity's direct debit method
+    @IsTest
+    private static void test_paymentMethodType(){
+        Account withType = Test_Data.createAccount('CII Card', (String) null, 'B2C', true);
+        Database.update(new Account(Id = withType.Id, PayProv_PaymentMethodType__c = 'card'), AccessLevel.SYSTEM_MODE);
+        Account withoutType = Test_Data.createAccount('CII Entity', (String) null, 'B2C', true);
+        Database.insert(new Business_Entities__c(Name = 'UK Test', Reseller__c = '6', PayProv_DirectDebit_PaymentMethod__c = 'bacs_debit'), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        String fromAccount = Svc_CIIInvoiceXmlBuilder.paymentMethodType(withType.Id, '6');
+        String fromEntity = Svc_CIIInvoiceXmlBuilder.paymentMethodType(withoutType.Id, '6');
+        String none = Svc_CIIInvoiceXmlBuilder.paymentMethodType(withoutType.Id, '4');
+        Test.stopTest();
+
+        System.assertEquals('card', fromAccount, 'Saved method on the account wins');
+        System.assertEquals('bacs_debit', fromEntity, 'Business entity direct debit method');
+        System.assertEquals(null, none, 'No account type, no business entity');
+    }
 }

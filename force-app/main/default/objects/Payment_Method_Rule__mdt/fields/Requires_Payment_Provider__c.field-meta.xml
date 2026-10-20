@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Requires_Payment_Provider__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Only allowed when the reseller's business entity uses the payment provider (Business_Entities__c.PayProv_Use__c).</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Requires Payment Provider</label>
+    <type>Checkbox</type>
+</CustomField>

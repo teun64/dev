@@ -41,6 +41,16 @@
         <label>Payment provider</label>
     </customValue>
     <customValue>
+        <fullName>pi</fullName>
+        <default>false</default>
+        <label>Payment provider - one-off</label>
+    </customValue>
+    <customValue>
+        <fullName>pr</fullName>
+        <default>false</default>
+        <label>Payment provider - recurring</label>
+    </customValue>
+    <customValue>
         <fullName>C</fullName>
         <default>false</default>
         <label>Free of charge</label>

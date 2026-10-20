@@ -228,6 +228,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
                 Id, Subscription25__Invoice_Number__c, Subscription25__Invoice_Date__c, Subscription25__Due_Date__c,
                 Subscription25__Total_Amount__c, Amount_Gross__c, Amount_VAT__c,
                 Subscription25__Purchase_Order_Number__c, Cost_Center_invoicing__c, Payment_Method_Result__c,
+                Subscription25__Account__c, Reseller__c,
                 Subscription25__VAT_Number__c,
                 Subscription25__Account__r.Name, Subscription25__Account__r.BillingCountryCode,
                 Subscription25__Account__r.Invoice_Grouping__c, Subscription25__Account__r.Invoice_Grouping_Option__c,
@@ -255,11 +256,14 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
             WHERE Order.Subscription25__Invoice__c = :invoiceId
         ];
 
+        // keyed by code, or code|type for a payment provider scheme (pr + sepa_debit / bacs_debit / card)
         Map<String, String> paymentMeansByInternalCode = new Map<String, String>();
         for (Payment_Method_UNCL4461_Mapping__mdt mapping : [
-            SELECT Internal_Payment_Code__c, UNCL4461_Code__c FROM Payment_Method_UNCL4461_Mapping__mdt
+            SELECT Internal_Payment_Code__c, Payment_Method_Type__c, UNCL4461_Code__c FROM Payment_Method_UNCL4461_Mapping__mdt
         ]) {
-            paymentMeansByInternalCode.put(mapping.Internal_Payment_Code__c, mapping.UNCL4461_Code__c);
+            String key = String.isBlank(mapping.Payment_Method_Type__c)
+                ? mapping.Internal_Payment_Code__c : mapping.Internal_Payment_Code__c + '|' + mapping.Payment_Method_Type__c;
+            paymentMeansByInternalCode.put(key, mapping.UNCL4461_Code__c);
         }
 
         Map<String, String> uneceCodeByInternalUnit = new Map<String, String>();
@@ -316,7 +320,10 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         data.buyerCountryCode = invoice.Subscription25__Account__r.BillingCountryCode;
         data.buyerVatNumber = invoice.Subscription25__VAT_Number__c;
 
-        data.unclPaymentMeansCode = paymentMeansByInternalCode.get(invoice.Payment_Method_Result__c);
+        String paymentCode = invoice.Payment_Method_Result__c;
+        String paymentMethodType = Svc_CIIInvoiceXmlBuilder.paymentMethodType(invoice.Subscription25__Account__c, invoice.Reseller__c);
+        data.unclPaymentMeansCode = paymentMeansByInternalCode.containsKey(paymentCode + '|' + paymentMethodType)
+            ? paymentMeansByInternalCode.get(paymentCode + '|' + paymentMethodType) : paymentMeansByInternalCode.get(paymentCode);
 
         data.lines = new List<LineData>();
         for (Util_InvoiceLineAggregator.AggregatedLine aggLine : aggregation.lines) {
@@ -341,6 +348,21 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
     }
 
     // ---- Data wrapper classes ------------------------------------------------------------
+
+    /**
+     * The payment provider's payment method type for the scheme-specific payment means of a pr invoice: the
+     * account's saved method, else the direct debit method of the reseller's business entity. System mode: a
+     * payment-provider field the user running the PDF merge need not see.
+     */
+    @TestVisible
+    private static String paymentMethodType(Id accountId, String reseller) {
+        List<Account> accounts = [SELECT PayProv_PaymentMethodType__c FROM Account WHERE Id = :accountId WITH SYSTEM_MODE];
+        if (!accounts.isEmpty() && String.isNotBlank(accounts[0].PayProv_PaymentMethodType__c)) {
+            return accounts[0].PayProv_PaymentMethodType__c;
+        }
+        List<Business_Entities__c> entities = [SELECT PayProv_DirectDebit_PaymentMethod__c FROM Business_Entities__c WHERE Reseller__c = :reseller WITH SYSTEM_MODE LIMIT 1];
+        return entities.isEmpty() ? null : entities[0].PayProv_DirectDebit_PaymentMethod__c;
+    }
 
     private class InvoiceData {
         String invoiceNumber;
