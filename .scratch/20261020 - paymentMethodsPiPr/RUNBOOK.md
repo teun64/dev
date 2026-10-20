@@ -26,6 +26,17 @@ Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy wit
 | 3 | `Rest_UpsertAccountV2`: **obsolete** (user 2026-10-20), only in dev; phase out, no changes. Its tests already fail in dev (`getIntegrationUser`: no rows) | — | — | — |
 | 4–6 | migration, clean-up, manuals | ⏳ | ⏳ | ⏳ |
 
+## acc deploy — planned 2026-10-21 (user: "tomorrow deploy to acc")
+
+Commits: 3f60541 (rac_Order, already in acc), e3affcb (EN16931), 2a89700 (pi / pr).
+
+Pre-checks found on 2026-10-20:
+- acc already has the EN16931 classes. `Ctrl_Invoice` and `Util_InvoiceLineAggregator` in acc equal commit e3affcb. `Svc_CIIInvoiceXmlBuilder` in acc differs in one place: the buyer country comes from `VisitingAddress__CountryCode__s` in acc and from `BillingCountryCode` in the repo. Deploying moves acc to BillingCountryCode. Confirm that is wanted (Account address model) before deploying.
+- Do the same drift checks as in dev before each deploy: flows (rbb_Payment, rab_Payment_Direct_Debit_Setup), Batch_ProcessPayments, Account record types, Payment_Setting rows.
+- Payment_Setting pi / pr rows hold placeholder Exact layouts. In acc, either leave pi / pr unused or get the acc Exact layout ids first.
+
+Order: step 1 + 1b → step 1 EN16931 part → step 2 → step 3 test class. Then run the test lists per step.
+
 ## Step 1 + 1b — deploy (per environment)
 
 Source deploy:
