@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>VAT_Code__c</fullName>
+    <label>VAT Code</label>
+    <type>Lookup</type>
+    <referenceTo>VAT_Code__c</referenceTo>
+    <relationshipName>OrderItems</relationshipName>
+    <relationshipLabel>Order Items</relationshipLabel>
+    <required>false</required>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <trackHistory>false</trackHistory>
+    <description>Resolved from Subscription25__VAT_Code__c for EN 16931 e-invoicing. Auto-populated, do not set manually.</description>
+</CustomField>

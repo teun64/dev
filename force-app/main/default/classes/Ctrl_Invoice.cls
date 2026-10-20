@@ -124,79 +124,48 @@ public without sharing class Ctrl_Invoice {
     */
 
     this.itemMap = new Map<String, Ctrl_Invoice.InvoiceItem>();
-    //this.vatMap = new Map<Decimal, Ctrl_Invoice.VATItem>();
     this.vatMap = new Map<String, Ctrl_Invoice.VATItem>();
 
-    Decimal vatPerc;
-    String vatCode;
+    // Line grouping + VAT rounding math is shared with Svc_CIIInvoiceXmlBuilder via
+    // Util_InvoiceLineAggregator, so the PDF and the EN16931 CII XML can never disagree.
+    List<Util_InvoiceLineAggregator.LineInput> aggregatorInputs = new List<Util_InvoiceLineAggregator.LineInput>();
 
-    this.amountNet = 0;
     for(OrderItem item : orderItems){
-      // 2024 summrieze can be don as wel when doing the data translation
-      /*
-      Data_Translation__c curTrans = translationMap.get(item.Subscription25__Product__c);
-      if((curTrans != null) && (!String.isBlank(curTrans.Name__c))){
-        item.Subscription25__Product__r.Name = curTrans.Name__c;
-      }
-      */
-
       String aggregateKey = item.Invoice_Grouping__c;
       if(!this.itemMap.containsKey(aggregateKey)){
         Ctrl_Invoice.InvoiceItem invItem = new Ctrl_Invoice.InvoiceItem(this, item);
         this.itemMap.put(aggregateKey, invItem);
-      } else {
-        this.itemMap.get(aggregateKey).addItem(item);
       }
 
-      this.amountNet += item.Amount_Net__c;
-
-      //add the amount to the proper vat value
-      if (!this.invoiceGrouping) {
-        vatPerc = item.Subscription25__VAT_Percentage__c;
-        vatCode = item.Subscription25__VAT_Code__c;
-
-        if(!this.vatMap.containsKey(vatCode)){
-          this.vatMap.put(vatCode, new Ctrl_Invoice.VATItem(vatCode, this.vatMethod, vatPerc));
-        }
-
-        this.vatMap.get(vatCode).addAmounts(item.Amount_Net__c, item.Amount_VAT__c, item.Amount_Gross__c);
-      }
+      Util_InvoiceLineAggregator.LineInput input = new Util_InvoiceLineAggregator.LineInput();
+      input.groupKey = aggregateKey;
+      input.quantity = item.Quantity;
+      input.netAmount = item.Amount_Net__c;
+      input.vatAmount = item.Amount_VAT__c;
+      input.grossAmount = item.Amount_Gross__c;
+      input.vatPercentage = item.Subscription25__VAT_Percentage__c;
+      input.vatCode = item.Subscription25__VAT_Code__c;
+      aggregatorInputs.add(input);
 
       //after the current end date
       if(item.Order.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Subscription25__Contract__r.Paid_Until__c > item.Order.EndDate){
           this.wasPaid = true;
       }
-
     }
 
-    if (this.invoiceGrouping) {
-      for (ctrl_invoice.InvoiceItem invoiceItem : itemMap.values()) {
-        invoiceItem.setAmounts();
+    Util_InvoiceLineAggregator.AggregationResult aggregation = Util_InvoiceLineAggregator.aggregate(aggregatorInputs, this.invoiceGrouping, this.vatMethod);
 
-        vatPerc = invoiceItem.vatPercentage;
-        vatCode = invoiceItem.vatCode;
-
-        if(!this.vatMap.containsKey(vatCode)){
-          this.vatMap.put(vatCode, new Ctrl_Invoice.VATItem(vatCode, this.vatMethod, vatPerc));
-        }
-
-        this.vatMap.get(vatCode).addAmounts(invoiceItem.amountNet, invoiceItem.amountVAT, invoiceItem.amountGross);
-        system.debug(invoiceItem);
-
-      }
-
+    for (Util_InvoiceLineAggregator.AggregatedLine line : aggregation.lines) {
+      this.itemMap.get(line.groupKey).applyAggregatedLine(line);
     }
 
-    this.amountVAT = 0;
-    this.amountGross = 0;
-    for(Ctrl_Invoice.VATItem vatItem : this.vatMap.values()){
-      this.amountVAT += vatItem.amountVAT;
-      this.amountGross += vatItem.amountGross;
+    for (Util_InvoiceLineAggregator.VatBreakdown breakdown : aggregation.vatBreakdown) {
+      this.vatMap.put(breakdown.code, new Ctrl_Invoice.VATItem(breakdown));
     }
 
-    this.amountGross = Ctrl_Invoice.format(this.amountGross);
-    this.amountNet = Ctrl_Invoice.format(this.amountNet);
-    this.amountVAT = Ctrl_Invoice.format(this.amountVAT);
+    this.amountNet = aggregation.netAmount;
+    this.amountVAT = aggregation.vatAmount;
+    this.amountGross = aggregation.grossAmount;
   }
 
 
@@ -389,14 +358,13 @@ public without sharing class Ctrl_Invoice {
       
     }
 
-    public void addItem(OrderItem oi){
-      this.quantity += oi.Quantity;
-      this.amountNet += oi.Amount_Net__c;
-    }
-
-    private void setAmounts() {
-      this.amountVAT = Ctrl_Invoice.format((this.amountNet * (this.vatPercentage/100)));
-      this.amountGross = Ctrl_Invoice.format(this.amountNet + this.amountVAT);
+    public void applyAggregatedLine(Util_InvoiceLineAggregator.AggregatedLine line) {
+      this.quantity = line.quantity;
+      this.amountNet = line.netAmount;
+      this.vatCode = line.vatCode;
+      this.vatPercentage = line.vatPercentage;
+      this.amountVAT = line.vatAmount;
+      this.amountGross = line.grossAmount;
     }
 
     public Decimal getTotal() {
@@ -437,48 +405,18 @@ public without sharing class Ctrl_Invoice {
   }
 
   private class VATItem implements Comparable {
-    private Decimal amountVATTotal;
-    private Decimal amountVATLine;
-    private Decimal amountGrossLine;
     public String code {get; private set;}
-    public String method {get; private set;}
     public Decimal percentage {get; private set;}
     public Decimal amountNet {get; private set;}
-    public Decimal amountVAT {
-            get {
-              return this.getAmountVAT();
-            }
-            private set;}
-    public Decimal amountGross {get {
-              return this.getAmountGross();
-            }
-            private set;}
+    public Decimal amountVAT {get; private set;}
+    public Decimal amountGross {get; private set;}
 
-    public VATItem(String code, String method, Decimal percentage){
-      this.code = code;
-      this.method = method;
-      Decimal correction = Math.abs(percentage) > 1 ? 100 : 1;
-      this.percentage = (percentage / correction);
-      this.amountNet = 0;
-      this.amountVATLine = 0;
-      this.amountGrossLine = 0;
-    }
-
-    public void addAmounts(Decimal amountNet, Decimal amountVAT, Decimal amountGross){
-      this.amountNet += amountNet;
-      this.amountVATLine += amountVAT;
-      this.amountGrossLine += amountGross;
-      this.amountVATTotal = (this.amountNet * this.percentage); 
-    }
-
-    private Decimal getAmountVAT(){
-      Decimal amount = (this.method == 'TOTAL') ? this.amountVATTotal : this.amountVATLine;
-      return amount.setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private Decimal getAmountGross(){
-      Decimal amount = (this.method == 'TOTAL') ? (this.amountNet + this.amountVATTotal) : this.amountGrossLine;
-      return amount.setScale(2, RoundingMode.HALF_UP);
+    public VATItem(Util_InvoiceLineAggregator.VatBreakdown breakdown){
+      this.code = breakdown.code;
+      this.percentage = breakdown.percentage;
+      this.amountNet = breakdown.netAmount;
+      this.amountVAT = breakdown.vatAmount;
+      this.amountGross = breakdown.grossAmount;
     }
 
     public Integer compareTo(Object obj){
@@ -488,7 +426,7 @@ public without sharing class Ctrl_Invoice {
       
       if (thisCode == thatCode) return 0;
       if (thisCode > thatCode) return 1;
-      return -1;  
+      return -1;
     }
   }
 }

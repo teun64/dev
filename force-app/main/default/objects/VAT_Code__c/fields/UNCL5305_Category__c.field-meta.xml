@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UNCL5305_Category__c</fullName>
+    <label>UNCL5305 Category</label>
+    <type>Picklist</type>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>UNCL5305_VAT_Category</valueSetName>
+    </valueSet>
+    <description>EN 16931 / UNCL5305 VAT category this internal VAT code maps to.</description>
+</CustomField>

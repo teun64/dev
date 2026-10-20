@@ -393,6 +393,29 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <name>dgr_03_VAT_Code_Lookup</name>
+        <label>3. VAT Code Lookup</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dgr_01_Financial_Setting</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Internal_Code__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Subscription25__VAT_Code__c</elementReference>
+            </value>
+        </filters>
+        <object>VAT_Code__c</object>
+        <outputAssignments>
+            <assignToReference>$Record.VAT_Code__c</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
         <name>dgr_01_Financial_Setting</name>
         <label>1. Financial Setting</label>
         <locationX>0</locationX>
@@ -419,7 +442,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>dgr_01_Financial_Setting</targetReference>
+            <targetReference>dgr_03_VAT_Code_Lookup</targetReference>
         </connector>
         <object>OrderItem</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>

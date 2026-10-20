@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UNCL4461_Code__c</fullName>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>UNCL4461 Code</label>
+    <type>Text</type>
+    <length>3</length>
+    <required>true</required>
+    <description>UNCL4461 payment means code for BT-81 on the EN 16931 invoice. Kept as text (Custom Metadata Types don't support Global Value Set picklists) - values must match the UNCL4461_PaymentMeans global value set used on the invoice-facing field.</description>
+</CustomField>

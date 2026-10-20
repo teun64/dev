@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Internal_Unit__c</fullName>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Internal Unit</label>
+    <type>Text</type>
+    <length>40</length>
+    <required>true</required>
+    <description>Value from Product2.QuantityUnitOfMeasure (e.g. Hour(s), Month(s), Piece(s)).</description>
+</CustomField>
