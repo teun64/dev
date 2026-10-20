@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>64.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>ass_01_Commit</name>
@@ -34,6 +34,71 @@
             </conditions>
             <connector>
                 <targetReference>dur_01_Order</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>A p0 (payment provider) contract renews as an I8 (direct debit) order (rbc_Order). Exact only processes a direct debit invoice with a mandate, which the account sync creates (bank account + mandate): queue the account when its bank account or mandate is not in Exact yet, so it is synchronised before the Subscription25 package sends the invoice.</description>
+        <name>dec_02_FinancialSync</name>
+        <label>2. Financial Sync</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>dec_02_FinancialSync_Yes</name>
+            <conditionLogic>1 AND 2 AND 3 AND (4 OR 5) AND 6 AND 7</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>I8</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.Payment_Method_Contracts__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>p0</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.Bank_Account_Number__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.FinancialIdBankAccount__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.FinancialIdBankMandate__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.SyncToFinancialSystem__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account.Reseller_Name__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>6</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dur_02_Account</targetReference>
             </connector>
             <label>Yes</label>
         </rules>
@@ -101,9 +166,40 @@ IF(AND(({!rContract.ContractTerm} &gt; 1),({!rContract.ContractTerm} &lt;= 12)),
         </inputAssignments>
         <inputReference>$Record</inputReference>
     </recordUpdates>
+    <recordUpdates>
+        <name>dur_02_Account</name>
+        <label>2. Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.AccountId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>SyncToFinancialSystem__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>SyncToFinancialSystem__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Account</object>
+    </recordUpdates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_02_FinancialSync</targetReference>
+        </connector>
         <object>Order</object>
         <recordTriggerType>Create</recordTriggerType>
         <scheduledPaths>
