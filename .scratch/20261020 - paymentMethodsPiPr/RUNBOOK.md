@@ -31,7 +31,7 @@ Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy wit
 Commits: 3f60541 (rac_Order, already in acc), e3affcb (EN16931), 2a89700 (pi / pr).
 
 Pre-checks found on 2026-10-20:
-- acc already has the EN16931 classes. `Ctrl_Invoice` and `Util_InvoiceLineAggregator` in acc equal commit e3affcb. `Svc_CIIInvoiceXmlBuilder` in acc differs in one place: the buyer country comes from `VisitingAddress__CountryCode__s` in acc and from `BillingCountryCode` in the repo. Deploying moves acc to BillingCountryCode. Confirm that is wanted (Account address model) before deploying.
+- acc already has the EN16931 classes. `Ctrl_Invoice` and `Util_InvoiceLineAggregator` in acc equal commit e3affcb. `Svc_CIIInvoiceXmlBuilder` in acc differs in one place: the buyer country comes from `VisitingAddress__CountryCode__s` in acc and from `BillingCountryCode` in the repo. Deploying moves acc to BillingCountryCode. **Confirmed correct by the user on 2026-10-20 (billing address).**
 - Do the same drift checks as in dev before each deploy: flows (rbb_Payment, rab_Payment_Direct_Debit_Setup), Batch_ProcessPayments, Account record types, Payment_Setting rows.
 - Payment_Setting pi / pr rows hold placeholder Exact layouts. In acc, either leave pi / pr unused or get the acc Exact layout ids first.
 
