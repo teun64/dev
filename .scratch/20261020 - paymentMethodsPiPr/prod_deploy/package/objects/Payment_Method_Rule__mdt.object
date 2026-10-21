@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Which payment method (Payment_Method global value set) is allowed for which reseller. Checked by Util_PaymentMethodRule on the Account payment methods when they or the reseller change. A code without a rule is allowed everywhere.</description>
+    <label>Payment Method Rule</label>
+    <pluralLabel>Payment Method Rules</pluralLabel>
+    <visibility>Public</visibility>
+    <fields>
+        <fullName>Allowed_Resellers__c</fullName>
+        <description>Comma-separated Reseller_Name__c values (e.g. 1,3,5). Blank = every reseller.</description>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Allowed Resellers</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Payment_Method_Code__c</fullName>
+        <description>Value from the Payment_Method global value set (e.g. I8, pi, pr). Case-sensitive.</description>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Payment Method Code</label>
+        <length>10</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Requires_Payment_Provider__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>Only allowed when the reseller&apos;s business entity uses the payment provider (Business_Entities__c.PayProv_Use__c).</description>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Requires Payment Provider</label>
+        <type>Checkbox</type>
+    </fields>
+</CustomObject>

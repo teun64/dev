@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Type__c</fullName>
+        <label>Type</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>psp-immediate</fullName>
+                    <default>false</default>
+                    <label>Immediate (PSP)</label>
+                </value>
+                <value>
+                    <fullName>psp-dd</fullName>
+                    <default>false</default>
+                    <label>Direct Debit (PSP)</label>
+                </value>
+                <value>
+                    <fullName>psp-recurring</fullName>
+                    <default>false</default>
+                    <label>Recurring (PSP)</label>
+                </value>
+                <value>
+                    <fullName>fs-dd</fullName>
+                    <default>false</default>
+                    <label>Direct Debit (Financial System)</label>
+                </value>
+                <value>
+                    <fullName>fs-oa</fullName>
+                    <default>false</default>
+                    <label>On Account</label>
+                </value>
+                <value>
+                    <fullName>fs-cash</fullName>
+                    <default>false</default>
+                    <label>In Cash (Financial System)</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+</CustomObject>

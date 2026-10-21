@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Veuillez régler le montant de la facture avant le {0, date,d-M-yyyy} via le lien de paiement dans l&apos;e-mail de facturation.</label>
+        <name>paymentRemarkPI</name>
+    </customLabels>
+    <customLabels>
+        <label>Le montant de la facture sera prélevé vers le {0, date,d-M-yyyy} via votre moyen de paiement enregistré.</label>
+        <name>paymentRemarkPR</name>
+    </customLabels>
+</Translations>

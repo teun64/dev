@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>VAT Code</label>
+    <pluralLabel>VAT Codes</pluralLabel>
+    <nameField>
+        <label>VAT Code Name</label>
+        <type>AutoNumber</type>
+        <displayFormat>VAT-{0000}</displayFormat>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <sharingModel>ReadWrite</sharingModel>
+    <description>Master data mapping this org&apos;s internal VAT codes to their EN 16931 / UNCL5305 VAT category, for e-invoicing (ZUGFeRD/Factur-X) generation.</description>
+    <fields>
+        <fullName>Description__c</fullName>
+        <label>Description</label>
+        <type>Text</type>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <description>Human-readable label, e.g. &quot;NL standard rate 21%&quot;.</description>
+    </fields>
+    <fields>
+        <fullName>Internal_Code__c</fullName>
+        <label>Internal Code</label>
+        <type>Text</type>
+        <length>15</length>
+        <required>true</required>
+        <unique>true</unique>
+        <externalId>true</externalId>
+        <trackHistory>false</trackHistory>
+        <description>Matches the internal VAT code value stored on OrderItem.Subscription25__VAT_Code__c / Product2.VAT_Rate__c (e.g. 1, 2, 6, 7, E, S).</description>
+    </fields>
+    <fields>
+        <fullName>Percentage__c</fullName>
+        <label>Percentage</label>
+        <type>Percent</type>
+        <precision>5</precision>
+        <scale>2</scale>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <description>Reference VAT percentage for this code (e.g. 21 for NL standard rate). Not authoritative for invoicing calculations, informational only.</description>
+    </fields>
+    <fields>
+        <fullName>UNCL5305_Category__c</fullName>
+        <label>UNCL5305 Category</label>
+        <type>Picklist</type>
+        <required>true</required>
+        <trackHistory>false</trackHistory>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetName>UNCL5305_VAT_Category</valueSetName>
+        </valueSet>
+        <description>EN 16931 / UNCL5305 VAT category this internal VAT code maps to.</description>
+    </fields>
+</CustomObject>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Maps this org&apos;s internal Payment_Method codes to UNCL4461 payment means codes, for EN 16931 e-invoicing.</description>
+    <label>Payment Method UNCL4461 Mapping</label>
+    <pluralLabel>Payment Method UNCL4461 Mappings</pluralLabel>
+    <visibility>Public</visibility>
+    <fields>
+        <fullName>Internal_Payment_Code__c</fullName>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Internal Payment Code</label>
+        <type>Text</type>
+        <length>10</length>
+        <required>true</required>
+        <unique>false</unique>
+        <description>Value from the internal Payment_Method global value set (e.g. I8, p0, 30).</description>
+    </fields>
+    <fields>
+        <fullName>Payment_Method_Type__c</fullName>
+        <description>Optional scheme: the payment provider&apos;s payment method type (sepa_debit, bacs_debit, card), from Account.PayProv_PaymentMethodType__c, else the business entity&apos;s direct debit method. A row with a type wins over the row of the same code without one.</description>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Payment Method Type</label>
+        <length>20</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>UNCL4461_Code__c</fullName>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>UNCL4461 Code</label>
+        <type>Text</type>
+        <length>3</length>
+        <required>true</required>
+        <description>UNCL4461 payment means code for BT-81 on the EN 16931 invoice. Kept as text (Custom Metadata Types don&apos;t support Global Value Set picklists) - values must match the UNCL4461_PaymentMeans global value set used on the invoice-facing field.</description>
+    </fields>
+    <fields>
+        <fullName>UNCL4461_Code_Description__c</fullName>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>UNCL4461 Code Description</label>
+        <type>Text</type>
+        <length>100</length>
+        <required>false</required>
+        <description>Human-readable label for UNCL4461_Code__c (e.g. &quot;Credit transfer&quot;), so this mapping table is understandable without looking up the UNCL4461 code list separately.</description>
+    </fields>
+</CustomObject>

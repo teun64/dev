@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Include_CII_Hybrid_PDF__c</fullName>
+        <label>Include CII Hybrid PDF</label>
+        <type>Checkbox</type>
+        <defaultValue>false</defaultValue>
+        <trackHistory>false</trackHistory>
+        <description>When enabled, invoices for this business entity get their PDF replaced by a ZUGFeRD/Factur-X hybrid (EN 16931 CII XML embedded in a PDF/A-3), once the base PDF has been generated.</description>
+    </fields>
+</CustomObject>

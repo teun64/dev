@@ -114,6 +114,31 @@ Goal: prove the pr route for UK (Bacs via Stripe "UK - Acc", GBP) end to end in 
 
 Known acc facts: Stripe accounts NL - Acc / DE - Acc / UK - Acc linked on the Administrations; NL + UK Use on; org-wide emails set; Payment_Processor has Stripe; deliverability = system email only (no mails).
 
+### Next 2 — prod deploy: IN PROGRESS 2026-10-21 (go-ahead given by the user)
+
+User decisions 2026-10-21:
+- **Exact conditions:** pi / pr exist in Exact prod (UK, NL, DE).
+- **EN16931:** deploy it too, but without influence on current PDFs. The package carries **prod's own `Ctrl_Invoice`** (v62, no Util_InvoiceLineAggregator refactor) plus only the 5-line pi / pr remark branch. The hybrid merge stays off (`Include_CII_Hybrid_PDF__c` is new, default false); there are no VAT_Code__c records, so the rbb_OrderItem lookup returns empty.
+- **Term:** migrate with 0 days (pr due date = invoice date; parked fDuePeriod fix).
+- **Belgium:** link the Belgium Administration to the NL Stripe account (Use stays off).
+- **Migration:** C J Blinco and Marc Stone I8 → pr after the deploy (`migration/MIGRATION.md`).
+
+Pre-checks against prod (all clean):
+- The 4 flows (rbb_Payment, rab_Payment_Direct_Debit_Setup, afl_PaymentDirectDebitSetup_SendMail, rac_Order), rbb_OrderItem, Batch_ProcessPayments, Ctrl_Invoice, Test_Rest_UpsertAccount, Test_Batch_ProcessPayments and Rest_UpsertAccount all equal the repo base they were built on. The semantic flow diff ignores comments and order. The only difference is the `getFirstRecordOnly` default, as in acc.
+- Value set / Type__c / Payment_Setting.Method__c / record types: prod values + pi / pr only, nothing dropped.
+- Repo ps_*_pi / pr layout ids already equal prod: pr = I8 layout (ps_1_I8 c46c05ea…, ps_6_I8 922a4ff1…), pi = p0 / p1 layout (f68dc67b…, 2e5ddea3…).
+- `psp-dd` sweep: only rbb_Payment, rab_Payment_Direct_Debit_Setup, Batch_ProcessPayments and Type__c refer to it, all handling psp-recurring as well. rab_Payment_Direct_Debit_Escalation has no type filter, so UK reminders keep working.
+- DE stays unusable for pi / pr: no ps_5 rows, PayProv_Use off.
+
+Package: `prod_deploy/package` (96 components: rac_Order, steps 1–3, SendMail, EN16931 minus Inv_TriggerCIIHybridPdfMerge and the placeholder NC / EC, record types + labels merged in). Tests: `prod_deploy/prod_pipr_tests.txt`. Flow activation afterwards: `prod_deploy/activate_flows_prod.sh`.
+
+Validation (dry run, RunSpecifiedTests) 0AfTx0000013iAPKAY: **Failed, 9 of 205 tests**:
+1. ⚠ **Trigger_ContentDocumentLink (v67 = user mode) queries `Include_CII_Hybrid_PDF__c` without FLS → "No such column" → every ContentDocumentLink on an invoice fails, i.e. every invoice PDF in prod would break.** Fix: query in SYSTEM_MODE. Test_Invoices.testGetInvoiceWithFileSuccess.
+2. Test_Svc_CIIHybridPdfMerge (2), Test_Svc_CIIInvoiceXmlBuilder, Test_Trigger_ContentDocumentLink (3): "fields being inaccessible on VAT_Code__c". The new fields have no FLS for the running admin (dev / acc passed because trietman has ps_EN16931_Invoicing). Fix: Admin profile FLS for the new EN16931 fields in the package.
+3. Test_rbb_Payment_Type and Test_rac_Order fail because prod deploys flows as **Draft**, so the old active versions run during validation. Run them after activation instead of in the deploy.
+4. Coverage below 75%: Svc_CIIHybridPdfMerge 0%, Svc_CIIInvoiceXmlBuilder 3%, Trigger_ContentDocumentLink 44% (follow from 1–2), Ctrl_Invoice 71% (Test_Invoices failing; recheck after fix 1).
+   - Earlier attempt 0AfTx0000013i5ZKAQ: ps_EN16931_Invoicing referenced the excluded Inv_TriggerCIIHybridPdfMerge; removed in the package copy.
+
 ### Next 2 — prod (only on explicit go-ahead)
 
 Prerequisites (block the deploy until done):
