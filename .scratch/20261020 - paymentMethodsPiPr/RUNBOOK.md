@@ -50,6 +50,59 @@ Goal: prove the pr route for UK (Bacs via Stripe "UK - Acc", GBP) end to end in 
 5. Migration dry run on acc: put a UK test account on I8 + Stripe payment(s), then run the same steps as `migration/MIGRATION.md` (account → pr, paid payments I8 → pr) and verify Type psp-recurring.
 6. Record results here and in the plan doc; clean up or keep the test data (decide with the user).
 
+#### Run 2026-10-21 — NL + UK full chain, mails to the user's private address
+
+- Accounts (B2C, created by Claude): "TEST Teun pr NL" 001G500001UDJz7IAH (reseller 1, EUR, pr) and "TEST Teun pr UK" 001G500001UDJz8IAH (reseller 6, GBP, pr). Each has its own contact with email teun.rietman@outlook.com (address kept; ACR roles Main/Payment/Invoice/… set by automation).
+- ✅ Rule check UK: I8 refused ("Payment method I8 is not allowed for reseller 6."); pr accepted.
+- No Stripe customer yet on either account; `afl_Payment_Direct_Debit_Setup` creates it when the first payment arrives.
+- ⚠ Webhook: acc holds only 5 `stripeGC__Stripe_Event__c` rows, all from UK - Acc (2026-10-14). NL - Acc has never delivered an event, so check its webhook endpoint in the Stripe dashboard.
+- ⚠ pi is not wired end to end. `Ctrl_Payment.getPaymentData` ignores `Type__c`: with a mandate on file it answers "already scheduled", and without one it runs a DD setup or a Bacs payment. `Batch_ProcessPayments` only takes psp-recurring / psp-dd, so a pi payment on a mandated account is never charged.
+- Deliverability: the user switches acc to "All email" just before the payments are inserted and back right after the mails arrive.
+- Contracts (OrangeR.12, prepaid 12 months, pr, start 2026-10-21): NL 01908899 (800G500000qAzHGIA0, CP €9.95 + auto Activation Fee), UK 01908900 (800G500000qAzHHIA0, CP £13.90). Created via anonymous Apex. `Contract.Reseller__c` and `Subscription25__Order_Generation_Start__c` are formulas.
+- CP activation needs a `Subscription25__Debtor_Number__c` ("account not present in the selected administration"). For Exact administrations: set `SyncToFinancialSystem__c = true`. `Batch_FinancialSystemAccountSync` (5 min) creates the debtor in Exact acc, `rab_Account_Debtor_Number` creates the junction, and `Batch_ActivateDraftContractProducts` (5 min) activates the CPs.
+- ✅ NL chain ran by itself within about 1 minute of activation:
+  - Debtor 12295645.
+  - Orders 03322993 (€119.40) and 03322994 (€25 activation fee), both pr.
+  - Invoice I-2610-00560538 FINALIZED (€144.40 net / €174.72 gross, Payment_Method pr).
+  - Payment PM#000136954: Type psp-recurring, Setup, Mail Sent, Stripe customer cus_VTvQyFG6PGtru1 on NL - Acc, SetupIntent seti_1USxZJABHKG9R0t2… (NL - Acc).
+  - No manual Sub25 job needed. Sub25 jobs are not global, so they can't be started from Apex anyway.
+  - Note: Collection_Date__c = 2026-10-20, one day before the request date.
+- ⚠ The setup mail link pointed to **dev**. The user edited the link to acc by hand and completed the SEPA mandate. The payment went to "Request Processed by Customer", but:
+  - **No mandate reached Salesforce.** The account's PayProv_MandateId / PaymentMethodId are empty, and there were 0 Stripe events today. So the NL - Acc webhook is missing, as suspected, and the batch can't charge.
+  - The link cause is the known open item (commit 8f743de, `.scratch/20261015 - invoiceEmailLightning/customerHubFill/RUNBOOK.md`). The fix is dev only:
+    - dev templates use `{{{Payment__c.Setup_URL__c}}}`, a formula of Business_Entity__r.CustomerHub_URL__c + /payment?token= + externalId.
+    - acc: all 6 DD templates hard-code `https://movingintelligence--dev.sandbox.my.site.com/hub/payment?token=`. `Setup_URL__c` does not exist. There are no DE templates.
+    - prod: hard-coded `https://customer.movingintelligence.com/payment?token=`, set deliberately (changed on 2026-09-29). `Setup_URL__c` does not exist.
+  - Webhook config (`stripeGC__Stripe_Webhook_Endpoint__c`):
+    - dev (NL/DE/UK) and prod (3 accounts) all have the same 14 events: payment_intent.{amount_capturable_updated, canceled, created, partially_funded, payment_failed, processing, requires_action, succeeded}, setup_intent.{canceled, created, requires_action, setup_failed, succeeded} and mandate.updated.
+    - In Stripe the NL mandate shows 3 events (setup_intent.created, payment_method.attached, setup_intent.succeeded), but 0 reached acc. That confirms the missing NL endpoint.
+    - UK: acc's UK (and DE) Administration has `Subscription25__Synchronisation__c` empty. In prod both are Exact; in acc the UK Exact credential is not authenticated, so this is deliberate. The account sync failed with "This accounts reseller does not synchronize with Exact". The debtor number was then generated as in `Util_Rest.checkDebtorNumber` for non-Exact admins (`Id.left(15).right(9)` = 0001UDJz8), and the sync flag was cleared. `rab_Account_Debtor_Number` created the junction.
+    - UK chain after the faked Exact sync:
+      - Debtor 0001UDJz8 on the account plus junction a0ZG5000003LNXlMAO (United Kingdom).
+      - CP-1416263 activated by hand.
+      - Order 03322995 created at once (£166.80, pr).
+      - No invoice yet. NL got its invoice within 30 s via the Exact-synced Job_Synchronisation path; non-Exact UK only gets invoices from the nightly Job_InvoiceCreation (19:16 UTC). acc UK has 34 FINALIZED invoices from that path, the last on 2026-10-08.
+      - ✅ The user invoiced the order by hand (Sub25 "Invoice orders"):
+        - Invoice I-2610-00560539 FINALIZED, £166.80 net / £200.16 gross, pr.
+        - PDF Invoice_GB26000152.pdf is attached **twice** (13:00:33 and 13:00:47, different files).
+        - Payment PM#000136955: psp-recurring, Setup, Mail Sent, GBP 200.16.
+        - Bacs → PaymentIntent pi_3USz8gGxR72SaSls… was created upfront on UK - Acc; there is no SetupIntent.
+        - Collection_Date 2026-10-19, two days before the request date (same pattern as NL).
+      - ✅ The user completed the UK Bacs page at 13:12. Events arrived: payment_intent.created, payment_intent.processing, mandate.updated. PM#000136955 → Processing.
+        - Account: PaymentMethodId pm_1USzJgGxR72SaSls… is set; MandateId is still empty, because `mandate.updated` is only processed when status = active (Bacs mandate pending).
+        - Waiting for payment_intent.succeeded → Paid, and the mandate going active.
+      - ✅ UK: payment_intent.succeeded arrived at 13:13 → PM#000136955 **Paid**. Mandate mandate_1USzJhGxR72SaSls… is now on the account.
+      - NL / DE webhook endpoints created by the user at 13:15 / 13:16 (we_1USzMBABHKG9R0t2…, we_1USzNMApWepTsd3c…). Both are subscribed to **only `account.updated`**, and none of the 14 events. UK still lacks the 5 setup_intent.* events.
+      - Adding the events only in the Stripe dashboard + Resend → still 0 NL events in acc; the SF endpoint record still had only account.updated.
+      - After the stripeGC wizard update, NL / DE endpoint records changed at 13:32 to 15 events (the 14 + account.updated). Lesson: set webhook events via the stripeGC setup, not only in the Stripe dashboard.
+      - The old NL events could not be resent to the new endpoint, and redoing the mandate via the link is impossible: `Svc_PaymentIntent.getOrCreate` reuses the stored, already-succeeded SetupIntent → "already processed".
+        - Fix 13:40: read seti_1USxZJ… via `Svc_PaymentIntent.call` (GET, read-only) and wrote PayProv_PaymentMethodId__c pm_1USxd3ABHKG9R0t2… and PayProv_MandateId__c mandate_1USxd3ABHKG9R0t2… on TEST Teun pr NL. That is the same write Svc_StripeEventProcessor does on setup_intent.succeeded, and it matches the user's Stripe event payload.
+        - ✅ 13:45 Batch_ProcessPayments charged PM#000136954 off-session (pi_3USzpTABHKG9R0t2…). The first NL webhook events arrived: created + processing at 13:45:21, succeeded at 13:45:48. Result: **Paid**, Processed_Date 2026-10-21, 0 Cases. NL pr chain proven end to end (apart from the manual mandate write).
+      - 14:20: UK - Acc endpoint now has all 14 events too. All three acc accounts are in line with dev / prod. prod checked: all 3 endpoints have 14 events; UK had 28 events in 30 days, NL / DE unused.
+      - NL at 13:15: unchanged. Still no NL endpoint, 0 NL events; PM#000136954 is Setup with no mandate.
+    - acc: **NL - Acc and DE - Acc have no endpoint at all.** UK - Acc (we_1U8f93GxR72SaSls…) lacks the 5 setup_intent.* events. Handed to the user 2026-10-21 to fix in the stripeGC setup.
+    - Data: `Subscription25__Administration__c.CustomerHub_URL__c` is empty in acc and prod. `Sync_Administration_to_Business_Entity` copies it to the Business Entity on every Administration save, so the BE value gets wiped. acc BE NL/BE/DE/UK and prod BE NL/DE/UK are now null.
+
 Known acc facts: Stripe accounts NL - Acc / DE - Acc / UK - Acc linked on the Administrations; NL + UK Use on; org-wide emails set; Payment_Processor has Stripe; deliverability = system email only (no mails).
 
 ### Next 2 — prod (only on explicit go-ahead)
