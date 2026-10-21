@@ -11,22 +11,41 @@ Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy wit
 |---|---|---|---|---|
 | 0 | `rac_Order` p0→I8 queue (commit 3f60541) | ✅ v24 | ✅ v22 | ⏳ go-ahead; deploys as Draft → activate via Tooling |
 | 1 | Exact payment conditions `pi` / `pr` | ✅ (Finance) | ✅ (Finance) | ⏳ Finance |
-| 1 | Global value set `Payment_Method`: + pi, pr | ✅ 2026-10-20 | ⏳ | ⏳ |
-| 1 | Account record types B2B / B2C: + pi, pr on `Payment_Method_Contracts__c` / `Payment_Method_Opportunities__c` | ✅ 2026-10-20 | ⏳ | ⏳ |
-| 1 | `Payment__c.Type__c`: + psp-recurring | ✅ 2026-10-20 | ⏳ | ⏳ |
-| 1 | CMDT `Payment_Method_UNCL4461_Mapping`: field `Payment_Method_Type__c` + rows PM_pi, PM_pr, PM_pr_sepa_debit, PM_pr_bacs_debit, PM_pr_card; `Svc_CIIInvoiceXmlBuilder` picks code+type; new field `Account.PayProv_PaymentMethodType__c` | ✅ 2026-10-20 (on top of EN16931 WIP) | ⏳ with EN16931 | ⏳ with EN16931 |
-| 1 | Labels `paymentRemarkPI` / `paymentRemarkPR` (en, nl_NL, de, fr; draft wording) + `Ctrl_Invoice.getPaymentType` | ✅ 2026-10-20 (on top of EN16931 WIP) | ⏳ with EN16931 | ⏳ with EN16931 |
-| 1b | CMDT `Payment_Method_Rule__mdt` + 13 rows, `Util_PaymentMethodRule`, trigger `AccountPaymentMethodRule` | ✅ 2026-10-20 | ⏳ | ⏳ |
+| 1 | Global value set `Payment_Method`: + pi, pr | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
+| 1 | Account record types B2B / B2C: + pi, pr on `Payment_Method_Contracts__c` / `Payment_Method_Opportunities__c` | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
+| 1 | `Payment__c.Type__c`: + psp-recurring | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
+| 1 | CMDT `Payment_Method_UNCL4461_Mapping`: field `Payment_Method_Type__c` + rows PM_pi, PM_pr, PM_pr_sepa_debit, PM_pr_bacs_debit, PM_pr_card; `Svc_CIIInvoiceXmlBuilder` picks code+type; new field `Account.PayProv_PaymentMethodType__c` | ✅ 2026-10-20 (on top of EN16931 WIP) | ✅ 2026-10-21 | ⏳ with EN16931 |
+| 1 | Labels `paymentRemarkPI` / `paymentRemarkPR` (en, nl_NL, de, fr; draft wording) + `Ctrl_Invoice.getPaymentType` | ✅ 2026-10-20 (on top of EN16931 WIP) | ✅ 2026-10-21 | ⏳ with EN16931 |
+| 1b | CMDT `Payment_Method_Rule__mdt` + 13 rows, `Util_PaymentMethodRule`, trigger `AccountPaymentMethodRule` | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
 | 1b | Report + clean-up of existing wrong combinations in prod | — | — | ⏳ |
-| 2 | `Payment_Setting__mdt.Method__c` + pi / pr; rows ps_1_pi, ps_1_pr, ps_6_pi, ps_6_pr (Stripe, AutoCreate) with **placeholder** Exact layouts and **no Term__c** | ✅ 2026-10-20 | ⏳ needs real layout ids | ⏳ needs real layout ids |
-| 2 | `rbb_Payment`: fType pi → psp-immediate, pr → psp-recurring; I + Stripe → psp-recurring; psp-dd accepted as legacy | ✅ 2026-10-20 (v31) | ⏳ | ⏳ |
-| 2 | `rab_Payment_Direct_Debit_Setup`: psp-recurring or psp-dd | ✅ 2026-10-20 | ⏳ | ⏳ |
-| 2 | `Batch_ProcessPayments`: Type IN (psp-recurring, psp-dd) | ✅ 2026-10-20 | ⏳ | ⏳ |
-| 3 | REST: `Rest_UpsertAccount` (v1) already passes pi / pr through (also without IBAN), so no code change; test `testPaymentProviderCodeWithoutIban` added. `Rest_UpsertContract` v1 / V2 pass `paymentMethod` through unchanged. Default mappings kept. | ✅ 2026-10-20 (test) | ⏳ test class only | ⏳ test class only |
+| 2 | `Payment_Setting__mdt.Method__c` + pi / pr; rows ps_1_pi, ps_1_pr, ps_6_pi, ps_6_pr (Stripe, AutoCreate) with **placeholder** Exact layouts and **no Term__c** | ✅ 2026-10-20 | ✅ 2026-10-21 with **acc** placeholder ids (`ps_acc_deploy`) | ⏳ needs real layout ids |
+| 2 | `rbb_Payment`: fType pi → psp-immediate, pr → psp-recurring; I + Stripe → psp-recurring; psp-dd accepted as legacy | ✅ 2026-10-20 (v31) | ✅ 2026-10-21 (v11 active) | ⏳ |
+| 2 | `rab_Payment_Direct_Debit_Setup`: psp-recurring or psp-dd | ✅ 2026-10-20 | ✅ 2026-10-21 (v2 active) | ⏳ |
+| 2 | `Batch_ProcessPayments`: Type IN (psp-recurring, psp-dd) | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
+| 3 | REST: `Rest_UpsertAccount` (v1) already passes pi / pr through (also without IBAN), so no code change; test `testPaymentProviderCodeWithoutIban` added. `Rest_UpsertContract` v1 / V2 pass `paymentMethod` through unchanged. Default mappings kept. | ✅ 2026-10-20 (test) | ✅ 2026-10-21 (test class) | ⏳ test class only |
 | 3 | `Rest_UpsertAccountV2`: **obsolete** (user 2026-10-20), only in dev; phase out, no changes. Its tests already fail in dev (`getIntegrationUser`: no rows) | — | — | — |
 | 4–6 | migration, clean-up, manuals | ⏳ | ⏳ | ⏳ |
 
-## acc deploy — planned 2026-10-21 (user: "tomorrow deploy to acc")
+## acc deploy — done 2026-10-21
+
+Pre-checks: acc Apex / flows / value sets / record types / CMDT definitions all equal the base (e3affcb). The only differences were the confirmed CII buyer country and a default in rbb_Payment `dgr_03_BusinessEntity`.
+
+Deployed (all NoTestRun, all Succeeded):
+1. Step 1 + 1b source deploy.
+2. `rt_deploy`: Account record types B2B / B2C.
+3. `labels_deploy`: remarks pi / pr.
+4. EN16931 part source deploy.
+5. Step 2 source deploy (Payment_Setting Method__c, rbb_Payment, rab_Payment_Direct_Debit_Setup, Batch_ProcessPayments + tests) and the step 3 test class.
+6. `ps_acc_deploy`: Payment_Setting ps_1_pi / ps_1_pr / ps_6_pi / ps_6_pr with **acc** placeholder layouts. acc NL uses `db8e7a5d-…`, not dev's ids; UK ids are the same in both.
+7. **Extra, acc drift:** `processor_acc_deploy`. The global value set `Payment_Processor` (field `Payment__c.Processor__c`) had no "Stripe" in acc, while dev and prod do. Without it no Stripe payment can be created in acc. "Stripe" was added to acc's own value set.
+
+Tests in acc: 252 run (Test_Svc_InvoicePaymentBlock does not exist in acc). 251 passed, 1 failed: Test_rbb_Payment_Type, caused by the missing "Stripe" processor. After fix 7, the rerun of the 6 payment tests passed 55/55.
+
+Verified: pi / pr on record types B2B / B2C. 13 Payment_Method_Rule rows. 4 pi / pr Payment_Setting rows (Stripe, AutoCreate). acc also has active record types Archived_B2B / Archived_B2C (0 accounts, not in dev / prod); pi / pr were not added there.
+
+In acc only UK uses the payment provider (`PayProv_Use__c`), so the 1b rule refuses pi / pr for NL. Switch NL on in acc to test NL pi / pr.
+
+## acc deploy — pre-check notes (2026-10-20)
 
 Commits: 3f60541 (rac_Order, already in acc), e3affcb (EN16931), 2a89700 (pi / pr).
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Payment_Setting.ps_1_pi</members>
+        <members>Payment_Setting.ps_1_pr</members>
+        <members>Payment_Setting.ps_6_pi</members>
+        <members>Payment_Setting.ps_6_pr</members>
+        <name>CustomMetadata</name>
+    </types>
+    <version>67.0</version>
+</Package>
