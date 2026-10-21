@@ -49,7 +49,7 @@ public without sharing class Svc_CIIHybridPdfMerge implements Queueable, Databas
         }
 
         if (!invoicesToUpdate.isEmpty()) {
-            Database.update(invoicesToUpdate, false);
+            Database.update(invoicesToUpdate, false, AccessLevel.SYSTEM_MODE);
         }
     }
 

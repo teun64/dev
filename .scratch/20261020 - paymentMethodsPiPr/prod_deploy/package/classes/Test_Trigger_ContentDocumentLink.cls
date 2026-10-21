@@ -16,7 +16,7 @@ private class Test_Trigger_ContentDocumentLink {
             UNCL5305_Category__c = 'S',
             Percentage__c = 21
         );
-        Database.insert(vatCode);
+        Database.insert(vatCode, AccessLevel.SYSTEM_MODE);
 
         Subscription25__Administration__c adm = Test_Data.createAdministration(false);
         adm.Subscription25__Billing_Name__c = 'Test Administration BV';
@@ -28,13 +28,13 @@ private class Test_Trigger_ContentDocumentLink {
         adm.Subscription25__VAT_Number__c = 'NL123456789B01';
         adm.Subscription25__Chamber_Of_Commerce_Number__c = '12345678';
         adm.Include_CII_Hybrid_PDF__c = includeCIIHybridPdf;
-        Database.insert(adm);
+        Database.insert(adm, AccessLevel.SYSTEM_MODE);
 
         Account acc = Test_Data.createAccount('CustomerNL', '98765', 'B2B', true);
         Subscription25__Debtor_Number__c dnr = Test_Data.createDebtorNumber(adm.Id, acc.Id, true);
         Product2 prd = Test_Data.createProduct('MiTest3', '12.MiTest3', '1-sv-3', 'Subscription', true);
         prd.QuantityUnitOfMeasure = 'Piece(s)';
-        Database.update(prd);
+        Database.update(prd, AccessLevel.SYSTEM_MODE);
         PricebookEntry pbe = Test_Data.createPricebookEntry(prd.Id, 100.50, true);
         Subscription25__VATRate__c vatRate = Test_Data.createVATRate('TestVAT3', 21, true, true);
         Subscription25__Administration_Product__c apr = Test_Data.createAdministrationProduct(adm.Id, prd.Id, vatRate.Id, true);
@@ -42,16 +42,16 @@ private class Test_Trigger_ContentDocumentLink {
         Subscription25__Invoice__c inv = Test_Data.createInvoice(adm.Id, acc.Id, 'DRAFT', false);
         inv.Subscription25__VAT_Number__c = 'NL987654321B01';
         inv.Subscription25__PDF_Attachment_Name__c = 'invoice-abc.pdf';
-        Database.insert(inv);
+        Database.insert(inv, AccessLevel.SYSTEM_MODE);
 
         Order ord = Test_Data.createOrder(acc.Id, adm.Id, Date.today().addDays(-14), false);
         ord.Subscription25__Invoice__c = inv.Id;
-        Database.insert(ord);
+        Database.insert(ord, AccessLevel.SYSTEM_MODE);
 
         OrderItem ori = Test_Data.createOrderItem2(ord.Id, pbe.Id, prd.Id, 89.5, false);
         ori.Product2Id = prd.Id;
         ori.Subscription25__VAT_Code__c = 'TESTVAT3';
-        Database.insert(ori);
+        Database.insert(ori, AccessLevel.SYSTEM_MODE);
 
         return inv;
     }
@@ -61,7 +61,7 @@ private class Test_Trigger_ContentDocumentLink {
         cv.Title = fileName;
         cv.PathOnClient = fileName;
         cv.VersionData = Blob.valueOf('fake-plain-pdf-bytes');
-        Database.insert(cv);
+        Database.insert(cv, AccessLevel.SYSTEM_MODE);
 
         ContentVersion insertedCv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
 
@@ -69,7 +69,7 @@ private class Test_Trigger_ContentDocumentLink {
         link.ContentDocumentId = insertedCv.ContentDocumentId;
         link.LinkedEntityId = linkedEntityId;
         link.ShareType = 'V';
-        Database.insert(link);
+        Database.insert(link, AccessLevel.SYSTEM_MODE);
     }
 
     @IsTest
@@ -81,7 +81,7 @@ private class Test_Trigger_ContentDocumentLink {
         linkPdf(inv.Id, 'invoice-abc.pdf');
         Test.stopTest();
 
-        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id];
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
         System.assertEquals('SUCCESS', result.CII_Merge_Status__c, 'Expected the trigger to enqueue the merge for a matching PDF link');
     }
 
@@ -93,7 +93,7 @@ private class Test_Trigger_ContentDocumentLink {
         linkPdf(inv.Id, 'invoice-abc.pdf');
         Test.stopTest();
 
-        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id];
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
         System.assertEquals(null, result.CII_Merge_Status__c, 'Should not merge when Include_CII_Hybrid_PDF__c is false');
     }
 
@@ -105,7 +105,7 @@ private class Test_Trigger_ContentDocumentLink {
         linkPdf(inv.Id, 'some-other-file.pdf');
         Test.stopTest();
 
-        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id];
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
         System.assertEquals(null, result.CII_Merge_Status__c, 'Should not merge when the linked file is not the invoice\'s own PDF');
     }
 
@@ -118,7 +118,7 @@ private class Test_Trigger_ContentDocumentLink {
         cv.Title = 'random-file.pdf';
         cv.PathOnClient = 'random-file.pdf';
         cv.VersionData = Blob.valueOf('unrelated-bytes');
-        Database.insert(cv);
+        Database.insert(cv, AccessLevel.SYSTEM_MODE);
 
         ContentVersion insertedCv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
 
@@ -126,7 +126,7 @@ private class Test_Trigger_ContentDocumentLink {
         link.ContentDocumentId = insertedCv.ContentDocumentId;
         link.LinkedEntityId = acc.Id;
         link.ShareType = 'V';
-        Database.insert(link);
+        Database.insert(link, AccessLevel.SYSTEM_MODE);
         Test.stopTest();
 
         // No assertion needed beyond "this didn't throw" - the trigger must safely ignore

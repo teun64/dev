@@ -114,7 +114,18 @@ Goal: prove the pr route for UK (Bacs via Stripe "UK - Acc", GBP) end to end in 
 
 Known acc facts: Stripe accounts NL - Acc / DE - Acc / UK - Acc linked on the Administrations; NL + UK Use on; org-wide emails set; Payment_Processor has Stripe; deliverability = system email only (no mails).
 
-### Next 2 — prod deploy: IN PROGRESS 2026-10-21 (go-ahead given by the user)
+### Next 2 — prod deploy: DONE 2026-10-21 (0AfTx0000013ilVKAQ)
+
+Fixes for the 9 validation failures (repo + package):
+- `Trigger_ContentDocumentLink` invoice query `WITH SYSTEM_MODE` (invoice PDF blocker); `Svc_CIIInvoiceXmlBuilder` invoice + OrderItem queries `WITH SYSTEM_MODE`; `Svc_CIIHybridPdfMerge` status update in SYSTEM_MODE (silently failed without FLS).
+- EN16931 test fixtures: DML + asserts in SYSTEM_MODE; `Test_Svc_CIIInvoiceXmlBuilder` sets `OrderItem.VAT_Code__c` itself (prod validates against the old rbb_OrderItem).
+- `Test_rbb_Payment_Type` / `Test_rac_Order` left out of the deploy run (Draft flows) and run after activation: pass.
+- `Ctrl_Invoice` coverage (prod itself is at 71%): new `Test_Ctrl_InvoiceRemarks` + `Test_Controllers` added to the test list.
+- Validation 0AfTx0000013ijtKAA: 212 tests, 0 failures → quick deploy 0AfTx0000013ilVKAQ.
+- Flows activated: rac_Order v22, rbb_Payment v10, rab_Payment_Direct_Debit_Setup v2, afl_PaymentDirectDebitSetup_SendMail v3, rbb_OrderItem v4.
+- Open: Belgium Administration a0U3W000004QateUAC → PayProv_Account__c a2qbR000000Gl6DQAS (NL) — blocked by permission prompt, user to do/confirm; step 4 migration (C J Blinco, Marc Stone) not run yet.
+
+#### Before the deploy (history)
 
 User decisions 2026-10-21:
 - **Exact conditions:** pi / pr exist in Exact prod (UK, NL, DE).

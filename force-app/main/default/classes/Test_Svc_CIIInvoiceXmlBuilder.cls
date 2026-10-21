@@ -8,7 +8,7 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
             UNCL5305_Category__c = 'S',
             Percentage__c = 21
         );
-        Database.insert(vatCode);
+        Database.insert(vatCode, AccessLevel.SYSTEM_MODE);
 
         Subscription25__Administration__c adm = Test_Data.createAdministration(false);
         adm.Subscription25__Billing_Name__c = 'Test Administration BV';
@@ -19,13 +19,13 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
         adm.CurrencyIsoCode = 'EUR';
         adm.Subscription25__VAT_Number__c = 'NL123456789B01';
         adm.Subscription25__Chamber_Of_Commerce_Number__c = '12345678';
-        Database.insert(adm);
+        Database.insert(adm, AccessLevel.SYSTEM_MODE);
 
         Account acc = Test_Data.createAccount('CustomerNL', '12345', 'B2B', true);
         Subscription25__Debtor_Number__c dnr = Test_Data.createDebtorNumber(adm.Id, acc.Id, true);
         Product2 prd = Test_Data.createProduct('MiTest', '12.MiTest', '1-sv-1', 'Subscription', true);
         prd.QuantityUnitOfMeasure = 'Piece(s)';
-        Database.update(prd);
+        Database.update(prd, AccessLevel.SYSTEM_MODE);
         PricebookEntry pbe = Test_Data.createPricebookEntry(prd.Id, 100.50, true);
         Subscription25__VATRate__c vatRate = Test_Data.createVATRate('TestVAT', 21, true, true);
         Subscription25__Administration_Product__c apr = Test_Data.createAdministrationProduct(adm.Id, prd.Id, vatRate.Id, true);
@@ -33,16 +33,17 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
         Subscription25__Invoice__c inv = Test_Data.createInvoice(adm.Id, acc.Id, 'DRAFT', false);
         inv.Subscription25__VAT_Number__c = 'NL987654321B01';
         inv.Cost_Center_invoicing__c = 'CC-001';
-        Database.insert(inv);
+        Database.insert(inv, AccessLevel.SYSTEM_MODE);
 
         Order ord = Test_Data.createOrder(acc.Id, adm.Id, Date.today().addDays(-14), false);
         ord.Subscription25__Invoice__c = inv.Id;
-        Database.insert(ord);
+        Database.insert(ord, AccessLevel.SYSTEM_MODE);
 
         OrderItem ori = Test_Data.createOrderItem2(ord.Id, pbe.Id, prd.Id, 89.5, false);
         ori.Product2Id = prd.Id;
         ori.Subscription25__VAT_Code__c = 'TESTVAT';
-        Database.insert(ori);
+        ori.VAT_Code__c = vatCode.Id; // rbb_OrderItem fills this too, but prod validates against the still-active old flow version
+        Database.insert(ori, AccessLevel.SYSTEM_MODE);
 
         Test.startTest();
         String xml = Svc_CIIInvoiceXmlBuilder.buildXml(inv.Id);

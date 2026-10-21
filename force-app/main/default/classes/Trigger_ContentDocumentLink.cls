@@ -36,6 +36,7 @@ public class Trigger_ContentDocumentLink {
             FROM Subscription25__Invoice__c
             WHERE Id IN :contentDocumentIdByInvoiceId.keySet()
               AND Subscription25__Administration__r.Include_CII_Hybrid_PDF__c = true
+            WITH SYSTEM_MODE
         ]);
 
         if (invoicesById.isEmpty()) {

@@ -6,6 +6,7 @@
         <members>Svc_CIIHybridPdfMerge</members>
         <members>Svc_CIIInvoiceXmlBuilder</members>
         <members>Test_Batch_ProcessPayments</members>
+        <members>Test_Ctrl_InvoiceRemarks</members>
         <members>Test_Rest_UpsertAccount</members>
         <members>Test_Svc_CIIHybridPdfMerge</members>
         <members>Test_Svc_CIIInvoiceXmlBuilder</members>

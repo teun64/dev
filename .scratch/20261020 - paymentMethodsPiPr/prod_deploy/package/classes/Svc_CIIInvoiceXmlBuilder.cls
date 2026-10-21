@@ -244,6 +244,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
                 Subscription25__Administration__r.Subscription25__Chamber_Of_Commerce_Number__c
             FROM Subscription25__Invoice__c
             WHERE Id = :invoiceId
+            WITH SYSTEM_MODE
             LIMIT 1
         ];
 
@@ -254,6 +255,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
                 VAT_Code__r.UNCL5305_Category__c, Product2.QuantityUnitOfMeasure
             FROM OrderItem
             WHERE Order.Subscription25__Invoice__c = :invoiceId
+            WITH SYSTEM_MODE
         ];
 
         // keyed by code, or code|type for a payment provider scheme (pr + sepa_debit / bacs_debit / card)

@@ -26,7 +26,7 @@ private class Test_Svc_CIIHybridPdfMerge {
             UNCL5305_Category__c = 'S',
             Percentage__c = 21
         );
-        Database.insert(vatCode);
+        Database.insert(vatCode, AccessLevel.SYSTEM_MODE);
 
         Subscription25__Administration__c adm = Test_Data.createAdministration(false);
         adm.Subscription25__Billing_Name__c = 'Test Administration BV';
@@ -37,13 +37,13 @@ private class Test_Svc_CIIHybridPdfMerge {
         adm.CurrencyIsoCode = 'EUR';
         adm.Subscription25__VAT_Number__c = 'NL123456789B01';
         adm.Subscription25__Chamber_Of_Commerce_Number__c = '12345678';
-        Database.insert(adm);
+        Database.insert(adm, AccessLevel.SYSTEM_MODE);
 
         Account acc = Test_Data.createAccount('CustomerNL', '54321', 'B2B', true);
         Subscription25__Debtor_Number__c dnr = Test_Data.createDebtorNumber(adm.Id, acc.Id, true);
         Product2 prd = Test_Data.createProduct('MiTest2', '12.MiTest2', '1-sv-2', 'Subscription', true);
         prd.QuantityUnitOfMeasure = 'Piece(s)';
-        Database.update(prd);
+        Database.update(prd, AccessLevel.SYSTEM_MODE);
         PricebookEntry pbe = Test_Data.createPricebookEntry(prd.Id, 100.50, true);
         Subscription25__VATRate__c vatRate = Test_Data.createVATRate('TestVAT2', 21, true, true);
         Subscription25__Administration_Product__c apr = Test_Data.createAdministrationProduct(adm.Id, prd.Id, vatRate.Id, true);
@@ -51,16 +51,16 @@ private class Test_Svc_CIIHybridPdfMerge {
         Subscription25__Invoice__c inv = Test_Data.createInvoice(adm.Id, acc.Id, 'DRAFT', false);
         inv.Subscription25__VAT_Number__c = 'NL987654321B01';
         inv.Subscription25__PDF_Attachment_Name__c = 'invoice-123.pdf';
-        Database.insert(inv);
+        Database.insert(inv, AccessLevel.SYSTEM_MODE);
 
         Order ord = Test_Data.createOrder(acc.Id, adm.Id, Date.today().addDays(-14), false);
         ord.Subscription25__Invoice__c = inv.Id;
-        Database.insert(ord);
+        Database.insert(ord, AccessLevel.SYSTEM_MODE);
 
         OrderItem ori = Test_Data.createOrderItem2(ord.Id, pbe.Id, prd.Id, 89.5, false);
         ori.Product2Id = prd.Id;
         ori.Subscription25__VAT_Code__c = 'TESTVAT2';
-        Database.insert(ori);
+        Database.insert(ori, AccessLevel.SYSTEM_MODE);
 
         return inv;
     }
@@ -70,7 +70,7 @@ private class Test_Svc_CIIHybridPdfMerge {
         cv.Title = fileName;
         cv.PathOnClient = fileName;
         cv.VersionData = Blob.valueOf('fake-plain-pdf-bytes');
-        Database.insert(cv);
+        Database.insert(cv, AccessLevel.SYSTEM_MODE);
 
         ContentVersion insertedCv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id];
 
@@ -78,7 +78,7 @@ private class Test_Svc_CIIHybridPdfMerge {
         link.ContentDocumentId = insertedCv.ContentDocumentId;
         link.LinkedEntityId = invoiceId;
         link.ShareType = 'V';
-        Database.insert(link);
+        Database.insert(link, AccessLevel.SYSTEM_MODE);
 
         return insertedCv.ContentDocumentId;
     }
@@ -95,7 +95,7 @@ private class Test_Svc_CIIHybridPdfMerge {
         }));
         Test.stopTest();
 
-        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id];
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
         System.assertEquals('SUCCESS', result.CII_Merge_Status__c);
         System.assertEquals(null, result.CII_Merge_Error__c);
 
@@ -121,7 +121,7 @@ private class Test_Svc_CIIHybridPdfMerge {
         }));
         Test.stopTest();
 
-        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id];
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
         System.assertEquals('ERROR', result.CII_Merge_Status__c);
         System.assert(result.CII_Merge_Error__c.contains('500'), 'Expected the error detail to mention the failing status code');
     }
