@@ -24,7 +24,54 @@ Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy wit
 | 2 | `Batch_ProcessPayments`: Type IN (psp-recurring, psp-dd) | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
 | 3 | REST: `Rest_UpsertAccount` (v1) already passes pi / pr through (also without IBAN), so no code change; test `testPaymentProviderCodeWithoutIban` added. `Rest_UpsertContract` v1 / V2 pass `paymentMethod` through unchanged. Default mappings kept. | ✅ 2026-10-20 (test) | ✅ 2026-10-21 (test class) | ⏳ test class only |
 | 3 | `Rest_UpsertAccountV2`: **obsolete** (user 2026-10-20), only in dev; phase out, no changes. Its tests already fail in dev (`getIntegrationUser`: no rows) | — | — | — |
-| 4–6 | migration, clean-up, manuals | ⏳ | ⏳ | ⏳ |
+| 2 | `afl_PaymentDirectDebitSetup_SendMail`: Mail Sent only after a real send; on failure status cleared + `AlertMessage__c` + case (commit f31e6e4) | ✅ 2026-10-21 (v16) | ✅ 2026-10-21 (v4) | ⏳ |
+| 4 | Migration of the 2 UK Stripe accounts I8 → pr + 3 paid payments I8 → pr: package prepared in `migration/` (MIGRATION.md) | — | — | ⏳ after prod deploy |
+| 5 | Clean-up: repo-only flows `rac_Payment` / `rac_Payment_DirectDebit_Setup_Email` removed (a378cd5). Removing the I8 + Stripe branches and deactivating psp-dd waits for the migration | ✅ partly | — | ⏳ after migration |
+| 6 | Manuals: Payment Methods key-user (3e4ed1e5) + developer (1d00eaa3) created; Stripe Payments, REST (both kinds) and the generic manual updated 2026-10-21. PDFs on the weekly backlog (rows 10–11) | ✅ docs | | PDFs ⏳ |
+
+## NEXT STEPS (as of 2026-10-21) — start here in a new session
+
+Context: plan doc https://claude.ai/code/artifact/909cb4ca-f6bb-4c39-bec2-8bb2a9c16803; manuals: Payment Methods developer 1d00eaa3 / key-user 3e4ed1e5. Commits: 3f60541, e3affcb, 2a89700, f31e6e4, a378cd5 (+ runbook commits).
+
+### Next 1 — UK test in acc
+
+Goal: prove the pr route for UK (Bacs via Stripe "UK - Acc", GBP) end to end in acc, then the migration on an acc account.
+
+1. Pick a **test** UK account in acc (never a real customer, see memory "acc tech-dept test accounts"). Candidates found 2026-10-21:
+   - "Test the UK Tester" (001G5000014aIdcIAE): I0, Stripe customer + mandate.
+   - "Test Ltd." (001G5000014b7xnIAA): I0, Stripe customer, no mandate.
+   - Or create a new one (reseller 6, B2B/B2C), like "TEST Claude pr NL" (001G500001UBhERIA1).
+2. Rule check: set the account to I8 → must be refused ("not allowed for reseller 6"); to pr → accepted (UK `PayProv_Use__c` = true).
+3. Payment pr for that account (anonymous Apex as in the NL test: Method pr, Processor Stripe, Administration UK a0U3W0000041AZtUAM, GBP, amount > 1):
+   - expect Type **psp-recurring**, Business Entity United Kingdom, bacs_debit times (processing 2 / setup 10 working days), collection date.
+   - **With mandate** (Test the UK Tester): status New → `Batch_ProcessPayments` should charge it off-session in Stripe "UK - Acc" (test mode) → Processing → Paid via webhook. Run the batch and check Stripe test dashboard / payment status.
+   - **Without mandate** (Test Ltd.): status Setup → setup flow → Stripe SetupIntent on the UK account (`seti_…` ends in the UK - Acc account id `…GxR72SaSls`); mail blocked by deliverability "system email only" → status empty + AlertMessage + case (expected).
+4. Invoice side (optional, pushes to Exact acc): finalize an invoice on pr for the UK test account → Payment created via `Payment_Setting` ps_6_pr (placeholder layout 922a4ff1… = I8 layout). Only if acc Exact UK division has condition `pr`. Check the invoice PDF remark (paymentRemarkPR, EN) and the CII payment means (49 for bacs_debit).
+5. Migration dry run on acc: put a UK test account on I8 + Stripe payment(s), then run the same steps as `migration/MIGRATION.md` (account → pr, paid payments I8 → pr) and verify Type psp-recurring.
+6. Record results here and in the plan doc; clean up or keep the test data (decide with the user).
+
+Known acc facts: Stripe accounts NL - Acc / DE - Acc / UK - Acc linked on the Administrations; NL + UK Use on; org-wide emails set; Payment_Processor has Stripe; deliverability = system email only (no mails).
+
+### Next 2 — prod (only on explicit go-ahead)
+
+Prerequisites (block the deploy until done):
+- [ ] Exact **prod** divisions: payment conditions `pi` / `pr` (Finance).
+- [ ] Real Exact layout ids for Payment_Setting ps_1_pi / ps_1_pr / ps_6_pi / ps_6_pr (prod values; build a `ps_prod_deploy` package like `ps_acc_deploy`).
+- [ ] `Term__c` for pi / pr (due date) — open point "later".
+- [ ] EN16931 part: EN16931 itself is not in prod (prod has no `Payment_Method_UNCL4461_Mapping__mdt`). Either deploy EN16931 (e3affcb) first, or deploy pi / pr without the EN16931 part (`Ctrl_Invoice`, `Svc_CIIInvoiceXmlBuilder`, UNCL rows, `PayProv_PaymentMethodType__c`) — decide with the user.
+- [ ] Remark wording pi / pr approved; card UNCL4461 48 vs 54 (only matters with EN16931).
+- [ ] Not around a UK Stripe invoice run (Marc Stone next 2026-10-28, C J Blinco 2026-11-08 at the time of writing; re-check `Contract.Subscription25__Next_Date__c`).
+
+Deploy order (same as acc, see the step sections below; pre-check drift per file against e3affcb first):
+1. 0: `rac_Order` (3f60541) — not yet in prod.
+2. Step 1 + 1b source deploy; record types via `rt_deploy` (check prod record types first: prod has only B2B / B2C).
+3. Labels via `labels_deploy` (+ EN16931 part only if decided).
+4. Step 2 source deploy + Payment_Setting rows (prod package) + `afl_PaymentDirectDebitSetup_SendMail` (f31e6e4).
+5. Step 3 test class.
+6. **Prod flows deploy as Draft**: activate `rac_Order`, `rbb_Payment`, `rab_Payment_Direct_Debit_Setup`, `afl_PaymentDirectDebitSetup_SendMail` via Tooling FlowDefinition.
+7. Prod uses RunLocalTests? Prod deploys need tests: run with `--test-level RunSpecifiedTests` and the test lists of the steps (check what prod requires).
+8. Check prod `Payment_Processor` value set has Stripe (it does, 2026-10-21) and the prod Administrations (NL Use off, UK Use on; BE → NL Stripe account link still to set on the Belgium Administration).
+9. Then step 4 migration (`migration/MIGRATION.md`), then step 5 clean-up.
 
 ## acc deploy — done 2026-10-21
 
