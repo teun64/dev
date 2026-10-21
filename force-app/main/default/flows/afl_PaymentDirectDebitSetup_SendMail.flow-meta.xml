@@ -8,7 +8,7 @@
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
-            <targetReference>ass_01_Commit_Mail</targetReference>
+            <targetReference>dur_01_Payment_Mail_Sent</targetReference>
         </connector>
         <faultConnector>
             <targetReference>ass_01_Case</targetReference>
@@ -302,6 +302,12 @@
     </decisions>
     <environments>Default</environments>
     <formulas>
+        <description>Why the setup email did not go out: the send error (e.g. deliverability "system email only"), else no email template.</description>
+        <name>fMailNotSentMessage</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;Direct debit setup email not sent: &apos; &amp; IF(ISBLANK({!$Flow.FaultMessage}), &apos;no email template / org-wide address found.&apos;, {!$Flow.FaultMessage}), 255)</expression>
+    </formulas>
+    <formulas>
         <name>fMailTemplate</name>
         <dataType>String</dataType>
         <!-- Same source and country->language mapping as Ctrl_PreferenceCenter.COUNTRY_TO_LANGUAGE
@@ -357,7 +363,7 @@ BLANKVALUE(TEXT({!dgr_02_Administration.Language_Default__c}),&apos;EN&apos;)</e
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>ass_01_Commit_Case</targetReference>
+            <targetReference>dur_02_Payment_Mail_Not_Sent</targetReference>
         </connector>
         <inputReference>rCase</inputReference>
     </recordCreates>
@@ -528,6 +534,59 @@ BLANKVALUE(TEXT({!dgr_02_Administration.Language_Default__c}),&apos;EN&apos;)</e
         </outputAssignments>
     </recordLookups>
     <runInMode>SystemModeWithoutSharing</runInMode>
+    <recordUpdates>
+        <description>Only after the email really went out: the parent flow sets Mail Sent before calling this subflow.</description>
+        <name>dur_01_Payment_Mail_Sent</name>
+        <label>1. Payment Mail Sent</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ass_01_Commit_Mail</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>paymentRecord.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Interaction_Status__c</field>
+            <value>
+                <stringValue>Mail Sent</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Payment__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Email not sent (send error or no template): undo the Mail Sent the parent flow set beforehand and keep the reason on the payment.</description>
+        <name>dur_02_Payment_Mail_Not_Sent</name>
+        <label>2. Payment Mail Not Sent</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ass_01_Commit_Case</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>paymentRecord.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>AlertMessage__c</field>
+            <value>
+                <elementReference>fMailNotSentMessage</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Interaction_Status__c</field>
+        </inputAssignments>
+        <object>Payment__c</object>
+    </recordUpdates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
