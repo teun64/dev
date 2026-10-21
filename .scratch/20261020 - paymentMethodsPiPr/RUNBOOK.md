@@ -52,6 +52,9 @@ Verified: pi / pr on record types B2B / B2C. 13 Payment_Method_Rule rows. 4 pi /
 | Germany (5) | false | sepa_debit | DE - Acc |
 | United Kingdom (6) | true | bacs_debit | UK - Acc (renamed from "UK - acc") |
 
+- Org-wide email (`Subscription25__Organization_Wide_Email__c`), copied from prod on 2026-10-21. The send-mail subflow needs it, otherwise "not sent" + case:
+  - acc: NL aftersales@movingintelligence.nl, DE buchhaltung@movingintelligence.de, UK accounts@movingintelligence.co.uk (Belgium empty, as in prod).
+  - dev: only Germany was empty → buchhaltung@movingintelligence.de. dev NL (aftersales@movingintelligence.com) and UK (noreply@movingintelligence.com) were left as they were.
 - Set on the **Administration**. The flow `Sync_Administration_to_Business_Entity` copies PayProv_Use__c, PayProv_DirectDebit_PaymentMethod__c and PayProv_Account__c to the business entity; a value set only on the entity is overwritten at the next save of the administration.
 - Validation on the Administration: PayProv_Use__c needs a Stripe account.
 - dev: the Belgium link (yesterday set on the business entity only) is now also on the Belgium Administration.
