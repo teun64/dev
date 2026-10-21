@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <classAccesses>
+        <apexClass>Batch_FinalizeInvoices</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Batch_FinalizeInvoicesLimited</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Batch_FinancialSystemAccountSync</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -26,6 +34,42 @@
     </classAccesses>
     <classAccesses>
         <apexClass>Batch_JobDispatcher</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Batch_ProcessPayments</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Batch_ReconcileStripeEvents</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_Invoice</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_InvoiceEstablishmentAddress</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_InvoicePrevious</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_Payment</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_PaymentCase</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_PaymentMandate</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_StripePayment1</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -65,6 +109,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>Inv_getPaymentProviderConstant</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Inv_sanitizeEmail</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -94,6 +142,14 @@
     </classAccesses>
     <classAccesses>
         <apexClass>MicrobatchSelfRegController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Queue_PaymentProviderEventRetry</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Rest_Invoices</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -729,11 +785,27 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>Svc_CIIInvoiceXmlBuilder</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Svc_FinancialSystemContactRemoval</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>Svc_FinancialSystemSyncAlert</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Svc_InvoicePaymentBlock</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Svc_PaymentIntent</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Svc_StripeEventProcessor</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -765,6 +837,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>Trigger_Stripe_Event_c</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Util_Butler</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -793,19 +869,19 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>Util_FinancialSystem_Invoice</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>Util_FinancialSystem_Order</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>Util_FinancialSystemAccount</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>Util_FinancialSystemWarehouse</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_FinancialSystem_Invoice</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_FinancialSystem_Order</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -821,11 +897,27 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>Util_InvoiceLineAggregator</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_Invoices</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Util_JobDispatcher</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>Util_OAuth</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_PaymentMethodRule</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_PaymentProvider</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -842,6 +934,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>Util_Rest</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_StripeEvent</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
