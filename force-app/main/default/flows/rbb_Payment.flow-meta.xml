@@ -838,7 +838,7 @@
         <defaultConnectorLabel>Pending</defaultConnectorLabel>
         <rules>
             <name>dec_01_Status_Setup</name>
-            <conditionLogic>(1 AND  (2 OR 3 OR 4) AND 5)</conditionLogic>
+            <conditionLogic>(1 AND  (2 OR 3 OR (4 AND 6)) AND 5)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Account__c</leftValueReference>
                 <operator>IsBlank</operator>
@@ -872,6 +872,13 @@
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__r.PayProv_PaymentMethodType__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>card</stringValue>
                 </rightValue>
             </conditions>
             <connector>

@@ -6,6 +6,8 @@
  *   - SEPA / ACH (no mandate yet): SetupIntent that collects the mandate; Batch_ProcessPayments debits later.
  * The intent id lives on PayProv_PaymentIntentId__c / PayProv_SetupIntentId__c. A stored intent is looked up in
  * Stripe and its live status decides: still open → reuse, processing/succeeded → done, canceled → one new intent.
+ * Every intent also offers card (with Apple Pay / Google Pay as wallets): a saved card is charged off-session the same
+ * way as a mandate, without one. The saved method's type lands on Account.PayProv_PaymentMethodType__c (TypeJob).
  * Created upfront by afl_Payment_Direct_Debit_Setup (prepare → PrepareJob, async because that flow may already
  * have done DML) and on demand by Ctrl_Payment; both use the same idempotency key and request body, so a race
  * between them still returns one intent.
@@ -25,6 +27,14 @@ public without sharing class Svc_PaymentIntent {
     public class StripeException extends Exception {}
 
     private static final Integer JOB_CHUNK = 40;
+
+    public static final String CARD = 'card';
+
+    /** A saved method the batch can charge off-session: a card, or a direct debit method with its mandate. */
+    public static Boolean hasUsableMethod(Account a) {
+        if (a == null || String.isBlank(a.PayProv_PaymentMethodId__c)) return false;
+        return CARD.equals(a.PayProv_PaymentMethodType__c) || String.isNotBlank(a.PayProv_MandateId__c);
+    }
 
     // ── Upfront creation (afl_Payment_Direct_Debit_Setup) ────────────────────
     @InvocableMethod(label='Prepare Payment Provider Intent' description='Creates (or reuses) the Stripe intent of each payment asynchronously.')
@@ -46,7 +56,7 @@ public without sharing class Svc_PaymentIntent {
             List<Payment__c> updates = new List<Payment__c>();
             for (Payment__c p : queryPayments(new Set<Id>(now))) {
                 // with a mandate on file the batch collects off-session: no customer-facing intent needed
-                if (String.isNotBlank(p.Account__r?.PayProv_MandateId__c) && String.isNotBlank(p.Account__r?.PayProv_PaymentMethodId__c)) continue;
+                if (hasUsableMethod(p.Account__r)) continue;
                 if (String.isBlank(p.Account__r?.PayProv_CustomerId__c)) continue;
                 if (p.Status__c == 'Processing' || p.Status__c == 'Paid' || p.Status__c == 'Collected') continue;
                 try {
@@ -130,6 +140,7 @@ public without sharing class Svc_PaymentIntent {
             'currency=' + currencyCode.toLowerCase(),
             'customer=' + customerId,
             'payment_method_types[]=' + ddMethod,
+            'payment_method_types[]=' + CARD,
             // first BACS payment also creates the mandate for later off-session debits
             'setup_future_usage=off_session',
             'metadata[PaymentID]=' + paymentId,
@@ -143,12 +154,49 @@ public without sharing class Svc_PaymentIntent {
             'customer=' + customerId,
             'usage=off_session',
             'payment_method_types[]=' + ddMethod,
+            'payment_method_types[]=' + CARD,
             'metadata[PaymentID]=' + paymentId
         }, '&');
     }
 
     public static Integer amountCents(Decimal amount) {
         return amount != null ? (amount * 100).round(System.RoundingMode.HALF_UP).intValue() : 0;
+    }
+
+    // ── Saved payment method type ─────────────────────────────────────────────
+    /** Type of a saved Stripe payment method (card, sepa_debit, bacs_debit, …): webhook payloads only carry its id. */
+    public static String paymentMethodType(String stripeAccountId, String paymentMethodId) {
+        return (String) call('GET', '/v1/payment_methods/' + paymentMethodId, stripeAccountId, null, null).get('type');
+    }
+
+    /**
+     * Stores the type of a newly saved payment method on the Account (Svc_StripeEventProcessor runs in a trigger and
+     * can't call out). A card has no mandate, so a mandate left from an earlier direct debit method is cleared.
+     */
+    public class TypeJob implements Queueable, Database.AllowsCallouts {
+        private final Map<Id, String> paymentMethodByAccount;
+        private final Map<Id, String> stripeAccountByAccount;
+        public TypeJob(Map<Id, String> paymentMethodByAccount, Map<Id, String> stripeAccountByAccount) {
+            this.paymentMethodByAccount = paymentMethodByAccount;
+            this.stripeAccountByAccount = stripeAccountByAccount;
+        }
+
+        public void execute(QueueableContext ctx) {
+            List<Account> updates = new List<Account>();
+            for (Account a : [SELECT Id, PayProv_PaymentMethodId__c FROM Account WHERE Id IN :paymentMethodByAccount.keySet() WITH SYSTEM_MODE]) {
+                String pm = paymentMethodByAccount.get(a.Id);
+                if (pm != a.PayProv_PaymentMethodId__c) continue; // replaced since
+                try {
+                    String type = paymentMethodType(stripeAccountByAccount.get(a.Id), pm);
+                    Account u = new Account(Id = a.Id, PayProv_PaymentMethodType__c = type);
+                    if (CARD.equals(type)) u.PayProv_MandateId__c = null;
+                    updates.add(u);
+                } catch (Exception e) {
+                    System.debug(LoggingLevel.ERROR, 'Svc_PaymentIntent.TypeJob ' + a.Id + ': ' + e.getMessage());
+                }
+            }
+            if (!updates.isEmpty()) Database.update(updates, false, AccessLevel.SYSTEM_MODE);
+        }
     }
 
     // ── Stripe call (stripeGC) ────────────────────────────────────────────────
@@ -181,7 +229,7 @@ public without sharing class Svc_PaymentIntent {
             SELECT Id, Name, Status__c, Amount_Gross__c, CurrencyIsoCode,
                    PayProv_PaymentIntentId__c, PayProv_SetupIntentId__c,
                    Account__r.PayProv_CustomerId__c, Account__r.PayProv_MandateId__c, Account__r.PayProv_PaymentMethodId__c,
-                   Administration__r.Reseller__c
+                   Account__r.PayProv_PaymentMethodType__c, Administration__r.Reseller__c
             FROM Payment__c
             WHERE Id IN :ids
             WITH SYSTEM_MODE

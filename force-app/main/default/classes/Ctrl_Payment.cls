@@ -56,6 +56,7 @@ public without sharing class Ctrl_Payment {
             '       Account__r.PayProv_CustomerId__c,' +
             '       Account__r.PayProv_MandateId__c,' +
             '       Account__r.PayProv_PaymentMethodId__c,' +
+            '       Account__r.PayProv_PaymentMethodType__c,' +
             '       Account__r.BillingStreet,' +
             '       Account__r.BillingCity,' +
             '       Account__r.BillingPostalCode,' +
@@ -137,8 +138,6 @@ public without sharing class Ctrl_Payment {
         result.productLine = resolveProductLine(p.Invoice__c, language);
 
         String stripeCustomerId = p.Account__r?.PayProv_CustomerId__c;
-        String mandateId        = p.Account__r?.PayProv_MandateId__c;
-        String paymentMethodId  = p.Account__r?.PayProv_PaymentMethodId__c;
         String ddMethod         = businessEntity?.PayProv_DirectDebit_PaymentMethod__c;
         if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
         result.paymentMethodType = ddMethod;
@@ -148,9 +147,9 @@ public without sharing class Ctrl_Payment {
             return result;
         }
 
-        // Mandate already on file: Batch_ProcessPayments collects it off-session on the collection date.
+        // Mandate or saved card already on file: Batch_ProcessPayments collects it off-session on the collection date.
         // The page never creates a PaymentIntent then — opening the link must not debit the customer.
-        if (String.isNotBlank(mandateId) && String.isNotBlank(paymentMethodId)) {
+        if (Svc_PaymentIntent.hasUsableMethod(p.Account__r)) {
             result.alreadyScheduled = true;
             return result;
         }

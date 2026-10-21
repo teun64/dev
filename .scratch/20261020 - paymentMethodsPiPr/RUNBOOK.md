@@ -360,3 +360,18 @@ Checked only when the payment method or the reseller is new or changed, so exist
 
 - Rule check: deactivate trigger `AccountPaymentMethodRule` (deploy with `<status>Inactive</status>`), or delete the CMDT row of the code concerned.
 - Picklist values: deactivate pi / pr in the global value set (only if no records use them).
+
+## Phase 2 start — card + Apple Pay / Google Pay (dev only, 2026-10-21)
+
+Built in dev (not acc / prod):
+- `Svc_PaymentIntent`: SetupIntent (SEPA) and PaymentIntent (Bacs) offer `card` next to the direct debit method; the Payment Element then shows card + wallets. `hasUsableMethod` = PM id AND (type card OR mandate). New `TypeJob` (queueable): GET /v1/payment_methods/{id} → `Account.PayProv_PaymentMethodType__c`; a card clears an old mandate.
+- `Svc_StripeEventProcessor`: queues TypeJob for a new / untyped PM (trigger can't call out); Stripe account from `stripeGC__Stripe_Account__c` (= BE PayProv_Account__c).
+- `Batch_ProcessPayments`: gate `mandate != null OR type = card`; charges with the saved type (blank → BE direct debit method, as before); no `mandate=` for card.
+- `Ctrl_Payment` + `PrepareJob`: "already scheduled" / skip via `hasUsableMethod`.
+- `rbb_Payment` v32: Setup only when mandate blank AND type ≠ card (else every card payment re-sent the setup mail).
+- `paymentCheckout` iframe: `allow="payment"`.
+- Stripe payment method domain `movingintelligence--dev.sandbox.my.site.com` on NL - Dev (pmd_1UT3LrA2nsZIOV3Qqb0hA1Fe) and UK - Dev (pmd_1UT3LsKBFNlFAI2p9QfnUUNw): Apple Pay + Google Pay active.
+- 78/78 payment tests pass in dev.
+- Not built: card `requires_action` (3DS off-session) status / mail → for now a 402 → payment Failed + Case.
+
+Test data dev: account "TEST Teun card NL" 001bd00000lll6rAAA (B2C, reseller 1, pr), contact teun.rietman@outlook.com; payment PM#000110391 a1nbd00000eyJITAA2 (€12.50, Setup, SetupIntent seti_1UT3MuA2nsZIOV3QKw3SbTvy = [sepa_debit, card]); link https://movingintelligence--dev.sandbox.my.site.com/hub/payment?token=6d3c4c574b8db9be7999b5f01f0fd425 (dev mail not sent: no template / org-wide address).

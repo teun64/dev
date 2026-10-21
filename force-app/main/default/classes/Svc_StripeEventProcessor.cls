@@ -20,6 +20,7 @@ public without sharing class Svc_StripeEventProcessor {
             if (evt.processed__c || String.isBlank(evt.stripeGC__Request_Body__c)) continue;
             ParsedEvent p = parseBody(evt);
             if (p == null) continue;
+            p.stripeAccountId = evt.stripeGC__Stripe_Account__c;
             parsed.add(p);
             if (String.isNotBlank(p.customerId))      customerIds.add(p.customerId);
             if (String.isNotBlank(p.paymentMethodId)) paymentMethodIds.add(p.paymentMethodId);
@@ -84,6 +85,9 @@ public without sharing class Svc_StripeEventProcessor {
         // PaymentIntent each payment is bound to (stored, or set by an earlier event in this same run)
         Map<Id, String>                 boundIntent    = new Map<Id, String>();
         Set<String>                     duplicateCased = new Set<String>();
+        // saved payment method per account, typed afterwards by Svc_PaymentIntent.TypeJob (needs a callout)
+        Map<Id, String>                 savedMethod              = new Map<Id, String>();
+        Map<Id, String>                 savedMethodStripeAccount = new Map<Id, String>();
 
         for (ParsedEvent p : parsed) {
             // 3a. Populate event custom fields
@@ -112,6 +116,10 @@ public without sharing class Svc_StripeEventProcessor {
                 Account acc = accountMap.get(accountId);
                 if (String.isNotBlank(p.paymentMethodId)) acc.PayProv_PaymentMethodId__c = p.paymentMethodId;
                 if (String.isNotBlank(p.mandateId))       acc.PayProv_MandateId__c       = p.mandateId;
+                if (String.isNotBlank(p.paymentMethodId) && String.isNotBlank(p.stripeAccountId)) {
+                    savedMethod.put(accountId, p.paymentMethodId);
+                    savedMethodStripeAccount.put(accountId, p.stripeAccountId);
+                }
             }
 
             // 3c. Payment status + Case
@@ -163,11 +171,27 @@ public without sharing class Svc_StripeEventProcessor {
             }
         }
 
+        // before the account update: compares against the method the account had so far
+        enqueueTypeJob(savedMethod, savedMethodStripeAccount);
+
         // 4. DML
         if (!eventUpdates.isEmpty())   update eventUpdates;
         if (!accountMap.isEmpty())     update accountMap.values();
         if (!paymentUpdates.isEmpty()) Database.update(paymentUpdates.values(), AccessLevel.SYSTEM_MODE);
         if (!newCases.isEmpty())       insert newCases;
+    }
+
+    /** Only for a method that is new on the account or not typed yet: repeat charges reuse the same, typed method. */
+    private static void enqueueTypeJob(Map<Id, String> savedMethod, Map<Id, String> savedMethodStripeAccount) {
+        if (savedMethod.isEmpty()) return;
+        for (Account a : [SELECT Id, PayProv_PaymentMethodId__c, PayProv_PaymentMethodType__c FROM Account
+                          WHERE Id IN :savedMethod.keySet() WITH SYSTEM_MODE]) {
+            if (String.isNotBlank(a.PayProv_PaymentMethodType__c) && a.PayProv_PaymentMethodId__c == savedMethod.get(a.Id)) {
+                savedMethod.remove(a.Id);
+            }
+        }
+        if (savedMethod.isEmpty() || Limits.getQueueableJobs() >= Limits.getLimitQueueableJobs()) return;
+        System.enqueueJob(new Svc_PaymentIntent.TypeJob(savedMethod, savedMethodStripeAccount));
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -327,6 +351,7 @@ public without sharing class Svc_StripeEventProcessor {
         String paymentMethodId;
         String mandateId;
         String paymentSfId;    // Salesforce Payment__c record Id from metadata
+        Id     stripeAccountId; // stripeGC__Stripe_Account__c of the event (= Business_Entities__c.PayProv_Account__c)
         String errorCode;
         String errorMessage;
     }

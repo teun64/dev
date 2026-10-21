@@ -2,6 +2,8 @@
  * Collects Stripe recurring payments (Type__c 'psp-recurring'; legacy 'psp-dd' until migrated) off-session against the mandate on the Account, on or after
  * the Collection_Date__c that rbb_Payment derives from Due_Date__c minus the DirectDebit_Method_Setting__mdt
  * processing time (working days).
+ * A saved card (Account.PayProv_PaymentMethodType__c = card) is charged the same way, without a mandate. Accounts
+ * without a saved type are charged with the Business Entity's direct debit method, as before.
  *   - New:   recurring payment, the Account already had a mandate when the payment was created.
  *   - Setup: first payment, the customer has completed the mandate setup since.
  * A successful request moves the payment to Processing; Svc_StripeEventProcessor takes it from there (Paid/Failed).
@@ -41,6 +43,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
         return Database.getQueryLocator(
             'SELECT Id, Name, Status__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c, PayProv_PaymentIntentId__c,' +
             ' Account__r.PayProv_CustomerId__c, Account__r.PayProv_PaymentMethodId__c, Account__r.PayProv_MandateId__c,' +
+            ' Account__r.PayProv_PaymentMethodType__c,' +
             ' Account__r.Reseller_Name__c, Administration__r.Reseller__c' +
             ' FROM Payment__c' +
             ' WHERE Type__c IN (\'psp-recurring\', \'psp-dd\')' +
@@ -49,7 +52,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             ' AND Collection_Date__c <= TODAY' +
             ' AND Account__r.PayProv_CustomerId__c != null' +
             ' AND Account__r.PayProv_PaymentMethodId__c != null' +
-            ' AND Account__r.PayProv_MandateId__c != null' +
+            ' AND (Account__r.PayProv_MandateId__c != null OR Account__r.PayProv_PaymentMethodType__c = \'card\')' +
             ' ORDER BY Collection_Date__c ASC', AccessLevel.SYSTEM_MODE);
     }
 
@@ -111,6 +114,8 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             String  ddMethod        = businessEntity?.PayProv_DirectDebit_PaymentMethod__c;
             Integer amountCents     = Svc_PaymentIntent.amountCents(p.Amount_Gross__c);
             if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
+            String  savedType       = p.Account__r.PayProv_PaymentMethodType__c;
+            String  methodType      = String.isNotBlank(savedType) ? savedType : ddMethod;
 
             String preflightError = null;
             if (String.isBlank(stripeAccountId)) preflightError = 'No Stripe account configured on Business Entity.';
@@ -143,7 +148,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
                     p.Account__r.PayProv_CustomerId__c,
                     p.Account__r.PayProv_PaymentMethodId__c,
                     p.Account__r.PayProv_MandateId__c,
-                    amountCents, p.CurrencyIsoCode, ddMethod, p.Id,
+                    amountCents, p.CurrencyIsoCode, methodType, p.Id,
                     p.Id + '-' + String.valueOf(p.Collection_Date__c)
                 );
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing', PayProv_PaymentIntentId__c = paymentIntentId));
@@ -205,20 +210,21 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
     private static String issuePaymentIntent(
         String stripeAccountId, String customerId,
         String paymentMethodId, String mandateId,
-        Integer amountCents, String currencyCode, String ddMethod, String paymentId, String idempotencyKey
+        Integer amountCents, String currencyCode, String methodType, String paymentId, String idempotencyKey
     ) {
         List<String> body = new List<String>{
             'amount=' + amountCents,
             'currency=' + currencyCode.toLowerCase(),
             'customer=' + customerId,
-            'payment_method_types[]=' + ddMethod,
+            'payment_method_types[]=' + methodType,
             'payment_method=' + paymentMethodId,
-            'mandate=' + mandateId,
             'confirm=true',
             'off_session=true',
             'metadata[PaymentID]=' + paymentId,
             'metadata[PaymentType]=Direct Debit'
         };
+        // a card has no mandate (an old direct debit mandate on the account doesn't belong to it)
+        if (!Svc_PaymentIntent.CARD.equals(methodType)) body.add('mandate=' + mandateId);
         return (String) Svc_PaymentIntent.call('POST', '/v1/payment_intents', stripeAccountId, String.join(body, '&'), idempotencyKey).get('id');
     }
 }
