@@ -43,7 +43,19 @@ Tests in acc: 252 run (Test_Svc_InvoicePaymentBlock does not exist in acc). 251 
 
 Verified: pi / pr on record types B2B / B2C. 13 Payment_Method_Rule rows. 4 pi / pr Payment_Setting rows (Stripe, AutoCreate). acc also has active record types Archived_B2B / Archived_B2C (0 accounts, not in dev / prod); pi / pr were not added there.
 
-In acc only UK uses the payment provider (`PayProv_Use__c`), so the 1b rule refuses pi / pr for NL. Switch NL on in acc to test NL pi / pr.
+### acc Stripe configuration (2026-10-21, same as dev)
+
+| Administration (acc) | PayProv_Use__c | Direct debit method | Stripe account |
+|---|---|---|---|
+| Netherlands (1) | **true** | sepa_debit | NL - Acc |
+| Belgium (3) | false | — | NL - Acc |
+| Germany (5) | false | sepa_debit | DE - Acc |
+| United Kingdom (6) | true | bacs_debit | UK - Acc (renamed from "UK - acc") |
+
+- Set on the **Administration**. The flow `Sync_Administration_to_Business_Entity` copies PayProv_Use__c, PayProv_DirectDebit_PaymentMethod__c and PayProv_Account__c to the business entity; a value set only on the entity is overwritten at the next save of the administration.
+- Validation on the Administration: PayProv_Use__c needs a Stripe account.
+- dev: the Belgium link (yesterday set on the business entity only) is now also on the Belgium Administration.
+- Not checked from Salesforce: Stripe webhooks / inbound connection for the new NL / DE acc accounts. Keep the webhook events equal on all Stripe accounts.
 
 ## acc deploy — pre-check notes (2026-10-20)
 
