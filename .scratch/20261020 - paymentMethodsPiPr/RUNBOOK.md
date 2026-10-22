@@ -73,7 +73,12 @@ Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3
     - Codes in use over the last 12 months: 2, 6 and 7.
     - The dev guesses 3/4/5/E/S were deleted.
     - Only UNCL5305 is functional (CII XML). The rate comes from `OrderItem.Subscription25__VAT_Percentage__c`.
-  - **FLS (not the cause, but a gap):** `VAT_Code__c.Percentage__c` and `Description__c` are readable only through `ps_EN16931_Invoicing`, and nobody has that permission set in prod. So in prod, Percentage and Description are **still empty** (loaded with required fields only). To show or maintain them, add FLS read/edit for those 2 fields to an admin permission set (e.g. `miModifyAllData`, which already has object access), or assign `ps_EN16931_Invoicing`, then fill them in.
+  - ✅ **FLS added 2026-10-22, all orgs (prod 0AfTx0000013kKHKAY, commit 80f3704):**
+    - System Administrator profile and `miModifyAllData`: edit.
+    - `ps_miSubscription25_User`: read, plus object read. Through it, pg_Subscription25User, pg_Subscription25Admin and pg_CCC_User get read.
+    - Fields: `VAT_Code__c.Percentage__c`, `VAT_Code__c.Description__c`, `OrderItem.VAT_Code__c`.
+    - Prod Percentage and Description are now filled.
+  - ~~**FLS (not the cause, but a gap):**~~ `VAT_Code__c.Percentage__c` and `Description__c` are readable only through `ps_EN16931_Invoicing`, and nobody has that permission set in prod. So in prod, Percentage and Description are **still empty** (loaded with required fields only). To show or maintain them, add FLS read/edit for those 2 fields to an admin permission set (e.g. `miModifyAllData`, which already has object access), or assign `ps_EN16931_Invoicing`, then fill them in.
     - Internal_Code__c and UNCL5305_Category__c are required, so they are always readable.
     - The flow (system context) and Svc_CIIInvoiceXmlBuilder (SYSTEM_MODE) don't need FLS.
   - **apiVersion 67.0 (commit 078449c):**
