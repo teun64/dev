@@ -7,7 +7,14 @@ https://claude.ai/code/artifact/909cb4ca-f6bb-4c39-bec2-8bb2a9c16803
 
 Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3** (v4 has been rolled back). The 19 lost first orders have been recovered.
 
-- [ ] **Check the nightly run (~01:00 UTC):** compare the number of OrderItems created and modified with previous nights, and check Event_Log for flow errors since 20:46 UTC.
+- [x] **Check the nightly run (~01:00 UTC):** compare the number of OrderItems created and modified with previous nights, and check Event_Log for flow errors since 20:46 UTC.
+  - Interim check 02:16 UTC: OK.
+    - 01h: 273 OrderItems, against 282 and 289 on the previous nights.
+    - Job_RecurringOrderManagement ran with 0 errors.
+    - Job_RecurringOrderApplication shows the same error pattern as every night (28 / 5 / 3–4 / 13–14 / 0 / 6, "CPU time limit"). This pattern predates the outage.
+    - No flow errors after 20:46:02.
+    - Unrelated: the Exact sync of "Stichting Bedrijfstakschool Anton Tijdink" fails on an invalid VAT number (data).
+  - The run was still busy, so the 03–04h figures (previously 36–77 and 151–166) still need checking.
 - [ ] **Error emails "rbb - OrderItem":** count them and note the Current User. If a staff user appears, their UI save failed and needs to be redone. The Current User also shows whether the cause was timing or access.
 - [ ] **David Waldron (00965276):** the UK `/UpsertContract` call extId `93004_1` (2026-10-21 18:00:34) failed and was never retried. The UK side has to resend it. Also check his `Direct_Debit_Mandate_Status__c` = LIVE without a Stripe mandate, and follow PM#000206388 (first psp-recurring payment in prod) until it is paid.
 - [ ] **Today's Draft orders** (02752003–02752028, 02752285–02752289) go through the normal invoice run; check that they are invoiced.
@@ -19,25 +26,28 @@ Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy wit
 
 | Step | Component | dev | acc | prod |
 |---|---|---|---|---|
-| 0 | `rac_Order` p0→I8 queue (commit 3f60541) | ✅ v24 | ✅ v22 | ⏳ go-ahead; deploys as Draft → activate via Tooling |
-| 1 | Exact payment conditions `pi` / `pr` | ✅ (Finance) | ✅ (Finance) | ⏳ Finance |
-| 1 | Global value set `Payment_Method`: + pi, pr | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
-| 1 | Account record types B2B / B2C: + pi, pr on `Payment_Method_Contracts__c` / `Payment_Method_Opportunities__c` | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
-| 1 | `Payment__c.Type__c`: + psp-recurring | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
-| 1 | CMDT `Payment_Method_UNCL4461_Mapping`: field `Payment_Method_Type__c` + rows PM_pi, PM_pr, PM_pr_sepa_debit, PM_pr_bacs_debit, PM_pr_card; `Svc_CIIInvoiceXmlBuilder` picks code+type; new field `Account.PayProv_PaymentMethodType__c` | ✅ 2026-10-20 (on top of EN16931 WIP) | ✅ 2026-10-21 | ⏳ with EN16931 |
-| 1 | Labels `paymentRemarkPI` / `paymentRemarkPR` (en, nl_NL, de, fr; draft wording) + `Ctrl_Invoice.getPaymentType` | ✅ 2026-10-20 (on top of EN16931 WIP) | ✅ 2026-10-21 | ⏳ with EN16931 |
-| 1b | CMDT `Payment_Method_Rule__mdt` + 13 rows, `Util_PaymentMethodRule`, trigger `AccountPaymentMethodRule` | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
+| 0 | `rac_Order` p0→I8 queue (commit 3f60541) | ✅ v24 | ✅ v22 | ✅ 2026-10-21 v22 active |
+| 1 | Exact payment conditions `pi` / `pr` | ✅ (Finance) | ✅ (Finance) | ✅ (Finance, user 2026-10-21) |
+| 1 | Global value set `Payment_Method`: + pi, pr | ✅ 2026-10-20 | ✅ 2026-10-21 | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) |
+| 1 | Account record types B2B / B2C: + pi, pr on `Payment_Method_Contracts__c` / `Payment_Method_Opportunities__c` | ✅ 2026-10-20 | ✅ 2026-10-21 | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) |
+| 1 | `Payment__c.Type__c`: + psp-recurring | ✅ 2026-10-20 | ✅ 2026-10-21 | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) |
+| 1 | CMDT `Payment_Method_UNCL4461_Mapping`: field `Payment_Method_Type__c` + rows PM_pi, PM_pr, PM_pr_sepa_debit, PM_pr_bacs_debit, PM_pr_card; `Svc_CIIInvoiceXmlBuilder` picks code+type; new field `Account.PayProv_PaymentMethodType__c` | ✅ 2026-10-20 (on top of EN16931 WIP) | ✅ 2026-10-21 | ✅ 2026-10-21 (0AfTx0000013ilVKAQ), with EN16931 |
+| 1 | Labels `paymentRemarkPI` / `paymentRemarkPR` (en, nl_NL, de, fr; draft wording) + `Ctrl_Invoice.getPaymentType` | ✅ 2026-10-20 (on top of EN16931 WIP) | ✅ 2026-10-21 | ✅ 2026-10-21 (0AfTx0000013ilVKAQ), with EN16931 (prod's own Ctrl_Invoice + remark branch) |
+| 1b | CMDT `Payment_Method_Rule__mdt` + 13 rows, `Util_PaymentMethodRule`, trigger `AccountPaymentMethodRule` | ✅ 2026-10-20 | ✅ 2026-10-21 | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) |
 | 1b | Report + clean-up of existing wrong combinations in prod | — | — | ⏳ |
-| 2 | `Payment_Setting__mdt.Method__c` + pi / pr; rows ps_1_pi, ps_1_pr, ps_6_pi, ps_6_pr (Stripe, AutoCreate) with **placeholder** Exact layouts and **no Term__c** | ✅ 2026-10-20 | ✅ 2026-10-21 with **acc** placeholder ids (`ps_acc_deploy`) | ⏳ needs real layout ids |
-| 2 | `rbb_Payment`: fType pi → psp-immediate, pr → psp-recurring; I + Stripe → psp-recurring; psp-dd accepted as legacy | ✅ 2026-10-20 (v31) | ✅ 2026-10-21 (v11 active) | ⏳ |
-| 2 | `rab_Payment_Direct_Debit_Setup`: psp-recurring or psp-dd | ✅ 2026-10-20 | ✅ 2026-10-21 (v2 active) | ⏳ |
-| 2 | `Batch_ProcessPayments`: Type IN (psp-recurring, psp-dd) | ✅ 2026-10-20 | ✅ 2026-10-21 | ⏳ |
-| 3 | REST: `Rest_UpsertAccount` (v1) already passes pi / pr through (also without IBAN), so no code change; test `testPaymentProviderCodeWithoutIban` added. `Rest_UpsertContract` v1 / V2 pass `paymentMethod` through unchanged. Default mappings kept. | ✅ 2026-10-20 (test) | ✅ 2026-10-21 (test class) | ⏳ test class only |
+| 2 | `Payment_Setting__mdt.Method__c` + pi / pr; rows ps_1_pi, ps_1_pr, ps_6_pi, ps_6_pr (Stripe, AutoCreate) with **placeholder** Exact layouts and **no Term__c** | ✅ 2026-10-20 | ✅ 2026-10-21 with **acc** placeholder ids (`ps_acc_deploy`) | ✅ 2026-10-21 (0AfTx0000013ilVKAQ); layout ids = prod I8 / p0-p1 layouts; no Term__c (0 days, decided) |
+| 2 | `rbb_Payment`: fType pi → psp-immediate, pr → psp-recurring; I + Stripe → psp-recurring; psp-dd accepted as legacy | ✅ 2026-10-20 (v31) | ✅ 2026-10-21 (v11 active) | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) (v10 active) |
+| 2 | `rab_Payment_Direct_Debit_Setup`: psp-recurring or psp-dd | ✅ 2026-10-20 | ✅ 2026-10-21 (v2 active) | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) (v2 active) |
+| 2 | `Batch_ProcessPayments`: Type IN (psp-recurring, psp-dd) | ✅ 2026-10-20 | ✅ 2026-10-21 | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) |
+| 3 | REST: `Rest_UpsertAccount` (v1) already passes pi / pr through (also without IBAN), so no code change; test `testPaymentProviderCodeWithoutIban` added. `Rest_UpsertContract` v1 / V2 pass `paymentMethod` through unchanged. Default mappings kept. | ✅ 2026-10-20 (test) | ✅ 2026-10-21 (test class) | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) (test class) |
 | 3 | `Rest_UpsertAccountV2`: **obsolete** (user 2026-10-20), only in dev; phase out, no changes. Its tests already fail in dev (`getIntegrationUser`: no rows) | — | — | — |
-| 2 | `afl_PaymentDirectDebitSetup_SendMail`: Mail Sent only after a real send; on failure status cleared + `AlertMessage__c` + case (commit f31e6e4) | ✅ 2026-10-21 (v16) | ✅ 2026-10-21 (v4) | ⏳ |
+| 2 | `afl_PaymentDirectDebitSetup_SendMail`: Mail Sent only after a real send; on failure status cleared + `AlertMessage__c` + case (commit f31e6e4) | ✅ 2026-10-21 (v16) | ✅ 2026-10-21 (v4) | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) (v3 active) |
 | 4 | Migration of the 2 UK Stripe accounts I8 → pr + 3 paid payments I8 → pr: package prepared in `migration/` (MIGRATION.md) | — | — | ⏳ after prod deploy |
 | 5 | Clean-up: repo-only flows `rac_Payment` / `rac_Payment_DirectDebit_Setup_Email` removed (a378cd5). Removing the I8 + Stripe branches and deactivating psp-dd waits for the migration | ✅ partly | — | ⏳ after migration |
 | 6 | Manuals: Payment Methods key-user (3e4ed1e5) + developer (1d00eaa3) created; Stripe Payments, REST (both kinds) and the generic manual updated 2026-10-21. PDFs on the weekly backlog (rows 10–11) | ✅ docs | | PDFs ⏳ |
+| 2 | `rbb_OrderItem` v4 (EN16931 VAT_Code lookup) | ✅ | ✅ (since 2026-09-21) | ⚠ v4 activated 2026-10-21 17:23 → outage, **v3 active again** (see Incident); re-activate later |
+| — | EN16931 SYSTEM_MODE fixes (`Trigger_ContentDocumentLink`, `Svc_CIIInvoiceXmlBuilder`, `Svc_CIIHybridPdfMerge`, test fixtures, `Test_Ctrl_InvoiceRemarks`), commit ce00cb4 | ✅ 2026-10-21 | ⏳ acc still has the user-mode trigger: invoice PDF fails for users without ps_EN16931_Invoicing | ✅ 2026-10-21 |
+| P2 | Phase 2: card + Apple Pay / Google Pay (see "Phase 2 start"), commit 8ae638c | ✅ 2026-10-21 | — | — |
 
 ## NEXT STEPS (as of 2026-10-21) — start here in a new session
 
@@ -133,7 +143,14 @@ Fixes for the 9 validation failures (repo + package):
 - `Ctrl_Invoice` coverage (prod itself is at 71%): new `Test_Ctrl_InvoiceRemarks` + `Test_Controllers` added to the test list.
 - Validation 0AfTx0000013ijtKAA: 212 tests, 0 failures → quick deploy 0AfTx0000013ilVKAQ.
 - Flows activated: rac_Order v22, rbb_Payment v10, rab_Payment_Direct_Debit_Setup v2, afl_PaymentDirectDebitSetup_SendMail v3, rbb_OrderItem v4.
-- Open: Belgium Administration a0U3W000004QateUAC → PayProv_Account__c a2qbR000000Gl6DQAS (NL) — blocked by permission prompt, user to do/confirm; step 4 migration (C J Blinco, Marc Stone) not run yet.
+- Open after the deploy:
+  - [ ] Belgium Administration a0U3W000004QateUAC → PayProv_Account__c a2qbR000000Gl6DQAS (NL Stripe; Use stays off). Blocked by the permission check; run it yourself or give a go-ahead:
+    `sf data update record -o prod -s Subscription25__Administration__c -i a0U3W000004QateUAC -v "PayProv_Account__c=a2qbR000000Gl6DQAS"`
+  - [ ] Step 4 migration (C J Blinco, Marc Stone I8 → pr, `migration/MIGRATION.md`) — not run; needs a go-ahead. Marc Stone's next UK Stripe run is 2026-10-28.
+  - [ ] acc: deploy the EN16931 SYSTEM_MODE fixes (ce00cb4) — acc still has the user-mode `Trigger_ContentDocumentLink`.
+  - [ ] Key-user Payment Methods docs + PDFs: were waiting for prod go-live, now unblocked.
+  - [ ] Re-activate `rbb_OrderItem` v4 (see the morning checklist / Incident).
+  - FYI: `flow_701Tx000011cU0nIAE_…` (created in prod 2026-10-21, no active version) is system-generated and not part of this package.
 
 #### Before the deploy (history)
 
@@ -361,6 +378,9 @@ Checked only when the payment method or the reseller is new or changed, so exist
 - A record type retrieve omits a custom field's picklist values unless that CustomField is in the same retrieve.
 - Business entity per reseller: `Business_Entities__c.Reseller__c` (1 NL, 2 GR, 3 BE, 4 FR, 5 DE, 6 UK).
 
+- Prod: activating a flow that references a **just-created object** (rbb_OrderItem v4 → VAT_Code__c, ~90 s after creation) failed on every save ("RawFieldImpl … __NotFound"). After deploying new objects, verify one record save right after activating a flow that uses them, and preferably activate outside business hours.
+- Prod validation passes while dev / acc fail to show FLS problems: v67 classes run SOQL / DML in user mode, and the deploying user has the feature permission sets in dev / acc but not in prod.
+
 ## Existing wrong combinations (prod, 2026-10-20) — for the 1b clean-up
 
 - Reseller 1 (NL) with I0: 1 account
@@ -385,6 +405,15 @@ Built in dev (not acc / prod):
 - Not built: card `requires_action` (3DS off-session) status / mail → for now a 402 → payment Failed + Case.
 
 Test data dev: account "TEST Teun card NL" 001bd00000lll6rAAA (B2C, reseller 1, pr), contact teun.rietman@outlook.com; payment PM#000110391 a1nbd00000eyJITAA2 (€12.50, Setup, SetupIntent seti_1UT3MuA2nsZIOV3QKw3SbTvy = [sepa_debit, card]); link https://movingintelligence--dev.sandbox.my.site.com/hub/payment?token=6d3c4c574b8db9be7999b5f01f0fd425 (dev mail not sent: no template / org-wide address).
+
+Phase 2 test plan (dev):
+1. Open the link above: the component should show SEPA + Card; Apple Pay in Safari with a card in Wallet, Google Pay in Chrome (test mode, nothing is really charged).
+2. Pay with test card `4242 4242 4242 4242` (any future date / CVC) → payment Setup, Interaction "Request Processed by Customer"; account gets PayProv_PaymentMethodId__c + (via TypeJob) PayProv_PaymentMethodType__c = card, MandateId empty.
+3. Off-session charge: set Collection_Date__c of PM#000110391 to today, run `Database.executeBatch(new Batch_ProcessPayments(), 20);` → Processing → Paid via webhook.
+4. Repeat payment on the same account: new pr payment should be Status **New** (not Setup) and get no setup mail; batch charges it.
+5. 3-D Secure case: card `4000 0027 6000 3184` (check Stripe's test-card docs) → off-session charge gets 402 → payment Failed + Case (requires_action handling not built yet).
+6. UK: same with a reseller 6 / GBP account (Bacs PaymentIntent + card).
+- Only new payments show card: payments created before 8ae638c keep their stored SEPA-only / Bacs-only intent.
 
 #### Incident 2026-10-21 — rbb_OrderItem v4 blocked every OrderItem save in prod
 - From 17:23:14 UTC (v4 activation), `dgr_03_VAT_Code_Lookup` failed on every save with "unable to parse field ... RawFieldImpl[tableName: 01ITx000004NAHM__NotFound, columnName: 00NTx00000BcOHk__NotFound]". Those are prod's own ids: `VAT_Code__c`, created 17:21:47, and `Internal_Code__c`.
