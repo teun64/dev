@@ -11,6 +11,12 @@
             <targetReference>dcr_01_EventLog</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>requests</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
         <nameSegment>Inv_generateGUID</nameSegment>
         <offset>0</offset>
         <outputParameters>
