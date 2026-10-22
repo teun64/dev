@@ -23,8 +23,7 @@ private class Test_Svc_CIIHybridPdfMerge {
     private static Subscription25__Invoice__c createFixture(){
         VAT_Code__c vatCode = new VAT_Code__c(
             Internal_Code__c = 'TESTVAT2',
-            UNCL5305_Category__c = 'S',
-            Percentage__c = 21
+            UNCL5305_Category__c = 'S'
         );
         Database.insert(vatCode, AccessLevel.SYSTEM_MODE);
 

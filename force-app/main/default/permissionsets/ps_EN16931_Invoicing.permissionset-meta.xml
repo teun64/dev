@@ -17,11 +17,6 @@
         <modifyAllRecords>true</modifyAllRecords>
     </objectPermissions>
     <fieldPermissions>
-        <field>VAT_Code__c.Percentage__c</field>
-        <readable>true</readable>
-        <editable>true</editable>
-    </fieldPermissions>
-    <fieldPermissions>
         <field>VAT_Code__c.Description__c</field>
         <readable>true</readable>
         <editable>true</editable>

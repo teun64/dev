@@ -5,8 +5,7 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
     private static void test_buildXml(){
         VAT_Code__c vatCode = new VAT_Code__c(
             Internal_Code__c = 'TESTVAT',
-            UNCL5305_Category__c = 'S',
-            Percentage__c = 21
+            UNCL5305_Category__c = 'S'
         );
         Database.insert(vatCode, AccessLevel.SYSTEM_MODE);
 
