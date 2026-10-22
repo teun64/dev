@@ -3,6 +3,16 @@
 Plan + decisions: Claude Doc "Payment methods pi / pr — Stripe route split"
 https://claude.ai/code/artifact/909cb4ca-f6bb-4c39-bec2-8bb2a9c16803
 
+## ⏰ FIRST THING, MORNING 2026-10-22: rbb_OrderItem outage follow-up
+
+Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3** (v4 has been rolled back). The 19 lost first orders have been recovered.
+
+- [ ] **Check the nightly run (~01:00 UTC):** compare the number of OrderItems created and modified with previous nights, and check Event_Log for flow errors since 20:46 UTC.
+- [ ] **Error emails "rbb - OrderItem":** count them and note the Current User. If a staff user appears, their UI save failed and needs to be redone. The Current User also shows whether the cause was timing or access.
+- [ ] **David Waldron (00965276):** the UK `/UpsertContract` call extId `93004_1` (2026-10-21 18:00:34) failed and was never retried. The UK side has to resend it. Also check his `Direct_Debit_Mandate_Status__c` = LIVE without a Stripe mandate, and follow PM#000206388 (first psp-recurring payment in prod) until it is paid.
+- [ ] **Today's Draft orders** (02752003–02752028, 02752285–02752289) go through the normal invoice run; check that they are invoiced.
+- [ ] **Re-activate v4** outside business hours, followed by a single test save. Load the VAT_Code__c data into acc and prod first or at the same time (dev has 9, acc/prod 0).
+
 Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy with `--test-level NoTestRun` and run the tests listed below separately.
 
 ## Status
@@ -375,3 +385,23 @@ Built in dev (not acc / prod):
 - Not built: card `requires_action` (3DS off-session) status / mail → for now a 402 → payment Failed + Case.
 
 Test data dev: account "TEST Teun card NL" 001bd00000lll6rAAA (B2C, reseller 1, pr), contact teun.rietman@outlook.com; payment PM#000110391 a1nbd00000eyJITAA2 (€12.50, Setup, SetupIntent seti_1UT3MuA2nsZIOV3QKw3SbTvy = [sepa_debit, card]); link https://movingintelligence--dev.sandbox.my.site.com/hub/payment?token=6d3c4c574b8db9be7999b5f01f0fd425 (dev mail not sent: no template / org-wide address).
+
+#### Incident 2026-10-21 — rbb_OrderItem v4 blocked every OrderItem save in prod
+- From 17:23:14 UTC (v4 activation), `dgr_03_VAT_Code_Lookup` failed on every save with "unable to parse field ... RawFieldImpl[tableName: 01ITx000004NAHM__NotFound, columnName: 00NTx00000BcOHk__NotFound]". Those are prod's own ids: `VAT_Code__c`, created 17:21:47, and `Internal_Code__c`.
+- No OrderItem was created or changed after 17:23:17. The same v4 has run fine in acc since 2026-09-21, also with 0 VAT codes.
+- Probable cause: the flow was activated about 90 s after the object was created, and the runtime could not resolve the object yet. Not confirmed: the Current User in the error email has not been checked against VAT_Code__c access.
+- ~20:46 UTC: v3 re-activated by the user through FlowDefinition. v4 adds nothing in prod for now (0 VAT_Code__c records).
+- To do: confirm one OrderItem save; re-activate v4 outside business hours, then do a single test save; load VAT_Code__c data in acc and prod (dev has 9).
+- Damage found (Event_Log + CP/RO/Order check): 7 failed operations. Most self-healed after v3 was re-activated:
+  - Security Platform `/UpsertContract` retries succeeded at 20:51 (Peter Honing, Ferry Helmer, Harry hubbard Black.12, Qane BlackR.12).
+  - `Batch_ActivateDraftContractProducts` created Diane Ouzman's order at 20:50.
+- Still broken: 14 Activated CPs whose RO has `Next_Date = Start = 2026-10-21` and no order. The normal pattern is that the first order arrives within ~5 min and Next_Date moves forward a period; the baseline was checked per product type.
+  - Badr Achattib ×2, David Waldron, High Efficiency Heating, Forza Doors, DLM, Autoshop Bergeijk ×2, Qane fee, Harry hubbard fee, Neelissen ×2, Van de Velde Yerseke ×2.
+- Repair: a no-op `update` on the CP fires `RecurringOrderAfterUpsert`. This is the same path as the 20:51 retries. Pilot = CP-1034645 (Harry fee), then the other 13. Scripts were in the session scratchpad (pilot.apex / bulk.apex).
+- David Waldron: one UK `/UpsertContract` call (extId 93004_1, 18:00:34) failed and was never retried. Whatever it carried has to be resent by the UK system.
+- Not checked: Elaine Roden / Mark Hicks (UK .999, start 2031-08) and Peter Hicks (start 11-21). They are not due yet, so no damage is expected.
+- Repair DONE 2026-10-21/22. Method: a no-op `update` on the CP, **one transaction per CP**; a single transaction for 11 CPs hit "Subscription25: Too many SOQL queries: 101".
+  - 14 activated CPs have their order: Badr ×2, Waldron (invoiced by the user, PM#000206388 psp-recurring in Setup + mail), High Efficiency, Forza, DLM, Autoshop ×2, Qane fee, Harry fee, Neelissen ×2, Van de Velde Green.12.
+  - The Van de Velde 800.900.9009 fee gets no order line. This is normal: that account's earlier contract and several other accounts don't get one either.
+  - 5 Closed UK CPs (start ≤ ~1 month) got their order: Carol Macaulay 02752285, John Skinner 02752286, Derek Thomas 02752287, Wendy Nock 02752288, stephen williams 02752289. Closed UK CPs that start in 2027+ normally get no order at creation, so they were left alone.
+- Still open: the UK `/UpsertContract` call 93004_1 (David Waldron), never retried; the error emails / UI saves; re-activate v4 + load the VAT_Code__c data.
