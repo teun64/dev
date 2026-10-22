@@ -57,7 +57,31 @@ Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3
     - 02752008 (Autobedrijf van Os, 08) is Activated without an invoice: `Enable_Automatic_Invoices__c` = false, so it is invoiced manually, as intended.
     - 7 GBP orders are still Draft. 02752019/020 have invoice date 2026-11-08, so they are fine. 02752285–289 (p1, created 2026-10-22) should go in the **UK invoice run, which runs daily ~17:00 UTC**. Re-check after 17:00 UTC today.
   - Side note: my user has no FLS on the new `Account.PayProv_PaymentMethodType__c` (field exists in all orgs; Apex reads it WITH SYSTEM_MODE, so no functional impact).
-- [ ] **rbb_OrderItem VAT_Code: analysis 2026-10-22 + prod activation pending**
+- [x] **VAT category moved to the package VAT code (user decision 2026-10-22, commit 8b23c04)**
+  - **New design:**
+    - `Subscription25__VAT_Code__c.UNCL5305_Category__c` holds the category per Administration and code (0 O, 1 S, 2 S, 6 G, 7 K, 25 rows per org).
+    - `OrderItem.VAT_Code__c` is recreated (same name) as a lookup to `Subscription25__VAT_Code__c`. rbb_OrderItem fills it by code + `Order.Subscription25__Administration__c`.
+    - `Svc_CIIInvoiceXmlBuilder` resolves the category itself from the package VAT codes of the invoice's Administration, no longer through the lookup.
+    - The `VAT_Code__c` object is removed.
+  - **dev + acc: done.**
+    - Deleted the obsolete flow versions that referenced the old field: rbb_OrderItem dev v11/v12, acc v4/v5; rau_Contract_Termination_Reverted dev v3/v4, acc v1.
+    - Deleted 1 acc error interview (user OK).
+    - Field and object deleted with purge, then recreated.
+    - Draft lines re-linked: dev 231; acc 12,000 of ~42,500 (rest not needed).
+  - **prod 2026-10-22 (user's go-ahead):**
+    - A: 0AfTx0000013lhlKAA (8/8 tests) put the picklist, FLS, builder, tests and interim rbb v6 (v3 logic) live at 11:04 UTC.
+    - B: categories filled.
+    - C: deleted the 101 error interviews from the outage (user OK) and rbb v4/v5.
+    - D: deleted the old field (0AfTx0000013lkzKAA); the user erased it in Setup; then deleted the object (0AfTx0000013lt3KAA).
+    - E: new lookup + FLS (0AfTx0000013lwHKAQ, 11:14 UTC).
+    - F: final rbb v7 deployed (0AfTx0000013m7ZKAQ) and active since 11:36 UTC. Test saves: UK 2 → United Kingdom/S (×2), NL 2 → Netherlands/S.
+    - G: 6,023 Draft lines re-linked, 0 failed, amounts unchanged, 0 remaining. ✅
+  - The user changed in prod, and the same was copied to dev and acc:
+    - label "Category (UNCL5305)" (6a2b1bd)
+    - VAT Code Layout (fc270e6)
+    - Administration layouts, own + package (3dea30d)
+  - **Still to check:** after the UK invoice run (~17:00 UTC), the CII XML of the new invoices shows the category (now via the package VAT codes).
+- [x] ~~**rbb_OrderItem VAT_Code: analysis 2026-10-22 + prod activation pending**~~ (superseded by the move above)
   - **Cause of the outage: deploy timing, not metadata and not FLS.**
     - In prod, v4 was compiled 11 s after `VAT_Code__c` was created in the same deploy (object 17:21:47, flow 17:21:58). It bound the object and field as `__NotFound`.
     - dev (1 h gap) and acc (24 min gap) work with the same permissions.
