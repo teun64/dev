@@ -14,10 +14,49 @@ Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3
     - Job_RecurringOrderApplication shows the same error pattern as every night (28 / 5 / 3–4 / 13–14 / 0 / 6, "CPU time limit"). This pattern predates the outage.
     - No flow errors after 20:46:02.
     - Unrelated: the Exact sync of "Stichting Bedrijfstakschool Anton Tijdink" fails on an invalid VAT number (data).
-  - The run was still busy, so the 03–04h figures (previously 36–77 and 151–166) still need checking.
-- [ ] **Error emails "rbb - OrderItem":** count them and note the Current User. If a staff user appears, their UI save failed and needs to be redone. The Current User also shows whether the cause was timing or access.
-- [ ] **David Waldron (00965276):** the UK `/UpsertContract` call extId `93004_1` (2026-10-21 18:00:34) failed and was never retried. The UK side has to resend it. Also check his `Direct_Debit_Mandate_Status__c` = LIVE without a Stripe mandate, and follow PM#000206388 (first psp-recurring payment in prod) until it is paid.
+  - Final check 2026-10-22 06:14 UTC: ✅ normal. 01h 273 / 02h 88 / 03h 62 / 04h 151 / 05h 3, against 282/83/36/151 (10-21) and 289/28/77/166 (10-20).
+    - Event_Log non-success since 20:46 (`Event_Log__c`): only 8 INTEGRATION rows (Anton Tijdink ×4, Peter Blom, Cobraspen Beheer, BlackR.12, Black.12). No flow errors.
+    - All 577 OrderItems created or modified today were saved by the batch user (Teun Rietman). There were no staff UI saves yet at 06:14 UTC.
+- [x] **Error emails "rbb - OrderItem":** count them and note the Current User. If a staff user appears, their UI save failed and needs to be redone. The Current User also shows whether the cause was timing or access.
+  - 2026-10-22 (mailbox read via the M365 connector, folder Salesforce, 17:00–21:00 UTC): 259 "rbb - OrderItem" mails, 17:23:21–20:46:07Z, all v4 dgr_03_VAT_Code_Lookup `__NotFound`. The "approaching 100 error emails/hour" warnings mean some mails were suppressed.
+    | Current User | mails | what |
+    |---|---|---|
+    | Teun Rietman | 131 | burst 17:23–17:25 = 173 existing OrderItems (all re-saved OK ~21h UTC) + recurring No ID retries |
+    | Security Platform | 120 | 2 OrderItems retried every ~5 min (802bR00000N7yv5QAB / 02096821, 802bR00000UVlgXQAT / 02467998): both saved OK 20:51 UTC + No ID retries |
+    | **Guy Mooyman** | 7 | No ID inserts = Opportunity → Administration (afl Create Order) |
+    | Platform Integration | 1 | 18:00:38 = UK `/UpsertContract` 93004_1 (see Waldron) |
+    - Raw tally: scratchpad `rbb/orderitem_ids_with_user.tsv` (session-only).
+  - **⚠ Follow-on: 11 "afl - Opportunity - Create Order" mails (act_02_CreateOrders → CANNOT_EXECUTE_FLOW_TRIGGER rbb - OrderItem).**
+    - 5 are Webshop #2026-00077427: Guy ×3, Teun ×2 retries. It was fixed at 20:52 by setting the stage Administration → Closed Won, which created Order 02752008.
+    - **6 Opportunities of Guy Mooyman are still in Administration with no Order (`Order__c` null), so no warehouse order exists for them:**
+      - 006Tx00000feawRIAQ Webshop #2026-00077449 (AST Auto Shop Totaal, €2,475)
+      - 006Tx00000fecTZIAY Webshop #2026-00077447 (AST Car Inside Nijverdal, €285)
+      - 006Tx00000fedZKIAY KZZ-93-T/ 90219 (DLM, €288.43)
+      - 006Tx00000febVuIAI Inbouw 19-10 MC8684 (Dusseldorp Rotterdam West, €395)
+      - 006Tx00000feiVmIAI Inbouw 19-10 MC0604 (Dusseldorp Rotterdam West, €395)
+      - 006Tx00000fejgLIAQ Inbouw 19-10 MC4434 (Dusseldorp Rotterdam West, €395)
+    - ✅ **Fixed 2026-10-22 ~07:27 UTC** (user's go-ahead). Each Opportunity was set to Closed Won one at a time, and Orders 02752624–02752629 were created with all 10 OrderItems. They start as Draft and are Activated by the regular financial-system sync (the first one at ~07:30), so there is nothing further to do.
+  - Unrelated: there are 93 "rau - Order - Contract - Activated" mails (17:23–17:25, the same burst) and pef - Integration GUID errors.
+  - ✅ **GUID fix LIVE 2026-10-22.** Commit 3a50668 plus 52b06c2 (52b06c2 adds the missed `pef_Internal` input).
+    - acc: deployed and tested.
+    - prod: deploy 0AfTx0000013k5lKAA, 2/2 tests passed, pef_Integration v7 and pef_Internal v3 activated.
+    - Tested in both orgs: 5 events in one transaction gave 5 unique GUIDs. The test logs were deleted.
+- [x] **David Waldron (00965276):** ✅ closed 2026-10-22, see the outcome below. the UK `/UpsertContract` call extId `93004_1` (2026-10-21 18:00:34) failed and was never retried. The UK side has to resend it. Also check his `Direct_Debit_Mandate_Status__c` = LIVE without a Stripe mandate, and follow PM#000206388 (first psp-recurring payment in prod) until it is paid.
+  - 2026-10-22 06:14 UTC:
+    - `93004_1`: still not resent. Event_Log has 18:00:08 200 (created contract 00965276, extId 93004_1-3) and 18:00:34 400. There is no later call.
+    - Account 001Tx000011XwKHIA0: pr, `Direct_Debit_Mandate_Status__c` = LIVE, but PayProv_MandateId / Mandate_Status / PaymentMethodId are all empty (only cus_VU4oRyKMwOfo7D).
+    - **Outcome 2026-10-22: nothing missing, no UK resend needed.**
+      - The 18:00:34 call was a **duplicate send**. In every 18:00 run UK sends ~8 contracts twice (e.g. 25120_1, 64941_1, 77835_1, 93030_1).
+      - The first call (18:00:08) created CP-1034621 (93004_1-3, iTrack Ultimate Monthly DD £12.50, the only product), and it was Activated at 18:00:14.
+      - The duplicate's update re-fired `RecurringOrderAfterUpsert`. Its order insert hit rbb_OrderItem v4, so the update was rolled back (400). The lost first order was regenerated last night as 02752013 (invoiced).
+      - Stripe: Waldron is in mandate setup (user 2026-10-22), so PM#000206388 waits for him and needs no action from us.
+      - Unrelated, chronic: 92582_1 / 86996_1 / 90267_1 / 90741_1 have failed twice a day since 2026-10-13 with "No Account (80861 / 32063 / 15646 / 14518) found". The UK accounts were never created in Salesforce, which is a UK-side data issue.
+    - PM#000206388: £15, psp-recurring, **Setup**, Interaction Mail Sent (21:02 UTC). It has a PaymentIntent pi_3UT6eSGliYpbpuQB0gUbZBbK but no SetupIntentId, and Collection_Date 2026-10-19 lies in the past. It is waiting for the customer to complete the mandate setup.
 - [ ] **Today's Draft orders** (02752003–02752028, 02752285–02752289) go through the normal invoice run; check that they are invoiced.
+  - 2026-10-22 06:14 UTC: 28 orders exist: 21 Activated, of which 20 are invoiced (FINALIZED, invoices I-2610-00772113…124; Waldron's 02752013 is on I-2610-00772018). 02752016–018 don't exist.
+    - 02752008 (Autobedrijf van Os, 08) is Activated without an invoice: `Enable_Automatic_Invoices__c` = false, so it is invoiced manually, as intended.
+    - 7 GBP orders are still Draft. 02752019/020 have invoice date 2026-11-08, so they are fine. 02752285–289 (p1, created 2026-10-22) should go in the **UK invoice run, which runs daily ~17:00 UTC**. Re-check after 17:00 UTC today.
+  - Side note: my user has no FLS on the new `Account.PayProv_PaymentMethodType__c` (field exists in all orgs; Apex reads it WITH SYSTEM_MODE, so no functional impact).
 - [ ] **Re-activate v4** outside business hours, followed by a single test save. Load the VAT_Code__c data into acc and prod first or at the same time (dev has 9, acc/prod 0).
 
 Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy with `--test-level NoTestRun` and run the tests listed below separately.
