@@ -84,7 +84,16 @@ Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3
   - **apiVersion 67.0 (commit 078449c):**
     - rbb_OrderItem: dev v12 and acc v5 active and tested (OrderItem save links code 2 → 2/S). **Not deployed to prod yet.**
     - pef_Internal: dev v7, acc v4 and prod v4 (0AfTx0000013kDpKAI) active.
-  - **Prod step (on go-ahead, outside business hours):**
+  - ✅ **Prod v5 (API 67) ACTIVE 2026-10-22 08:45:40 UTC** (user's go-ahead). The test save on 802Tx00000IXtHtIAL linked 2 → 2/S. Real saves after activation ran without errors, and the 60-min monitor was stopped after the first real saves.
+  - ⚠ **Gap: on INSERT the link stays empty.** The package's before-insert triggers (`OrderItem`, `OrderItemBeforeUpsert`) set `Subscription25__VAT_Code__c` only after our before-save flow has run. So a new item gets `VAT_Code__c` only on a later update (e.g. 802Tx00000IXtubIAD on 02752668).
+    - acc shows the same: 0 links on inserts, because there was no data before today.
+    - **Proposal (awaiting go-ahead):** a fallback in `Svc_CIIInvoiceXmlBuilder`: when `VAT_Code__r` is empty, look up the category via Subscription25__VAT_Code__c → VAT_Code__c.Internal_Code__c.
+  - ✅ **Backfill of Draft OrderItems in prod, 2026-10-22:**
+    - 5,198 linked (20 test + 5,178 in batches of 150), 0 failed, amounts unchanged (UnitPrice / Quantity / TotalPrice / VAT %).
+    - 144 items without a package VAT code stay empty.
+    - Activated / invoiced items were not backfilled.
+  - Draft orders are mostly created by the nightly run, 01–04 UTC, running as the batch user. Their invoice dates are mostly Oct (2,559) and Nov (2,850) 2026. About 800 old Draft orders date from 2023–2025.
+  - ~~**Prod step (on go-ahead, outside business hours):**~~
     1. Deploy rbb_OrderItem. It lands as Draft.
     2. Activate the new version via FlowDefinition.
     3. Immediately do 1 no-op OrderItem save.
