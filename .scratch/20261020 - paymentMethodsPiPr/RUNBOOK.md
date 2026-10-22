@@ -76,7 +76,7 @@ Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3
   - ✅ **FLS added 2026-10-22, all orgs (prod 0AfTx0000013kKHKAY, commit 80f3704):**
     - System Administrator profile and `miModifyAllData`: edit.
     - `ps_miSubscription25_User`: read, plus object read. Through it, pg_Subscription25User, pg_Subscription25Admin and pg_CCC_User get read.
-    - Fields: `VAT_Code__c.Percentage__c`, `VAT_Code__c.Description__c`, `OrderItem.VAT_Code__c`.
+    - Fields: `VAT_Code__c.Description__c` and `OrderItem.VAT_Code__c`. `Percentage__c` has since been removed.
     - Prod Percentage and Description are now filled.
   - ~~**FLS (not the cause, but a gap):**~~ `VAT_Code__c.Percentage__c` and `Description__c` are readable only through `ps_EN16931_Invoicing`, and nobody has that permission set in prod. So in prod, Percentage and Description are **still empty** (loaded with required fields only). To show or maintain them, add FLS read/edit for those 2 fields to an admin permission set (e.g. `miModifyAllData`, which already has object access), or assign `ps_EN16931_Invoicing`, then fill them in.
     - Internal_Code__c and UNCL5305_Category__c are required, so they are always readable.
@@ -85,7 +85,15 @@ Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3
     - rbb_OrderItem: dev v12 and acc v5 active and tested (OrderItem save links code 2 → 2/S). **Not deployed to prod yet.**
     - pef_Internal: dev v7, acc v4 and prod v4 (0AfTx0000013kDpKAI) active.
   - ✅ **Prod v5 (API 67) ACTIVE 2026-10-22 08:45:40 UTC** (user's go-ahead). The test save on 802Tx00000IXtHtIAL linked 2 → 2/S. Real saves after activation ran without errors, and the 60-min monitor was stopped after the first real saves.
-  - ⚠ **Gap: on INSERT the link stays empty.** The package's before-insert triggers (`OrderItem`, `OrderItemBeforeUpsert`) set `Subscription25__VAT_Code__c` only after our before-save flow has run. So a new item gets `VAT_Code__c` only on a later update (e.g. 802Tx00000IXtubIAD on 02752668).
+  - ✅ **Insert gap closed through activation, no new flow needed (analysis 2026-10-22).**
+    - When an Order is activated, `rau_Order_Contract_Activated` (synchronous) and `Inv_FinancialSystemCreateOrders` update every line with `setProductName__c = true`. That fires the prod-only flow `rbu_OrderItem_setProductName` **and** `rbb_OrderItem` v5, which links VAT_Code.
+    - Activation happens about 1 s before FINALIZED, and the XML is only built when the PDF is attached (CDL trigger). So invoiced lines are always linked.
+    - **Check after the UK run (~17:00 UTC):** new invoice lines have `VAT_Code__c` set and the CII XML shows the category.
+    - Optional later: move the lookup into `rbu_OrderItem_setProductName`, and put that flow plus `rau_Subscription25_Invoice_c_Email_Error` in the repo (they are prod-only).
+  - ✅ **`VAT_Code__c.Percentage__c` removed 2026-10-22 (commit 7833aa8).** It was redundant: the rate comes from `OrderItem.Subscription25__VAT_Percentage__c`, and one value per code is wrong across Administrations.
+    - Removed from the 3 test fixtures, then the field was deleted in dev, acc and prod (0AfTx0000013klhKAA, 8/8 tests).
+    - It sits in "Deleted Fields" for 15 days.
+  - (earlier analysis) **Gap: on INSERT the link stays empty.** The package's before-insert triggers (`OrderItem`, `OrderItemBeforeUpsert`) set `Subscription25__VAT_Code__c` only after our before-save flow has run. So a new item gets `VAT_Code__c` only on a later update (e.g. 802Tx00000IXtubIAD on 02752668).
     - acc shows the same: 0 links on inserts, because there was no data before today.
     - **Proposal (awaiting go-ahead):** a fallback in `Svc_CIIInvoiceXmlBuilder`: when `VAT_Code__r` is empty, look up the category via Subscription25__VAT_Code__c → VAT_Code__c.Internal_Code__c.
   - ✅ **Backfill of Draft OrderItems in prod, 2026-10-22:**
