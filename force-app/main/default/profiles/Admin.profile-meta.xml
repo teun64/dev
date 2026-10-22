@@ -127,7 +127,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>VAT_Code__c.Description__c</field>
+        <field>Subscription25__VAT_Code__c.UNCL5305_Category__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <objectPermissions>

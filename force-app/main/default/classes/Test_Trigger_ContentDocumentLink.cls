@@ -11,12 +11,6 @@ private class Test_Trigger_ContentDocumentLink {
     }
 
     private static Subscription25__Invoice__c createFixture(Boolean includeCIIHybridPdf){
-        VAT_Code__c vatCode = new VAT_Code__c(
-            Internal_Code__c = 'TESTVAT3',
-            UNCL5305_Category__c = 'S'
-        );
-        Database.insert(vatCode, AccessLevel.SYSTEM_MODE);
-
         Subscription25__Administration__c adm = Test_Data.createAdministration(false);
         adm.Subscription25__Billing_Name__c = 'Test Administration BV';
         adm.Subscription25__Billing_Street__c = 'Teststraat 1';
@@ -36,6 +30,10 @@ private class Test_Trigger_ContentDocumentLink {
         Database.update(prd, AccessLevel.SYSTEM_MODE);
         PricebookEntry pbe = Test_Data.createPricebookEntry(prd.Id, 100.50, true);
         Subscription25__VATRate__c vatRate = Test_Data.createVATRate('TestVAT3', 21, true, true);
+        Database.insert(new Subscription25__VAT_Code__c(
+            Subscription25__Administration__c = adm.Id, Subscription25__VATRate__c = vatRate.Id,
+            Subscription25__VAT_Code__c = 'TESTVAT3', UNCL5305_Category__c = 'S'
+        ), AccessLevel.SYSTEM_MODE);
         Subscription25__Administration_Product__c apr = Test_Data.createAdministrationProduct(adm.Id, prd.Id, vatRate.Id, true);
 
         Subscription25__Invoice__c inv = Test_Data.createInvoice(adm.Id, acc.Id, 'DRAFT', false);

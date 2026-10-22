@@ -228,7 +228,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
                 Id, Subscription25__Invoice_Number__c, Subscription25__Invoice_Date__c, Subscription25__Due_Date__c,
                 Subscription25__Total_Amount__c, Amount_Gross__c, Amount_VAT__c,
                 Subscription25__Purchase_Order_Number__c, Cost_Center_invoicing__c, Payment_Method_Result__c,
-                Subscription25__Account__c, Reseller__c,
+                Subscription25__Account__c, Subscription25__Administration__c, Reseller__c,
                 Subscription25__VAT_Number__c,
                 Subscription25__Account__r.Name, Subscription25__Account__r.BillingCountryCode,
                 Subscription25__Account__r.Invoice_Grouping__c, Subscription25__Account__r.Invoice_Grouping_Option__c,
@@ -252,11 +252,23 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
             SELECT
                 Invoice_Grouping__c, Product_Code__c, Product_Name__c, Invoice_Description__c, Quantity, UnitPrice,
                 Amount_Net__c, Amount_VAT__c, Amount_Gross__c, Subscription25__VAT_Percentage__c,
-                VAT_Code__r.UNCL5305_Category__c, Product2.QuantityUnitOfMeasure
+                Subscription25__VAT_Code__c, Product2.QuantityUnitOfMeasure
             FROM OrderItem
             WHERE Order.Subscription25__Invoice__c = :invoiceId
             WITH SYSTEM_MODE
         ];
+
+        // UNCL5305 category per package VAT code of this invoice's administration; resolved here rather than
+        // through OrderItem.VAT_Code__c, which is only filled once a line is updated (package sets the code after
+        // before-save flows on insert)
+        Map<String, String> vatCategoryByCode = new Map<String, String>();
+        for (Subscription25__VAT_Code__c vatCode : [
+            SELECT Subscription25__VAT_Code__c, UNCL5305_Category__c FROM Subscription25__VAT_Code__c
+            WHERE Subscription25__Administration__c = :invoice.Subscription25__Administration__c
+            WITH SYSTEM_MODE
+        ]) {
+            vatCategoryByCode.put(vatCode.Subscription25__VAT_Code__c, vatCode.UNCL5305_Category__c);
+        }
 
         // keyed by code, or code|type for a payment provider scheme (pr + sepa_debit / bacs_debit / card)
         Map<String, String> paymentMeansByInternalCode = new Map<String, String>();
@@ -290,7 +302,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
             input.vatPercentage = item.Subscription25__VAT_Percentage__c;
             // Grouped by UNCL5305 category here (what EN16931's tax breakdown requires), not the
             // internal VAT code Ctrl_Invoice groups its own footer by - see class comment.
-            input.vatCode = item.VAT_Code__r != null ? item.VAT_Code__r.UNCL5305_Category__c : null;
+            input.vatCode = vatCategoryByCode.get(item.Subscription25__VAT_Code__c);
             input.sourceItem = item;
             aggregatorInputs.add(input);
         }

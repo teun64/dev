@@ -403,13 +403,21 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Internal_Code__c</field>
+            <field>Subscription25__VAT_Code__c</field>
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Subscription25__VAT_Code__c</elementReference>
             </value>
         </filters>
-        <object>VAT_Code__c</object>
+        <filters>
+            <field>Subscription25__Administration__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Order.Subscription25__Administration__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Subscription25__VAT_Code__c</object>
         <outputAssignments>
             <assignToReference>$Record.VAT_Code__c</assignToReference>
             <field>Id</field>
