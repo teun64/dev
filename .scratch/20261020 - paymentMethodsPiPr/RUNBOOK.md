@@ -57,7 +57,34 @@ Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3
     - 02752008 (Autobedrijf van Os, 08) is Activated without an invoice: `Enable_Automatic_Invoices__c` = false, so it is invoiced manually, as intended.
     - 7 GBP orders are still Draft. 02752019/020 have invoice date 2026-11-08, so they are fine. 02752285–289 (p1, created 2026-10-22) should go in the **UK invoice run, which runs daily ~17:00 UTC**. Re-check after 17:00 UTC today.
   - Side note: my user has no FLS on the new `Account.PayProv_PaymentMethodType__c` (field exists in all orgs; Apex reads it WITH SYSTEM_MODE, so no functional impact).
-- [ ] **Re-activate v4** outside business hours, followed by a single test save. Load the VAT_Code__c data into acc and prod first or at the same time (dev has 9, acc/prod 0).
+- [ ] **rbb_OrderItem VAT_Code: analysis 2026-10-22 + prod activation pending**
+  - **Cause of the outage: deploy timing, not metadata and not FLS.**
+    - In prod, v4 was compiled 11 s after `VAT_Code__c` was created in the same deploy (object 17:21:47, flow 17:21:58). It bound the object and field as `__NotFound`.
+    - dev (1 h gap) and acc (24 min gap) work with the same permissions.
+    - Prod can query the object today. **Re-activating v4 would fail again; deploy a fresh version.**
+  - **Data:** VAT_Code__c now holds the 5 real codes in dev, acc and prod (user choice). They come from the package's `Subscription25__VAT_Code__c` per Administration.
+    | code | UNCL5305 | meaning |
+    |---|---|---|
+    | 0 | O | No VAT (outside scope) |
+    | 1 | S | low rate (NL 9%) |
+    | 2 | S | high rate (19–24% per Administration) |
+    | 6 | G | outside the EU (export) |
+    | 7 | K | within the EU (intra-community) |
+    - Codes in use over the last 12 months: 2, 6 and 7.
+    - The dev guesses 3/4/5/E/S were deleted.
+    - Only UNCL5305 is functional (CII XML). The rate comes from `OrderItem.Subscription25__VAT_Percentage__c`.
+  - **FLS (not the cause, but a gap):** `VAT_Code__c.Percentage__c` and `Description__c` are readable only through `ps_EN16931_Invoicing`, and nobody has that permission set in prod. So in prod, Percentage and Description are **still empty** (loaded with required fields only). To show or maintain them, add FLS read/edit for those 2 fields to an admin permission set (e.g. `miModifyAllData`, which already has object access), or assign `ps_EN16931_Invoicing`, then fill them in.
+    - Internal_Code__c and UNCL5305_Category__c are required, so they are always readable.
+    - The flow (system context) and Svc_CIIInvoiceXmlBuilder (SYSTEM_MODE) don't need FLS.
+  - **apiVersion 67.0 (commit 078449c):**
+    - rbb_OrderItem: dev v12 and acc v5 active and tested (OrderItem save links code 2 → 2/S). **Not deployed to prod yet.**
+    - pef_Internal: dev v7, acc v4 and prod v4 (0AfTx0000013kDpKAI) active.
+  - **Prod step (on go-ahead, outside business hours):**
+    1. Deploy rbb_OrderItem. It lands as Draft.
+    2. Activate the new version via FlowDefinition.
+    3. Immediately do 1 no-op OrderItem save.
+    4. On error, set FlowDefinition back to v3.
+ outside business hours, followed by a single test save. Load the VAT_Code__c data into acc and prod first or at the same time (dev has 9, acc/prod 0).
 
 Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy with `--test-level NoTestRun` and run the tests listed below separately.
 
