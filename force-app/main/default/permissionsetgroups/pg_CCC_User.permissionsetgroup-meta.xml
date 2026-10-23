@@ -12,5 +12,6 @@
     <permissionSets>ps_miServiceCloudVoice</permissionSets>
     <permissionSets>ps_miServiceMarkEmail</permissionSets>
     <permissionSets>ps_miSubscription25_User</permissionSets>
+    <permissionSets>ps_miSyncFinancialSystem</permissionSets>
     <status>Updated</status>
 </PermissionSetGroup>
