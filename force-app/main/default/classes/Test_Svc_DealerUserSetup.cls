@@ -10,6 +10,10 @@ public class Test_Svc_DealerUserSetup {
     // Account owner with a role (required for a contact-linked portal user), a B2B Dealer
     // account with a contact, a contact without account and a dealer account with a role-less owner.
     public static void createDealerFixture() {
+        // A permission set group must be (re)calculated in a test before it can be assigned.
+        for (PermissionSetGroup psg : [SELECT Id FROM PermissionSetGroup WHERE DeveloperName = :Svc_DealerUserSetup.PSG_NAME]) {
+            Test.calculatePermissionSetGroup(psg.Id);
+        }
         User roleOwner;
         User noRoleOwner;
         System.runAs(new User(Id = UserInfo.getUserId())) {
@@ -203,11 +207,11 @@ public class Test_Svc_DealerUserSetup {
         Contact reloadedCon = [SELECT Email FROM Contact WHERE Id = :con.Id];
         System.assertEquals(email, reloadedCon.Email, 'Contact Email should be kept in sync with the login email');
 
-        Integer psAssignments = [
+        Integer psgAssignments = [
             SELECT COUNT() FROM PermissionSetAssignment
-            WHERE AssigneeId = :firstUserId AND PermissionSet.Name = :Svc_DealerUserSetup.PS_NAME
+            WHERE AssigneeId = :firstUserId AND PermissionSetGroup.DeveloperName = :Svc_DealerUserSetup.PSG_NAME
         ];
-        System.assertEquals(1, psAssignments, 'Should assign Authenticated_DealerPortal exactly once, even across two calls');
+        System.assertEquals(1, psgAssignments, 'Should assign pg_DealerPortal_User exactly once, even across two calls');
     }
 
     @IsTest

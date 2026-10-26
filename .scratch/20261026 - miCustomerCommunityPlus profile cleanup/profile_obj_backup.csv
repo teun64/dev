@@ -1,0 +1,15 @@
+Id,ParentId,SobjectType,PermissionsRead,PermissionsCreate,PermissionsEdit,PermissionsDelete,PermissionsViewAllRecords,PermissionsModifyAllRecords,PermissionsViewAllFields
+110bd00000BFVBdAAP,0PSbd000000tacLGAQ,Account,true,false,false,false,false,false,false
+110bd00000BFVBmAAP,0PSbd000000tacLGAQ,Contact,true,false,false,false,false,false,false
+110bd00000BFVBnAAP,0PSbd000000tacLGAQ,Contract,true,false,false,false,false,false,false
+110bd00000BFVBrAAP,0PSbd000000tacLGAQ,Document,true,false,false,false,false,false,false
+110bd00000BFVC8AAP,0PSbd000000tacLGAQ,Product2,true,false,false,false,false,false,false
+110bd00000BFVC9AAP,0PSbd000000tacLGAQ,ProductCatalog,true,false,false,false,false,false,false
+110bd00000BFVCAAA5,0PSbd000000tacLGAQ,ProductCategory,true,false,false,false,false,false,false
+110bd00000BFVCDAA5,0PSbd000000tacLGAQ,Seller,true,true,true,false,false,false,false
+110bd00000BFVCEAA5,0PSbd000000tacLGAQ,Solution,true,false,false,false,false,false,false
+110bd00000BFVCFAA5,0PSbd000000tacLGAQ,Survey,true,false,false,false,false,false,false
+110bd00000BFVCGAA5,0PSbd000000tacLGAQ,SurveyInvitation,true,false,false,false,false,false,false
+110bd00000BFVCHAA5,0PSbd000000tacLGAQ,SurveyResponse,true,true,true,false,false,false,false
+110bd00000BFVCIAA5,0PSbd000000tacLGAQ,SurveySubject,true,false,false,false,false,false,false
+110bd00000BFVCJAA5,0PSbd000000tacLGAQ,UserExternalCredential,true,true,true,true,false,false,false

@@ -5,9 +5,11 @@
  *   Production : <email>.miDealer
  *   Sandbox    : <email>.miDealer.<sandboxName>
  *
- * Users get the miCustomerCommunityPlus profile (Customer Community Plus licence) and are
- * linked to the Contact via ContactId, so Ctrl_DealerShop.getDealerContext() resolves the
- * dealer Account through the Contact. The Account owner needs a role for that link.
+ * Users get the generic miCustomerCommunityPlus profile (Customer Community Plus licence, no
+ * object access) plus pg_DealerPortal_User, which carries all dealer access and, through
+ * Authenticated_DealerPortal, the Dealer Portal membership. They are linked to the Contact via
+ * ContactId, so Ctrl_DealerShop.getDealerContext() resolves the dealer Account through the
+ * Contact. The Account owner needs a role for that link.
  *
  * Entry points: the Contact actions Enable/Disable Customer User (via Inv_CustomerUser) and
  * createOrUpdateDealerUser(). Only sysadmins or holders of cp_miExperienceCloudCustomer_Admin
@@ -16,7 +18,7 @@
 public without sharing class Svc_DealerUserSetup {
 
     @TestVisible private static final String PROFILE_NAME    = 'miCustomerCommunityPlus';
-    @TestVisible private static final String PS_NAME         = 'Authenticated_DealerPortal';
+    @TestVisible private static final String PSG_NAME        = 'pg_DealerPortal_User';
     @TestVisible private static final String PERMISSION_NAME = 'cp_miExperienceCloudCustomer_Admin';
     private static final String             NETWORK_PREFIX   = 'dealer';
     private static final String             USERNAME_SUFFIX  = 'miDealer';
@@ -129,7 +131,7 @@ public without sharing class Svc_DealerUserSetup {
         }
 
         ensureNetworkAccess(profileId);
-        assignPsIfExists(userId);
+        assignPsgIfExists(userId);
 
         // Deferred to @future: mixing DML on a setup object (User/PermissionSetAssignment,
         // above) with a non-setup object (Contact) in the same transaction throws
@@ -228,19 +230,19 @@ public without sharing class Svc_DealerUserSetup {
         }
     }
 
-    private static void assignPsIfExists(Id userId) {
-        List<PermissionSet> pss = [
-            SELECT Id FROM PermissionSet WHERE Name = :PS_NAME WITH SYSTEM_MODE LIMIT 1
+    private static void assignPsgIfExists(Id userId) {
+        List<PermissionSetGroup> psgs = [
+            SELECT Id FROM PermissionSetGroup WHERE DeveloperName = :PSG_NAME WITH SYSTEM_MODE LIMIT 1
         ];
-        if (pss.isEmpty()) return;
+        if (psgs.isEmpty()) return;
         Integer already = [
             SELECT COUNT() FROM PermissionSetAssignment
-            WHERE AssigneeId = :userId AND PermissionSetId = :pss[0].Id WITH SYSTEM_MODE
+            WHERE AssigneeId = :userId AND PermissionSetGroupId = :psgs[0].Id WITH SYSTEM_MODE
         ];
         if (already == 0) {
             Database.insert(new PermissionSetAssignment(
-                AssigneeId      = userId,
-                PermissionSetId = pss[0].Id
+                AssigneeId           = userId,
+                PermissionSetGroupId = psgs[0].Id
             ), AccessLevel.SYSTEM_MODE);
         }
     }

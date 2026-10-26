@@ -35,6 +35,7 @@
     <headlessForgotPasswordTemplate>unfiled$public/CommunityHeadlessForgotPasswordTemplate</headlessForgotPasswordTemplate>
     <headlessRegistrationTemplate>unfiled$public/CommunityHeadlessRegistrationTemplate</headlessRegistrationTemplate>
     <networkMemberGroups>
+        <permissionSet>Authenticated_DealerPortal</permissionSet>
         <profile>admin</profile>
         <profile>miCustomerCommunityPlus</profile>
     </networkMemberGroups>
