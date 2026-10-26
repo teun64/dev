@@ -2,7 +2,7 @@
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Create or re-activate the Experience Cloud customer user of a contact (naming/profile per Customer_User_Type__c, via Inv_CustomerUser)</description>
     <flowDefinition>scr_Contact_Enable_Customer_User</flowDefinition>
-    <label>Enable Customer User</label>
+    <label>Enable Dealer Portal</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <type>Flow</type>
 </QuickAction>

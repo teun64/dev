@@ -2,7 +2,7 @@
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Deactivate the Experience Cloud customer user of a contact (via Inv_CustomerUser)</description>
     <flowDefinition>scr_Contact_Disable_Customer_User</flowDefinition>
-    <label>Disable Customer User</label>
+    <label>Disable Dealer Portal</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <type>Flow</type>
 </QuickAction>

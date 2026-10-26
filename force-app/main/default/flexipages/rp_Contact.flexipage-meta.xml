@@ -36,7 +36,7 @@
                             <value>Clone</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Contact.actEnableCustomerUser</value>
+                            <value>Contact.act_DealerPortal_Enable</value>
                             <visibilityRule>
                                 <booleanFilter>(1 OR 2) AND 3</booleanFilter>
                                 <criteria>
@@ -56,7 +56,7 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>Contact.actDisableCustomerUser</value>
+                            <value>Contact.act_DealerPortal_Disable</value>
                             <visibilityRule>
                                 <booleanFilter>(1 OR 2) AND 3</booleanFilter>
                                 <criteria>
