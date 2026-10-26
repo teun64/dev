@@ -4,7 +4,7 @@
         <apexClass>Ctrl_PreferenceCenter</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Customer Hub logged-in user access: Ctrl_PreferenceCenter Apex, read Contact, CommunicationPreference(Audit)__c fields; and Customer Hub site membership. Part of pg_CustomerHub; was Authenticated_CustomerHub.</description>
+    <description>Customer Hub logged-in user access: Ctrl_PreferenceCenter Apex, read Contact, CommunicationPreference(Audit)__c fields; and Customer Hub site membership. Part of pg_miCustomerHub; was Authenticated_CustomerHub.</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>CommunicationPreferenceAudit__c.Brand__c</field>
@@ -146,7 +146,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>miCustomerHub (ps)</label>
+    <label>miCustomerHub - User (ps)</label>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>

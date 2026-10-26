@@ -35,8 +35,7 @@
     <headlessForgotPasswordTemplate>unfiled$public/CommunityHeadlessForgotPasswordTemplate</headlessForgotPasswordTemplate>
     <headlessRegistrationTemplate>unfiled$public/CommunityHeadlessRegistrationTemplate</headlessRegistrationTemplate>
     <networkMemberGroups>
-        <permissionSet>ps_CustomerHub</permissionSet>
-        <permissionSet>ps_miCustomerHub</permissionSet>
+        <permissionSet>ps_miCustomerHub_User</permissionSet>
         <profile>admin</profile>
     </networkMemberGroups>
     <networkPageOverrides>
