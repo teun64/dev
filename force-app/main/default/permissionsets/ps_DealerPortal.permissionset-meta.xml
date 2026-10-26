@@ -8,7 +8,7 @@
         <apexClass>Ctrl_DealerShop</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Minimum access for authenticated Dealer Portal users: Ctrl_DealerShop Apex access.</description>
+    <description>Dealer Portal user access (Apex Ctrl_DealerPortal, Ctrl_DealerShop) and Dealer Portal site membership. Part of pg_DealerPortal; was Authenticated_DealerPortal.</description>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>Authenticated - Dealer Portal</label>
+    <label>ps_DealerPortal</label>
 </PermissionSet>

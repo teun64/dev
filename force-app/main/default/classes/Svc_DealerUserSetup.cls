@@ -7,7 +7,7 @@
  *
  * Users get the generic miCustomerCommunityPlus profile (Customer Community Plus licence, no
  * object access) plus pg_DealerPortal, which carries all dealer access and, through
- * Authenticated_DealerPortal, the Dealer Portal membership. They are linked to the Contact via
+ * ps_DealerPortal, the Dealer Portal membership. They are linked to the Contact via
  * ContactId, so Ctrl_DealerShop.getDealerContext() resolves the dealer Account through the
  * Contact. The Account owner needs a role for that link.
  *
