@@ -211,7 +211,7 @@ public class Test_Svc_DealerUserSetup {
             SELECT COUNT() FROM PermissionSetAssignment
             WHERE AssigneeId = :firstUserId AND PermissionSetGroup.DeveloperName = :Svc_DealerUserSetup.PSG_NAME
         ];
-        System.assertEquals(1, psgAssignments, 'Should assign pg_DealerPortal_User exactly once, even across two calls');
+        System.assertEquals(1, psgAssignments, 'Should assign pg_DealerPortal exactly once, even across two calls');
     }
 
     @IsTest
