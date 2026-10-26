@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Svc_DealerUserSetup</members>
+        <members>Test_Svc_DealerUserSetup</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>CustomerHubBaseURL</members>
+        <members>PaymentCheckoutFutureConsentLabel</members>
+        <members>PaymentCheckoutFutureConsentRequired</members>
+        <name>CustomLabel</name>
+    </types>
+    <types>
+        <members>Customer_Hub</members>
+        <members>Dealer_Portal</members>
+        <name>CustomSite</name>
+    </types>
+    <types>
+        <members>site/Dealer_Portal1.sfdc_cms__view/forgotPassword</members>
+        <members>site/Dealer_Portal1.sfdc_cms__view/login</members>
+        <name>DigitalExperience</name>
+    </types>
+    <types>
+        <members>rp_Contact</members>
+        <name>FlexiPage</name>
+    </types>
+    <types>
+        <members>Customer Hub</members>
+        <members>Dealer Portal</members>
+        <name>Network</name>
+    </types>
+    <types>
+        <members>Authenticated_DealerPortal</members>
+        <members>miModifyAllData</members>
+        <members>ps_miCustomerHub</members>
+        <members>ps_miCustomerHub_Payment</members>
+        <members>ps_miExperienceCloudCustomer_Admin</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>67.0</version>
+</Package>

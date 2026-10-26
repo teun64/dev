@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>Ctrl_Payment</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_PaymentCase</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Util_System</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Apex access for the &quot;payment&quot; site&apos;s Guest User: Ctrl_Payment, Ctrl_PaymentCase, Util_System. Ctrl_PaymentCase uses AccessLevel.SYSTEM_MODE internally, so no extra object/field FLS grants are needed here.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miCustomerHub - Payment (ps)</label>
+</PermissionSet>
