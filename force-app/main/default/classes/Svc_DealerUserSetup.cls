@@ -105,6 +105,7 @@ public without sharing class Svc_DealerUserSetup {
             existing.Username = username;
             existing.Email    = email;
             existing.IsActive = true;
+            applyLanguage(existing, con);
             Database.update(existing, AccessLevel.SYSTEM_MODE);
             userId = existing.Id;
         } else {
@@ -121,13 +122,12 @@ public without sharing class Svc_DealerUserSetup {
                 LastName          = con.LastName,
                 Alias             = buildAlias(con.FirstName, con.LastName),
                 CommunityNickname = buildNickname(email),
-                LocaleSidKey      = 'nl_NL',
-                LanguageLocaleKey = 'nl_NL',
                 TimeZoneSidKey    = 'Europe/Amsterdam',
                 EmailEncodingKey  = 'UTF-8',
                 IsActive          = true
             );
             // Sends the Dealer Portal welcome email (network sendWelcomeEmail = true).
+            applyLanguage(u, con);
             Database.DMLOptions dml = new Database.DMLOptions();
             dml.EmailHeader.triggerUserEmail = true;
             Database.insert(u, dml, AccessLevel.SYSTEM_MODE);
@@ -167,7 +167,8 @@ public without sharing class Svc_DealerUserSetup {
 
     private static Contact getContact(Id contactId) {
         List<Contact> cons = [
-            SELECT Id, AccountId, FirstName, LastName, Email, Account.Owner.Name, Account.Owner.UserRoleId
+            SELECT Id, AccountId, FirstName, LastName, Email, Language__c, Account.Sales_Language__c,
+                   Account.Owner.Name, Account.Owner.UserRoleId
             FROM Contact WHERE Id = :contactId WITH SYSTEM_MODE LIMIT 1
         ];
         if (cons.isEmpty()) throw new SetupException('Contact ' + contactId + ' not found.');
@@ -203,6 +204,40 @@ public without sharing class Svc_DealerUserSetup {
             suffix += '.' + sandboxName.toLowerCase();
         }
         return suffix;
+    }
+
+    // Language + locale of the portal user (welcome / password emails, Salesforce login pages).
+    private static final Map<String, List<String>> LANGUAGE_LOCALES = new Map<String, List<String>>{
+        'nl' => new List<String>{ 'nl_NL', 'nl_NL' },
+        'en' => new List<String>{ 'en_US', 'en_GB' },
+        'de' => new List<String>{ 'de',    'de_DE' },
+        'fr' => new List<String>{ 'fr',    'fr_FR' }
+    };
+
+    // Contact.Language__c holds country-style codes; BE is ambiguous (nl/fr) and falls through.
+    private static final Map<String, String> CONTACT_LANGUAGES = new Map<String, String>{
+        'NL' => 'nl',
+        'DE' => 'de', 'AT' => 'de', 'CH' => 'de',
+        'EN' => 'en', 'GB' => 'en',
+        'FR' => 'fr', 'LU' => 'fr', 'MC' => 'fr'
+    };
+
+    // Contact.Language__c first, then Account.Sales_Language__c, else nl.
+    @TestVisible
+    private static String resolveLanguage(String contactLanguage, String accountLanguage) {
+        if (String.isNotBlank(contactLanguage) && CONTACT_LANGUAGES.containsKey(contactLanguage.toUpperCase())) {
+            return CONTACT_LANGUAGES.get(contactLanguage.toUpperCase());
+        }
+        if (String.isNotBlank(accountLanguage) && LANGUAGE_LOCALES.containsKey(accountLanguage.toLowerCase())) {
+            return accountLanguage.toLowerCase();
+        }
+        return 'nl';
+    }
+
+    private static void applyLanguage(User u, Contact con) {
+        List<String> keys = LANGUAGE_LOCALES.get(resolveLanguage(con.Language__c, con.Account?.Sales_Language__c));
+        u.LanguageLocaleKey = keys[0];
+        u.LocaleSidKey      = keys[1];
     }
 
     private static String buildAlias(String firstName, String lastName) {

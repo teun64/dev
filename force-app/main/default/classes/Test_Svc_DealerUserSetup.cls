@@ -238,6 +238,32 @@ public class Test_Svc_DealerUserSetup {
     }
 
     @IsTest
+    static void testResolveLanguage() {
+        System.assertEquals('de', Svc_DealerUserSetup.resolveLanguage('AT', 'nl'), 'Contact language wins');
+        System.assertEquals('en', Svc_DealerUserSetup.resolveLanguage('GB', null));
+        System.assertEquals('fr', Svc_DealerUserSetup.resolveLanguage('BE', 'fr'), 'BE falls through to the account');
+        System.assertEquals('nl', Svc_DealerUserSetup.resolveLanguage(null, 'pl'), 'Unsupported account language: nl');
+        System.assertEquals('nl', Svc_DealerUserSetup.resolveLanguage(null, null));
+    }
+
+    @IsTest
+    static void testEnable_setsLanguageFromContact() {
+        Contact con = getContact('Test Dealer Contact');
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            update new Contact(Id = con.Id, Language__c = 'DE');
+        }
+        freeCommunitySeat();
+
+        Test.startTest();
+        User u = Svc_DealerUserSetup.enableDealerUser(con.Id);
+        Test.stopTest();
+
+        User reloaded = [SELECT LanguageLocaleKey, LocaleSidKey FROM User WHERE Id = :u.Id];
+        System.assertEquals('de', reloaded.LanguageLocaleKey);
+        System.assertEquals('de_DE', reloaded.LocaleSidKey);
+    }
+
+    @IsTest
     static void testBuildUsername_stripsPlusTag() {
         String username = Svc_DealerUserSetup.buildUsername('teun.rietman+accdealer@outlook.com');
         System.assert(username.startsWith('teun.rietman@outlook.com.miDealer'), 'dbg: username=' + username);
