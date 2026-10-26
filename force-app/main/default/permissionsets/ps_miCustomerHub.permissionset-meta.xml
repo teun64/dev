@@ -187,7 +187,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>miCustomerHub (ps)</label>
+    <label>miCustomerHub Guest (ps)</label>
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>

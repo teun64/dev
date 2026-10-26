@@ -2,7 +2,7 @@
 <PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Dealer Portal user (Experience Cloud, profile miCustomerCommunityPlus). Assigned by Svc_DealerUserSetup (Enable Dealer Portal on Contact). All dealer access goes here, not on the profile.</description>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>pg_DealerPortal</label>
+    <label>miDealerPortal (pg)</label>
     <permissionSets>ps_DealerPortal</permissionSets>
     <status>Updated</status>
 </PermissionSetGroup>

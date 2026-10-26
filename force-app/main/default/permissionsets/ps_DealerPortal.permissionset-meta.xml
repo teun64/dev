@@ -10,5 +10,5 @@
     </classAccesses>
     <description>Dealer Portal user access (Apex Ctrl_DealerPortal, Ctrl_DealerShop) and Dealer Portal site membership. Part of pg_DealerPortal; was Authenticated_DealerPortal.</description>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>ps_DealerPortal</label>
+    <label>miDealerPortal (ps)</label>
 </PermissionSet>
