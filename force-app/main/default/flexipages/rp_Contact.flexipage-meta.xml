@@ -38,7 +38,7 @@
                         <valueListItems>
                             <value>Contact.act_DealerPortal_Enable</value>
                             <visibilityRule>
-                                <booleanFilter>(1 OR 2) AND 3</booleanFilter>
+                                <booleanFilter>(1 OR 2) AND 3 AND 4</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.isSysAdmin__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -52,6 +52,11 @@
                                 <criteria>
                                     <leftValue>{!Record.Customer_User_Type__c}</leftValue>
                                     <operator>NE</operator>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Customer_User_Active__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -70,8 +75,9 @@
                                     <rightValue>true</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue>{!Record.Customer_User_Type__c}</leftValue>
-                                    <operator>NE</operator>
+                                    <leftValue>{!Record.Customer_User_Active__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>

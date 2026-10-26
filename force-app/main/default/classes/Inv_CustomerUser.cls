@@ -50,14 +50,16 @@ public without sharing class Inv_CustomerUser {
 	}
 
 	private static String handle(Contact con, String action) {
+		// Disable works whatever the type: an active user must stay switchable off when the
+		// account's relation type changes later.
+		if (action == ACTION_DISABLE) {
+			User u = Svc_DealerUserSetup.disableDealerUser(con.Id);
+			return 'Customer user ' + u.Username + ' is deactivated.';
+		}
 		if (con.Customer_User_Type__c == TYPE_DEALER) {
 			if (action == ACTION_ENABLE) {
 				User u = Svc_DealerUserSetup.enableDealerUser(con.Id);
 				return 'Dealer Portal user ' + u.Username + ' is active.';
-			}
-			if (action == ACTION_DISABLE) {
-				User u = Svc_DealerUserSetup.disableDealerUser(con.Id);
-				return 'Dealer Portal user ' + u.Username + ' is deactivated.';
 			}
 			throw new Svc_DealerUserSetup.SetupException('Unknown action: ' + action);
 		}

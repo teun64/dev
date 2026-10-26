@@ -188,16 +188,21 @@ public without sharing class Svc_DealerUserSetup {
             'Change or free up that user first.');
     }
 
-    @TestVisible
-    private static String buildUsername(String email) {
+    // Also used by Ctrl_DealerPortalLogin to turn the email a dealer types into the username.
+    public static String buildUsername(String email) {
         String local = email.substringBefore('@');
         if (local.contains('+')) local = local.substringBefore('+');
-        String username = local + '@' + email.substringAfter('@') + '.' + USERNAME_SUFFIX;
+        return local + '@' + email.substringAfter('@') + usernameSuffix();
+    }
+
+    // '.miDealer' in production, '.miDealer.<sandbox>' in a sandbox.
+    public static String usernameSuffix() {
+        String suffix = '.' + USERNAME_SUFFIX;
         String sandboxName = Util_System.getSandboxName();
         if (String.isNotBlank(sandboxName)) {
-            username += '.' + sandboxName.toLowerCase();
+            suffix += '.' + sandboxName.toLowerCase();
         }
-        return username;
+        return suffix;
     }
 
     private static String buildAlias(String firstName, String lastName) {

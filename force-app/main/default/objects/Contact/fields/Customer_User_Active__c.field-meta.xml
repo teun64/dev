@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Customer_User_Active__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>True when the contact has an active Experience Cloud user (User.ContactId). Kept in sync by Trigger_User / Queue_ContactCustomerUser; drives the Enable/Disable Dealer Portal buttons. Do not edit by hand.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Checked when this contact has an active portal login. Set automatically.</inlineHelpText>
+    <label>Customer User Active</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

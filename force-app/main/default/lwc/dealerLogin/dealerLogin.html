@@ -1,0 +1,33 @@
+<template>
+    <div class="login-card">
+        <h1 class="login-title">{title}</h1>
+
+        <template lwc:if={isForgot}>
+            <template lwc:if={forgotSent}>
+                <p class="login-info">{labels.forgotSent}</p>
+            </template>
+            <template lwc:else>
+                <p class="login-intro">{labels.forgotIntro}</p>
+                <label class="login-label" for="forgot-identifier">{labels.email}</label>
+                <input class="login-input" id="forgot-identifier" type="email" autocomplete="username"
+                       value={identifier} oninput={handleIdentifier} onkeyup={handleKeyUp} />
+                <button class="login-btn" type="button" disabled={isBusy} onclick={handleForgot}>{labels.forgotButton}</button>
+            </template>
+            <a class="login-link" href={loginUrl}>{labels.backToLogin}</a>
+        </template>
+
+        <template lwc:else>
+            <template lwc:if={errorMessage}>
+                <p class="login-error" role="alert">{errorMessage}</p>
+            </template>
+            <label class="login-label" for="identifier">{labels.email}</label>
+            <input class="login-input" id="identifier" type="email" autocomplete="username"
+                   value={identifier} oninput={handleIdentifier} onkeyup={handleKeyUp} />
+            <label class="login-label" for="password">{labels.password}</label>
+            <input class="login-input" id="password" type="password" autocomplete="current-password"
+                   value={password} oninput={handlePassword} onkeyup={handleKeyUp} />
+            <button class="login-btn" type="button" disabled={isBusy} onclick={handleLogin}>{labels.loginButton}</button>
+            <a class="login-link" href={forgotUrl}>{labels.forgotLink}</a>
+        </template>
+    </div>
+</template>
