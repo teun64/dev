@@ -35,7 +35,8 @@ public without sharing class Ctrl_DealerPortalLogin {
 		String username = resolveUsername(identifier);
 		if (username == null) return;
 		try {
-			Site.forgotPassword(username);
+			Boolean sent = Site.forgotPassword(username);
+			System.debug(LoggingLevel.INFO, 'Ctrl_DealerPortalLogin.forgotPassword: ' + username + ' -> ' + sent);
 		} catch (Exception e) {
 			System.debug(LoggingLevel.WARN, 'Ctrl_DealerPortalLogin.forgotPassword: ' + e.getMessage());
 		}
