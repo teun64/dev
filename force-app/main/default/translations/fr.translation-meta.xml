@@ -26,11 +26,11 @@ L'accès à la boutique en ligne nécessite un compte. Dans votre compte personn
         <name>DealerPortal_HomeWelcome</name>
     </customLabels>
     <customLabels>
-        <label>J'accepte que ce mandat de prélèvement soit utilisé pour collecter automatiquement tous les futurs paiements d'abonnement.</label>
+        <label>J'accepte que Moving Intelligence utilise ce moyen de paiement pour collecter automatiquement tous les futurs paiements d'abonnement.</label>
         <name>PaymentCheckoutFutureConsentLabel</name>
     </customLabels>
     <customLabels>
-        <label>Veuillez confirmer que vous acceptez les conditions du mandat de prélèvement avant de continuer.</label>
+        <label>Veuillez confirmer que les futurs paiements d'abonnement peuvent être prélevés automatiquement avec ce moyen de paiement avant de continuer.</label>
         <name>PaymentCheckoutFutureConsentRequired</name>
     </customLabels>
     <customLabels>

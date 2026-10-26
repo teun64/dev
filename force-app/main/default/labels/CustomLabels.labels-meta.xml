@@ -761,7 +761,7 @@ Special technical support and individual consulting services (e.g. integration o
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Future Payments Consent Checkbox (Payment Checkout)</shortDescription>
-        <value>I agree that this Direct Debit mandate may be used to collect all future subscription payments automatically.</value>
+        <value>I agree that Moving Intelligence may use this payment method to collect all future subscription payments automatically.</value>
     </labels>
     <labels>
         <fullName>PaymentCheckoutFutureConsentRequired</fullName>
@@ -769,7 +769,7 @@ Special technical support and individual consulting services (e.g. integration o
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Future Payments Consent Required Error (Payment Checkout)</shortDescription>
-        <value>Please confirm you agree to the Direct Debit mandate terms before continuing.</value>
+        <value>Please confirm that future subscription payments may be collected automatically with this payment method before continuing.</value>
     </labels>
     <labels>
         <fullName>PaymentElementError</fullName>

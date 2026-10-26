@@ -26,11 +26,11 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerPortal_HomeWelcome</name>
     </customLabels>
     <customLabels>
-        <label>Ik ga ermee akkoord dat deze incassomachtiging mag worden gebruikt om alle toekomstige abonnementsbetalingen automatisch te innen.</label>
+        <label>Ik ga ermee akkoord dat Moving Intelligence deze betaalmethode mag gebruiken om alle toekomstige abonnementsbetalingen automatisch te innen.</label>
         <name>PaymentCheckoutFutureConsentLabel</name>
     </customLabels>
     <customLabels>
-        <label>Bevestig dat u akkoord gaat met de voorwaarden van de incassomachtiging voordat u doorgaat.</label>
+        <label>Bevestig dat toekomstige abonnementsbetalingen automatisch met deze betaalmethode mogen worden geïnd voordat u doorgaat.</label>
         <name>PaymentCheckoutFutureConsentRequired</name>
     </customLabels>
     <customLabels>

@@ -26,11 +26,11 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <name>DealerPortal_HomeWelcome</name>
     </customLabels>
     <customLabels>
-        <label>Ich stimme zu, dass dieses Lastschriftmandat verwendet werden darf, um alle zukünftigen Abonnementzahlungen automatisch einzuziehen.</label>
+        <label>Ich stimme zu, dass Moving Intelligence diese Zahlungsmethode verwenden darf, um alle zukünftigen Abonnementzahlungen automatisch einzuziehen.</label>
         <name>PaymentCheckoutFutureConsentLabel</name>
     </customLabels>
     <customLabels>
-        <label>Bitte bestätigen Sie, dass Sie den Bedingungen des Lastschriftmandats zustimmen, bevor Sie fortfahren.</label>
+        <label>Bitte bestätigen Sie, dass zukünftige Abonnementzahlungen automatisch über diese Zahlungsmethode eingezogen werden dürfen, bevor Sie fortfahren.</label>
         <name>PaymentCheckoutFutureConsentRequired</name>
     </customLabels>
     <customLabels>
