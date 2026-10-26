@@ -238,6 +238,13 @@ public class Test_Svc_DealerUserSetup {
     }
 
     @IsTest
+    static void testBuildUsername_stripsPlusTag() {
+        String username = Svc_DealerUserSetup.buildUsername('teun.rietman+accdealer@outlook.com');
+        System.assert(username.startsWith('teun.rietman@outlook.com.miDealer'), 'dbg: username=' + username);
+        System.assert(!username.contains('+'), 'dbg: username=' + username);
+    }
+
+    @IsTest
     static void testDisableDealerUser_noUser_throws() {
         Contact con = getContact('Test Dealer Contact');
         try {

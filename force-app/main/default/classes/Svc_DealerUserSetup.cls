@@ -4,6 +4,8 @@
  * Username convention
  *   Production : <email>.miDealer
  *   Sandbox    : <email>.miDealer.<sandboxName>
+ * A +tag in the email is left out of the username (name+test@x.com → name@x.com.miDealer);
+ * the User and Contact keep the full email, so mail still reaches the +address.
  *
  * Users get the generic miCustomerCommunityPlus profile (Customer Community Plus licence, no
  * object access) plus pg_miDealerPortal, which carries all dealer access. The site member
@@ -186,8 +188,11 @@ public without sharing class Svc_DealerUserSetup {
             'Change or free up that user first.');
     }
 
+    @TestVisible
     private static String buildUsername(String email) {
-        String username = email + '.' + USERNAME_SUFFIX;
+        String local = email.substringBefore('@');
+        if (local.contains('+')) local = local.substringBefore('+');
+        String username = local + '@' + email.substringAfter('@') + '.' + USERNAME_SUFFIX;
         String sandboxName = Util_System.getSandboxName();
         if (String.isNotBlank(sandboxName)) {
             username += '.' + sandboxName.toLowerCase();
