@@ -1,0 +1,15 @@
+Id,ParentId,SobjectType,PermissionsRead,PermissionsCreate,PermissionsEdit,PermissionsDelete,PermissionsViewAllRecords,PermissionsModifyAllRecords
+110G5000022EHZtIAO,0PSG5000007XKn7OAG,Account,true,false,false,false,false,false
+110G5000022EHa2IAG,0PSG5000007XKn7OAG,Contact,true,false,false,false,false,false
+110G5000022EHa3IAG,0PSG5000007XKn7OAG,Contract,true,false,false,false,false,false
+110G5000022EHa7IAG,0PSG5000007XKn7OAG,Document,true,false,false,false,false,false
+110G5000022EHaOIAW,0PSG5000007XKn7OAG,Product2,true,false,false,false,false,false
+110G5000022EHaPIAW,0PSG5000007XKn7OAG,ProductCatalog,true,false,false,false,false,false
+110G5000022EHaQIAW,0PSG5000007XKn7OAG,ProductCategory,true,false,false,false,false,false
+110G5000022EHaTIAW,0PSG5000007XKn7OAG,Seller,true,true,true,false,false,false
+110G5000022EHaUIAW,0PSG5000007XKn7OAG,Solution,true,false,false,false,false,false
+110G5000022EHaVIAW,0PSG5000007XKn7OAG,Survey,true,false,false,false,false,false
+110G5000022EHaWIAW,0PSG5000007XKn7OAG,SurveyInvitation,true,false,false,false,false,false
+110G5000022EHaXIAW,0PSG5000007XKn7OAG,SurveyResponse,true,true,true,false,false,false
+110G5000022EHaYIAW,0PSG5000007XKn7OAG,SurveySubject,true,false,false,false,false,false
+110G5000022EHaZIAW,0PSG5000007XKn7OAG,UserExternalCredential,true,true,true,true,false,false

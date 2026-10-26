@@ -60,3 +60,15 @@ Main package validated against acc with RunSpecifiedTests (Test_Svc_DealerUserSe
 - Old sets: redeploy from `acc-before/` and reassign them (guest: `ps_miCustomerHub` + `_Payment`).
 - `rp_Contact`: redeploy from `acc-before/`.
 - New components: destructive deploy.
+
+## Progress 2026-10-26
+- Step 1 done: main package deployed to acc, 13/13 tests.
+- Step 2 done: FLS on miModifyAllData + Admin (+ ps_miExperienceCloudCustomer_Admin via step 1).
+- Step 3 done: on create the profile got 14 ObjectPermissions + 2,528 FieldPermissions (platform defaults). All deleted; backup in acc_profile_*_backup.csv.
+- Step 4 done: NetworkMemberGroups `_User` + `_Guest` on both sites.
+- Step 5 done: guests on ps_miDealerPortal_Guest / ps_miCustomerHub_Guest. The ps_miCustomerHub(_Payment) assignments (guest + Teun) were removed.
+- Step 6 done: Authenticated_DealerPortal, ps_miCustomerHub, ps_miCustomerHub_Payment deleted.
+- Step 7 done:
+  - Account 001G500001UYQ3RIAX "MI Tech Test Dealer acc" (B2B, Dealer, owner Teun).
+  - Contact 003G500001TkBLpIAN. The email became teun.rietman@outlook.com because the Contact trigger (Util_System.sanitizeEmail) always strips the +tag.
+- Step 8 open: the user tests the buttons and the portal.
