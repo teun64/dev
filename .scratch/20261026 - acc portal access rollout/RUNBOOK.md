@@ -72,3 +72,17 @@ Main package validated against acc with RunSpecifiedTests (Test_Svc_DealerUserSe
   - Account 001G500001UYQ3RIAX "MI Tech Test Dealer acc" (B2B, Dealer, owner Teun).
   - Contact 003G500001TkBLpIAN. The email became teun.rietman@outlook.com because the Contact trigger (Util_System.sanitizeEmail) always strips the +tag.
 - Step 8 open: the user tests the buttons and the portal.
+
+## Round 2 (2026-10-26): email login, button visibility, language, own emails
+Deployed to acc:
+- 12 DealerPortal_Email* labels + nl/de/fr translations (merge deploy), Contact.Customer_User_Active__c.
+- Classes / trigger with RunSpecifiedTests (5 test classes, 26/26). `Ctrl_DealerPortalEmail` first failed on 71% coverage; a test was added and it is now 100%.
+- dealerLogin LWC, dealerPortalContactEmail component, templates `unfiled$public/DealerPortal_Welcome` / `_PasswordReset`.
+- ps_miDealerPortal_Guest/_User (+Ctrl_DealerPortalLogin / Ctrl_DealerPortalEmail), ps_miExperienceCloudCustomer_Admin, rp_Contact.
+- Login / Forgot Password views (acc copy was identical to dev's before the change).
+- FLS Customer_User_Active__c: miModifyAllData (acc copy) + Admin.
+- Network Dealer Portal (acc copy): templates + sender name Moving Intelligence. The sender address info@ waits for verification in the Setup UI.
+- Backfill: test contact 003G500001TkBLpIAN = false (the user is inactive since step 4). Site published.
+Also on 2026-10-26: Customer Hub path hubvforcesite → hub (= prod).
+
+Open: the user sets the sender info@ in Workspaces → Administration → Emails and clicks the verification email. Then test Enable (welcome email!), login with email, forgot password.
