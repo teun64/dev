@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Customer Hub logged-in user (Experience Cloud, profile miCustomerCommunityPlus). All Customer Hub access goes here, not on the profile. Guest access stays in ps_miCustomerHub.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>pg_CustomerHub</label>
+    <permissionSets>ps_CustomerHub</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

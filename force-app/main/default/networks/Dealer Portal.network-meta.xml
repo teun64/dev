@@ -37,7 +37,6 @@
     <networkMemberGroups>
         <permissionSet>ps_DealerPortal</permissionSet>
         <profile>admin</profile>
-        <profile>miCustomerCommunityPlus</profile>
     </networkMemberGroups>
     <networkPageOverrides>
         <changePasswordPageOverrideSetting>Standard</changePasswordPageOverrideSetting>

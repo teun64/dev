@@ -1,45 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Minimum access for authenticated Customer Hub community users: Ctrl_PreferenceCenter Apex, read Contact, read/write CommunicationPreference__c and CommunicationPreferenceAudit__c.</description>
-    <hasActivationRequired>false</hasActivationRequired>
-    <label>Authenticated - Customer Hub</label>
-
-    <!-- Apex class access -->
     <classAccesses>
         <apexClass>Ctrl_PreferenceCenter</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-
-    <!-- Object permissions — alphabetical order required -->
-    <objectPermissions>
-        <allowCreate>true</allowCreate>
-        <allowDelete>false</allowDelete>
-        <allowEdit>false</allowEdit>
-        <allowRead>true</allowRead>
-        <modifyAllRecords>false</modifyAllRecords>
-        <object>CommunicationPreferenceAudit__c</object>
-        <viewAllRecords>false</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <allowCreate>true</allowCreate>
-        <allowDelete>false</allowDelete>
-        <allowEdit>true</allowEdit>
-        <allowRead>true</allowRead>
-        <modifyAllRecords>false</modifyAllRecords>
-        <object>CommunicationPreference__c</object>
-        <viewAllRecords>false</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <allowCreate>false</allowCreate>
-        <allowDelete>false</allowDelete>
-        <allowEdit>false</allowEdit>
-        <allowRead>true</allowRead>
-        <modifyAllRecords>false</modifyAllRecords>
-        <object>Contact</object>
-        <viewAllRecords>false</viewAllRecords>
-    </objectPermissions>
-
-    <!-- Field permissions — alphabetical order required -->
+    <description>Customer Hub logged-in user access: Ctrl_PreferenceCenter Apex, read Contact, CommunicationPreference(Audit)__c fields; and Customer Hub site membership. Part of pg_CustomerHub; was Authenticated_CustomerHub.</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>CommunicationPreferenceAudit__c.Brand__c</field>
@@ -67,12 +32,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>CommunicationPreferenceAudit__c.Channel__c</field>
+        <field>CommunicationPreferenceAudit__c.Channel_Detail__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>CommunicationPreferenceAudit__c.Channel_Detail__c</field>
+        <field>CommunicationPreferenceAudit__c.Channel__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -137,32 +102,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>CommunicationPreference__c.Brand__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>CommunicationPreference__c.BusinessLine__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>CommunicationPreference__c.Category__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>CommunicationPreference__c.Channel__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>CommunicationPreference__c.Channel_Detail__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>CommunicationPreference__c.CommunicationType__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -200,4 +145,26 @@
         <field>CommunicationPreference__c.Source__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>ps_CustomerHub</label>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>CommunicationPreferenceAudit__c</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Contact</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
 </PermissionSet>
