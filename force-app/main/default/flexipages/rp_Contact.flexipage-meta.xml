@@ -36,9 +36,9 @@
                             <value>Clone</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>EnableCustomerPortal</value>
+                            <value>Contact.actEnableCustomerUser</value>
                             <visibilityRule>
-                                <booleanFilter>1 OR 2</booleanFilter>
+                                <booleanFilter>(1 OR 2) AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.isSysAdmin__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -48,13 +48,17 @@
                                     <leftValue>{!$Permission.CustomPermission.cp_miExperienceCloudCustomer_Admin}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Customer_User_Type__c}</leftValue>
+                                    <operator>NE</operator>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>DisableCustomerPortal</value>
+                            <value>Contact.actDisableCustomerUser</value>
                             <visibilityRule>
-                                <booleanFilter>1 OR 2</booleanFilter>
+                                <booleanFilter>(1 OR 2) AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!$User.isSysAdmin__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -64,6 +68,10 @@
                                     <leftValue>{!$Permission.CustomPermission.cp_miExperienceCloudCustomer_Admin}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Customer_User_Type__c}</leftValue>
+                                    <operator>NE</operator>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>

@@ -5,28 +5,71 @@
  *   Production : <email>.miDealer
  *   Sandbox    : <email>.miDealer.<sandboxName>
  *
- * Currently uses the Identity User profile (login-based, 100 seats).
- * When dedicated Customer Community Login licenses are provisioned, update
- * PROFILE_NAME to the new profile name; the ContactId path in
- * Ctrl_DealerShop.getDealerContext() will activate automatically for those users.
+ * Users get the miCustomerCommunityPlus profile (Customer Community Plus licence) and are
+ * linked to the Contact via ContactId, so Ctrl_DealerShop.getDealerContext() resolves the
+ * dealer Account through the Contact. The Account owner needs a role for that link.
+ *
+ * Entry points: the Contact actions Enable/Disable Customer User (via Inv_CustomerUser) and
+ * createOrUpdateDealerUser(). Only sysadmins or holders of cp_miExperienceCloudCustomer_Admin
+ * may call them; all DML runs in system mode.
  */
 public without sharing class Svc_DealerUserSetup {
 
-    @TestVisible private static final String PROFILE_NAME    = 'Identity User';
+    @TestVisible private static final String PROFILE_NAME    = 'miCustomerCommunityPlus';
     @TestVisible private static final String PS_NAME         = 'Authenticated_DealerPortal';
+    @TestVisible private static final String PERMISSION_NAME = 'cp_miExperienceCloudCustomer_Admin';
     private static final String             NETWORK_PREFIX   = 'dealer';
     private static final String             USERNAME_SUFFIX  = 'miDealer';
 
     public class SetupException extends Exception {}
 
-    // ── Public entry point ────────────────────────────────────────────────────
+    // ── Public entry points ───────────────────────────────────────────────────
+
+    /**
+     * Enables (creates or re-activates) the dealer user for a Contact, using the Contact's Email.
+     *
+     * @param contactId Contact on a dealer Account.
+     * @return the active User.
+     */
+    public static User enableDealerUser(Id contactId) {
+        if (contactId == null) throw new SetupException('contactId is required.');
+        Contact con = getContact(contactId);
+        if (String.isBlank(con.Email)) {
+            throw new SetupException('The contact has no email address. Fill in Email first; it is used for the username.');
+        }
+        Id userId = createOrUpdateDealerUser(con.Email, contactId);
+        return [SELECT Id, Username, IsActive FROM User WHERE Id = :userId WITH SYSTEM_MODE];
+    }
+
+    /**
+     * Deactivates the customer user linked to a Contact. The User keeps its Contact link,
+     * so enableDealerUser() can re-activate it later.
+     *
+     * @param contactId Contact with an active customer user.
+     * @return the deactivated User.
+     */
+    public static User disableDealerUser(Id contactId) {
+        checkAccess();
+        if (contactId == null) throw new SetupException('contactId is required.');
+
+        List<User> users = [
+            SELECT Id, Username, IsActive FROM User
+            WHERE ContactId = :contactId AND IsActive = true WITH SYSTEM_MODE LIMIT 1
+        ];
+        if (users.isEmpty()) throw new SetupException('This contact has no active customer user.');
+
+        User u = users[0];
+        u.IsActive = false;
+        Database.update(u, AccessLevel.SYSTEM_MODE);
+        return u;
+    }
 
     /**
      * Creates or updates a dealer Experience Cloud user.
      *
-     * The Contact's Email is kept in sync with the provided email so that
-     * Ctrl_DealerShop.getDealerContext() can resolve the dealer Account via
-     * email lookup for Identity-license users (who cannot carry a ContactId).
+     * An existing user is found on ContactId first (a Contact carries one portal user at most),
+     * then on the username. Username, Email and IsActive are always reset to the convention.
+     * The Contact's Email is kept in sync with the provided email.
      *
      * @param email     Login email and username basis.
      * @param contactId Existing Contact on a dealer Account.
@@ -34,14 +77,12 @@ public without sharing class Svc_DealerUserSetup {
      */
     @AuraEnabled
     public static Id createOrUpdateDealerUser(String email, Id contactId) {
+        checkAccess();
         if (String.isBlank(email)) throw new SetupException('email is required.');
         if (contactId == null)      throw new SetupException('contactId is required.');
         email = email.trim().toLowerCase();
 
-        Contact con = [
-            SELECT Id, AccountId, FirstName, LastName, Email
-            FROM Contact WHERE Id = :contactId WITH SYSTEM_MODE LIMIT 1
-        ];
+        Contact con = getContact(contactId);
         if (con.AccountId == null) {
             throw new SetupException('Contact ' + contactId + ' must be linked to an Account.');
         }
@@ -51,32 +92,39 @@ public without sharing class Svc_DealerUserSetup {
         Id     profileId = resolveProfileId();
         String username  = buildUsername(email);
 
-        List<User> existing = [
-            SELECT Id, IsActive FROM User WHERE Username = :username WITH SYSTEM_MODE LIMIT 1
-        ];
+        User existing = findExistingUser(contactId, username);
 
         Id userId;
-        if (!existing.isEmpty()) {
-            User u    = existing[0];
-            u.Email   = email;
-            u.IsActive = true;
-            update u;
-            userId = u.Id;
+        if (existing != null) {
+            existing.Username = username;
+            existing.Email    = email;
+            existing.IsActive = true;
+            Database.update(existing, AccessLevel.SYSTEM_MODE);
+            userId = existing.Id;
         } else {
+            if (con.Account.Owner.UserRoleId == null) {
+                throw new SetupException('The account owner (' + con.Account.Owner.Name + ') has no role. ' +
+                    'A customer user needs an account owner with a role: change the account owner or give the owner a role.');
+            }
             User u = new User(
                 ProfileId         = profileId,
+                ContactId         = contactId,
                 Username          = username,
                 Email             = email,
                 FirstName         = con.FirstName,
                 LastName          = con.LastName,
                 Alias             = buildAlias(con.FirstName, con.LastName),
+                CommunityNickname = buildNickname(email),
                 LocaleSidKey      = 'nl_NL',
                 LanguageLocaleKey = 'nl_NL',
                 TimeZoneSidKey    = 'Europe/Amsterdam',
                 EmailEncodingKey  = 'UTF-8',
                 IsActive          = true
             );
-            insert u;
+            // Sends the Dealer Portal welcome email (network sendWelcomeEmail = true).
+            Database.DMLOptions dml = new Database.DMLOptions();
+            dml.EmailHeader.triggerUserEmail = true;
+            Database.insert(u, dml, AccessLevel.SYSTEM_MODE);
             userId = u.Id;
         }
 
@@ -96,10 +144,42 @@ public without sharing class Svc_DealerUserSetup {
 
     @future
     private static void syncContactEmailAsync(Id contactId, String email) {
-        update new Contact(Id = contactId, Email = email);
+        Database.update(new Contact(Id = contactId, Email = email), AccessLevel.SYSTEM_MODE);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    // The class runs in system mode, so the button visibility alone is not enough.
+    @TestVisible
+    private static void checkAccess() {
+        if (FeatureManagement.checkPermission(PERMISSION_NAME)) return;
+        User me = [SELECT isSysAdmin__c FROM User WHERE Id = :UserInfo.getUserId() WITH SYSTEM_MODE];
+        if (me.isSysAdmin__c) return;
+        throw new SetupException('You are not allowed to manage customer users (' + PERMISSION_NAME + ' required).');
+    }
+
+    private static Contact getContact(Id contactId) {
+        List<Contact> cons = [
+            SELECT Id, AccountId, FirstName, LastName, Email, Account.Owner.Name, Account.Owner.UserRoleId
+            FROM Contact WHERE Id = :contactId WITH SYSTEM_MODE LIMIT 1
+        ];
+        if (cons.isEmpty()) throw new SetupException('Contact ' + contactId + ' not found.');
+        return cons[0];
+    }
+
+    private static User findExistingUser(Id contactId, String username) {
+        List<User> byContact = [
+            SELECT Id, Username, IsActive FROM User WHERE ContactId = :contactId WITH SYSTEM_MODE LIMIT 1
+        ];
+        if (!byContact.isEmpty()) return byContact[0];
+
+        List<User> byUsername = [
+            SELECT Id, Username, IsActive, ContactId FROM User WHERE Username = :username WITH SYSTEM_MODE LIMIT 1
+        ];
+        if (byUsername.isEmpty()) return null;
+        throw new SetupException('Username ' + username + ' is already used by another user (' + byUsername[0].Id + '). ' +
+            'Change or free up that user first.');
+    }
 
     private static String buildUsername(String email) {
         String username = email + '.' + USERNAME_SUFFIX;
@@ -116,6 +196,11 @@ public without sharing class Svc_DealerUserSetup {
         return (f + l).toLowerCase().left(8);
     }
 
+    // CommunityNickname must be unique org-wide (max 40).
+    private static String buildNickname(String email) {
+        return email.substringBefore('@').left(30) + '.' + String.valueOf(Crypto.getRandomInteger()).right(6);
+    }
+
     private static Id resolveProfileId() {
         List<Profile> ps = [
             SELECT Id FROM Profile WHERE Name = :PROFILE_NAME WITH SYSTEM_MODE LIMIT 1
@@ -125,8 +210,8 @@ public without sharing class Svc_DealerUserSetup {
     }
 
     // NetworkMemberGroup DML is blocked in Apex.
-    // Grant the Identity User profile access via Experience Builder:
-    //   Administration → Members → Add Profiles → Identity User → Save
+    // Grant the profile access via Experience Builder:
+    //   Administration → Members → Add Profiles → miCustomerCommunityPlus → Save
     private static void ensureNetworkAccess(Id profileId) {
         List<Network> nets = [
             SELECT Id FROM Network WHERE UrlPathPrefix = :NETWORK_PREFIX WITH SYSTEM_MODE LIMIT 1
@@ -138,7 +223,7 @@ public without sharing class Svc_DealerUserSetup {
         ];
         if (alreadyMember == 0) {
             System.debug(LoggingLevel.WARN,
-                'Identity User profile is not a member of the Dealer Portal network. ' +
+                PROFILE_NAME + ' profile is not a member of the Dealer Portal network. ' +
                 'Add it in Experience Builder → Administration → Members.');
         }
     }
@@ -153,10 +238,10 @@ public without sharing class Svc_DealerUserSetup {
             WHERE AssigneeId = :userId AND PermissionSetId = :pss[0].Id WITH SYSTEM_MODE
         ];
         if (already == 0) {
-            insert new PermissionSetAssignment(
+            Database.insert(new PermissionSetAssignment(
                 AssigneeId      = userId,
                 PermissionSetId = pss[0].Id
-            );
+            ), AccessLevel.SYSTEM_MODE);
         }
     }
 }

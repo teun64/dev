@@ -4,7 +4,12 @@
         <enabled>true</enabled>
         <name>cp_miExperienceCloudCustomer_Admin</name>
     </customPermissions>
-    <description>Enable / disable Experience Cloud customer users from the Contact record page (Enable Customer User / Disable Customer User). Includes Manage External Users, required by these standard actions.</description>
+    <description>Enable/Disable Customer User actions on the Contact record page (checked in Svc_DealerUserSetup). Includes Manage External Users and read on Contact.Customer_User_Type__c (button visibility).</description>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Contact.Customer_User_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>miExperienceCloudCustomer Admin (ps)</label>
     <userPermissions>
