@@ -212,6 +212,12 @@ public class Test_Svc_DealerUserSetup {
             WHERE AssigneeId = :firstUserId AND PermissionSetGroup.DeveloperName = :Svc_DealerUserSetup.PSG_NAME
         ];
         System.assertEquals(1, psgAssignments, 'Should assign pg_miDealerPortal exactly once, even across two calls');
+
+        Integer memberPsAssignments = [
+            SELECT COUNT() FROM PermissionSetAssignment
+            WHERE AssigneeId = :firstUserId AND PermissionSet.Name = :Svc_DealerUserSetup.MEMBER_PS_NAME AND PermissionSetGroupId = null
+        ];
+        System.assertEquals(1, memberPsAssignments, 'Should assign the site member set directly, exactly once');
     }
 
     @IsTest

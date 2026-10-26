@@ -6,8 +6,9 @@
  *   Sandbox    : <email>.miDealer.<sandboxName>
  *
  * Users get the generic miCustomerCommunityPlus profile (Customer Community Plus licence, no
- * object access) plus pg_miDealerPortal, which carries all dealer access and, through
- * ps_miDealerPortal_User, the Dealer Portal membership. They are linked to the Contact via
+ * object access) plus pg_miDealerPortal, which carries all dealer access. The site member
+ * ps_miDealerPortal_User is also assigned directly: site membership does not count through a
+ * permission set inside a group (login fails with "No community access"). They are linked to the Contact via
  * ContactId, so Ctrl_DealerShop.getDealerContext() resolves the dealer Account through the
  * Contact. The Account owner needs a role for that link.
  *
@@ -19,6 +20,7 @@ public without sharing class Svc_DealerUserSetup {
 
     @TestVisible private static final String PROFILE_NAME    = 'miCustomerCommunityPlus';
     @TestVisible private static final String PSG_NAME        = 'pg_miDealerPortal';
+    @TestVisible private static final String MEMBER_PS_NAME  = 'ps_miDealerPortal_User';
     @TestVisible private static final String PERMISSION_NAME = 'cp_miExperienceCloudCustomer_Admin';
     private static final String             NETWORK_PREFIX   = 'dealer';
     private static final String             USERNAME_SUFFIX  = 'miDealer';
@@ -130,8 +132,9 @@ public without sharing class Svc_DealerUserSetup {
             userId = u.Id;
         }
 
-        ensureNetworkAccess(profileId);
         assignPsgIfExists(userId);
+        Id memberPsId = assignMemberPsIfExists(userId);
+        ensureNetworkAccess(memberPsId);
 
         // Deferred to @future: mixing DML on a setup object (User/PermissionSetAssignment,
         // above) with a non-setup object (Contact) in the same transaction throws
@@ -212,21 +215,22 @@ public without sharing class Svc_DealerUserSetup {
     }
 
     // NetworkMemberGroup DML is blocked in Apex.
-    // Grant the profile access via Experience Builder:
-    //   Administration → Members → Add Profiles → miCustomerCommunityPlus → Save
-    private static void ensureNetworkAccess(Id profileId) {
+    // Grant the permission set access via Experience Workspaces:
+    //   Administration → Members → Select Permission Sets → ps_miDealerPortal_User → Save
+    private static void ensureNetworkAccess(Id memberPsId) {
+        if (memberPsId == null) return;
         List<Network> nets = [
             SELECT Id FROM Network WHERE UrlPathPrefix = :NETWORK_PREFIX WITH SYSTEM_MODE LIMIT 1
         ];
         if (nets.isEmpty()) return;
         Integer alreadyMember = [
             SELECT COUNT() FROM NetworkMemberGroup
-            WHERE NetworkId = :nets[0].Id AND ParentId = :profileId WITH SYSTEM_MODE
+            WHERE NetworkId = :nets[0].Id AND ParentId = :memberPsId WITH SYSTEM_MODE
         ];
         if (alreadyMember == 0) {
             System.debug(LoggingLevel.WARN,
-                PROFILE_NAME + ' profile is not a member of the Dealer Portal network. ' +
-                'Add it in Experience Builder → Administration → Members.');
+                MEMBER_PS_NAME + ' is not a member of the Dealer Portal network. ' +
+                'Add it in Experience Workspaces → Administration → Members.');
         }
     }
 
@@ -245,5 +249,23 @@ public without sharing class Svc_DealerUserSetup {
                 PermissionSetGroupId = psgs[0].Id
             ), AccessLevel.SYSTEM_MODE);
         }
+    }
+
+    private static Id assignMemberPsIfExists(Id userId) {
+        List<PermissionSet> pss = [
+            SELECT Id FROM PermissionSet WHERE Name = :MEMBER_PS_NAME WITH SYSTEM_MODE LIMIT 1
+        ];
+        if (pss.isEmpty()) return null;
+        Integer already = [
+            SELECT COUNT() FROM PermissionSetAssignment
+            WHERE AssigneeId = :userId AND PermissionSetId = :pss[0].Id AND PermissionSetGroupId = null WITH SYSTEM_MODE
+        ];
+        if (already == 0) {
+            Database.insert(new PermissionSetAssignment(
+                AssigneeId      = userId,
+                PermissionSetId = pss[0].Id
+            ), AccessLevel.SYSTEM_MODE);
+        }
+        return pss[0].Id;
     }
 }
