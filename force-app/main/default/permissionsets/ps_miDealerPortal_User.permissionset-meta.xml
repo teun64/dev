@@ -5,6 +5,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>Ctrl_DealerPortalEmail</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Ctrl_DealerShop</apexClass>
         <enabled>true</enabled>
     </classAccesses>
