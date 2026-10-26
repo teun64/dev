@@ -2415,4 +2415,100 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Platforms that receive the account status</shortDescription>
         <value>1</value>
     </labels>
+    <labels>
+        <fullName>DealerPortal_EmailWelcomeSubject</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: welcome subject</shortDescription>
+        <value>Welcome to the Moving Intelligence Dealer Portal</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailGreeting</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: greeting, {0} = first name</shortDescription>
+        <value>Dear {0},</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailWelcomeIntro</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: welcome intro</shortDescription>
+        <value>An account has been created for you on the Moving Intelligence Dealer Portal. In the portal you can order products and view your orders.</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailLoginHint</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: login hint, {0} = email address</shortDescription>
+        <value>You log in with your email address: {0}</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailWelcomeButton</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: welcome button</shortDescription>
+        <value>Set your password</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailLinkHint</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: one-time link hint</shortDescription>
+        <value>This button works once. Has it expired? Use "Forgot your password?" on the login page.</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailQuestions</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: questions, {0} = administration email (link)</shortDescription>
+        <value>Questions? Contact us at {0}.</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailSignature</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: closing</shortDescription>
+        <value>Kind regards,</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailResetSubject</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: password reset subject</shortDescription>
+        <value>Your new Dealer Portal password</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailResetIntro</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: password reset intro</shortDescription>
+        <value>We received a request to set a new password for your Dealer Portal account.</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailResetButton</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: password reset button</shortDescription>
+        <value>Choose a new password</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailResetIgnore</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: password reset ignore hint</shortDescription>
+        <value>Didn't request this? Then you can ignore this email; your password stays the same.</value>
+    </labels>
 </CustomLabels>

@@ -1,0 +1,4 @@
+<apex:component controller="Ctrl_DealerPortalEmail" access="global">
+    <apex:attribute name="userId" type="Id" assignTo="{!recipientUserId}" description="Recipient (portal user)" />
+    <apex:outputText value="{!$Label.DealerPortal_EmailQuestions}" escape="false"><apex:param value="{!contactEmailHtml}" /></apex:outputText>
+</apex:component>
