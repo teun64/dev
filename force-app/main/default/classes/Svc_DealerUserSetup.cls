@@ -22,7 +22,7 @@ public without sharing class Svc_DealerUserSetup {
     @TestVisible private static final String PSG_NAME        = 'pg_miDealerPortal';
     @TestVisible private static final String MEMBER_PS_NAME  = 'ps_miDealerPortal_User';
     @TestVisible private static final String PERMISSION_NAME = 'cp_miExperienceCloudCustomer_Admin';
-    private static final String             NETWORK_PREFIX   = 'dealer';
+    private static final String             NETWORK_NAME     = 'Dealer Portal';
     private static final String             USERNAME_SUFFIX  = 'miDealer';
 
     public class SetupException extends Exception {}
@@ -220,7 +220,7 @@ public without sharing class Svc_DealerUserSetup {
     private static void ensureNetworkAccess(Id memberPsId) {
         if (memberPsId == null) return;
         List<Network> nets = [
-            SELECT Id FROM Network WHERE UrlPathPrefix = :NETWORK_PREFIX WITH SYSTEM_MODE LIMIT 1
+            SELECT Id FROM Network WHERE Name = :NETWORK_NAME WITH SYSTEM_MODE LIMIT 1
         ];
         if (nets.isEmpty()) return;
         Integer alreadyMember = [
