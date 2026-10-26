@@ -3,6 +3,6 @@
     <description>Dealer Portal user (Experience Cloud, profile miCustomerCommunityPlus). Assigned by Svc_DealerUserSetup (Enable Dealer Portal on Contact). All dealer access goes here, not on the profile.</description>
     <hasActivationRequired>false</hasActivationRequired>
     <label>miDealerPortal (pg)</label>
-    <permissionSets>ps_DealerPortal</permissionSets>
+    <permissionSets>ps_miDealerPortal</permissionSets>
     <status>Updated</status>
 </PermissionSetGroup>

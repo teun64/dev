@@ -8,7 +8,7 @@
         <apexClass>Ctrl_DealerShop</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>Dealer Portal user access (Apex Ctrl_DealerPortal, Ctrl_DealerShop) and Dealer Portal site membership. Part of pg_DealerPortal; was Authenticated_DealerPortal.</description>
+    <description>Dealer Portal user access (Apex Ctrl_DealerPortal, Ctrl_DealerShop) and Dealer Portal site membership. Part of pg_miDealerPortal; was Authenticated_DealerPortal / ps_DealerPortal.</description>
     <hasActivationRequired>false</hasActivationRequired>
     <label>miDealerPortal (ps)</label>
 </PermissionSet>

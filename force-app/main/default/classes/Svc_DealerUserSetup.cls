@@ -6,8 +6,8 @@
  *   Sandbox    : <email>.miDealer.<sandboxName>
  *
  * Users get the generic miCustomerCommunityPlus profile (Customer Community Plus licence, no
- * object access) plus pg_DealerPortal, which carries all dealer access and, through
- * ps_DealerPortal, the Dealer Portal membership. They are linked to the Contact via
+ * object access) plus pg_miDealerPortal, which carries all dealer access and, through
+ * ps_miDealerPortal, the Dealer Portal membership. They are linked to the Contact via
  * ContactId, so Ctrl_DealerShop.getDealerContext() resolves the dealer Account through the
  * Contact. The Account owner needs a role for that link.
  *
@@ -18,7 +18,7 @@
 public without sharing class Svc_DealerUserSetup {
 
     @TestVisible private static final String PROFILE_NAME    = 'miCustomerCommunityPlus';
-    @TestVisible private static final String PSG_NAME        = 'pg_DealerPortal';
+    @TestVisible private static final String PSG_NAME        = 'pg_miDealerPortal';
     @TestVisible private static final String PERMISSION_NAME = 'cp_miExperienceCloudCustomer_Admin';
     private static final String             NETWORK_PREFIX   = 'dealer';
     private static final String             USERNAME_SUFFIX  = 'miDealer';
