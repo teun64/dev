@@ -27,5 +27,5 @@
     <siteGuestRecordDefaultOwner>trietman@movingintelligence.nl</siteGuestRecordDefaultOwner>
     <siteType>ChatterNetwork</siteType>
     <subdomain>mi</subdomain>
-    <urlPathPrefix>hubvforcesite</urlPathPrefix>
+    <urlPathPrefix>hub</urlPathPrefix>
 </CustomSite>

@@ -6,7 +6,7 @@
     <communityRoles/>
     <disableReputationRecordConversations>true</disableReputationRecordConversations>
     <emailSenderAddress>info@movingintelligence.com</emailSenderAddress>
-    <emailSenderName>Dealer Portal</emailSenderName>
+    <emailSenderName>Moving Intelligence</emailSenderName>
     <embeddedLoginEnabled>false</embeddedLoginEnabled>
     <enableApexCDNCaching>true</enableApexCDNCaching>
     <enableCustomVFErrorPageOverrides>false</enableCustomVFErrorPageOverrides>
@@ -56,6 +56,6 @@
         <defaultTab>home</defaultTab>
         <standardTab>Chatter</standardTab>
     </tabs>
-    <urlPathPrefix>dealersvforcesite</urlPathPrefix>
+    <urlPathPrefix>dealers</urlPathPrefix>
     <welcomeTemplate>unfiled$public/DealerPortal_Welcome</welcomeTemplate>
 </Network>
