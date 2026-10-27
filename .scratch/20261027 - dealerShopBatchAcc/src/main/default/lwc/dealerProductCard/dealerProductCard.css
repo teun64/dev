@@ -197,6 +197,10 @@
     color: #1d3557;
 }
 
+.product-price--blank {
+    visibility: hidden;
+}
+
 .product-price {
     font-size: 1rem;
     font-weight: 700;

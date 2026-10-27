@@ -38,7 +38,7 @@
                 </div>
             </template>
             <template if:false={pricesHidden}>
-                <p class="product-price">{formattedPrice}</p>
+                <p class={productPriceClass}>{formattedPrice}</p>
             </template>
             <template if:true={hasTiers}>
                 <div class="tier-table">

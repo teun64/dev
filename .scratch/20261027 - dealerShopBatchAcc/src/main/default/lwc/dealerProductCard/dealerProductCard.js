@@ -45,6 +45,13 @@ export default class DealerProductCard extends LightningElement {
         return this.hasListPrice ? this._fmt(this.product.listPrice) : '';
     }
 
+    // List price shown and the single-unit price is the same: don't repeat the number, but keep
+    // the (empty) line so the cards stay aligned.
+    get productPriceClass() {
+        const same = this.hasListPrice && Number(this.product.listPrice) === Number(this.product.unitPrice);
+        return 'product-price' + (same ? ' product-price--blank' : '');
+    }
+
     get hasDescription() {
         return !!this.product?.shortDescription;
     }

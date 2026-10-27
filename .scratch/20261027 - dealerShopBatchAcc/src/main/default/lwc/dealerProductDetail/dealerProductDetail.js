@@ -90,6 +90,12 @@ export default class DealerProductDetail extends LightningElement {
         return this.hasListPrice ? this._currencyFormat.format(this.product.listPrice) : '';
     }
 
+    // Same rule as the product card: equal to the list price = empty line instead of the same number.
+    get unitPriceRowClass() {
+        const same = this.hasListPrice && Number(this.product.listPrice) === Number(this.product.unitPrice);
+        return 'unit-price-row' + (same ? ' unit-price-row--blank' : '');
+    }
+
     get formattedUnitPrice() {
         if (!this.product || this.product.unitPrice == null) return '—';
         return this._currencyFormat.format(this.product.unitPrice);

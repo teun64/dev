@@ -194,6 +194,10 @@
     color: #1d3557;
 }
 
+.unit-price-row--blank {
+    visibility: hidden;
+}
+
 .unit-price-row {
     display: flex;
     align-items: baseline;

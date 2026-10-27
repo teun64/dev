@@ -53,7 +53,7 @@
                                 </div>
                             </template>
                             <template if:true={product.unitPrice}>
-                                <div class="unit-price-row">
+                                <div class={unitPriceRowClass}>
                                     <span class="price-label">{shopLabels.DealerShop_PricePerUnit}</span>
                                     <span class="unit-price">{formattedUnitPrice}</span>
                                 </div>
