@@ -1,7 +1,11 @@
 # acc rollout: Dealer Shop batch 2026-10-27 (runbook)
 
-Status: **prepared and dry-run validated on acc on 2026-10-27 (36/36 components, 0 errors). NOT deployed.**
-Waiting for: the user's test in dev, then the go for acc.
+Status: **DEPLOYED to acc on 2026-10-27** (36/36, after the user's go; acc was unchanged since `acc-before/`). Steps 1–4 done; step 5 (assigning ps_DealerShopHidePricesAdmin) is open, the user's choice.
+Results:
+- Test_Ctrl_DealerShop 65/66 (only the known I8 failure). Test_Ctrl_ProductImageManager 10/10.
+- pg_miSales Updated. FLS: Admin + miModifyAllData + ps_* on both new fields.
+- Probe as mdevos (read-only): 66 products, 49/50 with an image, order options OK (default address Teststraat 1 Amsterdam, 240 countries), nl labels OK. Temporary probe class removed again.
+Includes the later layout fixes (6668f81, f276d81).
 
 ## What's in it
 | Change | Commit |
