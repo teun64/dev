@@ -1,7 +1,11 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import placeOrder from '@salesforce/apex/Ctrl_DealerShop.placeOrder';
 import getShippingInfo from '@salesforce/apex/Ctrl_DealerShop.getShippingInfo';
+import getOrderOptionsData from '@salesforce/apex/Ctrl_DealerShop.getOrderOptions';
+import { getOrderOptions, saveOrderOptions } from 'c/dealerCartStorage';
 import { resolveNumberLocale } from 'c/dealerLanguage';
+
+const NEW_ADDRESS = 'new';
 
 export default class DealerCart extends LightningElement {
     @api cartItems = [];
@@ -16,6 +20,171 @@ export default class DealerCart extends LightningElement {
     // specific order. Defaults off; a portal dealer never sees this control and the server ignores
     // the flag entirely when dealerAccountId is null, regardless of what a client sends.
     @track omitShippingCost = false;
+
+    // Order options panel: customer reference (blank = the order number, filled in server-side)
+    // and the delivery address - the account's shipping address, or a different one picked from
+    // earlier orders or entered new. Kept in sessionStorage so it survives page navigation.
+    @track optionsOpen = false;
+    @track customerReference = '';
+    @track useDifferentAddress = false;
+    @track selectedAddress = NEW_ADDRESS;
+    @track newAddress = { street: '', postalCode: '', city: '', countryCode: '' };
+    @track orderOptionsData = null;
+
+    connectedCallback() {
+        const stored = getOrderOptions(this.dealerAccountId);
+        if (stored) {
+            this.customerReference   = stored.customerReference || '';
+            this.useDifferentAddress = !!stored.useDifferentShippingAddress;
+            if (stored.shippingAddress) this.newAddress = { ...this.newAddress, ...stored.shippingAddress };
+            // A reorder hands over its options - show them instead of hiding them behind the toggle.
+            this.optionsOpen = !!stored.openOptions;
+            if (stored.openOptions) saveOrderOptions({ ...stored, openOptions: false }, this.dealerAccountId);
+        }
+        getOrderOptionsData({ dealerAccountId: this.dealerAccountId })
+            .then((data) => {
+                this.orderOptionsData = data;
+                this._matchStoredAddress();
+            })
+            .catch(() => {
+                this.orderOptionsData = { previousAddresses: [], countries: [] };
+            });
+    }
+
+    // A stored address that equals one of the earlier addresses selects that one; anything else
+    // stays in the new-address form, prefilled.
+    _matchStoredAddress() {
+        const previous = this.orderOptionsData?.previousAddresses || [];
+        const index = previous.findIndex((a) => this._addressKey(a) === this._addressKey(this.newAddress));
+        if (index >= 0) {
+            this.selectedAddress = String(index);
+        } else {
+            this.selectedAddress = NEW_ADDRESS;
+            if (!this.newAddress.countryCode) {
+                this.newAddress = { ...this.newAddress, countryCode: this.orderOptionsData?.defaultAddress?.countryCode || '' };
+            }
+        }
+    }
+
+    _addressKey(a) {
+        if (!a) return '';
+        return [a.street, a.postalCode, a.city, a.countryCode]
+            .map((v) => (v || '').toLowerCase().replace(/\s/g, ''))
+            .join('|');
+    }
+
+    _countryLabel(code) {
+        const match = (this.orderOptionsData?.countries || []).find((c) => c.value === code);
+        return match ? match.label : (code || '');
+    }
+
+    _formatAddress(a) {
+        if (!a) return '';
+        const place = [a.postalCode, a.city].filter((v) => v).join(' ');
+        return [a.street, place, this._countryLabel(a.countryCode)].filter((v) => v).join(', ');
+    }
+
+    get optionsOpenString() {
+        return String(this.optionsOpen);
+    }
+
+    get optionsBodyClass() {
+        return 'order-options-body' + (this.optionsOpen ? ' order-options-body--open' : '');
+    }
+
+    get chevronClass() {
+        return 'order-options-chevron' + (this.optionsOpen ? ' order-options-chevron--open' : '');
+    }
+
+    // One-line recap on the collapsed toggle, so the dealer sees what will be used without opening it.
+    get optionsSummary() {
+        const parts = [];
+        if (this.customerReference) parts.push(this.customerReference);
+        if (this.useDifferentAddress) {
+            const address = this._formatAddress(this.effectiveShippingAddress);
+            if (address) parts.push(address);
+        }
+        return parts.join(' · ');
+    }
+
+    get defaultAddressText() {
+        if (!this.orderOptionsData) return '';
+        return this.orderOptionsData.defaultAddress
+            ? this._formatAddress(this.orderOptionsData.defaultAddress)
+            : this.shopLabels.DealerShop_NoDefaultAddress;
+    }
+
+    get hasPreviousAddresses() {
+        return (this.orderOptionsData?.previousAddresses || []).length > 0;
+    }
+
+    get isNewAddress() {
+        return this.selectedAddress === NEW_ADDRESS;
+    }
+
+    get addressChoices() {
+        const previous = (this.orderOptionsData?.previousAddresses || []).map((a, i) => ({
+            value: String(i),
+            label: this._formatAddress(a),
+            selected: this.selectedAddress === String(i)
+        }));
+        return [
+            ...previous,
+            { value: NEW_ADDRESS, label: this.shopLabels.DealerShop_NewAddress, selected: this.isNewAddress }
+        ];
+    }
+
+    get countryChoices() {
+        const countries = (this.orderOptionsData?.countries || []).map((c) => ({
+            ...c,
+            selected: c.value === this.newAddress.countryCode
+        }));
+        return [{ value: '', label: this.shopLabels.DealerShop_Country, selected: !this.newAddress.countryCode }, ...countries];
+    }
+
+    get effectiveShippingAddress() {
+        if (!this.useDifferentAddress) return null;
+        if (this.isNewAddress) return this.newAddress;
+        return (this.orderOptionsData?.previousAddresses || [])[Number(this.selectedAddress)] || null;
+    }
+
+    _persistOptions() {
+        saveOrderOptions({
+            customerReference: this.customerReference,
+            useDifferentShippingAddress: this.useDifferentAddress,
+            shippingAddress: this.effectiveShippingAddress
+        }, this.dealerAccountId);
+    }
+
+    handleToggleOptions() {
+        this.optionsOpen = !this.optionsOpen;
+    }
+
+    handleReferenceInput(event) {
+        this.customerReference = event.target.value;
+        this._persistOptions();
+    }
+
+    handleUseDifferentChange(event) {
+        this.useDifferentAddress = event.target.checked;
+        this._persistOptions();
+    }
+
+    handleAddressSelect(event) {
+        this.selectedAddress = event.target.value;
+        this._persistOptions();
+    }
+
+    handleAddressInput(event) {
+        const field = event.target.dataset.field;
+        this.newAddress = { ...this.newAddress, [field]: event.target.value };
+        this._persistOptions();
+    }
+
+    _isAddressComplete(a) {
+        return !!(a && a.street && a.street.trim() && a.postalCode && a.postalCode.trim()
+            && a.city && a.city.trim() && a.countryCode);
+    }
 
     @wire(getShippingInfo, { dealerAccountId: '$dealerAccountId' })
     wiredShippingInfo({ data }) {
@@ -153,8 +322,13 @@ export default class DealerCart extends LightningElement {
     }
 
     async handlePlaceOrder() {
-        this.isLoading = true;
         this.errorMessage = null;
+        if (this.useDifferentAddress && !this._isAddressComplete(this.effectiveShippingAddress)) {
+            this.optionsOpen = true;
+            this.errorMessage = this.shopLabels.DealerShop_AddressIncomplete;
+            return;
+        }
+        this.isLoading = true;
         try {
             const cartPayload = (this.cartItems || []).map(item => ({
                 productId: item.productId,
@@ -164,7 +338,12 @@ export default class DealerCart extends LightningElement {
             const orderId = await placeOrder({
                 cartJson: JSON.stringify(cartPayload),
                 dealerAccountId: this.dealerAccountId,
-                omitShippingCost: this.omitShippingCost
+                omitShippingCost: this.omitShippingCost,
+                orderOptionsJson: JSON.stringify({
+                    customerReference: this.customerReference,
+                    useDifferentShippingAddress: this.useDifferentAddress,
+                    shippingAddress: this.effectiveShippingAddress
+                })
             });
             this.dispatchEvent(new CustomEvent('orderplaced', {
                 detail: { orderId }

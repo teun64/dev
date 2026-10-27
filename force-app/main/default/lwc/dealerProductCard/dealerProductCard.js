@@ -36,6 +36,15 @@ export default class DealerProductCard extends LightningElement {
         return this._fmt(this.product.unitPrice);
     }
 
+    // Account.Show_List_Prices__c - the server only fills listPrice when that's on.
+    get hasListPrice() {
+        return this.product?.listPrice != null;
+    }
+
+    get formattedListPrice() {
+        return this.hasListPrice ? this._fmt(this.product.listPrice) : '';
+    }
+
     get hasDescription() {
         return !!this.product?.shortDescription;
     }

@@ -2224,6 +2224,110 @@ Access to the webshop requires an account. In your personal account you can view
         <value>Dealer favorite</value>
     </labels>
     <labels>
+        <fullName>DealerShop_OrderOptions</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - order options toggle</shortDescription>
+        <value>Order options</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_OrderReference</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - order reference field</shortDescription>
+        <value>Order reference</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_OrderReferencePlaceholder</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - order reference placeholder</shortDescription>
+        <value>Order number (filled in automatically)</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_DeliveryAddress</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - delivery address heading</shortDescription>
+        <value>Delivery address</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_UseDifferentAddress</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - different delivery address checkbox</shortDescription>
+        <value>Use a different delivery address</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_NewAddress</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - new address option</shortDescription>
+        <value>New address</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Street</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - street field</shortDescription>
+        <value>Street and number</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_PostalCode</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - postal code field</shortDescription>
+        <value>Postal code</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_City</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - city field</shortDescription>
+        <value>City</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_Country</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - country field</shortDescription>
+        <value>Country</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_NoDefaultAddress</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - account has no shipping address</shortDescription>
+        <value>No delivery address known for this account.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_AddressIncomplete</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - delivery address validation</shortDescription>
+        <value>Please complete the delivery address.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ListPrice</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop - list price caption</shortDescription>
+        <value>List price</value>
+    </labels>
+    <labels>
         <fullName>DealerShop_BackToOverview</fullName>
         <categories>Dealer Portal</categories>
         <language>en_US</language>

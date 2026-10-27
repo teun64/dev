@@ -81,6 +81,15 @@ export default class DealerProductDetail extends LightningElement {
         return this.product && this.product.priceTiers && this.product.priceTiers.length > 0;
     }
 
+    // Account.Show_List_Prices__c - the server only fills listPrice when that's on.
+    get hasListPrice() {
+        return this.product?.listPrice != null;
+    }
+
+    get formattedListPrice() {
+        return this.hasListPrice ? this._currencyFormat.format(this.product.listPrice) : '';
+    }
+
     get formattedUnitPrice() {
         if (!this.product || this.product.unitPrice == null) return '—';
         return this._currencyFormat.format(this.product.unitPrice);

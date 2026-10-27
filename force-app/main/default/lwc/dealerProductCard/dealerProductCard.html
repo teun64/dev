@@ -31,6 +31,12 @@
         <div class="card-body">
             <p class="product-code">{product.productCode}</p>
             <h3 class="product-name">{displayName}</h3>
+            <template if:true={hasListPrice}>
+                <div class="list-price">
+                    <span class="list-price-label">{shopLabels.DealerShop_ListPrice}</span>
+                    <span class="list-price-value">{formattedListPrice}</span>
+                </div>
+            </template>
             <template if:false={pricesHidden}>
                 <p class="product-price">{formattedPrice}</p>
             </template>

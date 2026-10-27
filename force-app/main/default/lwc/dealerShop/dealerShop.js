@@ -1,7 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import getBrandConfig              from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 import getShopLabels                from '@salesforce/apex/Ctrl_DealerShop.getShopLabels';
-import { getCart, saveCart, clearCart } from 'c/dealerCartStorage';
+import { getCart, saveCart, clearCart, clearOrderOptions } from 'c/dealerCartStorage';
 import { resolveLanguageFromHostname } from 'c/dealerLanguage';
 
 const VIEW_GRID         = 'grid';
@@ -36,6 +36,19 @@ const DEFAULT_LABELS = {
     DealerShop_FavoriteActive: '♥ Favorite',
     DealerShop_FavoriteInactive: '♡ Mark as favorite',
     DealerShop_DealerFavorite: 'Dealer favorite',
+    DealerShop_OrderOptions: 'Order options',
+    DealerShop_OrderReference: 'Order reference',
+    DealerShop_OrderReferencePlaceholder: 'Order number (filled in automatically)',
+    DealerShop_DeliveryAddress: 'Delivery address',
+    DealerShop_UseDifferentAddress: 'Use a different delivery address',
+    DealerShop_NewAddress: 'New address',
+    DealerShop_Street: 'Street and number',
+    DealerShop_PostalCode: 'Postal code',
+    DealerShop_City: 'City',
+    DealerShop_Country: 'Country',
+    DealerShop_NoDefaultAddress: 'No delivery address known for this account.',
+    DealerShop_AddressIncomplete: 'Please complete the delivery address.',
+    DealerShop_ListPrice: 'List price',
     DealerShop_BackToOverview: 'Back to overview',
     DealerShop_PricePerUnit: 'Price per unit:',
     DealerShop_VolumeDiscounts: 'Volume discounts',
@@ -188,6 +201,7 @@ export default class DealerShop extends LightningElement {
         this.cartOpen    = false;
         this.currentView = VIEW_CONFIRMATION;
         clearCart(this.dealerAccountId);
+        clearOrderOptions(this.dealerAccountId);
     }
 
     handleBackToShop() {

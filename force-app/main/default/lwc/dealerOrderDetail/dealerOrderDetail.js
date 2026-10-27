@@ -1,6 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import getOrderDetail from '@salesforce/apex/Ctrl_DealerShop.getOrderDetail';
-import { mergeItemsIntoCart } from 'c/dealerCartStorage';
+import { mergeItemsIntoCart, saveOrderOptions } from 'c/dealerCartStorage';
 
 const CURRENCY_FORMAT = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' });
 
@@ -95,6 +95,14 @@ export default class DealerOrderDetail extends LightningElement {
                 imageUrl: l.imageUrl
             }));
         mergeItemsIntoCart(items);
+        // Ordering again: a fresh reference (blank = the new order's number) but the same delivery
+        // address as the original order - still changeable in the cart's order options.
+        saveOrderOptions({
+            customerReference: '',
+            useDifferentShippingAddress: !!this.order.useDifferentShippingAddress,
+            shippingAddress: this.order.shippingAddress || null,
+            openOptions: !!this.order.useDifferentShippingAddress
+        });
         this._goToShopCart();
     }
 

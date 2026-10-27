@@ -54,3 +54,37 @@ export function mergeItemsIntoCart(newItems, accountId) {
     writeRaw(cart, accountId);
     return cart;
 }
+
+// Order options (customer reference + delivery address choice) live next to the cart, under the
+// same account scoping, so they survive navigating between shop pages - and a reorder from order
+// history can hand over the original order's delivery address.
+const OPTIONS_KEY = 'dealerShopOrderOptions';
+
+function optionsKey(accountId) {
+    return accountId ? `${OPTIONS_KEY}_${accountId}` : OPTIONS_KEY;
+}
+
+export function getOrderOptions(accountId) {
+    try {
+        const raw = window.sessionStorage.getItem(optionsKey(accountId));
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+export function saveOrderOptions(options, accountId) {
+    try {
+        window.sessionStorage.setItem(optionsKey(accountId), JSON.stringify(options || {}));
+    } catch (e) {
+        // sessionStorage unavailable - options just won't persist
+    }
+}
+
+export function clearOrderOptions(accountId) {
+    try {
+        window.sessionStorage.removeItem(optionsKey(accountId));
+    } catch (e) {
+        // ignore
+    }
+}

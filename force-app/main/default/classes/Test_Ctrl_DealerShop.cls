@@ -311,7 +311,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         Test.stopTest();
 
@@ -365,7 +365,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         Test.stopTest();
 
@@ -506,7 +506,7 @@ private class Test_Ctrl_DealerShop {
     static void testPlaceOrder_invalidJson_throwsException() {
         Test.startTest();
         try {
-            Ctrl_DealerShop.placeOrder('not-valid-json{{{', null, null);
+            Ctrl_DealerShop.placeOrder('not-valid-json{{{', null, null, null);
             System.assert(false, 'Expected an exception for invalid JSON');
         } catch (AuraHandledException e) {
             System.assert(true, 'AuraHandledException expected for invalid cart JSON');
@@ -534,7 +534,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.OrderHistoryDTO> all;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
             mine = Ctrl_DealerShop.getOrderHistory(true);
             all  = Ctrl_DealerShop.getOrderHistory(false);
         }
@@ -561,7 +561,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         Test.stopTest();
 
@@ -1281,7 +1281,7 @@ private class Test_Ctrl_DealerShop {
         List<Ctrl_DealerShop.OrderHistoryDTO> history;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         setHidePrices(true);
         System.runAs(portalUser()) {
@@ -1312,7 +1312,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         Test.stopTest();
 
@@ -1464,6 +1464,163 @@ private class Test_Ctrl_DealerShop {
         System.assertNotEquals(true, dto.isDealerFavorite, 'Dealer favorites are only marked in the internal user view');
     }
 
+    // ── Order options (customer reference + delivery address) ────────────────
+
+    private static String orderOptionsCartJson() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        return JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1 }
+        });
+    }
+
+    private static Map<String, Object> deliveryAddress(String street) {
+        return new Map<String, Object>{
+            'street' => street, 'postalCode' => '3011AA', 'city' => 'Rotterdam', 'countryCode' => 'NL'
+        };
+    }
+
+    @IsTest
+    static void testPlaceOrder_orderOptions_referenceAndDifferentAddress() {
+        String optionsJson = JSON.serialize(new Map<String, Object>{
+            'customerReference'           => '  PO-4711  ',
+            'useDifferentShippingAddress' => true,
+            'shippingAddress'             => deliveryAddress('Coolsingel 40')
+        });
+
+        String cartJson = orderOptionsCartJson();
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, optionsJson);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [
+            SELECT Customer_Reference__c, Use_ShippingAddress__c, ShippingAddress__Street__s,
+                   ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s
+            FROM Opportunity WHERE Name = :orderNumber
+        ];
+        System.assertEquals('PO-4711', opp.Customer_Reference__c, 'The entered reference must be stored, trimmed');
+        System.assertEquals(true, opp.Use_ShippingAddress__c, 'Different delivery address must be flagged');
+        System.assertEquals('Coolsingel 40', opp.ShippingAddress__Street__s, 'Delivery street mismatch');
+        System.assertEquals('3011AA', opp.ShippingAddress__PostalCode__s, 'Delivery postal code mismatch');
+        System.assertEquals('Rotterdam', opp.ShippingAddress__City__s, 'Delivery city mismatch');
+        System.assertEquals('NL', opp.ShippingAddress__CountryCode__s, 'Delivery country mismatch');
+    }
+
+    @IsTest
+    static void testPlaceOrder_orderOptions_blankReferenceUsesOrderNumber() {
+        String cartJson = orderOptionsCartJson();
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Customer_Reference__c, Auto_Number__c, Use_ShippingAddress__c FROM Opportunity WHERE Name = :orderNumber];
+        System.assertEquals(opp.Auto_Number__c, opp.Customer_Reference__c, 'A blank reference must default to the order number');
+        System.assertEquals(false, opp.Use_ShippingAddress__c, 'Without the option the account shipping address is used');
+    }
+
+    @IsTest
+    static void testPlaceOrder_orderOptions_incompleteAddressRejected() {
+        Map<String, Object> address = deliveryAddress('Coolsingel 40');
+        address.put('city', '');
+        String optionsJson = JSON.serialize(new Map<String, Object>{
+            'useDifferentShippingAddress' => true,
+            'shippingAddress'             => address
+        });
+
+        String cartJson = orderOptionsCartJson();
+        Boolean thrown = false;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            try {
+                Ctrl_DealerShop.placeOrder(cartJson, null, null, optionsJson);
+            } catch (AuraHandledException e) {
+                thrown = true;
+            }
+        }
+        Test.stopTest();
+
+        System.assert(thrown, 'An incomplete delivery address must be rejected');
+        System.assertEquals(0, [SELECT COUNT() FROM Opportunity WHERE RecordType.DeveloperName = 'Webshop'], 'No order may be created');
+    }
+
+    @IsTest
+    static void testGetOrderOptions_previousAddressesDeduplicated_andReorderKeepsAddress() {
+        String optionsJson = JSON.serialize(new Map<String, Object>{
+            'useDifferentShippingAddress' => true,
+            'shippingAddress'             => deliveryAddress('Coolsingel 40')
+        });
+
+        String cartJson = orderOptionsCartJson();
+        String second;
+        Ctrl_DealerShop.OrderOptionsDTO options;
+        Ctrl_DealerShop.OrderDetailDTO detail;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            Ctrl_DealerShop.placeOrder(cartJson, null, null, optionsJson);
+            second  = Ctrl_DealerShop.placeOrder(cartJson, null, null, optionsJson);
+            options = Ctrl_DealerShop.getOrderOptions(null);
+        }
+        Id secondId = [SELECT Id FROM Opportunity WHERE Name = :second].Id;
+        System.runAs(portalUser()) {
+            detail = Ctrl_DealerShop.getOrderDetail(secondId);
+        }
+        Test.stopTest();
+
+        System.assertEquals(1, options.previousAddresses.size(), 'The same delivery address used twice must appear once');
+        System.assertEquals('Coolsingel 40', options.previousAddresses[0].street, 'Previous address street mismatch');
+        System.assert(!options.countries.isEmpty(), 'The country list must be filled');
+        System.assertEquals(true, detail.useDifferentShippingAddress, 'Order detail must report the different delivery address');
+        System.assertEquals('Coolsingel 40', detail.shippingAddress.street, 'Order detail must return the delivery address for a reorder');
+    }
+
+    // ── Show list prices ─────────────────────────────────────────────────────
+
+    @IsTest
+    static void testGetProductDetail_showListPrices_returnsPricebookPrice() {
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        acc.Show_List_Prices__c = true;
+        update acc;
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
+        }
+        Test.stopTest();
+
+        PricebookEntry pbe = [SELECT UnitPrice FROM PricebookEntry WHERE Product2Id = :prod.Id AND Pricebook2.IsStandard = false LIMIT 1];
+        System.assertEquals(pbe.UnitPrice, dto.listPrice, 'List price must be the dealer pricebook price before discounts');
+    }
+
+    @IsTest
+    static void testGetProductDetail_listPrice_offByDefaultAndWithHiddenPrices() {
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+
+        Ctrl_DealerShop.ProductDTO off;
+        Ctrl_DealerShop.ProductDTO hidden;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            off = Ctrl_DealerShop.getProductDetail(prod.Id, null);
+        }
+        acc.Show_List_Prices__c = true;
+        acc.Hide_Prices__c      = true;
+        update acc;
+        System.runAs(portalUser()) {
+            hidden = Ctrl_DealerShop.getProductDetail(prod.Id, null);
+        }
+        Test.stopTest();
+
+        System.assertEquals(null, off.listPrice, 'No list price without Show_List_Prices__c');
+        System.assertEquals(null, hidden.listPrice, 'No list price when the account hides prices');
+    }
+
     // ── Shipping cost ────────────────────────────────────────────────────────
 
     private static Product2 makeShippingProduct(Decimal price) {
@@ -1512,7 +1669,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         Test.stopTest();
 
@@ -1539,7 +1696,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         Test.stopTest();
 
@@ -1561,7 +1718,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
         }
         Test.stopTest();
 
@@ -1613,7 +1770,7 @@ private class Test_Ctrl_DealerShop {
         Test.startTest();
         // No System.runAs(portalUser()) here - calling directly as the (EUR) test-running user via
         // the dealerAccountId override path, same as the Account-embedded internal quick action.
-        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, gbpAcc.Id, null);
+        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, gbpAcc.Id, null, null);
         Test.stopTest();
 
         Opportunity opp = [SELECT CurrencyIsoCode FROM Opportunity WHERE Name = :orderNumber];
@@ -1632,7 +1789,7 @@ private class Test_Ctrl_DealerShop {
 
         String orderNumber;
         Test.startTest();
-        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, acc.Id, true);
+        orderNumber = Ctrl_DealerShop.placeOrder(cartJson, acc.Id, true, null);
         Test.stopTest();
 
         Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
@@ -1657,7 +1814,7 @@ private class Test_Ctrl_DealerShop {
         String orderNumber;
         Test.startTest();
         System.runAs(portalUser()) {
-            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, true);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, true, null);
         }
         Test.stopTest();
 

@@ -194,6 +194,132 @@
     gap: 1rem;
 }
 
+/* Order options: collapsed toggle that slides open (max-height transition) above the shipping costs. */
+.order-options {
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.order-options-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    border: none;
+    background: #f7f7f7;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.85rem;
+    color: #1a1a1a;
+}
+
+.order-options-title {
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.order-options-summary {
+    flex: 1;
+    min-width: 0;
+    color: #666666;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order-options-chevron {
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+
+.order-options-chevron--open {
+    transform: rotate(180deg);
+}
+
+.order-options-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.order-options-body--open {
+    max-height: 22rem;
+    overflow-y: auto;
+}
+
+.order-options-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.75rem;
+}
+
+.option-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.option-label {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #444444;
+}
+
+.option-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #1a1a1a;
+    background: #ffffff;
+}
+
+.option-input:focus {
+    outline: none;
+    border-color: var(--brand-primary, #ff0000);
+}
+
+.option-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+
+.address-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.address-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.address-postal {
+    flex: 0 0 35%;
+}
+
+.address-default {
+    margin: 0;
+    padding: 0.5rem 0.6rem;
+    border-radius: 4px;
+    background: #f7f7f7;
+    font-size: 0.8rem;
+    color: #444444;
+    line-height: 1.4;
+}
+
 .shipping-remark {
     font-size: 0.8rem;
     color: #666666;

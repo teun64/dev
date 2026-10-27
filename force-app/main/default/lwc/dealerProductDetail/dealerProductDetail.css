@@ -162,6 +162,32 @@
     padding: 1rem 1.25rem;
 }
 
+.list-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 6px;
+    background: #eaf2fb;
+    border: 1px solid #c9dcf2;
+}
+
+.list-price-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #3d5a80;
+}
+
+.list-price-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1d3557;
+}
+
 .unit-price-row {
     display: flex;
     align-items: baseline;

@@ -46,6 +46,12 @@
                         </template>
 
                         <div class="price-section">
+                            <template if:true={hasListPrice}>
+                                <div class="list-price">
+                                    <span class="list-price-label">{shopLabels.DealerShop_ListPrice}</span>
+                                    <span class="list-price-value">{formattedListPrice}</span>
+                                </div>
+                            </template>
                             <template if:true={product.unitPrice}>
                                 <div class="unit-price-row">
                                     <span class="price-label">{shopLabels.DealerShop_PricePerUnit}</span>

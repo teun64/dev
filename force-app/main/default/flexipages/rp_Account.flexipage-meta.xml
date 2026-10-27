@@ -1957,6 +1957,26 @@
                 <identifier>RecordWebshop_ID_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Hide_Prices__c</fieldItem>
+                <identifier>RecordHide_Prices_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Show_List_Prices__c</fieldItem>
+                <identifier>RecordShow_List_Prices_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-849d96bf-8c7e-454d-a0f7-505714cb8f0b</name>
         <type>Facet</type>
     </flexiPageRegions>

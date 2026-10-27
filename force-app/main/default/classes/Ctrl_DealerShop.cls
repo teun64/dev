@@ -23,6 +23,10 @@ public without sharing class Ctrl_DealerShop {
                 'DealerShop_FromQtyAbbrev', 'DealerShop_UnitsAbbrev',
                 'DealerShop_RemoveFromFavorites', 'DealerShop_MarkAsFavorite',
                 'DealerShop_FavoriteActive', 'DealerShop_FavoriteInactive', 'DealerShop_DealerFavorite',
+                'DealerShop_OrderOptions', 'DealerShop_OrderReference', 'DealerShop_OrderReferencePlaceholder',
+                'DealerShop_DeliveryAddress', 'DealerShop_UseDifferentAddress', 'DealerShop_NewAddress',
+                'DealerShop_Street', 'DealerShop_PostalCode', 'DealerShop_City', 'DealerShop_Country',
+                'DealerShop_NoDefaultAddress', 'DealerShop_AddressIncomplete', 'DealerShop_ListPrice',
                 'DealerShop_BackToOverview', 'DealerShop_PricePerUnit', 'DealerShop_VolumeDiscounts',
                 'DealerShop_FromQuantity', 'DealerShop_Quantity', 'DealerShop_TotalPrice',
                 'DealerShop_ProductDescription', 'DealerShop_ProductLoadError', 'DealerShop_GenericError',
@@ -172,7 +176,7 @@ public without sharing class Ctrl_DealerShop {
 
     private static DealerContext buildContextFromAccountId(Id accountId, String contactLanguage, String defaultLang) {
         List<Account> accounts = [
-            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c, CurrencyIsoCode
+            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c, Show_List_Prices__c, CurrencyIsoCode
             FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
         ];
         if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
@@ -180,6 +184,7 @@ public without sharing class Ctrl_DealerShop {
         DealerContext ctx = new DealerContext();
         ctx.account     = accounts[0];
         ctx.hidePrices  = accounts[0].Hide_Prices__c == true;
+        ctx.showListPrices = accounts[0].Show_List_Prices__c == true;
         String lang = resolveLanguage(contactLanguage);
         if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
         if (lang == null) lang = normalizeLang(defaultLang);
@@ -491,7 +496,7 @@ public without sharing class Ctrl_DealerShop {
         PricebookEntry entry,
         Product_Discount__c disc,
         ShopActionMatch action,
-        Boolean hidePrices
+        DealerContext ctx
     ) {
         Data_Translation__c trans = (prod.Data_Translations__r != null && !prod.Data_Translations__r.isEmpty())
             ? prod.Data_Translations__r[0]
@@ -528,10 +533,16 @@ public without sharing class Ctrl_DealerShop {
         // Masked last, after every other price-derived decision above (badge, product code
         // override) has already been made using the REAL price - hiding prices from an account
         // is purely a display concern, not a reason to change what discount/badge logic applies.
-        dto.pricesHidden = hidePrices == true;
+        dto.pricesHidden = ctx.hidePrices == true;
         if (dto.pricesHidden) {
             dto.unitPrice  = null;
             dto.priceTiers = new List<PriceTierDTO>();
+        }
+
+        // Account.Show_List_Prices__c: the dealer pricebook price before any price agreement or
+        // Shop Action discount, shown above the dealer's own (volume) prices. Never with hidden prices.
+        if (ctx.showListPrices == true && !dto.pricesHidden && entry != null) {
+            dto.listPrice = entry.UnitPrice;
         }
         return dto;
     }
@@ -774,7 +785,7 @@ public without sharing class Ctrl_DealerShop {
 
         List<ProductDTO> dtos = new List<ProductDTO>();
         for (Product2 p : products) {
-            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id), actionsByProduct.get(p.Id), ctx.hidePrices);
+            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id), actionsByProduct.get(p.Id), ctx);
             dto.imageUrl   = imageUrls.get(p.Id);
             dto.isFavorite       = favorites.own.contains(p.Id);
             dto.isDealerFavorite = favorites.dealer.contains(p.Id);
@@ -832,7 +843,7 @@ public without sharing class Ctrl_DealerShop {
         Product_Discount__c disc = discs.isEmpty() ? null : discs[0];
         ShopActionMatch action = getActiveShopActions(new Set<Id>{ productId }, getAdministrationIds(acct)).get(productId);
 
-        ProductDTO dto = buildProductDTO(prod, entry, disc, action, ctx.hidePrices);
+        ProductDTO dto = buildProductDTO(prod, entry, disc, action, ctx);
         Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
         dto.imageUrl   = imageUrls.get(productId);
         FavoriteSets favorites = getFavorites(acct.Id, new Set<Id>{ productId });
@@ -845,9 +856,10 @@ public without sharing class Ctrl_DealerShop {
     // the Account-embedded quick action, never a portal dealer) - a portal call can't reach this
     // path at all since dealerAccountId is always null there, regardless of what the client sends.
     @AuraEnabled
-    public static String placeOrder(String cartJson, Id dealerAccountId, Boolean omitShippingCost) {
+    public static String placeOrder(String cartJson, Id dealerAccountId, Boolean omitShippingCost, String orderOptionsJson) {
         if (String.isBlank(cartJson)) throw new AuraHandledException('cartJson is required.');
         Boolean skipShipping = omitShippingCost == true && dealerAccountId != null;
+        OrderOptionsInput options = parseOrderOptions(orderOptionsJson);
 
         List<CartItemInput> items;
         try {
@@ -942,6 +954,19 @@ public without sharing class Ctrl_DealerShop {
         opp.Name            = (webshopRt != null ? webshopRt.Name : 'Webshop') + ' #' + opp.Auto_Number__c;
         opp.Pricebook2Id    = pricebookId;
         opp.CurrencyIsoCode = acct.CurrencyIsoCode;
+        // Also set here and not on insert: "rac - Opportunity" fills Customer_Reference__c from
+        // the placeholder Name on create, and "rbc - Opportunity" forces Use_ShippingAddress__c
+        // from the WooCommerce flag on create. Neither touches them on update.
+        opp.Customer_Reference__c = String.isNotBlank(options.customerReference)
+            ? options.customerReference.trim().left(40)
+            : opp.Auto_Number__c;
+        opp.Use_ShippingAddress__c = options.useDifferentShippingAddress == true;
+        if (opp.Use_ShippingAddress__c) {
+            opp.ShippingAddress__Street__s      = options.shippingAddress.street.trim().left(255);
+            opp.ShippingAddress__PostalCode__s  = options.shippingAddress.postalCode.trim().left(20);
+            opp.ShippingAddress__City__s        = options.shippingAddress.city.trim().left(40);
+            opp.ShippingAddress__CountryCode__s = options.shippingAddress.countryCode;
+        }
         Database.update(opp, AccessLevel.SYSTEM_MODE);
 
         List<OpportunityLineItem> lineItems = new List<OpportunityLineItem>();
@@ -971,6 +996,86 @@ public without sharing class Ctrl_DealerShop {
 
         Database.insert(lineItems, AccessLevel.SYSTEM_MODE);
         return opp.Name;
+    }
+
+    // ── Order options (reference + delivery address) ──────────────────────────
+
+    // Validated before anything is inserted, so an incomplete address never leaves a half-made order.
+    private static OrderOptionsInput parseOrderOptions(String orderOptionsJson) {
+        OrderOptionsInput options = new OrderOptionsInput();
+        if (String.isNotBlank(orderOptionsJson)) {
+            try {
+                options = (OrderOptionsInput) JSON.deserialize(orderOptionsJson, OrderOptionsInput.class);
+            } catch (Exception e) {
+                throw new AuraHandledException('Invalid order options: ' + e.getMessage());
+            }
+        }
+        if (options.useDifferentShippingAddress == true) {
+            AddressDTO a = options.shippingAddress;
+            if (a == null || String.isBlank(a.street) || String.isBlank(a.postalCode)
+                    || String.isBlank(a.city) || String.isBlank(a.countryCode)) {
+                throw new AuraHandledException('The delivery address is incomplete.');
+            }
+        }
+        return options;
+    }
+
+    private static AddressDTO toAddress(String street, String postalCode, String city, String countryCode) {
+        if (String.isBlank(street) && String.isBlank(city)) return null;
+        AddressDTO a  = new AddressDTO();
+        a.street      = street;
+        a.postalCode  = postalCode;
+        a.city        = city;
+        a.countryCode = countryCode;
+        return a;
+    }
+
+    // Default delivery address (the account's Shipping address), the different delivery
+    // addresses used on this account's earlier shop orders (newest first, no duplicates), and
+    // the country picklist for entering a new one. Not cacheable: a new order adds an address.
+    @AuraEnabled
+    public static OrderOptionsDTO getOrderOptions(Id dealerAccountId) {
+        Account acct = getDealerContext(dealerAccountId).account;
+
+        OrderOptionsDTO result    = new OrderOptionsDTO();
+        result.previousAddresses  = new List<AddressDTO>();
+        result.countries          = new List<OptionDTO>();
+
+        for (Schema.PicklistEntry pe : Opportunity.ShippingAddress__CountryCode__s.getDescribe().getPicklistValues()) {
+            if (!pe.isActive()) continue;
+            OptionDTO o = new OptionDTO();
+            o.value = pe.getValue();
+            o.label = pe.getLabel();
+            result.countries.add(o);
+        }
+
+        if (acct.Id == null) return result;
+        Id acctId = acct.Id;
+
+        Account shipping = [
+            SELECT ShippingStreet, ShippingPostalCode, ShippingCity, ShippingCountryCode
+            FROM Account WHERE Id = :acctId WITH SYSTEM_MODE
+        ];
+        result.defaultAddress = toAddress(shipping.ShippingStreet, shipping.ShippingPostalCode, shipping.ShippingCity, shipping.ShippingCountryCode);
+
+        Set<String> seen = new Set<String>();
+        for (Opportunity o : [
+            SELECT ShippingAddress__Street__s, ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s
+            FROM Opportunity
+            WHERE AccountId = :acctId
+              AND RecordType.DeveloperName = 'Webshop'
+              AND Use_ShippingAddress__c = true
+              AND ShippingAddress__Street__s != null
+            WITH SYSTEM_MODE
+            ORDER BY CreatedDate DESC
+            LIMIT 200
+        ]) {
+            AddressDTO a = toAddress(o.ShippingAddress__Street__s, o.ShippingAddress__PostalCode__s, o.ShippingAddress__City__s, o.ShippingAddress__CountryCode__s);
+            String key = (a.street + '|' + a.postalCode + '|' + a.city + '|' + a.countryCode).toLowerCase().deleteWhitespace();
+            if (seen.add(key)) result.previousAddresses.add(a);
+            if (result.previousAddresses.size() == 10) break;
+        }
+        return result;
     }
 
     // Shared by addShippingLineItemIfNeeded() and getShippingInfo() - one lookup of the reseller's
@@ -1126,7 +1231,8 @@ public without sharing class Ctrl_DealerShop {
         if (acct.Id == null) throw new AuraHandledException('No dealer account context.');
 
         List<Opportunity> opps = [
-            SELECT Id, Name, CreatedDate, StageName
+            SELECT Id, Name, CreatedDate, StageName, Use_ShippingAddress__c,
+                   ShippingAddress__Street__s, ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s
             FROM Opportunity
             WHERE Id = :opportunityId
               AND AccountId = :acct.Id
@@ -1193,13 +1299,17 @@ public without sharing class Ctrl_DealerShop {
         result.orderNumber = opp.Name;
         result.placedDate  = opp.CreatedDate;
         result.stageName   = opp.StageName;
+        result.useDifferentShippingAddress = opp.Use_ShippingAddress__c;
+        result.shippingAddress = opp.Use_ShippingAddress__c
+            ? toAddress(opp.ShippingAddress__Street__s, opp.ShippingAddress__PostalCode__s, opp.ShippingAddress__City__s, opp.ShippingAddress__CountryCode__s)
+            : null;
         result.lines       = new List<OrderLineDTO>();
 
         for (OpportunityLineItem li : lineItems) {
             Product2 prod = prodById.get(li.Product2Id);
             if (prod == null) continue;
 
-            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id), actionsByProduct.get(li.Product2Id), ctx.hidePrices);
+            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id), actionsByProduct.get(li.Product2Id), ctx);
             current.imageUrl = imageUrls.get(li.Product2Id);
 
             OrderLineDTO line = new OrderLineDTO();
@@ -1230,6 +1340,8 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String          productCode;
         @AuraEnabled public String          imageUrl;
         @AuraEnabled public Decimal         unitPrice;
+        // Only filled when the account has Show_List_Prices__c - see buildProductDTO.
+        @AuraEnabled public Decimal         listPrice;
         @AuraEnabled public List<PriceTierDTO> priceTiers;
         @AuraEnabled public Boolean         isFavorite;
         // Set by one of the account's portal users - only ever true in an internal user's view.
@@ -1253,6 +1365,7 @@ public without sharing class Ctrl_DealerShop {
         public Account account;
         public String  language;
         public Boolean hidePrices = false;
+        public Boolean showListPrices = false;
     }
 
     // ── Reseller/platform resolution ──────────────────────────────────────────
@@ -1303,7 +1416,34 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String            orderNumber;
         @AuraEnabled public Datetime          placedDate;
         @AuraEnabled public String            stageName;
+        @AuraEnabled public Boolean           useDifferentShippingAddress;
+        @AuraEnabled public AddressDTO        shippingAddress;
         @AuraEnabled public List<OrderLineDTO> lines;
+    }
+
+    public class AddressDTO {
+        @AuraEnabled public String street;
+        @AuraEnabled public String postalCode;
+        @AuraEnabled public String city;
+        @AuraEnabled public String countryCode;
+    }
+
+    public class OptionDTO {
+        @AuraEnabled public String value;
+        @AuraEnabled public String label;
+    }
+
+    public class OrderOptionsDTO {
+        @AuraEnabled public AddressDTO       defaultAddress;
+        @AuraEnabled public List<AddressDTO> previousAddresses;
+        @AuraEnabled public List<OptionDTO>  countries;
+    }
+
+    // Sent by the cart's order options panel. A blank customerReference means "use the order number".
+    public class OrderOptionsInput {
+        public String     customerReference;
+        public Boolean    useDifferentShippingAddress;
+        public AddressDTO shippingAddress;
     }
 
     public class OrderLineDTO {

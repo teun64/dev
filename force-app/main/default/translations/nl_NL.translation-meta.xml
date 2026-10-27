@@ -130,6 +130,58 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerShop_DealerFavorite</name>
     </customLabels>
     <customLabels>
+        <label>Bestelopties</label>
+        <name>DealerShop_OrderOptions</name>
+    </customLabels>
+    <customLabels>
+        <label>Orderreferentie</label>
+        <name>DealerShop_OrderReference</name>
+    </customLabels>
+    <customLabels>
+        <label>Ordernummer (wordt automatisch ingevuld)</label>
+        <name>DealerShop_OrderReferencePlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>Afleveradres</label>
+        <name>DealerShop_DeliveryAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Ander afleveradres gebruiken</label>
+        <name>DealerShop_UseDifferentAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Nieuw adres</label>
+        <name>DealerShop_NewAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Straat en huisnummer</label>
+        <name>DealerShop_Street</name>
+    </customLabels>
+    <customLabels>
+        <label>Postcode</label>
+        <name>DealerShop_PostalCode</name>
+    </customLabels>
+    <customLabels>
+        <label>Plaats</label>
+        <name>DealerShop_City</name>
+    </customLabels>
+    <customLabels>
+        <label>Land</label>
+        <name>DealerShop_Country</name>
+    </customLabels>
+    <customLabels>
+        <label>Geen afleveradres bekend voor dit account.</label>
+        <name>DealerShop_NoDefaultAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Vul het afleveradres volledig in.</label>
+        <name>DealerShop_AddressIncomplete</name>
+    </customLabels>
+    <customLabels>
+        <label>Lijstprijs</label>
+        <name>DealerShop_ListPrice</name>
+    </customLabels>
+    <customLabels>
         <label>Terug naar overzicht</label>
         <name>DealerShop_BackToOverview</name>
     </customLabels>

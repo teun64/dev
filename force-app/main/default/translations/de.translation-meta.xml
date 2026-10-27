@@ -130,6 +130,58 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <name>DealerShop_DealerFavorite</name>
     </customLabels>
     <customLabels>
+        <label>Bestelloptionen</label>
+        <name>DealerShop_OrderOptions</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellreferenz</label>
+        <name>DealerShop_OrderReference</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellnummer (wird automatisch ausgefüllt)</label>
+        <name>DealerShop_OrderReferencePlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>Lieferadresse</label>
+        <name>DealerShop_DeliveryAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Andere Lieferadresse verwenden</label>
+        <name>DealerShop_UseDifferentAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Neue Adresse</label>
+        <name>DealerShop_NewAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Straße und Hausnummer</label>
+        <name>DealerShop_Street</name>
+    </customLabels>
+    <customLabels>
+        <label>Postleitzahl</label>
+        <name>DealerShop_PostalCode</name>
+    </customLabels>
+    <customLabels>
+        <label>Ort</label>
+        <name>DealerShop_City</name>
+    </customLabels>
+    <customLabels>
+        <label>Land</label>
+        <name>DealerShop_Country</name>
+    </customLabels>
+    <customLabels>
+        <label>Für dieses Konto ist keine Lieferadresse bekannt.</label>
+        <name>DealerShop_NoDefaultAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Bitte vervollständigen Sie die Lieferadresse.</label>
+        <name>DealerShop_AddressIncomplete</name>
+    </customLabels>
+    <customLabels>
+        <label>Listenpreis</label>
+        <name>DealerShop_ListPrice</name>
+    </customLabels>
+    <customLabels>
         <label>Zurück zur Übersicht</label>
         <name>DealerShop_BackToOverview</name>
     </customLabels>
