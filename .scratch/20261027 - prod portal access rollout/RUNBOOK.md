@@ -136,3 +136,4 @@ For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
   - Prod drift check: no real differences (2.66 pin + trailing newlines only).
   - **Prod (user go):** deployed from the 2.66 temp copy, `0AfTx00000147rxKAA`, Test_Ctrl_DealerPortal 10/10, Ctrl_DealerPortal 97%. Dealer Portal published.
   - Checked after the publish (Complete), not logged in: .nl → NL links + B.V.; .de → movingintelligence.de/agb + /datenschutzerklaerung + GmbH; .co.uk → UK links + Ltd.
+- **Hover double line** on Privacy/Terms (user finding): the theme's a:hover underline plus our 2px border-bottom. Fix: `text-decoration: none !important` on .footer-legal-link:hover/:focus (commit ccc6bc0). dev + acc deployed + published. Checked by hovering in Chrome: acc Privacy/Terms/Contact = none + border only; prod before the fix = underline + border on Privacy/Terms. Prod pending the user's go.
