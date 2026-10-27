@@ -145,3 +145,4 @@ For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
     - Login-address line only when recipient.Email is filled.
     - Contact address stays info@ (fallback) in the guest case.
   - dev + acc deployed (labels + component + 2 templates; translations via mdapi with only these 2 labels). Render check dev EN/NL/DE/FR: letterhead language = body language. The guest case needs the user's forgot-password test on acc. Prod pending the user's go (together with the footer hover fix).
+  - User test acc: forgot-password email correct. **Prod (user go):** labels + emailLetterheadPreferences + 2 templates + dealerFooter (hover fix) `0AfTx00000147wnKAA`, translations (mdapi, 2 labels) `0AfTx0000014801KAA`, both Succeeded (RunSpecifiedTests Test_Ctrl_DealerPortalEmail). Dealer Portal published.
