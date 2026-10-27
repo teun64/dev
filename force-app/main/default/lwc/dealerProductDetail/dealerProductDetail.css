@@ -164,6 +164,8 @@
 
 .list-price {
     display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
@@ -175,6 +177,9 @@
 }
 
 .list-price-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -183,6 +188,7 @@
 }
 
 .list-price-value {
+    flex-shrink: 0;
     font-size: 1.75rem;
     font-weight: 700;
     color: #1d3557;
