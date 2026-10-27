@@ -2,6 +2,7 @@
 <PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
     <hasActivationRequired>false</hasActivationRequired>
     <label>miSales (pg)</label>
+    <permissionSets>ps_miSyncFinancialSystem</permissionSets>
     <permissionSets>ps_miDealerShopInternal</permissionSets>
     <status>Updated</status>
 </PermissionSetGroup>
