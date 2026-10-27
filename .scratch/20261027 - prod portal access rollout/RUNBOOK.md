@@ -1,11 +1,11 @@
 # Prod rollout: portal access, Dealer Portal login & emails — runbook
 
-Status: **NOT executed.** Prod deploy only after the user's explicit go.
+Status: **steps 0–13 done 2026-10-27** (user's go for 1–2, then 3–15). Step 14 is the user's.
 Everything below was built in dev, tested, and rolled out and tested in acc on 2026-10-26.
 For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
 
 ## Target model
-- **Profile:** `miCustomerCommunityPlus` (Customer Community Plus) is an empty base profile with no object or field access. It has its own password policy: the prod org policy without the 1-day minimum lifetime, minimum length 8.
+- **Profile:** `miCustomerCommunityPlus` (Customer Community Plus) is an empty base profile with no object or field access. It has its own password policy: the prod org policy without the 1-day minimum lifetime, minimum length 12.
 - **Access:** all through permission sets and groups.
 - **Site membership:** via the `_User` set, which must be assigned **directly**; through a group, the login fails with "No community access".
 
@@ -85,3 +85,36 @@ For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
 - Old sets / rp_Contact / network / views / labels: redeploy from `prod-before/`, then reassign the guest sets (`ps_miCustomerHub` + `_Payment` → customer_hub guest).
 - New components: destructive deploy.
 - Profile defaults: from the backup CSVs.
+
+## Progress 2026-10-27
+- Password policy minimum length changed 8 → 12 (repo file), deployed to dev + acc; prod gets 12 in step 3.
+- Step 0 done: steps 1 + 2 combined (manifest `step0-validate/package.xml`) validated against prod with RunSpecifiedTests (5 test classes): **Succeeded, 26/26**, validation id `0AfTx000001477BKAQ`. Coverage: Ctrl_DealerPortalEmail 100, Ctrl_DealerPortalLogin 89, Inv_CustomerUser 100, Svc_DealerUserSetup 98, Trigger_User 90, Queue_ContactCustomerUser 100, trigger User 100.
+  - Quick deploy possible within 10 days, as long as prod doesn't change in between: `sf project deploy quick -o prod --job-id 0AfTx000001477BKAQ`.
+- Owners without a role: 105 accounts moved (user decision): Platform Integration → Guy Mooyman (99), Nico Koemans (inactive) → Jonas Maassen (6), both with role miCustomerBase - NL (Representatives). Bulk update 105/105; backup `owner_backup.csv` (rollback: update with that file), input `owner_update.csv`. Check: 0 dealer accounts with a role-less owner.
+- Steps 1 + 2 done: quick deploy `0AfTx00000147FFKAY` of validation `0AfTx000001477BKAQ`, Succeeded.
+- Step 3 done: ProfilePasswordPolicy (min length 12) deployed, Succeeded.
+- Step 4 done: scr_Contact_Enable/Disable_Customer_User v1 active (Tooling FlowDefinition).
+- Step 5 done: `step5-translations/` (14 labels × nl_NL/de/fr, merge), Succeeded.
+- Step 6 done: `step6-fls/deploy/` = fresh prod retrieve of miModifyAllData (no drift vs prod-before) + read on Customer_User_Type__c / Customer_User_Active__c, Admin profile partial. Succeeded.
+  - Note: the retrieve returned 0 fieldPermissions, but prod kept its 2 existing grants (Subscription25__VAT_Code__c.UNCL5305_Category__c, OrderItem.VAT_Code__c); now 4 in total.
+  - miModifyAllData is assigned to nobody and in no group in dev/acc/prod, so these grants have no effect today.
+- Step 7 done: profile 0PSTx000000AYtFOAW had 14 ObjectPermissions + 2,475 FieldPermissions (defaults). Backup in `step7-profile/profile_*_backup.csv`, all deleted (Survey last); now 0/0.
+- Step 8 done: NetworkMemberGroups `_User` + `_Guest` on Dealer Portal (0DLTx0000000m4f, m6H) and Customer Hub (m7t, m9V).
+- Step 9 done:
+  - ps_miDealerPortal_Guest → Dealer Portal guest (0PaTx00000SvDQD), ps_miCustomerHub_Guest → Customer Hub guest (0PaTx00000Sv2kw).
+  - Checked first that ps_miCustomerHub_Guest covers everything of ps_miCustomerHub + _Payment (setup entity, object and field access; nothing missing).
+  - Removed the 4 old assignments (guest + Teun); backup `step9_assignments_before_delete.csv`.
+  - Customer Hub guest still also has ps_miPaymentCheckout + ps_miCommunicationPreferences (unchanged).
+  - Check without login: payment page PM#000196930 (Paid, so no intent is created) shows "Already completed"; the preferences page of an internal contact loads its data and 15 preferences.
+- Step 10 done: `step10-destructive/` deleted Authenticated_DealerPortal, ps_miCustomerHub, ps_miCustomerHub_Payment and the label CustomerHubBaseURL. Succeeded.
+- Step 11 done: views login + forgotPassword (community_login → c:dealerLogin, the only diff vs prod-before), Succeeded; site published (job 08PTx00000dNm3uMAC, Complete).
+- Step 12 done: `step12-network/deploy/` = fresh prod copy of the Dealer Portal network (only today's member sets differ vs prod-before) with welcome → DealerPortal_Welcome, forgot/change → DealerPortal_PasswordReset, sender name Moving Intelligence (address stays info@). Succeeded.
+- Step 13 done (headless Chrome, no data):
+  - /login and /ForgotPassword render c-dealer-login.
+  - Wrong login (made-up address) → "Login failed. Check your details or contact us at aftersales@movingintelligence.nl."
+  - Unknown address on forgot password → neutral confirmation.
+  - 9,318 dealer contacts, 0 active → only Enable shows.
+  - Consent labels are the neutral text.
+  - Customer Hub guest pages: see step 9.
+  - Small finding: the Dealer Portal footer reads "Moving Intelligence B.V.. All rights reserved." (dealerFooter `{footer.companyName}.` while the name already ends with a dot).
+- Step 14 open: the user clicks Enable on the first real dealer, then checks the welcome email, login, an order and the language.

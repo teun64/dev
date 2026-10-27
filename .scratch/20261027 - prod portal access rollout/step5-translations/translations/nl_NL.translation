@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Ik ga ermee akkoord dat Moving Intelligence deze betaalmethode mag gebruiken om alle toekomstige abonnementsbetalingen automatisch te innen.</label>
+        <name>PaymentCheckoutFutureConsentLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Bevestig dat toekomstige abonnementsbetalingen automatisch met deze betaalmethode mogen worden geïnd voordat u doorgaat.</label>
+        <name>PaymentCheckoutFutureConsentRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>Welkom bij het Moving Intelligence Dealer Portal</label>
+        <name>DealerPortal_EmailWelcomeSubject</name>
+    </customLabels>
+    <customLabels>
+        <label>Beste {0},</label>
+        <name>DealerPortal_EmailGreeting</name>
+    </customLabels>
+    <customLabels>
+        <label>Er is een account voor je aangemaakt op het Moving Intelligence Dealer Portal. In het portal kun je producten bestellen en je bestellingen bekijken.</label>
+        <name>DealerPortal_EmailWelcomeIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>Je logt in met je e-mailadres: {0}</label>
+        <name>DealerPortal_EmailLoginHint</name>
+    </customLabels>
+    <customLabels>
+        <label>Stel je wachtwoord in</label>
+        <name>DealerPortal_EmailWelcomeButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Deze knop werkt één keer. Is hij verlopen? Gebruik dan "Wachtwoord vergeten?" op de inlogpagina.</label>
+        <name>DealerPortal_EmailLinkHint</name>
+    </customLabels>
+    <customLabels>
+        <label>Vragen? Neem contact met ons op via {0}.</label>
+        <name>DealerPortal_EmailQuestions</name>
+    </customLabels>
+    <customLabels>
+        <label>Met vriendelijke groet,</label>
+        <name>DealerPortal_EmailSignature</name>
+    </customLabels>
+    <customLabels>
+        <label>Je nieuwe Dealer Portal-wachtwoord</label>
+        <name>DealerPortal_EmailResetSubject</name>
+    </customLabels>
+    <customLabels>
+        <label>We hebben een verzoek ontvangen om een nieuw wachtwoord in te stellen voor je Dealer Portal-account.</label>
+        <name>DealerPortal_EmailResetIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>Kies een nieuw wachtwoord</label>
+        <name>DealerPortal_EmailResetButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren; je wachtwoord blijft hetzelfde.</label>
+        <name>DealerPortal_EmailResetIgnore</name>
+    </customLabels>
+</Translations>

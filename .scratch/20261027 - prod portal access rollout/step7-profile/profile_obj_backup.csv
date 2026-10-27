@@ -1,0 +1,15 @@
+Id,SobjectType,PermissionsRead,PermissionsCreate,PermissionsEdit,PermissionsDelete,PermissionsViewAllRecords,PermissionsModifyAllRecords
+110Tx00000Pw7M5IAJ,Account,true,false,false,false,false,false
+110Tx00000Pw7M6IAJ,Contact,true,false,false,false,false,false
+110Tx00000Pw7M7IAJ,Contract,true,false,false,false,false,false
+110Tx00000Pw7M8IAJ,Document,true,false,false,false,false,false
+110Tx00000Pw7M9IAJ,Product2,true,false,false,false,false,false
+110Tx00000Pw7MAIAZ,ProductCatalog,true,false,false,false,false,false
+110Tx00000Pw7MBIAZ,ProductCategory,true,false,false,false,false,false
+110Tx00000Pw7MCIAZ,Seller,true,true,true,false,false,false
+110Tx00000Pw7MDIAZ,Solution,true,false,false,false,false,false
+110Tx00000Pw7MEIAZ,Survey,true,false,false,false,false,false
+110Tx00000Pw7MFIAZ,SurveyInvitation,true,false,false,false,false,false
+110Tx00000Pw7MGIAZ,SurveyResponse,true,true,true,false,false,false
+110Tx00000Pw7MHIAZ,SurveySubject,true,false,false,false,false,false
+110Tx00000Pw7MIIAZ,UserExternalCredential,true,true,true,true,false,false

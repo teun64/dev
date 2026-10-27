@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>J'accepte que Moving Intelligence utilise ce moyen de paiement pour collecter automatiquement tous les futurs paiements d'abonnement.</label>
+        <name>PaymentCheckoutFutureConsentLabel</name>
+    </customLabels>
+    <customLabels>
+        <label>Veuillez confirmer que les futurs paiements d'abonnement peuvent être prélevés automatiquement avec ce moyen de paiement avant de continuer.</label>
+        <name>PaymentCheckoutFutureConsentRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>Bienvenue sur le Dealer Portal de Moving Intelligence</label>
+        <name>DealerPortal_EmailWelcomeSubject</name>
+    </customLabels>
+    <customLabels>
+        <label>Bonjour {0},</label>
+        <name>DealerPortal_EmailGreeting</name>
+    </customLabels>
+    <customLabels>
+        <label>Un compte a été créé pour vous sur le Dealer Portal de Moving Intelligence. Sur le portail, vous pouvez commander des produits et consulter vos commandes.</label>
+        <name>DealerPortal_EmailWelcomeIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>Vous vous connectez avec votre adresse e-mail : {0}</label>
+        <name>DealerPortal_EmailLoginHint</name>
+    </customLabels>
+    <customLabels>
+        <label>Définir votre mot de passe</label>
+        <name>DealerPortal_EmailWelcomeButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Ce bouton ne fonctionne qu’une fois. Il a expiré ? Utilisez « Mot de passe oublié ? » sur la page de connexion.</label>
+        <name>DealerPortal_EmailLinkHint</name>
+    </customLabels>
+    <customLabels>
+        <label>Des questions ? Contactez-nous à {0}.</label>
+        <name>DealerPortal_EmailQuestions</name>
+    </customLabels>
+    <customLabels>
+        <label>Cordialement,</label>
+        <name>DealerPortal_EmailSignature</name>
+    </customLabels>
+    <customLabels>
+        <label>Votre nouveau mot de passe Dealer Portal</label>
+        <name>DealerPortal_EmailResetSubject</name>
+    </customLabels>
+    <customLabels>
+        <label>Nous avons reçu une demande de nouveau mot de passe pour votre compte Dealer Portal.</label>
+        <name>DealerPortal_EmailResetIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>Choisir un nouveau mot de passe</label>
+        <name>DealerPortal_EmailResetButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Vous n’êtes pas à l’origine de cette demande ? Ignorez simplement cet e-mail ; votre mot de passe reste inchangé.</label>
+        <name>DealerPortal_EmailResetIgnore</name>
+    </customLabels>
+</Translations>
