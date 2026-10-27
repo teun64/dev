@@ -126,3 +126,4 @@ For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
   - FR website in the logo block = movingintelligence.ai (no Lightning template uses lh_M_Preferences_FR yet; taken from the FR footer links).
   - The images are prod file assets (oid 00D1t000000uTfK), so they work in every org.
 - Prod for both: dealerFooter + emailLetterheadPreferences + the 2 templates (RunSpecifiedTests), then publish the Dealer Portal.
+- **Administration links** (Privacy_Policy_URL__c / Terms_Conditions_URL__c) dev → acc/prod: dev has them only on Netherlands. prod already had the same values; acc Netherlands (a0U3W000002VuQiUAK) filled. All other administrations are empty in all 3 orgs.
