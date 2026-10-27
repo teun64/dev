@@ -99,9 +99,12 @@
     transition: color 0.15s, border-color 0.15s;
 }
 
-.footer-legal-link:hover {
+/* The site theme underlines links on hover; the border-bottom is the only line we want. */
+.footer-legal-link:hover,
+.footer-legal-link:focus {
     color: var(--brand-primary, #ff0000) !important;
     border-bottom-color: var(--brand-primary, #ff0000);
+    text-decoration: none !important;
 }
 
 .footer-legal-link-button {
