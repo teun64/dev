@@ -134,3 +134,4 @@ For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
   - Test_Ctrl_DealerPortal 10/10, Ctrl_DealerPortal 97%. dev + acc deployed + published.
   - acc/prod need Ctrl_DealerPortal.cls-meta.xml with Subscription25 **2.66** (repo pins 2.67, package drift): deploy from a temp copy with minorNumber 66.
   - Prod drift check: no real differences (2.66 pin + trailing newlines only).
+  - **Prod (user go):** deployed from the 2.66 temp copy, `0AfTx00000147rxKAA`, Test_Ctrl_DealerPortal 10/10, Ctrl_DealerPortal 97%. Dealer Portal published.
