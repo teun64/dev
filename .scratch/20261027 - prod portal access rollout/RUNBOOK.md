@@ -118,3 +118,11 @@ For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
   - Customer Hub guest pages: see step 9.
   - Small finding: the Dealer Portal footer reads "Moving Intelligence B.V.. All rights reserved." (dealerFooter `{footer.companyName}.` while the name already ends with a dot).
 - Step 14 open: the user clicks Enable on the first real dealer, then checks the welcome email, login, an order and the language.
+
+## Follow-ups 2026-10-27 (dev + acc, prod pending the user's go)
+- **Footer "B.V.."** fixed: dealerFooter getter `copyrightCompanyName` adds the dot only when the name doesn't end with one. dev + acc deployed + published; acc checked ("Moving Intelligence B.V. All rights reserved."). Commit d783549.
+- **Letterhead on the Dealer Portal emails:** VF templates can't use a (classic) letterhead, so the new VF component `emailLetterheadPreferences` (part = header | logo | footer, language = recipient.LanguageLocaleKey) copies the lh_M_Preferences_EN/NL/DE/FR HTML. Welcome + PasswordReset use it instead of the dark "Moving Intelligence Dealer Portal" bar. Body styling matches the Lightning templates. Commit 5923968.
+  - Rendered in dev (renderStoredEmailTemplate, nothing sent): EN/NL/DE with existing users, FR via a language change in a rolled-back transaction. Each language shows its own website + terms/privacy links.
+  - FR website in the logo block = movingintelligence.ai (no Lightning template uses lh_M_Preferences_FR yet; taken from the FR footer links).
+  - The images are prod file assets (oid 00D1t000000uTfK), so they work in every org.
+- Prod for both: dealerFooter + emailLetterheadPreferences + the 2 templates (RunSpecifiedTests), then publish the Dealer Portal.
