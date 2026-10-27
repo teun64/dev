@@ -1,6 +1,6 @@
 <apex:component access="global">
     <apex:attribute name="part" type="String" description="header | logo | footer" />
-    <apex:attribute name="language" type="String" description="Recipient LanguageLocaleKey (nl_NL, de, fr, en_US, ...); anything else falls back to English" />
+    <apex:attribute name="language" type="String" description="Language code of the email (nl, de, fr, en; nl_NL etc. also works); anything else falls back to English. Pass $Label.DealerPortal_EmailLanguage: recipient fields are empty when a guest sends the email (forgot password)." />
     <!-- Copy of the Enhanced Letterheads lh_M_Preferences_EN/NL/DE/FR for Visualforce email templates, which cannot use a letterhead. Keep both in sync. -->
     <apex:variable var="lang" value="{!LOWER(LEFT(language, 2))}" />
 

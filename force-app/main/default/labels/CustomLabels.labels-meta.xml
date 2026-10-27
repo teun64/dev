@@ -2432,6 +2432,22 @@ Access to the webshop requires an account. In your personal account you can view
         <value>Dear {0},</value>
     </labels>
     <labels>
+        <fullName>DealerPortal_EmailGreetingNoName</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: greeting when the first name is not available</shortDescription>
+        <value>Hello,</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailLanguage</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal email: language code (en/nl/de/fr) for the letterhead</shortDescription>
+        <value>en</value>
+    </labels>
+    <labels>
         <fullName>DealerPortal_EmailWelcomeIntro</fullName>
         <categories>DealerPortal</categories>
         <language>en_US</language>

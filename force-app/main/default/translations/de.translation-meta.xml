@@ -222,6 +222,14 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <name>DealerPortal_EmailGreeting</name>
     </customLabels>
     <customLabels>
+        <label>Hallo,</label>
+        <name>DealerPortal_EmailGreetingNoName</name>
+    </customLabels>
+    <customLabels>
+        <label>de</label>
+        <name>DealerPortal_EmailLanguage</name>
+    </customLabels>
+    <customLabels>
         <label>Für Sie wurde ein Konto im Moving Intelligence Dealer Portal angelegt. Im Portal können Sie Produkte bestellen und Ihre Bestellungen einsehen.</label>
         <name>DealerPortal_EmailWelcomeIntro</name>
     </customLabels>

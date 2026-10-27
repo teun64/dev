@@ -222,6 +222,14 @@ L'accès à la boutique en ligne nécessite un compte. Dans votre compte personn
         <name>DealerPortal_EmailGreeting</name>
     </customLabels>
     <customLabels>
+        <label>Bonjour,</label>
+        <name>DealerPortal_EmailGreetingNoName</name>
+    </customLabels>
+    <customLabels>
+        <label>fr</label>
+        <name>DealerPortal_EmailLanguage</name>
+    </customLabels>
+    <customLabels>
         <label>Un compte a été créé pour vous sur le Dealer Portal de Moving Intelligence. Sur le portail, vous pouvez commander des produits et consulter vos commandes.</label>
         <name>DealerPortal_EmailWelcomeIntro</name>
     </customLabels>

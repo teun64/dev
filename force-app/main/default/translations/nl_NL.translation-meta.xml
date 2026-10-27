@@ -222,6 +222,14 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerPortal_EmailGreeting</name>
     </customLabels>
     <customLabels>
+        <label>Beste,</label>
+        <name>DealerPortal_EmailGreetingNoName</name>
+    </customLabels>
+    <customLabels>
+        <label>nl</label>
+        <name>DealerPortal_EmailLanguage</name>
+    </customLabels>
+    <customLabels>
         <label>Er is een account voor je aangemaakt op het Moving Intelligence Dealer Portal. In het portal kun je producten bestellen en je bestellingen bekijken.</label>
         <name>DealerPortal_EmailWelcomeIntro</name>
     </customLabels>

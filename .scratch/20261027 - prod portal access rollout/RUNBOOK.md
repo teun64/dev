@@ -137,3 +137,11 @@ For acc see `../20261026 - acc portal access rollout/RUNBOOK.md`.
   - **Prod (user go):** deployed from the 2.66 temp copy, `0AfTx00000147rxKAA`, Test_Ctrl_DealerPortal 10/10, Ctrl_DealerPortal 97%. Dealer Portal published.
   - Checked after the publish (Complete), not logged in: .nl → NL links + B.V.; .de → movingintelligence.de/agb + /datenschutzerklaerung + GmbH; .co.uk → UK links + Ltd.
 - **Hover double line** on Privacy/Terms (user finding): the theme's a:hover underline plus our 2px border-bottom. Fix: `text-decoration: none !important` on .footer-legal-link:hover/:focus (commit ccc6bc0). dev + acc deployed + published. Checked by hovering in Chrome: acc Privacy/Terms/Contact = none + border only; prod before the fix = underline + border on Privacy/Terms. Prod pending the user's go.
+- **Forgot-password email empty / wrong letterhead** (user test acc: Dutch mail with .co.uk letterhead, "Beste ,", no login address, info@ instead of aftersales@):
+  - Cause: Site.forgotPassword renders the email as the site guest, who can't see site members (enableGuestMemberVisibility = false, kept). All recipient fields are empty (FirstName, Email, Id, LanguageLocaleKey); labels are still translated to the recipient's language. Existing since round 2, made visible by the letterhead.
+  - Fix (user chose option 1; not guest visibility, not System.resetPassword, which would invalidate the password and let anyone lock out a dealer):
+    - Letterhead language from the new label `DealerPortal_EmailLanguage` (en; nl/de/fr translations).
+    - Greeting `DealerPortal_EmailGreetingNoName` (Hello, / Beste, / Hallo, / Bonjour,) when FirstName is empty.
+    - Login-address line only when recipient.Email is filled.
+    - Contact address stays info@ (fallback) in the guest case.
+  - dev + acc deployed (labels + component + 2 templates; translations via mdapi with only these 2 labels). Render check dev EN/NL/DE/FR: letterhead language = body language. The guest case needs the user's forgot-password test on acc. Prod pending the user's go (together with the footer hover fix).
