@@ -13,6 +13,9 @@
                 onclick={handleToggleFavorite}>
                 &#9829;
             </button>
+            <template if:true={product.isDealerFavorite}>
+                <span class="dealer-favorite-badge">&#9829; {shopLabels.DealerShop_DealerFavorite}</span>
+            </template>
             <template if:true={product.imageUrl}>
                 <img src={product.imageUrl} alt={displayName} class="product-image" />
             </template>

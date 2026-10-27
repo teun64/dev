@@ -2216,6 +2216,14 @@ Access to the webshop requires an account. In your personal account you can view
         <value>♡ Mark as favorite</value>
     </labels>
     <labels>
+        <fullName>DealerShop_DealerFavorite</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop marker on a product a dealer user favorited (internal view)</shortDescription>
+        <value>Dealer favorite</value>
+    </labels>
+    <labels>
         <fullName>DealerShop_BackToOverview</fullName>
         <categories>Dealer Portal</categories>
         <language>en_US</language>

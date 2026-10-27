@@ -35,6 +35,7 @@ const DEFAULT_LABELS = {
     DealerShop_MarkAsFavorite: 'Mark as favorite',
     DealerShop_FavoriteActive: '♥ Favorite',
     DealerShop_FavoriteInactive: '♡ Mark as favorite',
+    DealerShop_DealerFavorite: 'Dealer favorite',
     DealerShop_BackToOverview: 'Back to overview',
     DealerShop_PricePerUnit: 'Price per unit:',
     DealerShop_VolumeDiscounts: 'Volume discounts',

@@ -33,6 +33,10 @@
                             </button>
                         </div>
 
+                        <template if:true={product.isDealerFavorite}>
+                            <p class="dealer-favorite-note">&#9829; {shopLabels.DealerShop_DealerFavorite}</p>
+                        </template>
+
                         <template if:true={product.productCode}>
                             <span class="product-code-badge">{product.productCode}</span>
                         </template>

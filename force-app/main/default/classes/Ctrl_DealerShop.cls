@@ -22,7 +22,7 @@ public without sharing class Ctrl_DealerShop {
                 'DealerShop_AddToCartShort', 'DealerShop_AddToCart',
                 'DealerShop_FromQtyAbbrev', 'DealerShop_UnitsAbbrev',
                 'DealerShop_RemoveFromFavorites', 'DealerShop_MarkAsFavorite',
-                'DealerShop_FavoriteActive', 'DealerShop_FavoriteInactive',
+                'DealerShop_FavoriteActive', 'DealerShop_FavoriteInactive', 'DealerShop_DealerFavorite',
                 'DealerShop_BackToOverview', 'DealerShop_PricePerUnit', 'DealerShop_VolumeDiscounts',
                 'DealerShop_FromQuantity', 'DealerShop_Quantity', 'DealerShop_TotalPrice',
                 'DealerShop_ProductDescription', 'DealerShop_ProductLoadError', 'DealerShop_GenericError',
@@ -538,33 +538,57 @@ public without sharing class Ctrl_DealerShop {
 
     // ── Favorites ─────────────────────────────────────────────────────────────
 
-    private static Set<Id> getFavoriteProductIds(Id userId, Set<Id> productIds) {
-        Set<Id> favoriteIds = new Set<Id>();
-        if (userId == null || productIds.isEmpty()) return favoriteIds;
-        for (Dealer_Product_Favorite__c f : [
-            SELECT Product__c
-            FROM Dealer_Product_Favorite__c
-            WHERE User__c = :userId AND Product__c IN :productIds
-            WITH SYSTEM_MODE
-        ]) {
-            favoriteIds.add(f.Product__c);
-        }
-        return favoriteIds;
+    // Favorites are keyed by running user + shop account (User__c + Account__c). User, not
+    // Contact, so internal users (no portal Contact) can have them too; Account so an internal
+    // user opening the shop from different Account records keeps a separate list per dealer
+    // instead of one list bleeding into every account.
+    //
+    // own    = the running user's favorites for this account (the only ones toggleFavorite changes)
+    // dealer = favorites set by the account's portal users - only filled for an internal user,
+    //          so sales/support ordering on a dealer's behalf can see what the dealer favors.
+    private class FavoriteSets {
+        Set<Id> own    = new Set<Id>();
+        Set<Id> dealer = new Set<Id>();
     }
 
-    // Keyed by the running user (not Contact) so it covers both Experience Cloud dealer users and
-    // internal Salesforce users opening the shop from an Account record - both always have a
-    // UserId, only the former has a portal Contact.
-    @AuraEnabled
-    public static Boolean toggleFavorite(Id productId) {
-        if (productId == null) throw new AuraHandledException('productId is required.');
+    // productIds == null means "every favorited product" (used for the favorites tab filter).
+    private static FavoriteSets getFavorites(Id accountId, Set<Id> productIds) {
+        FavoriteSets sets = new FavoriteSets();
+        if (productIds != null && productIds.isEmpty()) return sets;
 
         Id userId = UserInfo.getUserId();
+        Boolean includeDealer = accountId != null && UserInfo.getUserType() == 'Standard';
+
+        String soql = 'SELECT Product__c, User__c FROM Dealer_Product_Favorite__c WHERE Account__c = :accountId';
+        soql += includeDealer
+            ? ' AND (User__c = :userId OR User__r.ContactId != null)'
+            : ' AND User__c = :userId';
+        if (productIds != null) soql += ' AND Product__c IN :productIds';
+
+        for (Dealer_Product_Favorite__c f : (List<Dealer_Product_Favorite__c>) Database.queryWithBinds(
+            soql,
+            new Map<String, Object>{ 'accountId' => accountId, 'userId' => userId, 'productIds' => productIds },
+            AccessLevel.SYSTEM_MODE
+        )) {
+            if (f.User__c == userId) sets.own.add(f.Product__c);
+            else                     sets.dealer.add(f.Product__c);
+        }
+        return sets;
+    }
+
+    // Returns the running user's own favorite state for the product after toggling. A dealer
+    // favorite on the same product (internal user view) is never touched here.
+    @AuraEnabled
+    public static Boolean toggleFavorite(Id productId, Id dealerAccountId) {
+        if (productId == null) throw new AuraHandledException('productId is required.');
+
+        Id userId    = UserInfo.getUserId();
+        Id accountId = getDealerContext(dealerAccountId).account.Id;
 
         List<Dealer_Product_Favorite__c> existing = [
             SELECT Id
             FROM Dealer_Product_Favorite__c
-            WHERE User__c = :userId AND Product__c = :productId
+            WHERE User__c = :userId AND Account__c = :accountId AND Product__c = :productId
             WITH SYSTEM_MODE
             LIMIT 1
         ];
@@ -574,7 +598,7 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Database.insert(
-            new Dealer_Product_Favorite__c(User__c = userId, Product__c = productId),
+            new Dealer_Product_Favorite__c(User__c = userId, Account__c = accountId, Product__c = productId),
             AccessLevel.SYSTEM_MODE
         );
         return true;
@@ -611,7 +635,6 @@ public without sharing class Ctrl_DealerShop {
         DealerContext ctx  = getDealerContext(dealerAccountId);
         Account acct      = ctx.account;
         String lang       = ctx.language;
-        Id userId         = UserInfo.getUserId();
         Id pricebookId    = resolvePricebookId(acct);
 
         Boolean isFavoritesTab = 'favorites'.equals(category);
@@ -641,8 +664,13 @@ public without sharing class Ctrl_DealerShop {
         Set<Id> baseRtIds = translationRecordTypeIds;
 
         List<String> conditions = new List<String>{ 'IsActive = true', 'Show_In_Dealer_Shop__c = true' };
+        // Method scope: still needed as a bind variable when the dynamic query runs further down.
+        Set<Id> favoriteTabIds = new Set<Id>();
         if (isFavoritesTab) {
-            conditions.add('Id IN (SELECT Product__c FROM Dealer_Product_Favorite__c WHERE User__c = :userId)');
+            FavoriteSets tabFavorites = getFavorites(acct.Id, null);
+            favoriteTabIds.addAll(tabFavorites.own);
+            favoriteTabIds.addAll(tabFavorites.dealer);
+            conditions.add('Id IN :favoriteTabIds');
         } else if (String.isNotBlank(category)) {
             // A specific platform tab - direct match only, no fail-open: unlike the "All Products"
             // tab, selecting platform X is an explicit request for products confirmed to be on X.
@@ -741,14 +769,15 @@ public without sharing class Ctrl_DealerShop {
         }
 
         Map<Id, String> imageUrls = getProductImageUrls(productIds);
-        Set<Id> favoriteIds = getFavoriteProductIds(userId, productIds);
+        FavoriteSets favorites = getFavorites(acct.Id, productIds);
         Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
 
         List<ProductDTO> dtos = new List<ProductDTO>();
         for (Product2 p : products) {
             ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id), actionsByProduct.get(p.Id), ctx.hidePrices);
             dto.imageUrl   = imageUrls.get(p.Id);
-            dto.isFavorite = favoriteIds.contains(p.Id);
+            dto.isFavorite       = favorites.own.contains(p.Id);
+            dto.isDealerFavorite = favorites.dealer.contains(p.Id);
             dtos.add(dto);
         }
 
@@ -806,7 +835,9 @@ public without sharing class Ctrl_DealerShop {
         ProductDTO dto = buildProductDTO(prod, entry, disc, action, ctx.hidePrices);
         Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
         dto.imageUrl   = imageUrls.get(productId);
-        dto.isFavorite = getFavoriteProductIds(UserInfo.getUserId(), new Set<Id>{ productId }).contains(productId);
+        FavoriteSets favorites = getFavorites(acct.Id, new Set<Id>{ productId });
+        dto.isFavorite       = favorites.own.contains(productId);
+        dto.isDealerFavorite = favorites.dealer.contains(productId);
         return dto;
     }
 
@@ -1201,6 +1232,8 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public Decimal         unitPrice;
         @AuraEnabled public List<PriceTierDTO> priceTiers;
         @AuraEnabled public Boolean         isFavorite;
+        // Set by one of the account's portal users - only ever true in an internal user's view.
+        @AuraEnabled public Boolean         isDealerFavorite;
         @AuraEnabled public ShopActionDTO   action;
         @AuraEnabled public Boolean         pricesHidden;
     }

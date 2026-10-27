@@ -13,6 +13,11 @@
         <modifyAllRecords>true</modifyAllRecords>
     </objectPermissions>
     <fieldPermissions>
+        <field>Dealer_Product_Favorite__c.Account__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
         <field>Dealer_Product_Favorite__c.Product__c</field>
         <readable>true</readable>
         <editable>true</editable>

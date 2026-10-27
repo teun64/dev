@@ -176,11 +176,13 @@ export default class DealerProductGrid extends LightningElement {
         const { productId } = event.detail;
         if (!productId) return;
 
-        toggleFavorite({ productId })
+        toggleFavorite({ productId, dealerAccountId: this.dealerAccountId })
             .then((isFavorite) => {
                 // getProducts is cacheable, so reloading here could just replay a stale cached
-                // result - update the already-loaded list locally instead.
-                if (this._category === 'favorites' && !isFavorite) {
+                // result - update the already-loaded list locally instead. A product that is still
+                // a dealer favorite (internal user view) stays on the favorites tab.
+                const product = this.products.find((p) => p.id === productId);
+                if (this._category === 'favorites' && !isFavorite && !product?.isDealerFavorite) {
                     this.products = this.products.filter((p) => p.id !== productId);
                     this._total -= 1;
                 } else {

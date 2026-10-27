@@ -126,6 +126,10 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <name>DealerShop_FavoriteInactive</name>
     </customLabels>
     <customLabels>
+        <label>Favorit des Händlers</label>
+        <name>DealerShop_DealerFavorite</name>
+    </customLabels>
+    <customLabels>
         <label>Zurück zur Übersicht</label>
         <name>DealerShop_BackToOverview</name>
     </customLabels>

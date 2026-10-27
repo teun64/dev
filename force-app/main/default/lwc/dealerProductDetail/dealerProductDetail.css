@@ -126,6 +126,13 @@
     border-color: var(--brand-primary);
 }
 
+.dealer-favorite-note {
+    margin: 0 0 0.5rem;
+    color: var(--brand-primary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
 .product-code-badge {
     display: inline-block;
     background: var(--brand-accent);

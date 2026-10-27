@@ -126,6 +126,10 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerShop_FavoriteInactive</name>
     </customLabels>
     <customLabels>
+        <label>Favoriet van dealer</label>
+        <name>DealerShop_DealerFavorite</name>
+    </customLabels>
+    <customLabels>
         <label>Terug naar overzicht</label>
         <name>DealerShop_BackToOverview</name>
     </customLabels>

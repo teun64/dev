@@ -126,6 +126,10 @@ L'accès à la boutique en ligne nécessite un compte. Dans votre compte personn
         <name>DealerShop_FavoriteInactive</name>
     </customLabels>
     <customLabels>
+        <label>Favori du revendeur</label>
+        <name>DealerShop_DealerFavorite</name>
+    </customLabels>
+    <customLabels>
         <label>Retour à la vue d&apos;ensemble</label>
         <name>DealerShop_BackToOverview</name>
     </customLabels>

@@ -658,8 +658,8 @@ private class Test_Ctrl_DealerShop {
         Boolean afterSecondToggle;
         Test.startTest();
         System.runAs(portalUser()) {
-            afterFirstToggle  = Ctrl_DealerShop.toggleFavorite(prod.Id);
-            afterSecondToggle = Ctrl_DealerShop.toggleFavorite(prod.Id);
+            afterFirstToggle  = Ctrl_DealerShop.toggleFavorite(prod.Id, null);
+            afterSecondToggle = Ctrl_DealerShop.toggleFavorite(prod.Id, null);
         }
         Test.stopTest();
 
@@ -678,7 +678,7 @@ private class Test_Ctrl_DealerShop {
 
         Test.startTest();
         System.runAs(portalUser()) {
-            Ctrl_DealerShop.toggleFavorite(favProd.Id);
+            Ctrl_DealerShop.toggleFavorite(favProd.Id, null);
         }
 
         Ctrl_DealerShop.ProductPageResult favorites;
@@ -1369,19 +1369,99 @@ private class Test_Ctrl_DealerShop {
     static void testToggleFavorite_internalUserWithoutPortalContact_succeeds() {
         Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
 
+        Account acc   = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+
         // Favorites are keyed by User__c, not Contact__c - an internal user (no ContactId at all)
         // must be able to favorite a product, unlike the old Contact-keyed design.
         Boolean afterToggle;
         Test.startTest();
-        afterToggle = Ctrl_DealerShop.toggleFavorite(prod.Id);
+        afterToggle = Ctrl_DealerShop.toggleFavorite(prod.Id, acc.Id);
         Test.stopTest();
 
         System.assertEquals(true, afterToggle, 'An internal user without a portal Contact must still be able to favorite a product');
         System.assertEquals(
             1,
-            [SELECT COUNT() FROM Dealer_Product_Favorite__c WHERE Product__c = :prod.Id AND User__c = :UserInfo.getUserId() WITH SYSTEM_MODE],
-            'The favorite row must be keyed by the running internal user'
+            [SELECT COUNT() FROM Dealer_Product_Favorite__c WHERE Product__c = :prod.Id AND User__c = :UserInfo.getUserId() AND Account__c = :acc.Id WITH SYSTEM_MODE],
+            'The favorite row must be keyed by the running internal user and the opened account'
         );
+    }
+
+    @IsTest
+    static void testFavorites_internalUser_keptPerAccount() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        Account acc   = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+
+        Ctrl_DealerShop.ProductDTO onAccount;
+        Ctrl_DealerShop.ProductDTO withoutAccount;
+        Test.startTest();
+        Ctrl_DealerShop.toggleFavorite(prod.Id, acc.Id);
+        onAccount      = Ctrl_DealerShop.getProductDetail(prod.Id, acc.Id);
+        withoutAccount = Ctrl_DealerShop.getProductDetail(prod.Id, null);
+        Test.stopTest();
+
+        System.assertEquals(true, onAccount.isFavorite, 'The favorite must show on the account it was set for');
+        System.assertEquals(false, withoutAccount.isFavorite, 'A favorite set for one account must not show outside that account');
+    }
+
+    @IsTest
+    static void testFavorites_internalUser_seesDealerFavorites() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        Account acc   = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+
+        System.runAs(portalUser()) {
+            Ctrl_DealerShop.toggleFavorite(prod.Id, null);
+        }
+
+        Ctrl_DealerShop.ProductPageResult favorites;
+        Test.startTest();
+        favorites = Ctrl_DealerShop.getProducts('favorites', 1, 10, null, acc.Id);
+        Test.stopTest();
+
+        System.assertEquals(1, favorites.products.size(), 'The dealer user\'s favorite must appear on the internal user\'s favorites tab');
+        System.assertEquals(prod.Id, favorites.products[0].id, 'Dealer favorite product Id mismatch');
+        System.assertEquals(true, favorites.products[0].isDealerFavorite, 'isDealerFavorite must be set for a dealer user\'s favorite');
+        System.assertEquals(false, favorites.products[0].isFavorite, 'A dealer favorite is not the internal user\'s own favorite');
+    }
+
+    @IsTest
+    static void testFavorites_internalUserToggle_leavesDealerFavoriteAlone() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        Account acc   = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+        User dealer   = portalUser();
+
+        System.runAs(dealer) {
+            Ctrl_DealerShop.toggleFavorite(prod.Id, null);
+        }
+
+        Boolean afterToggle;
+        Test.startTest();
+        afterToggle = Ctrl_DealerShop.toggleFavorite(prod.Id, acc.Id);
+        Test.stopTest();
+
+        System.assertEquals(true, afterToggle, 'The internal user\'s toggle must create their own favorite, not remove the dealer\'s');
+        System.assertEquals(
+            1,
+            [SELECT COUNT() FROM Dealer_Product_Favorite__c WHERE Product__c = :prod.Id AND User__c = :dealer.Id WITH SYSTEM_MODE],
+            'The dealer user\'s favorite must be untouched'
+        );
+    }
+
+    @IsTest
+    static void testFavorites_portalUser_doesNotSeeInternalFavorites() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        Account acc   = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+
+        Ctrl_DealerShop.toggleFavorite(prod.Id, acc.Id);
+
+        Ctrl_DealerShop.ProductDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
+        }
+        Test.stopTest();
+
+        System.assertEquals(false, dto.isFavorite, 'An internal user\'s favorite is not the dealer\'s own favorite');
+        System.assertNotEquals(true, dto.isDealerFavorite, 'Dealer favorites are only marked in the internal user view');
     }
 
     // ── Shipping cost ────────────────────────────────────────────────────────
