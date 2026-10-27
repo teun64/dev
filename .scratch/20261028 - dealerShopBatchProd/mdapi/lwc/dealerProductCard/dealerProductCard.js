@@ -1,0 +1,132 @@
+import { LightningElement, api } from 'lwc';
+import { resolveNumberLocale } from 'c/dealerLanguage';
+
+const HEX_COLOR = /^#[0-9A-Fa-f]{6}$/;
+const DEFAULT_BADGE_COLOR = '#0E0F0E';
+
+export default class DealerProductCard extends LightningElement {
+    @api product;
+    @api shopLabels = {};
+    @api language = 'en';
+
+    get hasAction() {
+        return !!this.product?.action;
+    }
+
+    get actionTeaser() {
+        return this.product?.action?.teaser || '';
+    }
+
+    get actionBadgeStyle() {
+        const color = this.product?.action?.backgroundColor;
+        const safeColor = HEX_COLOR.test(color) ? color : DEFAULT_BADGE_COLOR;
+        return `background-color: ${safeColor};`;
+    }
+
+    get displayName() {
+        return this.product?.displayName || this.product?.name || '';
+    }
+
+    get pricesHidden() {
+        return !!this.product?.pricesHidden;
+    }
+
+    get formattedPrice() {
+        if (this.product?.unitPrice == null) return '';
+        return this._fmt(this.product.unitPrice);
+    }
+
+    // Account.Show_List_Prices__c - the server only fills listPrice when that's on.
+    get hasListPrice() {
+        return this.product?.listPrice != null;
+    }
+
+    get formattedListPrice() {
+        return this.hasListPrice ? this._fmt(this.product.listPrice) : '';
+    }
+
+    // List price shown and the single-unit price is the same: don't repeat the number, but keep
+    // the (empty) line so the cards stay aligned.
+    get productPriceClass() {
+        const same = this.hasListPrice && Number(this.product.listPrice) === Number(this.product.unitPrice);
+        return 'product-price' + (same ? ' product-price--blank' : '');
+    }
+
+    get hasDescription() {
+        return !!this.product?.shortDescription;
+    }
+
+    get isFavorite() {
+        return !!this.product?.isFavorite;
+    }
+
+    get favoriteButtonClass() {
+        return 'btn-favorite' + (this.isFavorite ? ' btn-favorite--active' : '');
+    }
+
+    get favoriteAriaLabel() {
+        return this.isFavorite ? this.shopLabels.DealerShop_RemoveFromFavorites : this.shopLabels.DealerShop_MarkAsFavorite;
+    }
+
+    get hasTiers() {
+        return this.product?.priceTiers && this.product.priceTiers.length > 0;
+    }
+
+    get enrichedTiers() {
+        if (!this.product?.priceTiers) return [];
+        return this.product.priceTiers.map((tier, idx) => ({
+            key: idx,
+            fromQty: tier.fromQty,
+            formattedPrice: this._fmt(tier.price)
+        }));
+    }
+
+    _fmt(price) {
+        if (price == null) return '';
+        const formatted = Number(price).toLocaleString(resolveNumberLocale(this.language), {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        return `€ ${formatted}`;
+    }
+
+    handleClick() {
+        this.dispatchEvent(
+            new CustomEvent('productselect', {
+                detail: { productId: this.product?.id },
+                bubbles: true,
+                composed: true
+            })
+        );
+    }
+
+    handleToggleFavorite(event) {
+        event.stopPropagation();
+        this.dispatchEvent(
+            new CustomEvent('favoritetoggle', {
+                detail: { productId: this.product?.id },
+                bubbles: true,
+                composed: true
+            })
+        );
+    }
+
+    handleAddToCart(event) {
+        event.stopPropagation();
+        this.dispatchEvent(
+            new CustomEvent('addtocart', {
+                detail: {
+                    productId: this.product?.id,
+                    quantity: 1,
+                    unitPrice: this.product?.unitPrice,
+                    priceTiers: this.product?.priceTiers || [],
+                    pricesHidden: this.pricesHidden,
+                    productName: this.displayName,
+                    imageUrl: this.product?.imageUrl
+                },
+                bubbles: true,
+                composed: true
+            })
+        );
+    }
+}

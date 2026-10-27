@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Account__c</fullName>
+        <description>Dealer account the favorite was set for. Favorites are per user + account, so an internal user opening the shop from different accounts keeps separate lists, and sees the dealer users&apos; favorites of the opened account.</description>
+        <label>Account</label>
+        <type>Lookup</type>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Dealer Product Favorites</relationshipLabel>
+        <relationshipName>Dealer_Product_Favorites</relationshipName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+    </fields>
+</CustomObject>

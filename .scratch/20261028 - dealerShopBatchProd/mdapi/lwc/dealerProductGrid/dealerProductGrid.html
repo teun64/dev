@@ -1,0 +1,88 @@
+<template>
+    <div class="grid-container">
+        <template if:true={isLoading}>
+            <div class="spinner-container">
+                <lightning-spinner alternative-text={shopLabels.DealerShop_Loading} size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={isEmpty}>
+                <div class="empty-state">
+                    <p>{shopLabels.DealerShop_NoProductsFound}</p>
+                </div>
+            </template>
+
+            <template if:false={isEmpty}>
+                <div class="pagination">
+                    <button
+                        class="pagination-btn"
+                        disabled={isPrevDisabled}
+                        onclick={handlePrev}>
+                        &lsaquo; {shopLabels.DealerShop_Previous}
+                    </button>
+                    <span class="page-indicator">
+                        {shopLabels.DealerShop_Page}
+                        <input
+                            type="number"
+                            class="page-input"
+                            min="1"
+                            max={totalPages}
+                            value={currentPage}
+                            onchange={handlePageInputChange}
+                            onkeydown={handlePageInputKeydown} />
+                        {shopLabels.DealerShop_Of} {totalPages}
+                    </span>
+                    <button
+                        class="pagination-btn"
+                        disabled={isNextDisabled}
+                        onclick={handleNext}>
+                        {shopLabels.DealerShop_Next} &rsaquo;
+                    </button>
+                </div>
+
+                <div class="product-grid">
+                    <template for:each={products} for:item="product">
+                        <div key={product.id} class="grid-item">
+                            <c-dealer-product-card
+                                product={product}
+                                shop-labels={shopLabels}
+                                language={language}
+                                onproductselect={handleProductSelect}
+                                onaddtocart={handleAddToCart}
+                                onfavoritetoggle={handleFavoriteToggle}>
+                            </c-dealer-product-card>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="pagination">
+                    <button
+                        class="pagination-btn"
+                        disabled={isPrevDisabled}
+                        onclick={handlePrev}>
+                        &lsaquo; {shopLabels.DealerShop_Previous}
+                    </button>
+                    <span class="page-indicator">
+                        {shopLabels.DealerShop_Page}
+                        <input
+                            type="number"
+                            class="page-input"
+                            min="1"
+                            max={totalPages}
+                            value={currentPage}
+                            onchange={handlePageInputChange}
+                            onkeydown={handlePageInputKeydown} />
+                        {shopLabels.DealerShop_Of} {totalPages}
+                    </span>
+                    <button
+                        class="pagination-btn"
+                        disabled={isNextDisabled}
+                        onclick={handleNext}>
+                        {shopLabels.DealerShop_Next} &rsaquo;
+                    </button>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,56 @@
+<template>
+    <div class="card" onclick={handleClick}>
+        <div class="card-image">
+            <template if:true={hasAction}>
+                <div class="action-badge" style={actionBadgeStyle}>
+                    <span class="action-badge-text">{actionTeaser}</span>
+                </div>
+            </template>
+            <button
+                class={favoriteButtonClass}
+                aria-label={favoriteAriaLabel}
+                aria-pressed={isFavorite}
+                onclick={handleToggleFavorite}>
+                &#9829;
+            </button>
+            <template if:true={product.isDealerFavorite}>
+                <span class="dealer-favorite-badge">&#9829; {shopLabels.DealerShop_DealerFavorite}</span>
+            </template>
+            <template if:true={product.imageUrl}>
+                <img src={product.imageUrl} alt={displayName} class="product-image" />
+            </template>
+            <template if:false={product.imageUrl}>
+                <div class="image-placeholder">
+                    <span>{shopLabels.DealerShop_NoImage}</span>
+                </div>
+            </template>
+            <template if:true={hasDescription}>
+                <div class="description-tooltip">{product.shortDescription}</div>
+            </template>
+        </div>
+        <div class="card-body">
+            <p class="product-code">{product.productCode}</p>
+            <h3 class="product-name">{displayName}</h3>
+            <template if:true={hasListPrice}>
+                <div class="list-price">
+                    <span class="list-price-label">{shopLabels.DealerShop_ListPrice}</span>
+                    <span class="list-price-value">{formattedListPrice}</span>
+                </div>
+            </template>
+            <template if:false={pricesHidden}>
+                <p class={productPriceClass}>{formattedPrice}</p>
+            </template>
+            <template if:true={hasTiers}>
+                <div class="tier-table">
+                    <template for:each={enrichedTiers} for:item="tier">
+                        <div key={tier.key} class="tier-row">
+                            <span class="tier-qty">{shopLabels.DealerShop_FromQtyAbbrev} {tier.fromQty} {shopLabels.DealerShop_UnitsAbbrev}</span>
+                            <span class="tier-price">{tier.formattedPrice}</span>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <button class="btn-add-cart" onclick={handleAddToCart}>{shopLabels.DealerShop_AddToCartShort}</button>
+        </div>
+    </div>
+</template>
