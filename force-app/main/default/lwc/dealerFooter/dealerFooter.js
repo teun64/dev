@@ -131,6 +131,12 @@ export default class DealerFooter extends LightningElement {
             : '';
     }
 
+    // Company names like "Moving Intelligence B.V." already end with a dot.
+    get copyrightCompanyName() {
+        const name = this.footer.companyName || '';
+        return name.endsWith('.') ? name : `${name}.`;
+    }
+
     get privacyUrl() {
         return this.footer.privacyPolicyUrl || null;
     }
