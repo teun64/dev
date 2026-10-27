@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Favori du revendeur</label>
+        <name>DealerShop_DealerFavorite</name>
+    </customLabels>
+    <customLabels>
+        <label>Options de commande</label>
+        <name>DealerShop_OrderOptions</name>
+    </customLabels>
+    <customLabels>
+        <label>Référence de commande</label>
+        <name>DealerShop_OrderReference</name>
+    </customLabels>
+    <customLabels>
+        <label>Numéro de commande (rempli automatiquement)</label>
+        <name>DealerShop_OrderReferencePlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>Adresse de livraison</label>
+        <name>DealerShop_DeliveryAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Utiliser une autre adresse de livraison</label>
+        <name>DealerShop_UseDifferentAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Nouvelle adresse</label>
+        <name>DealerShop_NewAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Rue et numéro</label>
+        <name>DealerShop_Street</name>
+    </customLabels>
+    <customLabels>
+        <label>Code postal</label>
+        <name>DealerShop_PostalCode</name>
+    </customLabels>
+    <customLabels>
+        <label>Ville</label>
+        <name>DealerShop_City</name>
+    </customLabels>
+    <customLabels>
+        <label>Pays</label>
+        <name>DealerShop_Country</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucune adresse de livraison connue pour ce compte.</label>
+        <name>DealerShop_NoDefaultAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Veuillez compléter l&apos;adresse de livraison.</label>
+        <name>DealerShop_AddressIncomplete</name>
+    </customLabels>
+    <customLabels>
+        <label>Prix catalogue</label>
+        <name>DealerShop_ListPrice</name>
+    </customLabels>
+</Translations>

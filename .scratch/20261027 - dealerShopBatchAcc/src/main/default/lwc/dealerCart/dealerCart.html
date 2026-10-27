@@ -1,0 +1,165 @@
+<template>
+    <div class={cartClass}>
+        <div class="cart-overlay" onclick={handleOverlayClick}></div>
+        <div class="cart-panel">
+            <div class="cart-header">
+                <h2 class="cart-title">{shopLabels.DealerShop_Cart}</h2>
+                <button class="close-btn" onclick={handleClose} aria-label={shopLabels.DealerShop_CartCloseAriaLabel}>&#x2715;</button>
+            </div>
+
+            <template lwc:if={isEmpty}>
+                <div class="cart-empty">
+                    <p>{shopLabels.DealerShop_CartEmpty}</p>
+                </div>
+            </template>
+
+            <template lwc:else>
+                <div class="cart-items">
+                    <template for:each={enrichedCartItems} for:item="item">
+                        <div key={item.productId} class="cart-item">
+                            <div class="item-image">
+                                <template lwc:if={item.imageUrl}>
+                                    <img src={item.imageUrl} alt={item.productName} />
+                                </template>
+                                <template lwc:else>
+                                    <div class="image-placeholder"></div>
+                                </template>
+                            </div>
+                            <div class="item-details">
+                                <p class="item-name">{item.productName}</p>
+                                <template lwc:if={item.pricesHidden}>
+                                    <p class="item-price"></p>
+                                </template>
+                                <template lwc:else>
+                                    <p class="item-price">{currencySymbol} {item.effectivePrice}</p>
+                                </template>
+                            </div>
+                            <div class="item-qty">
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={item.quantity}
+                                    data-product-id={item.productId}
+                                    onchange={handleQtyChange}
+                                    class="qty-input"
+                                    aria-label={shopLabels.DealerShop_Quantity}
+                                />
+                            </div>
+                            <template lwc:if={item.pricesHidden}>
+                                <div class="item-line-total"></div>
+                            </template>
+                            <template lwc:else>
+                                <div class="item-line-total">
+                                    {currencySymbol} {item.lineTotal}
+                                </div>
+                            </template>
+                            <button
+                                class="remove-btn"
+                                data-product-id={item.productId}
+                                onclick={handleRemove}
+                                aria-label={shopLabels.DealerShop_RemoveItemAriaLabel}
+                            >&#x2715;</button>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="cart-footer">
+                    <div class="order-options">
+                        <button type="button" class="order-options-toggle" onclick={handleToggleOptions} aria-expanded={optionsOpenString}>
+                            <span class="order-options-title">{shopLabels.DealerShop_OrderOptions}</span>
+                            <span class="order-options-summary">{optionsSummary}</span>
+                            <span class={chevronClass} aria-hidden="true">&#9662;</span>
+                        </button>
+                        <div class={optionsBodyClass}>
+                            <div class="order-options-inner">
+                                <label class="option-field">
+                                    <span class="option-label">{shopLabels.DealerShop_OrderReference}</span>
+                                    <input type="text" class="option-input" maxlength="40"
+                                        placeholder={shopLabels.DealerShop_OrderReferencePlaceholder}
+                                        value={customerReference}
+                                        oninput={handleReferenceInput} />
+                                </label>
+
+                                <p class="option-label">{shopLabels.DealerShop_DeliveryAddress}</p>
+                                <label class="option-check">
+                                    <input type="checkbox" checked={useDifferentAddress} onchange={handleUseDifferentChange} />
+                                    {shopLabels.DealerShop_UseDifferentAddress}
+                                </label>
+
+                                <template lwc:if={useDifferentAddress}>
+                                    <template lwc:if={hasPreviousAddresses}>
+                                        <select class="option-input" onchange={handleAddressSelect}>
+                                            <template for:each={addressChoices} for:item="choice">
+                                                <option key={choice.value} value={choice.value} selected={choice.selected}>{choice.label}</option>
+                                            </template>
+                                        </select>
+                                    </template>
+                                    <template lwc:if={isNewAddress}>
+                                        <div class="address-form">
+                                            <input type="text" class="option-input" maxlength="255" data-field="street"
+                                                placeholder={shopLabels.DealerShop_Street} aria-label={shopLabels.DealerShop_Street}
+                                                value={newAddress.street} oninput={handleAddressInput} />
+                                            <div class="address-row">
+                                                <input type="text" class="option-input address-postal" maxlength="20" data-field="postalCode"
+                                                    placeholder={shopLabels.DealerShop_PostalCode} aria-label={shopLabels.DealerShop_PostalCode}
+                                                    value={newAddress.postalCode} oninput={handleAddressInput} />
+                                                <input type="text" class="option-input" maxlength="40" data-field="city"
+                                                    placeholder={shopLabels.DealerShop_City} aria-label={shopLabels.DealerShop_City}
+                                                    value={newAddress.city} oninput={handleAddressInput} />
+                                            </div>
+                                            <select class="option-input" data-field="countryCode" onchange={handleAddressInput} aria-label={shopLabels.DealerShop_Country}>
+                                                <template for:each={countryChoices} for:item="country">
+                                                    <option key={country.value} value={country.value} selected={country.selected}>{country.label}</option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template lwc:else>
+                                    <p class="address-default">{defaultAddressText}</p>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <template lwc:if={showShippingRemark}>
+                        <p class="shipping-remark">{shippingRemarkText}</p>
+                    </template>
+
+                    <template lwc:if={isInternalUser}>
+                        <div class="shipping-omit-control">
+                            <label class="shipping-omit-label">
+                                <input type="checkbox" checked={omitShippingCost} onchange={handleOmitShippingChange} />
+                                {omitShippingLabelText}
+                            </label>
+                            <template lwc:if={omitShippingCost}>
+                                <p class="shipping-remark shipping-omit-remark">{omitShippingRemarkText}</p>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template lwc:if={showCartTotal}>
+                        <div class="cart-total">
+                            <span>{shopLabels.DealerShop_Total}</span>
+                            <span class="total-amount">{currencySymbol} {cartTotal}</span>
+                        </div>
+                    </template>
+                    <button class="place-order-btn" onclick={handlePlaceOrder} disabled={isLoading}>
+                        <template lwc:if={isLoading}>
+                            <div class="spinner"></div>
+                        </template>
+                        <template lwc:else>
+                            {shopLabels.DealerShop_PlaceOrder}
+                        </template>
+                    </button>
+                </div>
+            </template>
+
+            <template lwc:if={hasError}>
+                <div class="cart-error">
+                    <p>{errorMessage}</p>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Show_List_Prices__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>When checked, the Dealer Shop shows the list price (dealer pricebook price before price agreement / Shop Action discounts) above the account&apos;s own and volume prices. Ignored when Hide_Prices__c is checked.</description>
+        <inlineHelpText>Show the list price above the dealer&apos;s own and volume prices in the Dealer Shop.</inlineHelpText>
+        <label>Show List Prices (Dealer Shop)</label>
+        <trackHistory>false</trackHistory>
+        <type>Checkbox</type>
+    </fields>
+</CustomObject>
