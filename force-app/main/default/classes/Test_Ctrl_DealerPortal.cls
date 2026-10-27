@@ -74,7 +74,7 @@ private class Test_Ctrl_DealerPortal {
         Ctrl_DealerPortal.FooterDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerPortal.getFooterInfo();
+            dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk');
         }
         Test.stopTest();
 
@@ -93,11 +93,30 @@ private class Test_Ctrl_DealerPortal {
     }
 
     @IsTest
-    static void testGetFooterInfo_guestUser_returnsFallback() {
-        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo();
+    static void testGetFooterInfo_noDealer_usesAdministrationOfDomain() {
+        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.nl');
 
-        System.assertEquals('Moving Intelligence B.V.', dto.companyName, 'Guest/unmatched context should fall back to the default company info');
+        System.assertEquals('Test Reseller B.V.', dto.companyName, 'Without a dealer account, .nl should resolve to the Administration of reseller 1');
+        System.assertEquals('https://testreseller.example/privacy', dto.privacyPolicyUrl, 'privacyPolicyUrl should come from the domain Administration');
+        System.assertEquals('https://testreseller.example/terms', dto.termsConditionsUrl, 'termsConditionsUrl should come from the domain Administration');
+    }
+
+    @IsTest
+    static void testGetFooterInfo_noAdministrationForDomain_returnsFallback() {
+        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk');
+
+        System.assertEquals('Moving Intelligence B.V.', dto.companyName, 'No Administration for reseller 6 in this fixture, so the default company info is returned');
         System.assertEquals(null, dto.privacyPolicyUrl, 'Fallback context has no Administration record to source a privacy URL from');
+    }
+
+    @IsTest
+    static void testResellerCodeForHost() {
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.nl'), '.nl → Netherlands');
+        System.assertEquals('5', Ctrl_DealerPortal.resellerCodeForHost('Dealer.MovingIntelligence.DE'), '.de → Germany, case-insensitive');
+        System.assertEquals('6', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.co.uk'), '.co.uk → United Kingdom');
+        System.assertEquals('4', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.fr'), '.fr → France');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('movingintelligence.my.site.com'), 'Other domains fall back to reseller 1');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost(null), 'No hostname falls back to reseller 1');
     }
 
     @IsTest

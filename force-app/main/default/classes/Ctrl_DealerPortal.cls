@@ -65,9 +65,19 @@ public without sharing class Ctrl_DealerPortal {
 
     // ── Footer info ───────────────────────────────────────────────────────────
 
+    // Visitors without a dealer account (guests) get the Administration of the portal domain.
+    private static final String DEFAULT_RESELLER_CODE = '1';
+    private static final Map<String, String> RESELLER_CODE_BY_DOMAIN_SUFFIX = new Map<String, String>{
+        '.nl'    => '1',
+        '.fr'    => '4',
+        '.de'    => '5',
+        '.co.uk' => '6'
+    };
+
     @AuraEnabled(cacheable=true)
-    public static FooterDTO getFooterInfo() {
+    public static FooterDTO getFooterInfo(String hostname) {
         String resellerCode = resolveResellerCode();
+        if (String.isBlank(resellerCode)) resellerCode = resellerCodeForHost(hostname);
 
         List<Subscription25__Administration__c> admins = Util_Shop_System.getAdministrationsByReseller(
             resellerCode,
@@ -191,6 +201,15 @@ public without sharing class Ctrl_DealerPortal {
             SELECT Reseller_Name__c FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
         ];
         return (!accounts.isEmpty()) ? accounts[0].Reseller_Name__c : null;
+    }
+
+    @TestVisible
+    private static String resellerCodeForHost(String hostname) {
+        String host = String.isBlank(hostname) ? '' : hostname.trim().toLowerCase();
+        for (String suffix : RESELLER_CODE_BY_DOMAIN_SUFFIX.keySet()) {
+            if (host.endsWith(suffix)) return RESELLER_CODE_BY_DOMAIN_SUFFIX.get(suffix);
+        }
+        return DEFAULT_RESELLER_CODE;
     }
 
     private static Boolean isAuthenticatedUser() {

@@ -91,7 +91,10 @@ export default class DealerLogin extends LightningElement {
         this.startUrl = ref?.state?.startURL || ref?.state?.startUrl || '';
     }
 
-    @wire(getFooterInfo)
+    // The portal domain picks the Administration for visitors without a dealer account.
+    hostname = window.location.hostname;
+
+    @wire(getFooterInfo, { hostname: '$hostname' })
     wiredFooter({ data }) {
         if (data) this.contactEmail = data.email || '';
     }
