@@ -7,14 +7,7 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Account.Send_to_Exact</value>
-                            <visibilityRule>
-                                <criteria>
-                                    <leftValue>{!$User.isSysAdmin__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
-                                </criteria>
-                            </visibilityRule>
+                            <value>Edit</value>
                         </valueListItems>
                         <valueListItems>
                             <value>Account.actFinancialSystemSync</value>
@@ -29,6 +22,22 @@
                                     <leftValue>{!$Permission.CustomPermission.cp_miSyncFinancialSystem}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Account.actDealerShop</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Reseller_Name__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>1</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Relation_type__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Dealer</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -103,28 +112,6 @@
                                     <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Account.actDealerShop</value>
-                            <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Reseller_Name__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>1</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Relation_type__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Dealer</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Account.Opportunity_Standard</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Account.Opportunity_Insurance</value>
                         </valueListItems>
                         <valueListItems>
                             <value>Account.act_Take_Ownership</value>

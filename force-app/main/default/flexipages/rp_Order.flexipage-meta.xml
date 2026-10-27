@@ -27,56 +27,6 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>Clone</value>
-                            <visibilityRule>
-                                <criteria>
-                                    <leftValue>{!$User.Profile.Name}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>System Administrator</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Delete</value>
-                            <visibilityRule>
-                                <criteria>
-                                    <leftValue>{!$User.Profile.Name}</leftValue>
-                                    <operator>CONTAINS</operator>
-                                    <rightValue>System Administrator</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Order.actSyncToFinancialSystem</value>
-                            <visibilityRule>
-                                <booleanFilter>((1 OR 2) AND 3 AND 4) AND 5</booleanFilter>
-                                <criteria>
-                                    <leftValue>{!Record.Type}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Hardware</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Type}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>Opportunity</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Exact_Ignore_Not_Synced__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>false</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Exact_Id__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!$User.isSysAdmin__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
-                                </criteria>
-                            </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
                             <value>Order.actFinancialSystemSync</value>
                             <visibilityRule>
                                 <booleanFilter>((1 OR 2) AND 3 AND 4) AND (5 OR 6 OR 7)</booleanFilter>
@@ -113,6 +63,26 @@
                                     <leftValue>{!$Permission.CustomPermission.cp_miSyncFinancialSystem}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Delete</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>CONTAINS</operator>
+                                    <rightValue>System Administrator</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Clone</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!$User.Profile.Name}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>System Administrator</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
