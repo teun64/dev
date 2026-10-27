@@ -26,8 +26,9 @@ private class Test_Ctrl_ProductImageManager {
 
         System.assertNotEquals(null, downloadUrl, 'A ContentDistribution download URL should be returned');
 
-        List<ContentDocumentLink> links = [SELECT ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId = :prod.Id];
+        List<ContentDocumentLink> links = [SELECT ContentDocumentId, Visibility FROM ContentDocumentLink WHERE LinkedEntityId = :prod.Id];
         System.assertEquals(1, links.size(), 'FirstPublishLocationId should create exactly one ContentDocumentLink');
+        System.assertEquals('AllUsers', links[0].Visibility, 'The product link must be visible to portal users or the Dealer Shop shows no image');
     }
 
     @IsTest

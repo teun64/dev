@@ -45,7 +45,22 @@ public with sharing class Ctrl_ProductImageManager {
                 FirstPublishLocationId = productId
             );
             Database.insert(cv, AccessLevel.SYSTEM_MODE);
-            cv = [SELECT Id FROM ContentVersion WHERE Id = :cv.Id WITH SYSTEM_MODE];
+            cv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id WITH SYSTEM_MODE];
+
+            // The link FirstPublishLocationId creates defaults to InternalUsers visibility, which
+            // hides the file from portal users entirely - even Ctrl_DealerShop's SYSTEM_MODE queries
+            // then return no ContentDocumentLink/ContentVersion and the shop shows no image.
+            List<ContentDocumentLink> newLinks = [
+                SELECT Id, Visibility
+                FROM ContentDocumentLink
+                WHERE LinkedEntityId = :productId
+                  AND ContentDocumentId = :cv.ContentDocumentId
+                WITH SYSTEM_MODE
+            ];
+            for (ContentDocumentLink link : newLinks) {
+                link.Visibility = 'AllUsers';
+            }
+            Database.update(newLinks, AccessLevel.SYSTEM_MODE);
 
             ContentDistribution cd = new ContentDistribution(
                 Name                              = filename,
