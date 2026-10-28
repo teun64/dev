@@ -694,3 +694,18 @@ Phase 2 test plan (dev):
 - [ ] David Waldron 001Tx000011XwKHIA0, the first new customer on pr (not migrated): mandate set up (mandate_1UTvUT…, pm_1UTvUS…, PayProv_Mandate_Status__c empty as known). Invoice I-2610-00772018 is pr. PM#000206388 (£15, psp-recurring) has been **Processing** since 2026-10-24 03:19 UTC; Bacs settles in ~3 working days, so it should be Paid by ~10-29. Check it. Prod pr accounts (2026-10-28): 3 = Blinco, Stone, Waldron.
 - [ ] Step 5 clean-up (go-ahead 2026-10-28) right after step 4: drop I8 + Stripe routing (rbb_Payment, Payment_Setting ps_6_I8 = Stripe), psp-dd from Batch_ProcessPayments / rab_Payment_Direct_Debit_Setup / rbb_Payment, deactivate `Payment__c.Type__c` psp-dd. Check 0 accounts I8 + PayProv mandate and 0 psp-dd payments first.
 - [ ] Step 6 manuals (moved here 2026-10-28): update Payment Methods key-user 3e4ed1e5 + developer 1d00eaa3 with phase 2 / 3DS, then the PDFs (weekly backlog rows 10–11).
+
+## acc test results + follow-up fixes (2026-10-28, afternoon)
+
+Tested by Teun in acc: card (PM#000136966) OK, Apple Pay (PM#000136965, Safari) OK, Bacs Sledge (PM#000136958) OK → Paid. Google Pay: not offered by Chrome, parked by Teun.
+
+| Commit | Fix | dev | acc |
+|---|---|---|---|
+| (data) | Sledge's pre-phase-2 PaymentIntent got `card` added (open intents are reused as-is → old ones stay DD-only; code fix offered, not built) | – | ✓ |
+| 6611087 | Payment page: Stripe Link off (prefilled email → Link took over the form) | ✓ | ✓ |
+| 93c1689, 81a94bd | Payment page language from contact (payment contact → payment/main contact → billing country), hub header pill follows | ✓ | ✓ (site published) |
+| d1bb70c | Svc_StripeEventProcessor: mandate.updated arriving before the intent event is linked afterwards (Sledge got no mandate) | ✓ | ✓ (+ Sledge mandate set by hand) |
+| 766cece | pr due date = email send date (else invoice date) + DirectDebit_Method_Setting working days (setup only without saved method, + processing); new rau_Subscription25_Invoice_c_Due_Date_Payment syncs open payments (New/Setup/Pending); rbb_Payment recalcs collection date on due date change | ✓ | ✓ (rollback dry-run: Bacs 10-28 → due 11-13 / coll 11-11; SEPA → 11-03 / 11-02; with saved method UK 10-30, NL 10-29) |
+
+Prod list (go-ahead pending): phase 2 + 3DS, Rest_UpsertContract pr guard (check prod copy first), Util_Crypto bulk fix, Link off, page language, mandate race fix, pr due date.
+Open: 3 old "Direct Debit Setup Failure" Cases in acc (MI00273366-68, from the token-less test mails).
