@@ -199,6 +199,22 @@ private class Test_Ctrl_Payment {
         System.assertEquals('fr', d.language, 'The payment\'s own contact goes first');
     }
 
+    @IsTest
+    static void testGetPaymentData_languageFromBillingCountry() {
+        Contact c = [SELECT Id FROM Contact WHERE Email = 'jan.betaler@acme.nl' LIMIT 1];
+        c.Language__c = null;
+        update c;
+        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
+        acc.BillingCountryCode = 'GB';
+        update acc;
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'nl');
+        Test.stopTest();
+
+        System.assertEquals('en', d.language, 'No contact language: the billing country decides');
+    }
+
     // ── getPaymentData – edge cases ───────────────────────────────────────────
 
     @IsTest

@@ -133,10 +133,11 @@ public without sharing class Ctrl_Payment {
             result.contactEmail     = contactRels[0].Contact.Email;
         }
 
-        // 20261028 TRi the customer's language (payment contact, else the account's payment/main contact) decides the page language;
+        // 20261028 TRi the customer's language (payment contact, else the account's payment/main contact, else the billing country) decides the page language;
         // the hub header only knows the domain, which on sandboxes and the shared site is no language at all
         String countryCode = p.Contact__r?.Language__c;
         if (String.isBlank(countryCode) && !contactRels.isEmpty()) countryCode = contactRels[0].Contact.Language__c;
+        if (String.isBlank(countryCode)) countryCode = p.Account__r?.BillingCountryCode;
         if (String.isNotBlank(countryCode)) {
             result.language = COUNTRY_TO_LANGUAGE.containsKey(countryCode) ? COUNTRY_TO_LANGUAGE.get(countryCode) : 'en';
             language = result.language;
