@@ -3,6 +3,14 @@
     <label>C</label>
     <protected>false</protected>
     <values>
+        <field>Contracts_With_Permission__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Not_On_Contracts__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
         <field>Allowed_Resellers__c</field>
         <value xsi:nil="true"/>
     </values>

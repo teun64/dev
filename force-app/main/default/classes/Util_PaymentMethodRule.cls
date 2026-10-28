@@ -4,7 +4,9 @@
  * payment method or reseller is checked, so an existing wrong combination never blocks an unrelated save.
  * A code without a rule is allowed everywhere. Requires_Payment_Provider__c: only when the reseller's business
  * entity uses the payment provider (Business_Entities__c.PayProv_Use__c), so a Stripe code goes live per entity
- * by switching that flag, without a deploy.
+ * by switching that flag, without a deploy. Not_On_Contracts__c: never as the contract payment method
+ * (one-off p1 / pi, credit-only C); Contracts_With_Permission__c lets System Administrators and
+ * cp_AccountPaymentMethod_Change (Finance) still use it (C for free internal subscriptions).
  */
 public without sharing class Util_PaymentMethodRule {
 	private static final List<SObjectField> CHECKED_FIELDS = new List<SObjectField>{
@@ -49,12 +51,36 @@ public without sharing class Util_PaymentMethodRule {
 				if (String.isBlank(code) || (!resellerChanged && code == (String) old.get(field))) {
 					continue;
 				}
-				String error = Util_PaymentMethodRule.check(code, acc.Reseller_Name__c);
+				String error = (field == Account.Payment_Method_Contracts__c) ? Util_PaymentMethodRule.checkContracts(code) : null;
+				if (error == null) {
+					error = Util_PaymentMethodRule.check(code, acc.Reseller_Name__c);
+				}
 				if (error != null) {
 					acc.addError(field, error);
 				}
 			}
 		}
+	}
+
+	@TestVisible
+	private static Boolean mayOverrule {
+		get {
+			if (mayOverrule == null) {
+				mayOverrule = FeatureManagement.checkPermission('cp_AccountPaymentMethod_Change')
+					|| [SELECT isSysAdmin__c FROM User WHERE Id = :UserInfo.getUserId() WITH SYSTEM_MODE].isSysAdmin__c;
+			}
+			return mayOverrule;
+		}
+		set;
+	}
+
+	/** Null when the payment method may be used for contracts, else the reason. */
+	public static String checkContracts(String code) {
+		Payment_Method_Rule__mdt rule = Util_PaymentMethodRule.rulesByCode.get(code);
+		if (rule != null && rule.Not_On_Contracts__c == true && !(rule.Contracts_With_Permission__c == true && Util_PaymentMethodRule.mayOverrule)) {
+			return 'Payment method ' + code + ' can\'t be used for contracts (one-off or credit only)' + (rule.Contracts_With_Permission__c == true ? ', except by Finance (miAccountPaymentMethod_Change).' : '.');
+		}
+		return null;
 	}
 
 	/** Null when the payment method is allowed for the reseller, else the reason. */

@@ -192,7 +192,7 @@ global without sharing class Rest_UpsertAccount {
 		acc.FinancialDebtorNumberPrevious__c = String.isNotBlank(miAcc.previousDebtorNumber) ? miAcc.previousDebtorNumber : null;
 		acc.isPrivacyMode__c = (miAcc.privacyMode != null) ? miAcc.privacyMode : false;
 
-		// 20221101 - TRi - force all UK - Direct Debits to I0
+		// 20221101 - TRi - force all UK - Direct Debits to I0; 20261028 TRi UK direct debit default is now pr (Stripe recurring)
 		acc.Bank_Account__c = (String.isNotBlank(miAcc.bankAccountHolder)) ? miAcc.bankAccountHolder : ((String.isNotBlank(acc.Bank_Account__c)) ? acc.Bank_Account__c : acc.Name);
 		if (String.isNotBlank(miAcc.bankAccountNumber)) {
 			acc.Bank_Account_Number__c = miAcc.bankAccountNumber;
@@ -200,10 +200,15 @@ global without sharing class Rest_UpsertAccount {
 		if (String.isNotBlank(miAcc.bankAccountBic)) {
 			acc.Bank_BIC__c = miAcc.bankAccountBic;
 		}
+		String previousContractsMethod = acc.Payment_Method_Contracts__c;
 		if (String.isBlank(miAcc.paymentMethodExactCode)) {
-			acc.Payment_Method_Contracts__c = (miAcc.resellerId == 6) ? ((miAcc.bankAccountNumber == null) ? '08' : 'I0') : ((miAcc.bankAccountNumber == null) ? ((miAcc.platformId == 5) ? '14' : '08') : 'I8');
+			acc.Payment_Method_Contracts__c = (miAcc.resellerId == 6) ? ((miAcc.bankAccountNumber == null) ? '08' : 'pr') : ((miAcc.bankAccountNumber == null) ? ((miAcc.platformId == 5) ? '14' : '08') : 'I8');
 		} else {
-			acc.Payment_Method_Contracts__c = ((miAcc.resellerId == 6) && (miAcc.paymentMethodExactCode.toUpperCase().left(1) == 'I')) ? ((miAcc.bankAccountNumber == null) ? '08' : 'I0') : miAcc.paymentMethodExactCode;
+			acc.Payment_Method_Contracts__c = ((miAcc.resellerId == 6) && (miAcc.paymentMethodExactCode.toUpperCase().left(1) == 'I')) ? ((miAcc.bankAccountNumber == null) ? '08' : 'pr') : miAcc.paymentMethodExactCode;
+		}
+		// 20261028 TRi once on pr (Stripe recurring) never back to an Exact direct debit I-code, same as vr_PaymentMethodContractsProviderLock
+		if (previousContractsMethod == 'pr' && acc.Payment_Method_Contracts__c?.left(1) == 'I') {
+			acc.Payment_Method_Contracts__c = 'pr';
 		}
 
 		// 20230317 TRi Account has dealer tasks, replacement for the record type b2b_dealer.

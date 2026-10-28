@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Not_On_Contracts__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Not allowed as the Account's contract payment method (Payment_Method_Contracts__c): p1 / pi (one-off) and C (credits only).</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Not On Contracts</label>
+    <type>Checkbox</type>
+</CustomField>

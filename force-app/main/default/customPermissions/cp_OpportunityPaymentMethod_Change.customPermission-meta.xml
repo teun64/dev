@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Reserved for changing the Opportunity payment method (Account.Payment_Method_Opportunities__c / Opportunity). Not checked by any rule yet: an Opportunity lock is to be evaluated at the end of the pi/pr work (user 2026-10-28).</description>
+    <isLicensed>false</isLicensed>
+    <label>OpportunityPaymentMethod_Change (cp)</label>
+</CustomPermission>
