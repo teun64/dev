@@ -2,25 +2,25 @@
 <head>
 	<title></title>
 </head>
-<body style="height: auto; min-height: auto;">
-<div style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; font-family: Arial,Helvetica,sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: #OE0F0E;">
-<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;"><span style="font-size:16px;"><strong>Sehr geehrte Damen und Herren,</strong></span></div>
+<body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
+<div style="font-family:Arial,Helvetica,sans-serif; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; font-weight: 400; font-size: 14px; line-height: 20px; color: #OE0F0E;">
+<div style="font-family:Arial,Helvetica,sans-serif; padding-top: 5px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;"><span style="font-family:Arial,Helvetica,sans-serif; font-size:16px;"><strong style="font-family:Arial,Helvetica,sans-serif;">Sehr geehrte Damen und Herren,</strong></span></div>
 
-<div style="padding-top: 10px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;">
-<p>Wir haben Ihre Mail erhalten</p>
+<div style="font-family:Arial,Helvetica,sans-serif; padding-top: 10px; padding-right: 0px; padding-bottom: 10px; padding-left: 0px;">
+<p style="font-family:Arial,Helvetica,sans-serif;">Wir haben Ihre Mail erhalten</p>
 
-<p>Um Ihnen den bestmöglichen Service bieten zu können, haben wir einen Auftrag für Sie angelegt. Ihre Auftragsnummer lautet: {{{Case.CaseNumber}}}</p>
+<p style="font-family:Arial,Helvetica,sans-serif;">Um Ihnen den bestmöglichen Service bieten zu können, haben wir einen Auftrag für Sie angelegt. Ihre Auftragsnummer lautet: {{{Case.CaseNumber}}}</p>
 
-<p>Einer unserer Mitarbeiter wird Ihre Anfrage so schnell wie möglich bearbeiten und sich bei Bedarf mit Ihnen in Verbindung setzen.</p>
+<p style="font-family:Arial,Helvetica,sans-serif;">Einer unserer Mitarbeiter wird Ihre Anfrage so schnell wie möglich bearbeiten und sich bei Bedarf mit Ihnen in Verbindung setzen.</p>
 
-<p>Wenn Sie Fragen oder weitere Informationen zu Ihrer vorherigen E-Mail haben, können Sie auf diese Mail mit Ihrer Aktennummer antworten.</p>
+<p style="font-family:Arial,Helvetica,sans-serif;">Wenn Sie Fragen oder weitere Informationen zu Ihrer vorherigen E-Mail haben, können Sie auf diese Mail mit Ihrer Aktennummer antworten.</p>
 </div>
 
-<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;">
-<p>Mit freundlichen Grüßen,</p>
+<div style="font-family:Arial,Helvetica,sans-serif; padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;">
+<p style="font-family:Arial,Helvetica,sans-serif;">Mit freundlichen Grüßen,</p>
 </div>
 
-<div style="padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="color:#ff0000;"><strong>Ihr Moving Intelligence-Team</strong></span></div>
+<div style="font-family:Arial,Helvetica,sans-serif; padding-top: 5px; padding-right: 0px; padding-bottom: 5px; padding-left: 0px;"><span style="font-family:Arial,Helvetica,sans-serif; color:#ff0000;"><strong style="font-family:Arial,Helvetica,sans-serif;">Ihr Moving Intelligence-Team</strong></span></div>
 </div>
 </body>
 </html>

@@ -2,39 +2,39 @@
 <head>
 	<title></title>
 </head>
-<body style="height: auto; min-height: auto;">
-<div style="padding: 10px 28px; font-family:Arial,sans-serif; font-size:14px; color:#5B625B;">
+<body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
+<div style="font-family:Arial,Helvetica,sans-serif; padding: 10px 28px; font-size:14px; color:#5B625B;">
 
-<p style="font-size:16px;line-height:1.6;margin:0 0 16px 0;color:#0E0F0E;"><strong>Dear {{{Recipient.Salutation}}} {{{Recipient.Full_Name__c}}},</strong></p>
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:16px;line-height:1.6;margin:0 0 16px 0;color:#0E0F0E;"><strong style="font-family:Arial,Helvetica,sans-serif;">Dear {{{Recipient.Salutation}}} {{{Recipient.Full_Name__c}}},</strong></p>
 
-<p style="font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">
     Thank you for being a Moving Intelligence customer.
 </p>
 
-<p style="font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">
     Please refer to the attachment of this e-mail, in which you will find our invoice with number
-    <strong>{{{Subscription25__Invoice__c.Subscription25__Invoice_Number__c}}}</strong>.
+    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Subscription25__Invoice__c.Subscription25__Invoice_Number__c}}}</strong>.
 </p>
 
 {{{Subscription25__Invoice__c.Payment_Setup_Block__c}}}
 
-<p style="font-size:14px;line-height:1.6;margin:0 0 24px 0;">
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
     If you have any questions about this invoice, please contact us by
-    <a href="mailto:accounts@movingintelligence.co.uk" style="color:#0E0F0E;font-weight:bold;">e-mail</a>.
+    <a href="mailto:accounts@movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#0E0F0E;font-weight:bold;">e-mail</a>.
 </p>
 
-<p style="font-size:14px;line-height:1.6;margin:0 0 8px 0;">
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 8px 0;">
     Kind regards,<br/><br/>
-    <strong>Moving Intelligence Ltd</strong><br/>
+    <strong style="font-family:Arial,Helvetica,sans-serif;">Moving Intelligence Ltd</strong><br/>
     T. +44 (0)161 739 04 27 (Mon. &ndash; Fri. 8:30 &ndash; 17:30)<br/>
-    E. <a href="mailto:info@movingintelligence.co.uk" style="color:#5B625B;">info@movingintelligence.co.uk</a>
+    E. <a href="mailto:info@movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">info@movingintelligence.co.uk</a>
 </p>
 
-<div style="margin:24px 0 0 0; font-family:Arial,sans-serif;">
-<div style="margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
-<div style="width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&nbsp;</div>
-<div style="font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong>knowledge in motion<span style="color:#FF0000;">.</span></strong><br/>
-<a href="https://movingintelligence.co.uk" style="color:#5B625B">movingintelligence.co.uk</a></div>
+<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
+<div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
+<div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&nbsp;</div>
+<div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong><br/>
+<a href="https://movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.co.uk</a></div>
 </div>
 
 

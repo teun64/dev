@@ -6,14 +6,14 @@
         <tr><td align="center">
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;">
             <tr><td><c:emailLetterheadPreferences part="header" language="{!$Label.DealerPortal_EmailLanguage}" /></td></tr>
-            <tr><td style="padding:10px;font-family:Arial,sans-serif;font-size:14px;line-height:1.6;color:#1A1A1A;">
-                <p style="margin:0 0 16px;"><apex:outputText value="{!$Label.DealerPortal_EmailGreeting}" rendered="{!NOT(ISBLANK(recipient.FirstName))}"><apex:param value="{!recipient.FirstName}" /></apex:outputText><apex:outputText value="{!$Label.DealerPortal_EmailGreetingNoName}" rendered="{!ISBLANK(recipient.FirstName)}" /></p>
-                <p style="margin:0 0 16px;">{!$Label.DealerPortal_EmailWelcomeIntro}</p>
-                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(recipient.Email))}"><p style="margin:0 0 16px;"><apex:outputText value="{!$Label.DealerPortal_EmailLoginHint}"><apex:param value="{!recipient.Email}" /></apex:outputText></p></apex:outputPanel>
-                <p style="margin:24px 0;"><a href="{!$Network.NetworkUrlForUserEmails}" style="display:inline-block;background:#ff0000;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 24px;border-radius:4px;">{!$Label.DealerPortal_EmailWelcomeButton}</a></p>
-                <p style="margin:0;font-size:13px;color:#555555;">{!$Label.DealerPortal_EmailLinkHint}</p>
-                <p style="margin:24px 0 0;"><c:dealerPortalContactEmail userId="{!recipient.Id}" /></p>
-                <p style="margin:24px 0 0;">{!$Label.DealerPortal_EmailSignature}<br/><strong>Moving Intelligence</strong></p>
+            <tr><td style="padding:10px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#1A1A1A;">
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><apex:outputText value="{!$Label.DealerPortal_EmailGreeting}" rendered="{!NOT(ISBLANK(recipient.FirstName))}"><apex:param value="{!recipient.FirstName}" /></apex:outputText><apex:outputText value="{!$Label.DealerPortal_EmailGreetingNoName}" rendered="{!ISBLANK(recipient.FirstName)}" /></p>
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;">{!$Label.DealerPortal_EmailWelcomeIntro}</p>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(recipient.Email))}"><p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><apex:outputText value="{!$Label.DealerPortal_EmailLoginHint}"><apex:param value="{!recipient.Email}" /></apex:outputText></p></apex:outputPanel>
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 46px;"><a href="{!$Network.NetworkUrlForUserEmails}" style="font-family:Arial,Helvetica,sans-serif;font-size:14px;display:inline-block;background:#ff0000;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 24px;border-radius:4px;">{!$Label.DealerPortal_EmailWelcomeButton}</a></p>
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:0;font-size:13px;color:#555555;">{!$Label.DealerPortal_EmailLinkHint}</p>
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 0;"><c:dealerPortalContactEmail userId="{!recipient.Id}" /></p>
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 0;">{!$Label.DealerPortal_EmailSignature}<br/><strong>Moving Intelligence</strong></p>
                 <c:emailLetterheadPreferences part="logo" language="{!$Label.DealerPortal_EmailLanguage}" />
             </td></tr>
             <tr><td><c:emailLetterheadPreferences part="footer" language="{!$Label.DealerPortal_EmailLanguage}" /></td></tr>
