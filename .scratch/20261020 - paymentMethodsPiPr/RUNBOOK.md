@@ -664,6 +664,17 @@ Phase 2 test plan (dev):
 - **Prod 2026-10-28 (user request): Peter Sledge 001Tx0000122JuaIAE → pr.** Account Payment_Method_Contracts__c I0 → pr; draft order 02756583 I0 → pr (it did not follow the account automatically). Old values in `migration/before_prod_sledge_*_20261028.csv`. Done the same way as Blinco/Stone/Waldron: the CP (CP-1035659) stays I0 and the contract method stays empty; the Opportunity method stays p1. No invoice or payment yet. The first pr invoice gives a psp-recurring payment + mandate setup mail (as with Waldron). Prod pr accounts now 4. ⚠ Until 350c7f6 (REST guard + VR) is in prod, the next MI `/UpsertAccount` call with I0 resets the account to I0 (this affects Waldron too): check after each MI update.
 - **Prod (after the acc test, on go-ahead):** commits 350c7f6 + the pi route commit. Deploy cp ×2, ps ×2, VR, CMDT fields + PMR rows, Util_PaymentMethodRule, Rest_UpsertAccount, prod Ctrl_Invoice copy, ps_6_pi, ps_6_p1, rbb_Order (lands as Draft → activate via FlowDefinition, then 1 test save) + tests (RunSpecifiedTests). Then pg_miFinance (retrieve prod copy, add both ps) and ps_miOpportunityPaymentMethod_Change for Jonas Maassen, Laura Wilson, Sean McGrath, Dennis Lorenz, Ricardo Wilke.
 
+#### acc test set 2026-10-28 (after 8858288 + 8e1b801)
+- **Rest_UpsertContract fix (8858288):** a pr account plus an incoming I-code gives pr: a new contract inherits pr, and the CP gets pr. Activated contracts are not touched by REST (contract fields only change on new or Draft contracts), so Sledge's existing contract was cleared by hand (Payment_Method__c → empty); its CP CP-1478574 became pr through the resend. Prod: deploy together with 350c7f6 (the prod copy `Rest_UpsertContract - Prod.cls` has the same guard but also unrelated uncommitted changes, check before deploy).
+- **Util_Crypto bulk bug (8e1b801):** the invocable returned 1 result for N requests, so with several payments set up in one transaction only one got a token / Setup_URL, yet all were marked "Mail Sent" (link without a token). Also used by rab_Contact. Fixed dev + acc; **prod needs it** before more pr payments arrive in bulk (invoice run).
+- Stripe payment method domain `movingintelligence--acc.sandbox.my.site.com` registered: NL - Acc pmd_1UVWdrABHKG9R0t248ynINrn, UK - Acc pmd_1UVWdsGxR72SaSls6klzRCV5 (Apple Pay + Google Pay active).
+- Test payments (all mail to teun.rietman@outlook.com; the REST endpoint strips the +tag):
+  - Card: "TEST Teun card NL" 001G500001UqbEbIAJ, PM#000136966, token 796a81777163aa1850b99790e2b7f10f
+  - Apple Pay: "TEST Teun applepay NL" 001G500001UpmKMIAZ, PM#000136965, token 784c5ac690cff455d6e06961264fa873
+  - Google Pay: "TEST Teun googlepay NL" 001G500001UqbHpIAJ, PM#000136967, token ad123463fe081705c183a7f4ef237c32
+  - Direct debit (UK Bacs): Peter Sledge 001G500001UpbUHIAZ, PM#000136958 (£15, pi_3UVVv0…), token 7bfba48a74711f43b2aa20a1c0b78664; first mail went to trietman@movingintelligence.nl (contact now teun.rietman@outlook.com).
+  - Sledge's second contract: hardware 990000001 "TEST-SLEDGE-2" (02iG500000BodUTIAZ), contract 990001_1 (CP-1479381, pr, Draft until the activation job) → order → invoice → 2nd payment: expect status New (mandate known), no setup mail, charged by the batch.
+
 #### ⏰ CONTINUE 2026-10-28 (phase 2, dev)
 - [ ] Demo link Chrome: get the user's screenshot (token 4e75fcdc…) and trace it if it isn't just the missing wallet tab.
 - [ ] C2 Google Pay test in Chrome signed in with a Google account + card (PM#000110397, token 40b876df8662568288ee271e25185eb5).
