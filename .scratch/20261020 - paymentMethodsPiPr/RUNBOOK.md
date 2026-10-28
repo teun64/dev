@@ -701,11 +701,11 @@ Tested by Teun in acc: card (PM#000136966) OK, Apple Pay (PM#000136965, Safari) 
 
 | Commit | Fix | dev | acc |
 |---|---|---|---|
-| (data) | Sledge's pre-phase-2 PaymentIntent got `card` added (open intents are reused as-is → old ones stay DD-only; code fix offered, not built) | – | ✓ |
+| (data) | Sledge's pre-phase-2 PaymentIntent got `card` added (open intents are reused as-is → old ones stayed DD-only; code fix 7075220 now adds card on reuse, dev + acc) | – | ✓ |
 | 6611087 | Payment page: Stripe Link off (prefilled email → Link took over the form) | ✓ | ✓ |
 | 93c1689, 81a94bd | Payment page language from contact (payment contact → payment/main contact → billing country), hub header pill follows | ✓ | ✓ (site published) |
 | d1bb70c | Svc_StripeEventProcessor: mandate.updated arriving before the intent event is linked afterwards (Sledge got no mandate) | ✓ | ✓ (+ Sledge mandate set by hand) |
 | 766cece | pr due date = email send date (else invoice date) + DirectDebit_Method_Setting working days (setup only without saved method, + processing); new rau_Subscription25_Invoice_c_Due_Date_Payment syncs open payments (New/Setup/Pending); rbb_Payment recalcs collection date on due date change | ✓ | ✓ (rollback dry-run: Bacs 10-28 → due 11-13 / coll 11-11; SEPA → 11-03 / 11-02; with saved method UK 10-30, NL 10-29) |
 
-Prod list (go-ahead pending): phase 2 + 3DS, Rest_UpsertContract pr guard (check prod copy first), Util_Crypto bulk fix, Link off, page language, mandate race fix, pr due date.
-Open: 3 old "Direct Debit Setup Failure" Cases in acc (MI00273366-68, from the token-less test mails).
+Prod list (go-ahead pending): phase 2 + 3DS, add-card-on-reuse (7075220), Rest_UpsertContract pr guard (check prod copy first), Util_Crypto bulk fix, Link off, page language, mandate race fix, pr due date.
+Closed: the 3 old "Direct Debit Setup Failure" Cases in acc (MI00273366-68, from the token-less test mails).
