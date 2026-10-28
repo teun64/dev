@@ -183,6 +183,48 @@ private class Test_Svc_StripeEventProcessor {
         System.assertEquals('mandate_active001', updAcc.PayProv_MandateId__c, 'Mandate ID set from active mandate');
     }
 
+    // ── mandate.updated before the intent event that stores the payment method (BACS, seen in acc) ──
+
+    @IsTest
+    static void testMandateBeforePaymentMethodIsLinkedLater() {
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+
+        Test.startTest();
+        insert new stripeGC__Stripe_Event__c(
+            stripeGC__Event_Name__c   = 'mandate.updated',
+            stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
+                'data' => new Map<String, Object>{
+                    'object' => new Map<String, Object>{
+                        'id'             => 'mandate_early001',
+                        'status'         => 'active',
+                        'payment_method' => 'pm_bacs001'
+                    }
+                }
+            })
+        );
+
+        insert new stripeGC__Stripe_Event__c(
+            stripeGC__Event_Name__c   = 'payment_intent.processing',
+            stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
+                'data' => new Map<String, Object>{
+                    'object' => new Map<String, Object>{
+                        'id'             => 'pi_bacs001',
+                        'status'         => 'processing',
+                        'customer'       => 'cus_test001',
+                        'payment_method' => 'pm_bacs001',
+                        'metadata'       => new Map<String, Object>{ 'PaymentID' => pmt.Id }
+                    }
+                }
+            })
+        );
+        Test.stopTest();
+
+        Account updAcc = [SELECT PayProv_PaymentMethodId__c, PayProv_MandateId__c FROM Account WHERE Id = :acc.Id];
+        System.assertEquals('pm_bacs001',       updAcc.PayProv_PaymentMethodId__c, 'Payment method from the intent event');
+        System.assertEquals('mandate_early001', updAcc.PayProv_MandateId__c,       'Earlier mandate linked once the payment method is known');
+    }
+
     // ── mandate.updated (inactive — skipped) ─────────────────────────────────
 
     @IsTest

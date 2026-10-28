@@ -177,6 +177,10 @@ public without sharing class Svc_StripeEventProcessor {
             }
         }
 
+        // 20261028 TRi a direct debit mandate.updated can arrive just before the intent event that stores the payment method:
+        // it then finds no account (it only carries the payment method) and the mandate never reaches it
+        linkEarlierMandates(accountMap, parsed);
+
         // before the account update: compares against the method the account had so far
         enqueueTypeJob(savedMethod, savedMethodStripeAccount);
 
@@ -185,6 +189,37 @@ public without sharing class Svc_StripeEventProcessor {
         if (!accountMap.isEmpty())     update accountMap.values();
         if (!paymentUpdates.isEmpty()) Database.update(paymentUpdates.values(), AccessLevel.SYSTEM_MODE);
         if (!newCases.isEmpty())       insert newCases;
+    }
+
+    /** Active mandate of a payment method that is newly stored on an account without a mandate in this run: from this run's own mandate events, else from an earlier, unlinked one. */
+    private static void linkEarlierMandates(Map<Id, Account> accountMap, List<ParsedEvent> parsed) {
+        Map<String, Account> needsMandate = new Map<String, Account>();
+        for (Account a : accountMap.values()) {
+            if (String.isNotBlank(a.PayProv_PaymentMethodId__c) && String.isBlank(a.PayProv_MandateId__c)) {
+                needsMandate.put(a.PayProv_PaymentMethodId__c, a);
+            }
+        }
+        if (needsMandate.isEmpty()) return;
+
+        Map<String, String> mandateByMethod = new Map<String, String>();
+        for (stripeGC__Stripe_Event__c e : [
+            SELECT paymentmethodid__c, mandateid__c
+            FROM stripeGC__Stripe_Event__c
+            WHERE type__c = 'mandate.updated' AND status__c = 'active'
+              AND paymentmethodid__c IN :needsMandate.keySet() AND mandateid__c != null
+            WITH SYSTEM_MODE
+            ORDER BY CreatedDate
+        ]) {
+            mandateByMethod.put(e.paymentmethodid__c, e.mandateid__c);
+        }
+        for (ParsedEvent p : parsed) {
+            if ('mandate.updated'.equals(p.eventType) && needsMandate.containsKey(p.paymentMethodId)) {
+                mandateByMethod.put(p.paymentMethodId, p.mandateId);
+            }
+        }
+        for (String pm : mandateByMethod.keySet()) {
+            needsMandate.get(pm).PayProv_MandateId__c = mandateByMethod.get(pm);
+        }
     }
 
     /** Only for a method that is new on the account or not typed yet: repeat charges reuse the same, typed method. */
