@@ -724,13 +724,12 @@ Closed: the 3 old "Direct Debit Setup Failure" Cases in acc (MI00273366-68, from
 
 - **Prod 2026-10-28 evening (user request): active CPs of the 7 pr accounts I0 → pr** (CP-1010146 Blinco, CP-1029657 Stone, CP-1034621 Waldron, CP-1034834 Lumb, CP-1034841 Bull, CP-1035367 Sawyer, CP-1035659 Sledge). Blinco's 2 Terminated CPs (CP-718583, CP-918188) left on I0 (history). Backup `migration/before_prod_pr_cps_20261028.csv`. ⚠ Until 8858288 is in prod, a contract update from the platform puts a CP back to I0: include the CPs in the "still pr?" check.
 
-### 📝 TODO flow change: contract product override in the order payment method
+### 🔍 To investigate: remove Payment_Method__c from the contract product (possible legacy)
 
-The CP `Payment_Method__c` is the contract-level override coming from the MI platforms (Rest_UpsertContract writes it), but the order payment method ignores it today:
-- `rbc_Order.fPaymentMethodSet` = Contract.Payment_Method__c → else Account.Payment_Method_Contracts__c (Hardware/Opportunity orders: Account.Payment_Method_Opportunities__c). The CP is never read.
-- `rbc_Order_Package_Subscription25` only reads the CP method for the payment reference condition (p0 / p1).
-- Prod 2026-10-28: all orders on the pr accounts became pr while their CPs were I0 (Waldron 02752013 activated, Stone 02757166, Lumb/Bull/Sawyer/Sledge drafts).
+Decision Teun 2026-10-28: a contract has one payment method; there is no separate method at product level. So **no** flow change to honour the CP method in the order (the earlier TODO was dropped). The CP values set to pr today stay as they are.
 
-Change: for contract orders from the package (Subscription25__Recurring_Order__r.Subscription25__Contract_Product__c), use CP Payment_Method__c first, then contract, then account.
-Prerequisite: the REST pr guard (8858288 + 350c7f6) live in prod first. Without it, the platform's I0 on the CP would override pr on the order.
-Check before building: which other CP methods (I8/I4/08/30, p0/p1) differ from the account today, because they would start to win (run a prod count of CP method ≠ the resulting order method).
+Investigate whether `Subscription25__Contract_Product__c.Payment_Method__c` can be removed:
+- Who writes it: Rest_UpsertContract / V2 (from the platform's `paymentMethod`, incl. the pr guard 8858288), and possibly other flows, Apex or the package.
+- Who reads it: `rbc_Order_Package_Subscription25` (payment reference condition p0/p1), reports, list views, page layouts, Exact/financial sync, Data Cloud streams.
+- Today the order method = Contract.Payment_Method__c → else Account.Payment_Method_Contracts__c, so the CP value has no effect on billing.
+- If it's legacy: move the p0/p1 condition to Order.Payment_Method__c / Contract, stop writing it in REST, then delete the field (all envs).
