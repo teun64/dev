@@ -2,30 +2,27 @@ public with sharing class Util_Crypto {
 
     
     @InvocableMethod(label='generateCryptoString' description='Generates crytpo string based on given string and key' category='String')
-    public static List <cryptoStringResults> generateCryptoString(List<cryptoStringRequests> requestList) {       
-        String returnValue = '';
+    public static List <cryptoStringResults> generateCryptoString(List<cryptoStringRequests> requestList) {
+        // 20261028 TRi one result per request, in request order: a bulk flow run (e.g. several payments set up in one transaction)
+        // gets one request per interview; returning only one result left the other records without a token
+        List<cryptoStringResults> responseWrapper= new List<cryptoStringResults>();
 
-        if (requestList.size() > 0) {
+        for (cryptoStringRequests request : requestList) {
+            String returnValue = '';
 
-            if ((requestList[0].inputString != null) && (requestList[0].key != null)) {
-                Blob b = Crypto.generateDigest(requestList[0].key, Blob.valueOf(requestList[0].inputString));
-            
+            if ((request.inputString != null) && (request.key != null)) {
+                Blob b = Crypto.generateDigest(request.key, Blob.valueOf(request.inputString));
+
                 returnValue = EncodingUtil.convertToHex(b);
                 //returnValue = EncodingUtil.base64Encode(b);
             }
+
+            cryptoStringResults responseList = new cryptoStringResults();
+            responseList.encryptedString = returnValue;
+            responseWrapper.add(responseList);
         }
-   
-        //Create a Results object to hold the return values
-        cryptoStringResults responseList = new cryptoStringResults();
 
-        //Add the return values to the Results object
-        responseList.encryptedString = returnValue;
-
-        //Wrap the Results object in a List container 
-        //(an extra step added to allow this interface to also support bulkification)
-        List<cryptoStringResults> responseWrapper= new List<cryptoStringResults>();
-        responseWrapper.add(responseList);
-        return responseWrapper; 
+        return responseWrapper;
     }
 
     //input details that comes to apex from flow
