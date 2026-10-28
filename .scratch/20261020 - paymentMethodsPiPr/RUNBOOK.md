@@ -709,3 +709,13 @@ Tested by Teun in acc: card (PM#000136966) OK, Apple Pay (PM#000136965, Safari) 
 
 Prod list (go-ahead pending): phase 2 + 3DS, add-card-on-reuse (7075220), Rest_UpsertContract pr guard (check prod copy first), Util_Crypto bulk fix, Link off, page language, mandate race fix, pr due date.
 Closed: the 3 old "Direct Debit Setup Failure" Cases in acc (MI00273366-68, from the token-less test mails).
+
+## ⏰ Checklist 2026-10-29 (morning)
+
+1. acc: PM#000136966 (card) + PM#000136965 (Apple Pay) charged by Batch_ProcessPayments (collection 10-29) → Processing/Paid, no Cases. Sledge acc 2nd contract (990001_1): payment New, charged via mandate.
+2. Prod compare: Rest_UpsertContract (V1 only, V2 stays out; prod copy has unrelated uncommitted changes), rbb_Payment, rbu_Subscription25_Invoice_c vs live prod.
+3. Check-only deploy → go-ahead → deploy, activate flows (prod lands Draft), publish Customer Hub, verify bundle.
+4. **Prod Peter Sledge** (001Tx0000122JuaIAE, pr): on 2026-10-28 evening still only Draft order 02756583 (Invoice_Payment_Method__c pr), no invoice, no Payment__c. Check: order activated → invoice → Payment__c on **Setup** (psp-recurring, Interaction 'Mail Sent', token + Setup_URL filled), setup mail sent.
+5. **New UK customers on I0 → pr** (prod): 15 accounts Reseller 6, Payment_Method_Contracts__c = I0, created ≥ 2026-10-21 (list 2026-10-28: Hatton, Savage, Sanderson, Thistlewood, Lumb, Turner, Bull, Nock, Hattersley, hall, Sawyer, Kerr, Dadds, Spooner, Cosmic Campervans; re-query, more will come). Same as Sledge: account → pr, draft/open orders → pr, CP stays I0, contract method empty; backup CSV first.
+   - Do this AFTER the deploy (350c7f6 pr guard): before it, an MI UpsertAccount with I0 resets pr.
+   - Per account first check: existing Exact mandate / already invoiced on I0 (then ask Teun), activated orders/invoices are not changed.
