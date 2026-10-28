@@ -277,6 +277,8 @@
                 if (paymentMethodType) elementOptions.paymentMethodOrder = [paymentMethodType, 'apple_pay', 'google_pay', 'card'];
                 // Apple Pay merchant token (MPAN) request for recurring charges - see paymentPage.applePayRequest
                 if (applePay) elementOptions.applePay = applePay;
+                // No Stripe Link: with the customer's e-mail prefilled Link takes over the form with a previously saved card
+                elementOptions.wallets = { link: 'never' };
                 intent = elements.create("payment", elementOptions);
                 intent.mount(elementContainer);
 
