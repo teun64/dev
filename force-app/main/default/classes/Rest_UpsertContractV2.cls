@@ -336,6 +336,11 @@ global with sharing class Rest_UpsertContractV2 {
             paymentMethod = acc.Payment_Method_Contracts__c;
         }
 
+        // 20261028 TRi account on pr (Stripe recurring): an incoming Exact direct debit I-code means pr, same as Rest_UpsertAccount / vr_PaymentMethodContractsProviderLock
+        if ((acc.Payment_Method_Contracts__c == 'pr') && (miContract.paymentMethod?.left(1) == 'I')) {
+            miContract.paymentMethod = 'pr';
+        }
+
         integer renewalTerm;
 
         Rest_UpsertContractV2.record = contr;

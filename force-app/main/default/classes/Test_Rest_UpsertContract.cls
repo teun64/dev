@@ -547,6 +547,43 @@ private class Test_Rest_UpsertContract {
         return Test_Rest_UpsertContract.getContract(id + '-1');
     }
 
+    //account on pr (Stripe recurring): the I0 the UK platform sends on every direct debit contract must not override pr
+    private static testMethod void testPrAccountKeepsPrOnDirectDebitCode(){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+        //pr needs an active payment provider on the reseller's business entity (Payment_Method_Rule PMR_pr)
+        Database.insert(new Business_Entities__c(Name = 'NL Stripe', Reseller__c = '1', PayProv_Use__c = true), AccessLevel.SYSTEM_MODE);
+        Account acc = [SELECT Id FROM Account WHERE extId_1__c = '1' LIMIT 1];
+        acc.Payment_Method_Contracts__c = 'pr';
+        Database.update(acc);
+
+        Map<String, Object> payload = Test_Rest_UpsertContract.basePayload('900701', 1);
+        payload.put('paymentMethod', 'I0');
+
+        Test.startTest();
+        Util_Rest.RestResult created = Test_Rest_UpsertContract.callRest(payload);
+        Test.stopTest();
+
+        System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        Contract contr = [SELECT Payment_Method__c FROM Contract WHERE extId__c = '900701-1'];
+        System.assertEquals(null, contr.Payment_Method__c, 'contract takes pr from the account');
+        System.assertEquals('pr', [SELECT Payment_Method__c FROM Subscription25__Contract_Product__c WHERE extId__c = '900701-1'].Payment_Method__c);
+    }
+
+    //account not on pr: the incoming code is still used as before
+    private static testMethod void testNonPrAccountKeepsIncomingCode(){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        Map<String, Object> payload = Test_Rest_UpsertContract.basePayload('900702', 1);
+        payload.put('paymentMethod', 'I0');
+
+        Test.startTest();
+        Util_Rest.RestResult created = Test_Rest_UpsertContract.callRest(payload);
+        Test.stopTest();
+
+        System.assertEquals(true, created.success, String.join(created.messages, '; '));
+        System.assertEquals('I0', [SELECT Payment_Method__c FROM Subscription25__Contract_Product__c WHERE extId__c = '900702-1'].Payment_Method__c);
+    }
+
     private static testMethod void testPartnerCodeDiscount(){
         Test_Rest_UpsertContract.setupSubscriptionFixtures();
 
