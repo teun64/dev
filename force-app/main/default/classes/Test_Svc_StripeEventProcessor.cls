@@ -121,6 +121,41 @@ private class Test_Svc_StripeEventProcessor {
         System.assert(cases[0].Subject.contains('Direct Debit failure'), 'Case subject');
     }
 
+    // ── payment_intent.payment_failed with authentication_required: waits for the customer, no Case ──
+
+    @IsTest
+    static void testPaymentFailedAuthenticationRequired() {
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+
+        Test.startTest();
+        insert new stripeGC__Stripe_Event__c(
+            stripeGC__Event_Name__c   = 'payment_intent.payment_failed',
+            stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
+                'data' => new Map<String, Object>{
+                    'object' => new Map<String, Object>{
+                        'id'       => 'pi_auth001',
+                        'status'   => 'requires_payment_method',
+                        'customer' => 'cus_test001',
+                        'metadata' => new Map<String, Object>{ 'PaymentID' => pmt.Id },
+                        'last_payment_error' => new Map<String, Object>{
+                            'code'    => 'authentication_required',
+                            'message' => 'This payment requires authentication.'
+                        }
+                    }
+                }
+            })
+        );
+        Test.stopTest();
+
+        Payment__c updPmt = (Payment__c) Database.queryWithBinds(
+            'SELECT Status__c, PayProv_PaymentIntentId__c, externalId__c FROM Payment__c WHERE Id = :pmtId',
+            new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
+        System.assertEquals('Action Required', updPmt.Status__c, 'Waits for the customer to authenticate');
+        System.assertEquals('pi_auth001', updPmt.PayProv_PaymentIntentId__c, 'Intent the customer confirms is stored');
+        System.assertEquals('tok_test', updPmt.externalId__c, 'Existing payment link token kept');
+        System.assertEquals(0, [SELECT COUNT() FROM Case WHERE Subject LIKE '%failure%'], 'No failure Case while the customer can still confirm');
+    }
+
     // ── mandate.updated (active) ──────────────────────────────────────────────
 
     @IsTest

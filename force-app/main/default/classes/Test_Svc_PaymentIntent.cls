@@ -95,4 +95,28 @@ private class Test_Svc_PaymentIntent {
         System.assertEquals('Setup', p.Status__c);
         System.assertEquals(null, p.PayProv_SetupIntentId__c);
     }
+
+    // ── 402 from stripeGC: code and intent read back out of the exception message ──
+    @IsTest
+    static void testStripeErrorParsesCalloutMessage() {
+        String message = 'Stripe callout error: {"error": {"code": "authentication_required", "decline_code": "authentication_required",'
+            + ' "payment_intent": {"id": "pi_3UV7qm", "status": "requires_payment_method"},'
+            + ' "payment_method": {"id": "pm_1UUmqW", "type": "card"}, "type": "card_error"}}';
+        Svc_PaymentIntent.StripeError se = Svc_PaymentIntent.stripeError(new Svc_PaymentIntent.StripeException(message));
+        System.assertEquals('authentication_required', se.code);
+        System.assertEquals('pi_3UV7qm', se.paymentIntentId);
+        System.assertEquals('pm_1UUmqW', se.paymentMethodId);
+
+        System.assertEquals(null, Svc_PaymentIntent.stripeError(new Svc_PaymentIntent.StripeException('No Stripe account')), 'No JSON');
+        System.assertEquals(null, Svc_PaymentIntent.stripeError(new Svc_PaymentIntent.StripeException('Error: {not json')), 'Broken JSON');
+    }
+
+    @IsTest
+    static void testNewTokenIsStablePerIntent() {
+        Id paymentId = Payment__c.SObjectType.getDescribe().getKeyPrefix() + '000000000001AAA';
+        String t = Svc_PaymentIntent.newToken(paymentId, 'pi_1');
+        System.assertEquals(32, t.length(), 'Same format as the setup token');
+        System.assertEquals(t, Svc_PaymentIntent.newToken(paymentId, 'pi_1'), 'Batch and webhook derive the same token');
+        System.assertNotEquals(t, Svc_PaymentIntent.newToken(paymentId, 'pi_2'));
+    }
 }

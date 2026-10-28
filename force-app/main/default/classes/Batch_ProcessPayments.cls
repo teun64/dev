@@ -41,7 +41,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
     public override Database.QueryLocator startBatch(Database.BatchableContext bc) {
         // no bind variables: the Subscription25 job framework runs the locator outside this method's scope
         return Database.getQueryLocator(
-            'SELECT Id, Name, Status__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c, PayProv_PaymentIntentId__c,' +
+            'SELECT Id, Name, Status__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c, PayProv_PaymentIntentId__c, externalId__c,' +
             ' Account__r.PayProv_CustomerId__c, Account__r.PayProv_PaymentMethodId__c, Account__r.PayProv_MandateId__c,' +
             ' Account__r.PayProv_PaymentMethodType__c,' +
             ' Account__r.Reseller_Name__c, Administration__r.Reseller__c' +
@@ -153,6 +153,16 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
                 );
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing', PayProv_PaymentIntentId__c = paymentIntentId));
             } catch (Exception e) {
+                // The bank wants the customer to authenticate (3-D Secure): not a failure yet. The customer confirms the
+                // same PaymentIntent on the payment page; rab_Payment_Action_Required mails the link, reminds and expires it.
+                Svc_PaymentIntent.StripeError se = Svc_PaymentIntent.stripeError(e);
+                if (se != null && Svc_PaymentIntent.AUTHENTICATION_REQUIRED.equals(se.code) && String.isNotBlank(se.paymentIntentId)) {
+                    Payment__c u = new Payment__c(Id = p.Id, Status__c = Svc_PaymentIntent.STATUS_ACTION_REQUIRED,
+                        PayProv_PaymentIntentId__c = se.paymentIntentId);
+                    if (String.isBlank(p.externalId__c)) u.externalId__c = Svc_PaymentIntent.newToken(p.Id, se.paymentIntentId);
+                    statusUpdates.add(u);
+                    continue;
+                }
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed'));
                 failureCases.add(buildFailureCase(p, 'Stripe error: ' + e.getMessage(), resellerToQueue, accountToContact));
             }
@@ -163,7 +173,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
         List<Database.SaveResult> results = Database.update(statusUpdates, false, AccessLevel.SYSTEM_MODE);
         for (Integer i = 0; i < results.size(); i++) {
             if (results[i].isSuccess()) {
-                if (statusUpdates[i].Status__c == 'Processing') processed++; else failed++;
+                if (statusUpdates[i].Status__c == 'Processing' || statusUpdates[i].Status__c == Svc_PaymentIntent.STATUS_ACTION_REQUIRED) processed++; else failed++;
             } else {
                 addError(byId.get(statusUpdates[i].Id).Name + ' status ' + statusUpdates[i].Status__c + ': ' + results[i].getErrors()[0].getMessage());
             }
@@ -196,7 +206,8 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
         Case c = new Case(
             AccountId   = p.Account__c,
             ContactId   = contactId,
-            Subject     = 'Direct Debit collection failed – ' + p.Name,
+            Subject     = (Svc_PaymentIntent.CARD.equals(p.Account__r?.PayProv_PaymentMethodType__c)
+                            ? 'Card payment failed – ' : 'Direct Debit collection failed – ') + p.Name,
             Description = reason + '\n\n'
                         + 'Payment: ' + p.Name + '\n'
                         + 'Amount: ' + p.CurrencyIsoCode + ' ' + p.Amount_Gross__c,

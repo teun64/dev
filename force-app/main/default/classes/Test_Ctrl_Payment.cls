@@ -90,6 +90,58 @@ private class Test_Ctrl_Payment {
         System.assertNotEquals(null, d.collectionDate, 'Collection date shown to the customer');
     }
 
+    // ── getPaymentData – Action Required: saved card on file, yet the page loads the stored intent, not "scheduled" ──
+
+    @IsTest
+    static void testGetPaymentData_actionRequiredLoadsStoredIntent() {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
+        acc.PayProv_PaymentMethodId__c = 'pm_card';
+        update acc;
+        Payment__c pmt = [SELECT Id FROM Payment__c WHERE externalId__c = 'TOKEN-SETUP' LIMIT 1];
+        Database.update(new Payment__c(Id = pmt.Id, Status__c = 'Action Required', PayProv_PaymentIntentId__c = 'pi_auth'),
+            AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
+        Test.stopTest();
+
+        System.assertEquals(true, d.found);
+        System.assertNotEquals(true, d.alreadyScheduled, 'Waiting for the customer: never "already scheduled"');
+        // Stripe callout not mocked: the GET of the stored intent fails in test context
+        System.assert(d.errorMessage != null && d.errorMessage.startsWith('Could not load this payment'), d.errorMessage);
+    }
+
+    @IsTest
+    static void testApplyAuthenticateIntent() {
+        Map<String, Object> declined = new Map<String, Object>{
+            'status'               => 'requires_payment_method',
+            'client_secret'        => 'pi_auth_secret_x',
+            'payment_method_types' => new List<Object>{ 'card' },
+            'last_payment_error'   => new Map<String, Object>{
+                'code' => 'authentication_required',
+                'payment_method' => new Map<String, Object>{ 'id' => 'pm_declined' }
+            }
+        };
+        Ctrl_Payment.PaymentData d = new Ctrl_Payment.PaymentData();
+        Ctrl_Payment.applyAuthenticateIntent(d, declined, 'pm_saved');
+        System.assertEquals('authenticate', d.mode);
+        System.assertEquals('pi_auth_secret_x', d.clientSecret);
+        System.assertEquals('card', d.paymentMethodType, 'No mandate consent box for a card');
+        System.assertEquals('pm_declined', d.paymentMethodId, 'The declined method is the one to confirm');
+
+        Ctrl_Payment.PaymentData noError = new Ctrl_Payment.PaymentData();
+        Ctrl_Payment.applyAuthenticateIntent(noError, new Map<String, Object>{ 'status' => 'requires_action', 'client_secret' => 's' }, 'pm_saved');
+        System.assertEquals('pm_saved', noError.paymentMethodId, 'Falls back to the saved method');
+
+        Ctrl_Payment.PaymentData paid = new Ctrl_Payment.PaymentData();
+        Ctrl_Payment.applyAuthenticateIntent(paid, new Map<String, Object>{ 'status' => 'succeeded' }, 'pm_saved');
+        System.assertEquals(true, paid.alreadyProcessed);
+
+        Ctrl_Payment.PaymentData canceled = new Ctrl_Payment.PaymentData();
+        Ctrl_Payment.applyAuthenticateIntent(canceled, new Map<String, Object>{ 'status' => 'canceled' }, 'pm_saved');
+        System.assert(canceled.errorMessage.contains('no longer valid'));
+    }
+
     // ── getPaymentData – contact fallback to main contact ─────────────────────
 
     @IsTest

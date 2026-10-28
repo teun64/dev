@@ -86,6 +86,27 @@ private class Test_Batch_ProcessPayments {
         System.assert(cases[0].Description.startsWith('Stripe error:'), cases[0].Description);
     }
 
+    // ── saved card without mandate is picked up; the failure Case names a card payment, not a Direct Debit ──
+    @IsTest
+    static void testDueCardPaymentCaseSubject() {
+        insertBusinessEntity(true);
+        Account acc = [SELECT Id FROM Account WHERE Name = 'No Mandate BV'];
+        acc.PayProv_PaymentMethodId__c   = 'pm_card001';
+        acc.PayProv_PaymentMethodType__c = 'card';
+        Database.update(acc, AccessLevel.SYSTEM_MODE);
+        Payment__c p = newPayment(acc.Id, 'pr', Date.today());
+        insert p;
+
+        Test.startTest();
+        Database.executeBatch(new Batch_ProcessPayments(), 20);
+        Test.stopTest();
+
+        System.assertEquals('Failed', reload(p.Id).Status__c, 'Card without mandate selected and sent to Stripe');
+        List<Case> cases = casesFor(acc.Id);
+        System.assertEquals(1, cases.size(), 'Failure Case created');
+        System.assert(cases[0].Subject.startsWith('Card payment failed – '), cases[0].Subject);
+    }
+
     // ── no Stripe account on the Business Entity → Failed + Case, no callout ──
     @IsTest
     static void testMissingStripeAccountFails() {

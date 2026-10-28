@@ -151,6 +151,7 @@
                             client-secret={payment.clientSecret}
                             mode={payment.mode}
                             payment-method-type={payment.paymentMethodType}
+                            payment-method-id={payment.paymentMethodId}
                             theme="stripe"
                             locale={locale}
                             amount={amountFormatted}
@@ -160,6 +161,7 @@
                             billing-city={payment.billingCity}
                             billing-postal-code={payment.billingPostalCode}
                             billing-country={payment.billingCountry}
+                            apple-pay={applePayRequest}
                             oncheckoutresult={handleCheckoutResult}>
                         </c-payment-checkout>
                     </template>

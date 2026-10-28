@@ -9,6 +9,8 @@ export default class PaymentCheckout extends LightningElement {
     @api clientSecret;
     @api mode = 'payment';
     @api paymentMethodType;
+    // mode 'authenticate': the saved method the customer confirms (3-D Secure) on the existing PaymentIntent
+    @api paymentMethodId;
     @api theme = 'stripe';
     @api amount;
     @api billingEmail;
@@ -17,6 +19,8 @@ export default class PaymentCheckout extends LightningElement {
     @api billingCity;
     @api billingPostalCode;
     @api billingCountry;
+    // Payment Element applePay option (e.g. recurringPaymentRequest for a merchant token); optional
+    @api applePay;
 
     @api
     get locale() {
@@ -85,7 +89,7 @@ export default class PaymentCheckout extends LightningElement {
     // ?v= busts the CDN's static-resource cache (cache-control: public, max-age=45 days,
     // observed independently of the site's own publish step) - bump this on every future
     // change to paymentCheckoutHtml.html, or the new HTML can sit unserved for weeks.
-    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=12`;
+    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=16`;
 
 
     // --- Computed Properties ---
@@ -115,6 +119,7 @@ export default class PaymentCheckout extends LightningElement {
                     clientSecret: this.clientSecret,
                     mode: this.mode,
                     paymentMethodType: this.paymentMethodType,
+                    paymentMethodId: this.paymentMethodId,
                     theme: this.theme,
                     // Stripe's elements({locale}) only accepts its own short/hyphenated codes
                     // (nl, de, fr, en, en-GB, auto, ...) — this.localeSet is the underscored
@@ -135,7 +140,9 @@ export default class PaymentCheckout extends LightningElement {
                     billingAddressLine1: this.billingAddressLine1,
                     billingCity: this.billingCity,
                     billingPostalCode: this.billingPostalCode,
-                    billingCountry: this.billingCountry
+                    billingCountry: this.billingCountry,
+                    // plain copy: postMessage can't clone the LWC read-only proxy of an @api object
+                    applePay: this.applePay ? JSON.parse(JSON.stringify(this.applePay)) : null
                 }, '*');
             });
         }

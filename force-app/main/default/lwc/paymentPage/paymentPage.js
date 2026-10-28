@@ -5,6 +5,7 @@ import PAYMENT_PROVIDER from '@salesforce/resourceUrl/paymentProvider';
 import BRANDING_URL    from '@salesforce/resourceUrl/Branding';
 import CUSTOMER_HUB_FAVICON from '@salesforce/resourceUrl/CustomerHubFavicon';
 import isGuestUser              from '@salesforce/user/isGuest';
+import BASE_PATH                from '@salesforce/community/basePath';
 import getPaymentData          from '@salesforce/apex/Ctrl_Payment.getPaymentData';
 import finalizeCheckout        from '@salesforce/apex/Ctrl_Payment.finalizeCheckout';
 import getBrandTheme            from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
@@ -30,6 +31,7 @@ const I18N = {
         columnOrder: 'Order summary',
         columnProvider: 'Secure Payment',
         pageText: 'Please review your order details below, then complete your secure payment on the right.',
+        authenticateText: 'Your bank asks you to confirm this payment. Check the details below, then confirm the payment on the right.',
         customer: 'Name',
         reference: 'Reference',
         beneficiary: 'Beneficiary',
@@ -40,8 +42,11 @@ const I18N = {
         successBody: 'Thank you. Your payment has been processed successfully.',
         alreadyProcessedTitle: 'Already completed',
         alreadyProcessedBody: 'This payment has already been processed. No further action is needed.',
-        alreadyScheduledTitle: 'Direct Debit scheduled',
-        alreadyScheduledBody: 'This payment will be collected automatically by Direct Debit on {0}. No further action is needed.',
+        alreadyScheduledTitle: 'Automatic payment scheduled',
+        alreadyScheduledBody: 'This payment will be collected automatically on {0}. No further action is needed.',
+        successSetupTitle: 'Payment method saved',
+        successSetupBody: 'Thank you. Your payment method has been saved. This payment will be collected automatically on {0}.',
+        successSetupBodyNoDate: 'Thank you. Your payment method has been saved. This payment will be collected automatically.',
         lineNumber: 'Line',
         productCode: 'Code',
         productName: 'Product',
@@ -53,6 +58,7 @@ const I18N = {
         columnOrder: 'Besteloverzicht',
         columnProvider: 'Veilig betalen',
         pageText: 'Controleer hieronder uw bestelgegevens en rond vervolgens rechts uw beveiligde betaling af.',
+        authenticateText: 'Uw bank vraagt u deze betaling te bevestigen. Controleer hieronder de gegevens en bevestig rechts de betaling.',
         customer: 'Naam',
         reference: 'Referentie',
         beneficiary: 'Begunstigde',
@@ -63,8 +69,11 @@ const I18N = {
         successBody: 'Bedankt. Uw betaling is succesvol verwerkt.',
         alreadyProcessedTitle: 'Al voltooid',
         alreadyProcessedBody: 'Deze betaling is al verwerkt. Geen verdere actie nodig.',
-        alreadyScheduledTitle: 'Incasso gepland',
-        alreadyScheduledBody: 'Deze betaling wordt op {0} automatisch geïncasseerd. Geen verdere actie nodig.',
+        alreadyScheduledTitle: 'Automatische betaling gepland',
+        alreadyScheduledBody: 'Deze betaling wordt op {0} automatisch afgeschreven. Geen verdere actie nodig.',
+        successSetupTitle: 'Betaalmethode opgeslagen',
+        successSetupBody: 'Bedankt. Uw betaalmethode is opgeslagen. Deze betaling wordt op {0} automatisch afgeschreven.',
+        successSetupBodyNoDate: 'Bedankt. Uw betaalmethode is opgeslagen. Deze betaling wordt automatisch afgeschreven.',
         lineNumber: 'Regel',
         productCode: 'Code',
         productName: 'Product',
@@ -76,6 +85,7 @@ const I18N = {
         columnOrder: 'Bestellübersicht',
         columnProvider: 'Sichere Zahlung',
         pageText: 'Bitte überprüfen Sie unten Ihre Bestelldetails und schließen Sie anschließend rechts Ihre sichere Zahlung ab.',
+        authenticateText: 'Ihre Bank bittet Sie, diese Zahlung zu bestätigen. Prüfen Sie unten die Angaben und bestätigen Sie rechts die Zahlung.',
         customer: 'Name',
         reference: 'Referenz',
         beneficiary: 'Empfänger',
@@ -86,8 +96,11 @@ const I18N = {
         successBody: 'Vielen Dank. Ihre Zahlung wurde erfolgreich verarbeitet.',
         alreadyProcessedTitle: 'Bereits abgeschlossen',
         alreadyProcessedBody: 'Diese Zahlung wurde bereits verarbeitet. Keine weitere Aktion erforderlich.',
-        alreadyScheduledTitle: 'Lastschrift geplant',
-        alreadyScheduledBody: 'Diese Zahlung wird am {0} automatisch per Lastschrift eingezogen. Keine weitere Aktion erforderlich.',
+        alreadyScheduledTitle: 'Automatische Zahlung geplant',
+        alreadyScheduledBody: 'Diese Zahlung wird am {0} automatisch eingezogen. Keine weitere Aktion erforderlich.',
+        successSetupTitle: 'Zahlungsmethode gespeichert',
+        successSetupBody: 'Vielen Dank. Ihre Zahlungsmethode wurde gespeichert. Diese Zahlung wird am {0} automatisch eingezogen.',
+        successSetupBodyNoDate: 'Vielen Dank. Ihre Zahlungsmethode wurde gespeichert. Diese Zahlung wird automatisch eingezogen.',
         lineNumber: 'Zeile',
         productCode: 'Code',
         productName: 'Produkt',
@@ -99,6 +112,7 @@ const I18N = {
         columnOrder: 'Récapitulatif de la commande',
         columnProvider: 'Paiement sécurisé',
         pageText: 'Veuillez vérifier les détails de votre commande ci-dessous, puis finalisez votre paiement sécurisé à droite.',
+        authenticateText: 'Votre banque vous demande de confirmer ce paiement. Vérifiez les détails ci-dessous, puis confirmez le paiement à droite.',
         customer: 'Nom',
         reference: 'Référence',
         beneficiary: 'Bénéficiaire',
@@ -109,8 +123,11 @@ const I18N = {
         successBody: 'Merci. Votre paiement a été traité avec succès.',
         alreadyProcessedTitle: 'Déjà effectué',
         alreadyProcessedBody: 'Ce paiement a déjà été traité. Aucune action supplémentaire n\'est requise.',
-        alreadyScheduledTitle: 'Prélèvement programmé',
+        alreadyScheduledTitle: 'Paiement automatique programmé',
         alreadyScheduledBody: 'Ce paiement sera prélevé automatiquement le {0}. Aucune action supplémentaire n\'est requise.',
+        successSetupTitle: 'Moyen de paiement enregistré',
+        successSetupBody: 'Merci. Votre moyen de paiement a été enregistré. Ce paiement sera prélevé automatiquement le {0}.',
+        successSetupBodyNoDate: 'Merci. Votre moyen de paiement a été enregistré. Ce paiement sera prélevé automatiquement.',
         lineNumber: 'Ligne',
         productCode: 'Code',
         productName: 'Produit',
@@ -143,6 +160,7 @@ export default class PaymentPage extends LightningElement {
     // correctly via Intl formatting — these plain-text labels were the gap).
     _alreadyProcessed = false;
     _alreadyScheduled = false;
+    _methodSaved = false;
     _scheduledDate;
 
     get _t() { return I18N[this.languageSet] || I18N.en; }
@@ -150,7 +168,7 @@ export default class PaymentPage extends LightningElement {
     get labelPageTitle()      { return this._t.pageTitle; }
     get labelColumnOrder()    { return this._t.columnOrder; }
     get labelColumnProvider() { return this._t.columnProvider; }
-    get paymentPageText()     { return this._t.pageText; }
+    get paymentPageText()     { return this.isAuthenticateMode ? this._t.authenticateText : this._t.pageText; }
     get labelCustomer()       { return this._t.customer; }
     get labelReference()      { return this._t.reference; }
     get labelBeneficiary()    { return this._t.beneficiary; }
@@ -159,17 +177,23 @@ export default class PaymentPage extends LightningElement {
     get labelAmount()         { return this._t.amount; }
     get labelSuccessTitle() {
         if (this._alreadyScheduled) return this._t.alreadyScheduledTitle;
+        if (this._methodSaved)      return this._t.successSetupTitle;
         return this._alreadyProcessed ? this._t.alreadyProcessedTitle : this._t.successTitle;
     }
     get labelSuccessBody() {
-        if (this._alreadyScheduled) {
-            const lang = this.languageSet || 'en';
-            const date = this._scheduledDate
-                ? new Date(this._scheduledDate).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })
-                : '';
-            return this._t.alreadyScheduledBody.replace('{0}', date);
+        if (this._alreadyScheduled) return this._t.alreadyScheduledBody.replace('{0}', this._formatDate(this._scheduledDate));
+        // SetupIntent completed: the method is saved, nothing is charged until the collection date
+        if (this._methodSaved) {
+            const date = this.payment?.collectionDate;
+            return date ? this._t.successSetupBody.replace('{0}', this._formatDate(date)) : this._t.successSetupBodyNoDate;
         }
         return this._alreadyProcessed ? this._t.alreadyProcessedBody : this._t.successBody;
+    }
+    _formatDate(value) {
+        const lang = this.languageSet || 'en';
+        return value
+            ? new Date(value).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })
+            : '';
     }
     get labelLineNumber()     { return this._t.lineNumber; }
     get labelProductCode()    { return this._t.productCode; }
@@ -185,7 +209,9 @@ export default class PaymentPage extends LightningElement {
     get isSuccess()      { return this.viewState === 'success'; }
     get isPaymentError() { return this.viewState === 'error'; }
     get isResolved()     { return this.viewState !== 'checkout'; }
-    get isPaymentMode()  { return this.payment?.mode === 'payment'; }
+    // 'authenticate' = an off-session charge waiting for the customer's 3-D Secure confirmation: a real payment too
+    get isPaymentMode()  { return this.payment?.mode === 'payment' || this.isAuthenticateMode; }
+    get isAuthenticateMode() { return this.payment?.mode === 'authenticate'; }
 
     get locale() {
         return this.localeSet || LOCALE.replace('_US', '_GB');
@@ -232,6 +258,28 @@ export default class PaymentPage extends LightningElement {
     }
 
     get hasProductLine() { return !!this.payment?.productLine; }
+
+    // Apple Pay: describe the recurring charge so Apple issues a merchant token (MPAN) that keeps working
+    // when the customer changes device; without it the saved Apple Pay card is tied to one device.
+    // Interval follows the invoice cycle of the product line (default monthly). Other methods ignore it.
+    get applePayRequest() {
+        const p = this.payment;
+        if (!p) return null;
+        const months = p.productLine?.periodMonths > 0 ? p.productLine.periodMonths : 1;
+        const yearly = months % 12 === 0;
+        return {
+            recurringPaymentRequest: {
+                paymentDescription: p.beneficiary || p.paymentName,
+                managementURL: `${window.location.origin}${BASE_PATH || ''}`,
+                regularBilling: {
+                    amount: p.amountCents || 0,
+                    label: p.productLine?.productName || p.paymentName,
+                    recurringPaymentIntervalUnit: yearly ? 'year' : 'month',
+                    recurringPaymentIntervalCount: yearly ? months / 12 : months
+                }
+            }
+        };
+    }
 
     get billingName() {
         const first = this.payment?.contactFirstName || '';
@@ -414,6 +462,7 @@ export default class PaymentPage extends LightningElement {
         const status = d?.intentStatus;
 
         if (status === 'succeeded' || status === 'processing') {
+            this._methodSaved = d?.intentMode === 'setup';
             this.viewState = 'success';
             finalizeCheckout({
                 token:         this._token,
@@ -423,7 +472,9 @@ export default class PaymentPage extends LightningElement {
         } else if (status === 'canceled' || status === 'requires_payment_method') {
             this.intentMessage = d?.intentMessage || 'Payment was not completed.';
             this.viewState     = 'error';
-            if (this.payment?.paymentId) {
+            // authenticate mode: the payment stays Action Required and the customer can try again;
+            // rab_Payment_Action_Required creates the one Case when it expires
+            if (this.payment?.paymentId && !this.isAuthenticateMode) {
                 createPaymentFailureCase({
                     paymentId: this.payment.paymentId,
                     reason: d?.intentMessage || status

@@ -201,6 +201,8 @@
             let billingCity;
             let billingPostalCode;
             let billingCountry;
+            let applePay;
+            let paymentMethodId;
             let submitPaymentLabel = '';
             let submitSetupLabel = '';
             let submitLabel = '';
@@ -239,8 +241,12 @@
             const FUTURE_CONSENT_METHODS = ['sepa_debit', 'bacs_debit', 'ach_debit', 'ideal'];
             const showsFutureConsent = () => FUTURE_CONSENT_METHODS.includes(paymentMethodType);
 
+            // 'authenticate': an off-session charge waiting for 3-D Secure - the customer confirms the existing
+            // PaymentIntent with the saved method, so there is no Payment Element to build
+            const isAuthenticate = () => mode === 'authenticate';
+
             function buildElements() {
-                if (!cs) return;
+                if (!cs || isAuthenticate()) return;
 
                 //console.log("✅ paymentCheckoutHtml - (re)buildElements):");
                 if (intent) {
@@ -267,6 +273,10 @@
                         if (billingCountry)      elementOptions.defaultValues.billingDetails.address.country     = billingCountry;
                     }
                 }
+                // The business entity's direct debit method (SEPA / Bacs) first and pre-selected, then wallets, then card
+                if (paymentMethodType) elementOptions.paymentMethodOrder = [paymentMethodType, 'apple_pay', 'google_pay', 'card'];
+                // Apple Pay merchant token (MPAN) request for recurring charges - see paymentPage.applePayRequest
+                if (applePay) elementOptions.applePay = applePay;
                 intent = elements.create("payment", elementOptions);
                 intent.mount(elementContainer);
 
@@ -293,7 +303,7 @@
                 if (!data || !data.type) return;
 
                 if (data.type === 'initProvider') {
-                    const { publishableKey, clientSecret, mode: modeIn, paymentMethodType: paymentMethodTypeIn, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, futureConsentLabel: futureConsentLbl, futureConsentRequiredLabel: futureConsentRequiredLbl, amount: formattedAmount, billingEmail: bEmail, billingName: bName, billingAddressLine1: bAddressLine1, billingCity: bCity, billingPostalCode: bPostalCode, billingCountry: bCountry } = data;
+                    const { publishableKey, clientSecret, mode: modeIn, paymentMethodType: paymentMethodTypeIn, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, futureConsentLabel: futureConsentLbl, futureConsentRequiredLabel: futureConsentRequiredLbl, amount: formattedAmount, billingEmail: bEmail, billingName: bName, billingAddressLine1: bAddressLine1, billingCity: bCity, billingPostalCode: bPostalCode, billingCountry: bCountry, applePay: applePayIn, paymentMethodId: paymentMethodIdIn } = data;
                     // Assigning (not re-declaring) the module-level `mode`/`paymentMethodType`
                     // here on purpose — showsFutureConsent() below reads those module-level
                     // bindings. Destructuring them directly as const would shadow the outer
@@ -306,6 +316,8 @@
                     billingCity         = bCity;
                     billingPostalCode   = bPostalCode;
                     billingCountry      = bCountry;
+                    applePay            = applePayIn || null;
+                    paymentMethodId     = paymentMethodIdIn || null;
                     theme = themeSet || 'none';
                     cancelLabel = cancelLbl || 'Cancel';
                     cancelConfirmLabel = cancelConfirmLbl || 'Are you sure you want to cancel this checkout session?';
@@ -324,6 +336,12 @@
                     if (mode === 'both') {
                         modeElement = 'payment';
                         submitLabel = submitSetupLabel.concat(' & ', submitPaymentLabel);
+                    } else if (isAuthenticate()) {
+                        modeElement = 'payment';
+                        submitLabel = submitPaymentLabel;
+                        elementContainer.style.display = 'none';
+                        observeResize();
+                        postHeight();
                     } else {
                         modeElement = mode;
                         submitLabel = (modeElement === 'setup') ? submitSetupLabel : submitPaymentLabel;
@@ -384,12 +402,12 @@
 
                         try {
                             // ❌ Elements missing
-                            if (!elements) {
+                            if (!elements && !isAuthenticate()) {
                                 throw new Error('Payment form not initialized');
                             }
 
                             // ✅ 1. Validate + collect data (IMPORTANT)
-                            const { error: submitError } = await elements.submit();
+                            const { error: submitError } = isAuthenticate() ? {} : await elements.submit();
 
                             // 🔥 Treat submitError as a FULL response
                             if (submitError) {
@@ -409,7 +427,22 @@
 
                             // ✅ 2. Confirm intent
                             let response;
-                            if (modeElement === 'setup') {
+                            if (isAuthenticate()) {
+                                // Stripe.js draws the bank's challenge inside this iframe: grow it to fit while the
+                                // challenge is open (finally below shrinks it back)
+                                document.body.style.minHeight = '680px';
+                                postHeight();
+                                // Stripe: after an authentication_required decline, confirm the declined PaymentIntent
+                                // on-session with the saved method; Stripe.js shows the bank's 3-D Secure challenge
+                                response = await provider.confirmPayment({
+                                    clientSecret: cs,
+                                    confirmParams: {
+                                        payment_method: paymentMethodId,
+                                        return_url: document.referrer || window.location.href
+                                    },
+                                    redirect: 'if_required'
+                                });
+                            } else if (modeElement === 'setup') {
                                 response = await provider.confirmSetup({
                                     elements,
                                     redirect: 'if_required'
@@ -491,6 +524,11 @@
                                 });
                             }
 
+                            // no Payment Element to show the error in this mode (e.g. 3-D Secure declined): show it here
+                            if (isAuthenticate()) {
+                                errorContainer.textContent = result.intentStatus === 'failed' ? (result.intentMessage || '') : '';
+                            }
+
                             // 📤 Always return via providerResult (even failures)
                             parent.postMessage(
                                 { type: 'providerResult', result },
@@ -515,6 +553,10 @@
                             );
 
                         } finally {
+                            if (isAuthenticate()) {
+                                document.body.style.minHeight = '';
+                                postHeight();
+                            }
                             submitBtn.innerHTML = originalText;
                             submitBtn.disabled = false;
                             window.__stripeSubmitting = false;

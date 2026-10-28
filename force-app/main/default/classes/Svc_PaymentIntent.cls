@@ -30,6 +30,48 @@ public without sharing class Svc_PaymentIntent {
 
     public static final String CARD = 'card';
 
+    // Off-session charge the customer's bank wants authenticated (3-D Secure): the payment waits for the customer
+    public static final String STATUS_ACTION_REQUIRED = 'Action Required';
+    public static final String AUTHENTICATION_REQUIRED = 'authentication_required';
+
+    /** The parts of a Stripe error the payment flow acts on. */
+    public class StripeError {
+        public String code;
+        public String paymentIntentId;
+        public String paymentMethodId;
+    }
+
+    /**
+     * stripeGC throws non-2xx answers as "Stripe callout error: {json}"; this reads code and intent back out of it.
+     * Null when the message carries no Stripe error JSON (e.g. a configuration error).
+     */
+    public static StripeError stripeError(Exception e) {
+        String message = e?.getMessage();
+        if (String.isBlank(message) || !message.contains('{')) return null;
+        try {
+            Map<String, Object> body = (Map<String, Object>) JSON.deserializeUntyped(message.substring(message.indexOf('{')));
+            Map<String, Object> err  = (Map<String, Object>) body.get('error');
+            if (err == null) return null;
+            StripeError se = new StripeError();
+            se.code = (String) err.get('code');
+            Map<String, Object> intent = (Map<String, Object>) err.get('payment_intent');
+            if (intent != null) se.paymentIntentId = (String) intent.get('id');
+            Map<String, Object> method = (Map<String, Object>) err.get('payment_method');
+            if (method != null) se.paymentMethodId = (String) method.get('id');
+            return se;
+        } catch (Exception parseError) {
+            return null;
+        }
+    }
+
+    /**
+     * Payment link token (Payment__c.externalId__c), same format as afl_Payment_Direct_Debit_Setup: 32 hex (MD5).
+     * Derived from payment + intent so the batch and the webhook, which can both set Action Required, write the same one.
+     */
+    public static String newToken(Id paymentId, String paymentIntentId) {
+        return EncodingUtil.convertToHex(Crypto.generateDigest('MD5', Blob.valueOf(paymentId + '-' + paymentIntentId)));
+    }
+
     /** A saved method the batch can charge off-session: a card, or a direct debit method with its mandate. */
     public static Boolean hasUsableMethod(Account a) {
         if (a == null || String.isBlank(a.PayProv_PaymentMethodId__c)) return false;

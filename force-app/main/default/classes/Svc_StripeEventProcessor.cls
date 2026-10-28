@@ -37,9 +37,10 @@ public without sharing class Svc_StripeEventProcessor {
         if (!paymentSfIds.isEmpty()) {
             paymentMap = new Map<Id, Payment__c>([
                 SELECT Id, Name, Status__c, Account__c, externalId__c, Amount_Gross__c, CurrencyIsoCode, PayProv_PaymentIntentId__c,
-                       Account__r.Reseller_Name__c
+                       Account__r.Reseller_Name__c, Account__r.PayProv_PaymentMethodType__c
                 FROM Payment__c
                 WHERE Id IN :paymentSfIds
+                WITH SYSTEM_MODE
             ]);
         }
 
@@ -146,8 +147,13 @@ public without sharing class Svc_StripeEventProcessor {
                 }
 
                 String newStatus = statusForEvent(p.eventType, p.errorCode);
+                // 3-D Secure wanted (off-session), or the customer's attempt on the page failed: the payment keeps
+                // waiting for the customer - no Failed, no Case; rab_Payment_Action_Required expires it
+                Boolean awaitsCustomer = awaitsAuthentication(p.eventType, p.errorCode, payment.Status__c);
+                if (awaitsCustomer) newStatus = Svc_PaymentIntent.STATUS_ACTION_REQUIRED;
                 if (newStatus != null) {
                     Payment__c pu = new Payment__c(Id = payment.Id, Status__c = newStatus);
+                    if (awaitsCustomer && String.isBlank(payment.externalId__c)) pu.externalId__c = Svc_PaymentIntent.newToken(payment.Id, p.paymentIntentId);
                     if (String.isNotBlank(p.paymentIntentId)) {
                         pu.PayProv_PaymentIntentId__c = p.paymentIntentId;
                         boundIntent.put(payment.Id, p.paymentIntentId);
@@ -162,7 +168,7 @@ public without sharing class Svc_StripeEventProcessor {
                     }
                     paymentUpdates.put(payment.Id, pu);
                 }
-                if (isFailure(p.eventType, p.errorCode)) {
+                if (!awaitsCustomer && isFailure(p.eventType, p.errorCode)) {
                     newCases.add(buildFailureCase(payment, p.errorMessage, p.errorCode, queueId, contactId));
                 }
                 if (isReversal(p.eventType, p.errorCode)) {
@@ -278,7 +284,7 @@ public without sharing class Svc_StripeEventProcessor {
         Case c = new Case(
             AccountId   = p.Account__c,
             ContactId   = contactId,
-            Subject     = 'Direct Debit charged twice – ' + p.Name,
+            Subject     = methodLabel(p) + ' charged twice – ' + p.Name,
             Description = 'A second Stripe PaymentIntent was charged for this payment. Check it in Stripe and refund the duplicate.\n\n'
                         + 'Payment: ' + p.Name + '\n'
                         + 'Payment Intent of the payment: ' + boundIntentId + '\n'
@@ -289,6 +295,17 @@ public without sharing class Svc_StripeEventProcessor {
         );
         if (queueId != null) c.OwnerId = queueId;
         return c;
+    }
+
+    // Case subjects name the saved method: a card has no Direct Debit (and no mandate)
+    private static String methodLabel(Payment__c p) {
+        return Svc_PaymentIntent.CARD.equals(p.Account__r?.PayProv_PaymentMethodType__c) ? 'Card payment' : 'Direct Debit';
+    }
+
+    private static Boolean awaitsAuthentication(String evtType, String errorCode, String currentStatus) {
+        if (!'payment_intent.payment_failed'.equals(evtType)) return false;
+        return Svc_PaymentIntent.AUTHENTICATION_REQUIRED.equals(errorCode)
+            || (Svc_PaymentIntent.STATUS_ACTION_REQUIRED.equals(currentStatus) && 'payment_intent_authentication_failure'.equals(errorCode));
     }
 
     private static Boolean isFailure(String evtType, String errorCode) {
@@ -310,7 +327,7 @@ public without sharing class Svc_StripeEventProcessor {
         Case c = new Case(
             AccountId   = p.Account__c,
             ContactId   = contactId,
-            Subject     = 'Direct Debit failure – ' + p.externalId__c,
+            Subject     = methodLabel(p) + ' failure – ' + p.externalId__c,
             Description = description,
             Origin      = 'Direct Debit',
             Status      = 'New'
@@ -328,7 +345,7 @@ public without sharing class Svc_StripeEventProcessor {
         Case c = new Case(
             AccountId   = p.Account__c,
             ContactId   = contactId,
-            Subject     = 'Direct Debit reversal – ' + p.externalId__c,
+            Subject     = methodLabel(p) + ' reversal – ' + p.externalId__c,
             Description = description,
             Origin      = 'Direct Debit',
             Status      = 'New'

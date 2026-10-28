@@ -3,7 +3,9 @@
 Plan + decisions: Claude Doc "Payment methods pi / pr — Stripe route split"
 https://claude.ai/code/artifact/909cb4ca-f6bb-4c39-bec2-8bb2a9c16803
 
-## ⏰ FIRST THING, MORNING 2026-10-22: rbb_OrderItem outage follow-up
+## ✅ DONE — rbb_OrderItem outage follow-up (morning 2026-10-22)
+
+**Final state (re-checked 2026-10-28):** active `rbb_OrderItem` = prod **v7** (since 2026-10-22 11:36 UTC), acc **v7**, dev **v14**. Design: `OrderItem.VAT_Code__c` → `Subscription25__VAT_Code__c` (category in `UNCL5305_Category__c`); own `VAT_Code__c` object removed. v4 / v5 were deleted along the way. No other runbook covers rbb_OrderItem; the memory notes are summarised here.
 
 Background: see "Incident 2026-10-21" lower down. Prod runs `rbb_OrderItem` **v3** (v4 has been rolled back). The 19 lost first orders have been recovered.
 
@@ -154,11 +156,11 @@ Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy wit
 | 3 | REST: `Rest_UpsertAccount` (v1) already passes pi / pr through (also without IBAN), so no code change; test `testPaymentProviderCodeWithoutIban` added. `Rest_UpsertContract` v1 / V2 pass `paymentMethod` through unchanged. Default mappings kept. | ✅ 2026-10-20 (test) | ✅ 2026-10-21 (test class) | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) (test class) |
 | 3 | `Rest_UpsertAccountV2`: **obsolete** (user 2026-10-20), only in dev; phase out, no changes. Its tests already fail in dev (`getIntegrationUser`: no rows) | — | — | — |
 | 2 | `afl_PaymentDirectDebitSetup_SendMail`: Mail Sent only after a real send; on failure status cleared + `AlertMessage__c` + case (commit f31e6e4) | ✅ 2026-10-21 (v16) | ✅ 2026-10-21 (v4) | ✅ 2026-10-21 (0AfTx0000013ilVKAQ) (v3 active) |
-| 4 | Migration of the 2 UK Stripe accounts I8 → pr + 3 paid payments I8 → pr: package prepared in `migration/` (MIGRATION.md) | — | — | ⏳ after prod deploy |
-| 5 | Clean-up: repo-only flows `rac_Payment` / `rac_Payment_DirectDebit_Setup_Email` removed (a378cd5). Removing the I8 + Stripe branches and deactivating psp-dd waits for the migration | ✅ partly | — | ⏳ after migration |
-| 6 | Manuals: Payment Methods key-user (3e4ed1e5) + developer (1d00eaa3) created; Stripe Payments, REST (both kinds) and the generic manual updated 2026-10-21. PDFs on the weekly backlog (rows 10–11) | ✅ docs | | PDFs ⏳ |
-| 2 | `rbb_OrderItem` v4 (EN16931 VAT_Code lookup) | ✅ | ✅ (since 2026-09-21) | ⚠ v4 activated 2026-10-21 17:23 → outage, **v3 active again** (see Incident); re-activate later |
-| — | EN16931 SYSTEM_MODE fixes (`Trigger_ContentDocumentLink`, `Svc_CIIInvoiceXmlBuilder`, `Svc_CIIHybridPdfMerge`, test fixtures, `Test_Ctrl_InvoiceRemarks`), commit ce00cb4 | ✅ 2026-10-21 | ⏳ acc still has the user-mode trigger: invoice PDF fails for users without ps_EN16931_Invoicing | ✅ 2026-10-21 |
+| 4 | Migration of the 2 UK Stripe accounts I8 → pr + 3 paid payments I8 → pr: package prepared in `migration/` (MIGRATION.md) | — | — | ◐ accounts ✅: **C J Blinco pr** (2026-10-22 14:08 UTC) and **Marc Stone pr** (2026-10-28 07:40 UTC), both by Teun Rietman; Stone's draft order 02757166 (28-10) already on pr; Stone's invoice I-2610-00762075 corrected I8 → pr by the user (2026-10-28 07:43 UTC). Blinco's invoices I-2610-00767505 / I-2609-00746189 still I8. ✅ **3 paid payments → pr** 2026-10-28 (user go-ahead, bulk job 750Tx00000gPqL2IAK, 0 failed): PM#000196930 / PM#000201568 / PM#000205903 now pr / psp-recurring / Paid / Stripe. Side effect as expected: rbb_Payment recalculated Collection_Date on 2 (09-20 → 09-16, 10-13 → 10-09); originals in `migration/before_prod_payments_20261028.csv`. No Cases. Prod now 0 psp-dd payments and 0 accounts I8 + Stripe mandate → step 5 unblocked |
+| 5 | Clean-up: repo-only flows `rac_Payment` / `rac_Payment_DirectDebit_Setup_Email` removed (a378cd5). Removing the I8 + Stripe branches and deactivating psp-dd: go-ahead given 2026-10-28, unblocked 2026-10-28 (step 4 done: prod 0 psp-dd payments, 0 accounts I8 + Stripe mandate) | ✅ partly | — | ⏳ after step 4 |
+| 6 | Manuals: moved to the end of phase 2 (user 2026-10-28), see "CONTINUE 2026-10-28" | ✅ docs | | ⏳ end of phase 2 |
+| 2 | `rbb_OrderItem` (EN16931 VAT_Code lookup, now to `Subscription25__VAT_Code__c`) | ✅ v14 | ✅ v7 | ✅ v7 since 2026-10-22 11:36 UTC (checked 2026-10-28); v4 outage resolved |
+| — | EN16931 SYSTEM_MODE fixes (`Trigger_ContentDocumentLink`, `Svc_CIIInvoiceXmlBuilder`, `Svc_CIIHybridPdfMerge`, test fixtures, `Test_Ctrl_InvoiceRemarks`), commit ce00cb4 | ✅ 2026-10-21 | ✅ 2026-10-28: `Trigger_ContentDocumentLink`, `Svc_CIIHybridPdfMerge`, `Svc_CIIInvoiceXmlBuilder` deployed (NoTestRun) + `Test_Ctrl_InvoiceRemarks`; tests 9/9 pass | ✅ 2026-10-21 |
 | P2 | Phase 2: card + Apple Pay / Google Pay (see "Phase 2 start"), commit 8ae638c | ✅ 2026-10-21 | — | — |
 
 ## NEXT STEPS (as of 2026-10-21) — start here in a new session
@@ -526,6 +528,18 @@ Phase 2 test plan (dev):
 5. 3-D Secure case: card `4000 0027 6000 3184` (check Stripe's test-card docs) → off-session charge gets 402 → payment Failed + Case (requires_action handling not built yet).
 6. UK: same with a reseller 6 / GBP account (Bacs PaymentIntent + card).
 - Only new payments show card: payments created before 8ae638c keep their stored SEPA-only / Bacs-only intent.
+- 2026-10-27: the test link showed the checkout without a Stripe element. Cause: the dev Customer Hub LWR site still served an old published build. That build's payment_view had no `alreadyScheduled` handling, used iframe `?v=11` and had no `allow="payment"`. A card was already saved on 2026-10-26 (pm_1UUmqWA2nsZIOV3QeCbwqlAC), so `getPaymentData` returned alreadyScheduled with no client secret, and the old build rendered an empty checkout. Fix: published the dev site. acc and prod builds checked and current. PM#000110391 now shows "scheduled" (collection 2026-10-29); testing the card form again needs a new pr payment on an account without a saved method. Side note: the scheduled text says "Direct Debit" for a card too (label wording, phase 2).
+- 2026-10-27, test step 5 (3DS) result on PM#000110391: the card saved on 2026-10-26 was the 3DS test card (…3184). Collection date set to today and `Batch_ProcessPayments` run (707bd00001bVvwj). Stripe returned `authentication_required` (pi_3UV7qmA2nsZIOV3Q0ZZ7WjQC, requires_payment_method), so the payment is **Failed** with a Case, as expected while 3DS handling is not built. Findings: two Cases per failure (MI00234168 from the batch, MI00234169 from the payment_failed webhook), and both subjects say "Direct Debit" for a card. Also: in dev the batch never runs by itself (dispatcher step Minut_ProcessPayments not firing), so dev payments stay in Setup until it is run manually.
+- 2026-10-27, new test data for steps 1–4: account "TEST Teun card NL 2" 001bd00000nC0kdAAC (contact 003bd00000zvVxAAAU, teun.rietman@outlook.com), payment PM#000110392 a1nbd00000jFG17AAG (€12.50, pr, psp-recurring, Setup, collection 2026-10-29, SetupIntent seti_1UV7rhA2nsZIOV3QHZX9T2qi, customer cus_VWACI5PJxXw9fF). Link: https://movingintelligence--dev.sandbox.my.site.com/hub/payment?token=a5053188e1be20e51e43ee602364c946. Payment.Processor__c is empty (the old test payment had Stripe).
+- 2026-10-27, dev test steps 1–4 **PASSED** on "TEST Teun card NL 2":
+  - Step 1: the page loads the form with SEPA + card.
+  - Step 2: card 4242 saved. Account gets pm_1UV7uVA2nsZIOV3QMCGuHaML; TypeJob sets the type to card; no mandate, which is correct, since a card has none. The page then shows "already scheduled".
+  - Step 3: batch charges PM#000110392 off-session → Paid (pi_3UV7vHA2nsZIOV3Q03OUzu1o).
+  - Step 4: repeat payment PM#000110393 a1nbd00000jGhDZAA0 starts in New, with no setup and no mail. After a due date was set, the batch charged it → Paid (pi_3UV7x8A2nsZIOV3Q1ltq6zuf).
+  - Test-data note: a payment created without Due_Date__c gets no Collection_Date__c (rbb_Payment fCollectionDate = due date − processing time), so the batch never picks it up. Real payments get the due date from the invoice.
+  - The setup email Case MI00234170 is the known dev gap (no template / org-wide address).
+  - The success screen after saving a card says "payment received", although nothing has been charged yet; check the wording.
+  - Not yet tested: Apple Pay / Google Pay (step 1 wallets), UK reseller 6 + card (step 6).
 
 #### Incident 2026-10-21 — rbb_OrderItem v4 blocked every OrderItem save in prod
 - From 17:23:14 UTC (v4 activation), `dgr_03_VAT_Code_Lookup` failed on every save with "unable to parse field ... RawFieldImpl[tableName: 01ITx000004NAHM__NotFound, columnName: 00NTx00000BcOHk__NotFound]". Those are prod's own ids: `VAT_Code__c`, created 17:21:47, and `Internal_Code__c`.
@@ -546,3 +560,125 @@ Phase 2 test plan (dev):
   - The Van de Velde 800.900.9009 fee gets no order line. This is normal: that account's earlier contract and several other accounts don't get one either.
   - 5 Closed UK CPs (start ≤ ~1 month) got their order: Carol Macaulay 02752285, John Skinner 02752286, Derek Thomas 02752287, Wendy Nock 02752288, stephen williams 02752289. Closed UK CPs that start in 2027+ normally get no order at creation, so they were left alone.
 - Still open: the UK `/UpsertContract` call 93004_1 (David Waldron), never retried; the error emails / UI saves; re-activate v4 + load the VAT_Code__c data.
+
+#### Phase 2 changes 2026-10-27 (dev, deployed + site published; not committed)
+- Apple Pay merchant token: `paymentPage.applePayRequest` → `c-payment-checkout apple-pay` → iframe `elementOptions.applePay = { recurringPaymentRequest }` (paymentCheckoutHtml `?v=13`).
+- Labels: paymentPage "Automatic payment scheduled" + new "Payment method saved" texts after a SetupIntent (en/nl/de/fr).
+- Case subjects: "Card payment failed / failure / reversal / charged twice" when Account.PayProv_PaymentMethodType__c = card (Batch_ProcessPayments, Svc_StripeEventProcessor; its payment query is now WITH SYSTEM_MODE because the type field has no FLS). Ctrl_PaymentCase (on-session failure) left alone because it has unrelated uncommitted WIP.
+- Tests: Test_Batch_ProcessPayments + Test_Svc_StripeEventProcessor 14/14 (new testDueCardPaymentCaseSubject). Jest not run: local node is broken (missing libicu 73).
+- 3-D Secure approach written in the plan doc ("Phase 2" section): Action Required status + payment-link mail, on-session confirmation of the same PaymentIntent, Failed + one Case after N days.
+
+#### 3-D Secure build 2026-10-27 (dev, deployed + site published; not committed)
+- New Payment__c.Status__c value **Action Required**.
+- Batch_ProcessPayments and Svc_StripeEventProcessor: authentication_required → Action Required + PI id + token `Svc_PaymentIntent.newToken(paymentId, intentId)`; the token is deterministic so batch and webhook write the same one. No Case.
+- Svc_PaymentIntent.stripeError(e) reads code / intent / method out of the stripeGC "Stripe callout error: {json}" message.
+- Ctrl_Payment: Action Required → mode `authenticate` (stored PI client secret + saved/declined pm, via applyAuthenticateIntent).
+- Page / iframe (`?v=14`): no Payment Element in this mode; confirmPayment({clientSecret, confirmParams.payment_method}); error shown in the iframe; no on-page failure Case.
+- Flow rab_Payment_Action_Required v1 (active in dev) → Svc_PaymentActionRequired: mail right away, reminder day 3, expire day 7 (Failed + one Case gqPayment).
+- Templates needed in acc / prod: paymentAuthenticationRequired_NL/_DE/_FR/_EN (Classic, by Name; EN fallback). dev: AlertMessage "no email template found".
+- Tests 47/47: Test_Svc_PaymentActionRequired (new), Test_Svc_PaymentIntent, Test_Svc_StripeEventProcessor, Test_Batch_ProcessPayments, Test_Ctrl_Payment. Coverage: Ctrl_Payment 82%, Svc_PaymentIntent 75% (tight).
+- Test data:
+  - A. Recovery: PM#000110391 a1nbd00000eyJITAA2 set to Action Required (pi_3UV7qm…, card 3184). Link token 6d3c4c574b8db9be7999b5f01f0fd425.
+  - B. Full chain: account "TEST Teun 3DS NL" 001bd00000nCgp0AAC, payment PM#000110394 a1nbd00000jHmntAAC (Setup, due + collection 2 days ahead). Link token a1065dec5fa38c54a825917e7babfeb7.
+- 2026-10-27 test A **PASSED**:
+  - PM#000110391 Action Required → page in authenticate mode → 3DS challenge → Complete. The same PI pi_3UV7qm went requires_action → succeeded, and the payment is Paid (11:36). No new Case; MI00234168 and MI00234169 are from the run before the build.
+  - Fix found during the test: the challenge was clipped by the iframe height. The iframe now grows to 680px while the challenge is open (`?v=15`, site published).
+- 2026-10-27 retest after resize, batch path:
+  - New payment PM#000110395 a1nbd00000jHI3XAAW (€14.75) on "TEST Teun card NL" (card 3184).
+  - The batch got 402 and set **Action Required** with pi_3UV8hpA2nsZIOV3Q0Gmm4ter and a generated token 289458fda1d5ed41a745c71dac4b4912.
+  - The payment_failed webhook arrived and kept Action Required; **no Case**. The flow ran the mail step (AlertMessage: no template in dev).
+  - The page confirmation by the user is pending.
+- 2026-10-27 retest page confirmation: Stripe has pi_3UV8hp **succeeded** (ch_3UV8hp…). The page set PM#000110395 to Processing. But payment_intent.succeeded is stuck at Stripe (pending_webhooks=1, first delivery failed; the neighbouring events arrived), so the payment is not Paid yet. Fix: resend from the Stripe dashboard, or wait for the test-mode retry. Gap: nothing reconciles Processing payments whose final event is lost.
+- 2026-10-27 test B (full chain):
+  - The user saved card 3184 with a 3DS challenge at setup: pm_1UV8tB…, type card.
+  - The batch got 402 and set PM#000110394 to **Action Required** (pi_3UV8vYA2nsZIOV3Q1E2ELlUa). The existing setup token a1065dec… was kept, so the same link works. No Case; mail step → AlertMessage (dev).
+  - Note: rbb_Payment recalculates Collection_Date__c only on create / Request_Date / Method change, not when Due_Date__c changes.
+- 2026-10-27 test B **PASSED**: the user confirmed via the same link (requires_action 12:33:20 → succeeded 12:33:25), and PM#000110394 is **Paid**. No Case on either test account.
+- PM#000110395 (retest): Stripe's retry delivered payment_intent.succeeded at 12:14 (~30 min after the failed first attempt), so it is **Paid**. The delivery gap healed itself in test mode. The open point stays: there is no reconcile for a Processing payment whose final event is lost for good.
+- 2026-10-27 test data for the method matrix (each payment €/£12.50, pr, Setup, due date today+3):
+  - C1 Apple Pay: "TEST Teun applepay NL" 001bd00000nEdi3AAC, PM#000110396, token b3953cb069c0c2002834d7fabe35eb4f.
+  - C2 Google Pay: "TEST Teun googlepay NL" 001bd00000nEdi4AAC, PM#000110397, token 40b876df8662568288ee271e25185eb5.
+  - D SEPA: "TEST Teun sepa NL" 001bd00000nEdi5AAC, PM#000110398, token f9b7237bc515b4a2d3137f6e2ec6e235.
+  - E UK Bacs (reseller 6, GBP): "TEST Teun bacs UK" 001bd00000nEdi6AAC, PM#000110399, Bacs PaymentIntent pi_3UV9ai… on UK - Dev, token 33d6ac9b884ed45b37b03fd66d425694.
+- 2026-10-27 "element not loading / no SEPA / no Apple Pay" on the NL setup pages:
+  - Not a load failure. With real time (DevTools client, scratchpad cdp.py) the element shows Card | SEPA Debit tabs; the headless screenshots with --virtual-time-budget were taken before Stripe finished.
+  - But Card was the default tab. Fix: `paymentMethodOrder = [entity method, apple_pay, google_pay, card]` (`?v=16`, site published). SEPA (NL) / Bacs (UK) is now pre-selected.
+- Payment methods per intent (checked in Stripe 2026-10-27):
+  - SetupIntent (SEPA entities): [sepa_debit, card], usage=off_session.
+  - First-payment PaymentIntent (Bacs entity): [bacs_debit, card], setup_future_usage=off_session.
+  - Batch off-session PaymentIntent: [saved type] + payment_method (+ mandate unless card), off_session=true.
+  - Apple Pay / Google Pay are not separate types: they come with `card`.
+  - Ctrl_StripePayment1 (hard-coded £20, automatic_payment_methods) has no callers: a dead prototype, remove in clean-up.
+  - Cosmetic: the batch sets metadata PaymentType=Direct Debit for card charges too.
+- Test E UK Bacs: PM#000110399 **Paid** with pm_1UVA71… type bacs_debit. Account mandate still empty (Bacs mandate activation is delayed in test mode → mandate.updated later); check before an off-session repeat.
+- 2026-10-27 test D SEPA **PASSED**: the setup saved pm_1UVAJw… + mandate_1UVAJw…, then the batch charged off-session and pi_3UVAKV… gave PM#000110398 **Paid** (SEPA test IBAN settles fast). PayProv_Mandate_Status__c still empty (known).
+- 2026-10-27 Apple Pay / Google Pay not shown: cause = the Stripe account's default payment method configuration had apple_pay / google_pay **off** (NL - Dev pmc_1S3waIA2nsZIOV3QxloEhv2K; card + sepa on). Turned **on** via the API for NL - Dev (test mode). UK - Dev and DE - Dev are **not changed** (the permission check blocked the automated change; ask the user / do it in the dashboard). acc + prod Stripe accounts: check the same setting before a wallet go-live.
+- 2026-10-27 test C1 Apple Pay **PASSED**: the setup saved pm_1UVAmW… (type card, wallet apple_pay, Mastercard 0408), then the batch charged off-session and PM#000110396 is **Paid** (pi_3UVAnx…).
+- Demo data: "TEST Teun applepay demo" 001bd00000nEgkoAAC, PM#000110400 a1nbd00000jMPU5AAO, token 4e75fcdc05c1acd3635e68f4df6d0be9.
+- 2026-10-27 demo link in Chrome ("not working"): checked with the DevTools client in real Chrome. The element loads fine (SEPA Debit pre-selected + Card, fields prefilled, no errors). Apple Pay never shows in Chrome (Safari / Apple devices only). Google Pay only shows when Chrome is signed in to a Google account with a saved card. Waiting for the user's screenshot if "not working" means something else.
+
+#### pr lock on Account.Payment_Method_Contracts__c (2026-10-28, dev + acc deployed, not committed)
+- User decisions: lock **pr only**, block back to **I-codes** only (pr → 08 / 30 stays allowed), Payment_Method_Opportunities__c **unlocked** (Opportunity lock: evaluate at the end), exception via Finance.
+- `vr_PaymentMethodContractsProviderLock` (Account): ISCHANGED + PRIORVALUE = pr + new LEFT 1 = I; exempt `$User.isSysAdmin__c`, profile miAPIIntegration, `cp_AccountPaymentMethod_Change`.
+- Custom permissions `cp_AccountPaymentMethod_Change` (used by the VR) and `cp_OpportunityPaymentMethod_Change` (no rule yet, reserved for the Opportunity lock).
+- Permission sets `ps_miAccountPaymentMethod_Change` and `ps_miOpportunityPaymentMethod_Change` (names with mi per the naming rule; user asked for ps_OpportunityPaymentMethod_Change).
+- `Rest_UpsertAccount`: existing account on pr keeps pr when the mapping would give an I-code (no IBAN-based I8 / UK I0 overwrite). Test `testPrNotOverwrittenByDirectDebitCode`; VR tests in `Test_Util_PaymentMethodRule`. dev 32/32, acc 32/32.
+- **pg_miFinance exists only in prod** (dev / acc have the old pg_Finance_NL), so the group change is prod-only: retrieve prod's pg_miFinance, add both ps.
+- Sales users Jonas Maassen, Laura Wilson, Sean McGrath, Dennis Lorenz, Ricardo Wilke exist only in prod → assign ps_miOpportunityPaymentMethod_Change there.
+- Prod (on go-ahead): deploy cp ×2, ps ×2, VR, Rest_UpsertAccount + 2 test classes (RunSpecifiedTests), pg_miFinance, then the 5 assignments.
+
+#### Contract codes + UK contract default (2026-10-28, dev + acc deployed, not committed)
+- **p1, pi and C are not allowed as the Account's contract payment method** (C = credits only). New CMDT checkbox `Payment_Method_Rule__mdt.Not_On_Contracts__c` = true on PMR_p1 / PMR_pi / PMR_C; `Util_PaymentMethodRule.checkContracts` runs for `Payment_Method_Contracts__c` only (new or changed values, as the rest of 1b). Opportunity field unaffected.
+- Scope is the **Account** field only. Prod has p1 on 12,421 Contracts and 2,913 Activated Contract Products, C on 200 Activated CPs (webshop / credit route), so Contract / CP level is not checked. Existing accounts: C ×19, p1 ×9 (all 2023), untouched until edited.
+- **`Rest_UpsertAccount` UK contract default I0 → pr** (user): UK with bank account (no code, or an I-code sent) → pr; UK without bank account stays 08. Requires UK PayProv_Use__c = true (true in dev / acc / prod), else the 1b rule rejects pr. Test `testUkDirectDebitDefaultIsPr`.
+- Risk: a platform sending p1 / pi / C as contract code now gets a 400 on the account. None created since 2023, so not expected.
+- Tests dev 34/34, acc 34/34 (Test_Util_PaymentMethodRule + Test_Rest_UpsertAccount).
+
+#### Opportunity default p1 → pi in Rest_UpsertAccount — analysis 2026-10-28 (built, see below)
+- Line 171, **new accounts only**: UK (6) → platform 5 '14', business '08', private **'p1'**; others → no IBAN '08', else 'I8'. **No I0 in the Opportunity default**; the I0 was in the Contracts default and is now pr (see above).
+- p1 route today: `ps_6_p1` (prod only, not in repo) AutoCreate **false**, Processor Opayo; the payment is created by `scr_General_Get_Payment_Opayo` (Method p1). Invoice remark "paid via webshop". Order flows treat p0 / p1 as paid: `rbb_Order` dec_01 (first order payment reference) + dec_02 (renewal reset), `rbc_Order` dec_02 (reset), `rbc_Order_Package_Subscription25` dec_01 (reference).
+- pi today: `ps_6_pi` AutoCreate **true**, Stripe → Stripe payment (psp-immediate) + payment link on invoice finalize; remark paymentRemarkPI; not in any order-flow p0 / p1 condition.
+- Consequence if the default simply becomes pi: webshop (Opayo) customers get an extra Stripe payment link for an already paid order; no payment reference on the first order; renewals not reset; wrong invoice remark.
+- To route pi like p1 (for now): add pi to the 4 order-flow conditions; ps_6_pi → AutoCreate false + Processor Opayo (as ps_6_p1); Ctrl_Invoice (prod's own version) give pi the P remark; scr_General_Get_Payment_Opayo unchanged (sets p1 on the payment).
+
+#### pi follows the p1 route + C for Finance (2026-10-28, dev + acc deployed)
+- User 2026-10-28: C stays allowed on the account contract method for Finance / admins (new CMDT checkbox `Contracts_With_Permission__c` on PMR_C; uses cp_AccountPaymentMethod_Change); p1 / pi never. The 4 internal C accounts (Moving Intelligence B.V. ×2, Technocon, Patrick Horst; 200 active €0 CPs) stay on C. Own code for free subscriptions: not now.
+- **pi = p1 route (for now):**
+  - `rbb_Order`: pi added next to p0 / p1 in dec_01 (first-order payment reference) and dec_02 (renewal reset). dev v21, acc v11 active. `rbc_Order` / `rbc_Order_Package_Subscription25` are active nowhere, so they are not changed.
+  - `Payment_Setting.ps_6_pi`: AutoCreate false, Processor Opayo, invoice text = p1's ("already paid via card payment"). `ps_6_p1` added to the repo (same in all orgs). `ps_1_pi` (NL) unchanged: still Stripe AutoCreate.
+  - `Ctrl_Invoice`: only pr keeps its own remark; pi gets the p1 remark. Repo = dev = acc. **Prod has its own Ctrl_Invoice**: same change prepared in `prod-pilock/Ctrl_Invoice.cls` (copy to a non-dot folder before deploying).
+  - `Rest_UpsertAccount`: UK private Opportunity default p1 → **pi** (new accounts only). Test `testUkPrivateOpportunityDefaultIsPi`.
+  - UNCL4461 left: pi = 68 (online payment service), p1 = 48 (bank card).
+- Tests dev 42/42, acc 42/42 (Test_Rest_UpsertAccount, Test_Util_PaymentMethodRule, Test_Ctrl_InvoiceRemarks, Test_Ctrl_InvoiceEstablishmentAddress).
+- **acc test before prod (user):** new UK private account through REST → Opportunity pi → order → first order gets the payment reference, invoice shows the p1 remark, no Stripe payment created. Also: set a pr account to I8 as a UI user (blocked), and C on a contract method without the permission (blocked).
+- **acc REST replay 2026-10-28 — PASS:** the 3 prod `RestUpsertAccount` request bodies for UK private customer Peter Sledge (MI 85281, platform 3) were taken from OAuth_Log__c.Request_Body__c and replayed in acc, with the email changed to trietman@movingintelligence.nl. Results:
+  1. Create (08, no bank): Opportunity **pi**, contract 08.
+  2. Bank update (I0): contract **pr**.
+  3. Repeated I0: contract stays **pr**.
+
+  acc account: 001G500001UpbUHIAZ. Still open: Opportunity → order → invoice on that account; the UI pr→I8 and C checks are covered by unit tests.
+- **acc replay of hardware + contract 2026-10-28:**
+  - Hardware 9297100: no request left in the logs (they go back to 2026-10-19), so it was rebuilt from the prod asset (`9297100-hw-3`, serial 4635409592). In acc it is placed on Sledge's account (85281); in prod it sits on MI account 60744, which doesn't exist in acc. acc asset: 02iG500000BoWXpIAN.
+  - Contract 93154_1: the prod request was replayed unchanged (`paymentMethod: "I0"`). acc contract UK.ITRACK.S5P.01.D, CP-1478574 (a0VG500000H7VbZMAV).
+  - ⚠ **Gap:** the contract and the CP got **I0** while the account is on **pr**. MI sends `paymentMethod: "I0"` on every UK DD contract. `Rest_UpsertContract` (around line 466 for the contract, around line 822 for the CP) copies that code whenever it differs from the account's method. So every new contract on a pr account lands on I0, and the pr lock is bypassed at contract level. The same code is in `Rest_UpsertContract - Prod.cls` (442/740) and `Rest_UpsertContractV2.cls` (496/852). Must be fixed before the prod deploy: if the account is pr, an incoming I-code is treated as pr.
+- **Prod 2026-10-28 (user request): Peter Sledge 001Tx0000122JuaIAE → pr.** Account Payment_Method_Contracts__c I0 → pr; draft order 02756583 I0 → pr (it did not follow the account automatically). Old values in `migration/before_prod_sledge_*_20261028.csv`. Done the same way as Blinco/Stone/Waldron: the CP (CP-1035659) stays I0 and the contract method stays empty; the Opportunity method stays p1. No invoice or payment yet. The first pr invoice gives a psp-recurring payment + mandate setup mail (as with Waldron). Prod pr accounts now 4. ⚠ Until 350c7f6 (REST guard + VR) is in prod, the next MI `/UpsertAccount` call with I0 resets the account to I0 (this affects Waldron too): check after each MI update.
+- **Prod (after the acc test, on go-ahead):** commits 350c7f6 + the pi route commit. Deploy cp ×2, ps ×2, VR, CMDT fields + PMR rows, Util_PaymentMethodRule, Rest_UpsertAccount, prod Ctrl_Invoice copy, ps_6_pi, ps_6_p1, rbb_Order (lands as Draft → activate via FlowDefinition, then 1 test save) + tests (RunSpecifiedTests). Then pg_miFinance (retrieve prod copy, add both ps) and ps_miOpportunityPaymentMethod_Change for Jonas Maassen, Laura Wilson, Sean McGrath, Dennis Lorenz, Ricardo Wilke.
+
+#### ⏰ CONTINUE 2026-10-28 (phase 2, dev)
+- [ ] Demo link Chrome: get the user's screenshot (token 4e75fcdc…) and trace it if it isn't just the missing wallet tab.
+- [ ] C2 Google Pay test in Chrome signed in with a Google account + card (PM#000110397, token 40b876df8662568288ee271e25185eb5).
+- [ ] E UK Bacs repeat charge once the Bacs mandate is active (account 001bd00000nEdi6AAC; check PayProv mandate fields first).
+- [ ] Wallets on UK - Dev / DE - Dev payment method configuration: user decides (dashboard, or allow the API change). Same check on acc / prod Stripe accounts before a wallet go-live.
+- [ ] Classic email templates paymentAuthenticationRequired_NL/_DE/_FR/_EN (dev first, then acc / prod).
+- [ ] One Case per failure on the setup side (Ctrl_PaymentCase; has unrelated uncommitted WIP).
+- [ ] Reconcile for Processing payments whose final Stripe event is lost.
+- [ ] Optional: "Visa •••• 3184" line in authenticate mode (offered, not confirmed).
+- [ ] Clean-up: remove Ctrl_StripePayment1; batch metadata PaymentType for card charges.
+- [ ] Decide pi (one-off) link/mail flow.
+- [ ] Commit phase 2 + 3DS (nothing committed yet; use a `-- <files>` pathspec, other WIP is in the tree).
+- [ ] acc deploy later (+ site publish). Prod only on explicit go-ahead.
+- [x] Step 4 (prod) done 2026-10-28: both accounts + the 3 paid payments on pr.
+- [ ] Verify that Stone's order 02757166 (pr) is invoiced on pr with a psp-recurring payment.
+- [ ] David Waldron 001Tx000011XwKHIA0, the first new customer on pr (not migrated): mandate set up (mandate_1UTvUT…, pm_1UTvUS…, PayProv_Mandate_Status__c empty as known). Invoice I-2610-00772018 is pr. PM#000206388 (£15, psp-recurring) has been **Processing** since 2026-10-24 03:19 UTC; Bacs settles in ~3 working days, so it should be Paid by ~10-29. Check it. Prod pr accounts (2026-10-28): 3 = Blinco, Stone, Waldron.
+- [ ] Step 5 clean-up (go-ahead 2026-10-28) right after step 4: drop I8 + Stripe routing (rbb_Payment, Payment_Setting ps_6_I8 = Stripe), psp-dd from Batch_ProcessPayments / rab_Payment_Direct_Debit_Setup / rbb_Payment, deactivate `Payment__c.Type__c` psp-dd. Check 0 accounts I8 + PayProv mandate and 0 psp-dd payments first.
+- [ ] Step 6 manuals (moved here 2026-10-28): update Payment Methods key-user 3e4ed1e5 + developer 1d00eaa3 with phase 2 / 3DS, then the PDFs (weekly backlog rows 10–11).

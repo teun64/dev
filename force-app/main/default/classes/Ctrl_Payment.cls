@@ -10,6 +10,7 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public String clientSecret;
         @AuraEnabled public String mode;
         @AuraEnabled public String paymentMethodType;
+        @AuraEnabled public String paymentMethodId;   // mode 'authenticate': the saved method the customer confirms
         @AuraEnabled public String currency_x;
         @AuraEnabled public Integer amountCents;
         @AuraEnabled public String customer;
@@ -147,6 +148,19 @@ public without sharing class Ctrl_Payment {
             return result;
         }
 
+        // Off-session charge needed 3-D Secure (Action Required): the customer confirms that same PaymentIntent here,
+        // with the saved method - mode 'authenticate', no new intent and no Payment Element.
+        if (Svc_PaymentIntent.STATUS_ACTION_REQUIRED.equals(p.Status__c) && String.isNotBlank(p.PayProv_PaymentIntentId__c)) {
+            try {
+                Map<String, Object> intent = Svc_PaymentIntent.call('GET', '/v1/payment_intents/' + p.PayProv_PaymentIntentId__c,
+                    businessEntity?.PayProv_Account__c, null, null);
+                applyAuthenticateIntent(result, intent, p.Account__r?.PayProv_PaymentMethodId__c);
+            } catch (Exception e) {
+                result.errorMessage = 'Could not load this payment: ' + e.getMessage();
+            }
+            return result;
+        }
+
         // Mandate or saved card already on file: Batch_ProcessPayments collects it off-session on the collection date.
         // The page never creates a PaymentIntent then — opening the link must not debit the customer.
         if (Svc_PaymentIntent.hasUsableMethod(p.Account__r)) {
@@ -245,6 +259,28 @@ public without sharing class Ctrl_Payment {
         }
 
         return pl;
+    }
+
+    /** Action Required payment: what the page needs to let the customer confirm the stored PaymentIntent (3-D Secure). */
+    @TestVisible
+    private static void applyAuthenticateIntent(PaymentData result, Map<String, Object> intent, String savedMethodId) {
+        Svc_PaymentIntent.Action a = Svc_PaymentIntent.decide((String) intent.get('status'));
+        if (a == Svc_PaymentIntent.Action.PROCESSED) {
+            result.alreadyProcessed = true;
+            return;
+        }
+        if (a == Svc_PaymentIntent.Action.CREATE) {
+            result.errorMessage = 'This payment link is no longer valid. Please contact support.';
+            return;
+        }
+        result.mode            = 'authenticate';
+        result.clientSecret    = (String) intent.get('client_secret');
+        result.paymentMethodId = savedMethodId;
+        List<Object> types = (List<Object>) intent.get('payment_method_types');
+        if (types != null && !types.isEmpty()) result.paymentMethodType = (String) types[0];
+        Map<String, Object> lastError    = (Map<String, Object>) intent.get('last_payment_error');
+        Map<String, Object> failedMethod = lastError == null ? null : (Map<String, Object>) lastError.get('payment_method');
+        if (failedMethod != null && failedMethod.get('id') != null) result.paymentMethodId = (String) failedMethod.get('id');
     }
 
     @AuraEnabled(cacheable=false)
