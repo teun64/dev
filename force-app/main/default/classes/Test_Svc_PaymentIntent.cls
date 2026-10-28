@@ -36,6 +36,16 @@ private class Test_Svc_PaymentIntent {
     }
 
     @IsTest
+    static void testMissingTypesUpdate() {
+        Map<String, Object> ddOnly = new Map<String, Object>{ 'payment_method_types' => new List<Object>{ 'bacs_debit' } };
+        System.assertEquals('payment_method_types[]=bacs_debit&payment_method_types[]=card',
+            Svc_PaymentIntent.missingTypesUpdate(ddOnly, 'bacs_debit'), 'Pre-phase-2 intent gets card added');
+        Map<String, Object> withCard = new Map<String, Object>{ 'payment_method_types' => new List<Object>{ 'sepa_debit', 'card' } };
+        System.assertEquals(null, Svc_PaymentIntent.missingTypesUpdate(withCard, 'sepa_debit'), 'Intent with card stays as is');
+        System.assertEquals(null, Svc_PaymentIntent.missingTypesUpdate(new Map<String, Object>(), 'sepa_debit'), 'No types in the response: no update');
+    }
+
+    @IsTest
     static void testBodies() {
         Id pid = [SELECT Id FROM Payment__c LIMIT 1].Id;
         String pi = Svc_PaymentIntent.paymentIntentBody(pid, 'cus_1', 1350, 'GBP', 'bacs_debit');
@@ -69,6 +79,38 @@ private class Test_Svc_PaymentIntent {
         System.assertEquals('pi_1', Svc_PaymentIntent.storeUpdate(p, c).PayProv_PaymentIntentId__c);
         c.isNew = false;
         System.assertEquals(null, Svc_PaymentIntent.storeUpdate(p, c), 'Reused intent: nothing to store');
+    }
+
+    // ── reused pre-phase-2 intent: card added in one update, same intent returned ──
+    @IsTest
+    static void testGetOrCreateReuseAddsCard() {
+        Payment__c p = Svc_PaymentIntent.queryPayments(new Set<Id>{ [SELECT Id FROM Payment__c LIMIT 1].Id })[0];
+        p.PayProv_SetupIntentId__c = 'seti_old';
+        Svc_PaymentIntent.mockResponses = new List<String>{
+            '{"id":"seti_old","status":"requires_payment_method","client_secret":"cs_old","payment_method_types":["sepa_debit"]}',
+            '{"id":"seti_old","status":"requires_payment_method","client_secret":"cs_old","payment_method_types":["sepa_debit","card"]}'
+        };
+
+        Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreate(p, null);
+
+        System.assertEquals('seti_old', c.intentId, 'Same intent reused');
+        System.assertEquals('cs_old', c.clientSecret);
+        System.assertEquals(2, Svc_PaymentIntent.sentBodies.size(), 'GET + one update');
+        System.assertEquals('POST /v1/setup_intents/seti_old payment_method_types[]=sepa_debit&payment_method_types[]=card', Svc_PaymentIntent.sentBodies[1]);
+    }
+
+    @IsTest
+    static void testGetOrCreateReuseWithCardNoUpdate() {
+        Payment__c p = Svc_PaymentIntent.queryPayments(new Set<Id>{ [SELECT Id FROM Payment__c LIMIT 1].Id })[0];
+        p.PayProv_SetupIntentId__c = 'seti_new';
+        Svc_PaymentIntent.mockResponses = new List<String>{
+            '{"id":"seti_new","status":"requires_payment_method","client_secret":"cs_new","payment_method_types":["sepa_debit","card"]}'
+        };
+
+        Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreate(p, null);
+
+        System.assertEquals('seti_new', c.intentId);
+        System.assertEquals(1, Svc_PaymentIntent.sentBodies.size(), 'Only the GET, no update');
     }
 
     @IsTest

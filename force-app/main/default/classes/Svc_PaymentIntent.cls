@@ -137,8 +137,15 @@ public without sharing class Svc_PaymentIntent {
                 return c;
             }
             if (a == Action.REUSE) {
+                List<String> changes = new List<String>();
                 if (isBacs && intent.get('amount') != null && Integer.valueOf(String.valueOf(intent.get('amount'))) != amount) {
-                    intent = call('POST', endpoint + '/' + stored, accountId, 'amount=' + amount, null);
+                    changes.add('amount=' + amount);
+                }
+                // 20261028 TRi an intent created before card / Apple Pay / Google Pay (phase 2) only offers direct debit: add card
+                String types = missingTypesUpdate(intent, ddMethod);
+                if (types != null) changes.add(types);
+                if (!changes.isEmpty()) {
+                    intent = call('POST', endpoint + '/' + stored, accountId, String.join(changes, '&'), null);
                 }
                 c.intentId     = stored;
                 c.clientSecret = (String) intent.get('client_secret');
@@ -156,6 +163,14 @@ public without sharing class Svc_PaymentIntent {
         c.clientSecret = (String) created.get('client_secret');
         c.isNew        = c.intentId != stored;
         return c;
+    }
+
+    /** payment_method_types update for a reused intent that lacks card, or null when it already offers it. */
+    @TestVisible
+    private static String missingTypesUpdate(Map<String, Object> intent, String ddMethod) {
+        List<Object> types = (List<Object>) intent?.get('payment_method_types');
+        if (types == null || types.contains(CARD)) return null;
+        return 'payment_method_types[]=' + ddMethod + '&payment_method_types[]=' + CARD;
     }
 
     /** Field update that stores a newly created intent on the payment, or null when nothing changed. */
@@ -242,7 +257,15 @@ public without sharing class Svc_PaymentIntent {
     }
 
     // ── Stripe call (stripeGC) ────────────────────────────────────────────────
+    // tests: queued Stripe responses (stripeGC's callout can't be mocked) and the request bodies sent
+    @TestVisible private static List<String> mockResponses;
+    @TestVisible private static List<String> sentBodies = new List<String>();
+
     public static Map<String, Object> call(String method, String endpoint, String stripeAccountId, String body, String idempotencyKey) {
+        if (Test.isRunningTest() && mockResponses != null && !mockResponses.isEmpty()) {
+            sentBodies.add(method + ' ' + endpoint + (body != null ? ' ' + body : ''));
+            return parse(mockResponses.remove(0));
+        }
         stripeGC.RawInvocableParameters params = new stripeGC.RawInvocableParameters();
         params.method      = method;
         params.endpoint    = endpoint;
