@@ -161,7 +161,7 @@ Prod: only on explicit go-ahead. acc/dev: RunLocalTests is broken, so deploy wit
 | 6 | Manuals: moved to the end of phase 2 (user 2026-10-28), see "CONTINUE 2026-10-28" | ✅ docs | | ⏳ end of phase 2 |
 | 2 | `rbb_OrderItem` (EN16931 VAT_Code lookup, now to `Subscription25__VAT_Code__c`) | ✅ v14 | ✅ v7 | ✅ v7 since 2026-10-22 11:36 UTC (checked 2026-10-28); v4 outage resolved |
 | — | EN16931 SYSTEM_MODE fixes (`Trigger_ContentDocumentLink`, `Svc_CIIInvoiceXmlBuilder`, `Svc_CIIHybridPdfMerge`, test fixtures, `Test_Ctrl_InvoiceRemarks`), commit ce00cb4 | ✅ 2026-10-21 | ✅ 2026-10-28: `Trigger_ContentDocumentLink`, `Svc_CIIHybridPdfMerge`, `Svc_CIIInvoiceXmlBuilder` deployed (NoTestRun) + `Test_Ctrl_InvoiceRemarks`; tests 9/9 pass | ✅ 2026-10-21 |
-| P2 | Phase 2: card + Apple Pay / Google Pay (see "Phase 2 start"), commit 8ae638c | ✅ 2026-10-21 | — | — |
+| P2 | Phase 2: card + Apple Pay / Google Pay + 3DS (see "Phase 2 start"), commits 8ae638c + bfe4942 | ✅ 2026-10-21 | ✅ 2026-10-28 | — |
 
 ## NEXT STEPS (as of 2026-10-21) — start here in a new session
 
@@ -676,7 +676,8 @@ Phase 2 test plan (dev):
 - [ ] Clean-up: remove Ctrl_StripePayment1; batch metadata PaymentType for card charges.
 - [ ] Decide pi (one-off) link/mail flow.
 - [ ] Commit phase 2 + 3DS (nothing committed yet; use a `-- <files>` pathspec, other WIP is in the tree).
-- [ ] acc deploy later (+ site publish). Prod only on explicit go-ahead.
+- [x] Commit phase 2 + 3DS: bfe4942 (2026-10-28).
+- [x] acc deploy 2026-10-28: 8ae638c + bfe4942 (16 components: 4 payment classes + Svc_PaymentActionRequired + 5 tests, rbb_Payment → acc v12, rab_Payment_Action_Required v1 active, paymentCheckout / paymentPage, static resource paymentProvider, Payment__c.Status__c + Action Required). Before the deploy, acc was exactly the pre-phase-2 repo state. Tests 88/88 (payment tests + Util_PaymentMethodRule + Rest_UpsertAccount). Customer Hub acc published; serves paymentCheckoutHtml `?v=16`. Not in acc yet: paymentAuthenticationRequired_* templates (not built anywhere), Apple/Google Pay domain on the acc Stripe accounts (not checked), Ctrl_PaymentCase WIP. Prod only on explicit go-ahead.
 - [x] Step 4 (prod) done 2026-10-28: both accounts + the 3 paid payments on pr.
 - [ ] Verify that Stone's order 02757166 (pr) is invoiced on pr with a psp-recurring payment.
 - [ ] David Waldron 001Tx000011XwKHIA0, the first new customer on pr (not migrated): mandate set up (mandate_1UTvUT…, pm_1UTvUS…, PayProv_Mandate_Status__c empty as known). Invoice I-2610-00772018 is pr. PM#000206388 (£15, psp-recurring) has been **Processing** since 2026-10-24 03:19 UTC; Bacs settles in ~3 working days, so it should be Paid by ~10-29. Check it. Prod pr accounts (2026-10-28): 3 = Blinco, Stone, Waldron.
