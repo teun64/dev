@@ -168,7 +168,7 @@ global without sharing class Rest_UpsertAccount {
 			acc.useInvoiceAddress__c = false;
 			acc.useShippingAddress__c = false;
 
-			acc.Payment_Method_Opportunities__c = (miAcc.resellerId == 6) ? ((miAcc.platformId == 5) ? '14' : ((miAcc.isBusiness == true) ? '08' : 'p1')) : ((miAcc.bankAccountNumber == null) ? '08' : 'I8');
+			acc.Payment_Method_Opportunities__c = (miAcc.resellerId == 6) ? ((miAcc.platformId == 5) ? '14' : ((miAcc.isBusiness == true) ? '08' : 'pi')) : ((miAcc.bankAccountNumber == null) ? '08' : 'I8');
 
 			if (String.isNotBlank(miAcc.marketId)) {
 				acc.Market__c = Util_System.getSalesMarket(miAcc.marketId);

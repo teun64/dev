@@ -200,8 +200,9 @@ public without sharing class Ctrl_Invoice {
       paymentType = 'I';
     } 
 
-    // payment provider one-off (pi) / recurring (pr): own remark, not the webshop text of p0 / p1
-    if ((paymentType == 'P') && ((this.paymentMethod == 'PI') || (this.paymentMethod == 'PR'))) {
+    // payment provider recurring (pr): own remark, not the webshop text of p0 / p1
+    // 20261028 TRi pi follows the p1 route for now (paid in the webshop), so it keeps the p1 remark
+    if ((paymentType == 'P') && (this.paymentMethod == 'PR')) {
       paymentType = this.paymentMethod;
     }
 

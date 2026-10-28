@@ -509,7 +509,7 @@
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
             <name>dec_01_Payment_Reference_Conditions_Set</name>
-            <conditionLogic>1 AND 2 AND 3 AND (4 OR 5)</conditionLogic>
+            <conditionLogic>1 AND 2 AND 3 AND (4 OR 5 OR 6)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Contract__c</leftValueReference>
                 <operator>IsBlank</operator>
@@ -543,6 +543,13 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>p1</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>pi</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -815,7 +822,7 @@
         <defaultConnectorLabel>Skip</defaultConnectorLabel>
         <rules>
             <name>dec_02_Payment_Method_Reset</name>
-            <conditionLogic>((1 OR 2)  AND 3 AND (4 OR 5) AND 6)</conditionLogic>
+            <conditionLogic>((1 OR 2 OR 7) AND 3 AND (4 OR 5) AND 6)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Payment_Method__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -856,6 +863,13 @@
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <elementReference>$Record.Subscription25__Recurring_Order__r.Subscription25__Contract_Product__r.Subscription25__Contract__r.StartDate</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>pi</stringValue>
                 </rightValue>
             </conditions>
             <connector>

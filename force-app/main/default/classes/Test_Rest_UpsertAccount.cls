@@ -654,4 +654,18 @@ private class Test_Rest_UpsertAccount {
         Account acc = [SELECT Payment_Method_Contracts__c FROM Account WHERE extID_1__c = 't70' LIMIT 1];
         System.assertEquals('pr', acc.Payment_Method_Contracts__c, 'UK with bank account defaults to pr, no longer I0');
     }
+
+    @IsTest
+    static void testUkPrivateOpportunityDefaultIsPi() {
+        Database.insert(new Business_Entities__c(Name = 'UK Stripe', Reseller__c = '6', PayProv_Use__c = true), AccessLevel.SYSTEM_MODE);
+        System.RestContext.request = new RestRequest();
+        System.RestContext.request.requestBody = Blob.valueOf('{"id":"t70","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":false,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":null,"bankAccountHolder":"Business b.v.","bankAccountNumber":"GB33BUKB20201555555555","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t7001","salesforceId":null,"accountId":"t70","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t7002","salesforceId":null,"accountId":"t70","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t70v","accountId":"t70","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t70b","accountId":"t70","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":6,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}');
+
+        Test.startTest();
+        Rest_UpsertAccount.handleAction();
+        Test.stopTest();
+
+        Account acc = [SELECT Payment_Method_Opportunities__c FROM Account WHERE extID_1__c = 't70' LIMIT 1];
+        System.assertEquals('pi', acc.Payment_Method_Opportunities__c, 'UK private opportunity default is pi, no longer p1');
+    }
 }

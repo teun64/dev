@@ -4,7 +4,7 @@
     <protected>false</protected>
     <values>
         <field>AutoCreate__c</field>
-        <value xsi:type="xsd:boolean">true</value>
+        <value xsi:type="xsd:boolean">false</value>
     </values>
     <values>
         <field>Exact_Invoice_Template__c</field>
@@ -12,7 +12,7 @@
     </values>
     <values>
         <field>Invoice_Text__c</field>
-        <value xsi:type="xsd:string">Please pay the invoice amount before {0} using the payment link in the invoice email.</value>
+        <value xsi:type="xsd:string">Invoice has already been paid via card payment.</value>
     </values>
     <values>
         <field>Method__c</field>
@@ -20,7 +20,7 @@
     </values>
     <values>
         <field>Processor__c</field>
-        <value xsi:type="xsd:string">Stripe</value>
+        <value xsi:type="xsd:string">Opayo</value>
     </values>
     <values>
         <field>Reseller__c</field>
