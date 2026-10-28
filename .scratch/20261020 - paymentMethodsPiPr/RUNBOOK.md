@@ -721,3 +721,16 @@ Closed: the 3 old "Direct Debit Setup Failure" Cases in acc (MI00273366-68, from
    - Per account first check: existing Exact mandate / already invoiced on I0 (then ask Teun), activated orders/invoices are not changed.
 
 - **Prod 2026-10-28 evening (user request): Jill Lumb 001Tx000011go2aIAA, William Bull 001Tx000011htMmIAI, Robert Sawyer 001Tx000011nRKeIAM → pr.** New UK customers since 10-21 with one activated contract (method empty) and a Draft order: account Payment_Method_Contracts__c I0 → pr, draft orders 02752963 / 02752970 / 02755673 Payment_Method__c I0 → pr (Invoice_Payment_Method__c follows). CPs (CP-1034834 / CP-1034841 / CP-1035367) stay I0, as for Sledge. No invoices or payments yet. Old values in `migration/before_prod_uk_i0_{accounts,orders}_20261028.csv`. Prod pr accounts now 7. ⚠ Same reset risk until 350c7f6 is in prod: check all 7 before the month-end run. The other 12 new UK I0 accounts have no contract/order yet → move after the deploy.
+
+- **Prod 2026-10-28 evening (user request): active CPs of the 7 pr accounts I0 → pr** (CP-1010146 Blinco, CP-1029657 Stone, CP-1034621 Waldron, CP-1034834 Lumb, CP-1034841 Bull, CP-1035367 Sawyer, CP-1035659 Sledge). Blinco's 2 Terminated CPs (CP-718583, CP-918188) left on I0 (history). Backup `migration/before_prod_pr_cps_20261028.csv`. ⚠ Until 8858288 is in prod, a contract update from the platform puts a CP back to I0: include the CPs in the "still pr?" check.
+
+### 📝 TODO flow change: contract product override in the order payment method
+
+The CP `Payment_Method__c` is the contract-level override coming from the MI platforms (Rest_UpsertContract writes it), but the order payment method ignores it today:
+- `rbc_Order.fPaymentMethodSet` = Contract.Payment_Method__c → else Account.Payment_Method_Contracts__c (Hardware/Opportunity orders: Account.Payment_Method_Opportunities__c). The CP is never read.
+- `rbc_Order_Package_Subscription25` only reads the CP method for the payment reference condition (p0 / p1).
+- Prod 2026-10-28: all orders on the pr accounts became pr while their CPs were I0 (Waldron 02752013 activated, Stone 02757166, Lumb/Bull/Sawyer/Sledge drafts).
+
+Change: for contract orders from the package (Subscription25__Recurring_Order__r.Subscription25__Contract_Product__c), use CP Payment_Method__c first, then contract, then account.
+Prerequisite: the REST pr guard (8858288 + 350c7f6) live in prod first. Without it, the platform's I0 on the CP would override pr on the order.
+Check before building: which other CP methods (I8/I4/08/30, p0/p1) differ from the account today, because they would start to win (run a prod count of CP method ≠ the resulting order method).
