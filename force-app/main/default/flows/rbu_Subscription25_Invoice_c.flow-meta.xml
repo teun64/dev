@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>66.0</apiVersion>
+    <apiVersion>68.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>ass_01_Adjusted_Invoice_Number</name>
@@ -414,7 +414,7 @@
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>ass_01_Base_Due_Date</targetReference>
+            <targetReference>dec_02_Due_Date_pr</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -546,6 +546,32 @@
         </rules>
     </decisions>
     <decisions>
+        <description>pr (Stripe recurring): the due period comes from the business entity&apos;s direct debit method setting (setup + processing working days)</description>
+        <name>dec_02_Due_Date_pr</name>
+        <label>2. Due Date pr</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_Base_Due_Date</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_02_Due_Date_pr_Set</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Payment_Method__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>pr</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dgr_02_BusinessEntity</targetReference>
+            </connector>
+            <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>dec_01_Do_Not_Email</name>
         <label>1. Do Not Email</label>
         <locationX>0</locationX>
@@ -595,7 +621,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_01_Base_Due_Date</targetReference>
+                <targetReference>dec_02_Due_Date_pr</targetReference>
             </connector>
             <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
             <label>Set</label>
@@ -945,7 +971,8 @@ CASE(WEEKDAY({!$Record.Subscription25__Due_Date__c}),1,1,7,2,0)
     <formulas>
         <name>fDuePeriod</name>
         <dataType>Number</dataType>
-        <expression>IF(
+        <expression>IF(ISPICKVAL({!$Record.Payment_Method__c},&apos;pr&apos;),{!fDuePeriodPr},
+IF(
 ISNUMBER(TEXT({!$Record.Payment_Method__c}))
 ,
 VALUE(TEXT({!$Record.Payment_Method__c}))
@@ -957,7 +984,25 @@ CASE(RIGHT(TEXT({!$Record.Payment_Method__c}),1),&apos;3&apos;,30,&apos;4&apos;,
 ,
 0
 )
+))</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <description>20261028 TRi pr: working days (setup only without a saved payment method, + processing) from the base date, as calendar days; a weekend base counts from the Friday before</description>
+        <name>fDuePeriodPr</name>
+        <dataType>Number</dataType>
+        <expression>IF({!fDuePeriodPrWorkdays} = 0, 0,
+{!fDuePeriodPrWorkdays}
+- CASE(WEEKDAY({!fDueDateBase}),1,2,7,1,0)
++ 2 * FLOOR((CASE(WEEKDAY({!fDueDateBase}),1,4,7,4,WEEKDAY({!fDueDateBase})-2) + {!fDuePeriodPrWorkdays}) / 5)
 )</expression>
+        <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>fDuePeriodPrWorkdays</name>
+        <dataType>Number</dataType>
+        <expression>BLANKVALUE({!directDebitSettingRecord.Processing_Time__c},0)
++ IF(ISBLANK({!$Record.Subscription25__Account__r.PayProv_PaymentMethodId__c}), BLANKVALUE({!directDebitSettingRecord.Setup_Time__c},0), 0)</expression>
         <scale>0</scale>
     </formulas>
     <formulas>
@@ -1125,6 +1170,53 @@ IF((BLANKVALUE(TEXT({!$Record.Subscription25__Account__r.Reseller_Name__c}),BLAN
         <sortField>Payment_Reference_Length__c</sortField>
         <sortOrder>Desc</sortOrder>
     </recordLookups>
+    <recordLookups>
+        <name>dgr_02_BusinessEntity</name>
+        <label>2. Business Entity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dgr_02_Direct_Debit_Method_Setting</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Reseller__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Administration__r.Reseller__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Business_Entities__c</object>
+        <outputReference>businessEntityRecord</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>PayProv_DirectDebit_PaymentMethod__c</queriedFields>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_02_Direct_Debit_Method_Setting</name>
+        <label>2. Direct Debit Method Setting</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>ass_01_Base_Due_Date</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>businessEntityRecord.PayProv_DirectDebit_PaymentMethod__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>DirectDebit_Method_Setting__mdt</object>
+        <outputReference>directDebitSettingRecord</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Processing_Time__c</queriedFields>
+        <queriedFields>Setup_Time__c</queriedFields>
+    </recordLookups>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -1136,6 +1228,22 @@ IF((BLANKVALUE(TEXT({!$Record.Subscription25__Account__r.Reseller_Name__c}),BLAN
         <triggerType>RecordBeforeSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>businessEntityRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Business_Entities__c</objectType>
+    </variables>
+    <variables>
+        <name>directDebitSettingRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>DirectDebit_Method_Setting__mdt</objectType>
+    </variables>
     <variables>
         <name>vCommit</name>
         <dataType>Number</dataType>
