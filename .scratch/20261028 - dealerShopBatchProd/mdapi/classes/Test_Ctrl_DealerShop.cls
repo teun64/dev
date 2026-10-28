@@ -1739,9 +1739,12 @@ private class Test_Ctrl_DealerShop {
         // the Account, this GBP account would silently produce a EUR Opportunity, which then fails
         // to insert against the GBP PricebookEntry below anyway (FIELD_INTEGRITY_EXCEPTION) - exactly
         // the real bug this guards, reproduced with a real UK account against dev/acc/prod.
+        // GB makes the account reseller 6, where the fixture's I8 is not allowed on either payment method
+        // field (Util_PaymentMethodRule) - use the UK direct debit code I0, like a real UK account.
         Account gbpAcc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
         Database.update(new Account(
-            Id = gbpAcc.Id, BillingCountryCode = 'GB', CurrencyIsoCode = 'GBP'
+            Id = gbpAcc.Id, BillingCountryCode = 'GB', CurrencyIsoCode = 'GBP',
+            Payment_Method_Contracts__c = 'I0', Payment_Method_Opportunities__c = 'I0'
         ), AccessLevel.SYSTEM_MODE);
 
         Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];

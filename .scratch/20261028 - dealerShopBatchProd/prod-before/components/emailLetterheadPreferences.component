@@ -1,0 +1,30 @@
+<apex:component access="global">
+    <apex:attribute name="part" type="String" description="header | logo | footer" />
+    <apex:attribute name="language" type="String" description="Language code of the email (nl, de, fr, en; nl_NL etc. also works); anything else falls back to English. Pass $Label.DealerPortal_EmailLanguage: recipient fields are empty when a guest sends the email (forgot password)." />
+    <!-- Copy of the Enhanced Letterheads lh_M_Preferences_EN/NL/DE/FR for Visualforce email templates, which cannot use a letterhead. Keep both in sync. -->
+    <apex:variable var="lang" value="{!LOWER(LEFT(language, 2))}" />
+
+    <apex:outputPanel layout="none" rendered="{!part == 'header'}">
+        <div><img alt="mi-email-header" src="https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK" style="max-width: 600px; width: 100%; display: block;" title="mi-email-header" /></div>
+    </apex:outputPanel>
+
+    <apex:outputPanel layout="none" rendered="{!part == 'logo'}">
+        <div style="margin:24px 0 0 0; font-family:Arial,sans-serif;">
+            <div style="margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
+            <div style="width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&#160;</div>
+            <div style="font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong>knowledge in motion<span style="color:#FF0000;">.</span></strong><br />
+                <apex:outputPanel layout="none" rendered="{!lang == 'nl'}"><a href="https://movingintelligence.nl" style="color:#5B625B">movingintelligence.nl</a></apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!lang == 'de'}"><a href="https://movingintelligence.de" style="color:#5B625B">movingintelligence.de</a></apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!lang == 'fr'}"><a href="https://movingintelligence.ai" style="color:#5B625B">movingintelligence.ai</a></apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(OR(lang == 'nl', lang == 'de', lang == 'fr'))}"><a href="https://movingintelligence.co.uk" style="color:#5B625B">movingintelligence.co.uk</a></apex:outputPanel>
+            </div>
+        </div>
+    </apex:outputPanel>
+
+    <apex:outputPanel layout="none" rendered="{!part == 'footer'}">
+        <apex:outputPanel layout="none" rendered="{!lang == 'nl'}"><div style="padding: 0px 10px 10px 10px; font-family:Arial, sans-serif; font-size: 11px; line-height: 18px; color: #8A8F8A;">Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href="https://movingintelligence.nl/algemene-voorwaarden" style="color:#5B625B;">algemene voorwaarden</a> en <a href="https://movingintelligence.nl/privacy" style="color:#5B625B;">privacyverklaring</a>.</div></apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!lang == 'de'}"><div style="padding: 0px 10px 10px 10px; font-family:Arial, sans-serif; font-size: 11px; line-height: 18px; color: #8A8F8A;">Für alle unsere Leistungen gelten unsere Allgemeinen Geschäftsbedingungen. Lesen Sie unsere <a href="https://movingintelligence.de/agb" style="color:#5B625B;">AGB</a> und unsere <a href="https://movingintelligence.de/datenschutzerklaerung" style="color:#5B625B;">Datenschutzerklärung</a>.</div></apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!lang == 'fr'}"><div style="padding: 0px 10px 10px 10px; font-family:Arial, sans-serif; font-size: 11px; line-height: 18px; color: #8A8F8A;">Nos conditions générales s'appliquent à l'ensemble de nos services. Consultez nos <a href="https://movingintelligence.ai/terms/" style="color:#5B625B;">conditions générales</a> et notre <a href="https://movingintelligence.ai/privacy/" style="color:#5B625B;">déclaration de confidentialité</a>.</div></apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!NOT(OR(lang == 'nl', lang == 'de', lang == 'fr'))}"><div style="padding: 0px 10px 10px 10px; font-family:Arial, sans-serif; font-size: 11px; line-height: 18px; color: #8A8F8A;">Our general terms and conditions apply to all our services. Read our <a href="https://movingintelligence.co.uk/pages/terms-and-conditions" style="color:#5B625B;">terms and conditions</a> and <a href="https://movingintelligence.co.uk/pages/privacy-policy" style="color:#5B625B;">privacy statement</a>.</div></apex:outputPanel>
+    </apex:outputPanel>
+</apex:component>
