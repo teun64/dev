@@ -165,6 +165,40 @@ private class Test_Ctrl_Payment {
             'Main contact used as fallback when no payment contact');
     }
 
+    // ── getPaymentData – page language from the contact (Language__c is a country code) ──
+
+    @IsTest
+    static void testGetPaymentData_languageFromContact() {
+        Contact c = [SELECT Id FROM Contact WHERE Email = 'jan.betaler@acme.nl' LIMIT 1];
+        c.Language__c = 'AT';
+        update c;
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
+        Test.stopTest();
+
+        System.assertEquals('de', d.language, 'Payment/main contact language decides the page language');
+    }
+
+    @IsTest
+    static void testGetPaymentData_languagePaymentContactWins() {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'ACME BV' LIMIT 1];
+        Contact c = [SELECT Id FROM Contact WHERE Email = 'jan.betaler@acme.nl' LIMIT 1];
+        c.Language__c = 'NL';
+        update c;
+        Contact fr = new Contact(AccountId = acc.Id, FirstName = 'Jean', LastName = 'Payeur', Email = 'jean.payeur@acme.fr', Language__c = 'FR');
+        insert fr;
+        Payment__c p = [SELECT Id FROM Payment__c WHERE externalId__c = 'TOKEN-SETUP'];
+        p.Contact__c = fr.Id;
+        update p;
+
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('TOKEN-SETUP', 'en');
+        Test.stopTest();
+
+        System.assertEquals('fr', d.language, 'The payment\'s own contact goes first');
+    }
+
     // ── getPaymentData – edge cases ───────────────────────────────────────────
 
     @IsTest

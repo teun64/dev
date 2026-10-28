@@ -428,14 +428,14 @@ export default class PaymentPage extends LightningElement {
                 } else if (data.alreadyScheduled) {
                     this._alreadyScheduled = true;
                     this._scheduledDate    = data.collectionDate;
-                    this._applyLocale(LOCALE);
+                    this._applyCustomerLanguage(data.language);
                     this.viewState         = 'success';
                 } else if (data.errorMessage) {
                     this.hasError     = true;
                     this.errorMessage = data.errorMessage;
                 } else {
                     this.payment = data;
-                    this._applyLocale(LOCALE);
+                    this._applyCustomerLanguage(data.language);
                 }
                 this.isLoading = false;
             })
@@ -447,6 +447,18 @@ export default class PaymentPage extends LightningElement {
     }
 
     // -------- Locale --------
+    // The customer's language (contact, resolved server-side) wins over the hub header's domain guess;
+    // the header is told so its pill matches, and a later pill click still switches the page
+    _applyCustomerLanguage(code) {
+        const locale = LANG_CODE_TO_LOCALE[code];
+        if (!locale) {
+            this._applyLocale(LOCALE);
+            return;
+        }
+        this._applyLocale(locale);
+        window.dispatchEvent(new CustomEvent('mi:languageset', { detail: { language: code } }));
+    }
+
     _applyLocale(value) {
         const raw    = (value && value !== 'auto') ? value : LOCALE;
         const locale = raw.replace('_US', '_GB').replace('-', '_');

@@ -13,6 +13,7 @@ const LANGS = [
 ];
 
 const EVENT_KEY = 'mi:languagechange';
+const SET_EVENT_KEY = 'mi:languageset';
 
 export default class CustomerHubHeader extends LightningElement {
 
@@ -24,6 +25,17 @@ export default class CustomerHubHeader extends LightningElement {
     connectedCallback() {
         this._lang = this._detectLang();
         this._emit();
+        // A page that knows the customer's language (payment page: contact language) sets it here,
+        // so the pill matches; no re-emit, that page already shows it
+        this._setHandler = (e) => {
+            const code = e.detail?.language;
+            if (LANGS.some(l => l.code === code)) this._lang = code;
+        };
+        window.addEventListener(SET_EVENT_KEY, this._setHandler);
+    }
+
+    disconnectedCallback() {
+        if (this._setHandler) window.removeEventListener(SET_EVENT_KEY, this._setHandler);
     }
 
     // ── Getters ───────────────────────────────────────────────────

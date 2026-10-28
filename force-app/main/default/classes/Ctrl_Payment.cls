@@ -27,6 +27,7 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public String billingPostalCode;
         @AuraEnabled public String billingCountry;
         @AuraEnabled public ProductLine productLine;
+        @AuraEnabled public String language;          // nl/de/fr/en from the contact's Language__c, null when unknown
     }
 
     public class ProductLine {
@@ -36,6 +37,14 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public Decimal amount;
         @AuraEnabled public Integer periodMonths;
     }
+
+    // Contact.Language__c is a country code: map to the page languages (nl/de/fr/en), same as Ctrl_PreferenceCenter
+    private static final Map<String, String> COUNTRY_TO_LANGUAGE = new Map<String, String>{
+        'NL' => 'nl', 'BE' => 'nl', 'AN' => 'nl',
+        'DE' => 'de', 'AT' => 'de', 'CH' => 'de', 'LU' => 'de',
+        'FR' => 'fr',
+        'GB' => 'en', 'EN' => 'en'
+    };
 
     @AuraEnabled(cacheable=false)
     public static PaymentData getPaymentData(String token, String language) {
@@ -52,6 +61,7 @@ public without sharing class Ctrl_Payment {
             'SELECT Id, Name, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
             '       PayProv_PaymentIntentId__c, PayProv_SetupIntentId__c,' +
             '       Invoice__c,' +
+            '       Contact__r.Language__c,' +
             '       Account__c,' +
             '       Account__r.Name,' +
             '       Account__r.PayProv_CustomerId__c,' +
@@ -106,7 +116,7 @@ public without sharing class Ctrl_Payment {
         result.billingCountry      = p.Account__r?.BillingCountryCode;
 
         List<AccountContactRelation> contactRels = Database.queryWithBinds(
-            'SELECT Contact.FirstName, Contact.LastName, Contact.Email,' +
+            'SELECT Contact.FirstName, Contact.LastName, Contact.Email, Contact.Language__c,' +
             '       IsPaymentContact__c, isMainContact__c' +
             ' FROM AccountContactRelation' +
             ' WHERE AccountId = :accountId' +
@@ -121,6 +131,15 @@ public without sharing class Ctrl_Payment {
             result.contactFirstName = contactRels[0].Contact.FirstName;
             result.contactLastName  = contactRels[0].Contact.LastName;
             result.contactEmail     = contactRels[0].Contact.Email;
+        }
+
+        // 20261028 TRi the customer's language (payment contact, else the account's payment/main contact) decides the page language;
+        // the hub header only knows the domain, which on sandboxes and the shared site is no language at all
+        String countryCode = p.Contact__r?.Language__c;
+        if (String.isBlank(countryCode) && !contactRels.isEmpty()) countryCode = contactRels[0].Contact.Language__c;
+        if (String.isNotBlank(countryCode)) {
+            result.language = COUNTRY_TO_LANGUAGE.containsKey(countryCode) ? COUNTRY_TO_LANGUAGE.get(countryCode) : 'en';
+            language = result.language;
         }
 
         if (p.Request_Date__c != null) {
