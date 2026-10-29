@@ -194,7 +194,7 @@ public without sharing class Svc_StripeEventProcessor {
         if (!eventUpdates.isEmpty())   update eventUpdates;
         if (!accountMap.isEmpty())     update accountMap.values();
         if (!paymentUpdates.isEmpty()) Database.update(paymentUpdates.values(), AccessLevel.SYSTEM_MODE);
-        if (!newCases.isEmpty())       insert newCases;
+        if (!newCases.isEmpty())       insertOrAppendCases(newCases);
     }
 
     /** Active mandate of a payment method that is newly stored on an account without a mandate in this run: from this run's own mandate events, else from an earlier, unlinked one. */
@@ -226,6 +226,37 @@ public without sharing class Svc_StripeEventProcessor {
         for (String pm : mandateByMethod.keySet()) {
             needsMandate.get(pm).PayProv_MandateId__c = mandateByMethod.get(pm);
         }
+    }
+
+    /** One open Case per account + subject (same rule as Ctrl_PaymentCase): a repeated event (Stripe retry, reconcile,
+     *  a second failure of the same payment) is added to the open Case instead of a new one. */
+    private static void insertOrAppendCases(List<Case> newCases) {
+        Set<Id> accountIds = new Set<Id>();
+        Set<String> subjects = new Set<String>();
+        for (Case c : newCases) { accountIds.add(c.AccountId); subjects.add(c.Subject); }
+        Map<String, Case> open = new Map<String, Case>();
+        for (Case c : [SELECT Id, AccountId, Subject, Description FROM Case
+                       WHERE AccountId IN :accountIds AND Subject IN :subjects AND IsClosed = false
+                       WITH SYSTEM_MODE ORDER BY CreatedDate ASC]) {
+            String key = c.AccountId + '|' + c.Subject;
+            if (!open.containsKey(key)) open.put(key, c);
+        }
+        List<Case> inserts = new List<Case>();
+        Map<Id, Case> appends = new Map<Id, Case>();
+        for (Case c : newCases) {
+            Case existing = open.get(c.AccountId + '|' + c.Subject);
+            if (existing == null) {
+                inserts.add(c);
+                open.put(c.AccountId + '|' + c.Subject, c);
+                continue;
+            }
+            if (existing.Id == null) continue;   // same subject twice in this run: the first new Case covers it
+            existing.Description = ((existing.Description == null ? '' : existing.Description) + '\n\n'
+                + System.now().format('yyyy-MM-dd HH:mm') + ' again: ' + (c.Description == null ? '' : c.Description.substringBefore('\n'))).left(32000);
+            appends.put(existing.Id, existing);
+        }
+        if (!inserts.isEmpty()) insert inserts;
+        if (!appends.isEmpty()) Database.update(appends.values(), AccessLevel.SYSTEM_MODE);
     }
 
     /** Only for a method that is new on the account or not typed yet: repeat charges reuse the same, typed method. */

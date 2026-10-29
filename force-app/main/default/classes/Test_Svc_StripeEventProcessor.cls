@@ -284,6 +284,32 @@ private class Test_Svc_StripeEventProcessor {
         System.assertEquals('Failed', upd.Status__c, 'the late processing event of the same intent is ignored');
     }
 
+    // ── the same failure delivered twice (Stripe retry / reconcile): one open Case, the repeat is appended ──
+    @IsTest
+    static void testRepeatedFailureOneCase() {
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+        Test.startTest();
+        for (Integer i = 0; i < 2; i++) {
+            insert new stripeGC__Stripe_Event__c(
+                stripeGC__Event_Name__c   = 'payment_intent.payment_failed',
+                stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
+                    'data' => new Map<String, Object>{
+                        'object' => new Map<String, Object>{
+                            'id' => 'pi_rep001', 'status' => 'requires_payment_method', 'customer' => 'cus_test001',
+                            'payment_method' => 'pm_rep001', 'metadata' => new Map<String, Object>{ 'PaymentID' => pmt.Id },
+                            'last_payment_error' => new Map<String, Object>{ 'code' => 'insufficient_funds', 'message' => 'insufficient funds' }
+                        }
+                    }
+                })
+            );
+        }
+        Test.stopTest();
+
+        List<Case> cases = [SELECT Description FROM Case WHERE Subject LIKE '%failure%'];
+        System.assertEquals(1, cases.size(), 'one open Case for the repeated failure');
+        System.assert(cases[0].Description.contains(' again: '), cases[0].Description);
+    }
+
     @IsTest
     static void testPaymentIntentSucceeded() {
         Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
