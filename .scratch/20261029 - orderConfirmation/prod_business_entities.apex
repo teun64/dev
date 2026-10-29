@@ -1,4 +1,4 @@
-Map<String,String> bh = new Map<String,String>{'1'=>'Shipping (NL)','3'=>'Shipping (NL)','4'=>'Shipping (NL)','5'=>'Shipping (NL)','6'=>'Shipping (UK)','2'=>'Shipping (GR)'};
+Map<String,String> bh = new Map<String,String>{'1'=>'Office (NL)','3'=>'Office (NL)','4'=>'Office (NL)','5'=>'Office (NL)','6'=>'Office (UK)','2'=>'Office (GR)'};
 List<Business_Entities__c> bes = [SELECT Id, Reseller__c FROM Business_Entities__c];
 for (Business_Entities__c be : bes) { be.Business_Hours_Shipping__c = bh.get(be.Reseller__c); be.Shipping_Cutoff_Time__c = Time.newInstance(15,0,0,0); }
 update bes;
