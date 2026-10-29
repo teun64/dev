@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>DealerShop_ContactPerson</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cart order options: contact person (signer) choice</shortDescription>
+        <value>Contact person for this order</value>
+    </labels>
+</CustomLabels>

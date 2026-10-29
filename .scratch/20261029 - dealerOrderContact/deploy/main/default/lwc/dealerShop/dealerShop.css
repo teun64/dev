@@ -1,0 +1,116 @@
+:host {
+    --brand-primary: #ff0000;
+    --brand-accent:  #ffffff;
+    display: block;
+    font-family: var(--brand-font, 'Open Sans', sans-serif);
+}
+
+.shop-root {
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.shop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 4rem;
+    background: #ffffff;
+    border-bottom: 3px solid var(--brand-primary);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.shop-header__search {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 420px;
+}
+
+.shop-search-input {
+    width: 100%;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.shop-search-input:focus {
+    border-color: var(--brand-primary);
+}
+
+.shop-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cart-button {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: #0E0F0E;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    position: relative;
+    transition: background 0.15s ease;
+}
+
+.cart-button:hover {
+    background: #a80000;
+}
+
+.cart-button__label {
+    display: inline-block;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ffffff;
+    color: var(--brand-primary);
+    border: 2px solid var(--brand-primary);
+    border-radius: 50%;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.shop-main {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+
+@media (max-width: 600px) {
+    .shop-main {
+        padding: 1rem 0.75rem;
+    }
+
+    .cart-button__label {
+        display: none;
+    }
+
+    .shop-header {
+        padding: 0 0.75rem;
+    }
+}

@@ -1,0 +1,59 @@
+<template>
+    <div class="order-history">
+        <div class="order-history__header">
+            <h1 class="order-history__title">{labels.DealerOrder_HistoryTitle}</h1>
+            <div class="toggle-group">
+                <button class={mineButtonClass} onclick={handleShowMine}>{labels.DealerOrder_MyOrders}</button>
+                <button class={allButtonClass} onclick={handleShowAll}>{labels.DealerOrder_AllOrders}</button>
+            </div>
+        </div>
+
+        <template if:true={isLoading}>
+            <div class="spinner-container">
+                <lightning-spinner alternative-text={labels.DealerOrder_Loading} size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={isEmpty}>
+                <div class="empty-state">
+                    <p>{labels.DealerOrder_NoOrders}</p>
+                </div>
+            </template>
+
+            <template if:false={isEmpty}>
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>{labels.DealerOrder_OrderNumber}</th>
+                            <th>{labels.DealerOrder_Date}</th>
+                            <th>{labels.DealerOrder_Status}</th>
+                            <th>{labels.DealerOrder_PlacedBy}</th>
+                            <th class="col-amount">{labels.DealerOrder_Total}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={orders} for:item="order">
+                            <tr key={order.id}>
+                                <td><a href={order.detailUrl} class="order-link">{order.orderNumber}</a></td>
+                                <td>{order.formattedDate}</td>
+                                <td>{order.statusLabel}</td>
+                                <td>{order.placedByName}</td>
+                                <td class="col-amount">{order.formattedAmount}</td>
+                                <td>
+                                    <button
+                                        class="reorder-btn"
+                                        data-order-id={order.id}
+                                        onclick={handleAddToCart}>
+                                        {labels.DealerOrder_Reorder}
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+        </template>
+    </div>
+</template>

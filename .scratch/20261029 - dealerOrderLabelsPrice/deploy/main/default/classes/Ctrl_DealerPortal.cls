@@ -1,0 +1,281 @@
+public without sharing class Ctrl_DealerPortal {
+
+    // ── Brand config ──────────────────────────────────────────────────────────
+
+    @AuraEnabled(cacheable=true)
+    public static BrandConfigDTO getBrandConfig() {
+        String resellerCode = resolveResellerCode();
+
+        List<BrandThemeConfig__mdt> configs = [
+            SELECT Brand__c, BrandName__c, PrimaryColor__c, AccentColor__c,
+                   LogoStaticResource__c, LogoStaticResourceDark__c, LogoStaticResourceColor__c, TagLine__c, ResellerCodes__c,
+                   PortalHomeTitle__c, PortalHomeWelcome__c,
+                   PortalShopCtaText__c, PortalSignupTitle__c,
+                   PrivacyPolicyUrl__c, LegalNoticeUrl__c, OfferUrl__c, CareersUrl__c
+            FROM BrandThemeConfig__mdt
+            WITH SYSTEM_MODE
+        ];
+
+        BrandThemeConfig__mdt matched = null;
+        BrandThemeConfig__mdt fallback = null;
+        for (BrandThemeConfig__mdt cfg : configs) {
+            if (cfg.Brand__c == 'M') fallback = cfg;
+            if (String.isNotBlank(cfg.ResellerCodes__c) && String.isNotBlank(resellerCode)) {
+                for (String code : cfg.ResellerCodes__c.split(',')) {
+                    if (code.trim() == resellerCode) { matched = cfg; break; }
+                }
+            }
+            if (matched != null) break;
+        }
+
+        BrandThemeConfig__mdt cfg = matched != null ? matched : (fallback != null ? fallback : configs[0]);
+
+        BrandConfigDTO dto = new BrandConfigDTO();
+        dto.brandCode          = cfg.Brand__c;
+        dto.brandName          = cfg.BrandName__c;
+        dto.primaryColor       = cfg.PrimaryColor__c;
+        dto.accentColor        = cfg.AccentColor__c;
+        dto.logoPath           = cfg.LogoStaticResource__c;
+        dto.logoPathDark       = cfg.LogoStaticResourceDark__c;
+        dto.logoPathColor      = cfg.LogoStaticResourceColor__c;
+        dto.homeTitle          = cfg.PortalHomeTitle__c;
+        dto.homeWelcome        = cfg.PortalHomeWelcome__c;
+        dto.shopCtaText        = cfg.PortalShopCtaText__c;
+        dto.signupTitle        = cfg.PortalSignupTitle__c;
+        dto.privacyPolicyUrl   = cfg.PrivacyPolicyUrl__c;
+        dto.legalNoticeUrl     = cfg.LegalNoticeUrl__c;
+        dto.offerUrl           = cfg.OfferUrl__c;
+        dto.careersUrl         = cfg.CareersUrl__c;
+        dto.isAuthenticated    = isAuthenticatedUser();
+        dto.userName           = isAuthenticatedUser() ? UserInfo.getName() : null;
+        return dto;
+    }
+
+    // ── Home page text (language-specific) ──────────────────────────────────────
+
+    // language is resolved client-side from the visiting hostname's TLD
+    // (.nl -> nl, .de -> de, .fr -> fr, otherwise en) - see dealerHome.js.
+    @AuraEnabled(cacheable=true)
+    public static Map<String, String> getHomeText(String language) {
+        return Util_System.getCustomLabels(
+            new List<String>{ 'DealerPortal_HomeTitle', 'DealerPortal_HomeWelcome' },
+            language
+        );
+    }
+
+    // Menu (dealerNav) and order history / order detail texts, same hostname language as above.
+    // Here and not on Ctrl_DealerShop because the menu also renders for guests.
+    @AuraEnabled(cacheable=true)
+    public static Map<String, String> getPortalLabels(String language) {
+        return Util_System.getCustomLabels(
+            new List<String>{
+                'DealerNav_Home', 'DealerNav_Shop', 'DealerNav_OrderHistory', 'DealerNav_Logout', 'DealerNav_Login',
+                'DealerOrder_HistoryTitle', 'DealerOrder_MyOrders', 'DealerOrder_AllOrders', 'DealerOrder_Loading',
+                'DealerOrder_NoOrders', 'DealerOrder_OrderNumber', 'DealerOrder_Date', 'DealerOrder_Status',
+                'DealerOrder_PlacedBy', 'DealerOrder_Total', 'DealerOrder_Reorder',
+                'DealerOrder_BackToHistory', 'DealerOrder_NoOrderGiven', 'DealerOrder_LoadError',
+                'DealerOrder_ReorderAll', 'DealerOrder_NoProducts', 'DealerOrder_Product', 'DealerOrder_Quantity',
+                'DealerOrder_PriceThen', 'DealerOrder_PriceNow', 'DealerOrder_Add',
+                'DealerOrder_Status_Webshop', 'DealerOrder_Status_Administration',
+                'DealerOrder_Status_ClosedWon', 'DealerOrder_Status_ClosedLost'
+            },
+            language
+        );
+    }
+
+    // ── Footer info ───────────────────────────────────────────────────────────
+
+    // Visitors without a dealer account (guests) get the Administration of the portal domain.
+    private static final String DEFAULT_RESELLER_CODE = '1';
+    private static final Map<String, String> RESELLER_CODE_BY_DOMAIN_SUFFIX = new Map<String, String>{
+        '.nl'    => '1',
+        '.fr'    => '4',
+        '.de'    => '5',
+        '.co.uk' => '6'
+    };
+
+    @AuraEnabled(cacheable=true)
+    public static FooterDTO getFooterInfo(String hostname) {
+        String resellerCode = resolveResellerCode();
+        if (String.isBlank(resellerCode)) resellerCode = resellerCodeForHost(hostname);
+
+        List<Subscription25__Administration__c> admins = Util_Shop_System.getAdministrationsByReseller(
+            resellerCode,
+            'Subscription25__Billing_Name__c, Subscription25__Phone__c, ' +
+            'Subscription25__Billing_Email_Address__c, Subscription25__Website__c, ' +
+            'Subscription25__Billing_Street__c, Subscription25__Billing_Postal_Code__c, ' +
+            'Subscription25__Billing_City__c, ' +
+            'Subscription25__Billing_Country__c, ' +
+            'Subscription25__Chamber_Of_Commerce_Number__c, Subscription25__VAT_Number__c, ' +
+            'Managing_directors__c, ' +
+            'Subscription25__IBAN__c, Subscription25__BIC__c, ' +
+            'Bank_6_Account_Number__c, Bank_6_Sort_Code__c, ' +
+            'Privacy_Policy_URL__c, Terms_Conditions_URL__c'
+        );
+
+        FooterDTO dto = new FooterDTO();
+        if (!admins.isEmpty()) {
+            Subscription25__Administration__c admin = admins[0];
+            dto.companyName             = admin.Subscription25__Billing_Name__c;
+            dto.phone                   = admin.Subscription25__Phone__c;
+            dto.email                   = admin.Subscription25__Billing_Email_Address__c;
+            dto.website                 = admin.Subscription25__Website__c;
+            dto.street                  = admin.Subscription25__Billing_Street__c;
+            dto.postalCode              = admin.Subscription25__Billing_Postal_Code__c;
+            dto.city                    = admin.Subscription25__Billing_City__c;
+            dto.country                 = admin.Subscription25__Billing_Country__c;
+            dto.chamberOfCommerceNumber = admin.Subscription25__Chamber_Of_Commerce_Number__c;
+            dto.vatNumber               = admin.Subscription25__VAT_Number__c;
+            dto.managingDirectors       = admin.Managing_directors__c;
+            dto.iban                    = admin.Subscription25__IBAN__c;
+            dto.bic                     = admin.Subscription25__BIC__c;
+            dto.bankAccountNumber       = admin.Bank_6_Account_Number__c;
+            dto.bankSortCode            = admin.Bank_6_Sort_Code__c;
+            dto.privacyPolicyUrl        = admin.Privacy_Policy_URL__c;
+            dto.termsConditionsUrl      = admin.Terms_Conditions_URL__c;
+        } else {
+            dto.companyName = 'Moving Intelligence B.V.';
+            dto.phone       = '+31 (0)88 990 00 00';
+            dto.email       = 'aftersales@movingintelligence.nl';
+            dto.website     = 'movingintelligence.nl';
+        }
+        return dto;
+    }
+
+    // ── Signup request ────────────────────────────────────────────────────────
+
+    // Client-side pre-check so the "Become a Dealer" form can warn before submitting - the real
+    // enforcement is the identical check inside submitSignupRequest, since a client check alone
+    // can always be bypassed.
+    @AuraEnabled
+    public static Boolean isEmailRegistered(String email) {
+        if (String.isBlank(email)) return false;
+        return ![SELECT Id FROM Contact WHERE Email = :email WITH SYSTEM_MODE LIMIT 1].isEmpty();
+    }
+
+    private static Id salesLeadRecordTypeId {
+        get {
+            if (salesLeadRecordTypeId == null) {
+                List<RecordType> rts = [
+                    SELECT Id FROM RecordType
+                    WHERE SObjectType = 'Lead' AND DeveloperName = 'Sales'
+                    WITH SYSTEM_MODE
+                    LIMIT 1
+                ];
+                salesLeadRecordTypeId = rts.isEmpty() ? null : rts[0].Id;
+            }
+            return salesLeadRecordTypeId;
+        }
+        set;
+    }
+
+    @AuraEnabled
+    public static void submitSignupRequest(
+        String companyName,
+        String contactName,
+        String email,
+        String cocNumber,
+        String vatNumber,
+        String phone,
+        String street,
+        String postalCode,
+        String city,
+        String country,
+        String message
+    ) {
+        if (String.isBlank(companyName) || String.isBlank(contactName) || String.isBlank(email)
+            || String.isBlank(cocNumber) || String.isBlank(vatNumber)
+            || String.isBlank(street) || String.isBlank(postalCode) || String.isBlank(city) || String.isBlank(country)) {
+            throw new AuraHandledException('Please fill in all required fields.');
+        }
+        if (isEmailRegistered(email)) {
+            throw new AuraHandledException('This email address is already registered. Please log in instead.');
+        }
+
+        Lead lead = new Lead(
+            RecordTypeId = salesLeadRecordTypeId,
+            Company      = companyName,
+            LastName     = contactName,
+            Email        = email,
+            CoC_Number__c   = cocNumber,
+            VAT_Number__c   = vatNumber,
+            Phone        = phone,
+            Street       = street,
+            PostalCode   = postalCode,
+            City         = city,
+            Country      = country,
+            Description  = message,
+            LeadSource   = 'Webshop',
+            Status       = 'Open - Not Contacted'
+        );
+        Database.insert(lead, AccessLevel.SYSTEM_MODE);
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    private static String resolveResellerCode() {
+        if (!isAuthenticatedUser()) return null;
+        Id accountId = Util_Shop_System.resolveDealerAccountId(UserInfo.getUserId()).accountId;
+        if (accountId == null) return null;
+        List<Account> accounts = [
+            SELECT Reseller_Name__c FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
+        ];
+        return (!accounts.isEmpty()) ? accounts[0].Reseller_Name__c : null;
+    }
+
+    @TestVisible
+    private static String resellerCodeForHost(String hostname) {
+        String host = String.isBlank(hostname) ? '' : hostname.trim().toLowerCase();
+        for (String suffix : RESELLER_CODE_BY_DOMAIN_SUFFIX.keySet()) {
+            if (host.endsWith(suffix)) return RESELLER_CODE_BY_DOMAIN_SUFFIX.get(suffix);
+        }
+        return DEFAULT_RESELLER_CODE;
+    }
+
+    private static Boolean isAuthenticatedUser() {
+        String userType = UserInfo.getUserType();
+        return userType != 'Guest';
+    }
+
+    // ── DTOs ──────────────────────────────────────────────────────────────────
+
+    public class BrandConfigDTO {
+        @AuraEnabled public String  brandCode;
+        @AuraEnabled public String  brandName;
+        @AuraEnabled public String  primaryColor;
+        @AuraEnabled public String  accentColor;
+        @AuraEnabled public String  logoPath;
+        @AuraEnabled public String  logoPathDark;
+        @AuraEnabled public String  logoPathColor;
+        @AuraEnabled public String  homeTitle;
+        @AuraEnabled public String  homeWelcome;
+        @AuraEnabled public String  shopCtaText;
+        @AuraEnabled public String  signupTitle;
+        @AuraEnabled public String  privacyPolicyUrl;
+        @AuraEnabled public String  legalNoticeUrl;
+        @AuraEnabled public String  offerUrl;
+        @AuraEnabled public String  careersUrl;
+        @AuraEnabled public Boolean isAuthenticated;
+        @AuraEnabled public String  userName;
+    }
+
+    public class FooterDTO {
+        @AuraEnabled public String companyName;
+        @AuraEnabled public String phone;
+        @AuraEnabled public String email;
+        @AuraEnabled public String website;
+        @AuraEnabled public String street;
+        @AuraEnabled public String postalCode;
+        @AuraEnabled public String city;
+        @AuraEnabled public String country;
+        @AuraEnabled public String chamberOfCommerceNumber;
+        @AuraEnabled public String vatNumber;
+        @AuraEnabled public String managingDirectors;
+        @AuraEnabled public String iban;
+        @AuraEnabled public String bic;
+        @AuraEnabled public String bankAccountNumber;
+        @AuraEnabled public String bankSortCode;
+        @AuraEnabled public String privacyPolicyUrl;
+        @AuraEnabled public String termsConditionsUrl;
+    }
+}

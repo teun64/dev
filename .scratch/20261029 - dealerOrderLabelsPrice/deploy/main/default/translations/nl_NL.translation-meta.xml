@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Bestelgeschiedenis</label>
+        <name>DealerOrder_HistoryTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Mijn bestellingen</label>
+        <name>DealerOrder_MyOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Alle bestellingen</label>
+        <name>DealerOrder_AllOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Laden...</label>
+        <name>DealerOrder_Loading</name>
+    </customLabels>
+    <customLabels>
+        <label>Geen bestellingen gevonden</label>
+        <name>DealerOrder_NoOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestelnummer</label>
+        <name>DealerOrder_OrderNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Datum</label>
+        <name>DealerOrder_Date</name>
+    </customLabels>
+    <customLabels>
+        <label>Status</label>
+        <name>DealerOrder_Status</name>
+    </customLabels>
+    <customLabels>
+        <label>Besteld door</label>
+        <name>DealerOrder_PlacedBy</name>
+    </customLabels>
+    <customLabels>
+        <label>Totaal</label>
+        <name>DealerOrder_Total</name>
+    </customLabels>
+    <customLabels>
+        <label>Opnieuw bestellen</label>
+        <name>DealerOrder_Reorder</name>
+    </customLabels>
+    <customLabels>
+        <label>Terug naar bestelgeschiedenis</label>
+        <name>DealerOrder_BackToHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Geen bestelling opgegeven.</label>
+        <name>DealerOrder_NoOrderGiven</name>
+    </customLabels>
+    <customLabels>
+        <label>Er is een fout opgetreden bij het laden van de bestelling.</label>
+        <name>DealerOrder_LoadError</name>
+    </customLabels>
+    <customLabels>
+        <label>Volledige bestelling opnieuw bestellen</label>
+        <name>DealerOrder_ReorderAll</name>
+    </customLabels>
+    <customLabels>
+        <label>Geen producten gevonden voor deze bestelling</label>
+        <name>DealerOrder_NoProducts</name>
+    </customLabels>
+    <customLabels>
+        <label>Product</label>
+        <name>DealerOrder_Product</name>
+    </customLabels>
+    <customLabels>
+        <label>Aantal</label>
+        <name>DealerOrder_Quantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Prijs destijds</label>
+        <name>DealerOrder_PriceThen</name>
+    </customLabels>
+    <customLabels>
+        <label>Huidige prijs</label>
+        <name>DealerOrder_PriceNow</name>
+    </customLabels>
+    <customLabels>
+        <label>Toevoegen</label>
+        <name>DealerOrder_Add</name>
+    </customLabels>
+    <customLabels>
+        <label>Ontvangen</label>
+        <name>DealerOrder_Status_Webshop</name>
+    </customLabels>
+    <customLabels>
+        <label>In behandeling</label>
+        <name>DealerOrder_Status_Administration</name>
+    </customLabels>
+    <customLabels>
+        <label>Verwerkt</label>
+        <name>DealerOrder_Status_ClosedWon</name>
+    </customLabels>
+    <customLabels>
+        <label>Geannuleerd</label>
+        <name>DealerOrder_Status_ClosedLost</name>
+    </customLabels>
+    <customLabels>
+        <label>Home</label>
+        <name>DealerNav_Home</name>
+    </customLabels>
+    <customLabels>
+        <label>Shop</label>
+        <name>DealerNav_Shop</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestelgeschiedenis</label>
+        <name>DealerNav_OrderHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Uitloggen</label>
+        <name>DealerNav_Logout</name>
+    </customLabels>
+    <customLabels>
+        <label>Inloggen</label>
+        <name>DealerNav_Login</name>
+    </customLabels>
+</Translations>

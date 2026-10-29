@@ -1,0 +1,249 @@
+:host { display: block; }
+
+/* ── Hero ─────────────────────────────────────────────── */
+.hero-banner {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #ff0000 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+/* ── Main content ────────────────────────────────────── */
+.home-content {
+    background: #fff;
+    padding: 2.5rem 1.5rem;
+}
+
+.content-inner {
+    display: flex;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: flex-start;
+}
+
+.welcome-col { flex: 2; }
+.cta-col     { flex: 1; }
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 1rem;
+}
+
+.welcome-para {
+    color: #444;
+    line-height: 1.7;
+    margin: 0 0 0.875rem;
+}
+
+/* ── CTA card ─────────────────────────────────────────── */
+.cta-card {
+    background: #f8f8f8;
+    border-radius: 6px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cta-heading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.cta-text {
+    color: #555;
+    font-size: 0.9375rem;
+    margin: 0;
+}
+
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    background: #ff0000 !important;
+    color: #ffffff !important;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 4px;
+    text-decoration: none;
+    align-self: flex-start;
+    transition: opacity 0.15s;
+}
+
+.cta-btn:hover { opacity: 0.88; }
+
+.become-dealer-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.become-dealer-text {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.become-dealer-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #ff0000;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.become-dealer-btn:hover {
+    opacity: 0.8;
+}
+
+/* ── Become a Dealer modal ────────────────────────────── */
+.signup-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(14, 15, 14, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+    padding: 1rem;
+}
+
+.signup-modal {
+    background: #ffffff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.signup-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #0E0F0E;
+    color: #ffffff;
+    padding: 1rem 1.25rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.signup-modal-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.signup-modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+}
+
+.signup-modal-close:hover {
+    color: #ff0000;
+}
+
+.signup-modal-body {
+    padding: 1.25rem;
+}
+
+.signup-form { display: flex; flex-direction: column; gap: 1rem; }
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group-label {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0.5rem 0 -0.25rem;
+}
+
+.form-input {
+    border: 1px solid #c9c9c9;
+    border-radius: 4px;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    background: #fff;
+    transition: border-color 0.15s;
+}
+
+.form-textarea {
+    font-family: inherit;
+    resize: vertical;
+}
+
+.form-input:focus {
+    border-color: #ff0000;
+    box-shadow: 0 0 0 2px rgba(255,0,0,0.15);
+}
+
+.signup-btn {
+    align-self: flex-start;
+    background: #0E0F0E;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.625rem 1.5rem;
+    transition: opacity 0.15s;
+    margin-top: 0.5rem;
+}
+
+.signup-btn:hover:not(:disabled) { opacity: 0.88; }
+.signup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.signup-success {
+    background: #f0faf0;
+    border: 1px solid #7db87d;
+    border-radius: 4px;
+    color: #2d6a2d;
+    padding: 0.875rem 1rem;
+}
+
+.signup-error {
+    background: #fdf3f3;
+    border: 1px solid #e8a09a;
+    border-radius: 4px;
+    color: #c23934;
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .content-inner { flex-direction: column; }
+    .form-row      { flex-direction: column; }
+}

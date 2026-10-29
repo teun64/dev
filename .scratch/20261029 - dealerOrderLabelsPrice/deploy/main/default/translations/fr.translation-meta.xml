@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Historique des commandes</label>
+        <name>DealerOrder_HistoryTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Mes commandes</label>
+        <name>DealerOrder_MyOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Toutes les commandes</label>
+        <name>DealerOrder_AllOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Chargement...</label>
+        <name>DealerOrder_Loading</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucune commande trouvée</label>
+        <name>DealerOrder_NoOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Numéro de commande</label>
+        <name>DealerOrder_OrderNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Date</label>
+        <name>DealerOrder_Date</name>
+    </customLabels>
+    <customLabels>
+        <label>Statut</label>
+        <name>DealerOrder_Status</name>
+    </customLabels>
+    <customLabels>
+        <label>Commandé par</label>
+        <name>DealerOrder_PlacedBy</name>
+    </customLabels>
+    <customLabels>
+        <label>Total</label>
+        <name>DealerOrder_Total</name>
+    </customLabels>
+    <customLabels>
+        <label>Commander à nouveau</label>
+        <name>DealerOrder_Reorder</name>
+    </customLabels>
+    <customLabels>
+        <label>Retour à l'historique des commandes</label>
+        <name>DealerOrder_BackToHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucune commande indiquée.</label>
+        <name>DealerOrder_NoOrderGiven</name>
+    </customLabels>
+    <customLabels>
+        <label>Une erreur s'est produite lors du chargement de la commande.</label>
+        <name>DealerOrder_LoadError</name>
+    </customLabels>
+    <customLabels>
+        <label>Commander à nouveau toute la commande</label>
+        <name>DealerOrder_ReorderAll</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucun produit trouvé pour cette commande</label>
+        <name>DealerOrder_NoProducts</name>
+    </customLabels>
+    <customLabels>
+        <label>Produit</label>
+        <name>DealerOrder_Product</name>
+    </customLabels>
+    <customLabels>
+        <label>Quantité</label>
+        <name>DealerOrder_Quantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Prix à l'époque</label>
+        <name>DealerOrder_PriceThen</name>
+    </customLabels>
+    <customLabels>
+        <label>Prix actuel</label>
+        <name>DealerOrder_PriceNow</name>
+    </customLabels>
+    <customLabels>
+        <label>Ajouter</label>
+        <name>DealerOrder_Add</name>
+    </customLabels>
+    <customLabels>
+        <label>Reçue</label>
+        <name>DealerOrder_Status_Webshop</name>
+    </customLabels>
+    <customLabels>
+        <label>En cours</label>
+        <name>DealerOrder_Status_Administration</name>
+    </customLabels>
+    <customLabels>
+        <label>Traitée</label>
+        <name>DealerOrder_Status_ClosedWon</name>
+    </customLabels>
+    <customLabels>
+        <label>Annulée</label>
+        <name>DealerOrder_Status_ClosedLost</name>
+    </customLabels>
+    <customLabels>
+        <label>Accueil</label>
+        <name>DealerNav_Home</name>
+    </customLabels>
+    <customLabels>
+        <label>Boutique</label>
+        <name>DealerNav_Shop</name>
+    </customLabels>
+    <customLabels>
+        <label>Historique des commandes</label>
+        <name>DealerNav_OrderHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Se déconnecter</label>
+        <name>DealerNav_Logout</name>
+    </customLabels>
+    <customLabels>
+        <label>Se connecter</label>
+        <name>DealerNav_Login</name>
+    </customLabels>
+</Translations>

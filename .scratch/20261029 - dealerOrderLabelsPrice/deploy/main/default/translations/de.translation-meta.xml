@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Bestellverlauf</label>
+        <name>DealerOrder_HistoryTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Meine Bestellungen</label>
+        <name>DealerOrder_MyOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Alle Bestellungen</label>
+        <name>DealerOrder_AllOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Wird geladen...</label>
+        <name>DealerOrder_Loading</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine Bestellungen gefunden</label>
+        <name>DealerOrder_NoOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellnummer</label>
+        <name>DealerOrder_OrderNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Datum</label>
+        <name>DealerOrder_Date</name>
+    </customLabels>
+    <customLabels>
+        <label>Status</label>
+        <name>DealerOrder_Status</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellt von</label>
+        <name>DealerOrder_PlacedBy</name>
+    </customLabels>
+    <customLabels>
+        <label>Gesamt</label>
+        <name>DealerOrder_Total</name>
+    </customLabels>
+    <customLabels>
+        <label>Erneut bestellen</label>
+        <name>DealerOrder_Reorder</name>
+    </customLabels>
+    <customLabels>
+        <label>Zurück zum Bestellverlauf</label>
+        <name>DealerOrder_BackToHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine Bestellung angegeben.</label>
+        <name>DealerOrder_NoOrderGiven</name>
+    </customLabels>
+    <customLabels>
+        <label>Beim Laden der Bestellung ist ein Fehler aufgetreten.</label>
+        <name>DealerOrder_LoadError</name>
+    </customLabels>
+    <customLabels>
+        <label>Gesamte Bestellung erneut bestellen</label>
+        <name>DealerOrder_ReorderAll</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine Produkte für diese Bestellung gefunden</label>
+        <name>DealerOrder_NoProducts</name>
+    </customLabels>
+    <customLabels>
+        <label>Produkt</label>
+        <name>DealerOrder_Product</name>
+    </customLabels>
+    <customLabels>
+        <label>Menge</label>
+        <name>DealerOrder_Quantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Preis damals</label>
+        <name>DealerOrder_PriceThen</name>
+    </customLabels>
+    <customLabels>
+        <label>Aktueller Preis</label>
+        <name>DealerOrder_PriceNow</name>
+    </customLabels>
+    <customLabels>
+        <label>Hinzufügen</label>
+        <name>DealerOrder_Add</name>
+    </customLabels>
+    <customLabels>
+        <label>Eingegangen</label>
+        <name>DealerOrder_Status_Webshop</name>
+    </customLabels>
+    <customLabels>
+        <label>In Bearbeitung</label>
+        <name>DealerOrder_Status_Administration</name>
+    </customLabels>
+    <customLabels>
+        <label>Bearbeitet</label>
+        <name>DealerOrder_Status_ClosedWon</name>
+    </customLabels>
+    <customLabels>
+        <label>Storniert</label>
+        <name>DealerOrder_Status_ClosedLost</name>
+    </customLabels>
+    <customLabels>
+        <label>Startseite</label>
+        <name>DealerNav_Home</name>
+    </customLabels>
+    <customLabels>
+        <label>Shop</label>
+        <name>DealerNav_Shop</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellverlauf</label>
+        <name>DealerNav_OrderHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Abmelden</label>
+        <name>DealerNav_Logout</name>
+    </customLabels>
+    <customLabels>
+        <label>Anmelden</label>
+        <name>DealerNav_Login</name>
+    </customLabels>
+</Translations>

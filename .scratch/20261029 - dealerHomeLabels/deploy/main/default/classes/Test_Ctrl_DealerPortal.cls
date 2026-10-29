@@ -1,0 +1,227 @@
+@IsTest(SeeAllData=false)
+private class Test_Ctrl_DealerPortal {
+
+    private static final String PORTAL_USER_USERNAME = 'apex.test.dealerportal@mvsc.invalid.test';
+
+    private static User portalUser() {
+        return [SELECT Id FROM User WHERE Username = :PORTAL_USER_USERNAME LIMIT 1];
+    }
+
+    @TestSetup
+    static void makeData() {
+        Account acc = new Account(
+            Name                = 'Test Dealer Portal Account',
+            BillingCountryCode  = 'NL',
+            RecordTypeId        = Schema.SObjectType.Account
+                                    .getRecordTypeInfosByDeveloperName()
+                                    .get('B2B')
+                                    .getRecordTypeId()
+        );
+        acc.BillingStreet     = 'Teststraat 1';
+        acc.BillingPostalCode = '1234AB';
+        acc.BillingCity       = 'Amsterdam';
+        acc.Reseller_Name__c  = '1';
+        insert acc;
+
+        Contact con = new Contact(
+            AccountId = acc.Id,
+            FirstName = 'Apex',
+            LastName  = 'Test Portal User',
+            Email     = PORTAL_USER_USERNAME
+        );
+        insert con;
+
+        Id portalProfileId = [SELECT Id FROM Profile WHERE Name = 'Partner Community User' LIMIT 1].Id;
+        insert new User(
+            ProfileId         = portalProfileId,
+            ContactId         = con.Id,
+            Username          = PORTAL_USER_USERNAME,
+            Email             = PORTAL_USER_USERNAME,
+            FirstName         = 'Apex',
+            LastName          = 'Test Portal User',
+            Alias             = 'atpuser',
+            LocaleSidKey      = 'nl_NL',
+            LanguageLocaleKey = 'nl_NL',
+            TimeZoneSidKey    = 'Europe/Amsterdam',
+            EmailEncodingKey  = 'UTF-8',
+            IsActive          = true
+        );
+
+        insert new Subscription25__Administration__c(
+            Name                                       = 'Test Administration',
+            Reseller__c                                = '1',
+            Subscription25__Billing_Name__c            = 'Test Reseller B.V.',
+            Subscription25__Phone__c                   = '+31 123456789',
+            Subscription25__Billing_Email_Address__c   = 'contact@testreseller.example',
+            Subscription25__Website__c                 = 'www.testreseller.example',
+            Subscription25__Billing_Street__c          = 'Teststraat 1',
+            Subscription25__Billing_Postal_Code__c     = '1234 AB',
+            Subscription25__Billing_City__c            = 'Amsterdam',
+            Subscription25__Chamber_Of_Commerce_Number__c = '12345678',
+            Subscription25__VAT_Number__c              = 'NL123456789B01',
+            Managing_directors__c                      = 'J. Doe',
+            Subscription25__IBAN__c                    = 'NL91ABNA0417164300',
+            Subscription25__BIC__c                     = 'ABNANL2A',
+            Privacy_Policy_URL__c                      = 'https://testreseller.example/privacy',
+            Terms_Conditions_URL__c                    = 'https://testreseller.example/terms',
+            Subscription25__Invoice_Number_Prefix__c   = 'TST',
+            Subscription25__Billing_Country__c         = 'NL'
+        );
+    }
+
+    @IsTest
+    static void testGetFooterInfo_authenticatedUser_returnsAdministrationLinks() {
+        Ctrl_DealerPortal.FooterDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk');
+        }
+        Test.stopTest();
+
+        System.assertEquals('Test Reseller B.V.', dto.companyName, 'companyName should come from the matched Administration record');
+        System.assertEquals('1234 AB', dto.postalCode, 'postalCode should come from the matched Administration record');
+        System.assertEquals('https://testreseller.example/privacy', dto.privacyPolicyUrl, 'privacyPolicyUrl should come from the matched Administration record');
+        System.assertEquals('https://testreseller.example/terms', dto.termsConditionsUrl, 'termsConditionsUrl should come from the matched Administration record');
+        System.assertEquals('12345678', dto.chamberOfCommerceNumber, 'chamberOfCommerceNumber should come from the matched Administration record');
+        System.assertEquals('NL123456789B01', dto.vatNumber, 'vatNumber should come from the matched Administration record');
+        System.assertEquals('J. Doe', dto.managingDirectors, 'managingDirectors should come from the matched Administration record');
+        System.assertEquals('NL91ABNA0417164300', dto.iban, 'iban should come from the matched Administration record');
+        System.assertEquals('ABNANL2A', dto.bic, 'bic should come from the matched Administration record');
+        // Bank_6_Account_Number__c/Bank_6_Sort_Code__c are formula fields - can't be set directly in
+        // a test fixture, so this only confirms the query/mapping doesn't throw, not a specific value.
+        System.assertEquals(null, dto.bankAccountNumber, 'Formula field has no source value in this fixture, so it resolves to null - just checking the mapping runs');
+    }
+
+    @IsTest
+    static void testGetFooterInfo_noDealer_usesAdministrationOfDomain() {
+        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.nl');
+
+        System.assertEquals('Test Reseller B.V.', dto.companyName, 'Without a dealer account, .nl should resolve to the Administration of reseller 1');
+        System.assertEquals('https://testreseller.example/privacy', dto.privacyPolicyUrl, 'privacyPolicyUrl should come from the domain Administration');
+        System.assertEquals('https://testreseller.example/terms', dto.termsConditionsUrl, 'termsConditionsUrl should come from the domain Administration');
+    }
+
+    @IsTest
+    static void testGetFooterInfo_noAdministrationForDomain_returnsFallback() {
+        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk');
+
+        System.assertEquals('Moving Intelligence B.V.', dto.companyName, 'No Administration for reseller 6 in this fixture, so the default company info is returned');
+        System.assertEquals(null, dto.privacyPolicyUrl, 'Fallback context has no Administration record to source a privacy URL from');
+    }
+
+    @IsTest
+    static void testResellerCodeForHost() {
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.nl'), '.nl → Netherlands');
+        System.assertEquals('5', Ctrl_DealerPortal.resellerCodeForHost('Dealer.MovingIntelligence.DE'), '.de → Germany, case-insensitive');
+        System.assertEquals('6', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.co.uk'), '.co.uk → United Kingdom');
+        System.assertEquals('4', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.fr'), '.fr → France');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('movingintelligence.my.site.com'), 'Other domains fall back to reseller 1');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost(null), 'No hostname falls back to reseller 1');
+    }
+
+    @IsTest
+    static void testGetBrandConfig_returnsAConfig() {
+        Ctrl_DealerPortal.BrandConfigDTO dto;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerPortal.getBrandConfig();
+        }
+        Test.stopTest();
+
+        System.assertNotEquals(null, dto, 'A brand config (matched or fallback) should always be returned');
+        System.assertNotEquals(null, dto.brandCode, 'brandCode should be populated from BrandThemeConfig__mdt');
+    }
+
+    @IsTest
+    static void testSubmitSignupRequest_createsLead() {
+        Test.startTest();
+        Ctrl_DealerPortal.submitSignupRequest(
+            'Prospect Co', 'Jane Doe', 'jane@prospect.example',
+            '12345678', 'NL123456789B01', '+31 987654321',
+            'Teststraat 1', '1234 AB', 'Amsterdam', 'Netherlands',
+            'Interested in becoming a dealer'
+        );
+        Test.stopTest();
+
+        Lead l = [SELECT Company, Email, LeadSource, RecordType.DeveloperName, CoC_Number__c, VAT_Number__c, Street, PostalCode, City, Country FROM Lead WHERE Email = 'jane@prospect.example' LIMIT 1];
+        System.assertEquals('Prospect Co', l.Company, 'Lead company should match the submitted value');
+        System.assertEquals('Webshop', l.LeadSource, 'Lead source should be tagged as Webshop');
+        System.assertEquals('Sales', l.RecordType.DeveloperName, 'Lead should use the Sales record type');
+        System.assertEquals('12345678', l.CoC_Number__c, 'CoC Number should be saved');
+        System.assertEquals('NL123456789B01', l.VAT_Number__c, 'VAT Number should be saved');
+        System.assertEquals('Teststraat 1', l.Street, 'Street should be saved');
+        System.assertEquals('1234 AB', l.PostalCode, 'PostalCode should be saved');
+        System.assertEquals('Amsterdam', l.City, 'City should be saved');
+        System.assertEquals('Netherlands', l.Country, 'Country should be saved');
+    }
+
+    @IsTest
+    static void testSubmitSignupRequest_missingRequiredFields_throws() {
+        Test.startTest();
+        try {
+            Ctrl_DealerPortal.submitSignupRequest(null, null, null, null, null, null, null, null, null, null, null);
+            System.assert(false, 'Expected an exception when required fields are missing');
+        } catch (AuraHandledException e) {
+            System.assert(true, 'AuraHandledException expected for missing required fields');
+        }
+        Test.stopTest();
+    }
+
+    @IsTest
+    static void testIsEmailRegistered_existingContact_returnsTrue() {
+        Boolean result;
+        Test.startTest();
+        result = Ctrl_DealerPortal.isEmailRegistered(PORTAL_USER_USERNAME);
+        Test.stopTest();
+
+        System.assertEquals(true, result, 'Email already used by the fixture Contact should be reported as registered');
+    }
+
+    @IsTest
+    static void testIsEmailRegistered_newEmail_returnsFalse() {
+        Boolean result;
+        Test.startTest();
+        result = Ctrl_DealerPortal.isEmailRegistered('brand-new-prospect@example.test');
+        Test.stopTest();
+
+        System.assertEquals(false, result, 'An email with no matching Contact should not be reported as registered');
+    }
+
+    @IsTest
+    static void testSubmitSignupRequest_emailAlreadyRegistered_throws() {
+        Test.startTest();
+        try {
+            Ctrl_DealerPortal.submitSignupRequest(
+                'Prospect Co', 'Jane Doe', PORTAL_USER_USERNAME,
+                '12345678', 'NL123456789B01', null,
+                'Teststraat 1', '1234 AB', 'Amsterdam', 'Netherlands', null
+            );
+            System.assert(false, 'Expected an exception when the email already belongs to a Contact');
+        } catch (AuraHandledException e) {
+            System.assert(true, 'AuraHandledException expected when the email already belongs to a Contact');
+        }
+        Test.stopTest();
+
+        System.assertEquals(0, [SELECT COUNT() FROM Lead WHERE Email = :PORTAL_USER_USERNAME], 'No Lead should be created when the email is already registered');
+    }
+
+    @IsTest
+    static void testGetPortalLabelsReturnsEveryMenuAndOrderLabel() {
+        Map<String, String> en = Ctrl_DealerPortal.getPortalLabels('en');
+        System.assertEquals('Order history', en.get('DealerOrder_HistoryTitle'), 'English base value expected for en');
+        System.assertEquals('Log in', en.get('DealerNav_Login'), 'Menu labels should be included');
+        for (String key : en.keySet()) {
+            System.assert(String.isNotBlank(en.get(key)) && !en.get(key).endsWith('_NOT_FOUND'), 'Label missing: ' + key);
+        }
+    }
+
+    @IsTest
+    static void testGetHomeTextReturnsEveryHomeAndSignupLabel() {
+        Map<String, String> en = Ctrl_DealerPortal.getHomeText('en');
+        System.assertEquals('Become a dealer', en.get('DealerHome_BecomeDealer'), 'English base value expected for en');
+        System.assert(en.containsKey('DealerPortal_HomeWelcome'), 'Welcome text should still be included');
+        for (String key : en.keySet()) {
+            System.assert(String.isNotBlank(en.get(key)) && !en.get(key).endsWith('_NOT_FOUND'), 'Label missing: ' + key);
+        }
+    }
+}

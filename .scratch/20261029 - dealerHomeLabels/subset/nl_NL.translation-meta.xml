@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Dealer Shop</label>
+        <name>DealerHome_ShopHeading</name>
+    </customLabels>
+    <customLabels>
+        <label>Ga naar de shop</label>
+        <name>DealerHome_ShopCta</name>
+    </customLabels>
+    <customLabels>
+        <label>Shop</label>
+        <name>DealerHome_ShopButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Inloggen voor dealers</label>
+        <name>DealerHome_LoginHeading</name>
+    </customLabels>
+    <customLabels>
+        <label>Inloggen</label>
+        <name>DealerHome_LoginButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Nog geen dealer?</label>
+        <name>DealerHome_NotADealer</name>
+    </customLabels>
+    <customLabels>
+        <label>Word dealer</label>
+        <name>DealerHome_BecomeDealer</name>
+    </customLabels>
+    <customLabels>
+        <label>Dealeraccount aanvragen</label>
+        <name>DealerHome_SignupTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Sluiten</label>
+        <name>DealerHome_Close</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw aanvraag is verstuurd. Wij nemen zo snel mogelijk contact met u op.</label>
+        <name>DealerHome_SignupSuccess</name>
+    </customLabels>
+    <customLabels>
+        <label>Bedrijfsnaam</label>
+        <name>DealerHome_CompanyName</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw naam</label>
+        <name>DealerHome_ContactName</name>
+    </customLabels>
+    <customLabels>
+        <label>E-mailadres</label>
+        <name>DealerHome_Email</name>
+    </customLabels>
+    <customLabels>
+        <label>KvK-nummer</label>
+        <name>DealerHome_CocNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Btw-nummer</label>
+        <name>DealerHome_VatNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Telefoon</label>
+        <name>DealerHome_Phone</name>
+    </customLabels>
+    <customLabels>
+        <label>Bezoekadres</label>
+        <name>DealerHome_VisitingAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Straat</label>
+        <name>DealerHome_Street</name>
+    </customLabels>
+    <customLabels>
+        <label>Postcode</label>
+        <name>DealerHome_PostalCode</name>
+    </customLabels>
+    <customLabels>
+        <label>Plaats</label>
+        <name>DealerHome_City</name>
+    </customLabels>
+    <customLabels>
+        <label>Land</label>
+        <name>DealerHome_Country</name>
+    </customLabels>
+    <customLabels>
+        <label>Bericht</label>
+        <name>DealerHome_Message</name>
+    </customLabels>
+    <customLabels>
+        <label>Aanvraag versturen</label>
+        <name>DealerHome_Submit</name>
+    </customLabels>
+    <customLabels>
+        <label>Bezig met versturen...</label>
+        <name>DealerHome_Submitting</name>
+    </customLabels>
+    <customLabels>
+        <label>Vul alle verplichte velden in.</label>
+        <name>DealerHome_ErrorRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>Dit e-mailadres is al geregistreerd. Log in met dit adres.</label>
+        <name>DealerHome_ErrorRegistered</name>
+    </customLabels>
+    <customLabels>
+        <label>Versturen is mislukt. Probeer het opnieuw.</label>
+        <name>DealerHome_ErrorSubmit</name>
+    </customLabels>
+    <customLabels>
+        <label>Het e-mailadres kon niet worden gecontroleerd. Probeer het opnieuw.</label>
+        <name>DealerHome_ErrorEmailCheck</name>
+    </customLabels>
+</Translations>

@@ -1,0 +1,1487 @@
+public without sharing class Ctrl_DealerShop {
+
+    // ── UI labels ────────────────────────────────────────────────────────────
+
+    // language is resolved client-side from the visiting hostname's TLD
+    // (.nl -> nl, .de -> de, .fr -> fr, otherwise en) - same convention as
+    // Ctrl_DealerPortal.getHomeText(). Every static UI string across the shop's
+    // component tree (dealerShop, dealerCategoryNav, dealerProductGrid,
+    // dealerProductCard, dealerProductDetail, dealerCart, dealerOrderConfirmation)
+    // is fetched once here and passed down, rather than each component calling
+    // Util_System.getCustomLabels() separately.
+    @AuraEnabled(cacheable=true)
+    public static Map<String, String> getShopLabels(String language) {
+        return Util_System.getCustomLabels(
+            new List<String>{
+                'DealerShop_Cart', 'DealerShop_CartCloseAriaLabel', 'DealerShop_CartEmpty',
+                'DealerShop_SearchPlaceholder',
+                'DealerShop_AllProducts', 'DealerShop_MyFavorites', 'DealerShop_CategoriesAriaLabel',
+                'DealerShop_Loading', 'DealerShop_NoProductsFound',
+                'DealerShop_Previous', 'DealerShop_Page', 'DealerShop_Of', 'DealerShop_Next',
+                'DealerShop_NoImage', 'DealerShop_NoImageAvailable',
+                'DealerShop_AddToCartShort', 'DealerShop_AddToCart',
+                'DealerShop_FromQtyAbbrev', 'DealerShop_UnitsAbbrev',
+                'DealerShop_RemoveFromFavorites', 'DealerShop_MarkAsFavorite',
+                'DealerShop_FavoriteActive', 'DealerShop_FavoriteInactive', 'DealerShop_DealerFavorite',
+                'DealerShop_OrderOptions', 'DealerShop_OrderReference', 'DealerShop_OrderReferencePlaceholder',
+                'DealerShop_DeliveryAddress', 'DealerShop_UseDifferentAddress', 'DealerShop_NewAddress',
+                'DealerShop_Street', 'DealerShop_PostalCode', 'DealerShop_City', 'DealerShop_Country',
+                'DealerShop_NoDefaultAddress', 'DealerShop_AddressIncomplete', 'DealerShop_ListPrice',
+                'DealerShop_BackToOverview', 'DealerShop_PricePerUnit', 'DealerShop_VolumeDiscounts',
+                'DealerShop_FromQuantity', 'DealerShop_Quantity', 'DealerShop_TotalPrice',
+                'DealerShop_ProductDescription', 'DealerShop_ProductLoadError', 'DealerShop_GenericError',
+                'DealerShop_ShippingOmitLabel', 'DealerShop_ShippingOmitRemark',
+                'DealerShop_ShippingFixedWithFee', 'DealerShop_ShippingFixedNoFee', 'DealerShop_ShippingWeightBased',
+                'DealerShop_Total', 'DealerShop_PlaceOrder', 'DealerShop_RemoveItemAriaLabel',
+                'DealerShop_OrderConfirmedTitle', 'DealerShop_OrderConfirmedSubtitle',
+                'DealerShop_OrderNumberLabel', 'DealerShop_BackToShop', 'DealerShop_SuccessAriaLabel'
+            },
+            language
+        );
+    }
+
+    // ── Data_Translation__c (all record types) ────────────────────────────────
+
+    // Every Data_Translation__c record type represents a valid translation source
+    // ("Base" = name + description, "Factsheet" = base + factsheets, "Name" = name only,
+    // for products that only need their name translated). Restricting to a single record
+    // type (previously just "Base") silently hid every "Name"-only translation - the
+    // majority of real translation rows in this org.
+    private static Set<Id> translationRecordTypeIds {
+        get {
+            if (translationRecordTypeIds == null) {
+                translationRecordTypeIds = new Set<Id>();
+                for (RecordType rt : [
+                    SELECT Id FROM RecordType
+                    WHERE SObjectType = 'Data_Translation__c'
+                    WITH SYSTEM_MODE
+                ]) {
+                    translationRecordTypeIds.add(rt.Id);
+                }
+            }
+            return translationRecordTypeIds;
+        }
+        set;
+    }
+
+    // ── Shared field lists (repeated across several queries below) ─────────────
+
+    private static final String PRICEBOOK_ENTRY_FIELDS =
+        'Id, Product2Id, UnitPrice, From_Quantity_1__c, From_Price_1__c, ' +
+        'From_Quantity_2__c, From_Price_2__c, From_Quantity_3__c, From_Price_3__c, ' +
+        'From_Quantity_4__c, From_Price_4__c';
+
+    private static final String PRODUCT_DISCOUNT_FIELDS =
+        'Product__c, IsActive__c, Discount_percentage__c, Product_Code_Customer__c, ' +
+        'isFixedPrice__c, FixedPrice_1__c, FixedPrice_2__c, FixedPrice_3__c, FixedPrice_4__c, ' +
+        'From_Quantity_1__c, From_Quantity_2__c, From_Quantity_3__c, From_Quantity_4__c, ' +
+        'From_Discount_1__c, From_Discount_2__c, From_Discount_3__c, From_Discount_4__c';
+
+    // ── Pricebook resolution ──────────────────────────────────────────────────
+
+    private static Id resolvePricebookId(Account acct) {
+        String countryCode = acct.BillingCountryCode;
+        if ('GB'.equals(countryCode)) countryCode = 'UK';
+
+        String market = 'All';
+        String dealerCat = acct.Dealer_category__c;
+        if (String.isNotBlank(dealerCat)) {
+            if (dealerCat.contains('Fleet'))    market = 'Fleet';
+            else if (dealerCat.contains('Security')) market = 'Security';
+        }
+
+        List<Pricebook2> books = [
+            SELECT Id, Name
+            FROM Pricebook2
+            WHERE Name LIKE '%Dealer%'
+              AND Name LIKE :('%' + countryCode + '%')
+              AND Name LIKE :('%' + market + '%')
+            WITH SYSTEM_MODE
+            ORDER BY Name DESC
+            LIMIT 1
+        ];
+        if (!books.isEmpty()) return books[0].Id;
+
+        List<Pricebook2> fallback = [
+            SELECT Id
+            FROM Pricebook2
+            WHERE Name LIKE '%Dealer%'
+            WITH SYSTEM_MODE
+            ORDER BY Name DESC
+            LIMIT 1
+        ];
+        return fallback.isEmpty() ? null : fallback[0].Id;
+    }
+
+    // ── Language resolution ───────────────────────────────────────────────────
+
+    private static final Set<String> SUPPORTED_LANGUAGES = new Set<String>{
+        'en', 'nl', 'de', 'fr', 'es'
+    };
+
+    // Maps Contact.Language__c country codes (uppercase) to ISO 639-1 language codes.
+    // Returns null when no mapping exists so callers can fall through to the next source.
+    private static String resolveLanguage(String countryCode) {
+        if (String.isBlank(countryCode)) return null;
+        Map<String, String> mapping = new Map<String, String>{
+            'EN' => 'en', 'GB' => 'en',
+            'NL' => 'nl', 'AN' => 'nl', 'BE' => 'nl',
+            'DE' => 'de', 'AT' => 'de', 'CH' => 'de',
+            'FR' => 'fr', 'LU' => 'fr', 'MC' => 'fr',
+            'ES' => 'es', 'AD' => 'es'
+        };
+        return mapping.get(countryCode.toUpperCase());
+    }
+
+    // Validates a lowercase ISO 639-1 code against SUPPORTED_LANGUAGES.
+    // Returns the code (lowercased) or null when unsupported.
+    private static String normalizeLang(String isoCode) {
+        if (String.isBlank(isoCode)) return null;
+        String lower = isoCode.toLowerCase();
+        return SUPPORTED_LANGUAGES.contains(lower) ? lower : null;
+    }
+
+    private static DealerContext getDealerContext() {
+        Util_Shop_System.DealerAccountLookup lookup = Util_Shop_System.resolveDealerAccountId(UserInfo.getUserId());
+        if (lookup.accountId == null) {
+            return fallbackContext(normalizeLang(lookup.userDefaultLanguage));
+        }
+        return buildContextFromAccountId(lookup.accountId, lookup.contactLanguage, lookup.userDefaultLanguage);
+    }
+
+    // Internal-user entry point (Account record page / quick action): dealerAccountId comes
+    // straight from the page, not from a portal Contact, so there's no Contact-based resolution
+    // to run - just confirm the running (internal) user's own sharing actually grants them this
+    // Account (the class itself runs "without sharing" for the portal path further down) before
+    // building the same context a dealer portal user would get for that account.
+    private static DealerContext getDealerContext(Id overrideAccountId) {
+        if (overrideAccountId == null) return getDealerContext();
+
+        List<Account> visible = [
+            SELECT Id FROM Account WHERE Id = :overrideAccountId WITH USER_MODE LIMIT 1
+        ];
+        if (visible.isEmpty()) return fallbackContext(normalizeLang(internalUserLanguage()));
+
+        return buildContextFromAccountId(overrideAccountId, null, internalUserLanguage());
+    }
+
+    // UserInfo.getLanguage() returns a locale key (e.g. "nl_NL", "de") - trim to the ISO 639-1
+    // prefix so it lines up with what normalizeLang()/SUPPORTED_LANGUAGES expect.
+    private static String internalUserLanguage() {
+        String lang = UserInfo.getLanguage();
+        if (String.isBlank(lang)) return null;
+        Integer sep = lang.indexOf('_');
+        return sep > 0 ? lang.substring(0, sep) : lang;
+    }
+
+    private static DealerContext buildContextFromAccountId(Id accountId, String contactLanguage, String defaultLang) {
+        List<Account> accounts = [
+            SELECT Id, Name, BillingCountryCode, Dealer_category__c, Sales_Language__c, Reseller_Name__c, Hide_Prices__c, Show_List_Prices__c, CurrencyIsoCode
+            FROM Account WHERE Id = :accountId WITH SYSTEM_MODE LIMIT 1
+        ];
+        if (accounts.isEmpty()) return fallbackContext(normalizeLang(defaultLang));
+
+        DealerContext ctx = new DealerContext();
+        ctx.account     = accounts[0];
+        ctx.hidePrices  = accounts[0].Hide_Prices__c == true;
+        ctx.showListPrices = accounts[0].Show_List_Prices__c == true;
+        String lang = resolveLanguage(contactLanguage);
+        if (lang == null) lang = normalizeLang(accounts[0].Sales_Language__c);
+        if (lang == null) lang = normalizeLang(defaultLang);
+        ctx.language = lang != null ? lang : 'en';
+        return ctx;
+    }
+
+    // Returns a context with a stub Account (no Id) — used for preview/admin and unlinked users.
+    // Pricebook resolution falls back to any Dealer pricebook; no discounts applied.
+    private static DealerContext fallbackContext(String language) {
+        DealerContext ctx = new DealerContext();
+        ctx.language = language != null ? language : 'en';
+        Account stub = new Account();
+        stub.BillingCountryCode = 'NL';
+        ctx.account = stub;
+        return ctx;
+    }
+
+    // ── Price tier helpers ────────────────────────────────────────────────────
+
+    private static List<PriceTierDTO> buildPriceTiersFromEntry(PricebookEntry entry) {
+        List<PriceTierDTO> tiers = new List<PriceTierDTO>();
+        tiers.add(makeTier(entry.From_Quantity_1__c, entry.From_Price_1__c, null));
+        tiers.add(makeTier(entry.From_Quantity_2__c, entry.From_Price_2__c, null));
+        tiers.add(makeTier(entry.From_Quantity_3__c, entry.From_Price_3__c, null));
+        tiers.add(makeTier(entry.From_Quantity_4__c, entry.From_Price_4__c, null));
+        List<PriceTierDTO> result = new List<PriceTierDTO>();
+        for (PriceTierDTO t : tiers) {
+            if (t != null) result.add(t);
+        }
+        return result;
+    }
+
+    private static List<PriceTierDTO> applyDiscountToTiers(
+        PricebookEntry entry,
+        Product_Discount__c disc
+    ) {
+        List<PriceTierDTO> tiers = new List<PriceTierDTO>();
+        if (disc.isFixedPrice__c == true) {
+            tiers.add(makeTier(disc.From_Quantity_1__c, disc.FixedPrice_1__c, null));
+            tiers.add(makeTier(disc.From_Quantity_2__c, disc.FixedPrice_2__c, null));
+            tiers.add(makeTier(disc.From_Quantity_3__c, disc.FixedPrice_3__c, null));
+            tiers.add(makeTier(disc.From_Quantity_4__c, disc.FixedPrice_4__c, null));
+        } else {
+            // Tier-level discounts override entry tiers when From_Discount fields are populated
+            Boolean hasTierDiscount = disc.From_Discount_1__c != null
+                || disc.From_Discount_2__c != null
+                || disc.From_Discount_3__c != null
+                || disc.From_Discount_4__c != null;
+
+            if (hasTierDiscount) {
+                // A tiered price agreement takes over from the pricebook entry's own tier structure
+                // entirely, discounting off the entry's single UnitPrice - not entry.From_Price_X,
+                // which this org never actually populates. Only pass a price when this specific tier
+                // slot is actually defined (From_Discount_X set) - makeTier() skips a tier when both
+                // quantity and price come back null, so an undefined slot must not get a non-null
+                // price just because entry.UnitPrice itself is always non-null.
+                tiers.add(makeTier(
+                    disc.From_Quantity_1__c != null ? disc.From_Quantity_1__c : entry.From_Quantity_1__c,
+                    disc.From_Discount_1__c != null ? entry.UnitPrice : null, disc.From_Discount_1__c
+                ));
+                tiers.add(makeTier(
+                    disc.From_Quantity_2__c != null ? disc.From_Quantity_2__c : entry.From_Quantity_2__c,
+                    disc.From_Discount_2__c != null ? entry.UnitPrice : null, disc.From_Discount_2__c
+                ));
+                tiers.add(makeTier(
+                    disc.From_Quantity_3__c != null ? disc.From_Quantity_3__c : entry.From_Quantity_3__c,
+                    disc.From_Discount_3__c != null ? entry.UnitPrice : null, disc.From_Discount_3__c
+                ));
+                tiers.add(makeTier(
+                    disc.From_Quantity_4__c != null ? disc.From_Quantity_4__c : entry.From_Quantity_4__c,
+                    disc.From_Discount_4__c != null ? entry.UnitPrice : null, disc.From_Discount_4__c
+                ));
+            } else {
+                // Flat discount_percentage__c applied off the entry's UnitPrice, but only at
+                // quantity breakpoints the entry itself actually defines - this discount has no
+                // tier structure of its own to fall back on.
+                tiers.add(makeTier(entry.From_Quantity_1__c, entry.From_Quantity_1__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
+                tiers.add(makeTier(entry.From_Quantity_2__c, entry.From_Quantity_2__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
+                tiers.add(makeTier(entry.From_Quantity_3__c, entry.From_Quantity_3__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
+                tiers.add(makeTier(entry.From_Quantity_4__c, entry.From_Quantity_4__c != null ? entry.UnitPrice : null, disc.Discount_percentage__c));
+            }
+        }
+        List<PriceTierDTO> result = new List<PriceTierDTO>();
+        for (PriceTierDTO t : tiers) {
+            if (t != null) result.add(t);
+        }
+        return result;
+    }
+
+    private static PriceTierDTO makeTier(Decimal fromQty, Decimal price, Decimal discountPct) {
+        if (fromQty == null && price == null) return null;
+        PriceTierDTO t  = new PriceTierDTO();
+        t.fromQty       = fromQty != null ? fromQty.intValue() : null;
+        if (discountPct != null && price != null) {
+            t.price = price * (1 - discountPct / 100);
+        } else {
+            t.price = price;
+        }
+        return t;
+    }
+
+    // ── Image URL from ContentDocumentLink ───────────────────────────────────
+
+    public static Map<Id, String> getProductImageUrls(Set<Id> productIds) {
+        Map<Id, String> result = new Map<Id, String>();
+        if (productIds.isEmpty()) return result;
+
+        // A product can end up with more than one linked file (e.g. an old image kept alongside a
+        // newly uploaded one) - without an explicit order, "first row returned" is whatever the
+        // query planner picks, which is not reliably the newest. Ordering by CreatedDate DESC and
+        // keeping every candidate (not just the first-seen one) per product lets the loop below fall
+        // back to an older document when the newest one turns out to have no ContentDistribution yet.
+        Map<Id, List<Id>> docsByProduct = new Map<Id, List<Id>>();
+        Set<Id> allDocIds = new Set<Id>();
+        for (ContentDocumentLink cdl : [
+            SELECT LinkedEntityId, ContentDocumentId
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :productIds
+            WITH SYSTEM_MODE
+            ORDER BY ContentDocument.CreatedDate DESC, Id DESC
+        ]) {
+            if (!docsByProduct.containsKey(cdl.LinkedEntityId)) {
+                docsByProduct.put(cdl.LinkedEntityId, new List<Id>());
+            }
+            docsByProduct.get(cdl.LinkedEntityId).add(cdl.ContentDocumentId);
+            allDocIds.add(cdl.ContentDocumentId);
+        }
+        if (allDocIds.isEmpty()) return result;
+
+        Map<Id, Id> cvByDoc = new Map<Id, Id>();
+        for (ContentVersion cv : [
+            SELECT Id, ContentDocumentId
+            FROM ContentVersion
+            WHERE ContentDocumentId IN :allDocIds
+              AND IsLatest = true
+            WITH SYSTEM_MODE
+        ]) {
+            cvByDoc.put(cv.ContentDocumentId, cv.Id);
+        }
+
+        // A raw "/sfc/servlet.shepherd/version/download/{id}" path (with or without a site prefix)
+        // does not reliably serve the file to portal/guest users on a My Domain/LWR site - it returns
+        // errorduringprocessing.jsp instead, even with the correct site prefix and even for otherwise-
+        // visible files. ContentDistribution.ContentDownloadUrl is the platform-supported way to expose
+        // a file for external/community viewing; distributions must already exist (created ahead of
+        // time, e.g. when the file is linked to the product) since this method must stay read-only to
+        // remain @AuraEnabled(cacheable=true)-compatible for callers that use @wire.
+        Map<Id, String> urlByContentVersion = new Map<Id, String>();
+        for (ContentDistribution cd : [
+            SELECT ContentVersionId, ContentDownloadUrl
+            FROM ContentDistribution
+            WHERE ContentVersionId IN :cvByDoc.values()
+            WITH SYSTEM_MODE
+        ]) {
+            urlByContentVersion.put(cd.ContentVersionId, cd.ContentDownloadUrl);
+        }
+
+        for (Id productId : docsByProduct.keySet()) {
+            String url = null;
+            for (Id docId : docsByProduct.get(productId)) {
+                Id cvId = cvByDoc.get(docId);
+                url = cvId != null ? urlByContentVersion.get(cvId) : null;
+                if (url != null) break;
+            }
+            if (url != null) {
+                result.put(productId, url);
+            }
+        }
+        return result;
+    }
+
+    // ── Shop Actions ──────────────────────────────────────────────────────────
+
+    // A promotional badge/discount for a product, sourced from the Shop_Action_Product__c
+    // currently within its parent Shop_Action__c's date window. Not @AuraEnabled - only the
+    // subset needed for display is exposed via ProductDTO.ShopActionDTO once the exclusion
+    // rule (active Product_Discount__c) has been applied in buildProductDTO.
+    private class ShopActionMatch {
+        String  name;
+        String  teaser;
+        String  backgroundColor;
+        Decimal discountPercent;
+    }
+
+    // Scoped to the dealer's own reseller (via Shop_Action__c.Administration__c, required for
+    // exactly this reason) - otherwise a Germany action and an NL action on the same product would
+    // both match with no way to tell which should apply. No resolvable Administration means no
+    // actions apply, matching the same fail-closed behavior as an empty administrationIds set.
+    //
+    // A product with no End_Date__c on its action runs with no upper bound. A product linked to
+    // more than one currently-active action for the same reseller (not expected, but not prevented
+    // by the schema) keeps whichever has the larger additional discount, so the surfaced deal is
+    // never understated.
+    private static Map<Id, ShopActionMatch> getActiveShopActions(Set<Id> productIds, Set<Id> administrationIds) {
+        Map<Id, ShopActionMatch> result = new Map<Id, ShopActionMatch>();
+        if (productIds.isEmpty() || administrationIds.isEmpty()) return result;
+
+        Date today = Date.today();
+        for (Shop_Action_Product__c sap : [
+            SELECT Product__c, Additional_Discount_Percentage__c,
+                   Shop_Action__r.Name, Shop_Action__r.Teaser__c, Shop_Action__r.Background_Color__c
+            FROM Shop_Action_Product__c
+            WHERE Product__c IN :productIds
+              AND Shop_Action__r.IsActive__c = true
+              AND Shop_Action__r.Administration__c IN :administrationIds
+              AND Shop_Action__r.Start_Date__c <= :today
+              AND (Shop_Action__r.End_Date__c = null OR Shop_Action__r.End_Date__c >= :today)
+            WITH SYSTEM_MODE
+        ]) {
+            if (sap.Product__c == null) continue;
+
+            ShopActionMatch existing = result.get(sap.Product__c);
+            if (existing != null && existing.discountPercent >= sap.Additional_Discount_Percentage__c) {
+                continue;
+            }
+            ShopActionMatch match  = new ShopActionMatch();
+            match.name             = sap.Shop_Action__r.Name;
+            match.teaser           = sap.Shop_Action__r.Teaser__c;
+            match.backgroundColor  = sap.Shop_Action__r.Background_Color__c;
+            match.discountPercent  = sap.Additional_Discount_Percentage__c;
+            result.put(sap.Product__c, match);
+        }
+        return result;
+    }
+
+    // Unlike Product_Discount__c's flat-discount branch (which discounts off entry.UnitPrice at
+    // each breakpoint, since a customer with a flat percentage discount and no discount-specific
+    // tier structure typically has no real entry-level tiers either), a Shop Action has no
+    // Product_Discount__c involved at all - the entry's own volume tiers ARE the real prices to
+    // discount here, same as the plain/no-discount path in buildPriceTiersFromEntry(). Applying the
+    // action's percentage off entry.UnitPrice instead would flatten every tier to the same price,
+    // silently erasing genuine volume pricing (e.g. 800.050.0013's 179/172/164/153 tiers).
+    private static List<PriceTierDTO> applyFlatPercentToTiers(PricebookEntry entry, Decimal pct) {
+        List<PriceTierDTO> tiers = new List<PriceTierDTO>();
+        tiers.add(makeTier(entry.From_Quantity_1__c, entry.From_Price_1__c, pct));
+        tiers.add(makeTier(entry.From_Quantity_2__c, entry.From_Price_2__c, pct));
+        tiers.add(makeTier(entry.From_Quantity_3__c, entry.From_Price_3__c, pct));
+        tiers.add(makeTier(entry.From_Quantity_4__c, entry.From_Price_4__c, pct));
+        List<PriceTierDTO> result = new List<PriceTierDTO>();
+        for (PriceTierDTO t : tiers) {
+            if (t != null) result.add(t);
+        }
+        return result;
+    }
+
+    // ── ProductDTO builder ────────────────────────────────────────────────────
+
+    // Pure price computation, deliberately separate from buildProductDTO so it can be reused
+    // wherever a REAL (never masked) price is required server-side regardless of whether the
+    // account is allowed to see it - e.g. placeOrder must always price a line correctly even for
+    // a Hide_Prices__c account, which never sends a real client-supplied price to fall back on.
+    private static PricingResult resolvePricing(PricebookEntry entry, Product_Discount__c disc, ShopActionMatch action) {
+        PricingResult result = new PricingResult();
+
+        // An active Product_Discount__c excludes the product from any Shop Action entirely (no
+        // badge, no stacked discount) - a customer with negotiated pricing never sees a promo
+        // that would otherwise look like it's stacking on top of that negotiated price.
+        result.hasActiveDisc = disc != null && disc.IsActive__c == true;
+
+        if (entry == null) return result;
+
+        result.unitPrice = entry.UnitPrice;
+
+        if (result.hasActiveDisc) {
+            if (disc.isFixedPrice__c == true && disc.FixedPrice_1__c != null) {
+                result.unitPrice = disc.FixedPrice_1__c;
+            } else if (disc.Discount_percentage__c != null) {
+                result.unitPrice = entry.UnitPrice * (1 - disc.Discount_percentage__c / 100);
+            }
+            result.priceTiers = applyDiscountToTiers(entry, disc);
+
+            // A tier starting at quantity 1 already applies to a single unit, so it IS the
+            // unit price - show it there instead of as a redundant first "volume" row above
+            // the remaining, genuinely higher-quantity tiers.
+            if (!result.priceTiers.isEmpty() && result.priceTiers[0].fromQty == 1) {
+                result.unitPrice = result.priceTiers[0].price;
+                result.priceTiers.remove(0);
+            }
+        } else if (action != null) {
+            // The additional discount stacks on top of the default (undiscounted) unit price -
+            // there is no Product_Discount__c in play here, so there's nothing else to stack on.
+            if (action.discountPercent != null) {
+                result.unitPrice = entry.UnitPrice * (1 - action.discountPercent / 100);
+                result.priceTiers = applyFlatPercentToTiers(entry, action.discountPercent);
+            } else {
+                result.priceTiers = buildPriceTiersFromEntry(entry);
+            }
+
+            if (!result.priceTiers.isEmpty() && result.priceTiers[0].fromQty == 1) {
+                result.unitPrice = result.priceTiers[0].price;
+                result.priceTiers.remove(0);
+            }
+        } else {
+            result.priceTiers = buildPriceTiersFromEntry(entry);
+        }
+        if (result.priceTiers == null) result.priceTiers = new List<PriceTierDTO>();
+        return result;
+    }
+
+    // The price per unit at a given quantity: the tier with the highest fromQty that the quantity
+    // reaches, else the unit price. Same rule as the cart's _effectivePrice(), but independent of
+    // tier order and skipping tiers without a price.
+    private static Decimal priceForQuantity(PricingResult pricing, Decimal quantity) {
+        Decimal price = pricing.unitPrice;
+        Integer bestFromQty = null;
+        for (PriceTierDTO t : pricing.priceTiers) {
+            if (t.fromQty == null || t.price == null || quantity < t.fromQty) continue;
+            if (bestFromQty == null || t.fromQty > bestFromQty) {
+                bestFromQty = t.fromQty;
+                price = t.price;
+            }
+        }
+        return price;
+    }
+
+    private class PricingResult {
+        Decimal unitPrice;
+        List<PriceTierDTO> priceTiers = new List<PriceTierDTO>();
+        Boolean hasActiveDisc;
+    }
+
+    private static ProductDTO buildProductDTO(
+        Product2 prod,
+        PricebookEntry entry,
+        Product_Discount__c disc,
+        ShopActionMatch action,
+        DealerContext ctx
+    ) {
+        Data_Translation__c trans = (prod.Data_Translations__r != null && !prod.Data_Translations__r.isEmpty())
+            ? prod.Data_Translations__r[0]
+            : null;
+
+        ProductDTO dto           = new ProductDTO();
+        dto.id                   = prod.Id;
+        dto.name                 = prod.Name;
+        dto.displayName      = trans != null && String.isNotBlank(trans.Name__c)
+                                 ? trans.Name__c
+                                 : prod.Name;
+        dto.shortDescription = trans != null && String.isNotBlank(trans.shortDescription__c)
+                                 ? trans.shortDescription__c
+                                 : prod.shortDescription__c;
+        dto.longDescription  = trans != null && String.isNotBlank(trans.longDescription__c)
+                                 ? trans.longDescription__c
+                                 : prod.longDescription__c;
+        dto.category             = prod.Category_Platform__c;
+        dto.productCode          = (disc != null && disc.IsActive__c == true && String.isNotBlank(disc.Product_Code_Customer__c))
+                                     ? disc.Product_Code_Customer__c
+                                     : prod.ProductCode;
+
+        PricingResult pricing = resolvePricing(entry, disc, action);
+        dto.unitPrice  = pricing.unitPrice;
+        dto.priceTiers = pricing.priceTiers;
+
+        if (!pricing.hasActiveDisc && action != null) {
+            dto.action = new ShopActionDTO();
+            dto.action.name            = action.name;
+            dto.action.teaser          = action.teaser;
+            dto.action.backgroundColor = action.backgroundColor;
+        }
+
+        // Masked last, after every other price-derived decision above (badge, product code
+        // override) has already been made using the REAL price - hiding prices from an account
+        // is purely a display concern, not a reason to change what discount/badge logic applies.
+        dto.pricesHidden = ctx.hidePrices == true;
+        if (dto.pricesHidden) {
+            dto.unitPrice  = null;
+            dto.priceTiers = new List<PriceTierDTO>();
+        }
+
+        // Account.Show_List_Prices__c: the dealer pricebook price before any price agreement or
+        // Shop Action discount, shown above the dealer's own (volume) prices. Never with hidden prices.
+        if (ctx.showListPrices == true && !dto.pricesHidden && entry != null) {
+            dto.listPrice = entry.UnitPrice;
+        }
+        return dto;
+    }
+
+    // ── Favorites ─────────────────────────────────────────────────────────────
+
+    // Favorites are keyed by running user + shop account (User__c + Account__c). User, not
+    // Contact, so internal users (no portal Contact) can have them too; Account so an internal
+    // user opening the shop from different Account records keeps a separate list per dealer
+    // instead of one list bleeding into every account.
+    //
+    // own    = the running user's favorites for this account (the only ones toggleFavorite changes)
+    // dealer = favorites set by the account's portal users - only filled for an internal user,
+    //          so sales/support ordering on a dealer's behalf can see what the dealer favors.
+    private class FavoriteSets {
+        Set<Id> own    = new Set<Id>();
+        Set<Id> dealer = new Set<Id>();
+    }
+
+    // productIds == null means "every favorited product" (used for the favorites tab filter).
+    private static FavoriteSets getFavorites(Id accountId, Set<Id> productIds) {
+        FavoriteSets sets = new FavoriteSets();
+        if (productIds != null && productIds.isEmpty()) return sets;
+
+        Id userId = UserInfo.getUserId();
+        Boolean includeDealer = accountId != null && UserInfo.getUserType() == 'Standard';
+
+        String soql = 'SELECT Product__c, User__c FROM Dealer_Product_Favorite__c WHERE Account__c = :accountId';
+        soql += includeDealer
+            ? ' AND (User__c = :userId OR User__r.ContactId != null)'
+            : ' AND User__c = :userId';
+        if (productIds != null) soql += ' AND Product__c IN :productIds';
+
+        for (Dealer_Product_Favorite__c f : (List<Dealer_Product_Favorite__c>) Database.queryWithBinds(
+            soql,
+            new Map<String, Object>{ 'accountId' => accountId, 'userId' => userId, 'productIds' => productIds },
+            AccessLevel.SYSTEM_MODE
+        )) {
+            if (f.User__c == userId) sets.own.add(f.Product__c);
+            else                     sets.dealer.add(f.Product__c);
+        }
+        return sets;
+    }
+
+    // Returns the running user's own favorite state for the product after toggling. A dealer
+    // favorite on the same product (internal user view) is never touched here.
+    @AuraEnabled
+    public static Boolean toggleFavorite(Id productId, Id dealerAccountId) {
+        if (productId == null) throw new AuraHandledException('productId is required.');
+
+        Id userId    = UserInfo.getUserId();
+        Id accountId = getDealerContext(dealerAccountId).account.Id;
+
+        List<Dealer_Product_Favorite__c> existing = [
+            SELECT Id
+            FROM Dealer_Product_Favorite__c
+            WHERE User__c = :userId AND Account__c = :accountId AND Product__c = :productId
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (!existing.isEmpty()) {
+            Database.delete(existing[0], AccessLevel.SYSTEM_MODE);
+            return false;
+        }
+
+        Database.insert(
+            new Dealer_Product_Favorite__c(User__c = userId, Account__c = accountId, Product__c = productId),
+            AccessLevel.SYSTEM_MODE
+        );
+        return true;
+    }
+
+    // Tabs for the current dealer's reseller: one per platform value in the Administration's
+    // Available_System_Platforms__c, labeled from the shared "System" global value set - in that
+    // value set's defined order, not the reseller field's (unordered Set) iteration order.
+    @AuraEnabled(cacheable=true)
+    public static List<PlatformTabDTO> getPlatformTabs(Id dealerAccountId) {
+        Set<String> platforms = getAvailablePlatforms(getDealerContext(dealerAccountId).account);
+        List<PlatformTabDTO> tabs = new List<PlatformTabDTO>();
+        if (platforms.isEmpty()) return tabs;
+
+        for (Schema.PicklistEntry entry : Schema.SObjectType.Product2.fields.System_Platform__c.getPicklistValues()) {
+            if (platforms.contains(entry.getValue())) {
+                PlatformTabDTO dto = new PlatformTabDTO();
+                dto.value = entry.getValue();
+                dto.label = entry.getLabel();
+                tabs.add(dto);
+            }
+        }
+        return tabs;
+    }
+
+    // ── Public methods ────────────────────────────────────────────────────────
+
+    @AuraEnabled(cacheable=true)
+    public static ProductPageResult getProducts(String category, Integer pageNum, Integer pageSize, String searchTerm, Id dealerAccountId) {
+        Integer safePageNum  = (pageNum  != null && pageNum  > 0) ? pageNum  : 1;
+        Integer safePageSize = (pageSize != null && pageSize > 0) ? pageSize : 20;
+        Integer offsetVal    = (safePageNum - 1) * safePageSize;
+
+        DealerContext ctx  = getDealerContext(dealerAccountId);
+        Account acct      = ctx.account;
+        String lang       = ctx.language;
+        Id pricebookId    = resolvePricebookId(acct);
+
+        Boolean isFavoritesTab = 'favorites'.equals(category);
+
+        // Pricebook entries drive visibility: only products with an active pricebook entry appear.
+        Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
+        Boolean filterByEntry = pricebookId != null;
+        if (filterByEntry) {
+            for (PricebookEntry pbe : (List<PricebookEntry>) Database.query(
+                'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+                'WHERE Pricebook2Id = :pricebookId AND IsActive = true AND IsActive_r__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
+                entryByProduct.put(pbe.Product2Id, pbe);
+            }
+        }
+        Set<Id> pricedIds = entryByProduct.keySet();
+
+        if (filterByEntry && pricedIds.isEmpty()) {
+            ProductPageResult empty = new ProductPageResult();
+            empty.products    = new List<ProductDTO>();
+            empty.total       = 0;
+            empty.pricebookId = pricebookId;
+            return empty;
+        }
+
+        Set<Id> baseRtIds = translationRecordTypeIds;
+
+        List<String> conditions = new List<String>{ 'IsActive = true', 'Show_In_Dealer_Shop__c = true' };
+        // Method scope: still needed as a bind variable when the dynamic query runs further down.
+        Set<Id> favoriteTabIds = new Set<Id>();
+        if (isFavoritesTab) {
+            FavoriteSets tabFavorites = getFavorites(acct.Id, null);
+            favoriteTabIds.addAll(tabFavorites.own);
+            favoriteTabIds.addAll(tabFavorites.dealer);
+            conditions.add('Id IN :favoriteTabIds');
+        } else if (String.isNotBlank(category)) {
+            // A specific platform tab - direct match only, no fail-open: unlike the "All Products"
+            // tab, selecting platform X is an explicit request for products confirmed to be on X.
+            conditions.add('System_Platform__c INCLUDES (:category)');
+        } else {
+            // "All Products" tab only - a product/reseller with no platform data set never gets
+            // excluded (fail-open), since most Product2 records don't have System_Platform__c
+            // populated yet; only an actual mismatch between two populated values excludes it.
+            Set<String> availablePlatforms = getAvailablePlatforms(acct);
+            if (!availablePlatforms.isEmpty()) {
+                // INCLUDES('a;b') means "has BOTH a AND b", not "has either" - a single product
+                // only ever carries one platform value, so that would always match zero rows.
+                // "Any of" requires one INCLUDES() per value, OR'd together.
+                List<String> platformClauses = new List<String>();
+                for (String p : availablePlatforms) {
+                    platformClauses.add('System_Platform__c INCLUDES (\'' + String.escapeSingleQuotes(p) + '\')');
+                }
+                conditions.add('(System_Platform__c = null OR ' + String.join(platformClauses, ' OR ') + ')');
+            }
+        }
+        if (filterByEntry)                conditions.add('Id IN :pricedIds');
+
+        String searchLike = String.isNotBlank(searchTerm)
+            ? ('%' + String.escapeSingleQuotes(searchTerm.trim()) + '%')
+            : null;
+        // Declared at method scope (not inside the "if" below) so they're still in scope as
+        // dynamic-SOQL bind variables when Database.countQuery()/Database.query() run further
+        // down - even when empty, "Id IN :emptySet" is valid SOQL and simply matches nothing.
+        Set<Id> translationMatchIds = new Set<Id>();
+        Set<Id> discountMatchIds    = new Set<Id>();
+        if (searchLike != null) {
+            // Two semi-join subqueries OR'd together in the same WHERE clause throws
+            // "Semi join sub-selects are only allowed at the top level WHERE expressions and
+            // not in nested WHERE expressions" - SOQL only allows ONE semi-join per OR group.
+            // Resolving both to plain Id sets first and using "Id IN :set" (a literal bind
+            // variable, not a sub-select) sidesteps the restriction entirely. This was broken
+            // for every authenticated dealer search (acct.Id != null adds the second subquery).
+            for (Data_Translation__c dt : [
+                SELECT Product__c
+                FROM Data_Translation__c
+                WHERE Name__c LIKE :searchLike
+                  AND RecordTypeId IN :baseRtIds
+                  AND Language__c = :lang
+                WITH SYSTEM_MODE
+            ]) {
+                translationMatchIds.add(dt.Product__c);
+            }
+
+            List<String> searchClauses = new List<String>{
+                'Name LIKE :searchLike',
+                'ProductCode LIKE :searchLike',
+                'Id IN :translationMatchIds'
+            };
+            if (acct.Id != null) {
+                for (Product_Discount__c pd : [
+                    SELECT Product__c
+                    FROM Product_Discount__c
+                    WHERE Product_Code_Customer__c LIKE :searchLike
+                      AND Account__c = :acct.Id
+                      AND IsActive__c = true
+                    WITH SYSTEM_MODE
+                ]) {
+                    discountMatchIds.add(pd.Product__c);
+                }
+                searchClauses.add('Id IN :discountMatchIds');
+            }
+            conditions.add('(' + String.join(searchClauses, ' OR ') + ')');
+        }
+
+        String whereClause = String.join(conditions, ' AND ');
+
+        Integer total = Database.countQuery('SELECT COUNT() FROM Product2 WHERE ' + whereClause + ' WITH SYSTEM_MODE');
+
+        String soql =
+            'SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c, ' +
+            '(SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r ' +
+            ' WHERE RecordTypeId IN :baseRtIds AND Language__c = :lang LIMIT 1) ' +
+            'FROM Product2 WHERE ' + whereClause + ' ' +
+            'WITH SYSTEM_MODE ORDER BY Name LIMIT :safePageSize OFFSET :offsetVal';
+        List<Product2> products = Database.query(soql);
+
+        Set<Id> productIds = new Set<Id>();
+        for (Product2 p : products) productIds.add(p.Id);
+
+        // Account-level discounts
+        Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
+        if (acct.Id != null && !productIds.isEmpty()) {
+            Id acctId = acct.Id;
+            for (Product_Discount__c disc : (List<Product_Discount__c>) Database.query(
+                'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+                'WHERE Account__c = :acctId AND Product__c IN :productIds AND IsActive__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
+                discountByProduct.put(disc.Product__c, disc);
+            }
+        }
+
+        Map<Id, String> imageUrls = getProductImageUrls(productIds);
+        FavoriteSets favorites = getFavorites(acct.Id, productIds);
+        Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
+
+        List<ProductDTO> dtos = new List<ProductDTO>();
+        for (Product2 p : products) {
+            ProductDTO dto = buildProductDTO(p, entryByProduct.get(p.Id), discountByProduct.get(p.Id), actionsByProduct.get(p.Id), ctx);
+            dto.imageUrl   = imageUrls.get(p.Id);
+            dto.isFavorite       = favorites.own.contains(p.Id);
+            dto.isDealerFavorite = favorites.dealer.contains(p.Id);
+            dtos.add(dto);
+        }
+
+        ProductPageResult result = new ProductPageResult();
+        result.products    = dtos;
+        result.total       = total;
+        result.pricebookId = pricebookId;
+        return result;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static ProductDTO getProductDetail(Id productId, Id dealerAccountId) {
+        if (productId == null) throw new AuraHandledException('productId is required.');
+
+        DealerContext ctx = getDealerContext(dealerAccountId);
+        String lang    = ctx.language;
+        Set<Id> baseRtIds = translationRecordTypeIds;
+        List<Product2> prods = [
+            SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                   (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
+                    WHERE RecordTypeId IN :baseRtIds AND Language__c = :lang LIMIT 1)
+            FROM Product2
+            WHERE Id = :productId
+              AND IsActive = true
+              AND Show_In_Dealer_Shop__c = true
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (prods.isEmpty()) throw new AuraHandledException('Product not found.');
+        Product2 prod = prods[0];
+
+        Account acct   = ctx.account;
+        Id pricebookId = resolvePricebookId(acct);
+
+        PricebookEntry entry = null;
+        if (pricebookId != null) {
+            List<PricebookEntry> entries = (List<PricebookEntry>) Database.query(
+                'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+                'WHERE Pricebook2Id = :pricebookId AND Product2Id = :productId ' +
+                'AND IsActive = true AND IsActive_r__c = true LIMIT 1',
+                AccessLevel.SYSTEM_MODE
+            );
+            if (!entries.isEmpty()) entry = entries[0];
+        }
+
+        Id acctId = acct.Id;
+        List<Product_Discount__c> discs = (List<Product_Discount__c>) Database.query(
+            'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+            'WHERE Account__c = :acctId AND Product__c = :productId AND IsActive__c = true LIMIT 1',
+            AccessLevel.SYSTEM_MODE
+        );
+        Product_Discount__c disc = discs.isEmpty() ? null : discs[0];
+        ShopActionMatch action = getActiveShopActions(new Set<Id>{ productId }, getAdministrationIds(acct)).get(productId);
+
+        ProductDTO dto = buildProductDTO(prod, entry, disc, action, ctx);
+        Map<Id, String> imageUrls = getProductImageUrls(new Set<Id>{ productId });
+        dto.imageUrl   = imageUrls.get(productId);
+        FavoriteSets favorites = getFavorites(acct.Id, new Set<Id>{ productId });
+        dto.isFavorite       = favorites.own.contains(productId);
+        dto.isDealerFavorite = favorites.dealer.contains(productId);
+        return dto;
+    }
+
+    // omitShippingCost is only ever honored when dealerAccountId is set (i.e. an internal user on
+    // the Account-embedded quick action, never a portal dealer) - a portal call can't reach this
+    // path at all since dealerAccountId is always null there, regardless of what the client sends.
+    @AuraEnabled
+    public static String placeOrder(String cartJson, Id dealerAccountId, Boolean omitShippingCost, String orderOptionsJson) {
+        if (String.isBlank(cartJson)) throw new AuraHandledException('cartJson is required.');
+        Boolean skipShipping = omitShippingCost == true && dealerAccountId != null;
+        OrderOptionsInput options = parseOrderOptions(orderOptionsJson);
+
+        List<CartItemInput> items;
+        try {
+            items = (List<CartItemInput>) JSON.deserialize(cartJson, List<CartItemInput>.class);
+        } catch (Exception e) {
+            throw new AuraHandledException('Invalid cart data: ' + e.getMessage());
+        }
+        if (items == null || items.isEmpty()) throw new AuraHandledException('Cart is empty.');
+
+        Account acct   = getDealerContext(dealerAccountId).account;
+        Id pricebookId = resolvePricebookId(acct);
+        if (pricebookId == null) throw new AuraHandledException('No dealer pricebook found for your account.');
+
+        // Collect product ids for pricebook entry lookup
+        Set<Id> productIds = new Set<Id>();
+        for (CartItemInput item : items) {
+            if (item.productId != null) productIds.add(item.productId);
+        }
+
+        Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
+        for (PricebookEntry pbe : (List<PricebookEntry>) Database.query(
+            'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+            'WHERE Pricebook2Id = :pricebookId AND Product2Id IN :productIds AND IsActive = true',
+            AccessLevel.SYSTEM_MODE
+        )) {
+            entryByProduct.put(pbe.Product2Id, pbe);
+        }
+
+        // Every line is priced here, never from the client: the cart's unitPrice is only what the
+        // dealer saw when adding the item (base price from the grid, the tier price for the chosen
+        // quantity from the detail page), so it went stale once the quantity changed in the cart,
+        // and Hide_Prices__c accounts never have one at all. Same logic as everywhere else in this
+        // class (Product_Discount__c / Shop Action), plus the volume tier for the line's quantity.
+        Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
+        if (acct.Id != null && !productIds.isEmpty()) {
+            Id acctId = acct.Id;
+            for (Product_Discount__c disc : (List<Product_Discount__c>) Database.query(
+                'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+                'WHERE Account__c = :acctId AND Product__c IN :productIds AND IsActive__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
+                discountByProduct.put(disc.Product__c, disc);
+            }
+        }
+        Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
+
+        List<RecordType> webshopRts = [
+            SELECT Id, Name
+            FROM RecordType
+            WHERE SObjectType = 'Opportunity' AND DeveloperName = 'Webshop'
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        RecordType webshopRt = webshopRts.isEmpty() ? null : webshopRts[0];
+
+        // Opportunity/OpportunityLineItem access can't be granted to the Customer Community Plus
+        // license at all (not a permission-set gap - the license itself doesn't allow it), so
+        // these run as system - same pattern as the Order/OrderItem approach this replaces.
+        //
+        // Name can't be set to its final "<RecordType>#<Opportunity Number>" form yet - Auto_Number__c
+        // is only populated by Salesforce after the insert completes, not on the in-memory record -
+        // so insert with a placeholder and fix it up below.
+        // CurrencyIsoCode must follow the dealer Account, not the running user - the Opportunity
+        // otherwise defaults to the running user's own currency, which mismatches the dealer
+        // pricebook's currency for any user (portal or internal) whose currency differs from the
+        // account's (e.g. an internal NL/EUR user placing an order for a UK/GBP dealer).
+        Opportunity opp = new Opportunity(
+            AccountId        = acct.Id,
+            Name             = 'Dealer shop order',
+            Type             = 'Webshop',
+            LeadSource       = 'Webshop',
+            StageName        = 'Webshop',
+            CloseDate        = Date.today().addDays(30),
+            RecordTypeId     = webshopRt?.Id,
+            CurrencyIsoCode  = acct.CurrencyIsoCode
+        );
+        Database.insert(opp, AccessLevel.SYSTEM_MODE);
+
+        opp = [
+            SELECT Id, Auto_Number__c
+            FROM Opportunity
+            WHERE Id = :opp.Id
+            WITH SYSTEM_MODE
+        ];
+
+        // The org-wide "rbc - Opportunity" before-save flow re-resolves Pricebook2Id AND
+        // CurrencyIsoCode for every new Opportunity (the latter from the running user's own
+        // currency, not the account's), overriding whatever we set on insert. Dealer-shop pricing
+        // must use the dealer pricebook/account currency resolved above, so force both back with
+        // a follow-up update (that flow only fires on Create, so this update sticks).
+        opp.Name            = (webshopRt != null ? webshopRt.Name : 'Webshop') + ' #' + opp.Auto_Number__c;
+        opp.Pricebook2Id    = pricebookId;
+        opp.CurrencyIsoCode = acct.CurrencyIsoCode;
+        // Also set here and not on insert: "rac - Opportunity" fills Customer_Reference__c from
+        // the placeholder Name on create, and "rbc - Opportunity" forces Use_ShippingAddress__c
+        // from the WooCommerce flag on create. Neither touches them on update.
+        opp.Customer_Reference__c = String.isNotBlank(options.customerReference)
+            ? options.customerReference.trim().left(40)
+            : opp.Auto_Number__c;
+        opp.Use_ShippingAddress__c = options.useDifferentShippingAddress == true;
+        if (opp.Use_ShippingAddress__c) {
+            opp.ShippingAddress__Street__s      = options.shippingAddress.street.trim().left(255);
+            opp.ShippingAddress__PostalCode__s  = options.shippingAddress.postalCode.trim().left(20);
+            opp.ShippingAddress__City__s        = options.shippingAddress.city.trim().left(40);
+            opp.ShippingAddress__CountryCode__s = options.shippingAddress.countryCode;
+        }
+        Database.update(opp, AccessLevel.SYSTEM_MODE);
+
+        List<OpportunityLineItem> lineItems = new List<OpportunityLineItem>();
+        for (CartItemInput item : items) {
+            if (item.productId == null || item.quantity == null || item.quantity <= 0) continue;
+            PricebookEntry pbe = entryByProduct.get(item.productId);
+            if (pbe == null) continue;
+
+            Decimal unitPrice = priceForQuantity(
+                resolvePricing(pbe, discountByProduct.get(item.productId), actionsByProduct.get(item.productId)),
+                item.quantity
+            );
+            lineItems.add(new OpportunityLineItem(
+                OpportunityId    = opp.Id,
+                Product2Id       = item.productId,
+                PricebookEntryId = pbe.Id,
+                Quantity         = item.quantity,
+                UnitPrice        = unitPrice
+            ));
+        }
+
+        if (lineItems.isEmpty()) {
+            Database.delete(opp, AccessLevel.SYSTEM_MODE);
+            throw new AuraHandledException('No valid order items could be created from cart.');
+        }
+
+        addShippingLineItemIfNeeded(opp.Id, acct, pricebookId, lineItems, skipShipping);
+
+        Database.insert(lineItems, AccessLevel.SYSTEM_MODE);
+        return opp.Name;
+    }
+
+    // ── Order options (reference + delivery address) ──────────────────────────
+
+    // Validated before anything is inserted, so an incomplete address never leaves a half-made order.
+    private static OrderOptionsInput parseOrderOptions(String orderOptionsJson) {
+        OrderOptionsInput options = new OrderOptionsInput();
+        if (String.isNotBlank(orderOptionsJson)) {
+            try {
+                options = (OrderOptionsInput) JSON.deserialize(orderOptionsJson, OrderOptionsInput.class);
+            } catch (Exception e) {
+                throw new AuraHandledException('Invalid order options: ' + e.getMessage());
+            }
+        }
+        if (options.useDifferentShippingAddress == true) {
+            AddressDTO a = options.shippingAddress;
+            if (a == null || String.isBlank(a.street) || String.isBlank(a.postalCode)
+                    || String.isBlank(a.city) || String.isBlank(a.countryCode)) {
+                throw new AuraHandledException('The delivery address is incomplete.');
+            }
+        }
+        return options;
+    }
+
+    private static AddressDTO toAddress(String street, String postalCode, String city, String countryCode) {
+        if (String.isBlank(street) && String.isBlank(city)) return null;
+        AddressDTO a  = new AddressDTO();
+        a.street      = street;
+        a.postalCode  = postalCode;
+        a.city        = city;
+        a.countryCode = countryCode;
+        return a;
+    }
+
+    // Default delivery address (the account's Shipping address), the different delivery
+    // addresses used on this account's earlier shop orders (newest first, no duplicates), and
+    // the country picklist for entering a new one. Not cacheable: a new order adds an address.
+    @AuraEnabled
+    public static OrderOptionsDTO getOrderOptions(Id dealerAccountId) {
+        Account acct = getDealerContext(dealerAccountId).account;
+
+        OrderOptionsDTO result    = new OrderOptionsDTO();
+        result.previousAddresses  = new List<AddressDTO>();
+        result.countries          = new List<OptionDTO>();
+
+        for (Schema.PicklistEntry pe : Opportunity.ShippingAddress__CountryCode__s.getDescribe().getPicklistValues()) {
+            if (!pe.isActive()) continue;
+            OptionDTO o = new OptionDTO();
+            o.value = pe.getValue();
+            o.label = pe.getLabel();
+            result.countries.add(o);
+        }
+
+        if (acct.Id == null) return result;
+        Id acctId = acct.Id;
+
+        Account shipping = [
+            SELECT ShippingStreet, ShippingPostalCode, ShippingCity, ShippingCountryCode
+            FROM Account WHERE Id = :acctId WITH SYSTEM_MODE
+        ];
+        result.defaultAddress = toAddress(shipping.ShippingStreet, shipping.ShippingPostalCode, shipping.ShippingCity, shipping.ShippingCountryCode);
+
+        Set<String> seen = new Set<String>();
+        for (Opportunity o : [
+            SELECT ShippingAddress__Street__s, ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s
+            FROM Opportunity
+            WHERE AccountId = :acctId
+              AND RecordType.DeveloperName = 'Webshop'
+              AND Use_ShippingAddress__c = true
+              AND ShippingAddress__Street__s != null
+            WITH SYSTEM_MODE
+            ORDER BY CreatedDate DESC
+            LIMIT 200
+        ]) {
+            AddressDTO a = toAddress(o.ShippingAddress__Street__s, o.ShippingAddress__PostalCode__s, o.ShippingAddress__City__s, o.ShippingAddress__CountryCode__s);
+            String key = (a.street + '|' + a.postalCode + '|' + a.city + '|' + a.countryCode).toLowerCase().deleteWhitespace();
+            if (seen.add(key)) result.previousAddresses.add(a);
+            if (result.previousAddresses.size() == 10) break;
+        }
+        return result;
+    }
+
+    // Shared by addShippingLineItemIfNeeded() and getShippingInfo() - one lookup of the reseller's
+    // shipping configuration, keyed by the same Reseller__c value used everywhere else in this class.
+    private static Business_Entities__c getShippingConfig(Account acct) {
+        if (acct == null || String.isBlank(acct.Reseller_Name__c)) return null;
+
+        List<Business_Entities__c> entities = [
+            SELECT Shipping_Free_Threshold__c, Shipping_Product__c, Shipping_Product__r.Shipping_Method__c
+            FROM Business_Entities__c
+            WHERE Reseller__c = :acct.Reseller_Name__c
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        return entities.isEmpty() ? null : entities[0];
+    }
+
+    // Adds a fixed shipping fee line item when the reseller (Business_Entities__c, matched by
+    // Account.Reseller_Name__c) has a Shipping_Product__c configured and the cart subtotal is
+    // below its Shipping_Free_Threshold__c (null threshold = never waive the fee). Weight/package-
+    // size-based shipping (Shipping_Method__c = 'Weight_Based') isn't implemented yet, so any
+    // reseller configured for it - or with no configuration at all - simply gets no shipping line.
+    // skipShipping lets an internal user (never a portal dealer - enforced by the caller) omit the
+    // fee entirely for this order regardless of subtotal.
+    private static void addShippingLineItemIfNeeded(Id opportunityId, Account acct, Id pricebookId, List<OpportunityLineItem> lineItems, Boolean skipShipping) {
+        if (skipShipping == true) return;
+
+        Business_Entities__c entity = getShippingConfig(acct);
+        if (entity == null) return;
+        if (entity.Shipping_Product__c == null) return;
+        if (entity.Shipping_Product__r.Shipping_Method__c != 'Fixed') return;
+
+        Decimal subtotal = 0;
+        for (OpportunityLineItem li : lineItems) {
+            subtotal += (li.UnitPrice != null ? li.UnitPrice : 0) * li.Quantity;
+        }
+        if (entity.Shipping_Free_Threshold__c != null && subtotal >= entity.Shipping_Free_Threshold__c) return;
+
+        List<PricebookEntry> shippingEntries = [
+            SELECT Id, UnitPrice
+            FROM PricebookEntry
+            WHERE Pricebook2Id = :pricebookId AND Product2Id = :entity.Shipping_Product__c
+              AND IsActive = true AND IsActive_r__c = true
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (shippingEntries.isEmpty()) return;
+
+        lineItems.add(new OpportunityLineItem(
+            OpportunityId    = opportunityId,
+            Product2Id       = entity.Shipping_Product__c,
+            PricebookEntryId = shippingEntries[0].Id,
+            Quantity         = 1,
+            UnitPrice        = shippingEntries[0].UnitPrice
+        ));
+    }
+
+    // Lets the cart show a policy remark ("free above X", "calculated on weight") without placing
+    // an order - same reseller lookup addShippingLineItemIfNeeded() uses, read-only.
+    @AuraEnabled(cacheable=true)
+    public static ShippingInfoDTO getShippingInfo(Id dealerAccountId) {
+        DealerContext ctx = getDealerContext(dealerAccountId);
+        ShippingInfoDTO dto = new ShippingInfoDTO();
+        dto.configured = false;
+        // Always populate, regardless of whether shipping itself is configured - the cart also
+        // uses this to show the right currency symbol for the whole order, not just shipping.
+        dto.currencyIsoCode = ctx.account?.CurrencyIsoCode;
+
+        Business_Entities__c entity = getShippingConfig(ctx.account);
+        if (entity == null || entity.Shipping_Product__c == null) return dto;
+
+        dto.configured      = true;
+        dto.method          = entity.Shipping_Product__r.Shipping_Method__c;
+        dto.freeThreshold   = entity.Shipping_Free_Threshold__c;
+
+        if (dto.method == 'Fixed') {
+            Id pricebookId = resolvePricebookId(ctx.account);
+            if (pricebookId != null) {
+                List<PricebookEntry> entries = [
+                    SELECT UnitPrice
+                    FROM PricebookEntry
+                    WHERE Pricebook2Id = :pricebookId AND Product2Id = :entity.Shipping_Product__c
+                      AND IsActive = true AND IsActive_r__c = true
+                    WITH SYSTEM_MODE
+                    LIMIT 1
+                ];
+                if (!entries.isEmpty()) dto.feeAmount = entries[0].UnitPrice;
+            }
+        }
+        return dto;
+    }
+
+    public class ShippingInfoDTO {
+        @AuraEnabled public Boolean configured;
+        @AuraEnabled public String  method;
+        @AuraEnabled public Decimal freeThreshold;
+        @AuraEnabled public Decimal feeAmount;
+        @AuraEnabled public String  currencyIsoCode;
+    }
+
+    // ── Order history ─────────────────────────────────────────────────────────
+
+    @AuraEnabled(cacheable=true)
+    public static List<OrderHistoryDTO> getOrderHistory(Boolean onlyMine) {
+        DealerContext ctx = getDealerContext();
+        Account acct = ctx.account;
+        if (acct.Id == null) return new List<OrderHistoryDTO>();
+
+        List<Opportunity> opps = onlyMine
+            ? [
+                SELECT Id, Name, CreatedDate, StageName, Amount, CurrencyIsoCode, CreatedBy.Name
+                FROM Opportunity
+                WHERE AccountId = :acct.Id
+                  AND RecordType.DeveloperName = 'Webshop'
+                  AND CreatedById = :UserInfo.getUserId()
+                WITH SYSTEM_MODE
+                ORDER BY CreatedDate DESC
+            ]
+            : [
+                SELECT Id, Name, CreatedDate, StageName, Amount, CurrencyIsoCode, CreatedBy.Name
+                FROM Opportunity
+                WHERE AccountId = :acct.Id
+                  AND RecordType.DeveloperName = 'Webshop'
+                WITH SYSTEM_MODE
+                ORDER BY CreatedDate DESC
+            ];
+
+        List<OrderHistoryDTO> results = new List<OrderHistoryDTO>();
+        for (Opportunity o : opps) {
+            OrderHistoryDTO dto = new OrderHistoryDTO();
+            dto.id           = o.Id;
+            dto.orderNumber  = o.Name;
+            dto.placedDate   = o.CreatedDate;
+            dto.stageName    = o.StageName;
+            dto.currencyIsoCode = o.CurrencyIsoCode;
+            dto.amount       = ctx.hidePrices ? null : o.Amount;
+            dto.pricesHidden = ctx.hidePrices;
+            dto.placedByName = o.CreatedBy != null ? o.CreatedBy.Name : null;
+            results.add(dto);
+        }
+        return results;
+    }
+
+    // ── Order detail ──────────────────────────────────────────────────────────
+
+    // Returns an order's line items priced at TODAY's live pricing/discounts (not the historical
+    // price paid at the time), so "reorder"/"add to cart" always uses current prices.
+    @AuraEnabled(cacheable=true)
+    public static OrderDetailDTO getOrderDetail(Id opportunityId) {
+        if (opportunityId == null) throw new AuraHandledException('opportunityId is required.');
+
+        DealerContext ctx = getDealerContext();
+        Account acct = ctx.account;
+        if (acct.Id == null) throw new AuraHandledException('No dealer account context.');
+
+        List<Opportunity> opps = [
+            SELECT Id, Name, CreatedDate, StageName, CurrencyIsoCode, Use_ShippingAddress__c,
+                   ShippingAddress__Street__s, ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s
+            FROM Opportunity
+            WHERE Id = :opportunityId
+              AND AccountId = :acct.Id
+              AND RecordType.DeveloperName = 'Webshop'
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (opps.isEmpty()) throw new AuraHandledException('Order not found.');
+        Opportunity opp = opps[0];
+
+        List<OpportunityLineItem> lineItems = [
+            SELECT Product2Id, Quantity, UnitPrice
+            FROM OpportunityLineItem
+            WHERE OpportunityId = :opp.Id
+            WITH SYSTEM_MODE
+        ];
+
+        Set<Id> productIds = new Set<Id>();
+        for (OpportunityLineItem li : lineItems) productIds.add(li.Product2Id);
+
+        String lang = ctx.language;
+        Set<Id> baseRtIds = translationRecordTypeIds;
+        Map<Id, Product2> prodById = productIds.isEmpty()
+            ? new Map<Id, Product2>()
+            : new Map<Id, Product2>([
+                SELECT Id, Name, ProductCode, shortDescription__c, longDescription__c, Category_Platform__c,
+                       (SELECT Id, Name__c, shortDescription__c, longDescription__c FROM Data_Translations__r
+                        WHERE RecordTypeId IN :baseRtIds AND Language__c = :lang LIMIT 1)
+                FROM Product2
+                WHERE Id IN :productIds
+                WITH SYSTEM_MODE
+            ]);
+
+        Id pricebookId = resolvePricebookId(acct);
+        Map<Id, PricebookEntry> entryByProduct = new Map<Id, PricebookEntry>();
+        if (pricebookId != null && !productIds.isEmpty()) {
+            for (PricebookEntry pbe : (List<PricebookEntry>) Database.query(
+                'SELECT ' + PRICEBOOK_ENTRY_FIELDS + ' FROM PricebookEntry ' +
+                'WHERE Pricebook2Id = :pricebookId AND Product2Id IN :productIds ' +
+                'AND IsActive = true AND IsActive_r__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
+                entryByProduct.put(pbe.Product2Id, pbe);
+            }
+        }
+
+        Map<Id, Product_Discount__c> discByProduct = new Map<Id, Product_Discount__c>();
+        if (!productIds.isEmpty()) {
+            Id acctId = acct.Id;
+            for (Product_Discount__c d : (List<Product_Discount__c>) Database.query(
+                'SELECT ' + PRODUCT_DISCOUNT_FIELDS + ' FROM Product_Discount__c ' +
+                'WHERE Account__c = :acctId AND Product__c IN :productIds AND IsActive__c = true',
+                AccessLevel.SYSTEM_MODE
+            )) {
+                discByProduct.put(d.Product__c, d);
+            }
+        }
+
+        Map<Id, String> imageUrls = getProductImageUrls(productIds);
+        Map<Id, ShopActionMatch> actionsByProduct = getActiveShopActions(productIds, getAdministrationIds(acct));
+
+        OrderDetailDTO result = new OrderDetailDTO();
+        result.orderId     = opp.Id;
+        result.orderNumber = opp.Name;
+        result.placedDate  = opp.CreatedDate;
+        result.stageName   = opp.StageName;
+        result.currencyIsoCode = opp.CurrencyIsoCode;
+        result.useDifferentShippingAddress = opp.Use_ShippingAddress__c;
+        result.shippingAddress = opp.Use_ShippingAddress__c
+            ? toAddress(opp.ShippingAddress__Street__s, opp.ShippingAddress__PostalCode__s, opp.ShippingAddress__City__s, opp.ShippingAddress__CountryCode__s)
+            : null;
+        result.lines       = new List<OrderLineDTO>();
+
+        for (OpportunityLineItem li : lineItems) {
+            Product2 prod = prodById.get(li.Product2Id);
+            if (prod == null) continue;
+
+            ProductDTO current = buildProductDTO(prod, entryByProduct.get(li.Product2Id), discByProduct.get(li.Product2Id), actionsByProduct.get(li.Product2Id), ctx);
+            current.imageUrl = imageUrls.get(li.Product2Id);
+
+            OrderLineDTO line = new OrderLineDTO();
+            line.productId         = li.Product2Id;
+            line.quantity          = Integer.valueOf(li.Quantity);
+            line.originalUnitPrice = ctx.hidePrices ? null : li.UnitPrice;
+            line.product           = current;
+            result.lines.add(line);
+        }
+        return result;
+    }
+
+    // ── Inner classes ─────────────────────────────────────────────────────────
+
+    public class ProductPageResult {
+        @AuraEnabled public List<ProductDTO> products;
+        @AuraEnabled public Integer          total;
+        @AuraEnabled public Id               pricebookId;
+    }
+
+    public class ProductDTO {
+        @AuraEnabled public Id              id;
+        @AuraEnabled public String          name;
+        @AuraEnabled public String          displayName;
+        @AuraEnabled public String          shortDescription;
+        @AuraEnabled public String          longDescription;
+        @AuraEnabled public String          category;
+        @AuraEnabled public String          productCode;
+        @AuraEnabled public String          imageUrl;
+        @AuraEnabled public Decimal         unitPrice;
+        // Only filled when the account has Show_List_Prices__c - see buildProductDTO.
+        @AuraEnabled public Decimal         listPrice;
+        @AuraEnabled public List<PriceTierDTO> priceTiers;
+        @AuraEnabled public Boolean         isFavorite;
+        // Set by one of the account's portal users - only ever true in an internal user's view.
+        @AuraEnabled public Boolean         isDealerFavorite;
+        @AuraEnabled public ShopActionDTO   action;
+        @AuraEnabled public Boolean         pricesHidden;
+    }
+
+    public class ShopActionDTO {
+        @AuraEnabled public String name;
+        @AuraEnabled public String teaser;
+        @AuraEnabled public String backgroundColor;
+    }
+
+    public class PlatformTabDTO {
+        @AuraEnabled public String value;
+        @AuraEnabled public String label;
+    }
+
+    public class DealerContext {
+        public Account account;
+        public String  language;
+        public Boolean hidePrices = false;
+        public Boolean showListPrices = false;
+    }
+
+    // ── Reseller/platform resolution ──────────────────────────────────────────
+
+    // Account.Reseller_Name__c and Administration.Reseller__c are both plain picklist codes
+    // ("1".."6") that happen to overlap digit-wise with the unrelated System__c global value
+    // set - they are NOT platform codes themselves, just the join key to find the Administration
+    // record that actually carries the platform requirement.
+    private static Set<String> getAvailablePlatforms(Account acct) {
+        Set<String> platforms = new Set<String>();
+        if (acct == null) return platforms;
+        for (Subscription25__Administration__c admin : Util_Shop_System.getAdministrationsByReseller(
+            acct.Reseller_Name__c, 'Available_System_Platforms__c'
+        )) {
+            if (admin.Available_System_Platforms__c != null) {
+                platforms.addAll(admin.Available_System_Platforms__c.split(';'));
+            }
+        }
+        return platforms;
+    }
+
+    // Shop_Action__c.Administration__c is required specifically so actions stay scoped to one
+    // reseller - without it, a Germany action and an NL action on the same product would collide
+    // with no way to tell which one should apply to a given dealer.
+    private static Set<Id> getAdministrationIds(Account acct) {
+        Set<Id> ids = new Set<Id>();
+        if (acct == null) return ids;
+        for (Subscription25__Administration__c admin : Util_Shop_System.getAdministrationsByReseller(
+            acct.Reseller_Name__c, 'Id'
+        )) {
+            ids.add(admin.Id);
+        }
+        return ids;
+    }
+
+    public class OrderHistoryDTO {
+        @AuraEnabled public Id       id;
+        @AuraEnabled public String   orderNumber;
+        @AuraEnabled public Datetime placedDate;
+        @AuraEnabled public String   stageName;
+        @AuraEnabled public Decimal  amount;
+        @AuraEnabled public String   currencyIsoCode;
+        @AuraEnabled public String   placedByName;
+        @AuraEnabled public Boolean  pricesHidden;
+    }
+
+    public class OrderDetailDTO {
+        @AuraEnabled public Id                orderId;
+        @AuraEnabled public String            orderNumber;
+        @AuraEnabled public Datetime          placedDate;
+        @AuraEnabled public String            stageName;
+        @AuraEnabled public String            currencyIsoCode;
+        @AuraEnabled public Boolean           useDifferentShippingAddress;
+        @AuraEnabled public AddressDTO        shippingAddress;
+        @AuraEnabled public List<OrderLineDTO> lines;
+    }
+
+    public class AddressDTO {
+        @AuraEnabled public String street;
+        @AuraEnabled public String postalCode;
+        @AuraEnabled public String city;
+        @AuraEnabled public String countryCode;
+    }
+
+    public class OptionDTO {
+        @AuraEnabled public String value;
+        @AuraEnabled public String label;
+    }
+
+    public class OrderOptionsDTO {
+        @AuraEnabled public AddressDTO       defaultAddress;
+        @AuraEnabled public List<AddressDTO> previousAddresses;
+        @AuraEnabled public List<OptionDTO>  countries;
+    }
+
+    // Sent by the cart's order options panel. A blank customerReference means "use the order number".
+    public class OrderOptionsInput {
+        public String     customerReference;
+        public Boolean    useDifferentShippingAddress;
+        public AddressDTO shippingAddress;
+    }
+
+    public class OrderLineDTO {
+        @AuraEnabled public Id         productId;
+        @AuraEnabled public Integer    quantity;
+        @AuraEnabled public Decimal    originalUnitPrice;
+        @AuraEnabled public ProductDTO product;
+    }
+
+    public class PriceTierDTO {
+        @AuraEnabled public Integer fromQty;
+        @AuraEnabled public Decimal price;
+    }
+
+    public class CartItemInput {
+        @AuraEnabled public Id      productId;
+        @AuraEnabled public Integer quantity;
+        // Ignored by placeOrder (priced server-side); kept so carts already in browser storage still parse.
+        @AuraEnabled public Decimal unitPrice;
+    }
+}

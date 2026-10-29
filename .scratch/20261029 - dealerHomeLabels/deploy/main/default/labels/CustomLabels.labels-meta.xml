@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>DealerHome_ShopHeading</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Home card heading (logged in)</shortDescription>
+        <value>Dealer Shop</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_ShopCta</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Home card text (logged in)</shortDescription>
+        <value>Go to the shop</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_ShopButton</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Home card button (logged in)</shortDescription>
+        <value>Shop</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_LoginHeading</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Home card heading (guest)</shortDescription>
+        <value>Dealer login</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_LoginButton</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Home card button (guest)</shortDescription>
+        <value>Log in</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_NotADealer</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Home card prompt (guest)</shortDescription>
+        <value>Not a dealer yet?</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_BecomeDealer</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Home card button: open sign-up form</shortDescription>
+        <value>Become a dealer</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_SignupTitle</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up form title</shortDescription>
+        <value>Request a dealer account</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Close</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up form close button</shortDescription>
+        <value>Close</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_SignupSuccess</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up form sent</shortDescription>
+        <value>Your request has been submitted. We will contact you shortly.</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_CompanyName</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Company name</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_ContactName</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Your name</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Email</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Email</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_CocNumber</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field: chamber of commerce number</shortDescription>
+        <value>CoC number</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_VatNumber</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>VAT number</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Phone</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Phone</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_VisitingAddress</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field group</shortDescription>
+        <value>Visiting address</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Street</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Street</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_PostalCode</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Postal code</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_City</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>City</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Country</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Country</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Message</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up field</shortDescription>
+        <value>Message</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Submit</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up submit button</shortDescription>
+        <value>Submit request</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_Submitting</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up submit button while sending</shortDescription>
+        <value>Submitting...</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_ErrorRequired</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up error</shortDescription>
+        <value>Please fill in all required fields.</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_ErrorRegistered</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up error</shortDescription>
+        <value>This email address is already registered. Please log in instead.</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_ErrorSubmit</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up error</shortDescription>
+        <value>Submission failed. Please try again.</value>
+    </labels>
+    <labels>
+        <fullName>DealerHome_ErrorEmailCheck</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Sign-up error</shortDescription>
+        <value>Could not validate the email address. Please try again.</value>
+    </labels>
+</CustomLabels>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>DealerOrder_HistoryTitle</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history page title</shortDescription>
+        <value>Order history</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_MyOrders</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history toggle: own orders</shortDescription>
+        <value>My orders</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_AllOrders</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history toggle: all account orders</shortDescription>
+        <value>All orders</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Loading</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order pages spinner text</shortDescription>
+        <value>Loading...</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_NoOrders</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history empty state</shortDescription>
+        <value>No orders found</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_OrderNumber</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history column</shortDescription>
+        <value>Order number</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Date</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history column</shortDescription>
+        <value>Date</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Status</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history column</shortDescription>
+        <value>Status</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_PlacedBy</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history column</shortDescription>
+        <value>Ordered by</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Total</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history column</shortDescription>
+        <value>Total</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Reorder</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order history button: order again</shortDescription>
+        <value>Order again</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_BackToHistory</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail back link</shortDescription>
+        <value>Back to order history</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_NoOrderGiven</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail: no id in URL</shortDescription>
+        <value>No order specified.</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_LoadError</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail load error</shortDescription>
+        <value>An error occurred while loading the order.</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_ReorderAll</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail button: whole order again</shortDescription>
+        <value>Order the whole order again</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_NoProducts</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail empty state</shortDescription>
+        <value>No products found for this order</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Product</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail column</shortDescription>
+        <value>Product</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Quantity</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail column</shortDescription>
+        <value>Quantity</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_PriceThen</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail column: price paid</shortDescription>
+        <value>Price at the time</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_PriceNow</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail column: current price</shortDescription>
+        <value>Current price</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Add</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order detail button: add line to cart</shortDescription>
+        <value>Add</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Status_Webshop</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order status for stage Webshop</shortDescription>
+        <value>Received</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Status_Administration</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order status for stage Administration</shortDescription>
+        <value>In progress</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Status_ClosedWon</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order status for stage Closed Won</shortDescription>
+        <value>Processed</value>
+    </labels>
+    <labels>
+        <fullName>DealerOrder_Status_ClosedLost</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order status for stage Closed Lost</shortDescription>
+        <value>Cancelled</value>
+    </labels>
+    <labels>
+        <fullName>DealerNav_Home</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal menu</shortDescription>
+        <value>Home</value>
+    </labels>
+    <labels>
+        <fullName>DealerNav_Shop</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal menu</shortDescription>
+        <value>Shop</value>
+    </labels>
+    <labels>
+        <fullName>DealerNav_OrderHistory</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal menu</shortDescription>
+        <value>Order History</value>
+    </labels>
+    <labels>
+        <fullName>DealerNav_Logout</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal menu</shortDescription>
+        <value>Log out</value>
+    </labels>
+    <labels>
+        <fullName>DealerNav_Login</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal menu</shortDescription>
+        <value>Log in</value>
+    </labels>
+</CustomLabels>
