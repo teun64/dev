@@ -777,3 +777,10 @@ After the run, check prod Sledge (001Tx0000122JuaIAE):
 2. Payment__c psp-recurring on **Setup**, Interaction 'Mail Sent', token + Setup_URL__c filled, setup mail sent.
 3. Due date = email send date + 12 working days (Bacs 10 + 2), the payment due date is synced, and collection = due − 2 working days.
 4. The 9 new pr accounts: contracts that came in since should be on pr.
+
+## 2026-10-29 late morning: follow-ups after the prod deploy
+
+- Permissions prod: ps_miAccountPaymentMethod_Change in pg_miFinance (PSG only exists in prod); ps_miOpportunityPaymentMethod_Change assigned to Jonas Maassen, Guy Mooyman, Ricardo Wilke, Dennis Lorenz, Laura Wilson, Sean McGrath.
+- Admin profile (prod/acc/dev, via FieldPermissions): PayProv_PaymentMethodType__c read+edit; plus edit on every editable Account field that was read-only (prod 14, incl. Status__c + audit fields, extStatus_1-6, FinancialSystemLastSyncDate__c). Teun: admins may edit Status__c directly. 51 formula/rollup fields stay read-only (Salesforce does not allow edit).
+- 3-D Secure templates paymentAuthenticationRequired_EN/NL/DE (c012e6d): acc deployed + real test mail via the flow (PM#000136967 → Action Required → back to Setup); **prod 0AfTx0000014Jt7KAE** (RunSpecifiedTests Test_Svc_PaymentActionRequired 3/3; NoTestRun is not allowed in prod). Render check prod OK; amount renders as "GBP 15,00". Dev rejects them (header/logo assets missing in dev). No FR template (FR → EN, same as the setup mail).
+- **Apple Pay / Google Pay prod:** customer.movingintelligence.com registered on live Stripe UK (Moving Intelligence ltd, a2qTx000000W6jpIAC): pmd_1UVonrGliYpbpuQBo1ogs7Fp, apple + google **active**. NL/DE live accounts: not yet (PayProv_Use off). All business entities use this one Hub domain, so no country domains are needed.
