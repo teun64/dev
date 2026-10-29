@@ -797,3 +797,15 @@ After the run, check prod Sledge (001Tx0000122JuaIAE):
 - 15 Reconcile Processing: Batch_ReconcileStripeEvents only does mandates; prod PM#000206388 (Waldron, since 10-24) and PM#000206640 (Stone) are really still processing at Stripe (charge pending) → no event lost. Options in the chat.
 - 15 Ctrl_PaymentCase: prod v67 without SYSTEM_MODE → as the guest user (payment page) the Case insert probably fails silently (LWC .catch). The uncommitted WIP = the SYSTEM_MODE fix. Proposal: one open Case per payment + subject per method.
 - 6 Kerr 001Tx000011wKriIAE → **pr** (Teun 2026-10-29): no Stripe customer / pm / mandate on the account, no contract / order / invoice / payment yet. Backup migration/before_prod_kerr_account_20261029.csv. UK accounts created ≥ 10-21: I0 6, pr 11.
+
+## 2026-10-29 late afternoon: built (dev + acc), **prod pending go-ahead**
+| Commit | What | dev | acc |
+|---|---|---|---|
+| 997c31f | Ctrl_PaymentCase: SYSTEM_MODE (guest page could not create Cases in prod: 0 Cases in 90 days), one open Case per payment (retry appended), subject per method | ✓ 10/10 | ✓ |
+| b01ded8 | Processor: a late payment_intent.processing of the same intent does not undo a final status (acc: payment_failed 13:29:19 arrived before processing 13:29:23 → was stuck on Processing) | ✓ | ✓ |
+| 7252149 | Batch_ReconcileProcessingPayments (Day step 60): Processing > 3 days → PI from Stripe → final state as a Stripe event through the processor; alert > 14 days. Processor: one open Case per account + subject. acc Schedulable_Class a1YG5000004RcenMAC; acc PM#000136970 reconciled → Failed | ✓ 3/3 + 16/16 | ✓ |
+| 58eeccc | Batch_ProcessPayments: collect only once the invoice email was SENT before today (or WILL_NOT_BE_SENT) | ✓ 6/6 | ✓ |
+- Prod for 7252149: also a `Subscription25__Schedulable_Class__c` record (Name = Unique_Name = Batch_ReconcileProcessingPayments) + CMDT step Day_ReconcileProcessingPayments.
+- Item 8, page side: Stripe refuses Bacs SetupIntents ("Your account isn't configured to directly use SetupIntents to create Mandates for Bacs Direct Debits") → the UK page keeps the PaymentIntent (charges right away). This is acceptable because the link now only reaches the customer in the invoice email. Optional: ask Stripe support to enable Bacs SetupIntents (then the UK page can save only).
+- acc tests: error path ✓ (separate mail, block cleared, Mail Sent); the duplicate "Invoice delivery failure" Case comes from acc's extra flow rau_Subscription25_Invoice_c_Email_Status_2_Error (not in prod; deactivating was blocked, Teun's decision). Failure test 22222227 ✓ (Failed + Case after the reconcile). ⏰ Safety net D+3: acc PM#000136971 (TEST Teun ib-safety UK, I-2610-00562603) → check on 2026-11-01: separate setup mail, block cleared, Mail Sent.
+- Prod 2026-10-29: Opportunity lock 0AfTx0000014LmrKAE + 6 extra users on ps_miOpportunityPaymentMethod_Change (12 total); weekend shift rbu 0AfTx0000014Lq5KAE (v36 active).
