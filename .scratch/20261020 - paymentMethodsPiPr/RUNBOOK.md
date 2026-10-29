@@ -746,3 +746,15 @@ Investigate whether `Subscription25__Contract_Product__c.Payment_Method__c` can 
 - **Validation 0AfTx0000014JOTKA2: Succeeded, 41/41 components, 135 tests, 0 failures** (RunSpecifiedTests: payment, REST, Util_Crypto, PaymentMethodRule, Ctrl_Invoice tests). Quick deploy is possible on go-ahead.
 - After the deploy: activate flows (rbb_Payment, rbu_Subscription25_Invoice_c, rbb_Order, rab_Payment_Action_Required, rau_Subscription25_Invoice_c_Due_Date_Payment), publish the Customer Hub, check the bundle, assign ps_mi*PaymentMethod_Change where needed.
 - Finding: in prod, Account.PayProv_PaymentMethodType__c has FLS only for integration permission sets (admins/users can't see it) → add FLS per [[feedback_fls_standard_grants]] (Admin + miModifyAllData).
+
+## ✅ PROD DEPLOY 2026-10-29 (quick deploy 0AfTx0000014JTJKA2 of validation 0AfTx0000014JOTKA2, run by Teun)
+
+- 41 components live: phase 2 + 3DS, add-card-on-reuse, Rest_UpsertContract pr guard (V1), 350c7f6 (VR pr lock, cps/ps, Rest_UpsertAccount guard), c369c73 (pi follows p1, Ctrl_Invoice prod variant), Util_Crypto bulk fix, Link off, page language, mandate race fix, pr due date (rbu prod variant without the dev-only weekend block).
+- Flows activated (`.scratch/20261029 - paymentsProd/activate_flows.py`): rbb_Payment 10→11, rbu_Subscription25_Invoice_c 34→35, rbb_Order 10→11, rab_Payment_Action_Required →1, rau_Subscription25_Invoice_c_Due_Date_Payment →1.
+- Customer Hub published (0DBTx000000188POAQ); payment_view bundle db7b59b0… contains the new code.
+- Open: assign ps_miAccountPaymentMethod_Change / ps_miOpportunityPaymentMethod_Change to the right users; FLS on Account.PayProv_PaymentMethodType__c (Admin + miModifyAllData); Apple Pay / Google Pay: register the prod hub domain on the live Stripe accounts (only on go-ahead); paymentAuthenticationRequired_* templates.
+
+### ⚠ Finding 2026-10-29: new UK I0 customers have a LIVE direct debit mandate
+
+The moved accounts Lumb, Bull, Sawyer and Sledge all have Bank_Account_Number__c + Bank_6_Sort_Code__c, Direct_Debit_Mandate_Status__c = **LIVE** and FinancialIdBankAccount__c (Exact). So they already had a working I0 (Exact) direct debit mandate when they were moved to pr. On pr they will be asked for a new Stripe Bacs mandate.
+Candidates 2026-10-29 (13 UK I0 accounts since 10-21): Savage, Dadds and Bishop have a contract and a Draft order on I0 plus a LIVE mandate; Kerr has bank details but no mandate status; the other 9 have no bank details and no contract. **Step 6 paused** until Teun decides.
