@@ -86,3 +86,10 @@ Done in acc:
 
 Next: end-to-end in acc with a test account (not a real customer): new pr invoice (FINALIZED, Email_Status PENDING) → payment Awaiting + block on the invoice, no separate mail → send the invoice through the package → payment Mail Sent, one mail with PDF + block. Then the ERROR path and the D+3 safety net.
 Prod later (explicit go): same steps; also align the repo DD templates to prod first, and do steps 2–4 back-to-back outside Job_EmailInvoice (21:16 UTC).
+
+### acc end-to-end test (started 2026-10-29 ~09:15 UTC)
+- Test account "TEST Teun invoiceblock UK" 001G500001Uv0jBIAR (platform 3, extId 990085, reseller 6, contact teun.rietman@outlook.com, no bank details), created via /UpsertAccount (sent with 08) → set to pr by hand.
+- Hardware 990000002 "TEST-IB-1" (02iG500000BpO1xIAF), contract 990002_1 = 01956720 (Activated, method empty), CP-1486852 Draft **pr** (REST guard turned I0 into pr ✓).
+- acc schedule: CP activation via the dispatcher (~5 min); Job_InvoiceCreation 18:16 UTC; Job_InvoicePDFCreation 21:16 UTC; **no Job_EmailInvoice in acc** → the invoice email stays PENDING until Teun sends it from the package UI.
+- Expected: FINALIZED → Payment__c psp-recurring Setup, Interaction **Awaiting Invoice Email**, Payment_Setup_Block__c filled on the invoice, **no** separate setup mail. After a manual send → **Mail Sent**, one mail (InvoiceUK + PDF + block). Not sent within 3 days → safety net sends the separate setup mail.
+- Payloads: scratchpad ev/ib_account_acc.json, ib_hw_acc.json, ib_contract_acc.json.
