@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Votre panier ne contient aucun produit pouvant être commandé.</label>
+        <name>DealerShop_ErrorCartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucun prix boutique n'est encore défini pour votre entreprise. Veuillez nous contacter.</label>
+        <name>DealerShop_ErrorNoPricebook</name>
+    </customLabels>
+    <customLabels>
+        <label>La personne de contact choisie n'est pas liée à votre entreprise.</label>
+        <name>DealerShop_ErrorContactNotLinked</name>
+    </customLabels>
+    <customLabels>
+        <label>L'adresse de livraison est incomplète.</label>
+        <name>DealerShop_ErrorAddressIncomplete</name>
+    </customLabels>
+</Translations>

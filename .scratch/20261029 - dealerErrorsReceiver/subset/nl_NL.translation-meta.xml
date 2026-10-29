@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Uw winkelwagen bevat geen producten die besteld kunnen worden.</label>
+        <name>DealerShop_ErrorCartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Voor uw bedrijf zijn nog geen shopprijzen ingesteld. Neem contact met ons op.</label>
+        <name>DealerShop_ErrorNoPricebook</name>
+    </customLabels>
+    <customLabels>
+        <label>De gekozen contactpersoon is niet gekoppeld aan uw bedrijf.</label>
+        <name>DealerShop_ErrorContactNotLinked</name>
+    </customLabels>
+    <customLabels>
+        <label>Het afleveradres is niet volledig.</label>
+        <name>DealerShop_ErrorAddressIncomplete</name>
+    </customLabels>
+</Translations>

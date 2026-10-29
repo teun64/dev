@@ -561,4 +561,20 @@ L'accès à la boutique en ligne nécessite un compte. Dans votre compte personn
         <label>Personne de contact pour cette commande</label>
         <name>DealerShop_ContactPerson</name>
     </customLabels>
+    <customLabels>
+        <label>Votre panier ne contient aucun produit pouvant être commandé.</label>
+        <name>DealerShop_ErrorCartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Aucun prix boutique n'est encore défini pour votre entreprise. Veuillez nous contacter.</label>
+        <name>DealerShop_ErrorNoPricebook</name>
+    </customLabels>
+    <customLabels>
+        <label>La personne de contact choisie n'est pas liée à votre entreprise.</label>
+        <name>DealerShop_ErrorContactNotLinked</name>
+    </customLabels>
+    <customLabels>
+        <label>L'adresse de livraison est incomplète.</label>
+        <name>DealerShop_ErrorAddressIncomplete</name>
+    </customLabels>
 </Translations>

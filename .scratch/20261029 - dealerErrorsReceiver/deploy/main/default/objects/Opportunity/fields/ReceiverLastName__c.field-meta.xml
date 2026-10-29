@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ReceiverLastName__c</fullName>
+    <description>Sign Butler - Receiver - Last Name</description>
+    <externalId>false</externalId>
+    <formula>IF(ISBLANK(Owner.ContactId), TRIM(Owner.MiddleName + &apos; &apos; + Owner.LastName), TRIM(Account.Owner.MiddleName + &apos; &apos; + Account.Owner.LastName)) /* Sign Butler - Receiver - Last Name; community user owner -> account owner */</formula>
+    <inlineHelpText>Sign Butler - Receiver - Last Name</inlineHelpText>
+    <label>Last name (Receiver)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

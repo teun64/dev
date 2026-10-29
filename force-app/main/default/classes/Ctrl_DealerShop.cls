@@ -30,6 +30,7 @@ public without sharing class Ctrl_DealerShop {
                 'DealerShop_BackToOverview', 'DealerShop_PricePerUnit', 'DealerShop_VolumeDiscounts',
                 'DealerShop_FromQuantity', 'DealerShop_Quantity', 'DealerShop_TotalPrice',
                 'DealerShop_ProductDescription', 'DealerShop_ProductLoadError', 'DealerShop_GenericError',
+                'DealerShop_ErrorCartEmpty', 'DealerShop_ErrorNoPricebook', 'DealerShop_ErrorContactNotLinked', 'DealerShop_ErrorAddressIncomplete',
                 'DealerShop_ShippingOmitLabel', 'DealerShop_ShippingOmitRemark',
                 'DealerShop_ShippingFixedWithFee', 'DealerShop_ShippingFixedNoFee', 'DealerShop_ShippingWeightBased',
                 'DealerShop_Total', 'DealerShop_PlaceOrder', 'DealerShop_RemoveItemAriaLabel',
@@ -883,11 +884,13 @@ public without sharing class Ctrl_DealerShop {
         } catch (Exception e) {
             throw new AuraHandledException('Invalid cart data: ' + e.getMessage());
         }
-        if (items == null || items.isEmpty()) throw new AuraHandledException('Cart is empty.');
+        // Dealer-facing errors throw a DealerShop_Error* label name; dealerCart shows that label in the
+        // site's language (any other message becomes DealerShop_GenericError).
+        if (items == null || items.isEmpty()) throw new AuraHandledException('DealerShop_ErrorCartEmpty');
 
         Account acct   = getDealerContext(dealerAccountId).account;
         Id pricebookId = resolvePricebookId(acct);
-        if (pricebookId == null) throw new AuraHandledException('No dealer pricebook found for your account.');
+        if (pricebookId == null) throw new AuraHandledException('DealerShop_ErrorNoPricebook');
         // Contact person (Sales_Contact__c, which the Signer*__c formulas use). Blank = leave it to
         // rbc_Opportunity, which fills the account's Main role contact; a chosen one must be on the list.
         Id contactId = null;
@@ -896,7 +899,7 @@ public without sharing class Ctrl_DealerShop {
         }
         if (String.isNotBlank(options.contactId)
                 && (contactId == null || acct.Id == null || !orderContactsFor(acct.Id).contactIds.contains(contactId))) {
-            throw new AuraHandledException('The chosen contact person is not linked to your account.');
+            throw new AuraHandledException('DealerShop_ErrorContactNotLinked');
         }
 
         // Collect product ids for pricebook entry lookup
@@ -1016,7 +1019,7 @@ public without sharing class Ctrl_DealerShop {
 
         if (lineItems.isEmpty()) {
             Database.delete(opp, AccessLevel.SYSTEM_MODE);
-            throw new AuraHandledException('No valid order items could be created from cart.');
+            throw new AuraHandledException('DealerShop_ErrorCartEmpty');
         }
 
         addShippingLineItemIfNeeded(opp.Id, acct, pricebookId, lineItems, skipShipping);
@@ -1041,7 +1044,7 @@ public without sharing class Ctrl_DealerShop {
             AddressDTO a = options.shippingAddress;
             if (a == null || String.isBlank(a.street) || String.isBlank(a.postalCode)
                     || String.isBlank(a.city) || String.isBlank(a.countryCode)) {
-                throw new AuraHandledException('The delivery address is incomplete.');
+                throw new AuraHandledException('DealerShop_ErrorAddressIncomplete');
             }
         }
         return options;

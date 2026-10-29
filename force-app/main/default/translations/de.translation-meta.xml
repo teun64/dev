@@ -561,4 +561,20 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <label>Ansprechpartner für diese Bestellung</label>
         <name>DealerShop_ContactPerson</name>
     </customLabels>
+    <customLabels>
+        <label>Ihr Warenkorb enthält keine bestellbaren Produkte.</label>
+        <name>DealerShop_ErrorCartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Für Ihr Unternehmen sind noch keine Shop-Preise hinterlegt. Bitte kontaktieren Sie uns.</label>
+        <name>DealerShop_ErrorNoPricebook</name>
+    </customLabels>
+    <customLabels>
+        <label>Der gewählte Ansprechpartner ist nicht mit Ihrem Unternehmen verknüpft.</label>
+        <name>DealerShop_ErrorContactNotLinked</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Lieferadresse ist unvollständig.</label>
+        <name>DealerShop_ErrorAddressIncomplete</name>
+    </customLabels>
 </Translations>

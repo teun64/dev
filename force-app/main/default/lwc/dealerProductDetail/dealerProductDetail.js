@@ -35,9 +35,8 @@ export default class DealerProductDetail extends LightningElement {
             this.isLoading = false;
         } else if (error) {
             this.hasError = true;
-            this.errorMessage = (error.body && error.body.message)
-                ? error.body.message
-                : this.shopLabels.DealerShop_ProductLoadError;
+            // The Apex messages are English only; always show the translated text.
+            this.errorMessage = this.shopLabels.DealerShop_ProductLoadError;
             this.isLoading = false;
         }
     }

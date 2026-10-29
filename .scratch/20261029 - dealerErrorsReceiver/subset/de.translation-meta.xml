@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Ihr Warenkorb enthält keine bestellbaren Produkte.</label>
+        <name>DealerShop_ErrorCartEmpty</name>
+    </customLabels>
+    <customLabels>
+        <label>Für Ihr Unternehmen sind noch keine Shop-Preise hinterlegt. Bitte kontaktieren Sie uns.</label>
+        <name>DealerShop_ErrorNoPricebook</name>
+    </customLabels>
+    <customLabels>
+        <label>Der gewählte Ansprechpartner ist nicht mit Ihrem Unternehmen verknüpft.</label>
+        <name>DealerShop_ErrorContactNotLinked</name>
+    </customLabels>
+    <customLabels>
+        <label>Die Lieferadresse ist unvollständig.</label>
+        <name>DealerShop_ErrorAddressIncomplete</name>
+    </customLabels>
+</Translations>

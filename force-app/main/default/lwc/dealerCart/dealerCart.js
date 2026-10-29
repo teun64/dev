@@ -383,7 +383,10 @@ export default class DealerCart extends LightningElement {
                 detail: { orderId }
             }));
         } catch (error) {
-            this.errorMessage = error?.body?.message || this.shopLabels.DealerShop_GenericError;
+            // placeOrder throws a DealerShop_Error* label name for errors the dealer can act on.
+            const key = error?.body?.message;
+            this.errorMessage = (key && key.startsWith('DealerShop_Error') && this.shopLabels[key])
+                || this.shopLabels.DealerShop_GenericError;
         } finally {
             this.isLoading = false;
         }

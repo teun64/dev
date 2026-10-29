@@ -2063,4 +2063,14 @@ private class Test_Ctrl_DealerShop {
         System.assert(refilled == null || refilled == ids.get('dealer'),
             'rbu_Opportunity fills an empty Sales Contact from the Main role, got ' + refilled);
     }
+
+    @IsTest
+    static void testGetShopLabels_includesCartErrorLabels() {
+        // placeOrder throws these label names; dealerCart shows the translated text.
+        Map<String, String> nl = Ctrl_DealerShop.getShopLabels('nl_NL');
+        for (String key : new List<String>{ 'DealerShop_ErrorCartEmpty', 'DealerShop_ErrorNoPricebook',
+                'DealerShop_ErrorContactNotLinked', 'DealerShop_ErrorAddressIncomplete' }) {
+            System.assert(String.isNotBlank(nl.get(key)) && !nl.get(key).endsWith('_NOT_FOUND'), 'Label missing: ' + key);
+        }
+    }
 }

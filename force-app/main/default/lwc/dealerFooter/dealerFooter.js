@@ -21,7 +21,8 @@ const LABELS = {
         iban: 'IBAN',
         bic: 'BIC',
         sortCode: 'Sortcode',
-        accountNumber: 'Rekeningnummer'
+        accountNumber: 'Rekeningnummer',
+        close: 'Sluiten'
     },
     en: {
         privacy: 'Privacy Policy',
@@ -36,7 +37,8 @@ const LABELS = {
         iban: 'IBAN',
         bic: 'BIC',
         sortCode: 'Sort Code',
-        accountNumber: 'Account Number'
+        accountNumber: 'Account Number',
+        close: 'Close'
     },
     de: {
         privacy: 'Datenschutz',
@@ -51,7 +53,8 @@ const LABELS = {
         iban: 'IBAN',
         bic: 'BIC',
         sortCode: 'Sortcode',
-        accountNumber: 'Kontonummer'
+        accountNumber: 'Kontonummer',
+        close: 'Schließen'
     },
     fr: {
         privacy: 'Politique de confidentialité',
@@ -66,7 +69,8 @@ const LABELS = {
         iban: 'IBAN',
         bic: 'BIC',
         sortCode: 'Code guichet',
-        accountNumber: 'Numéro de compte'
+        accountNumber: 'Numéro de compte',
+        close: 'Fermer'
     }
 };
 
@@ -146,6 +150,10 @@ export default class DealerFooter extends LightningElement {
 
     get termsUrl() {
         return this.footer.termsConditionsUrl || null;
+    }
+
+    get closeLabel() {
+        return this.labels.close;
     }
 
     get privacyLabel() {

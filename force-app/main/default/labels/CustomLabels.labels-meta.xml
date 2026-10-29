@@ -3111,4 +3111,36 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Cart order options: contact person (signer) choice</shortDescription>
         <value>Contact person for this order</value>
     </labels>
+    <labels>
+        <fullName>DealerShop_ErrorCartEmpty</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cart error: nothing orderable</shortDescription>
+        <value>Your cart has no products that can be ordered.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ErrorNoPricebook</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cart error: no dealer pricebook</shortDescription>
+        <value>Your company has no shop prices yet. Please contact us.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ErrorContactNotLinked</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cart error: contact person not on the account</shortDescription>
+        <value>The chosen contact person is not linked to your company.</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ErrorAddressIncomplete</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cart error: delivery address incomplete</shortDescription>
+        <value>The delivery address is incomplete.</value>
+    </labels>
 </CustomLabels>

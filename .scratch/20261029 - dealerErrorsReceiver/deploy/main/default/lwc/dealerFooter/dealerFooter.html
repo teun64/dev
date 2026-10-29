@@ -1,0 +1,134 @@
+<template>
+    <footer class="dealer-footer" style={footerStyle}>
+        <div class="footer-row-image">
+            <div class="footer-row-image-inner">
+                <img src={carImageUrl} alt="" class="footer-car-image" />
+            </div>
+        </div>
+
+        <div class="footer-row-dark">
+            <div class="footer-legal-bar">
+                <div class="footer-legal-logo">
+                    <template if:true={logoUrl}>
+                        <img src={logoUrl} alt={brandName} class={legalLogoClass} />
+                    </template>
+                    <template if:false={logoUrl}>
+                        <span class="footer-brand-name">{brandName}</span>
+                    </template>
+                </div>
+
+                <template if:true={privacyUrl}>
+                    <a href={privacyUrl} target="_blank" rel="noopener" class="footer-legal-link">{privacyLabel}</a>
+                </template>
+                <template if:false={privacyUrl}>
+                    <span class="footer-legal-link footer-legal-link-static">{privacyLabel}</span>
+                </template>
+
+                <template if:true={termsUrl}>
+                    <a href={termsUrl} target="_blank" rel="noopener" class="footer-legal-link">{termsLabel}</a>
+                </template>
+                <template if:false={termsUrl}>
+                    <span class="footer-legal-link footer-legal-link-static">{termsLabel}</span>
+                </template>
+
+                <button type="button" class="footer-legal-link footer-legal-link-button" onclick={handleContactClick}>{contactLabel}</button>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="footer-copyright">&copy; {currentYear} {copyrightCompanyName} All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <template if:true={isContactModalOpen}>
+        <div class="contact-modal-overlay" onclick={handleCloseModal}>
+            <div class="contact-modal" role="dialog" aria-modal="true" aria-label={contactLabel} onclick={handleModalContentClick}>
+                <div class="contact-modal-header">
+                    <h2 class="contact-modal-title">{contactLabel}</h2>
+                    <button type="button" class="contact-modal-close" onclick={handleCloseModal} aria-label={closeLabel}>&times;</button>
+                </div>
+                <div class="contact-modal-body">
+                    <template if:true={footer.companyName}>
+                        <p class="contact-modal-company">{footer.companyName}</p>
+                    </template>
+                    <template if:true={contactAddress}>
+                        <p class="contact-modal-line">{contactAddress}</p>
+                    </template>
+
+                    <div class="contact-modal-spacer"></div>
+
+                    <template if:true={footer.phone}>
+                        <p class="contact-modal-line">
+                            <span class="contact-modal-label">{phoneLabel}:</span>
+                            <a href={phoneHref} class="contact-modal-value">{footer.phone}</a>
+                        </p>
+                    </template>
+                    <template if:true={footer.email}>
+                        <p class="contact-modal-line">
+                            <span class="contact-modal-label">{emailLabel}:</span>
+                            <a href={emailHref} class="contact-modal-value">{footer.email}</a>
+                        </p>
+                    </template>
+                    <template if:true={footer.website}>
+                        <p class="contact-modal-line">
+                            <span class="contact-modal-label">{websiteLabel}:</span>
+                            <a href={websiteHref} target="_blank" rel="noopener" class="contact-modal-value">{footer.website}</a>
+                        </p>
+                    </template>
+
+                    <div class="contact-modal-spacer"></div>
+
+                    <template if:true={footer.chamberOfCommerceNumber}>
+                        <p class="contact-modal-line">
+                            <span class="contact-modal-label">{cocLabel}:</span>
+                            <span class="contact-modal-value contact-modal-value--static">{footer.chamberOfCommerceNumber}</span>
+                        </p>
+                    </template>
+                    <template if:true={footer.vatNumber}>
+                        <p class="contact-modal-line">
+                            <span class="contact-modal-label">{vatLabel}:</span>
+                            <span class="contact-modal-value contact-modal-value--static">{footer.vatNumber}</span>
+                        </p>
+                    </template>
+                    <template if:true={showManagingDirectors}>
+                        <p class="contact-modal-line">
+                            <span class="contact-modal-label">{managingDirectorsLabel}:</span>
+                            <span class="contact-modal-value contact-modal-value--static">{footer.managingDirectors}</span>
+                        </p>
+                    </template>
+
+                    <div class="contact-modal-spacer"></div>
+
+                    <template if:true={showIbanBic}>
+                        <template if:true={footer.iban}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{ibanLabel}:</span>
+                                <span class="contact-modal-value contact-modal-value--static">{footer.iban}</span>
+                            </p>
+                        </template>
+                        <template if:true={footer.bic}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{bicLabel}:</span>
+                                <span class="contact-modal-value contact-modal-value--static">{footer.bic}</span>
+                            </p>
+                        </template>
+                    </template>
+                    <template if:true={showUkBankDetails}>
+                        <template if:true={footer.bankSortCode}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{sortCodeLabel}:</span>
+                                <span class="contact-modal-value contact-modal-value--static">{footer.bankSortCode}</span>
+                            </p>
+                        </template>
+                        <template if:true={footer.bankAccountNumber}>
+                            <p class="contact-modal-line">
+                                <span class="contact-modal-label">{accountNumberLabel}:</span>
+                                <span class="contact-modal-value contact-modal-value--static">{footer.bankAccountNumber}</span>
+                            </p>
+                        </template>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>
