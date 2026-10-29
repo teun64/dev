@@ -29,3 +29,6 @@ Rollback: deactivate the flows (the separate setup mail comes back) → rename t
 - Step 4: flows active: afl_Payment_Direct_Debit_Setup 5→6, rab_Payment_Direct_Debit_Escalation 1→2, rau_Subscription25_Invoice_c_Email_Status_Payment 1, rab_Payment_Direct_Debit_Awaiting_Invoice 1, rab_Payment_Direct_Debit_Processed 1.
 - Step 5: render (no send) InvoiceUK GB26755168, InvoiceNL (invoice without number → subject without number, the package only sends once there is a number), InvoiceDE DE24709988: header + footer, no open merge fields.
 - ⏰ Check tomorrow morning: the first Job_EmailInvoice run (21:16 UTC) uses the Lightning templates (2 UK invoices with a number pending this week, incl. Sledge GB26755147, whose payment is already Mail Sent → separate mail already sent, no block). New pr payments from now on: Awaiting Invoice Email → Mail Sent after the send.
+
+## ⚠ Incident 2026-10-29 14:15–14:45 UTC: 'Template with name InvoiceNL not found'
+The new Lightning folder Invoicing was Hidden without shares → Finance users (Bianca Jonkers, Anneke Keinemans) could not send invoices (6 NL invoices ERROR + 'Invoice delivery failure' Cases MI00430625 / 774 / 782 / 797 / 798). Fix fcb5270: folderShares AllInternalUsers View → prod 0AfTx0000014MXdKAM (Teun), verified via retrieve. Next: Finance resends the ERROR invoices and closes the Cases.
