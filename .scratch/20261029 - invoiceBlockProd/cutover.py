@@ -36,4 +36,4 @@ elif step == '4':  # activate the flow versions created by package A
         if WRITE and a != n:
             subprocess.run(['sf', 'api', 'request', 'rest', f"/services/data/v67.0/tooling/sobjects/FlowDefinition/{d['Id']}", '--method', 'PATCH', '--body', json.dumps({'Metadata': {'activeVersionNumber': n}}), '-o', ORG], capture_output=True, text=True)
 elif step == 'check':
-    for t in q("SELECT DeveloperName, Folder.DeveloperName, UIType, EnhancedLetterhead.Name FROM EmailTemplate WHERE DeveloperName LIKE 'Invoice%' AND (DeveloperName LIKE '%_Classic' OR DeveloperName IN ('InvoiceNL','InvoiceUK','InvoiceDE'))"): print(' ', t['DeveloperName'], (t.get('Folder') or {}).get('DeveloperName'), t['UIType'], (t.get('EnhancedLetterhead') or {}).get('Name'))
+    for t in q("SELECT DeveloperName, Folder.DeveloperName, UIType, EnhancedLetterhead.Name FROM EmailTemplate WHERE DeveloperName LIKE 'Invoice%' AND (DeveloperName LIKE '%_Classic' OR DeveloperName IN ('InvoiceNL','InvoiceUK','InvoiceDE'))"): print(' ', t['DeveloperName'], (t.get('Folder') or {}).get('DeveloperName'), t.get('UiType'), (t.get('EnhancedLetterhead') or {}).get('Name'))

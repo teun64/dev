@@ -20,3 +20,12 @@ Rollback: deactivate the flows (the separate setup mail comes back) → rename t
 ## Open
 - Legal/finance: pre-notification period for repeat invoices (see the invoice email runbook).
 - Existing prod payments in Setup/Mail Sent are not affected (the flow only acts at payment creation).
+
+## ✅ DONE 2026-10-29 (Teun: A + B together), 11:25–11:40 UTC
+- Package A: quick deploy refused (the validation was no longer usable) → normal deploy **0AfTx0000014L25KAE** (19/19, 3 tests).
+- Step 1: Classic folder 00lbR000002P1SnQAK → Invoicing_Classic "Invoicing (Classic)", templates 00X3W000000pHHTUA2 / HHtUAM / HHsUAM → InvoiceNL/UK/DE_Classic.
+- Step 2: package B **0AfTx0000014L5JKAU** → Lightning InvoiceDE 00XTx00000k9yYjMAI, InvoiceNL 00XTx00000k9yYkMAI, InvoiceUK 00XTx00000k9yYlMAI (folder Invoicing).
+- Step 3: letterheads lh_M_Preferences_EN 0RnTx00000003kHKAQ, _NL 0RnTx00000003ltKAA, _DE 0RnTx00000003nVKAQ, _FR 0RnTx00000003p7KAA; linked UK→EN, NL→NL, DE→DE.
+- Step 4: flows active: afl_Payment_Direct_Debit_Setup 5→6, rab_Payment_Direct_Debit_Escalation 1→2, rau_Subscription25_Invoice_c_Email_Status_Payment 1, rab_Payment_Direct_Debit_Awaiting_Invoice 1, rab_Payment_Direct_Debit_Processed 1.
+- Step 5: render (no send) InvoiceUK GB26755168, InvoiceNL (invoice without number → subject without number, the package only sends once there is a number), InvoiceDE DE24709988: header + footer, no open merge fields.
+- ⏰ Check tomorrow morning: the first Job_EmailInvoice run (21:16 UTC) uses the Lightning templates (2 UK invoices with a number pending this week, incl. Sledge GB26755147, whose payment is already Mail Sent → separate mail already sent, no block). New pr payments from now on: Awaiting Invoice Email → Mail Sent after the send.
