@@ -84,6 +84,53 @@ private class Test_Util_PaymentMethodRule {
 		System.assertEquals(true, toOnAccount.isSuccess(), 'pr -> 08 is not an I-code: allowed ' + toOnAccount.getErrors());
 	}
 
+	// vr_PaymentMethodOpportunitiesLock: changing the Account's opportunity payment method needs a permission
+	private static User opportunityLockUser(String alias, String permissionSet) {
+		Profile sales = [SELECT Id FROM Profile WHERE Name = 'miSales' LIMIT 1];
+		User u = new User(ProfileId = sales.Id, LastName = alias, Alias = alias, Email = alias + '@example.com',
+			Username = alias + System.currentTimeMillis() + '@example.com', TimeZoneSidKey = 'Europe/Amsterdam',
+			LocaleSidKey = 'nl_NL', EmailEncodingKey = 'UTF-8', LanguageLocaleKey = 'en_US');
+		Database.insert(u, AccessLevel.SYSTEM_MODE);
+		if (permissionSet != null) {
+			PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = :permissionSet LIMIT 1];
+			System.runAs(new User(Id = UserInfo.getUserId())) {
+				Database.insert(new PermissionSetAssignment(AssigneeId = u.Id, PermissionSetId = ps.Id), AccessLevel.SYSTEM_MODE);
+			}
+		}
+		return u;
+	}
+
+	@IsTest
+	static void opportunityMethodLock() {
+		User seller = opportunityLockUser('opplock', null);
+		User allowed = opportunityLockUser('oppok', 'ps_miOpportunityPaymentMethod_Change');
+		User finance = opportunityLockUser('oppfin', 'ps_miAccountPaymentMethod_Change');
+		Account acc = Test_Data.createAccount('Opp Lock Test', (String) null, 'B2C', true);
+		Database.update(new Account(Id = acc.Id, OwnerId = seller.Id, Reseller_Name__c = '1', Payment_Method_Opportunities__c = '08'), AccessLevel.SYSTEM_MODE);
+
+		Database.SaveResult blocked;
+		Database.SaveResult byAllowed;
+		Database.SaveResult byFinance;
+		Test.startTest();
+		System.runAs(seller) {
+			blocked = Database.update(new Account(Id = acc.Id, Payment_Method_Opportunities__c = '30'), false, AccessLevel.SYSTEM_MODE);
+		}
+		Database.update(new Account(Id = acc.Id, OwnerId = allowed.Id), AccessLevel.SYSTEM_MODE);
+		System.runAs(allowed) {
+			byAllowed = Database.update(new Account(Id = acc.Id, Payment_Method_Opportunities__c = '30'), false, AccessLevel.SYSTEM_MODE);
+		}
+		Database.update(new Account(Id = acc.Id, OwnerId = finance.Id), AccessLevel.SYSTEM_MODE);
+		System.runAs(finance) {
+			byFinance = Database.update(new Account(Id = acc.Id, Payment_Method_Opportunities__c = '08'), false, AccessLevel.SYSTEM_MODE);
+		}
+		Test.stopTest();
+
+		System.assertEquals(false, blocked.isSuccess(), 'a sales user without the permission is blocked');
+		System.assert(blocked.getErrors()[0].getMessage().contains('opportunities'), blocked.getErrors()[0].getMessage());
+		System.assertEquals(true, byAllowed.isSuccess(), 'cp_OpportunityPaymentMethod_Change may change it: ' + byAllowed.getErrors());
+		System.assertEquals(true, byFinance.isSuccess(), 'cp_AccountPaymentMethod_Change (Finance) may change it: ' + byFinance.getErrors());
+	}
+
 	@IsTest
 	static void prLockAllowsFinancePermission() {
 		Database.insert(new Business_Entities__c(Name = 'NL Stripe', Reseller__c = '1', PayProv_Use__c = true), AccessLevel.SYSTEM_MODE);

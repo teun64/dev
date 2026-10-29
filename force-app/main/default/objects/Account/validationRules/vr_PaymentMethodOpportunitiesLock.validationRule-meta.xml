@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>vr_PaymentMethodOpportunitiesLock</fullName>
+    <active>true</active>
+    <description>Payment_Method_Opportunities__c change on an existing Account: only cp_OpportunityPaymentMethod_Change (sales) or cp_AccountPaymentMethod_Change (Finance). Skips: first value, sysadmin, miAPIIntegration.</description>
+    <errorConditionFormula>AND(
+    NOT(ISNEW()),
+    ISCHANGED(Payment_Method_Opportunities__c),
+    NOT(ISBLANK(TEXT(PRIORVALUE(Payment_Method_Opportunities__c)))),
+    NOT($User.isSysAdmin__c),
+    $Profile.Name &lt;&gt; &quot;miAPIIntegration&quot;,
+    NOT($Permission.cp_OpportunityPaymentMethod_Change),
+    NOT($Permission.cp_AccountPaymentMethod_Change)
+)</errorConditionFormula>
+    <errorDisplayField>Payment_Method_Opportunities__c</errorDisplayField>
+    <errorMessage>You can't change the payment method for opportunities on this account. Ask Sales management or Finance (permission set miOpportunityPaymentMethod_Change).</errorMessage>
+</ValidationRule>
