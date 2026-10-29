@@ -1,0 +1,43 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
+<div style="font-family:Arial,Helvetica,sans-serif; padding: 10px 28px; font-size:14px; color:#5B625B;">
+
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:16px;line-height:1.6;margin:0 0 16px 0;color:#0E0F0E;"><strong style="font-family:Arial,Helvetica,sans-serif;">{{{Recipient.Salutation__c}}} {{{Recipient.Salutation}}} {{{Recipient.Full_Name__c}}},</strong></p>
+
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+    Vielen Dank, dass Sie Kunde von Moving Intelligence sind.
+</p>
+
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">
+    Bitte beachten Sie den Anhang dieser E-Mail, in dem Sie unsere Verkaufsrechnung mit der Nummer
+    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Subscription25__Invoice__c.Subscription25__Invoice_Number__c}}}</strong> finden.
+</p>
+
+{{{Subscription25__Invoice__c.Payment_Setup_Block__c}}}
+
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
+    Wenn Sie Fragen zu dieser Rechnung haben, kontaktieren Sie uns bitte per
+    <a href="mailto:buchhaltung@movingintelligence.de" style="font-family:Arial,Helvetica,sans-serif; color:#0E0F0E;font-weight:bold;">E-Mail</a>.
+</p>
+
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 8px 0;">
+    Mit freundlichen Grüßen,<br/><br/>
+    <strong style="font-family:Arial,Helvetica,sans-serif;">Moving Intelligence GmbH</strong><br/>
+    T. +49 (0)30 762 39 00 00 (Mo. &ndash; Fr. 9:00 &ndash; 17:00)<br/>
+    E. <a href="mailto:buchhaltung@movingintelligence.de" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">buchhaltung@movingintelligence.de</a>
+</p>
+
+<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
+<div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
+<div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&nbsp;</div>
+<div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong><br/>
+<a href="https://movingintelligence.de" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.de</a></div>
+</div>
+
+
+</div>
+</body>
+</html>

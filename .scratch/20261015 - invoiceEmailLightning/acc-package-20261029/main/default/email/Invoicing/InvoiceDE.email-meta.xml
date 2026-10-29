@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Invoice - Subscription25 invoice email - Germany (Lightning successor of the Classic InvoiceDE_Classic, letterhead lh_M_Preferences_DE)</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>InvoiceDE</name>
+    <relatedEntityType>Subscription25__Invoice__c</relatedEntityType>
+    <style>none</style>
+    <subject>Moving Intelligence: Rechnung {{{Subscription25__Invoice__c.Subscription25__Invoice_Number__c}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

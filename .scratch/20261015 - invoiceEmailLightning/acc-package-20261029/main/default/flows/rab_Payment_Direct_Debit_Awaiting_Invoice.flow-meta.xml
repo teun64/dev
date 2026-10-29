@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>act_01_Invoice_Payment_Block</name>
+        <label>1. Invoice Payment Block (Clear)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Svc_InvoicePaymentBlock</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>dur_01_Payment</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>action</name>
+            <value>
+                <stringValue>clear</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>paymentId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>Svc_InvoicePaymentBlock</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <description>Scheduled paths run with the record as it is now: only act when the invoice email still has not moved the payment on.</description>
+        <name>dec_01_Awaiting</name>
+        <label>1. Awaiting</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Moved On</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Awaiting_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Interaction_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Awaiting Invoice Email</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>sfl_01_Setup_Mail</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>Safety net for the mandate request via the invoice email: a payment still 'Awaiting Invoice Email' after 3 days (invoice email not sent, no job, skipped by the package) gets the separate setup email after all, the block leaves the invoice (a late invoice email does not ask twice) and the payment moves to 'Mail Sent' (reminders start).</description>
+    <environments>Default</environments>
+    <interviewLabel>rab - Payment - Direct Debit - Awaiting Invoice {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rab - Payment - Direct Debit - Awaiting Invoice</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>dur_01_Payment</name>
+        <label>1. Payment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Interaction_Status__c</field>
+            <value>
+                <stringValue>Mail Sent</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Payment__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Interaction_Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Awaiting Invoice Email</stringValue>
+            </value>
+        </filters>
+        <object>Payment__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <scheduledPaths>
+            <name>sch_D3_Safety_Net</name>
+            <connector>
+                <targetReference>dec_01_Awaiting</targetReference>
+            </connector>
+            <label>D+3 — Safety Net</label>
+            <offsetNumber>3</offsetNumber>
+            <offsetUnit>Days</offsetUnit>
+            <timeSource>RecordTriggerEvent</timeSource>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>sfl_01_Setup_Mail</name>
+        <label>1. Setup Mail</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>act_01_Invoice_Payment_Block</targetReference>
+        </connector>
+        <flowName>afl_PaymentDirectDebitSetup_SendMail</flowName>
+        <inputAssignments>
+            <name>recordId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+</Flow>

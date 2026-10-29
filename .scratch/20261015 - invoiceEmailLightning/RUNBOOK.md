@@ -70,3 +70,19 @@ terms & conditions + privacy statement line per language. JSON in `letterheads/`
 - [ ] Optionally test the D+3 safety net.
 - [ ] Push `8f743de` (on request).
 - [ ] acc deploy following the plan above.
+
+## acc 2026-10-29 (user go) — deployed, ready for an end-to-end test
+
+State before: acc = prod design for the DD templates (header image inline in the body, **no** letterhead, Arial 10-28). The repo DD templates are older (letterhead-based) → **not deployed**; the repo should be aligned to acc/prod later. Customer Hub URL fill was already done on 10-21.
+
+Done in acc:
+1. Letterheads `lh_M_Preferences_EN/NL/DE/FR` copied from dev (state 10-28, prod-hosted header image): 0RnG50000000o3FKAQ / o4rKAA / o6TKAQ / o85KAA.
+2. Classic `InvoiceNL/UK/DE` (folder Finance) renamed to `*_Classic` via the data API (Ids 00X3W000000pHHTUA2 / HHtUAM / HHsUAM kept).
+3. Deploy 0AfG500000TG3e0KAD (NoTestRun, 17 components; package copy `acc-package-20261029/`): Payment_Setup_Block__c, Interaction_Status__c (+ Awaiting Invoice Email), Svc_InvoicePaymentBlock + test, Lightning folder Invoicing + InvoiceNL/UK/DE, block templates EN/NL/DE, flows afl_Payment_Direct_Debit_Setup v5, rau_Subscription25_Invoice_c_Email_Status_Payment v1, rab_Payment_Direct_Debit_Awaiting_Invoice v1, rab_Payment_Direct_Debit_Processed v1, rab_Payment_Direct_Debit_Escalation v2 (all active), ps_miSubscription25_User (repo = acc + 1 field, checked).
+   - The first attempt with tests failed: new-field FLS on the admin profile. Fixed via FieldPermissions (Admin read+edit Payment_Setup_Block__c), then Test_Svc_InvoicePaymentBlock 2/2 run separately.
+4. EnhancedLetterheadId: InvoiceUK → _EN, InvoiceNL → _NL, InvoiceDE → _DE.
+5. Administrations: UK → InvoiceUK, DE → InvoiceDE (were empty; = prod values). NL stays `InvoiceNl`.
+6. Render check (no send): InvoiceUK on I-2610-00560539: header + terms footer, no open merge fields; block EN on PM#000136967 with the payment link.
+
+Next: end-to-end in acc with a test account (not a real customer): new pr invoice (FINALIZED, Email_Status PENDING) → payment Awaiting + block on the invoice, no separate mail → send the invoice through the package → payment Mail Sent, one mail with PDF + block. Then the ERROR path and the D+3 safety net.
+Prod later (explicit go): same steps; also align the repo DD templates to prod first, and do steps 2–4 back-to-back outside Job_EmailInvoice (21:16 UTC).
