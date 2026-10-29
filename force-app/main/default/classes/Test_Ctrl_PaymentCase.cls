@@ -208,6 +208,34 @@ private class Test_Ctrl_PaymentCase {
 
     // ── createPaymentFailureCase – error cases ────────────────────────────────
 
+    // ── one open Case per payment: a retry adds an attempt; card accounts get a card subject ──
+    @IsTest
+    static void testCreateCase_retryAddsToOpenCase() {
+        Payment__c pmt = [SELECT Id FROM Payment__c WHERE externalId__c = 'REF-CASE-001' LIMIT 1];
+
+        Test.startTest();
+        String first  = Ctrl_PaymentCase.createPaymentFailureCase(pmt.Id, 'card declined');
+        String second = Ctrl_PaymentCase.createPaymentFailureCase(pmt.Id, 'insufficient funds');
+        Test.stopTest();
+
+        System.assertEquals(first, second, 'the retry lands on the same open Case');
+        System.assertEquals(1, [SELECT COUNT() FROM Case WHERE Subject = 'Direct Debit failure – REF-CASE-001']);
+        Case c = [SELECT Description FROM Case WHERE Id = :first];
+        System.assert(c.Description.contains('card declined') && c.Description.contains('insufficient funds'), c.Description);
+    }
+
+    @IsTest
+    static void testCreateCase_cardSubject() {
+        Payment__c pmt = [SELECT Id, Account__c FROM Payment__c WHERE externalId__c = 'REF-CASE-001' LIMIT 1];
+        Database.update(new Account(Id = pmt.Account__c, PayProv_PaymentMethodType__c = 'card'), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        String caseId = Ctrl_PaymentCase.createPaymentFailureCase(pmt.Id, 'card declined');
+        Test.stopTest();
+
+        System.assertEquals('Card payment failure – REF-CASE-001', [SELECT Subject FROM Case WHERE Id = :caseId].Subject);
+    }
+
     @IsTest
     static void testCreateCase_blankPaymentId() {
         Test.startTest();
