@@ -1028,6 +1028,13 @@ public without sharing class Ctrl_DealerShop {
         addShippingLineItemIfNeeded(opp.Id, acct, pricebookId, lineItems, skipShipping);
 
         Database.insert(lineItems, AccessLevel.SYSTEM_MODE);
+
+        // Business entity set to process shop orders automatically: Closed Won + order confirmation,
+        // after this transaction commits and as the Automated Process user (Util_OrderConfirmation).
+        Business_Entities__c entity = getShippingConfig(acct);
+        if (entity?.DealerPortal_Opportunity_AutoProcess__c == true) {
+            Util_OrderConfirmation.publish(new Set<Id>{ opp.Id }, Util_OrderConfirmation.ACTION_PROCESS);
+        }
         return opp.Name;
     }
 
@@ -1157,7 +1164,8 @@ public without sharing class Ctrl_DealerShop {
         if (acct == null || String.isBlank(acct.Reseller_Name__c)) return null;
 
         List<Business_Entities__c> entities = [
-            SELECT Shipping_Free_Threshold__c, Shipping_Product__c, Shipping_Product__r.Shipping_Method__c
+            SELECT Shipping_Free_Threshold__c, Shipping_Product__c, Shipping_Product__r.Shipping_Method__c,
+                   DealerPortal_Opportunity_AutoProcess__c
             FROM Business_Entities__c
             WHERE Reseller__c = :acct.Reseller_Name__c
             WITH SYSTEM_MODE

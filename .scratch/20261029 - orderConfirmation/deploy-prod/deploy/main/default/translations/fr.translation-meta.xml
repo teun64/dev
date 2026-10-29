@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Merci pour votre commande</label>
+        <name>OrderConfirm_Subject</name>
+    </customLabels>
+    <customLabels>
+        <label>Merci pour votre commande n° {0}. Nous la préparons afin de vous la livrer dans les plus brefs délais.</label>
+        <name>OrderConfirm_Intro</name>
+    </customLabels>
+    <customLabels>
+        <label>Votre référence : {0}</label>
+        <name>OrderConfirm_YourReference</name>
+    </customLabels>
+    <customLabels>
+        <label>Votre commande</label>
+        <name>OrderConfirm_LinesTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Votre commande sera expédiée aujourd'hui, le {0}.</label>
+        <name>OrderConfirm_ShipsToday</name>
+    </customLabels>
+    <customLabels>
+        <label>Votre commande sera expédiée le prochain jour ouvré, le {0}.</label>
+        <name>OrderConfirm_ShipsNext</name>
+    </customLabels>
+    <customLabels>
+        <label>Les commandes passées et traitées un jour ouvré avant {0} sont expédiées le jour même ; sinon, elles sont expédiées le jour ouvré suivant.</label>
+        <name>OrderConfirm_Cutoff</name>
+    </customLabels>
+    <customLabels>
+        <label>Des questions sur votre commande ? Répondez simplement à cet e-mail.</label>
+        <name>OrderConfirm_Questions</name>
+    </customLabels>
+</Translations>

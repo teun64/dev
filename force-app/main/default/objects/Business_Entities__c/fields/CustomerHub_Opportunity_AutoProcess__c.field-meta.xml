@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CustomerHub_Opportunity_AutoProcess__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When ticked, an order placed in the Customer Hub is set to Closed Won automatically right after it is placed, which also sends the order confirmation. Reserved: the Customer Hub has no shop yet.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When ticked, an order placed in the Customer Hub is set to Closed Won automatically right after it is placed, which also sends the order confirmation. Reserved: the Customer Hub has no shop yet.</inlineHelpText>
+    <label>Auto-Process Orders (Customer Hub)</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

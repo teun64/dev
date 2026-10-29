@@ -577,4 +577,36 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <label>Het afleveradres is niet volledig.</label>
         <name>DealerShop_ErrorAddressIncomplete</name>
     </customLabels>
+    <customLabels>
+        <label>Bedankt voor uw bestelling</label>
+        <name>OrderConfirm_Subject</name>
+    </customLabels>
+    <customLabels>
+        <label>Bedankt voor uw bestelling met bestelnummer {0}. Wij gaan ermee aan de slag om deze zo snel mogelijk bij u te bezorgen.</label>
+        <name>OrderConfirm_Intro</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw referentie: {0}</label>
+        <name>OrderConfirm_YourReference</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw bestelling</label>
+        <name>OrderConfirm_LinesTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw bestelling wordt vandaag, {0}, verzonden.</label>
+        <name>OrderConfirm_ShipsToday</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw bestelling wordt de eerstvolgende werkdag, {0}, verzonden.</label>
+        <name>OrderConfirm_ShipsNext</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellingen die op een werkdag vóór {0} zijn geplaatst en verwerkt, worden dezelfde dag verzonden; anders op de eerstvolgende werkdag.</label>
+        <name>OrderConfirm_Cutoff</name>
+    </customLabels>
+    <customLabels>
+        <label>Vragen over uw bestelling? Beantwoord dan gewoon deze e-mail.</label>
+        <name>OrderConfirm_Questions</name>
+    </customLabels>
 </Translations>

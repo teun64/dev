@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Webshop order: set Closed Won and send the order confirmation, or send the confirmation again when already won (Util_OrderConfirmation)</description>
+    <flowDefinition>scr_Opportunity_Process_Order</flowDefinition>
+    <label>Process Order / Resend Confirmation</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <type>Flow</type>
+</QuickAction>

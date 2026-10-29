@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Shipping_Cutoff_Time__c</fullName>
+    <defaultValue>TIMEVALUE(&quot;15:00:00.000&quot;)</defaultValue>
+    <description>Orders processed (Closed Won) before this local time on a working day are shipped the same day, otherwise on the next working day. Local time and working days come from Business Hours (Shipping). Empty = 15:00.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Orders processed before this local time on a working day are shipped the same day, otherwise the next working day. Empty = 15:00.</inlineHelpText>
+    <label>Shipping Cut-off Time</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Time</type>
+</CustomField>

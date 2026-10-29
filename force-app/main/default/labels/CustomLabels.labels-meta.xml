@@ -3143,4 +3143,68 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Cart error: delivery address incomplete</shortDescription>
         <value>The delivery address is incomplete.</value>
     </labels>
+    <labels>
+        <fullName>OrderConfirm_Subject</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation email subject (followed by the order number)</shortDescription>
+        <value>Thank you for your order</value>
+    </labels>
+    <labels>
+        <fullName>OrderConfirm_Intro</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation intro, {0} = order number</shortDescription>
+        <value>Thank you for your order with order number {0}. We are working on it to get it delivered to you as soon as possible.</value>
+    </labels>
+    <labels>
+        <fullName>OrderConfirm_YourReference</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation: the dealer reference, {0}</shortDescription>
+        <value>Your reference: {0}</value>
+    </labels>
+    <labels>
+        <fullName>OrderConfirm_LinesTitle</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation: heading above the order lines</shortDescription>
+        <value>Your order</value>
+    </labels>
+    <labels>
+        <fullName>OrderConfirm_ShipsToday</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation: shipped today, {0} = date</shortDescription>
+        <value>Your order will be shipped today, {0}.</value>
+    </labels>
+    <labels>
+        <fullName>OrderConfirm_ShipsNext</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation: shipped on the next working day, {0} = date</shortDescription>
+        <value>Your order will be shipped on the next working day, {0}.</value>
+    </labels>
+    <labels>
+        <fullName>OrderConfirm_Cutoff</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation: shipping cut-off rule, {0} = time</shortDescription>
+        <value>Orders placed and processed before {0} on a working day are shipped the same day; otherwise they are shipped on the next working day.</value>
+    </labels>
+    <labels>
+        <fullName>OrderConfirm_Questions</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Order confirmation: questions line (Reply-To = the business entity sales email)</shortDescription>
+        <value>Questions about your order? Simply reply to this email.</value>
+    </labels>
 </CustomLabels>

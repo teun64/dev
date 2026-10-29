@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Order_Shipping_Cutoff__c</fullName>
+    <description>Shipping cut-off time (HH:mm, local time of the business entity) used for this order&apos;s shipping day, shown in the order confirmation. Set on Closed Won.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Shipping cut-off time (local) used for this order&apos;s shipping day.</inlineHelpText>
+    <label>Order Shipping Cut-off</label>
+    <length>5</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

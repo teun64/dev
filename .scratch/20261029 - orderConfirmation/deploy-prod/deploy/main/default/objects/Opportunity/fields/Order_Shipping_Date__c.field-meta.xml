@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Order_Shipping_Date__c</fullName>
+    <description>Shipping day shown in the order confirmation: the processing day when the order was processed before the cut-off on a working day, otherwise the next working day (business entity Business Hours (Shipping) + Shipping Cut-off Time). Set on Closed Won.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Shipping day shown in the order confirmation, set when the order goes to Closed Won.</inlineHelpText>
+    <label>Order Shipping Date</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Date</type>
+</CustomField>

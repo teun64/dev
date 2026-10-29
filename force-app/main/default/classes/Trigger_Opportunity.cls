@@ -5,6 +5,14 @@ public class Trigger_Opportunity {
 		}
 
 		//Trigger_Opportunity.syncAccountToExact();
+
+		// Webshop order confirmation: stamp Order_Processed_At__c and send it on Closed Won (Util_OrderConfirmation)
+		if(Trigger.isUpdate && Trigger.isBefore){
+			Util_OrderConfirmation.beforeUpdate((List<Opportunity>)Trigger.new, Trigger.oldMap);
+		}
+		if(Trigger.isUpdate && Trigger.isAfter){
+			Util_OrderConfirmation.afterUpdate((List<Opportunity>)Trigger.new, Trigger.oldMap);
+		}
 	}
 
 	//when an opportunity gets closed won, sync it to exact (if it wasn't already)

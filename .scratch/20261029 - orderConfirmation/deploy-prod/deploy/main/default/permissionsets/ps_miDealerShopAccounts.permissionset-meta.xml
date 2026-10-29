@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Dealer Shop account settings for Sales: Hide Prices and Show List Prices in the account&apos;s Webshop section. Replaces ps_DealerShopHidePricesAdmin (same grants). Part of pg_miDealerShop.</description>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.Hide_Prices__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.Show_List_Prices__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miDealerShopAccounts (ps)</label>
+</PermissionSet>

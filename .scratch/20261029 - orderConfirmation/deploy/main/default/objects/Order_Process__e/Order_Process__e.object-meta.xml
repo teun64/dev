@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Processes a Webshop order outside the user's own context (runs as the Automated Process user, so portal users never send email themselves): Action "process" sets Closed Won, "send" sends the order confirmation. Published after commit by Util_OrderConfirmation.</description>
+    <eventType>HighVolume</eventType>
+    <label>Order Process</label>
+    <pluralLabel>Order Process</pluralLabel>
+    <publishBehavior>PublishAfterCommit</publishBehavior>
+</CustomObject>

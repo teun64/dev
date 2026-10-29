@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Order_Process_Error__c</fullName>
+    <description>Why the automatic processing (Closed Won) or the order confirmation email failed; empty after a successful run.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Why the automatic processing or the order confirmation email failed; empty after a successful run.</inlineHelpText>
+    <label>Order Process Error</label>
+    <length>255</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

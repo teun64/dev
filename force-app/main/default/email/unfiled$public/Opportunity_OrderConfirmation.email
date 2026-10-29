@@ -1,0 +1,62 @@
+<messaging:emailTemplate recipientType="Contact" relatedToType="Opportunity" language="{!CASE(UPPER(recipient.Language__c),'NL','nl_NL','DE','de','AT','de','CH','de','EN','en_US','GB','en_US','FR','fr','LU','fr','MC','fr',CASE(LOWER(relatedTo.Account.Sales_Language__c),'nl','nl_NL','de','de','fr','fr','en','en_US','nl_NL'))}" subject="{!$Label.OrderConfirm_Subject} {!relatedTo.Auto_Number__c}">
+    <!-- Order confirmation of a Webshop opportunity (Util_OrderConfirmation). Everything comes from the opportunity (no controller: sent as the Automated Process user).
+         Language: the recipient's Language__c, else the account's sales language, else Dutch (same rule as Svc_DealerUserSetup.resolveLanguage).
+         Delivery address: the opportunity's own address when Use_ShippingAddress__c is ticked, else the account's shipping address. Lines with a shipping-method product (shipping costs) are left out. -->
+    <messaging:htmlEmailBody>
+        <html>
+        <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:24px 0;">
+        <tr><td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;">
+            <tr><td><c:emailLetterheadPreferences part="header" language="{!$Label.DealerPortal_EmailLanguage}" /></td></tr>
+            <tr><td style="padding:10px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#1A1A1A;">
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><apex:outputText value="{!$Label.DealerPortal_EmailGreeting}" rendered="{!NOT(ISBLANK(recipient.FirstName))}"><apex:param value="{!recipient.FirstName}" /></apex:outputText><apex:outputText value="{!$Label.DealerPortal_EmailGreetingNoName}" rendered="{!ISBLANK(recipient.FirstName)}" /></p>
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><apex:outputText value="{!$Label.OrderConfirm_Intro}"><apex:param value="{!relatedTo.Auto_Number__c}" /></apex:outputText></p>
+                <apex:outputPanel layout="none" rendered="{!AND(NOT(ISBLANK(relatedTo.Customer_Reference__c)), relatedTo.Customer_Reference__c != relatedTo.Auto_Number__c)}">
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><apex:outputText value="{!$Label.OrderConfirm_YourReference}"><apex:param value="{!relatedTo.Customer_Reference__c}" /></apex:outputText></p>
+                </apex:outputPanel>
+
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 8px;font-weight:bold;">{!$Label.OrderConfirm_LinesTitle}</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:14px;">
+                    <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif;padding:6px 0;border-bottom:1px solid #d9d9d9;color:#555555;">{!$Label.DealerOrder_Product}</td>
+                        <td style="font-family:Arial,Helvetica,sans-serif;padding:6px 0;border-bottom:1px solid #d9d9d9;color:#555555;text-align:right;width:90px;">{!$Label.DealerOrder_Quantity}</td>
+                    </tr>
+                    <apex:repeat value="{!relatedTo.OpportunityLineItems}" var="l">
+                    <apex:outputPanel layout="none" rendered="{!ISBLANK(l.Product2.Shipping_Method__c)}">
+                    <tr>
+                        <td style="font-family:Arial,Helvetica,sans-serif;padding:6px 0;border-bottom:1px solid #eeeeee;">{!l.Product2.Name}</td>
+                        <td style="font-family:Arial,Helvetica,sans-serif;padding:6px 0;border-bottom:1px solid #eeeeee;text-align:right;"><apex:outputText value="{0,number,#,##0.##}"><apex:param value="{!l.Quantity}" /></apex:outputText></td>
+                    </tr>
+                    </apex:outputPanel>
+                    </apex:repeat>
+                </table>
+
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 8px;font-weight:bold;">{!$Label.DealerShop_DeliveryAddress}</p>
+                <apex:outputPanel layout="none" rendered="{!relatedTo.Use_ShippingAddress__c}">
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;">{!relatedTo.Account.Name}<br/>{!relatedTo.ShippingAddress__Street__s}<br/>{!relatedTo.ShippingAddress__PostalCode__s} {!relatedTo.ShippingAddress__City__s}<br/>{!relatedTo.ShippingAddress__CountryCode__s}</p>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(relatedTo.Use_ShippingAddress__c)}">
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;">{!relatedTo.Account.Name}<br/>{!relatedTo.Account.ShippingStreet}<br/>{!relatedTo.Account.ShippingPostalCode} {!relatedTo.Account.ShippingCity}<br/>{!relatedTo.Account.ShippingCountry}</p>
+                </apex:outputPanel>
+
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(relatedTo.Order_Shipping_Date__c))}">
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 8px;font-weight:bold;">
+                        <apex:outputText value="{!$Label.OrderConfirm_ShipsToday}" rendered="{!relatedTo.Order_Ships_Same_Day__c}"><apex:param value="{!IF(DAY(relatedTo.Order_Shipping_Date__c) < 10, '0', '') & TEXT(DAY(relatedTo.Order_Shipping_Date__c)) & IF($Label.DealerPortal_EmailLanguage == 'en', '/', '-') & IF(MONTH(relatedTo.Order_Shipping_Date__c) < 10, '0', '') & TEXT(MONTH(relatedTo.Order_Shipping_Date__c)) & IF($Label.DealerPortal_EmailLanguage == 'en', '/', '-') & TEXT(YEAR(relatedTo.Order_Shipping_Date__c))}" /></apex:outputText>
+                        <apex:outputText value="{!$Label.OrderConfirm_ShipsNext}" rendered="{!NOT(relatedTo.Order_Ships_Same_Day__c)}"><apex:param value="{!IF(DAY(relatedTo.Order_Shipping_Date__c) < 10, '0', '') & TEXT(DAY(relatedTo.Order_Shipping_Date__c)) & IF($Label.DealerPortal_EmailLanguage == 'en', '/', '-') & IF(MONTH(relatedTo.Order_Shipping_Date__c) < 10, '0', '') & TEXT(MONTH(relatedTo.Order_Shipping_Date__c)) & IF($Label.DealerPortal_EmailLanguage == 'en', '/', '-') & TEXT(YEAR(relatedTo.Order_Shipping_Date__c))}" /></apex:outputText>
+                    </p>
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;font-size:13px;color:#555555;"><apex:outputText value="{!$Label.OrderConfirm_Cutoff}"><apex:param value="{!relatedTo.Order_Shipping_Cutoff__c}" /></apex:outputText></p>
+                </apex:outputPanel>
+
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 0;">{!$Label.OrderConfirm_Questions}</p>
+                <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 0;">{!$Label.DealerPortal_EmailSignature}<br/><strong>Moving Intelligence</strong></p>
+                <c:emailLetterheadPreferences part="logo" language="{!$Label.DealerPortal_EmailLanguage}" />
+            </td></tr>
+            <tr><td><c:emailLetterheadPreferences part="footer" language="{!$Label.DealerPortal_EmailLanguage}" /></td></tr>
+        </table>
+        </td></tr>
+        </table>
+        </body>
+        </html>
+    </messaging:htmlEmailBody>
+</messaging:emailTemplate>

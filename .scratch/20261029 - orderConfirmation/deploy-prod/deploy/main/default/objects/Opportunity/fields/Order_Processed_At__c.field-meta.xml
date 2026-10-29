@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Order_Processed_At__c</fullName>
+    <description>When the Webshop order went to Closed Won. The shipping date in the order confirmation is based on this moment (also when the confirmation is sent again).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When the Webshop order went to Closed Won. The shipping date in the order confirmation is based on this moment (also when the confirmation is sent again).</inlineHelpText>
+    <label>Order Processed At</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>DateTime</type>
+</CustomField>

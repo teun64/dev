@@ -1,0 +1,181 @@
+@IsTest(SeeAllData=false)
+private class Test_Ctrl_ProductImageManager {
+
+    @TestSetup
+    static void makeData() {
+        insert new Product2(
+            Name                   = 'Test Product Image Upload',
+            ProductCode            = 'IMG-TEST-001',
+            IsActive               = true,
+            Show_In_Dealer_Shop__c = true
+        );
+    }
+
+    private static String testImageBase64() {
+        return EncodingUtil.base64Encode(Blob.valueOf('fake image bytes'));
+    }
+
+    @IsTest
+    static void testUploadProductImage_createsVersionAndDistribution() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+
+        String downloadUrl;
+        Test.startTest();
+        downloadUrl = Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'photo.png', false);
+        Test.stopTest();
+
+        System.assertNotEquals(null, downloadUrl, 'A ContentDistribution download URL should be returned');
+
+        List<ContentDocumentLink> links = [SELECT ContentDocumentId, Visibility FROM ContentDocumentLink WHERE LinkedEntityId = :prod.Id];
+        System.assertEquals(1, links.size(), 'FirstPublishLocationId should create exactly one ContentDocumentLink');
+        System.assertEquals('AllUsers', links[0].Visibility, 'The product link must be visible to portal users or the Dealer Shop shows no image');
+    }
+
+    @IsTest
+    static void testGetCurrentImageUrl_returnsUploadedUrl() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+        String uploadedUrl = Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'photo.png', false);
+
+        String fetchedUrl;
+        Test.startTest();
+        fetchedUrl = Ctrl_ProductImageManager.getCurrentImageUrl(prod.Id);
+        Test.stopTest();
+
+        System.assertEquals(uploadedUrl, fetchedUrl, 'getCurrentImageUrl should resolve the same distribution URL uploadProductImage returned');
+    }
+
+    @IsTest
+    static void testUploadProductImage_removeOldFile_replacesInsteadOfAdding() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+        Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'old.png', false);
+
+        Test.startTest();
+        Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'new.png', true);
+        Test.stopTest();
+
+        List<ContentDocumentLink> links = [SELECT ContentDocument.Title FROM ContentDocumentLink WHERE LinkedEntityId = :prod.Id];
+        System.assertEquals(1, links.size(), 'The old file should be removed, leaving only the new one');
+        System.assertEquals('new.png', links[0].ContentDocument.Title, 'Remaining file should be the newly uploaded one');
+    }
+
+    @IsTest
+    static void testUploadProductImage_withoutRemoveOldFile_keepsBoth() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+        Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'first.png', false);
+
+        Test.startTest();
+        Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'second.png', false);
+        Test.stopTest();
+
+        Integer linkCount = [SELECT COUNT() FROM ContentDocumentLink WHERE LinkedEntityId = :prod.Id];
+        System.assertEquals(2, linkCount, 'Without removeOldFile, both uploads should stay attached');
+    }
+
+    @IsTest
+    static void testGetCurrentImageUrl_withTwoLinkedFiles_resolvesToNewest() {
+        // Regression: without an explicit order, "first ContentDocumentLink returned" is not
+        // reliably the most recently uploaded one - the shop (and this component, after a page
+        // refresh) must always resolve to the newest upload, not whichever link the query
+        // happens to return first.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+        Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'old.png', false);
+        String newUrl = Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'new.png', false);
+
+        String resolvedUrl;
+        Test.startTest();
+        resolvedUrl = Ctrl_ProductImageManager.getCurrentImageUrl(prod.Id);
+        Test.stopTest();
+
+        System.assertEquals(newUrl, resolvedUrl, 'getCurrentImageUrl should resolve to the most recently uploaded image');
+    }
+
+    @IsTest
+    static void testUploadProductImage_blankBase64_throws() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+
+        Test.startTest();
+        try {
+            Ctrl_ProductImageManager.uploadProductImage(prod.Id, '', 'photo.png', false);
+            System.assert(false, 'Expected an exception for blank file data');
+        } catch (AuraHandledException e) {
+            System.assert(true, 'AuraHandledException expected for blank file data');
+        }
+        Test.stopTest();
+    }
+
+    @IsTest
+    static void testUploadProductImage_nullProductId_throws() {
+        Test.startTest();
+        try {
+            Ctrl_ProductImageManager.uploadProductImage(null, testImageBase64(), 'photo.png', false);
+            System.assert(false, 'Expected an exception for a null productId');
+        } catch (AuraHandledException e) {
+            System.assert(true, 'AuraHandledException expected for a null productId');
+        }
+        Test.stopTest();
+    }
+
+    private static User createNonAdminUser(String alias) {
+        return createNonAdminUser(alias, 'ps_miProducts');
+    }
+
+    private static User createNonAdminUser(String alias, String permissionSetName) {
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+        User u = new User(
+            Alias = alias, Email = alias + '@mvsc.invalid',
+            EmailEncodingKey = 'UTF-8', LastName = alias, LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US', ProfileId = p.Id, TimeZoneSidKey = 'Europe/Amsterdam',
+            UserName = alias + '@mvsc.invalid.' + UserInfo.getOrganizationId()
+        );
+        // setup DML in its own context: callers may already have inserted ContentVersion (MIXED_DML)
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert u;
+            insert new PermissionSetAssignment(
+                AssigneeId       = u.Id,
+                PermissionSetId  = [SELECT Id FROM PermissionSet WHERE Name = :permissionSetName LIMIT 1].Id
+            );
+        }
+        return u;
+    }
+
+    @IsTest
+    static void testUploadProductImage_asNonOwnerNonAdmin_newImage_succeeds() {
+        // A non-admin user with only ps_miProducts must be able to upload a first image to a
+        // product with no existing file - this doesn't touch anyone else's ContentDocument, so
+        // it isn't subject to the file-ownership restriction removeOldFile runs into below.
+        User nonAdmin = createNonAdminUser('imgusr1');
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+
+        String downloadUrl;
+        System.runAs(nonAdmin) {
+            Test.startTest();
+            downloadUrl = Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'first.png', false);
+            Test.stopTest();
+        }
+
+        System.assertNotEquals(null, downloadUrl, 'A non-admin ps_miProducts user should be able to upload a new image');
+    }
+
+    @IsTest
+    static void testUploadProductImage_asDealerShopUser_replacingSomeoneElsesFile_succeeds() {
+        // Sales (pg_miDealerShop / ps_miDealerShopProducts) replacing an image another user uploaded:
+        // the old ContentDocument can't be deleted (ownership), so it stays, and the new upload must
+        // still succeed and become the image the shop shows (newest file wins).
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
+        Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'owned-by-admin.png', false);
+
+        User sales = createNonAdminUser('imgusr2', 'ps_miDealerShopProducts');
+        String newUrl;
+        System.runAs(sales) {
+            Test.startTest();
+            newUrl = Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'replacement.png', true);
+            Test.stopTest();
+        }
+
+        System.assertNotEquals(null, newUrl, 'The replacement upload must succeed');
+        System.assertEquals('replacement.png',
+            [SELECT ContentDocument.Title FROM ContentDocumentLink WHERE LinkedEntityId = :prod.Id
+             ORDER BY ContentDocument.CreatedDate DESC, Id DESC LIMIT 1].ContentDocument.Title,
+            'The new upload is the newest file on the product, so the shop shows it');
+    }
+}

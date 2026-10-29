@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>Ctrl_ProductImageManager</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Dealer Shop product upkeep for Sales: edit a product&apos;s Web Shop options (Show In Dealer Shop, Show In Customer Shop) and upload / replace the product image (productImageUploader). Product read + edit only, no create or delete. Part of pg_miDealerShop.</description>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Product2.Show_In_Customer_Shop__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Product2.Show_In_Dealer_Shop__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miDealerShopProducts (ps)</label>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Product2</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+</PermissionSet>
