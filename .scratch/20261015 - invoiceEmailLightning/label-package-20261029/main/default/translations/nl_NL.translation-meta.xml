@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Het factuurbedrag wordt op of rond {0, date,d-M-yyyy} geïnd via de betaalmethode waarvoor u toestemming heeft gegeven. De datum waarop het bedrag daadwerkelijk van uw rekening wordt afgeschreven, kan enkele werkdagen afwijken, afhankelijk van de verwerkingstijd van uw bank of betaaldienstverlener.</label>
+        <name>paymentRemarkPR</name>
+    </customLabels>
+</Translations>

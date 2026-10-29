@@ -1,0 +1,14 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body style="font-family:Arial,Helvetica,sans-serif;">
+<div style="font-family:Arial,Helvetica,sans-serif; margin:0 0 24px 0;padding:16px 20px;border:1px solid #E0E0E0;background-color:#F7F7F5;">
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;margin:0 0 12px 0;color:#0E0F0E;"><strong style="font-family:Arial,Helvetica,sans-serif;">Set up your payment preference</strong></p>
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;margin:0 0 16px 0;color:#5B625B;">This and future invoices will be collected automatically. Please use the secure link below to choose your preferred payment method for recurring payments and to give us your authorisation to collect future invoice amounts. It only takes a few minutes and your details are handled securely.</p>
+<table cellpadding="0" cellspacing="0" style="margin:0 0 16px 0;"><tr><td style="font-family:Arial,Helvetica,sans-serif; background-color:#003087;padding:0;"><a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; display:inline-block;padding:12px 28px;font-size:15px;font-weight:bold;color:#FFFFFF;text-decoration:none;">Set up payment method</a></td></tr></table>
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;margin:0 0 8px 0;color:#777777;">Or copy this link into your browser:<br/><a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#003087;">{{{Payment__c.Setup_URL__c}}}</a></p>
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;margin:0;color:#777777;">You can change your payment method or withdraw your authorisation at any time by contacting us.</p>
+</div>
+</body>
+</html>

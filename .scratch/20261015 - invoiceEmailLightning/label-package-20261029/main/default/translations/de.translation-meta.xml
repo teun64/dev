@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Der Rechnungsbetrag wird am oder um den {0, date,d-M-yyyy} über die von Ihnen genehmigte Zahlungsmethode eingezogen. Das Datum, an dem der Betrag tatsächlich von Ihrem Konto abgebucht wird, kann je nach Bearbeitungszeit Ihrer Bank oder Ihres Zahlungsdienstleisters um einige Werktage abweichen.</label>
+        <name>paymentRemarkPR</name>
+    </customLabels>
+</Translations>
