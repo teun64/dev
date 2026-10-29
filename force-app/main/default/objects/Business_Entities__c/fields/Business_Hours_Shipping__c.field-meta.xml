@@ -4,7 +4,7 @@
     <description>Name of the Business Hours (Setup &gt; Business Hours) that define this entity&apos;s shipping days: its time zone and holidays decide whether an order ships today or on the next working day (order confirmation). Empty or not found = Europe/Amsterdam, Monday to Friday, no holidays.</description>
     <externalId>false</externalId>
     <inlineHelpText>Name of the Business Hours (Setup &gt; Business Hours) with this entity&apos;s time zone, working days and holidays, e.g. Office (NL). Empty = Europe/Amsterdam, Monday to Friday.</inlineHelpText>
-    <label>Business Hours (Shipping)</label>
+    <label>Business Hours (Office)</label>
     <length>80</length>
     <required>false</required>
     <trackHistory>false</trackHistory>
