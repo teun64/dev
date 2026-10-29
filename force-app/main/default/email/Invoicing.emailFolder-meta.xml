@@ -3,7 +3,7 @@
     <folderShares>
         <accessLevel>View</accessLevel>
         <sharedTo>AllInternalUsers</sharedTo>
-        <sharedToType>Group</sharedToType>
+        <sharedToType>Organization</sharedToType>
     </folderShares>
     <name>Invoicing</name>
 </EmailTemplateFolder>
