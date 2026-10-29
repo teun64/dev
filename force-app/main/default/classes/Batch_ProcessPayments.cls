@@ -53,6 +53,11 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             ' AND Account__r.PayProv_CustomerId__c != null' +
             ' AND Account__r.PayProv_PaymentMethodId__c != null' +
             ' AND (Account__r.PayProv_MandateId__c != null OR Account__r.PayProv_PaymentMethodType__c = \'card\')' +
+            // 20261029 TRi the customer has the invoice first: collect from the day after the invoice email went out
+            // (or when it is not emailed, e.g. by post); a payment without an invoice follows its collection date only
+            ' AND (Invoice__c = null' +
+            '      OR (Invoice__r.Subscription25__Email_Status__c = \'SENT\' AND Invoice__r.Email_SendDate__c < TODAY)' +
+            '      OR Invoice__r.Subscription25__Email_Status__c = \'WILL_NOT_BE_SENT\')' +
             ' ORDER BY Collection_Date__c ASC', AccessLevel.SYSTEM_MODE);
     }
 

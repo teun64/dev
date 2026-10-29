@@ -86,6 +86,34 @@ private class Test_Batch_ProcessPayments {
         System.assert(cases[0].Description.startsWith('Stripe error:'), cases[0].Description);
     }
 
+    // ── the customer has the invoice first: not collected while the invoice email is pending, from the day after it was sent ──
+    @IsTest
+    static void testWaitsForInvoiceEmail() {
+        insertBusinessEntity(true);
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Process Payments BV'];
+        Subscription25__Administration__c admin = [SELECT Id FROM Subscription25__Administration__c LIMIT 1];
+        Subscription25__Invoice__c pending = Test_Data.createInvoice(admin.Id, acc.Id, 'DRAFT', true);
+        Subscription25__Invoice__c sent    = Test_Data.createInvoice(admin.Id, acc.Id, 'DRAFT', true);
+        Database.update(new List<Subscription25__Invoice__c>{
+            new Subscription25__Invoice__c(Id = pending.Id, Subscription25__Email_Status__c = 'PENDING'),
+            new Subscription25__Invoice__c(Id = sent.Id,    Subscription25__Email_Status__c = 'SENT')
+        }, AccessLevel.SYSTEM_MODE);
+        // rbu_Subscription25_Invoice_c stamps today on SENT: move the send date back separately
+        Database.update(new Subscription25__Invoice__c(Id = sent.Id, Email_SendDate__c = Date.today().addDays(-1)), AccessLevel.SYSTEM_MODE);
+        Payment__c waiting = newPayment(acc.Id, 'I8', Date.today());
+        waiting.Invoice__c = pending.Id;
+        Payment__c due = newPayment(acc.Id, 'I8', Date.today());
+        due.Invoice__c = sent.Id;
+        insert new List<Payment__c>{ waiting, due };
+
+        Test.startTest();
+        Database.executeBatch(new Batch_ProcessPayments(), 20);
+        Test.stopTest();
+
+        System.assertEquals('New',    reload(waiting.Id).Status__c, 'invoice email still pending: not collected');
+        System.assertEquals('Failed', reload(due.Id).Status__c,     'invoice emailed yesterday: collected (unmocked → error path)');
+    }
+
     // ── saved card without mandate is picked up; the failure Case names a card payment, not a Direct Debit ──
     @IsTest
     static void testDueCardPaymentCaseSubject() {
