@@ -1,0 +1,407 @@
+public without sharing class Ctrl_Payment {
+
+    public class PaymentData {
+        @AuraEnabled public Boolean found;
+        @AuraEnabled public Boolean alreadyProcessed;
+        @AuraEnabled public Boolean alreadyScheduled;
+        @AuraEnabled public String errorMessage;
+        @AuraEnabled public String paymentId;
+        @AuraEnabled public String publishableKey;
+        @AuraEnabled public String clientSecret;
+        @AuraEnabled public String mode;
+        @AuraEnabled public String paymentMethodType;
+        @AuraEnabled public String paymentMethodId;   // mode 'authenticate': the saved method the customer confirms
+        @AuraEnabled public String currency_x;
+        @AuraEnabled public Integer amountCents;
+        @AuraEnabled public String customer;
+        @AuraEnabled public String beneficiary;
+        @AuraEnabled public String externalId;
+        @AuraEnabled public String paymentName;
+        @AuraEnabled public String orderDate;
+        @AuraEnabled public String collectionDate;
+        @AuraEnabled public String contactFirstName;
+        @AuraEnabled public String contactLastName;
+        @AuraEnabled public String contactEmail;
+        @AuraEnabled public String billingAddressLine1;
+        @AuraEnabled public String billingCity;
+        @AuraEnabled public String billingPostalCode;
+        @AuraEnabled public String billingCountry;
+        @AuraEnabled public ProductLine productLine;
+        @AuraEnabled public String language;          // nl/de/fr/en from the contact's Language__c, null when unknown
+    }
+
+    public class ProductLine {
+        @AuraEnabled public String  lineNumber;
+        @AuraEnabled public String  productCode;
+        @AuraEnabled public String  productName;
+        @AuraEnabled public Decimal amount;
+        @AuraEnabled public Integer periodMonths;
+    }
+
+    // Contact.Language__c is a country code: map to the page languages (nl/de/fr/en), same as Ctrl_PreferenceCenter
+    private static final Map<String, String> COUNTRY_TO_LANGUAGE = new Map<String, String>{
+        'NL' => 'nl', 'BE' => 'nl', 'AN' => 'nl',
+        'DE' => 'de', 'AT' => 'de', 'CH' => 'de', 'LU' => 'de',
+        'FR' => 'fr',
+        'GB' => 'en', 'EN' => 'en'
+    };
+
+    @AuraEnabled(cacheable=false)
+    public static PaymentData getPaymentData(String token, String language) {
+        PaymentData result = new PaymentData();
+        result.found = false;
+
+        if (String.isBlank(token)) {
+            result.errorMessage = 'No payment token provided.';
+            return result;
+        }
+        if (String.isBlank(language)) language = 'en';
+
+        List<Payment__c> payments = Database.queryWithBinds(
+            'SELECT Id, Name, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
+            '       PayProv_PaymentIntentId__c, PayProv_SetupIntentId__c,' +
+            '       Invoice__c,' +
+            '       Contact__r.Language__c,' +
+            '       Account__c,' +
+            '       Account__r.Name,' +
+            '       Account__r.PayProv_CustomerId__c,' +
+            '       Account__r.PayProv_MandateId__c,' +
+            '       Account__r.PayProv_PaymentMethodId__c,' +
+            '       Account__r.PayProv_PaymentMethodType__c,' +
+            '       Account__r.BillingStreet,' +
+            '       Account__r.BillingCity,' +
+            '       Account__r.BillingPostalCode,' +
+            '       Account__r.BillingCountryCode,' +
+            '       Administration__c,' +
+            '       Administration__r.Reseller__c,' +
+            '       Administration__r.Subscription25__Billing_Name__c' +
+            ' FROM Payment__c' +
+            ' WHERE externalId__c = :token' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'token' => token },
+            AccessLevel.SYSTEM_MODE
+        );
+
+        if (payments.isEmpty()) {
+            result.errorMessage = 'No open payment found for this link.';
+            return result;
+        }
+
+        Payment__c p = payments[0];
+
+        // Customer followed a link for a payment that is already on its way or completed (e.g. reused
+        // an old email or a reminder, double-clicked) — tell them rather than spinning up a second
+        // Stripe PaymentIntent for the same Payment__c. Bank debits stay Processing for days.
+        if (p.Status__c == 'Processing' || p.Status__c == 'Paid' || p.Status__c == 'Collected') {
+            result.found            = true;
+            result.alreadyProcessed = true;
+            result.paymentId        = p.Id;
+            return result;
+        }
+
+        result.found         = true;
+        result.paymentId     = p.Id;
+        result.externalId    = p.externalId__c;
+        result.paymentName   = p.Name;
+        result.currency_x    = p.CurrencyIsoCode;
+        result.amountCents   = p.Amount_Gross__c != null ? (Integer)(p.Amount_Gross__c * 100) : 0;
+        result.customer      = p.Account__r?.Name;
+        result.beneficiary   = p.Administration__r?.Subscription25__Billing_Name__c;
+
+        Business_Entities__c businessEntity = resolveBusinessEntity(p.Administration__r?.Reseller__c);
+        result.publishableKey = businessEntity?.PayProv_Account__r?.stripeGC__Publishable_Key__c;
+        result.billingAddressLine1 = p.Account__r?.BillingStreet;
+        result.billingCity         = p.Account__r?.BillingCity;
+        result.billingPostalCode   = p.Account__r?.BillingPostalCode;
+        result.billingCountry      = p.Account__r?.BillingCountryCode;
+
+        List<AccountContactRelation> contactRels = Database.queryWithBinds(
+            'SELECT Contact.FirstName, Contact.LastName, Contact.Email, Contact.Language__c,' +
+            '       IsPaymentContact__c, isMainContact__c' +
+            ' FROM AccountContactRelation' +
+            ' WHERE AccountId = :accountId' +
+            ' AND IsActive = true' +
+            ' AND (IsPaymentContact__c = true OR isMainContact__c = true)' +
+            ' ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'accountId' => p.Account__c },
+            AccessLevel.SYSTEM_MODE
+        );
+        if (!contactRels.isEmpty()) {
+            result.contactFirstName = contactRels[0].Contact.FirstName;
+            result.contactLastName  = contactRels[0].Contact.LastName;
+            result.contactEmail     = contactRels[0].Contact.Email;
+        }
+
+        // 20261028 TRi the customer's language (payment contact, else the account's payment/main contact, else the billing country) decides the page language;
+        // the hub header only knows the domain, which on sandboxes and the shared site is no language at all
+        String countryCode = p.Contact__r?.Language__c;
+        if (String.isBlank(countryCode) && !contactRels.isEmpty()) countryCode = contactRels[0].Contact.Language__c;
+        if (String.isBlank(countryCode)) countryCode = p.Account__r?.BillingCountryCode;
+        if (String.isNotBlank(countryCode)) {
+            result.language = COUNTRY_TO_LANGUAGE.containsKey(countryCode) ? COUNTRY_TO_LANGUAGE.get(countryCode) : 'en';
+            language = result.language;
+        }
+
+        if (p.Request_Date__c != null) {
+            result.orderDate = p.Request_Date__c.year()
+                + '-' + String.valueOf(p.Request_Date__c.month()).leftPad(2, '0')
+                + '-' + String.valueOf(p.Request_Date__c.day()).leftPad(2, '0');
+        }
+
+        if (p.Collection_Date__c != null) {
+            result.collectionDate = p.Collection_Date__c.year()
+                + '-' + String.valueOf(p.Collection_Date__c.month()).leftPad(2, '0')
+                + '-' + String.valueOf(p.Collection_Date__c.day()).leftPad(2, '0');
+        }
+
+        // Product line: first line ordered by cost type (recurring before NON_RECURRING)
+        result.productLine = resolveProductLine(p.Invoice__c, language);
+
+        String stripeCustomerId = p.Account__r?.PayProv_CustomerId__c;
+        String ddMethod         = businessEntity?.PayProv_DirectDebit_PaymentMethod__c;
+        if (String.isBlank(ddMethod)) ddMethod = 'sepa_debit';
+        result.paymentMethodType = ddMethod;
+
+        if (String.isBlank(stripeCustomerId)) {
+            result.errorMessage = 'Payment account is not yet configured for direct debit. Please contact support.';
+            return result;
+        }
+
+        // Off-session charge needed 3-D Secure (Action Required): the customer confirms that same PaymentIntent here,
+        // with the saved method - mode 'authenticate', no new intent and no Payment Element.
+        if (Svc_PaymentIntent.STATUS_ACTION_REQUIRED.equals(p.Status__c) && String.isNotBlank(p.PayProv_PaymentIntentId__c)) {
+            try {
+                Map<String, Object> intent = Svc_PaymentIntent.call('GET', '/v1/payment_intents/' + p.PayProv_PaymentIntentId__c,
+                    businessEntity?.PayProv_Account__c, null, null);
+                applyAuthenticateIntent(result, intent, p.Account__r?.PayProv_PaymentMethodId__c);
+            } catch (Exception e) {
+                result.errorMessage = 'Could not load this payment: ' + e.getMessage();
+            }
+            return result;
+        }
+
+        // Mandate or saved card already on file: Batch_ProcessPayments collects it off-session on the collection date.
+        // The page never creates a PaymentIntent then — opening the link must not debit the customer.
+        if (Svc_PaymentIntent.hasUsableMethod(p.Account__r)) {
+            result.alreadyScheduled = true;
+            return result;
+        }
+
+        // No mandate yet: the customer completes the stored intent (created upfront by afl_Payment_Direct_Debit_Setup,
+        // or here on first use). Reused on every visit — a page load never creates a second intent.
+        result.mode = 'bacs_debit'.equals(ddMethod) ? 'payment' : 'setup';
+        try {
+            Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreate(p, businessEntity);
+            if (c.processed) {
+                result.alreadyProcessed = true;
+                return result;
+            }
+            result.mode         = c.mode;
+            result.clientSecret = c.clientSecret;
+            Payment__c stored = Svc_PaymentIntent.storeUpdate(p, c);
+            if (stored != null) Database.update(stored, AccessLevel.SYSTEM_MODE);
+        } catch (Exception e) {
+            result.errorMessage = 'Could not initialise ' + result.mode + ': ' + e.getMessage();
+        }
+
+        return result;
+    }
+
+    // ── Business Entity resolution ────────────────────────────────────────────
+    // Business_Entities__c holds the reseller's payment-provider config, replacing the
+    // PayProv_* fields on Subscription25__Administration__c. Joined by Reseller__c value
+    // (not a lookup) so this stays independent of the Subscription25 managed package.
+    private static Business_Entities__c resolveBusinessEntity(String resellerValue) {
+        if (String.isBlank(resellerValue)) return null;
+
+        List<Business_Entities__c> businessEntities = Database.queryWithBinds(
+            'SELECT PayProv_Account__c, PayProv_Account__r.stripeGC__Publishable_Key__c,' +
+            '       PayProv_DirectDebit_PaymentMethod__c' +
+            ' FROM Business_Entities__c' +
+            ' WHERE Reseller__c = :resellerValue' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'resellerValue' => resellerValue },
+            AccessLevel.SYSTEM_MODE
+        );
+        return businessEntities.isEmpty() ? null : businessEntities[0];
+    }
+
+    // ── Product line resolution ───────────────────────────────────────────────
+    // Supports: Invoice → Order → OrderItem (primary path)
+    // To add Opportunity support: add Opportunity__c to the Payment SOQL and
+    //   call resolveProductLineFromOpportunity(p.Opportunity__c, language).
+    private static ProductLine resolveProductLine(Id invoiceId, String lang) {
+        if (invoiceId == null) return null;
+
+        List<OrderItem> items = Database.queryWithBinds(
+            'SELECT Product_Code__c, Product_Name__c, Amount_Gross__c,' +
+            '       InvoiceStartDate__c, InvoiceEndDate__c,' +
+            '       Subscription25__Product__c,' +
+            '       Subscription25__Product__r.Subscription25__Cost_Type__c' +
+            ' FROM OrderItem' +
+            ' WHERE Order.Subscription25__Invoice__c = :invoiceId' +
+            ' ORDER BY Subscription25__Product__r.Subscription25__Cost_Type__c NULLS FIRST,' +
+            '          Product_Code__c ASC' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'invoiceId' => invoiceId },
+            AccessLevel.SYSTEM_MODE
+        );
+        if (items.isEmpty()) return null;
+
+        OrderItem item = items[0];
+        ProductLine pl = new ProductLine();
+        pl.lineNumber  = '1';
+        pl.productCode = item.Product_Code__c;
+        pl.amount      = item.Amount_Gross__c;
+        pl.productName = item.Product_Name__c; // fallback if no translation
+
+        // Period in months between invoice start and end date
+        if (item.InvoiceStartDate__c != null && item.InvoiceEndDate__c != null) {
+            Integer months = (item.InvoiceEndDate__c.year()  - item.InvoiceStartDate__c.year())  * 12
+                           + (item.InvoiceEndDate__c.month() - item.InvoiceStartDate__c.month());
+            if (item.InvoiceEndDate__c.day() > item.InvoiceStartDate__c.day()) months++;
+            pl.periodMonths = months > 0 ? months : null;
+        }
+
+        // Localized product name from Data_Translation__c
+        if (item.Subscription25__Product__c != null) {
+            Id productId = item.Subscription25__Product__c;
+            List<Data_Translation__c> translations = Database.queryWithBinds(
+                'SELECT Name__c FROM Data_Translation__c' +
+                ' WHERE Product__c = :productId AND Language__c = :lang LIMIT 1',
+                new Map<String, Object>{ 'productId' => productId, 'lang' => lang },
+                AccessLevel.SYSTEM_MODE
+            );
+            if (!translations.isEmpty() && String.isNotBlank(translations[0].Name__c)) {
+                pl.productName = translations[0].Name__c;
+            }
+        }
+
+        return pl;
+    }
+
+    /** Action Required payment: what the page needs to let the customer confirm the stored PaymentIntent (3-D Secure). */
+    @TestVisible
+    private static void applyAuthenticateIntent(PaymentData result, Map<String, Object> intent, String savedMethodId) {
+        Svc_PaymentIntent.Action a = Svc_PaymentIntent.decide((String) intent.get('status'));
+        if (a == Svc_PaymentIntent.Action.PROCESSED) {
+            result.alreadyProcessed = true;
+            return;
+        }
+        if (a == Svc_PaymentIntent.Action.CREATE) {
+            result.errorMessage = 'This payment link is no longer valid. Please contact support.';
+            return;
+        }
+        result.mode            = 'authenticate';
+        result.clientSecret    = (String) intent.get('client_secret');
+        result.paymentMethodId = savedMethodId;
+        List<Object> types = (List<Object>) intent.get('payment_method_types');
+        if (types != null && !types.isEmpty()) result.paymentMethodType = (String) types[0];
+        Map<String, Object> lastError    = (Map<String, Object>) intent.get('last_payment_error');
+        Map<String, Object> failedMethod = lastError == null ? null : (Map<String, Object>) lastError.get('payment_method');
+        if (failedMethod != null && failedMethod.get('id') != null) result.paymentMethodId = (String) failedMethod.get('id');
+    }
+
+    @AuraEnabled(cacheable=false)
+    public static void finalizeCheckout(String token, String intentMode, Boolean futureConsent) {
+        if (String.isBlank(token)) return;
+
+        List<Payment__c> payments = Database.queryWithBinds(
+            'SELECT Id, Account__c FROM Payment__c' +
+            ' WHERE externalId__c = :token' +
+            ' AND Status__c != \'Closed\'' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'token' => token },
+            AccessLevel.SYSTEM_MODE
+        );
+        if (payments.isEmpty()) return;
+
+        // Payment method and mandate are stored by the Stripe_Event_c trigger (Svc_StripeEventProcessor).
+        // Here we only update the Payment status so the customer sees the result immediately.
+        // Interaction status also ends the D+2/D+4 reminders (rab_Payment_Direct_Debit_Escalation waits on 'Mail Sent').
+        String newStatus = ('setup'.equals(intentMode)) ? 'Setup' : 'Processing';
+        Database.update(new Payment__c(
+            Id = payments[0].Id,
+            Status__c = newStatus,
+            Interaction_Status__c = 'Request Processed by Customer'
+        ), AccessLevel.SYSTEM_MODE);
+
+        // Disclosure only - the mandate is already reused for future subscription payments
+        // regardless of this checkbox (see Ctrl_PaymentMandate). This just records that the
+        // customer was told and ticked the box, for our own records.
+        if (futureConsent == true && payments[0].Account__c != null) {
+            Database.update(new Account(
+                Id = payments[0].Account__c,
+                DirectDebit_Future_Payments_Consent__c      = true,
+                DirectDebit_Future_Payments_Consent_Date__c = Datetime.now()
+            ), AccessLevel.SYSTEM_MODE);
+        }
+    }
+
+    @AuraEnabled(cacheable=false)
+    public static void sendSetupEmail(String token) {
+        if (String.isBlank(token)) return;
+
+        List<Payment__c> payments = Database.queryWithBinds(
+            'SELECT Id, Name, externalId__c, Account__c,' +
+            '       Administration__r.Subscription25__Billing_Name__c' +
+            ' FROM Payment__c' +
+            ' WHERE externalId__c = :token' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'token' => token },
+            AccessLevel.SYSTEM_MODE
+        );
+        if (payments.isEmpty()) return;
+
+        Payment__c p = payments[0];
+
+        List<AccountContactRelation> contactRels = Database.queryWithBinds(
+            'SELECT Contact.FirstName, Contact.Email' +
+            ' FROM AccountContactRelation' +
+            ' WHERE AccountId = :accountId' +
+            ' AND IsActive = true' +
+            ' AND (IsPaymentContact__c = true OR isMainContact__c = true)' +
+            ' ORDER BY IsPaymentContact__c DESC, isMainContact__c DESC' +
+            ' LIMIT 1',
+            new Map<String, Object>{ 'accountId' => p.Account__c },
+            AccessLevel.SYSTEM_MODE
+        );
+        if (contactRels.isEmpty() || String.isBlank(contactRels[0].Contact.Email)) return;
+
+        String contactEmail = contactRels[0].Contact.Email;
+        String firstName    = contactRels[0].Contact.FirstName;
+
+        CustomerHub__c hubConfig = CustomerHub__c.getOrgDefaults();
+        String baseUrl = hubConfig?.Base_URL__c;
+        if (String.isBlank(baseUrl)) {
+            baseUrl = URL.getOrgDomainUrl().toExternalForm() + '/customer-hub';
+        }
+        // Strip trailing slash so the concatenation is always clean
+        if (baseUrl.endsWith('/')) {
+            baseUrl = baseUrl.removeEnd('/');
+        }
+        String setupLink = baseUrl + '/payment?token=' + EncodingUtil.urlEncode(p.externalId__c, 'UTF-8');
+
+        String greeting   = String.isNotBlank(firstName) ? 'Dear ' + firstName + ',' : 'Dear Customer,';
+        String senderName = p.Administration__r?.Subscription25__Billing_Name__c;
+        if (String.isBlank(senderName)) senderName = 'Moving Intelligence';
+
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setToAddresses(new List<String>{ contactEmail });
+        mail.setSubject('Direct Debit setup request – ' + p.Name);
+        mail.setPlainTextBody(
+            greeting + '\n\n'
+            + 'To enable direct debit payments, please authorise your bank account via the link below:\n\n'
+            + setupLink + '\n\n'
+            + 'Kind regards,\n' + senderName
+        );
+        mail.setSaveAsActivity(false);
+        try {
+            Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
+        } catch (Exception e) {
+            // Log but do not surface — email unavailability should not block the caller
+            System.debug(LoggingLevel.WARN, 'sendSetupEmail failed: ' + e.getMessage());
+        }
+    }
+}

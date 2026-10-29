@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows changing Account.Payment_Method_Contracts__c from pr back to an I-code. Checked by vr_PaymentMethodContractsProviderLock; System Administrators and miAPIIntegration users are always allowed.</description>
+    <isLicensed>false</isLicensed>
+    <label>AccountPaymentMethod_Change (cp)</label>
+</CustomPermission>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>cp_OpportunityPaymentMethod_Change</name>
+    </customPermissions>
+    <description>Grants cp_OpportunityPaymentMethod_Change. No rule checks it yet (Opportunity lock to be evaluated). In pg_miFinance; assigned directly to Sales users.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miOpportunityPaymentMethod_Change (ps)</label>
+</PermissionSet>

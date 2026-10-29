@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>cp_AccountPaymentMethod_Change</name>
+    </customPermissions>
+    <description>Grants cp_AccountPaymentMethod_Change. Without it (and without System Administrator / miAPIIntegration) validation rule vr_PaymentMethodContractsProviderLock blocks pr → I-code on Account.Payment_Method_Contracts__c. In pg_miFinance.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miAccountPaymentMethod_Change (ps)</label>
+</PermissionSet>

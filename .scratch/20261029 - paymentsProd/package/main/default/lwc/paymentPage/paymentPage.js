@@ -1,0 +1,497 @@
+import { LightningElement, api, track, wire } from 'lwc';
+import { CurrentPageReference } from 'lightning/navigation';
+import LOCALE          from '@salesforce/i18n/locale';
+import PAYMENT_PROVIDER from '@salesforce/resourceUrl/paymentProvider';
+import BRANDING_URL    from '@salesforce/resourceUrl/Branding';
+import CUSTOMER_HUB_FAVICON from '@salesforce/resourceUrl/CustomerHubFavicon';
+import isGuestUser              from '@salesforce/user/isGuest';
+import BASE_PATH                from '@salesforce/community/basePath';
+import getPaymentData          from '@salesforce/apex/Ctrl_Payment.getPaymentData';
+import finalizeCheckout        from '@salesforce/apex/Ctrl_Payment.finalizeCheckout';
+import getBrandTheme            from '@salesforce/apex/Ctrl_PreferenceCenter.getBrandTheme';
+import getGuestBrandTheme       from '@salesforce/apex/Ctrl_PreferenceCenterGuest.getBrandTheme';
+import createPaymentFailureCase from '@salesforce/apex/Ctrl_PaymentCase.createPaymentFailureCase';
+
+// Same site-wide hub header language pills preferenceCenter.js listens to — the payment page
+// no longer has its own in-component language switcher (see paymentPage.html's checkout-header).
+const LANG_EVENTS = ['mi:languagechange', 'echoes:languagechange', 'tds:languagechange'];
+
+// preferenceCenter's switcher emits short codes (nl/de/fr/en); _applyLocale/Intl need a full
+// locale. en_GB (not en_US) matches the pre-existing default below — this payment is in GBP.
+const LANG_CODE_TO_LOCALE = {
+    nl: 'nl_NL', de: 'de_DE', fr: 'fr_FR', en: 'en_GB'
+};
+
+// Same client-side dictionary pattern as preferenceCenter.js's I18N — the order-summary/checkout
+// labels below are static text with no server-side (Translation Workbench) source, so they need
+// their own translation, keyed the same way as languageSet ('nl'/'de'/'fr'/'en').
+const I18N = {
+    en: {
+        pageTitle: 'Checkout',
+        columnOrder: 'Order summary',
+        columnProvider: 'Secure Payment',
+        pageText: 'Please review your order details below, then complete your secure payment on the right.',
+        authenticateText: 'Your bank asks you to confirm this payment. Check the details below, then confirm the payment on the right.',
+        customer: 'Name',
+        reference: 'Reference',
+        beneficiary: 'Beneficiary',
+        currency: 'Currency',
+        date: 'Date',
+        amount: 'Total',
+        successTitle: 'Payment received',
+        successBody: 'Thank you. Your payment has been processed successfully.',
+        alreadyProcessedTitle: 'Already completed',
+        alreadyProcessedBody: 'This payment has already been processed. No further action is needed.',
+        alreadyScheduledTitle: 'Automatic payment scheduled',
+        alreadyScheduledBody: 'This payment will be collected automatically on {0}. No further action is needed.',
+        successSetupTitle: 'Payment method saved',
+        successSetupBody: 'Thank you. Your payment method has been saved. This payment will be collected automatically on {0}.',
+        successSetupBodyNoDate: 'Thank you. Your payment method has been saved. This payment will be collected automatically.',
+        lineNumber: 'Line',
+        productCode: 'Code',
+        productName: 'Product',
+        productAmount: 'Amount',
+        invoiceCycle: 'Invoice cycle'
+    },
+    nl: {
+        pageTitle: 'Afrekenen',
+        columnOrder: 'Besteloverzicht',
+        columnProvider: 'Veilig betalen',
+        pageText: 'Controleer hieronder uw bestelgegevens en rond vervolgens rechts uw beveiligde betaling af.',
+        authenticateText: 'Uw bank vraagt u deze betaling te bevestigen. Controleer hieronder de gegevens en bevestig rechts de betaling.',
+        customer: 'Naam',
+        reference: 'Referentie',
+        beneficiary: 'Begunstigde',
+        currency: 'Valuta',
+        date: 'Datum',
+        amount: 'Totaal',
+        successTitle: 'Betaling ontvangen',
+        successBody: 'Bedankt. Uw betaling is succesvol verwerkt.',
+        alreadyProcessedTitle: 'Al voltooid',
+        alreadyProcessedBody: 'Deze betaling is al verwerkt. Geen verdere actie nodig.',
+        alreadyScheduledTitle: 'Automatische betaling gepland',
+        alreadyScheduledBody: 'Deze betaling wordt op {0} automatisch afgeschreven. Geen verdere actie nodig.',
+        successSetupTitle: 'Betaalmethode opgeslagen',
+        successSetupBody: 'Bedankt. Uw betaalmethode is opgeslagen. Deze betaling wordt op {0} automatisch afgeschreven.',
+        successSetupBodyNoDate: 'Bedankt. Uw betaalmethode is opgeslagen. Deze betaling wordt automatisch afgeschreven.',
+        lineNumber: 'Regel',
+        productCode: 'Code',
+        productName: 'Product',
+        productAmount: 'Bedrag',
+        invoiceCycle: 'Factuurcyclus'
+    },
+    de: {
+        pageTitle: 'Kasse',
+        columnOrder: 'Bestellübersicht',
+        columnProvider: 'Sichere Zahlung',
+        pageText: 'Bitte überprüfen Sie unten Ihre Bestelldetails und schließen Sie anschließend rechts Ihre sichere Zahlung ab.',
+        authenticateText: 'Ihre Bank bittet Sie, diese Zahlung zu bestätigen. Prüfen Sie unten die Angaben und bestätigen Sie rechts die Zahlung.',
+        customer: 'Name',
+        reference: 'Referenz',
+        beneficiary: 'Empfänger',
+        currency: 'Währung',
+        date: 'Datum',
+        amount: 'Gesamt',
+        successTitle: 'Zahlung erhalten',
+        successBody: 'Vielen Dank. Ihre Zahlung wurde erfolgreich verarbeitet.',
+        alreadyProcessedTitle: 'Bereits abgeschlossen',
+        alreadyProcessedBody: 'Diese Zahlung wurde bereits verarbeitet. Keine weitere Aktion erforderlich.',
+        alreadyScheduledTitle: 'Automatische Zahlung geplant',
+        alreadyScheduledBody: 'Diese Zahlung wird am {0} automatisch eingezogen. Keine weitere Aktion erforderlich.',
+        successSetupTitle: 'Zahlungsmethode gespeichert',
+        successSetupBody: 'Vielen Dank. Ihre Zahlungsmethode wurde gespeichert. Diese Zahlung wird am {0} automatisch eingezogen.',
+        successSetupBodyNoDate: 'Vielen Dank. Ihre Zahlungsmethode wurde gespeichert. Diese Zahlung wird automatisch eingezogen.',
+        lineNumber: 'Zeile',
+        productCode: 'Code',
+        productName: 'Produkt',
+        productAmount: 'Betrag',
+        invoiceCycle: 'Rechnungszyklus'
+    },
+    fr: {
+        pageTitle: 'Paiement',
+        columnOrder: 'Récapitulatif de la commande',
+        columnProvider: 'Paiement sécurisé',
+        pageText: 'Veuillez vérifier les détails de votre commande ci-dessous, puis finalisez votre paiement sécurisé à droite.',
+        authenticateText: 'Votre banque vous demande de confirmer ce paiement. Vérifiez les détails ci-dessous, puis confirmez le paiement à droite.',
+        customer: 'Nom',
+        reference: 'Référence',
+        beneficiary: 'Bénéficiaire',
+        currency: 'Devise',
+        date: 'Date',
+        amount: 'Total',
+        successTitle: 'Paiement reçu',
+        successBody: 'Merci. Votre paiement a été traité avec succès.',
+        alreadyProcessedTitle: 'Déjà effectué',
+        alreadyProcessedBody: 'Ce paiement a déjà été traité. Aucune action supplémentaire n\'est requise.',
+        alreadyScheduledTitle: 'Paiement automatique programmé',
+        alreadyScheduledBody: 'Ce paiement sera prélevé automatiquement le {0}. Aucune action supplémentaire n\'est requise.',
+        successSetupTitle: 'Moyen de paiement enregistré',
+        successSetupBody: 'Merci. Votre moyen de paiement a été enregistré. Ce paiement sera prélevé automatiquement le {0}.',
+        successSetupBodyNoDate: 'Merci. Votre moyen de paiement a été enregistré. Ce paiement sera prélevé automatiquement.',
+        lineNumber: 'Ligne',
+        productCode: 'Code',
+        productName: 'Produit',
+        productAmount: 'Montant',
+        invoiceCycle: 'Cycle de facturation'
+    }
+};
+
+export default class PaymentPage extends LightningElement {
+
+    // -------- State --------
+    isLoading  = true;
+    hasError   = false;
+    errorMessage;
+
+    // checkout | success | error
+    viewState = 'checkout';
+
+    @track payment;
+    intentMessage;
+
+    // -------- Locale --------
+    @track localeSet;
+    @track languageSet;
+
+    // -------- Labels --------
+    // Reactive on languageSet (@track, updated by _applyLocale) so the order-summary/checkout
+    // text actually re-renders on a hub-header language change, instead of being frozen at
+    // whatever it was on initial load (the currency/date/amount getters below already did this
+    // correctly via Intl formatting — these plain-text labels were the gap).
+    _alreadyProcessed = false;
+    _alreadyScheduled = false;
+    _methodSaved = false;
+    _scheduledDate;
+
+    get _t() { return I18N[this.languageSet] || I18N.en; }
+
+    get labelPageTitle()      { return this._t.pageTitle; }
+    get labelColumnOrder()    { return this._t.columnOrder; }
+    get labelColumnProvider() { return this._t.columnProvider; }
+    get paymentPageText()     { return this.isAuthenticateMode ? this._t.authenticateText : this._t.pageText; }
+    get labelCustomer()       { return this._t.customer; }
+    get labelReference()      { return this._t.reference; }
+    get labelBeneficiary()    { return this._t.beneficiary; }
+    get labelCurrency()       { return this._t.currency; }
+    get labelDate()           { return this._t.date; }
+    get labelAmount()         { return this._t.amount; }
+    get labelSuccessTitle() {
+        if (this._alreadyScheduled) return this._t.alreadyScheduledTitle;
+        if (this._methodSaved)      return this._t.successSetupTitle;
+        return this._alreadyProcessed ? this._t.alreadyProcessedTitle : this._t.successTitle;
+    }
+    get labelSuccessBody() {
+        if (this._alreadyScheduled) return this._t.alreadyScheduledBody.replace('{0}', this._formatDate(this._scheduledDate));
+        // SetupIntent completed: the method is saved, nothing is charged until the collection date
+        if (this._methodSaved) {
+            const date = this.payment?.collectionDate;
+            return date ? this._t.successSetupBody.replace('{0}', this._formatDate(date)) : this._t.successSetupBodyNoDate;
+        }
+        return this._alreadyProcessed ? this._t.alreadyProcessedBody : this._t.successBody;
+    }
+    _formatDate(value) {
+        const lang = this.languageSet || 'en';
+        return value
+            ? new Date(value).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })
+            : '';
+    }
+    get labelLineNumber()     { return this._t.lineNumber; }
+    get labelProductCode()    { return this._t.productCode; }
+    get labelProductName()    { return this._t.productName; }
+    get labelProductAmount()  { return this._t.productAmount; }
+    get labelInvoiceCycle()   { return this._t.invoiceCycle; }
+
+    // -------- Assets --------
+    providerLogo = `${PAYMENT_PROVIDER}/providerIcon.svg`;
+
+    // -------- Derived state --------
+    get isReady()        { return !this.isLoading && !this.hasError && this.viewState === 'checkout' && !!this.payment; }
+    get isSuccess()      { return this.viewState === 'success'; }
+    get isPaymentError() { return this.viewState === 'error'; }
+    get isResolved()     { return this.viewState !== 'checkout'; }
+    // 'authenticate' = an off-session charge waiting for the customer's 3-D Secure confirmation: a real payment too
+    get isPaymentMode()  { return this.payment?.mode === 'payment' || this.isAuthenticateMode; }
+    get isAuthenticateMode() { return this.payment?.mode === 'authenticate'; }
+
+    get locale() {
+        return this.localeSet || LOCALE.replace('_US', '_GB');
+    }
+
+    get amountFormatted() {
+        if (!this.payment || this.payment.amountCents == null) return '';
+        const amount = this.payment.amountCents / 100;
+        const lang   = (this.localeSet || 'en_GB').split('_')[0];
+        const curr   = (this.payment.currency_x || 'EUR').toUpperCase();
+        try {
+            return new Intl.NumberFormat(lang, {
+                style: 'currency',
+                currency: curr,
+                currencyDisplay: 'narrowSymbol'
+            }).format(amount);
+        } catch (e) {
+            return `${amount}`;
+        }
+    }
+
+    get orderDateFormatted() {
+        if (!this.payment?.orderDate) return '';
+        const lang = (this.localeSet || 'en_GB').split('_')[0];
+        return new Date(this.payment.orderDate).toLocaleDateString(lang, {
+            year: 'numeric', month: 'short', day: 'numeric'
+        });
+    }
+
+    get productLineAmountFormatted() {
+        const amount = this.payment?.productLine?.amount;
+        if (amount == null) return '';
+        const lang = (this.localeSet || 'en_GB').split('_')[0];
+        const curr = (this.payment.currency_x || 'EUR').toUpperCase();
+        try {
+            return new Intl.NumberFormat(lang, {
+                style: 'currency',
+                currency: curr,
+                currencyDisplay: 'narrowSymbol'
+            }).format(amount);
+        } catch (e) {
+            return `${amount}`;
+        }
+    }
+
+    get hasProductLine() { return !!this.payment?.productLine; }
+
+    // Apple Pay: describe the recurring charge so Apple issues a merchant token (MPAN) that keeps working
+    // when the customer changes device; without it the saved Apple Pay card is tied to one device.
+    // Interval follows the invoice cycle of the product line (default monthly). Other methods ignore it.
+    get applePayRequest() {
+        const p = this.payment;
+        if (!p) return null;
+        const months = p.productLine?.periodMonths > 0 ? p.productLine.periodMonths : 1;
+        const yearly = months % 12 === 0;
+        return {
+            recurringPaymentRequest: {
+                paymentDescription: p.beneficiary || p.paymentName,
+                managementURL: `${window.location.origin}${BASE_PATH || ''}`,
+                regularBilling: {
+                    amount: p.amountCents || 0,
+                    label: p.productLine?.productName || p.paymentName,
+                    recurringPaymentIntervalUnit: yearly ? 'year' : 'month',
+                    recurringPaymentIntervalCount: yearly ? months / 12 : months
+                }
+            }
+        };
+    }
+
+    get billingName() {
+        const first = this.payment?.contactFirstName || '';
+        const last  = this.payment?.contactLastName  || '';
+        return [first, last].filter(Boolean).join(' ') || undefined;
+    }
+
+    get invoiceCycleLabel() {
+        const months = this.payment?.productLine?.periodMonths;
+        if (!months) return null;
+        return months === 1 ? '1 month' : `${months} months`;
+    }
+
+    // -------- Brand theme --------
+    @track _brandTheme = null;
+
+    get brandAccentStyle() {
+        const color = this._brandTheme?.primaryColor;
+        return color ? `--pp-accent: ${color}` : '';
+    }
+
+    get brandLogoUrl() {
+        if (this._brandTheme?.mcLogoUrl)      return this._brandTheme.mcLogoUrl;
+        if (this._brandTheme?.logoStaticPath)  return `${BRANDING_URL}/Branding/${this._brandTheme.logoStaticPath}`;
+        if (this._brand === 'M') return `${BRANDING_URL}/Branding/2024/img/mi-logo-black-black-rgb.png`;
+        if (this._brand === 'E') return `${BRANDING_URL}/Branding/2026/img/echoes-logo-black-blue-rgb.png`;
+        return null;
+    }
+
+    get hasBrandLogo() { return !!this.brandLogoUrl; }
+    get isBrandTds()   { return this._brand === 'T'; }
+    get hasBrandIdentity() { return this.hasBrandLogo || this.isBrandTds; }
+
+    _fetchBrandTheme(brand) {
+        if (!brand) return;
+        const fetchTheme = isGuestUser ? getGuestBrandTheme : getBrandTheme;
+        fetchTheme({ brand })
+            .then(theme => { this._brandTheme = theme; })
+            .catch(() => {});
+    }
+
+    connectedCallback() {
+        this._setFavicon();
+        this._langHandler = (e) => {
+            const code = e.detail?.language;
+            const locale = LANG_CODE_TO_LOCALE[code];
+            if (locale) this._applyLocale(locale);
+        };
+        LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
+    }
+
+    disconnectedCallback() {
+        if (this._langHandler) {
+            LANG_EVENTS.forEach(k => window.removeEventListener(k, this._langHandler));
+        }
+    }
+
+    // Raw "/sfsites/c/resource/..." hrefs 404 on this site — @salesforce/resourceUrl is the
+    // only reliable way to reference a static resource here (see dealerNav.js for precedent).
+    _setFavicon() {
+        if (typeof document === 'undefined') return;
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+        }
+        link.type = 'image/png';
+        link.href = CUSTOMER_HUB_FAVICON;
+    }
+
+    // -------- Flow inputs --------
+    // Lets this component run as a Flow screen component (no CurrentPageReference/site URL
+    // there) in addition to the Experience Cloud /hub/payment route. Same _loadPayment/
+    // _fetchBrandTheme calls either way — language still comes from LOCALE (the running,
+    // internal Flow user's own Salesforce locale) via _applyLocale(LOCALE) in _loadPayment,
+    // since there's no hub header to dispatch a languagechange event inside a Flow.
+    @api
+    get token() { return this._token; }
+    set token(value) {
+        if (value && value !== this._token) {
+            this._isFlowContext = true;
+            this._token = value;
+            this._loadPayment(value);
+        }
+    }
+
+    // True only when a Flow assigns `token` directly (see setter above) — never on the
+    // standalone Experience Cloud page, which resolves the token via CurrentPageReference
+    // instead. Drives containerClass below so the standalone page styling (paymentPage.css's
+    // .pp-standalone) never applies inside a Flow screen's modal/panel.
+    _isFlowContext = false;
+
+    get containerClass() {
+        return this._isFlowContext ? 'pp-container' : 'pp-container pp-standalone';
+    }
+
+    @api
+    get brand() { return this._brand; }
+    set brand(value) {
+        if (value && value !== this._brand) {
+            this._brand = value;
+            this._fetchBrandTheme(value);
+        }
+    }
+
+    // -------- URL params via CurrentPageReference --------
+    _token;
+    _brand;
+
+    @wire(CurrentPageReference)
+    handlePageRef(ref) {
+        if (!ref) return;
+
+        const brand = ref.state?.brand || ref.state?.c__brand;
+        if (brand && brand !== this._brand) {
+            this._brand = brand;
+            this._fetchBrandTheme(brand);
+        }
+
+        const token = ref.state?.token || ref.state?.c__token;
+        if (token && token !== this._token) {
+            this._token = token;
+            this._loadPayment(token);
+        } else if (!token && !this._token) {
+            this.isLoading    = false;
+            this.hasError     = true;
+            this.errorMessage = 'No payment token found. Please use the link from your email.';
+        }
+    }
+
+    // -------- Apex call --------
+    _loadPayment(token) {
+        this.isLoading = true;
+        this.hasError  = false;
+        const language = (LOCALE || 'en_GB').replace('-', '_').split('_')[0];
+
+        getPaymentData({ token, language })
+            .then(data => {
+                if (!data.found) {
+                    this.hasError     = true;
+                    this.errorMessage = data.errorMessage || 'Payment not found.';
+                } else if (data.alreadyProcessed) {
+                    this._alreadyProcessed = true;
+                    this.viewState         = 'success';
+                } else if (data.alreadyScheduled) {
+                    this._alreadyScheduled = true;
+                    this._scheduledDate    = data.collectionDate;
+                    this._applyCustomerLanguage(data.language);
+                    this.viewState         = 'success';
+                } else if (data.errorMessage) {
+                    this.hasError     = true;
+                    this.errorMessage = data.errorMessage;
+                } else {
+                    this.payment = data;
+                    this._applyCustomerLanguage(data.language);
+                }
+                this.isLoading = false;
+            })
+            .catch(err => {
+                this.hasError     = true;
+                this.errorMessage = err?.body?.message || 'Failed to load payment details.';
+                this.isLoading    = false;
+            });
+    }
+
+    // -------- Locale --------
+    // The customer's language (contact, resolved server-side) wins over the hub header's domain guess;
+    // the header is told so its pill matches, and a later pill click still switches the page
+    _applyCustomerLanguage(code) {
+        const locale = LANG_CODE_TO_LOCALE[code];
+        if (!locale) {
+            this._applyLocale(LOCALE);
+            return;
+        }
+        this._applyLocale(locale);
+        window.dispatchEvent(new CustomEvent('mi:languageset', { detail: { language: code } }));
+    }
+
+    _applyLocale(value) {
+        const raw    = (value && value !== 'auto') ? value : LOCALE;
+        const locale = raw.replace('_US', '_GB').replace('-', '_');
+        if (locale !== this.localeSet) {
+            this.localeSet    = locale;
+            this.languageSet  = locale.split('_')[0];
+        }
+    }
+
+    // -------- Checkout result from child c-payment-checkout --------
+    handleCheckoutResult(event) {
+        const d = event.detail;
+        const status = d?.intentStatus;
+
+        if (status === 'succeeded' || status === 'processing') {
+            this._methodSaved = d?.intentMode === 'setup';
+            this.viewState = 'success';
+            finalizeCheckout({
+                token:         this._token,
+                intentMode:    d?.intentMode,
+                futureConsent: d?.futureConsent === true
+            }).catch(() => {});
+        } else if (status === 'canceled' || status === 'requires_payment_method') {
+            this.intentMessage = d?.intentMessage || 'Payment was not completed.';
+            this.viewState     = 'error';
+            // authenticate mode: the payment stays Action Required and the customer can try again;
+            // rab_Payment_Action_Required creates the one Case when it expires
+            if (this.payment?.paymentId && !this.isAuthenticateMode) {
+                createPaymentFailureCase({
+                    paymentId: this.payment.paymentId,
+                    reason: d?.intentMessage || status
+                }).catch(() => {});
+            }
+        }
+    }
+}

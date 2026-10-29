@@ -733,3 +733,16 @@ Investigate whether `Subscription25__Contract_Product__c.Payment_Method__c` can 
 - Who reads it: `rbc_Order_Package_Subscription25` (payment reference condition p0/p1), reports, list views, page layouts, Exact/financial sync, Data Cloud streams.
 - Today the order method = Contract.Payment_Method__c → else Account.Payment_Method_Contracts__c, so the CP value has no effect on billing.
 - If it's legacy: move the p0/p1 condition to Order.Payment_Method__c / Contract, stop writing it in REST, then delete the field (all envs).
+
+## 2026-10-29 morning: checklist results + prod validation
+
+- acc: PM#000136966 (card) and PM#000136965 (Apple Pay) charged by the batch at 00:00 → **Paid**; Sledge's 2nd payment PM#000136968 charged via the Bacs mandate → **Paid**; no new Cases. PM#000136967 (Google Pay) still Setup (parked).
+- prod "still pr?": all 7 accounts, their orders and their active CPs are on pr. Stone's new payment PM#000206640 was charged off-session (Processing). Sledge's order 02756583 is still Draft (no payment yet).
+- Prod compare (retrieved 2026-10-29), against the repo version from just before our first change:
+  - Equal: Batch_ProcessPayments, Ctrl_Payment, Svc_PaymentIntent, Svc_StripeEventProcessor, Util_Crypto, Rest_UpsertContract (V1; V2 stays out), Rest_UpsertAccount, Util_PaymentMethodRule, rbb_Payment (v10), rbb_Order, LWCs, CMDT.
+  - **rbu_Subscription25_Invoice_c**: the repo has a dev-only "Direct Debit Weekend" step (fDueDateDirectDebit, ass_05/06, ass_1_DueDate_DirectDebit) that has never been in prod (prod v34). Prod variant = HEAD without that block → only the pr due date changes go live.
+  - **Ctrl_Invoice**: the repo has dev-only work (132 lines). Prod variant = prod live + only the c369c73 change (the pi remark follows p1).
+- Package: `.scratch/20261029 - paymentsProd/package` (41 components; deploy from a non-dot copy).
+- **Validation 0AfTx0000014JOTKA2: Succeeded, 41/41 components, 135 tests, 0 failures** (RunSpecifiedTests: payment, REST, Util_Crypto, PaymentMethodRule, Ctrl_Invoice tests). Quick deploy is possible on go-ahead.
+- After the deploy: activate flows (rbb_Payment, rbu_Subscription25_Invoice_c, rbb_Order, rab_Payment_Action_Required, rau_Subscription25_Invoice_c_Due_Date_Payment), publish the Customer Hub, check the bundle, assign ps_mi*PaymentMethod_Change where needed.
+- Finding: in prod, Account.PayProv_PaymentMethodType__c has FLS only for integration permission sets (admins/users can't see it) → add FLS per [[feedback_fls_standard_grants]] (Admin + miModifyAllData).

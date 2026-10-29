@@ -1,0 +1,221 @@
+import { LightningElement, api, track, wire } from 'lwc';
+//--- Static Resources ---
+import PAYMENT_PROVIDER from '@salesforce/resourceUrl/paymentProvider'
+//--- Apex ---
+import getCustomLabels from '@salesforce/apex/Util_System.getCustomLabels';
+
+export default class PaymentCheckout extends LightningElement {
+    @api publishableKey;
+    @api clientSecret;
+    @api mode = 'payment';
+    @api paymentMethodType;
+    // mode 'authenticate': the saved method the customer confirms (3-D Secure) on the existing PaymentIntent
+    @api paymentMethodId;
+    @api theme = 'stripe';
+    @api amount;
+    @api billingEmail;
+    @api billingName;
+    @api billingAddressLine1;
+    @api billingCity;
+    @api billingPostalCode;
+    @api billingCountry;
+    // Payment Element applePay option (e.g. recurringPaymentRequest for a merchant token); optional
+    @api applePay;
+
+    @api
+    get locale() {
+        return this.localeSet;
+    }
+    set locale(value) {
+        if ((value) && (value !== this.localeSet)) {
+            this.localeSet = value;
+        } else if (!this.localeSet) {
+            this.localeSet = 'en_GB'; 
+        }
+        if (this.localeSet) {
+            this.languageSet = this.getLanguage(this.localeSet);
+        }
+    }
+
+    // A reactive property to hold the language (based on the locale of the Provider when auto or empty, then English)
+    @track languageSet = 'en';
+    @track localeSet;
+
+    cancelLabel = 'Cancel';
+    cancelConfirmLabel = 'Are you sure you want to cancel this checkout session?';
+    processingLabel = 'Processing';
+    submitPaymentLabel = 'Pay';
+    submitSetupLabel = 'Validate';
+    futureConsentLabel = 'I agree that this Direct Debit mandate may be used to collect all future subscription payments automatically.';
+    futureConsentRequiredLabel = 'Please confirm you agree to the Direct Debit mandate terms before continuing.';
+
+    // Define the list of labels to retrieve
+    labelList = [
+        'PaymentCheckoutCancelButton',
+        'PaymentCheckoutCancelConfirm',
+        'PaymentCheckoutProcessing',
+        'PaymentCheckoutSubmitButtonPayment',
+        'PaymentCheckoutSubmitButtonSetup',
+        'PaymentCheckoutFutureConsentLabel',
+        'PaymentCheckoutFutureConsentRequired'
+    ];
+    // Use @wire to call the Apex method
+    @wire(getCustomLabels, { 
+        labels: '$labelList', 
+        language: '$languageSet' 
+    })
+    wiredLabels({ error, data }) {
+        if (data) {
+            console.log('✅ fetching labels language = ', this.languageSet);
+            console.log('✅ fetching labels succeded', data);
+
+            this.cancelLabel = data.PaymentCheckoutCancelButton;
+            this.cancelConfirmLabel = data.PaymentCheckoutCancelConfirm;
+            this.processingLabel = data.PaymentCheckoutProcessing;
+            this.submitPaymentLabel = data.PaymentCheckoutSubmitButtonPayment;
+            this.submitSetupLabel = data.PaymentCheckoutSubmitButtonSetup;
+            this.futureConsentLabel = data.PaymentCheckoutFutureConsentLabel;
+            this.futureConsentRequiredLabel = data.PaymentCheckoutFutureConsentRequired;
+
+            console.log('✅ fetching labels notifyIframeOfLabels()');
+            // When labels change → notify iframe
+            this.notifyIframeOfLanguage();
+        } else if (error) {
+            console.error('❌ Error fetching labels:', error);
+        }
+    }
+
+    iframe;
+    // ?v= busts the CDN's static-resource cache (cache-control: public, max-age=45 days,
+    // observed independently of the site's own publish step) - bump this on every future
+    // change to paymentCheckoutHtml.html, or the new HTML can sit unserved for weeks.
+    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=16`;
+
+
+    // --- Computed Properties ---
+
+    connectedCallback() {
+        console.log('✅ paymentCheckout - connectedCallback() - Start');
+        //window.addEventListener('message', this.handleMessage.bind(this));
+        window.addEventListener('message', this.handleMessage);
+        console.log('✅ paymentCheckout - connectedCallback() - End');
+    }
+
+    disconnectedCallback() {
+        console.log('✅ paymentCheckout - disconnectedCallback() - Start');
+        //window.removeEventListener('message', this.handleMessage.bind(this));
+        window.removeEventListener('message', this.handleMessage);
+        console.log('✅ paymentCheckout - disconnectedCallback() - End');
+    }
+
+    renderedCallback() {
+        if (!this.iframe) {
+
+            this.iframe = this.template.querySelector('iframe');
+            this.iframe.addEventListener('load', () => {
+                this.iframe.contentWindow.postMessage({
+                    type: 'initProvider',
+                    publishableKey: this.publishableKey,
+                    clientSecret: this.clientSecret,
+                    mode: this.mode,
+                    paymentMethodType: this.paymentMethodType,
+                    paymentMethodId: this.paymentMethodId,
+                    theme: this.theme,
+                    // Stripe's elements({locale}) only accepts its own short/hyphenated codes
+                    // (nl, de, fr, en, en-GB, auto, ...) — this.localeSet is the underscored
+                    // full locale (nl_NL, de_DE, ...) used elsewhere for Intl formatting, which
+                    // Stripe doesn't recognize and silently ignores. languageSet is the short
+                    // code Stripe actually understands.
+                    locale: this.languageSet,
+                    cancelLabel: this.cancelLabel,
+                    cancelConfirmLabel: this.cancelConfirmLabel,
+                    processingLabel: this.processingLabel,
+                    submitPaymentLabel: this.submitPaymentLabel,
+                    submitSetupLabel: this.submitSetupLabel,
+                    futureConsentLabel: this.futureConsentLabel,
+                    futureConsentRequiredLabel: this.futureConsentRequiredLabel,
+                    amount: this.amount,
+                    billingEmail: this.billingEmail,
+                    billingName: this.billingName,
+                    billingAddressLine1: this.billingAddressLine1,
+                    billingCity: this.billingCity,
+                    billingPostalCode: this.billingPostalCode,
+                    billingCountry: this.billingCountry,
+                    // plain copy: postMessage can't clone the LWC read-only proxy of an @api object
+                    applePay: this.applePay ? JSON.parse(JSON.stringify(this.applePay)) : null
+                }, '*');
+            });
+        }
+    }
+
+    /** Send updated translations to the iframe */
+    notifyIframeOfLanguage() {
+        if (!this.iframe) return;
+
+        this.iframe.contentWindow.postMessage({
+            type: 'localeUpdate',
+            // See the same note in renderedCallback() — Stripe needs the short code.
+            locale: this.languageSet,
+            cancelLabel: this.cancelLabel,
+            cancelConfirmLabel: this.cancelConfirmLabel,
+            processingLabel: this.processingLabel,
+            submitPaymentLabel: this.submitPaymentLabel,
+            submitSetupLabel: this.submitSetupLabel,
+            futureConsentLabel: this.futureConsentLabel,
+            futureConsentRequiredLabel: this.futureConsentRequiredLabel
+        }, '*');
+    }
+
+    getLanguage(locale) {
+        return locale?.split('_')[0];
+    }
+
+    handleMessage = (event) => {
+        console.log('✅ paymentCheckout - handleMessage - start', event);
+
+        // 🔐 Secure origin check
+        //if (!event.origin.includes('movingintelligence')) return;
+        const allowedOrigins = [
+            'https://movingintelligence--dev.sandbox.lightning.force.com',
+            'https://movingintelligence--dev.sandbox.my.site.com',
+            'https://movingintelligence--acc.sandbox.lightning.force.com',
+            'https://movingintelligence--acc.sandbox.my.site.com',
+            'https://movingintelligence.lightning.force.com',
+            'https://movingintelligence.my.site.com'
+        ];
+
+        if (!allowedOrigins.includes(event.origin)) {
+            console.warn('Blocked message from origin:', event.origin);
+            return;
+        }
+
+        const data = event.data;
+        if (!data || !data.type) return;
+
+        console.log('✅ paymentCheckout - handleMessage - data.type', data.type);
+
+        switch (data.type) {
+            case 'providerResult':
+                if (!data.result) {
+                    console.warn('⚠️ Missing result in providerResult');
+                    return;
+                }
+
+                console.log('✅ paymentCheckout - handleMessage - providerResult', data.result);
+                this.dispatchEvent(new CustomEvent('checkoutresult', {detail: data.result}));
+                break;
+
+            case 'resizeIframe':
+                if (this.iframe && data.height) {
+                    this.iframe.style.height = `${data.height}px`;
+                }
+                return; // no event
+
+            default:
+                console.warn('⚠️ Unknown message type:', data.type);
+                break;
+        }
+
+        console.log('✅ paymentCheckout - handleMessage - end');
+    }
+}

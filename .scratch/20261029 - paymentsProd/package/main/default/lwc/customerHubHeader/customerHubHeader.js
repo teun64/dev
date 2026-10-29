@@ -1,0 +1,94 @@
+import { LightningElement, api, track } from 'lwc';
+import BRANDING_URL      from '@salesforce/resourceUrl/Branding';
+import COMMUNITY_BASE    from '@salesforce/community/basePath';
+
+// A bare '.com' also matches every Salesforce sandbox/site domain (*.my.site.com), which
+// silently forced English on dev/acc regardless of the visitor's language - same bug already
+// fixed in preferenceCenter.js. Match the real production domain specifically instead.
+const LANGS = [
+    { code: 'nl', display: 'NL', tlds: ['.nl'] },
+    { code: 'de', display: 'DE', tlds: ['.de'] },
+    { code: 'fr', display: 'FR', tlds: ['.fr'] },
+    { code: 'en', display: 'EN', tlds: ['.co.uk', 'movingintelligence.com'] },
+];
+
+const EVENT_KEY = 'mi:languagechange';
+const SET_EVENT_KEY = 'mi:languageset';
+
+export default class CustomerHubHeader extends LightningElement {
+
+    /** Optional background image URL — set in Experience Builder */
+    @api backgroundImageUrl = '';
+
+    @track _lang = 'nl';
+
+    connectedCallback() {
+        this._lang = this._detectLang();
+        this._emit();
+        // A page that knows the customer's language (payment page: contact language) sets it here,
+        // so the pill matches; no re-emit, that page already shows it
+        this._setHandler = (e) => {
+            const code = e.detail?.language;
+            if (LANGS.some(l => l.code === code)) this._lang = code;
+        };
+        window.addEventListener(SET_EVENT_KEY, this._setHandler);
+    }
+
+    disconnectedCallback() {
+        if (this._setHandler) window.removeEventListener(SET_EVENT_KEY, this._setHandler);
+    }
+
+    // ── Getters ───────────────────────────────────────────────────
+
+    get languages() {
+        return LANGS.map(l => ({
+            code:     l.code,
+            display:  l.display,
+            isActive: l.code === this._lang,
+            cssClass: 'mi-lang' + (l.code === this._lang ? ' is-active' : ''),
+        }));
+    }
+
+    get logoUrl() {
+        return `${BRANDING_URL}/Branding/2024/img/mi-logo-white-red-rgb.png`;
+    }
+
+    get homeUrl() {
+        return COMMUNITY_BASE || '/';
+    }
+
+    get headerStyle() {
+        if (!this.backgroundImageUrl) return '';
+        return `background-image: linear-gradient(rgba(14,15,14,0.78), rgba(14,15,14,0.78)), url('${this.backgroundImageUrl}'); background-size: cover; background-position: center;`;
+    }
+
+    // ── Handlers ──────────────────────────────────────────────────
+
+    handleLangClick(event) {
+        const code = event.currentTarget.dataset.lang;
+        if (code && code !== this._lang) {
+            this._lang = code;
+            this._emit();
+        }
+    }
+
+    // ── Private ───────────────────────────────────────────────────
+
+    _detectLang() {
+        try {
+            const h = window.location.hostname;
+            for (const l of LANGS) {
+                if (l.tlds.some(tld => h.endsWith(tld))) return l.code;
+            }
+        } catch (_) { /* ignore */ }
+        return 'nl';
+    }
+
+    _emit() {
+        const detail = { language: this._lang };
+        // Bubble within LWC tree
+        this.dispatchEvent(new CustomEvent('languagechange', { detail, bubbles: true, composed: true }));
+        // Broadcast across sibling components (footer, content components)
+        window.dispatchEvent(new CustomEvent(EVENT_KEY, { detail }));
+    }
+}

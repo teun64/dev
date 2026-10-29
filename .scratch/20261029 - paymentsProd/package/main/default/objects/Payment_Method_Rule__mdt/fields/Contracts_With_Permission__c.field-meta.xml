@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contracts_With_Permission__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>With Not_On_Contracts__c: still allowed on contracts for System Administrators and cp_AccountPaymentMethod_Change (Finance). C: free internal subscriptions.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Contracts With Permission</label>
+    <type>Checkbox</type>
+</CustomField>
