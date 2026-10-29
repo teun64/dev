@@ -27,56 +27,33 @@ public without sharing class Ctrl_PreferenceCenter {
      * Returns the full preference catalog for a Contact or the Contact linked to a Case.
      * contextId accepts a Contact Id or a Case Id — SObjectType is detected automatically.
      *
-     * Brand resolution order:
-     *   Contact page → newest AccountContactRelation whose Account has PrimaryBrand__c set
-     *   Case page    → Case.Account.PrimaryBrand__c first, then Contact's AccountContactRelation
-     *   Fallback     → null (component defaults to first catalog tab)
+     * Partner Network category visibility is resolved from the Contact's
+     * AccountContactRelation (RecordType + Roles) — see isPartnerCategoryVisible.
      */
     @AuraEnabled(cacheable=true)
     public static PreferencePageData getPreferences(Id contextId) {
         if (contextId == null) throw new AuraHandledException('A Contact or Case Id is required.');
 
         Id      contactId;
-        String  primaryBrand;
         Boolean showPartnerCategory = false;
 
         if (contextId.getSObjectType() == Contact.SObjectType) {
             // ── Contact page ──────────────────────────────────────────────────
             contactId = contextId;
-            AccountContext ctx = resolveAccountContext(contactId, null);
-            primaryBrand        = ctx.primaryBrand;
-            showPartnerCategory = ctx.showPartnerCategory;
+            showPartnerCategory = resolveShowPartnerCategory(contactId, null);
 
         } else if (contextId.getSObjectType() == Case.SObjectType) {
-            // ── Case page — resolve Contact and brand from Case ────────────────
+            // ── Case page — resolve Contact from Case ──────────────────────────
             Case c = [
-                SELECT ContactId, AccountId, Account.PrimaryBrand__c,
-                       Account.RecordType.DeveloperName
+                SELECT ContactId
                 FROM   Case
                 WHERE  Id = :contextId
                 WITH   SYSTEM_MODE
                 LIMIT  1
             ];
             contactId = c.ContactId;
-            // Try Case's own Account first
-            if (c.Account != null && !String.isBlank(c.Account.PrimaryBrand__c)) {
-                primaryBrand = c.Account.PrimaryBrand__c;
-                // Get the ACR Roles for this specific Contact↔Account relationship
-                List<AccountContactRelation> caseRels = [
-                    SELECT Roles FROM AccountContactRelation
-                    WHERE  ContactId = :contactId AND AccountId = :c.AccountId
-                    WITH   SYSTEM_MODE LIMIT 1
-                ];
-                String caseRoles = caseRels.isEmpty() ? null : caseRels[0].Roles;
-                showPartnerCategory = isPartnerCategoryVisible(
-                    c.Account.RecordType.DeveloperName, caseRoles
-                );
-            }
-            // Fall back to Contact's newest AccountContactRelation
-            if (String.isBlank(primaryBrand) && contactId != null) {
-                AccountContext ctx = resolveAccountContext(contactId, null);
-                primaryBrand        = ctx.primaryBrand;
-                showPartnerCategory = ctx.showPartnerCategory;
+            if (contactId != null) {
+                showPartnerCategory = resolveShowPartnerCategory(contactId, null);
             }
         } else if (contextId.getSObjectType() == User.SObjectType) {
             // ── Experience Cloud landing page — resolve from logged-in user ────────
@@ -87,9 +64,7 @@ public without sharing class Ctrl_PreferenceCenter {
                 throw new AuraHandledException('No contact is linked to your user account.');
             }
             contactId = users[0].ContactId;
-            AccountContext ctx = resolveAccountContext(contactId, null);
-            primaryBrand        = ctx.primaryBrand;
-            showPartnerCategory = ctx.showPartnerCategory;
+            showPartnerCategory = resolveShowPartnerCategory(contactId, null);
 
         } else {
             throw new AuraHandledException('Unsupported record type — provide a Contact, Case or User Id.');
@@ -156,7 +131,6 @@ public without sharing class Ctrl_PreferenceCenter {
         page.contactPhone        = String.isNotBlank(con.MobilePhone) ? con.MobilePhone : con.Phone;
         page.preferences         = prefs;
         page.lastAudit           = lastAudit;
-        page.primaryBrand        = primaryBrand;
         page.showPartnerCategory = showPartnerCategory;
         page.language            = resolveLanguage(con.Language__c);
 
@@ -540,15 +514,15 @@ public without sharing class Ctrl_PreferenceCenter {
     }
 
     /**
-     * Resolves brand, RecordType and relation role from the newest AccountContactRelation
-     * that has PrimaryBrand__c set. accountId may be passed to target a specific account
+     * Resolves Partner Network category visibility from the newest AccountContactRelation's
+     * RecordType and Roles. accountId may be passed to target a specific account
      * (Case page); when null, the newest ACR is used.
      */
-    private static AccountContext resolveAccountContext(Id contactId, Id accountId) {
+    private static Boolean resolveShowPartnerCategory(Id contactId, Id accountId) {
         List<AccountContactRelation> rels;
         if (accountId != null) {
             rels = [
-                SELECT Account.PrimaryBrand__c, Account.RecordType.DeveloperName, Roles
+                SELECT Account.RecordType.DeveloperName, Roles
                 FROM   AccountContactRelation
                 WHERE  ContactId  = :contactId
                 AND    AccountId  = :accountId
@@ -557,21 +531,17 @@ public without sharing class Ctrl_PreferenceCenter {
             ];
         } else {
             rels = [
-                SELECT Account.PrimaryBrand__c, Account.RecordType.DeveloperName, Roles
+                SELECT Account.RecordType.DeveloperName, Roles
                 FROM   AccountContactRelation
-                WHERE  ContactId              = :contactId
-                AND    Account.PrimaryBrand__c != null
+                WHERE  ContactId = :contactId
                 WITH   SYSTEM_MODE
                 ORDER BY CreatedDate DESC
                 LIMIT  1
             ];
         }
-        if (rels.isEmpty()) return new AccountContext(null, false);
+        if (rels.isEmpty()) return false;
         AccountContactRelation rel = rels[0];
-        return new AccountContext(
-            rel.Account.PrimaryBrand__c,
-            isPartnerCategoryVisible(rel.Account.RecordType.DeveloperName, rel.Roles)
-        );
+        return isPartnerCategoryVisible(rel.Account.RecordType.DeveloperName, rel.Roles);
     }
 
     /**
@@ -612,7 +582,6 @@ public without sharing class Ctrl_PreferenceCenter {
         @AuraEnabled public String                           contactPhone;
         @AuraEnabled public List<CommunicationPreference__c> preferences;
         @AuraEnabled public CommunicationPreferenceAudit__c  lastAudit;
-        @AuraEnabled public String                           primaryBrand;
         @AuraEnabled public Boolean                          showPartnerCategory;
         @AuraEnabled public String                           language;
         @AuraEnabled public Map<String, String>              categoryLabels;
@@ -626,12 +595,4 @@ public without sharing class Ctrl_PreferenceCenter {
         @AuraEnabled public Map<String, String> channelLabels;
     }
 
-    private class AccountContext {
-        String  primaryBrand;
-        Boolean showPartnerCategory;
-        AccountContext(String brand, Boolean showPartner) {
-            this.primaryBrand        = brand;
-            this.showPartnerCategory = showPartner;
-        }
-    }
 }
