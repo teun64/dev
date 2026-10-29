@@ -1,96 +1,53 @@
 <html>
-<head>
-	<title></title>
-</head>
-<body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
-<div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Beste {{{Recipient.FirstName}}},</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">
-    Bedankt dat u kiest voor <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong>.
-    Om automatische incasso voor uw account mogelijk te maken, vragen wij u vriendelijk uw bankrekening
-    te machtigen via de beveiligde link hieronder.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
-    Deze machtiging is nodig om uw facturen automatisch te kunnen verwerken. Het invullen duurt slechts
-    een paar minuten en uw bankgegevens worden veilig verwerkt.
-</p>
-
-<table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
-    <tr>
-        <td style="font-family:Arial,Helvetica,sans-serif; background-color:#003087;border-radius:4px;padding:0;">
-            <a href="{{{Payment__c.Setup_URL__c}}}"
-               style="font-family:Arial,Helvetica,sans-serif; display:inline-block;padding:12px 28px;font-size:15px;
-                      font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:4px;">
-                Machtig automatische incasso
-            </a>
-        </td>
-    </tr>
-</table>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 16px 0;">
-    Of kopieer deze link in uw browser:<br/>
-    <a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#003087;word-break:break-all;">{{{Payment__c.Setup_URL__c}}}</a>
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;">
-    Wij slaan uw bankgegevens niet zelf op. Het afronden van deze machtiging gebeurt via onze beveiligde
-    ondertekendienst, en Moving Intelligence heeft op geen enkel moment inzage in of toegang tot uw
-    volledige bankrekeninggegevens.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 24px 0;">
-    U kunt deze machtiging op elk gewenst moment intrekken. Let op: het intrekken van de machtiging
-    ontslaat u niet van uw betalingsverplichting — openstaande en toekomstige facturen dient u dan op
-    een andere manier te voldoen.
-</p>
-
-<hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Betalingsreferentie:</strong> {{{Payment__c.Name}}}
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
-    Met vriendelijke groet,<br/>
-    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong>
-</p>
-
-<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
-<div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
-<div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&nbsp;</div>
-<div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong><br/>
-<a href="https://movingintelligence.nl" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.nl</a></div>
-</div>
-
-<hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Deel deze e-mail niet</strong><br/>
-    Deze e-mail bevat een persoonlijke, beveiligde link en is specifiek aan u geadresseerd.
-    Deel deze e-mail en de link niet met anderen.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Vragen over dit document?</strong><br/>
-    Indien u vragen heeft over het detail of de inhoud van het document, neem dan rechtstreeks contact op
-    via e-mail: {{{Payment__c.Sender_Email__c}}}
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    Dit bericht is verstuurd door {{{Payment__c.Sender_Name__c}}}. Wij vinden het belangrijk om zorgvuldig en
-    respectvol met onze klanten te communiceren, en willen u niet onnodig met informatie belasten.
-    <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">U kunt hier uw voorkeuren beheren</a>.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    Heeft u dit bericht niet zelf aangevraagd? Neem dan gerust rechtstreeks contact op met de verzender van dit
-    verzoek, dan lossen we dit graag voor u op.
-</p>
-
-</div>
-</body>
+ <head>
+  <title></title>
+ </head>
+ <body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
+  <div style="font-family:Arial,Helvetica,sans-serif; max-width:600px; margin:0 0 16px 0;">
+   <img alt="mi-email-header" src="{[devName:miemailheader]}" style="max-width:600px; width:100%; height:auto; display:block; border:0;" title="mi-email-header" width="600" />
+  </div>
+  <div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Beste {{{Recipient.FirstName}}},</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Bedankt dat u kiest voor <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong>. Om automatische incasso voor uw account mogelijk te maken, vragen wij u vriendelijk uw bankrekening te machtigen via de beveiligde link hieronder.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Deze machtiging is nodig om uw facturen automatisch te kunnen verwerken. Het invullen duurt slechts een paar minuten en uw bankgegevens worden veilig verwerkt.</p>
+   <table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+    <tbody>
+     <tr>
+      <td style="font-family:Arial,Helvetica,sans-serif; background-color:#003087;border-radius:4px;padding:0;"><a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; display:inline-block;padding:12px 28px;font-size:15px;
+                      font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:4px;"> Machtig automatische incasso </a></td>
+     </tr>
+    </tbody>
+   </table>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 16px 0;">Of kopieer deze link in uw browser:
+    <br />
+    <a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#003087;word-break:break-all;">{{{Payment__c.Setup_URL__c}}}</a></p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;">Wij slaan uw bankgegevens niet zelf op. Het afronden van deze machtiging gebeurt via onze beveiligde ondertekendienst, en Moving Intelligence heeft op geen enkel moment inzage in of toegang tot uw volledige bankrekeninggegevens.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 24px 0;">U kunt deze machtiging op elk gewenst moment intrekken. Let op: het intrekken van de machtiging ontslaat u niet van uw betalingsverplichting — openstaande en toekomstige facturen dient u dan op een andere manier te voldoen.</p>
+   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Betalingsreferentie:</strong> {{{Payment__c.Name}}}</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Met vriendelijke groet,
+    <br />
+    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong></p>
+   <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
+    <div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;">
+     <img alt="mi-logo-black" src="{[devName:milogoblack]}" style="width: 180px" title="mi-logo-black" />
+    </div>
+    <div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&#xa0;</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;">
+     <strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong>
+     <br />
+     <a href="https://movingintelligence.nl" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.nl</a>
+    </div>
+   </div>
+   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Deel deze e-mail niet</strong>
+    <br />
+    Deze e-mail bevat een persoonlijke, beveiligde link en is specifiek aan u geadresseerd. Deel deze e-mail en de link niet met anderen.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Vragen over dit document?</strong>
+    <br />
+    Indien u vragen heeft over het detail of de inhoud van het document, neem dan rechtstreeks contact op via e-mail: {{{Payment__c.Sender_Email__c}}}</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Dit bericht is verstuurd door {{{Payment__c.Sender_Name__c}}}. Wij vinden het belangrijk om zorgvuldig en respectvol met onze klanten te communiceren, en willen u niet onnodig met informatie belasten. <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">U kunt hier uw voorkeuren beheren</a>.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Heeft u dit bericht niet zelf aangevraagd? Neem dan gerust rechtstreeks contact op met de verzender van dit verzoek, dan lossen we dit graag voor u op.</p>
+  </div>
+ </body>
 </html>

@@ -1,82 +1,52 @@
 <html>
-<head>
-	<title></title>
-</head>
-<body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
-<div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Hallo {{{Recipient.FirstName}}},</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">
-    Trotz unserer vorherigen Erinnerungen wurde Ihr Lastschriftmandat noch immer nicht erteilt.
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Dies ist Ihre letzte Erinnerung, bevor wir Ihren Vorgang an unseren Kundenservice &uuml;bergeben.</strong>
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
-    Bitte erteilen Sie das Mandat umgehend, um eine Unterbrechung Ihrer Dienstleistung zu vermeiden.
-</p>
-
-<table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
-    <tr>
-        <td style="font-family:Arial,Helvetica,sans-serif; background-color:#CC2200;border-radius:4px;padding:0;">
-            <a href="{{{Payment__c.Setup_URL__c}}}"
-               style="font-family:Arial,Helvetica,sans-serif; display:inline-block;padding:12px 28px;font-size:15px;
-                      font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:4px;">
-                Mandat jetzt erteilen
-            </a>
-        </td>
-    </tr>
-</table>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 16px 0;">
-    Oder kopieren Sie diesen Link in Ihren Browser:<br/>
-    <a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#003087;word-break:break-all;">{{{Payment__c.Setup_URL__c}}}</a>
-</p>
-
-<hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Zahlungsreferenz:</strong> {{{Payment__c.Name}}}
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 24px 0;">
-    Wenn Sie das Mandat bereits erteilt haben, wenden Sie sich bitte an unseren Kundenservice, damit wir dies pr&uuml;fen k&ouml;nnen. Bei Problemen helfen wir Ihnen gerne weiter.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
-    Mit freundlichen Gr&uuml;&szlig;en,<br/>
-    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong>
-</p>
-
-<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
-<div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
-<div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&nbsp;</div>
-<div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong><br/>
-<a href="https://movingintelligence.nl" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.nl</a></div>
-</div>
-
-<hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Teilen Sie diese E-Mail nicht</strong><br/>
-    Diese E-Mail enth&auml;lt einen pers&ouml;nlichen, gesicherten Link und ist ausschlie&szlig;lich an Sie gerichtet. Teilen Sie diese E-Mail und den Link nicht mit anderen.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Fragen zu diesem Dokument?</strong><br/>
-    Wenn Sie Fragen zu den Einzelheiten oder zum Inhalt des Dokuments haben, wenden Sie sich bitte direkt per E-Mail an: {{{Payment__c.Sender_Email__c}}}
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    Diese Nachricht wurde von {{{Payment__c.Sender_Name__c}}} versendet. Uns ist eine sorgf&auml;ltige und respektvolle Kommunikation mit unseren Kunden wichtig, und wir m&ouml;chten Sie nicht unn&ouml;tig mit Informationen belasten.
-    <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">Hier k&ouml;nnen Sie Ihre Einstellungen verwalten</a>.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    Haben Sie diese Nachricht nicht selbst angefordert? Wenden Sie sich bitte direkt an den Absender dieser Anfrage, wir k&uuml;mmern uns gerne darum.
-</p>
-
-</div>
-</body>
+ <head>
+  <title></title>
+ </head>
+ <body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
+  <div style="font-family:Arial,Helvetica,sans-serif; max-width:600px; margin:0 0 16px 0;">
+   <img alt="mi-email-header" src="{[devName:miemailheader]}" style="max-width:600px; width:100%; height:auto; display:block; border:0;" title="mi-email-header" width="600" />
+  </div>
+  <div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Hallo {{{Recipient.FirstName}}},</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Trotz unserer vorherigen Erinnerungen wurde Ihr Lastschriftmandat noch immer nicht erteilt. <strong style="font-family:Arial,Helvetica,sans-serif;">Dies ist Ihre letzte Erinnerung, bevor wir Ihren Vorgang an unseren Kundenservice übergeben.</strong></p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Bitte erteilen Sie das Mandat umgehend, um eine Unterbrechung Ihrer Dienstleistung zu vermeiden.</p>
+   <table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+    <tbody>
+     <tr>
+      <td style="font-family:Arial,Helvetica,sans-serif; background-color:#CC2200;border-radius:4px;padding:0;"><a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; display:inline-block;padding:12px 28px;font-size:15px;
+                      font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:4px;"> Mandat jetzt erteilen </a></td>
+     </tr>
+    </tbody>
+   </table>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 16px 0;">Oder kopieren Sie diesen Link in Ihren Browser:
+    <br />
+    <a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#003087;word-break:break-all;">{{{Payment__c.Setup_URL__c}}}</a></p>
+   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Zahlungsreferenz:</strong> {{{Payment__c.Name}}}</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 24px 0;">Wenn Sie das Mandat bereits erteilt haben, wenden Sie sich bitte an unseren Kundenservice, damit wir dies prüfen können. Bei Problemen helfen wir Ihnen gerne weiter.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Mit freundlichen Grüßen,
+    <br />
+    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong></p>
+   <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
+    <div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;">
+     <img alt="mi-logo-black" src="{[devName:milogoblack]}" style="width: 180px" title="mi-logo-black" />
+    </div>
+    <div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&#xa0;</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;">
+     <strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong>
+     <br />
+     <a href="https://movingintelligence.nl" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.nl</a>
+    </div>
+   </div>
+   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Teilen Sie diese E-Mail nicht</strong>
+    <br />
+    Diese E-Mail enthält einen persönlichen, gesicherten Link und ist ausschließlich an Sie gerichtet. Teilen Sie diese E-Mail und den Link nicht mit anderen.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Fragen zu diesem Dokument?</strong>
+    <br />
+    Wenn Sie Fragen zu den Einzelheiten oder zum Inhalt des Dokuments haben, wenden Sie sich bitte direkt per E-Mail an: {{{Payment__c.Sender_Email__c}}}</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Diese Nachricht wurde von {{{Payment__c.Sender_Name__c}}} versendet. Uns ist eine sorgfältige und respektvolle Kommunikation mit unseren Kunden wichtig, und wir möchten Sie nicht unnötig mit Informationen belasten. <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">Hier können Sie Ihre Einstellungen verwalten</a>.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Haben Sie diese Nachricht nicht selbst angefordert? Wenden Sie sich bitte direkt an den Absender dieser Anfrage, wir kümmern uns gerne darum.</p>
+  </div>
+ </body>
 </html>

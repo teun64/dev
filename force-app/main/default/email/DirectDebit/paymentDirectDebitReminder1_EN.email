@@ -1,88 +1,52 @@
 <html>
-<head>
-	<title></title>
-</head>
-<body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
-<div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Dear {{{Recipient.FirstName}}},</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">
-    We noticed that your direct debit authorisation is still pending. This is a friendly reminder to complete
-    the setup at your earliest convenience.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
-    Without this authorisation, we are unable to automatically collect your invoices. The setup
-    takes only a few minutes and your bank details are handled securely.
-</p>
-
-<table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
-    <tr>
-        <td style="font-family:Arial,Helvetica,sans-serif; background-color:#003087;border-radius:4px;padding:0;">
-            <a href="{{{Payment__c.Setup_URL__c}}}"
-               style="font-family:Arial,Helvetica,sans-serif; display:inline-block;padding:12px 28px;font-size:15px;
-                      font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:4px;">
-                Complete Direct Debit Authorisation
-            </a>
-        </td>
-    </tr>
-</table>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 16px 0;">
-    Or copy this link into your browser:<br/>
-    <a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#003087;word-break:break-all;">{{{Payment__c.Setup_URL__c}}}</a>
-</p>
-
-<hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Payment reference:</strong> {{{Payment__c.Name}}}
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 24px 0;">
-    If you have already completed this authorisation, please disregard this message.
-    If you have questions, please contact our support team.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
-    Kind regards,<br/>
-    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong>
-</p>
-
-<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
-<div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;"><img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" /></div>
-<div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&nbsp;</div>
-<div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;"><strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong><br/>
-<a href="https://movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.co.uk</a></div>
-</div>
-
-<hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Do not share this email</strong><br/>
-    This email contains a personal, secure link and is addressed specifically to you.
-    Do not share this email or the link with anyone else.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Questions about this document?</strong><br/>
-    If you have any questions about the details or contents of the document, please contact us directly by email:
-    {{{Payment__c.Sender_Email__c}}}
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    This message was sent by {{{Payment__c.Sender_Name__c}}}. We believe in communicating with our customers
-    carefully and respectfully, and we don't want to burden you with unnecessary information.
-    <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">You can manage your preferences here</a>.
-</p>
-
-<p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">
-    Did you not request this message yourself? Please feel free to contact the sender of this request directly,
-    and we will be happy to sort this out for you.
-</p>
-
-</div>
-</body>
+ <head>
+  <title></title>
+ </head>
+ <body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
+  <div style="font-family:Arial,Helvetica,sans-serif; max-width:600px; margin:0 0 16px 0;">
+   <img alt="mi-email-header" src="{[devName:miemailheader]}" style="max-width:600px; width:100%; height:auto; display:block; border:0;" title="mi-email-header" width="600" />
+  </div>
+  <div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Dear {{{Recipient.FirstName}}},</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">We noticed that your direct debit authorisation is still pending. This is a friendly reminder to complete the setup at your earliest convenience.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Without this authorisation, we are unable to automatically collect your invoices. The setup takes only a few minutes and your bank details are handled securely.</p>
+   <table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+    <tbody>
+     <tr>
+      <td style="font-family:Arial,Helvetica,sans-serif; background-color:#003087;border-radius:4px;padding:0;"><a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; display:inline-block;padding:12px 28px;font-size:15px;
+                      font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:4px;"> Complete Direct Debit Authorisation </a></td>
+     </tr>
+    </tbody>
+   </table>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 16px 0;">Or copy this link into your browser:
+    <br />
+    <a href="{{{Payment__c.Setup_URL__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#003087;word-break:break-all;">{{{Payment__c.Setup_URL__c}}}</a></p>
+   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Payment reference:</strong> {{{Payment__c.Name}}}</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:13px;line-height:1.6;color:#555555;margin:0 0 24px 0;">If you have already completed this authorisation, please disregard this message. If you have questions, please contact our support team.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Kind regards,
+    <br />
+    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong></p>
+   <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
+    <div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;">
+     <img alt="mi-logo-black" src="{[devName:milogoblack]}" style="width: 180px" title="mi-logo-black" />
+    </div>
+    <div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&#xa0;</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;">
+     <strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong>
+     <br />
+     <a href="https://movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.co.uk</a>
+    </div>
+   </div>
+   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Do not share this email</strong>
+    <br />
+    This email contains a personal, secure link and is addressed specifically to you. Do not share this email or the link with anyone else.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Questions about this document?</strong>
+    <br />
+    If you have any questions about the details or contents of the document, please contact us directly by email: {{{Payment__c.Sender_Email__c}}}</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">This message was sent by {{{Payment__c.Sender_Name__c}}}. We believe in communicating with our customers carefully and respectfully, and we don't want to burden you with unnecessary information. <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">You can manage your preferences here</a>.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Did you not request this message yourself? Please feel free to contact the sender of this request directly, and we will be happy to sort this out for you.</p>
+  </div>
+ </body>
 </html>
