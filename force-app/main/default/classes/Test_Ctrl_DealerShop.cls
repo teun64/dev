@@ -1321,6 +1321,100 @@ private class Test_Ctrl_DealerShop {
         System.assertEquals(89.10, item.UnitPrice, 'Server must resolve the real 10%-discounted price (99.00 * 0.9), not the raw undiscounted UnitPrice or a client-supplied 0/null');
     }
 
+    @IsTest
+    static void testPlaceOrder_ignoresClientUnitPrice() {
+        // PP-001: entry 99.00 with the @TestSetup 10% Product_Discount__c = 89.10. A changed or
+        // stale client price must never reach the order line.
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 0.01 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
+        OpportunityLineItem item = [SELECT UnitPrice FROM OpportunityLineItem WHERE OpportunityId = :opp.Id LIMIT 1];
+        System.assertEquals(89.10, item.UnitPrice, 'The client unitPrice (0.01) must be ignored');
+    }
+
+    // PP-002: entry 49.00; a price agreement with a tier from quantity 5 at 15% off = 41.65.
+    private static Product2 makeQty5TierOnPP002() {
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-002' LIMIT 1];
+        insert new Product_Discount__c(
+            Account__c         = [SELECT Id FROM Account LIMIT 1].Id,
+            Product__c         = prod.Id,
+            IsActive__c        = true,
+            isFixedPrice__c    = false,
+            From_Quantity_1__c = 5,
+            From_Discount_1__c = 15
+        );
+        // Activate separately - rbb_Product_Discount forces IsActive__c=false on every new record.
+        Product_Discount__c disc = [SELECT Id FROM Product_Discount__c WHERE Product__c = :prod.Id];
+        disc.IsActive__c = true;
+        update disc;
+        return prod;
+    }
+
+    @IsTest
+    static void testPlaceOrder_appliesVolumeTierForLineQuantity() {
+        // Regression: the cart showed the volume-tier price after the dealer raised the quantity,
+        // but the price the item was added with was saved.
+        Product2 prod = makeQty5TierOnPP002();
+        String atTier = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 5, 'unitPrice' => 49.00 }
+        });
+        String belowTier = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 4, 'unitPrice' => 41.65 }
+        });
+
+        String atTierOrder;
+        String belowTierOrder;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            atTierOrder    = Ctrl_DealerShop.placeOrder(atTier, null, null, null);
+            belowTierOrder = Ctrl_DealerShop.placeOrder(belowTier, null, null, null);
+        }
+        Test.stopTest();
+
+        OpportunityLineItem atTierLine = [
+            SELECT UnitPrice FROM OpportunityLineItem
+            WHERE Opportunity.Name = :atTierOrder AND Product2Id = :prod.Id LIMIT 1
+        ];
+        OpportunityLineItem belowTierLine = [
+            SELECT UnitPrice FROM OpportunityLineItem
+            WHERE Opportunity.Name = :belowTierOrder AND Product2Id = :prod.Id LIMIT 1
+        ];
+        System.assertEquals(41.65, atTierLine.UnitPrice, 'Quantity 5 reaches the tier: 49.00 - 15%');
+        System.assertEquals(49.00, belowTierLine.UnitPrice, 'Quantity 4 stays below the tier: base price, not the client tier price');
+    }
+
+    @IsTest
+    static void testPlaceOrder_hidePrices_appliesVolumeTier() {
+        Product2 prod = makeQty5TierOnPP002();
+        setHidePrices(true);
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 6, 'unitPrice' => null }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
+        }
+        Test.stopTest();
+
+        OpportunityLineItem item = [
+            SELECT UnitPrice FROM OpportunityLineItem
+            WHERE Opportunity.Name = :orderNumber AND Product2Id = :prod.Id LIMIT 1
+        ];
+        System.assertEquals(41.65, item.UnitPrice, 'Hidden-price accounts also get the tier price at a tier quantity');
+    }
+
     // ── Internal-user (Account record page) context ─────────────────────────────
 
     @IsTest
@@ -1675,7 +1769,7 @@ private class Test_Ctrl_DealerShop {
 
         Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
         List<OpportunityLineItem> items = [SELECT Product2Id, UnitPrice, Quantity FROM OpportunityLineItem WHERE OpportunityId = :opp.Id];
-        System.assertEquals(2, items.size(), 'Cart subtotal (50) is below the threshold (100) - a shipping line must be added');
+        System.assertEquals(2, items.size(), 'Cart subtotal (1 x 89.10, priced server-side) is below the threshold (100) - a shipping line must be added');
 
         OpportunityLineItem shipLine = null;
         for (OpportunityLineItem li : items) if (li.Product2Id == shipProd.Id) shipLine = li;
@@ -1690,7 +1784,7 @@ private class Test_Ctrl_DealerShop {
         Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
 
         String cartJson = JSON.serialize(new List<Map<String, Object>>{
-            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1, 'unitPrice' => 150 }
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 2 }
         });
 
         String orderNumber;
@@ -1702,7 +1796,7 @@ private class Test_Ctrl_DealerShop {
 
         Opportunity opp = [SELECT Id FROM Opportunity WHERE Name = :orderNumber];
         List<OpportunityLineItem> items = [SELECT Product2Id FROM OpportunityLineItem WHERE OpportunityId = :opp.Id];
-        System.assertEquals(1, items.size(), 'Cart subtotal (150) is at/above the threshold (100) - no shipping line should be added');
+        System.assertEquals(1, items.size(), 'Cart subtotal (2 x 89.10, priced server-side) is at/above the threshold (100) - no shipping line should be added');
         System.assertNotEquals(shipProd.Id, items[0].Product2Id, 'The single line item must be the ordered product, not shipping');
     }
 
@@ -1799,7 +1893,7 @@ private class Test_Ctrl_DealerShop {
         System.assertEquals(
             1,
             [SELECT COUNT() FROM OpportunityLineItem WHERE OpportunityId = :opp.Id],
-            'omitShippingCost=true must skip the shipping fee even though the subtotal (50) is below the threshold (100)'
+            'omitShippingCost=true must skip the shipping fee even though the subtotal (89.10) is below the threshold (100)'
         );
     }
 

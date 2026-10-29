@@ -1,11 +1,16 @@
 import { LightningElement, wire, track } from 'lwc';
 import BRANDING from '@salesforce/resourceUrl/Branding';
 import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
+import getPortalLabels from '@salesforce/apex/Ctrl_DealerPortal.getPortalLabels';
+import { resolveLanguageFromHostname, ORDER_DEFAULT_LABELS } from 'c/dealerLanguage';
 
 const FAVICON_PATH = 'Branding/2024/img/favicon.png';
 
 export default class DealerNav extends LightningElement {
     @track config = {};
+    @track labels = ORDER_DEFAULT_LABELS;
+
+    language = resolveLanguageFromHostname();
 
     @wire(getBrandConfig)
     wiredConfig({ data }) {
@@ -14,6 +19,9 @@ export default class DealerNav extends LightningElement {
 
     connectedCallback() {
         this.setFavicon();
+        getPortalLabels({ language: this.language })
+            .then((labels) => { this.labels = { ...ORDER_DEFAULT_LABELS, ...labels }; })
+            .catch(() => {});
     }
 
     // headMarkup can't reliably reference a static resource by raw URL on this site (the usual

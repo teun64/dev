@@ -325,4 +325,236 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <label>Haben Sie das nicht angefordert? Dann können Sie diese E-Mail ignorieren; Ihr Passwort bleibt unverändert.</label>
         <name>DealerPortal_EmailResetIgnore</name>
     </customLabels>
+    <customLabels>
+        <label>Bestellverlauf</label>
+        <name>DealerOrder_HistoryTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Meine Bestellungen</label>
+        <name>DealerOrder_MyOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Alle Bestellungen</label>
+        <name>DealerOrder_AllOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Wird geladen...</label>
+        <name>DealerOrder_Loading</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine Bestellungen gefunden</label>
+        <name>DealerOrder_NoOrders</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellnummer</label>
+        <name>DealerOrder_OrderNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Datum</label>
+        <name>DealerOrder_Date</name>
+    </customLabels>
+    <customLabels>
+        <label>Status</label>
+        <name>DealerOrder_Status</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellt von</label>
+        <name>DealerOrder_PlacedBy</name>
+    </customLabels>
+    <customLabels>
+        <label>Gesamt</label>
+        <name>DealerOrder_Total</name>
+    </customLabels>
+    <customLabels>
+        <label>Erneut bestellen</label>
+        <name>DealerOrder_Reorder</name>
+    </customLabels>
+    <customLabels>
+        <label>Zurück zum Bestellverlauf</label>
+        <name>DealerOrder_BackToHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine Bestellung angegeben.</label>
+        <name>DealerOrder_NoOrderGiven</name>
+    </customLabels>
+    <customLabels>
+        <label>Beim Laden der Bestellung ist ein Fehler aufgetreten.</label>
+        <name>DealerOrder_LoadError</name>
+    </customLabels>
+    <customLabels>
+        <label>Gesamte Bestellung erneut bestellen</label>
+        <name>DealerOrder_ReorderAll</name>
+    </customLabels>
+    <customLabels>
+        <label>Keine Produkte für diese Bestellung gefunden</label>
+        <name>DealerOrder_NoProducts</name>
+    </customLabels>
+    <customLabels>
+        <label>Produkt</label>
+        <name>DealerOrder_Product</name>
+    </customLabels>
+    <customLabels>
+        <label>Menge</label>
+        <name>DealerOrder_Quantity</name>
+    </customLabels>
+    <customLabels>
+        <label>Preis damals</label>
+        <name>DealerOrder_PriceThen</name>
+    </customLabels>
+    <customLabels>
+        <label>Aktueller Preis</label>
+        <name>DealerOrder_PriceNow</name>
+    </customLabels>
+    <customLabels>
+        <label>Hinzufügen</label>
+        <name>DealerOrder_Add</name>
+    </customLabels>
+    <customLabels>
+        <label>Eingegangen</label>
+        <name>DealerOrder_Status_Webshop</name>
+    </customLabels>
+    <customLabels>
+        <label>In Bearbeitung</label>
+        <name>DealerOrder_Status_Administration</name>
+    </customLabels>
+    <customLabels>
+        <label>Bearbeitet</label>
+        <name>DealerOrder_Status_ClosedWon</name>
+    </customLabels>
+    <customLabels>
+        <label>Storniert</label>
+        <name>DealerOrder_Status_ClosedLost</name>
+    </customLabels>
+    <customLabels>
+        <label>Startseite</label>
+        <name>DealerNav_Home</name>
+    </customLabels>
+    <customLabels>
+        <label>Shop</label>
+        <name>DealerNav_Shop</name>
+    </customLabels>
+    <customLabels>
+        <label>Bestellverlauf</label>
+        <name>DealerNav_OrderHistory</name>
+    </customLabels>
+    <customLabels>
+        <label>Abmelden</label>
+        <name>DealerNav_Logout</name>
+    </customLabels>
+    <customLabels>
+        <label>Anmelden</label>
+        <name>DealerNav_Login</name>
+    </customLabels>
+    <customLabels>
+        <label>Händler-Shop</label>
+        <name>DealerHome_ShopHeading</name>
+    </customLabels>
+    <customLabels>
+        <label>Zum Shop</label>
+        <name>DealerHome_ShopCta</name>
+    </customLabels>
+    <customLabels>
+        <label>Shop</label>
+        <name>DealerHome_ShopButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Händler-Login</label>
+        <name>DealerHome_LoginHeading</name>
+    </customLabels>
+    <customLabels>
+        <label>Anmelden</label>
+        <name>DealerHome_LoginButton</name>
+    </customLabels>
+    <customLabels>
+        <label>Noch kein Händler?</label>
+        <name>DealerHome_NotADealer</name>
+    </customLabels>
+    <customLabels>
+        <label>Händler werden</label>
+        <name>DealerHome_BecomeDealer</name>
+    </customLabels>
+    <customLabels>
+        <label>Händlerkonto beantragen</label>
+        <name>DealerHome_SignupTitle</name>
+    </customLabels>
+    <customLabels>
+        <label>Schließen</label>
+        <name>DealerHome_Close</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihre Anfrage wurde gesendet. Wir melden uns in Kürze bei Ihnen.</label>
+        <name>DealerHome_SignupSuccess</name>
+    </customLabels>
+    <customLabels>
+        <label>Firmenname</label>
+        <name>DealerHome_CompanyName</name>
+    </customLabels>
+    <customLabels>
+        <label>Ihr Name</label>
+        <name>DealerHome_ContactName</name>
+    </customLabels>
+    <customLabels>
+        <label>E-Mail</label>
+        <name>DealerHome_Email</name>
+    </customLabels>
+    <customLabels>
+        <label>Handelsregisternummer</label>
+        <name>DealerHome_CocNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>USt-IdNr.</label>
+        <name>DealerHome_VatNumber</name>
+    </customLabels>
+    <customLabels>
+        <label>Telefon</label>
+        <name>DealerHome_Phone</name>
+    </customLabels>
+    <customLabels>
+        <label>Besuchsadresse</label>
+        <name>DealerHome_VisitingAddress</name>
+    </customLabels>
+    <customLabels>
+        <label>Straße</label>
+        <name>DealerHome_Street</name>
+    </customLabels>
+    <customLabels>
+        <label>Postleitzahl</label>
+        <name>DealerHome_PostalCode</name>
+    </customLabels>
+    <customLabels>
+        <label>Ort</label>
+        <name>DealerHome_City</name>
+    </customLabels>
+    <customLabels>
+        <label>Land</label>
+        <name>DealerHome_Country</name>
+    </customLabels>
+    <customLabels>
+        <label>Nachricht</label>
+        <name>DealerHome_Message</name>
+    </customLabels>
+    <customLabels>
+        <label>Anfrage senden</label>
+        <name>DealerHome_Submit</name>
+    </customLabels>
+    <customLabels>
+        <label>Wird gesendet...</label>
+        <name>DealerHome_Submitting</name>
+    </customLabels>
+    <customLabels>
+        <label>Bitte füllen Sie alle Pflichtfelder aus.</label>
+        <name>DealerHome_ErrorRequired</name>
+    </customLabels>
+    <customLabels>
+        <label>Diese E-Mail-Adresse ist bereits registriert. Bitte melden Sie sich an.</label>
+        <name>DealerHome_ErrorRegistered</name>
+    </customLabels>
+    <customLabels>
+        <label>Senden fehlgeschlagen. Bitte versuchen Sie es erneut.</label>
+        <name>DealerHome_ErrorSubmit</name>
+    </customLabels>
+    <customLabels>
+        <label>Die E-Mail-Adresse konnte nicht geprüft werden. Bitte versuchen Sie es erneut.</label>
+        <name>DealerHome_ErrorEmailCheck</name>
+    </customLabels>
 </Translations>

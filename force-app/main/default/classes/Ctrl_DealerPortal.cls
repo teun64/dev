@@ -58,7 +58,37 @@ public without sharing class Ctrl_DealerPortal {
     @AuraEnabled(cacheable=true)
     public static Map<String, String> getHomeText(String language) {
         return Util_System.getCustomLabels(
-            new List<String>{ 'DealerPortal_HomeTitle', 'DealerPortal_HomeWelcome' },
+            new List<String>{
+                'DealerPortal_HomeTitle', 'DealerPortal_HomeWelcome',
+                'DealerHome_ShopHeading', 'DealerHome_ShopCta', 'DealerHome_ShopButton',
+                'DealerHome_LoginHeading', 'DealerHome_LoginButton', 'DealerHome_NotADealer', 'DealerHome_BecomeDealer',
+                'DealerHome_SignupTitle', 'DealerHome_Close', 'DealerHome_SignupSuccess',
+                'DealerHome_CompanyName', 'DealerHome_ContactName', 'DealerHome_Email', 'DealerHome_CocNumber',
+                'DealerHome_VatNumber', 'DealerHome_Phone', 'DealerHome_VisitingAddress', 'DealerHome_Street',
+                'DealerHome_PostalCode', 'DealerHome_City', 'DealerHome_Country', 'DealerHome_Message',
+                'DealerHome_Submit', 'DealerHome_Submitting', 'DealerHome_ErrorRequired', 'DealerHome_ErrorRegistered',
+                'DealerHome_ErrorSubmit', 'DealerHome_ErrorEmailCheck'
+            },
+            language
+        );
+    }
+
+    // Menu (dealerNav) and order history / order detail texts, same hostname language as above.
+    // Here and not on Ctrl_DealerShop because the menu also renders for guests.
+    @AuraEnabled(cacheable=true)
+    public static Map<String, String> getPortalLabels(String language) {
+        return Util_System.getCustomLabels(
+            new List<String>{
+                'DealerNav_Home', 'DealerNav_Shop', 'DealerNav_OrderHistory', 'DealerNav_Logout', 'DealerNav_Login',
+                'DealerOrder_HistoryTitle', 'DealerOrder_MyOrders', 'DealerOrder_AllOrders', 'DealerOrder_Loading',
+                'DealerOrder_NoOrders', 'DealerOrder_OrderNumber', 'DealerOrder_Date', 'DealerOrder_Status',
+                'DealerOrder_PlacedBy', 'DealerOrder_Total', 'DealerOrder_Reorder',
+                'DealerOrder_BackToHistory', 'DealerOrder_NoOrderGiven', 'DealerOrder_LoadError',
+                'DealerOrder_ReorderAll', 'DealerOrder_NoProducts', 'DealerOrder_Product', 'DealerOrder_Quantity',
+                'DealerOrder_PriceThen', 'DealerOrder_PriceNow', 'DealerOrder_Add',
+                'DealerOrder_Status_Webshop', 'DealerOrder_Status_Administration',
+                'DealerOrder_Status_ClosedWon', 'DealerOrder_Status_ClosedLost'
+            },
             language
         );
     }

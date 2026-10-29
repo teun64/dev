@@ -204,4 +204,24 @@ private class Test_Ctrl_DealerPortal {
 
         System.assertEquals(0, [SELECT COUNT() FROM Lead WHERE Email = :PORTAL_USER_USERNAME], 'No Lead should be created when the email is already registered');
     }
+
+    @IsTest
+    static void testGetPortalLabelsReturnsEveryMenuAndOrderLabel() {
+        Map<String, String> en = Ctrl_DealerPortal.getPortalLabels('en');
+        System.assertEquals('Order history', en.get('DealerOrder_HistoryTitle'), 'English base value expected for en');
+        System.assertEquals('Log in', en.get('DealerNav_Login'), 'Menu labels should be included');
+        for (String key : en.keySet()) {
+            System.assert(String.isNotBlank(en.get(key)) && !en.get(key).endsWith('_NOT_FOUND'), 'Label missing: ' + key);
+        }
+    }
+
+    @IsTest
+    static void testGetHomeTextReturnsEveryHomeAndSignupLabel() {
+        Map<String, String> en = Ctrl_DealerPortal.getHomeText('en');
+        System.assertEquals('Become a dealer', en.get('DealerHome_BecomeDealer'), 'English base value expected for en');
+        System.assert(en.containsKey('DealerPortal_HomeWelcome'), 'Welcome text should still be included');
+        for (String key : en.keySet()) {
+            System.assert(String.isNotBlank(en.get(key)) && !en.get(key).endsWith('_NOT_FOUND'), 'Label missing: ' + key);
+        }
+    }
 }

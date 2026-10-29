@@ -1,10 +1,10 @@
 <template>
     <div class="order-detail">
-        <a href="/dealers/order-history" class="back-link">&lsaquo; Terug naar bestelgeschiedenis</a>
+        <a href="/dealers/order-history" class="back-link">&lsaquo; {labels.DealerOrder_BackToHistory}</a>
 
         <template if:true={isLoading}>
             <div class="spinner-container">
-                <lightning-spinner alternative-text="Laden..." size="medium"></lightning-spinner>
+                <lightning-spinner alternative-text={labels.DealerOrder_Loading} size="medium"></lightning-spinner>
             </div>
         </template>
 
@@ -19,16 +19,16 @@
                 <div class="order-detail__header">
                     <div>
                         <h1 class="order-detail__title">{order.orderNumber}</h1>
-                        <p class="order-detail__meta">{order.formattedDate} &middot; {order.stageName}</p>
+                        <p class="order-detail__meta">{order.formattedDate} &middot; {order.statusLabel}</p>
                     </div>
                     <template if:false={isEmpty}>
-                        <button class="reorder-btn" onclick={handleReorderAll}>Volledige bestelling opnieuw bestellen</button>
+                        <button class="reorder-btn" onclick={handleReorderAll}>{labels.DealerOrder_ReorderAll}</button>
                     </template>
                 </div>
 
                 <template if:true={isEmpty}>
                     <div class="empty-state">
-                        <p>Geen producten gevonden voor deze bestelling</p>
+                        <p>{labels.DealerOrder_NoProducts}</p>
                     </div>
                 </template>
 
@@ -37,10 +37,10 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Product</th>
-                                <th>Aantal</th>
-                                <th class="col-price">Prijs destijds</th>
-                                <th class="col-price">Huidige prijs</th>
+                                <th>{labels.DealerOrder_Product}</th>
+                                <th>{labels.DealerOrder_Quantity}</th>
+                                <th class="col-price">{labels.DealerOrder_PriceThen}</th>
+                                <th class="col-price">{labels.DealerOrder_PriceNow}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -64,7 +64,7 @@
                                             class="add-line-btn"
                                             data-product-id={line.productId}
                                             onclick={handleAddLineToCart}>
-                                            Toevoegen
+                                            {labels.DealerOrder_Add}
                                         </button>
                                     </td>
                                 </tr>

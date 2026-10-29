@@ -485,6 +485,22 @@ public without sharing class Ctrl_DealerShop {
         return result;
     }
 
+    // The price per unit at a given quantity: the tier with the highest fromQty that the quantity
+    // reaches, else the unit price. Same rule as the cart's _effectivePrice(), but independent of
+    // tier order and skipping tiers without a price.
+    private static Decimal priceForQuantity(PricingResult pricing, Decimal quantity) {
+        Decimal price = pricing.unitPrice;
+        Integer bestFromQty = null;
+        for (PriceTierDTO t : pricing.priceTiers) {
+            if (t.fromQty == null || t.price == null || quantity < t.fromQty) continue;
+            if (bestFromQty == null || t.fromQty > bestFromQty) {
+                bestFromQty = t.fromQty;
+                price = t.price;
+            }
+        }
+        return price;
+    }
+
     private class PricingResult {
         Decimal unitPrice;
         List<PriceTierDTO> priceTiers = new List<PriceTierDTO>();
@@ -888,12 +904,11 @@ public without sharing class Ctrl_DealerShop {
             entryByProduct.put(pbe.Product2Id, pbe);
         }
 
-        // A client-supplied unitPrice is only ever a display convenience (the price the dealer
-        // already saw on the grid/detail page) - Hide_Prices__c accounts never have one to send
-        // (buildProductDTO nulls it out), so the fallback below MUST resolve the real, currently
-        // discounted price via the same logic as everywhere else in this class, not the raw
-        // undiscounted pbe.UnitPrice - otherwise every hidden-price order would silently drop the
-        // account's Product_Discount__c/Shop Action pricing.
+        // Every line is priced here, never from the client: the cart's unitPrice is only what the
+        // dealer saw when adding the item (base price from the grid, the tier price for the chosen
+        // quantity from the detail page), so it went stale once the quantity changed in the cart,
+        // and Hide_Prices__c accounts never have one at all. Same logic as everywhere else in this
+        // class (Product_Discount__c / Shop Action), plus the volume tier for the line's quantity.
         Map<Id, Product_Discount__c> discountByProduct = new Map<Id, Product_Discount__c>();
         if (acct.Id != null && !productIds.isEmpty()) {
             Id acctId = acct.Id;
@@ -975,9 +990,10 @@ public without sharing class Ctrl_DealerShop {
             PricebookEntry pbe = entryByProduct.get(item.productId);
             if (pbe == null) continue;
 
-            Decimal unitPrice = item.unitPrice != null
-                ? item.unitPrice
-                : resolvePricing(pbe, discountByProduct.get(item.productId), actionsByProduct.get(item.productId)).unitPrice;
+            Decimal unitPrice = priceForQuantity(
+                resolvePricing(pbe, discountByProduct.get(item.productId), actionsByProduct.get(item.productId)),
+                item.quantity
+            );
             lineItems.add(new OpportunityLineItem(
                 OpportunityId    = opp.Id,
                 Product2Id       = item.productId,
@@ -1186,7 +1202,7 @@ public without sharing class Ctrl_DealerShop {
 
         List<Opportunity> opps = onlyMine
             ? [
-                SELECT Id, Name, CreatedDate, StageName, Amount, CreatedBy.Name
+                SELECT Id, Name, CreatedDate, StageName, Amount, CurrencyIsoCode, CreatedBy.Name
                 FROM Opportunity
                 WHERE AccountId = :acct.Id
                   AND RecordType.DeveloperName = 'Webshop'
@@ -1195,7 +1211,7 @@ public without sharing class Ctrl_DealerShop {
                 ORDER BY CreatedDate DESC
             ]
             : [
-                SELECT Id, Name, CreatedDate, StageName, Amount, CreatedBy.Name
+                SELECT Id, Name, CreatedDate, StageName, Amount, CurrencyIsoCode, CreatedBy.Name
                 FROM Opportunity
                 WHERE AccountId = :acct.Id
                   AND RecordType.DeveloperName = 'Webshop'
@@ -1210,6 +1226,7 @@ public without sharing class Ctrl_DealerShop {
             dto.orderNumber  = o.Name;
             dto.placedDate   = o.CreatedDate;
             dto.stageName    = o.StageName;
+            dto.currencyIsoCode = o.CurrencyIsoCode;
             dto.amount       = ctx.hidePrices ? null : o.Amount;
             dto.pricesHidden = ctx.hidePrices;
             dto.placedByName = o.CreatedBy != null ? o.CreatedBy.Name : null;
@@ -1231,7 +1248,7 @@ public without sharing class Ctrl_DealerShop {
         if (acct.Id == null) throw new AuraHandledException('No dealer account context.');
 
         List<Opportunity> opps = [
-            SELECT Id, Name, CreatedDate, StageName, Use_ShippingAddress__c,
+            SELECT Id, Name, CreatedDate, StageName, CurrencyIsoCode, Use_ShippingAddress__c,
                    ShippingAddress__Street__s, ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s
             FROM Opportunity
             WHERE Id = :opportunityId
@@ -1299,6 +1316,7 @@ public without sharing class Ctrl_DealerShop {
         result.orderNumber = opp.Name;
         result.placedDate  = opp.CreatedDate;
         result.stageName   = opp.StageName;
+        result.currencyIsoCode = opp.CurrencyIsoCode;
         result.useDifferentShippingAddress = opp.Use_ShippingAddress__c;
         result.shippingAddress = opp.Use_ShippingAddress__c
             ? toAddress(opp.ShippingAddress__Street__s, opp.ShippingAddress__PostalCode__s, opp.ShippingAddress__City__s, opp.ShippingAddress__CountryCode__s)
@@ -1407,6 +1425,7 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public Datetime placedDate;
         @AuraEnabled public String   stageName;
         @AuraEnabled public Decimal  amount;
+        @AuraEnabled public String   currencyIsoCode;
         @AuraEnabled public String   placedByName;
         @AuraEnabled public Boolean  pricesHidden;
     }
@@ -1416,6 +1435,7 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String            orderNumber;
         @AuraEnabled public Datetime          placedDate;
         @AuraEnabled public String            stageName;
+        @AuraEnabled public String            currencyIsoCode;
         @AuraEnabled public Boolean           useDifferentShippingAddress;
         @AuraEnabled public AddressDTO        shippingAddress;
         @AuraEnabled public List<OrderLineDTO> lines;
@@ -1461,6 +1481,7 @@ public without sharing class Ctrl_DealerShop {
     public class CartItemInput {
         @AuraEnabled public Id      productId;
         @AuraEnabled public Integer quantity;
+        // Ignored by placeOrder (priced server-side); kept so carts already in browser storage still parse.
         @AuraEnabled public Decimal unitPrice;
     }
 }

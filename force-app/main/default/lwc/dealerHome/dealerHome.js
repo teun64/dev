@@ -12,6 +12,25 @@ const EMPTY_FORM = {
 };
 const REQUIRED_FIELDS = ['companyName', 'contactName', 'email', 'cocNumber', 'vatNumber', 'street', 'postalCode', 'city', 'country'];
 
+// English fallbacks shown until getHomeText returns the DealerHome_* labels in the visitor's language.
+const HOME_DEFAULT_LABELS = {
+    DealerPortal_HomeTitle: '', DealerPortal_HomeWelcome: '',
+    DealerHome_ShopHeading: 'Dealer Shop', DealerHome_ShopCta: 'Go to the shop', DealerHome_ShopButton: 'Shop',
+    DealerHome_LoginHeading: 'Dealer login', DealerHome_LoginButton: 'Log in',
+    DealerHome_NotADealer: 'Not a dealer yet?', DealerHome_BecomeDealer: 'Become a dealer',
+    DealerHome_SignupTitle: 'Request a dealer account', DealerHome_Close: 'Close',
+    DealerHome_SignupSuccess: 'Your request has been submitted. We will contact you shortly.',
+    DealerHome_CompanyName: 'Company name', DealerHome_ContactName: 'Your name', DealerHome_Email: 'Email',
+    DealerHome_CocNumber: 'CoC number', DealerHome_VatNumber: 'VAT number', DealerHome_Phone: 'Phone',
+    DealerHome_VisitingAddress: 'Visiting address', DealerHome_Street: 'Street', DealerHome_PostalCode: 'Postal code',
+    DealerHome_City: 'City', DealerHome_Country: 'Country', DealerHome_Message: 'Message',
+    DealerHome_Submit: 'Submit request', DealerHome_Submitting: 'Submitting...',
+    DealerHome_ErrorRequired: 'Please fill in all required fields.',
+    DealerHome_ErrorRegistered: 'This email address is already registered. Please log in instead.',
+    DealerHome_ErrorSubmit: 'Submission failed. Please try again.',
+    DealerHome_ErrorEmailCheck: 'Could not validate the email address. Please try again.'
+};
+
 // Domain TLD determines the visitor's language - dealer.movingintelligence.nl -> nl_NL,
 // .de -> de, .fr -> fr, everything else (.com, .co.uk, the my.site.com sandbox domain,
 // localhost during dev) falls back to en. Values must match this org's actual registered
@@ -28,7 +47,7 @@ function resolveLanguageFromHostname() {
 
 export default class DealerHome extends LightningElement {
     @track config = { isAuthenticated: false };
-    @track homeText = { DealerPortal_HomeTitle: '', DealerPortal_HomeWelcome: '' };
+    @track homeText = HOME_DEFAULT_LABELS;
     @track form = { ...EMPTY_FORM };
     @track isSignupModalOpen = false;
     @track signupLoading = false;
@@ -44,7 +63,7 @@ export default class DealerHome extends LightningElement {
 
     @wire(getHomeText, { language: '$language' })
     wiredHomeText({ data }) {
-        if (data) this.homeText = data;
+        if (data) this.homeText = { ...HOME_DEFAULT_LABELS, ...data };
     }
 
     get homeTitle() {
@@ -88,7 +107,7 @@ export default class DealerHome extends LightningElement {
         this.signupError = '';
         const missing = REQUIRED_FIELDS.some((field) => !this.form[field]);
         if (missing) {
-            this.signupError = 'Please fill in all required fields.';
+            this.signupError = this.homeText.DealerHome_ErrorRequired;
             return;
         }
 
@@ -96,7 +115,7 @@ export default class DealerHome extends LightningElement {
         isEmailRegistered({ email: this.form.email })
             .then((alreadyRegistered) => {
                 if (alreadyRegistered) {
-                    this.signupError = 'This email address is already registered. Please log in instead.';
+                    this.signupError = this.homeText.DealerHome_ErrorRegistered;
                     this.signupLoading = false;
                     return;
                 }
@@ -116,15 +135,16 @@ export default class DealerHome extends LightningElement {
                 .then(() => {
                     this.signupSuccess = true;
                 })
-                .catch((err) => {
-                    this.signupError = err.body?.message || 'Submission failed. Please try again.';
+                .catch(() => {
+                    // The Apex messages are English only, so always show the translated text.
+                    this.signupError = this.homeText.DealerHome_ErrorSubmit;
                 })
                 .finally(() => {
                     this.signupLoading = false;
                 });
             })
-            .catch((err) => {
-                this.signupError = err.body?.message || 'Could not validate the email address. Please try again.';
+            .catch(() => {
+                this.signupError = this.homeText.DealerHome_ErrorEmailCheck;
                 this.signupLoading = false;
             });
     }

@@ -12,23 +12,23 @@
 
             <ul class="nav-links">
                 <li>
-                    <a href="/dealers" class={homeClass}>Home</a>
+                    <a href="/dealers" class={homeClass}>{labels.DealerNav_Home}</a>
                 </li>
                 <li>
-                    <a href="/dealers/shop" class={shopClass} onclick={handleShopClick}>Shop</a>
+                    <a href="/dealers/shop" class={shopClass} onclick={handleShopClick}>{labels.DealerNav_Shop}</a>
                 </li>
                 <li>
-                    <a href="/dealers/order-history" class={orderHistoryClass} onclick={handleOrderHistoryClick}>Order History</a>
+                    <a href="/dealers/order-history" class={orderHistoryClass} onclick={handleOrderHistoryClick}>{labels.DealerNav_OrderHistory}</a>
                 </li>
             </ul>
 
             <div class="nav-user">
                 <template if:true={config.isAuthenticated}>
                     <span class="user-name">{userName}</span>
-                    <a href="/dealers/secur/logout.jsp" class="logout-link" onclick={handleLogoutClick}>Log out</a>
+                    <a href="/dealers/secur/logout.jsp" class="logout-link" onclick={handleLogoutClick}>{labels.DealerNav_Logout}</a>
                 </template>
                 <template if:false={config.isAuthenticated}>
-                    <a href="/dealers/login" class="login-link" style={ctaStyle}>Log in</a>
+                    <a href="/dealers/login" class="login-link" style={ctaStyle}>{labels.DealerNav_Login}</a>
                 </template>
             </div>
         </div>

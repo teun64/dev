@@ -15,23 +15,23 @@
             <div class="cta-col">
                 <template if:true={config.isAuthenticated}>
                     <div class="cta-card">
-                        <h2 class="cta-heading">Dealer Shop</h2>
-                        <p class="cta-text">{config.shopCtaText}</p>
+                        <h2 class="cta-heading">{homeText.DealerHome_ShopHeading}</h2>
+                        <p class="cta-text">{homeText.DealerHome_ShopCta}</p>
                         <a href="/dealers/shop" class="cta-btn" style={ctaBtnStyle}>
-                            Shop &#8250;
+                            {homeText.DealerHome_ShopButton} &#8250;
                         </a>
                     </div>
                 </template>
                 <template if:false={config.isAuthenticated}>
                     <div class="cta-card">
-                        <h2 class="cta-heading">Dealer login</h2>
+                        <h2 class="cta-heading">{homeText.DealerHome_LoginHeading}</h2>
                         <a href="/dealers/login" class="cta-btn" style={ctaBtnStyle}>
-                            Login &#8250;
+                            {homeText.DealerHome_LoginButton} &#8250;
                         </a>
                         <div class="become-dealer-prompt">
-                            <span class="become-dealer-text">Not a dealer yet?</span>
+                            <span class="become-dealer-text">{homeText.DealerHome_NotADealer}</span>
                             <button type="button" class="become-dealer-btn" onclick={handleBecomeDealerClick}>
-                                Become a dealer
+                                {homeText.DealerHome_BecomeDealer}
                             </button>
                         </div>
                     </div>
@@ -42,16 +42,16 @@
 
     <template if:true={isSignupModalOpen}>
         <div class="signup-modal-overlay" onclick={handleCloseSignupModal}>
-            <div class="signup-modal" role="dialog" aria-modal="true" aria-label="Become a Dealer" onclick={handleModalContentClick}>
+            <div class="signup-modal" role="dialog" aria-modal="true" aria-label={homeText.DealerHome_SignupTitle} onclick={handleModalContentClick}>
                 <div class="signup-modal-header">
-                    <h2 class="signup-modal-title">{config.signupTitle}</h2>
-                    <button type="button" class="signup-modal-close" onclick={handleCloseSignupModal} aria-label="Close">&times;</button>
+                    <h2 class="signup-modal-title">{homeText.DealerHome_SignupTitle}</h2>
+                    <button type="button" class="signup-modal-close" onclick={handleCloseSignupModal} aria-label={homeText.DealerHome_Close}>&times;</button>
                 </div>
 
                 <div class="signup-modal-body">
                     <template if:true={signupSuccess}>
                         <div class="signup-success">
-                            Your request has been submitted. We will contact you shortly.
+                            {homeText.DealerHome_SignupSuccess}
                         </div>
                     </template>
 
@@ -63,72 +63,72 @@
                         <div class="signup-form">
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Company name *</label>
+                                    <label class="form-label">{homeText.DealerHome_CompanyName} *</label>
                                     <input type="text" class="form-input" data-field="companyName"
                                         value={form.companyName} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Your Name *</label>
+                                    <label class="form-label">{homeText.DealerHome_ContactName} *</label>
                                     <input type="text" class="form-input" data-field="contactName"
                                         value={form.contactName} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Email *</label>
+                                    <label class="form-label">{homeText.DealerHome_Email} *</label>
                                     <input type="email" class="form-input" data-field="email"
                                         value={form.email} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">CoC Number *</label>
+                                    <label class="form-label">{homeText.DealerHome_CocNumber} *</label>
                                     <input type="text" class="form-input" data-field="cocNumber"
                                         value={form.cocNumber} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">VAT Number *</label>
+                                    <label class="form-label">{homeText.DealerHome_VatNumber} *</label>
                                     <input type="text" class="form-input" data-field="vatNumber"
                                         value={form.vatNumber} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Phone</label>
+                                    <label class="form-label">{homeText.DealerHome_Phone}</label>
                                     <input type="tel" class="form-input" data-field="phone"
                                         value={form.phone} onchange={handleFormChange} />
                                 </div>
                             </div>
 
-                            <p class="form-group-label">Visiting Address *</p>
+                            <p class="form-group-label">{homeText.DealerHome_VisitingAddress} *</p>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Street *</label>
+                                    <label class="form-label">{homeText.DealerHome_Street} *</label>
                                     <input type="text" class="form-input" data-field="street"
                                         value={form.street} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Postal Code *</label>
+                                    <label class="form-label">{homeText.DealerHome_PostalCode} *</label>
                                     <input type="text" class="form-input" data-field="postalCode"
                                         value={form.postalCode} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">City *</label>
+                                    <label class="form-label">{homeText.DealerHome_City} *</label>
                                     <input type="text" class="form-input" data-field="city"
                                         value={form.city} onchange={handleFormChange} />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Country *</label>
+                                    <label class="form-label">{homeText.DealerHome_Country} *</label>
                                     <input type="text" class="form-input" data-field="country"
                                         value={form.country} onchange={handleFormChange} />
                                 </div>
@@ -136,7 +136,7 @@
 
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label class="form-label">Message</label>
+                                    <label class="form-label">{homeText.DealerHome_Message}</label>
                                     <textarea class="form-input form-textarea" data-field="message" rows="5"
                                         value={form.message} onchange={handleFormChange}></textarea>
                                 </div>
@@ -144,8 +144,8 @@
 
                             <button class="signup-btn" onclick={handleSignupSubmit}
                                 disabled={signupLoading} style={ctaBtnStyle}>
-                                <template if:true={signupLoading}>Submitting...</template>
-                                <template if:false={signupLoading}>Submit request &#8250;</template>
+                                <template if:true={signupLoading}>{homeText.DealerHome_Submitting}</template>
+                                <template if:false={signupLoading}>{homeText.DealerHome_Submit} &#8250;</template>
                             </button>
                         </div>
                     </template>

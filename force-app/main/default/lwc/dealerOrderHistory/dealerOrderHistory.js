@@ -1,15 +1,27 @@
 import { LightningElement, track } from 'lwc';
 import getOrderHistory from '@salesforce/apex/Ctrl_DealerShop.getOrderHistory';
 import getOrderDetail from '@salesforce/apex/Ctrl_DealerShop.getOrderDetail';
+import getPortalLabels from '@salesforce/apex/Ctrl_DealerPortal.getPortalLabels';
 import { mergeItemsIntoCart } from 'c/dealerCartStorage';
+import { resolveLanguageFromHostname, resolveNumberLocale, ORDER_DEFAULT_LABELS, orderStatusLabel } from 'c/dealerLanguage';
 
 export default class DealerOrderHistory extends LightningElement {
     @track orders = [];
     @track isLoading = false;
     @track onlyMine = true;
     @track addingOrderId = null;
+    @track labels = ORDER_DEFAULT_LABELS;
+
+    language = resolveLanguageFromHostname();
+    _rawOrders = [];
 
     connectedCallback() {
+        getPortalLabels({ language: this.language })
+            .then((labels) => {
+                this.labels = { ...ORDER_DEFAULT_LABELS, ...labels };
+                this._decorate();
+            })
+            .catch(() => {});
         this.loadOrders();
     }
 
@@ -17,14 +29,11 @@ export default class DealerOrderHistory extends LightningElement {
         this.isLoading = true;
         getOrderHistory({ onlyMine: this.onlyMine })
             .then((result) => {
-                this.orders = (result || []).map((o) => ({
-                    ...o,
-                    formattedDate: this._formatDate(o.placedDate),
-                    formattedAmount: this._formatAmount(o.amount),
-                    detailUrl: `/dealers/order-detail?id=${o.id}`
-                }));
+                this._rawOrders = result || [];
+                this._decorate();
             })
             .catch(() => {
+                this._rawOrders = [];
                 this.orders = [];
             })
             .finally(() => {
@@ -32,18 +41,32 @@ export default class DealerOrderHistory extends LightningElement {
             });
     }
 
+    // Re-run when the labels arrive after the orders, so the status text follows the language.
+    _decorate() {
+        this.orders = this._rawOrders.map((o) => ({
+            ...o,
+            statusLabel: orderStatusLabel(this.labels, o.stageName),
+            formattedDate: this._formatDate(o.placedDate),
+            formattedAmount: this._formatAmount(o.amount, o.currencyIsoCode),
+            detailUrl: `/dealers/order-detail?id=${o.id}`
+        }));
+    }
+
     _formatDate(value) {
         if (!value) return '';
-        return new Date(value).toLocaleDateString('nl-NL', {
+        return new Date(value).toLocaleDateString(resolveNumberLocale(this.language), {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'
         });
     }
 
-    _formatAmount(value) {
+    _formatAmount(value, currencyIsoCode) {
         if (value === null || value === undefined) return '-';
-        return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(value);
+        return new Intl.NumberFormat(resolveNumberLocale(this.language), {
+            style: 'currency',
+            currency: currencyIsoCode || 'EUR'
+        }).format(value);
     }
 
     get isEmpty() {
