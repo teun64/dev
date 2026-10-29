@@ -58,7 +58,7 @@ private class Test_Svc_InvoicePaymentBlock {
         System.assertEquals(true, filled[0].done);
         String html = block();
         System.assert(html.contains('https://hub.example.com/hub/payment?token=TOKEN-BLOCK'), html);
-        System.assert(html.contains('automatische incasso'), 'NL administration → NL block: ' + html);
+        System.assert(html.contains('betaalvoorkeur'), 'NL administration → NL block: ' + html);
         System.assert(!html.containsIgnoreCase('<body'), 'wrapper stripped: ' + html);
 
         List<Svc_InvoicePaymentBlock.Result> cleared = Svc_InvoicePaymentBlock.run(new List<Svc_InvoicePaymentBlock.Request>{ req(p.Id, Svc_InvoicePaymentBlock.CLEAR) });
