@@ -12,12 +12,11 @@ public with sharing class Ctrl_ProductImageManager {
     // separate ContentDocumentLink insert needed), and the ContentDistribution is what makes the
     // file downloadable by guest/portal users - see Ctrl_DealerShop.getProductImageUrls.
     //
-    // DML runs in SYSTEM_MODE, which covers CRUD/FLS/sharing (access to this method is already
-    // gated by ps_miProducts). It does NOT cover file ownership: Salesforce enforces ownership on
-    // ContentVersion/ContentDocument/ContentDocumentLink DML below the CRUD/FLS/sharing layer, so
-    // removeOldFile still fails for a non-owner, non-admin user replacing a file someone else
-    // uploaded - see the product-image ContentDocuments, which all need to stay owned by whoever
-    // last uploaded them rather than accumulating under one admin user.
+    // DML runs in SYSTEM_MODE, which covers CRUD/FLS/sharing (access to this method is gated by
+    // ps_miProducts / ps_miDealerShopProducts). It does NOT cover file ownership: deleting a
+    // ContentDocument someone else uploaded fails for a non-admin user below that layer. So
+    // removeOldFile is best effort: when the old file can't be deleted it stays linked, and the new
+    // upload still wins because the shop always shows the newest file (Ctrl_DealerShop.getProductImageUrls).
     @AuraEnabled
     public static String uploadProductImage(Id productId, String base64Data, String filename, Boolean removeOldFile) {
         if (productId == null) throw new AuraHandledException('productId is required.');
@@ -34,7 +33,11 @@ public with sharing class Ctrl_ProductImageManager {
                     LIMIT 1
                 ];
                 if (!existingLinks.isEmpty()) {
-                    Database.delete(new ContentDocument(Id = existingLinks[0].ContentDocumentId), AccessLevel.SYSTEM_MODE);
+                    Database.DeleteResult dr = Database.delete(
+                        new ContentDocument(Id = existingLinks[0].ContentDocumentId), false, AccessLevel.SYSTEM_MODE);
+                    if (!dr.isSuccess()) {
+                        System.debug(LoggingLevel.WARN, 'Old product image kept (not the owner): ' + dr.getErrors());
+                    }
                 }
             }
 

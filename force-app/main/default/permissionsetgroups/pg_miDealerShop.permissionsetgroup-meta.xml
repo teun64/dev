@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Dealer Shop upkeep by Sales: product Web Shop options + product images (ps_miDealerShopProducts) and the account shop settings (ps_miDealerShopAccounts).</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miDealerShop (pg)</label>
+    <permissionSets>ps_miDealerShopAccounts</permissionSets>
+    <permissionSets>ps_miDealerShopProducts</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

@@ -116,6 +116,10 @@ private class Test_Ctrl_ProductImageManager {
     }
 
     private static User createNonAdminUser(String alias) {
+        return createNonAdminUser(alias, 'ps_miProducts');
+    }
+
+    private static User createNonAdminUser(String alias, String permissionSetName) {
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User u = new User(
             Alias = alias, Email = alias + '@mvsc.invalid',
@@ -128,7 +132,7 @@ private class Test_Ctrl_ProductImageManager {
             insert u;
             insert new PermissionSetAssignment(
                 AssigneeId       = u.Id,
-                PermissionSetId  = [SELECT Id FROM PermissionSet WHERE Name = 'ps_miProducts' LIMIT 1].Id
+                PermissionSetId  = [SELECT Id FROM PermissionSet WHERE Name = :permissionSetName LIMIT 1].Id
             );
         }
         return u;
@@ -153,24 +157,25 @@ private class Test_Ctrl_ProductImageManager {
     }
 
     @IsTest
-    static void testUploadProductImage_asNonOwnerNonAdmin_replacingSomeoneElsesFile_throwsWithRealMessage() {
-        // Regression: replacing a file uploaded by a different user fails with
-        // INSUFFICIENT_ACCESS_OR_READONLY because ContentDocument delete is ownership-gated below
-        // the CRUD/FLS/sharing layer AccessLevel.SYSTEM_MODE covers. The method must surface the
-        // real DmlException message via AuraHandledException, not a caller-side generic fallback.
+    static void testUploadProductImage_asDealerShopUser_replacingSomeoneElsesFile_succeeds() {
+        // Sales (pg_miDealerShop / ps_miDealerShopProducts) replacing an image another user uploaded:
+        // the old ContentDocument can't be deleted (ownership), so it stays, and the new upload must
+        // still succeed and become the image the shop shows (newest file wins).
         Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'IMG-TEST-001' LIMIT 1];
         Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'owned-by-admin.png', false);
 
-        User nonAdmin = createNonAdminUser('imgusr2');
-        System.runAs(nonAdmin) {
+        User sales = createNonAdminUser('imgusr2', 'ps_miDealerShopProducts');
+        String newUrl;
+        System.runAs(sales) {
             Test.startTest();
-            try {
-                Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'replacement.png', true);
-                System.assert(false, 'Expected an AuraHandledException replacing a file owned by a different user');
-            } catch (AuraHandledException e) {
-                System.assert(true, 'AuraHandledException expected');
-            }
+            newUrl = Ctrl_ProductImageManager.uploadProductImage(prod.Id, testImageBase64(), 'replacement.png', true);
             Test.stopTest();
         }
+
+        System.assertNotEquals(null, newUrl, 'The replacement upload must succeed');
+        System.assertEquals('replacement.png',
+            [SELECT ContentDocument.Title FROM ContentDocumentLink WHERE LinkedEntityId = :prod.Id
+             ORDER BY ContentDocument.CreatedDate DESC, Id DESC LIMIT 1].ContentDocument.Title,
+            'The new upload is the newest file on the product, so the shop shows it');
     }
 }
