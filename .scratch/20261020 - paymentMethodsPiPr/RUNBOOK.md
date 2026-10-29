@@ -758,3 +758,13 @@ Investigate whether `Subscription25__Contract_Product__c.Payment_Method__c` can 
 
 The moved accounts Lumb, Bull, Sawyer and Sledge all have Bank_Account_Number__c + Bank_6_Sort_Code__c, Direct_Debit_Mandate_Status__c = **LIVE** and FinancialIdBankAccount__c (Exact). So they already had a working I0 (Exact) direct debit mandate when they were moved to pr. On pr they will be asked for a new Stripe Bacs mandate.
 Candidates 2026-10-29 (13 UK I0 accounts since 10-21): Savage, Dadds and Bishop have a contract and a Draft order on I0 plus a LIVE mandate; Kerr has bank details but no mandate status; the other 9 have no bank details and no contract. **Step 6 paused** until Teun decides.
+
+### Decision Teun 2026-10-29: only customers WITHOUT a mandate move to pr
+
+- **Rule:** a new UK customer with a LIVE Exact direct debit mandate (Direct_Debit_Mandate_Status__c = LIVE / bank details on the account) stays on I0. Only customers without bank details or mandate move to pr.
+- **Back to I0** (account, draft order, CP): Lumb (02752963, CP-1034834), Bull (02752970, CP-1034841), Sawyer (02755673, CP-1035367). No invoice yet, so nothing was billed on pr.
+- **To pr** (account only, no contract/order yet): Hatton, Sanderson, Thistlewood, Turner, Nock, Hattersley, hall, Spooner, Cosmic Campervans.
+- **Stay on I0:** Savage, Dadds, Bishop (LIVE mandate, contract + Draft order), Kerr (bank details, no mandate status → treated as a mandate).
+- **Sledge stays pr** (explicit request, despite a LIVE mandate): he gets a Stripe mandate request on his first invoice.
+- Result: UK accounts created ≥ 10-21: I0 7, pr 10. Local backups (untracked, without bank data): `migration/before_prod_uk_mandate_split_accounts_20261029.csv`, `migration/before_prod_uk_revert_orders_20261029.csv`.
+- **Going forward:** for new UK I0 accounts, check Direct_Debit_Mandate_Status__c / bank details first. Now that the REST guard is live, later contracts for the 9 pr accounts get pr automatically.
