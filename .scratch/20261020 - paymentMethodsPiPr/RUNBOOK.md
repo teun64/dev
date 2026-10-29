@@ -3,6 +3,25 @@
 Plan + decisions: Claude Doc "Payment methods pi / pr — Stripe route split"
 https://claude.ai/code/artifact/909cb4ca-f6bb-4c39-bec2-8bb2a9c16803
 
+## ⏰ Upcoming checks (as of 2026-10-29 evening; everything is deployed, only these remain)
+
+**2026-10-30 (morning, prod)**
+- [ ] First Job_EmailInvoice run (21:16 UTC) on the Lightning templates InvoiceNL/UK/DE + payment block: invoices SENT, no "Template … not found" errors; new pr payments `Awaiting Invoice Email` → `Mail Sent`, one mail (PDF + block), no separate setup mail.
+- [ ] First Day chain with step 60 `Day_ReconcileProcessingPayments` (Schedulable_Class a1YTx0000060JiLMAU): the chain still completes (steps 20–60), no errors.
+- [ ] Invoice-first collection (58eeccc): Batch_ProcessPayments only charged pr payments whose invoice email was SENT before today (or WILL_NOT_BE_SENT); none with a PENDING invoice email.
+- [ ] Waldron PM#000206388 (Processing since 10-24): Paid via webhook, or reconciled by step 60 once Stripe has a final status.
+
+**2026-11-01**
+- [ ] acc safety net D+3: PM#000136971 (TEST Teun ib-safety UK, I-2610-00562603) → separate setup mail, block cleared, `Mail Sent`.
+- [ ] Trigger_Order first-order invoice dates of the ~31-10 run (separate topic, see memory).
+
+**~2026-11-08 (after the UK monthly run, prod)**
+- [ ] Sledge 001Tx0000122JuaIAE: order 02756583 activated, invoice on pr, Payment__c psp-recurring Setup, block in the invoice mail / `Mail Sent`, due date = email send date + 12 working days, collection = due − 2 working days.
+- [ ] The 10 new pr UK accounts (Hatton, Sanderson, Thistlewood, Turner, Nock, Hattersley, hall, Spooner, Cosmic Campervans, Kerr): new contracts/orders on pr.
+
+**Manuals**
+- [ ] New PDFs (Payment Methods v02, Stripe Payments v04): weekly backlog row 15 (docs updated 2026-10-29).
+
 ## ✅ DONE — rbb_OrderItem outage follow-up (morning 2026-10-22)
 
 **Final state (re-checked 2026-10-28):** active `rbb_OrderItem` = prod **v7** (since 2026-10-22 11:36 UTC), acc **v7**, dev **v14**. Design: `OrderItem.VAT_Code__c` → `Subscription25__VAT_Code__c` (category in `UNCL5305_Category__c`); own `VAT_Code__c` object removed. v4 / v5 were deleted along the way. No other runbook covers rbb_OrderItem; the memory notes are summarised here.
