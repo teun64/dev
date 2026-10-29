@@ -255,6 +255,35 @@ private class Test_Svc_StripeEventProcessor {
 
     // ── payment_intent.succeeded — status Paid, interaction unchanged ────────
 
+    // ── payment_intent.processing delivered after the intent's payment_failed (out of order, seen in acc) ──
+    @IsTest
+    static void testLateProcessingDoesNotUndoFailed() {
+        Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];
+        Test.startTest();
+        for (String evt : new List<String>{ 'payment_intent.payment_failed', 'payment_intent.processing' }) {
+            insert new stripeGC__Stripe_Event__c(
+                stripeGC__Event_Name__c   = evt,
+                stripeGC__Request_Body__c = JSON.serialize(new Map<String, Object>{
+                    'data' => new Map<String, Object>{
+                        'object' => new Map<String, Object>{
+                            'id'                 => 'pi_late001',
+                            'status'             => evt.endsWith('processing') ? 'processing' : 'requires_payment_method',
+                            'customer'           => 'cus_test001',
+                            'payment_method'     => 'pm_late001',
+                            'metadata'           => new Map<String, Object>{ 'PaymentID' => pmt.Id },
+                            'last_payment_error' => evt.endsWith('processing') ? null : new Map<String, Object>{ 'code' => 'insufficient_funds', 'message' => 'insufficient funds' }
+                        }
+                    }
+                })
+            );
+        }
+        Test.stopTest();
+
+        Payment__c upd = (Payment__c) Database.queryWithBinds('SELECT Status__c FROM Payment__c WHERE Id = :pmtId',
+            new Map<String, Object>{ 'pmtId' => pmt.Id }, AccessLevel.SYSTEM_MODE)[0];
+        System.assertEquals('Failed', upd.Status__c, 'the late processing event of the same intent is ignored');
+    }
+
     @IsTest
     static void testPaymentIntentSucceeded() {
         Payment__c pmt = [SELECT Id FROM Payment__c LIMIT 1];

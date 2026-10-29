@@ -147,6 +147,12 @@ public without sharing class Svc_StripeEventProcessor {
                 }
 
                 String newStatus = statusForEvent(p.eventType, p.errorCode);
+                // 20261029 TRi Stripe can deliver payment_intent.processing after the intent's final event (seen in acc:
+                // payment_failed 13:29:19, processing 13:29:23): a late processing of the same intent never undoes a final status
+                if ('payment_intent.processing'.equals(p.eventType) && FINAL_STATUSES.contains(currentStatus)
+                        && String.isNotBlank(p.paymentIntentId) && p.paymentIntentId == bound) {
+                    newStatus = null;
+                }
                 // 3-D Secure wanted (off-session), or the customer's attempt on the page failed: the payment keeps
                 // waiting for the customer - no Failed, no Case; rab_Payment_Action_Required expires it
                 Boolean awaitsCustomer = awaitsAuthentication(p.eventType, p.errorCode, payment.Status__c);
@@ -310,6 +316,7 @@ public without sharing class Svc_StripeEventProcessor {
     }
 
     private static final Set<String> DEBITING_STATUSES = new Set<String>{ 'Processing', 'Paid', 'Collected' };
+    private static final Set<String> FINAL_STATUSES    = new Set<String>{ 'Paid', 'Collected', 'Failed', 'Reversed' };
 
     private static Boolean isCharge(String evtType) {
         return 'payment_intent.processing'.equals(evtType) || 'payment_intent.succeeded'.equals(evtType);
