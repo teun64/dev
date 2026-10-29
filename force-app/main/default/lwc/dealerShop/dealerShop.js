@@ -38,6 +38,7 @@ const DEFAULT_LABELS = {
     DealerShop_DealerFavorite: 'Dealer favorite',
     DealerShop_OrderOptions: 'Order options',
     DealerShop_OrderReference: 'Order reference',
+    DealerShop_ContactPerson: 'Contact person for this order',
     DealerShop_OrderReferencePlaceholder: 'Order number (filled in automatically)',
     DealerShop_DeliveryAddress: 'Delivery address',
     DealerShop_UseDifferentAddress: 'Use a different delivery address',

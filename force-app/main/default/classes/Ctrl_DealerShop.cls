@@ -23,7 +23,7 @@ public without sharing class Ctrl_DealerShop {
                 'DealerShop_FromQtyAbbrev', 'DealerShop_UnitsAbbrev',
                 'DealerShop_RemoveFromFavorites', 'DealerShop_MarkAsFavorite',
                 'DealerShop_FavoriteActive', 'DealerShop_FavoriteInactive', 'DealerShop_DealerFavorite',
-                'DealerShop_OrderOptions', 'DealerShop_OrderReference', 'DealerShop_OrderReferencePlaceholder',
+                'DealerShop_OrderOptions', 'DealerShop_OrderReference', 'DealerShop_OrderReferencePlaceholder', 'DealerShop_ContactPerson',
                 'DealerShop_DeliveryAddress', 'DealerShop_UseDifferentAddress', 'DealerShop_NewAddress',
                 'DealerShop_Street', 'DealerShop_PostalCode', 'DealerShop_City', 'DealerShop_Country',
                 'DealerShop_NoDefaultAddress', 'DealerShop_AddressIncomplete', 'DealerShop_ListPrice',
@@ -888,6 +888,16 @@ public without sharing class Ctrl_DealerShop {
         Account acct   = getDealerContext(dealerAccountId).account;
         Id pricebookId = resolvePricebookId(acct);
         if (pricebookId == null) throw new AuraHandledException('No dealer pricebook found for your account.');
+        // Contact person (Sales_Contact__c, which the Signer*__c formulas use). Blank = leave it to
+        // rbc_Opportunity, which fills the account's Main role contact; a chosen one must be on the list.
+        Id contactId = null;
+        if (String.isNotBlank(options.contactId)) {
+            try { contactId = Id.valueOf(options.contactId); } catch (Exception e) { contactId = null; }
+        }
+        if (String.isNotBlank(options.contactId)
+                && (contactId == null || acct.Id == null || !orderContactsFor(acct.Id).contactIds.contains(contactId))) {
+            throw new AuraHandledException('The chosen contact person is not linked to your account.');
+        }
 
         // Collect product ids for pricebook entry lookup
         Set<Id> productIds = new Set<Id>();
@@ -950,7 +960,8 @@ public without sharing class Ctrl_DealerShop {
             StageName        = 'Webshop',
             CloseDate        = Date.today().addDays(30),
             RecordTypeId     = webshopRt?.Id,
-            CurrencyIsoCode  = acct.CurrencyIsoCode
+            CurrencyIsoCode  = acct.CurrencyIsoCode,
+            Sales_Contact__c = contactId
         );
         Database.insert(opp, AccessLevel.SYSTEM_MODE);
 
@@ -1014,7 +1025,7 @@ public without sharing class Ctrl_DealerShop {
         return opp.Name;
     }
 
-    // ── Order options (reference + delivery address) ──────────────────────────
+    // ── Order options (reference + delivery address + contact person) ────────────
 
     // Validated before anything is inserted, so an incomplete address never leaves a half-made order.
     private static OrderOptionsInput parseOrderOptions(String orderOptionsJson) {
@@ -1090,6 +1101,46 @@ public without sharing class Ctrl_DealerShop {
             String key = (a.street + '|' + a.postalCode + '|' + a.city + '|' + a.countryCode).toLowerCase().deleteWhitespace();
             if (seen.add(key)) result.previousAddresses.add(a);
             if (result.previousAddresses.size() == 10) break;
+        }
+
+        OrderContacts contacts  = orderContactsFor(acctId);
+        result.contacts         = contacts.options;
+        result.defaultContactId = contacts.defaultContactId;
+        return result;
+    }
+
+    private class OrderContacts {
+        List<OptionDTO> options          = new List<OptionDTO>();
+        Set<Id>         contactIds       = new Set<Id>();
+        Id              defaultContactId;
+    }
+
+    // Contact person choices: every active contact relation of the account, except contacts that
+    // only hold the Invoice and/or Digital role (dedicated billing contacts). Contacts without a
+    // role are included. Default = the Main role contact (the newest relation when several).
+    private static final Set<String> DEDICATED_ROLES = new Set<String>{ 'Invoice', 'Digital' };
+
+    @TestVisible
+    private static OrderContacts orderContactsFor(Id accountId) {
+        OrderContacts result = new OrderContacts();
+        Datetime mainModified = null;
+        for (AccountContactRelation acr : [
+            SELECT ContactId, Contact.Name, Contact.Email, Roles, isMainContact__c, LastModifiedDate
+            FROM AccountContactRelation
+            WHERE AccountId = :accountId AND IsActive = true
+            WITH SYSTEM_MODE
+            ORDER BY Contact.Name
+        ]) {
+            if (String.isNotBlank(acr.Roles) && DEDICATED_ROLES.containsAll(new Set<String>(acr.Roles.split(';')))) continue;
+            if (!result.contactIds.add(acr.ContactId)) continue;
+            OptionDTO o = new OptionDTO();
+            o.value = acr.ContactId;
+            o.label = acr.Contact.Name + (String.isNotBlank(acr.Contact.Email) ? ' (' + acr.Contact.Email + ')' : '');
+            result.options.add(o);
+            if (acr.isMainContact__c && (mainModified == null || acr.LastModifiedDate > mainModified)) {
+                result.defaultContactId = acr.ContactId;
+                mainModified = acr.LastModifiedDate;
+            }
         }
         return result;
     }
@@ -1457,6 +1508,8 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public AddressDTO       defaultAddress;
         @AuraEnabled public List<AddressDTO> previousAddresses;
         @AuraEnabled public List<OptionDTO>  countries;
+        @AuraEnabled public List<OptionDTO>  contacts;
+        @AuraEnabled public Id               defaultContactId;
     }
 
     // Sent by the cart's order options panel. A blank customerReference means "use the order number".
@@ -1464,6 +1517,7 @@ public without sharing class Ctrl_DealerShop {
         public String     customerReference;
         public Boolean    useDifferentShippingAddress;
         public AddressDTO shippingAddress;
+        public String     contactId;
     }
 
     public class OrderLineDTO {

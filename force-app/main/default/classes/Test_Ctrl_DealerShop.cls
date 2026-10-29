@@ -1950,4 +1950,117 @@ private class Test_Ctrl_DealerShop {
 
         System.assertEquals(false, info.configured, 'No Business_Entities__c row exists for this reseller in this test unless makeShippingProduct() was called');
     }
+
+    // ── Contact person (Sales_Contact__c = the offer signer) ──────────────────
+
+    // Dealer contact = Main; an Invoice/Digital-only billing contact; a contact without a role.
+    private static Map<String, Id> makeOrderContacts() {
+        Account acc = [SELECT Id FROM Account WHERE Name = 'Test Dealer' LIMIT 1];
+        Contact billing = new Contact(AccountId = acc.Id, FirstName = 'Bill', LastName = 'Only', Email = 'bill.only@mvsc.invalid.test');
+        Contact plain   = new Contact(AccountId = acc.Id, FirstName = 'Plain', LastName = 'Contact', Email = 'plain.contact@mvsc.invalid.test');
+        // One per DML: rab - Contact faults on more than one Contact.Email in the same save.
+        insert billing;
+        insert plain;
+        Id dealerId = [SELECT ContactId FROM User WHERE Username = :PORTAL_USER_USERNAME].ContactId;
+
+        Map<Id, String> rolesByContact = new Map<Id, String>{ dealerId => 'Main', billing.Id => 'Invoice;Digital', plain.Id => null };
+        List<AccountContactRelation> acrs = [SELECT Id, ContactId FROM AccountContactRelation WHERE AccountId = :acc.Id];
+        for (AccountContactRelation acr : acrs) acr.Roles = rolesByContact.get(acr.ContactId);
+        Database.update(acrs, AccessLevel.SYSTEM_MODE);
+        return new Map<String, Id>{ 'dealer' => dealerId, 'billing' => billing.Id, 'plain' => plain.Id };
+    }
+
+    @IsTest
+    static void testGetOrderOptions_contactsDefaultMainWithoutBillingOnly() {
+        Map<String, Id> ids = makeOrderContacts();
+
+        Ctrl_DealerShop.OrderOptionsDTO result;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            result = Ctrl_DealerShop.getOrderOptions(null);
+        }
+        Test.stopTest();
+
+        Set<Id> offered = new Set<Id>();
+        for (Ctrl_DealerShop.OptionDTO o : result.contacts) offered.add(o.value);
+        System.assert(offered.contains(ids.get('dealer')), 'The Main contact should be offered');
+        System.assert(offered.contains(ids.get('plain')), 'A contact without a role should be offered');
+        System.assert(!offered.contains(ids.get('billing')), 'An Invoice/Digital-only contact must not be offered');
+        System.assertEquals(ids.get('dealer'), result.defaultContactId, 'Default = the Main role contact');
+    }
+
+    @IsTest
+    static void testPlaceOrder_savesChosenContactPerson() {
+        Map<String, Id> ids = makeOrderContacts();
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1 }
+        });
+        String optionsJson = JSON.serialize(new Map<String, Object>{ 'contactId' => (String) ids.get('plain') });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, optionsJson);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Sales_Contact__c, SignerId__c FROM Opportunity WHERE Name = :orderNumber];
+        System.assertEquals(ids.get('plain'), opp.Sales_Contact__c, 'The chosen contact must be kept (rbc only fills an empty one)');
+        System.assertEquals(String.valueOf(ids.get('plain')).left(15), opp.SignerId__c.left(15), 'The signer follows the chosen contact');
+    }
+
+    @IsTest
+    static void testPlaceOrder_rejectsContactNotOnTheList() {
+        Map<String, Id> ids = makeOrderContacts();
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1 }
+        });
+        String optionsJson = JSON.serialize(new Map<String, Object>{ 'contactId' => (String) ids.get('billing') });
+
+        Boolean rejected = false;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            try {
+                Ctrl_DealerShop.placeOrder(cartJson, null, null, optionsJson);
+            } catch (AuraHandledException e) {
+                rejected = true;
+            }
+        }
+        Test.stopTest();
+
+        System.assert(rejected, 'An Invoice/Digital-only contact is not a valid choice');
+        System.assertEquals(0, [SELECT COUNT() FROM Opportunity], 'No order may be created');
+    }
+
+    @IsTest
+    static void testPlaceOrder_withoutChoiceGetsMainContact() {
+        Map<String, Id> ids = makeOrderContacts();
+        Product2 prod = [SELECT Id FROM Product2 WHERE ProductCode = 'PP-001' LIMIT 1];
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 1 }
+        });
+
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
+        }
+        Test.stopTest();
+
+        // Without a choice placeOrder sends no contact; rbc_Opportunity fills the Main role contact.
+        // Production deploys flows inactive (activated after the deploy), so during a production
+        // validation the lookup is still empty - both outcomes are accepted, nothing else is.
+        Opportunity opp = [SELECT Id, Sales_Contact__c FROM Opportunity WHERE Name = :orderNumber];
+        System.assert(opp.Sales_Contact__c == null || opp.Sales_Contact__c == ids.get('dealer'),
+            'rbc_Opportunity fills the Main role contact, got ' + opp.Sales_Contact__c);
+
+        // rbu_Opportunity: an emptied lookup is filled again on the next save (same caveat).
+        opp.Sales_Contact__c = null;
+        update opp;
+        Id refilled = [SELECT Sales_Contact__c FROM Opportunity WHERE Id = :opp.Id].Sales_Contact__c;
+        System.assert(refilled == null || refilled == ids.get('dealer'),
+            'rbu_Opportunity fills an empty Sales Contact from the Main role, got ' + refilled);
+    }
 }

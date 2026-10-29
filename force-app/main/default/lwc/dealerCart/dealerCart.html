@@ -80,6 +80,17 @@
                                         oninput={handleReferenceInput} />
                                 </label>
 
+                                <template lwc:if={hasContacts}>
+                                    <label class="option-field">
+                                        <span class="option-label">{shopLabels.DealerShop_ContactPerson}</span>
+                                        <select class="option-input" onchange={handleContactSelect}>
+                                            <template for:each={contactChoices} for:item="contact">
+                                                <option key={contact.value} value={contact.value} selected={contact.selected}>{contact.label}</option>
+                                            </template>
+                                        </select>
+                                    </label>
+                                </template>
+
                                 <p class="option-label">{shopLabels.DealerShop_DeliveryAddress}</p>
                                 <label class="option-check">
                                     <input type="checkbox" checked={useDifferentAddress} onchange={handleUseDifferentChange} />

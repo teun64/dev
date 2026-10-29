@@ -557,4 +557,8 @@ L'accès à la boutique en ligne nécessite un compte. Dans votre compte personn
         <label>Impossible de vérifier l'adresse e-mail. Veuillez réessayer.</label>
         <name>DealerHome_ErrorEmailCheck</name>
     </customLabels>
+    <customLabels>
+        <label>Personne de contact pour cette commande</label>
+        <name>DealerShop_ContactPerson</name>
+    </customLabels>
 </Translations>

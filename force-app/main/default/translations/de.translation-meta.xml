@@ -557,4 +557,8 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <label>Die E-Mail-Adresse konnte nicht geprüft werden. Bitte versuchen Sie es erneut.</label>
         <name>DealerHome_ErrorEmailCheck</name>
     </customLabels>
+    <customLabels>
+        <label>Ansprechpartner für diese Bestellung</label>
+        <name>DealerShop_ContactPerson</name>
+    </customLabels>
 </Translations>

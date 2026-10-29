@@ -30,12 +30,15 @@ export default class DealerCart extends LightningElement {
     @track selectedAddress = NEW_ADDRESS;
     @track newAddress = { street: '', postalCode: '', city: '', countryCode: '' };
     @track orderOptionsData = null;
+    // Contact person on the order (Sales_Contact__c, the signer): default the account's Main role contact.
+    @track selectedContactId = '';
 
     connectedCallback() {
         const stored = getOrderOptions(this.dealerAccountId);
         if (stored) {
             this.customerReference   = stored.customerReference || '';
             this.useDifferentAddress = !!stored.useDifferentShippingAddress;
+            this.selectedContactId   = stored.contactId || '';
             if (stored.shippingAddress) this.newAddress = { ...this.newAddress, ...stored.shippingAddress };
             // A reorder hands over its options - show them instead of hiding them behind the toggle.
             this.optionsOpen = !!stored.openOptions;
@@ -45,9 +48,10 @@ export default class DealerCart extends LightningElement {
             .then((data) => {
                 this.orderOptionsData = data;
                 this._matchStoredAddress();
+                this._matchStoredContact();
             })
             .catch(() => {
-                this.orderOptionsData = { previousAddresses: [], countries: [] };
+                this.orderOptionsData = { previousAddresses: [], countries: [], contacts: [] };
             });
     }
 
@@ -64,6 +68,30 @@ export default class DealerCart extends LightningElement {
                 this.newAddress = { ...this.newAddress, countryCode: this.orderOptionsData?.defaultAddress?.countryCode || '' };
             }
         }
+    }
+
+    // A stored contact that is no longer on the account's list falls back to the default.
+    _matchStoredContact() {
+        const contacts = this.orderOptionsData?.contacts || [];
+        if (!contacts.some((c) => c.value === this.selectedContactId)) {
+            this.selectedContactId = this.orderOptionsData?.defaultContactId || '';
+        }
+    }
+
+    get hasContacts() {
+        return (this.orderOptionsData?.contacts || []).length > 0;
+    }
+
+    get contactChoices() {
+        return (this.orderOptionsData?.contacts || []).map((c) => ({
+            ...c,
+            selected: c.value === this.selectedContactId
+        }));
+    }
+
+    handleContactSelect(event) {
+        this.selectedContactId = event.target.value;
+        this._persistOptions();
     }
 
     _addressKey(a) {
@@ -100,6 +128,10 @@ export default class DealerCart extends LightningElement {
     get optionsSummary() {
         const parts = [];
         if (this.customerReference) parts.push(this.customerReference);
+        if (this.selectedContactId && this.selectedContactId !== this.orderOptionsData?.defaultContactId) {
+            const contact = (this.orderOptionsData?.contacts || []).find((c) => c.value === this.selectedContactId);
+            if (contact) parts.push(contact.label);
+        }
         if (this.useDifferentAddress) {
             const address = this._formatAddress(this.effectiveShippingAddress);
             if (address) parts.push(address);
@@ -152,7 +184,8 @@ export default class DealerCart extends LightningElement {
         saveOrderOptions({
             customerReference: this.customerReference,
             useDifferentShippingAddress: this.useDifferentAddress,
-            shippingAddress: this.effectiveShippingAddress
+            shippingAddress: this.effectiveShippingAddress,
+            contactId: this.selectedContactId
         }, this.dealerAccountId);
     }
 
@@ -342,7 +375,8 @@ export default class DealerCart extends LightningElement {
                 orderOptionsJson: JSON.stringify({
                     customerReference: this.customerReference,
                     useDifferentShippingAddress: this.useDifferentAddress,
-                    shippingAddress: this.effectiveShippingAddress
+                    shippingAddress: this.effectiveShippingAddress,
+                    contactId: this.selectedContactId || null
                 })
             });
             this.dispatchEvent(new CustomEvent('orderplaced', {

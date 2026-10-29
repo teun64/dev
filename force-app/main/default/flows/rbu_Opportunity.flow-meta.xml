@@ -198,6 +198,39 @@
         </customErrorMessages>
     </customErrors>
     <decisions>
+        <description>Sales_Contact__c drives the signer formulas (Signer*__c, offer PDF + Sign Butler). Only filled when empty, so a contact chosen in the dealer shop or set by hand is never overwritten.</description>
+        <name>dec_02_Sales_Contact</name>
+        <label>2. Sales Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Recordtype</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Set</defaultConnectorLabel>
+        <rules>
+            <name>dec_02_Sales_Contact_Empty</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Sales_Contact__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AccountId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>dgr_02_Main_Contact</targetReference>
+            </connector>
+            <label>Empty</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>dec_01_Account</name>
         <label>1. Account</label>
         <locationX>0</locationX>
@@ -772,6 +805,47 @@ INCLUDES({!$Record.Subscriptions__c},&apos;etAllinOne&apos;)
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <description>The account's contact with the Main role (account contact relation roles).</description>
+        <name>dgr_02_Main_Contact</name>
+        <label>2. Main Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dec_01_Recordtype</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.AccountId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>isMainContact__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>AccountContactRelation</object>
+        <outputAssignments>
+            <assignToReference>$Record.Sales_Contact__c</assignToReference>
+            <field>ContactId</field>
+        </outputAssignments>
+        <sortField>LastModifiedDate</sortField>
+        <sortOrder>Desc</sortOrder>
+    </recordLookups>
+    <recordLookups>
         <name>dgr_01_Administration</name>
         <label>1. Administration</label>
         <locationX>0</locationX>
@@ -844,7 +918,7 @@ INCLUDES({!$Record.Subscriptions__c},&apos;etAllinOne&apos;)
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>dec_01_Recordtype</targetReference>
+            <targetReference>dec_02_Sales_Contact</targetReference>
         </connector>
         <object>Opportunity</object>
         <recordTriggerType>Update</recordTriggerType>

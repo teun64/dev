@@ -3103,4 +3103,12 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Sign-up error</shortDescription>
         <value>Could not validate the email address. Please try again.</value>
     </labels>
+    <labels>
+        <fullName>DealerShop_ContactPerson</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Cart order options: contact person (signer) choice</shortDescription>
+        <value>Contact person for this order</value>
+    </labels>
 </CustomLabels>

@@ -557,4 +557,8 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <label>Het e-mailadres kon niet worden gecontroleerd. Probeer het opnieuw.</label>
         <name>DealerHome_ErrorEmailCheck</name>
     </customLabels>
+    <customLabels>
+        <label>Contactpersoon voor deze bestelling</label>
+        <name>DealerShop_ContactPerson</name>
+    </customLabels>
 </Translations>
