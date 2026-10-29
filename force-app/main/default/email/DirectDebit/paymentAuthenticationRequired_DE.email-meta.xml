@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Payment - Authentication Required (3-D Secure) - DE</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>paymentAuthenticationRequired_DE</name>
+    <relatedEntityType>Payment__c</relatedEntityType>
+    <style>none</style>
+    <subject>Handlung erforderlich: Bitte bestätigen Sie Ihre Zahlung – {{{Payment__c.Name}}}</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>
