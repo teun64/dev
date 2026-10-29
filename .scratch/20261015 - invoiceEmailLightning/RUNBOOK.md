@@ -93,3 +93,16 @@ Prod later (explicit go): same steps; also align the repo DD templates to prod f
 - acc schedule: CP activation via the dispatcher (~5 min); Job_InvoiceCreation 18:16 UTC; Job_InvoicePDFCreation 21:16 UTC; **no Job_EmailInvoice in acc** → the invoice email stays PENDING until Teun sends it from the package UI.
 - Expected: FINALIZED → Payment__c psp-recurring Setup, Interaction **Awaiting Invoice Email**, Payment_Setup_Block__c filled on the invoice, **no** separate setup mail. After a manual send → **Mail Sent**, one mail (InvoiceUK + PDF + block). Not sent within 3 days → safety net sends the separate setup mail.
 - Payloads: scratchpad ev/ib_account_acc.json, ib_hw_acc.json, ib_contract_acc.json.
+
+### acc end-to-end RESULT 2026-10-29 ✅
+- 10:07 FINALIZED GB26000156 (I-2610-00562601), due 11-16 (+12 UK working days), PM#000136969 Setup + **Awaiting Invoice Email**, block filled, no separate mail.
+- 10:12 Teun sent the invoice from the package → Email_Status SENT, EmailMessage 02sG500000I3NliIAF (InvoiceUK, PDF attached, button + link, header/footer), payment **Mail Sent** 1 s later. Exactly one mail.
+- 10:20 paid by card on the page → PI succeeded £15 (off_session), account pm type card, payment **Paid** / Request Processed by Customer, **block cleared**, no Cases.
+- Note: UK = PaymentIntent mode → card is charged immediately on the page (Bacs at collection date).
+- Not tested: ERROR path in acc (tested in dev 10-15), D+3 safety net.
+
+### Step 1 for prod done (9943d4a): repo DD templates = prod
+The 9 setup/reminder templates are the same in text in prod and acc (only formatting + header src differ: prod `{[devName:miemailheader]}`, acc the full URL). The repo now holds the prod version. They are **already in prod** → not in the prod package. Dev rejects `{[devName:…]}` (assets missing in dev).
+
+### Prod package (to build) = what acc got on 10-29
+Letterheads lh_M_Preferences_* (data), rename Classic InvoiceNL/UK/DE → *_Classic (prod folder: check, prod Classic is in folder Invoicing!), deploy: Payment_Setup_Block__c, Interaction_Status__c, Svc_InvoicePaymentBlock + test, Lightning folder Invoicing + InvoiceNL/UK/DE, block templates EN/NL/DE, 5 flows, ps_miSubscription25_User (retrieve-diff prod first), then link letterheads + Admin FLS Payment_Setup_Block__c. Run back to back outside Job_EmailInvoice (21:16 UTC). Open decisions: block wording (DD only vs card/wallet), first-invoice PDF remark.
