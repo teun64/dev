@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Le montant de la facture sera prélevé le ou aux alentours du {0, date,d-M-yyyy} via le moyen de paiement que vous avez autorisé. La date à laquelle le montant est effectivement débité de votre compte peut varier de quelques jours ouvrés selon les délais de traitement de votre banque ou de votre prestataire de paiement.</label>
+        <name>paymentRemarkPR</name>
+    </customLabels>
+</Translations>

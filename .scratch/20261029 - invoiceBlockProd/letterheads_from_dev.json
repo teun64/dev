@@ -1,0 +1,26 @@
+[
+ {
+  "Name": "lh_M_Preferences_EN",
+  "Description": "Moving Intelligence letterhead (English): lh_M_Service header + footer line with terms and conditions and privacy statement links (logo/knowledge in motion block lives in the template body)",
+  "LetterheadHeader": "<div style=\"font-family:Arial,Helvetica,sans-serif;\"><img alt=\"mi-email-header\" src=\"https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK\" style=\"max-width:600px; width:100%; height:auto; display:block; border:0;\" title=\"mi-email-header\" /></div>",
+  "LetterheadFooter": "<div style=\"font-family:Arial,Helvetica,sans-serif; padding: 0px 10px 10px 10px; font-size: 11px; line-height: 18px; color: #8A8F8A;\">Our general terms and conditions apply to all our services. Read our <a href=\"https://movingintelligence.co.uk/pages/terms-and-conditions\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">terms and conditions</a> and <a href=\"https://movingintelligence.co.uk/pages/privacy-policy\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">privacy statement</a>.</div>"
+ },
+ {
+  "Name": "lh_M_Preferences_NL",
+  "Description": "Moving Intelligence letterhead (Dutch): lh_M_Service header + footer line with terms and conditions and privacy statement links (logo/knowledge in motion block lives in the template body)",
+  "LetterheadHeader": "<div style=\"font-family:Arial,Helvetica,sans-serif;\"><img alt=\"mi-email-header\" src=\"https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK\" style=\"max-width:600px; width:100%; height:auto; display:block; border:0;\" title=\"mi-email-header\" /></div>",
+  "LetterheadFooter": "<div style=\"font-family:Arial,Helvetica,sans-serif; padding: 0px 10px 10px 10px; font-size: 11px; line-height: 18px; color: #8A8F8A;\">Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href=\"https://movingintelligence.nl/algemene-voorwaarden\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">algemene voorwaarden</a> en <a href=\"https://movingintelligence.nl/privacy\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">privacyverklaring</a>.</div>"
+ },
+ {
+  "Name": "lh_M_Preferences_DE",
+  "Description": "Moving Intelligence letterhead (German): lh_M_Service header + footer line with terms and conditions and privacy statement links (logo/knowledge in motion block lives in the template body)",
+  "LetterheadHeader": "<div style=\"font-family:Arial,Helvetica,sans-serif;\"><img alt=\"mi-email-header\" src=\"https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK\" style=\"max-width:600px; width:100%; height:auto; display:block; border:0;\" title=\"mi-email-header\" /></div>",
+  "LetterheadFooter": "<div style=\"font-family:Arial,Helvetica,sans-serif; padding: 0px 10px 10px 10px; font-size: 11px; line-height: 18px; color: #8A8F8A;\">F&uuml;r alle unsere Leistungen gelten unsere Allgemeinen Gesch&auml;ftsbedingungen. Lesen Sie unsere <a href=\"https://movingintelligence.de/agb\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">AGB</a> und unsere <a href=\"https://movingintelligence.de/datenschutzerklaerung\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">Datenschutzerkl&auml;rung</a>.</div>"
+ },
+ {
+  "Name": "lh_M_Preferences_FR",
+  "Description": "Moving Intelligence letterhead (French): lh_M_Service header + footer line with terms and conditions and privacy statement links (logo/knowledge in motion block lives in the template body)",
+  "LetterheadHeader": "<div style=\"font-family:Arial,Helvetica,sans-serif;\"><img alt=\"mi-email-header\" src=\"https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK\" style=\"max-width:600px; width:100%; height:auto; display:block; border:0;\" title=\"mi-email-header\" /></div>",
+  "LetterheadFooter": "<div style=\"font-family:Arial,Helvetica,sans-serif; padding: 0px 10px 10px 10px; font-size: 11px; line-height: 18px; color: #8A8F8A;\">Nos conditions g&eacute;n&eacute;rales s&#39;appliquent &agrave; l&#39;ensemble de nos services. Consultez nos <a href=\"https://movingintelligence.ai/terms/\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">conditions g&eacute;n&eacute;rales</a> et notre <a href=\"https://movingintelligence.ai/privacy/\" style=\"font-family:Arial,Helvetica,sans-serif; color:#5B625B;\">d&eacute;claration de confidentialit&eacute;</a>.</div>"
+ }
+]

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>paymentRemarkPR</fullName>
+        <categories>Invoice Template</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>paymentRemarkPR</shortDescription>
+        <value>The invoice amount will be collected on or around {0, date,d-M-yyyy} via the payment method you have authorised. The date on which the amount is actually debited from your account may differ by a few working days, depending on the processing times of your bank or payment provider.</value>
+    </labels>
+</CustomLabels>
