@@ -768,3 +768,12 @@ Candidates 2026-10-29 (13 UK I0 accounts since 10-21): Savage, Dadds and Bishop 
 - **Sledge stays pr** (explicit request, despite a LIVE mandate): he gets a Stripe mandate request on his first invoice.
 - Result: UK accounts created ≥ 10-21: I0 7, pr 10. Local backups (untracked, without bank data): `migration/before_prod_uk_mandate_split_accounts_20261029.csv`, `migration/before_prod_uk_revert_orders_20261029.csv`.
 - **Going forward:** for new UK I0 accounts, check Direct_Debit_Mandate_Status__c / bank details first. Now that the REST guard is live, later contracts for the 9 pr accounts get pr automatically.
+
+### ⏰ Check after the UK monthly run (~2026-11-08): Sledge's first pr payment
+
+UK I0/pr contract orders stay Draft until the monthly UK run (2026-10-08: 4,818 orders activated); p1 orders are activated right away. Teun (2026-10-29): wait for the run, do not activate by hand.
+After the run, check prod Sledge (001Tx0000122JuaIAE):
+1. Order 02756583 is activated, and an invoice exists on pr.
+2. Payment__c psp-recurring on **Setup**, Interaction 'Mail Sent', token + Setup_URL__c filled, setup mail sent.
+3. Due date = email send date + 12 working days (Bacs 10 + 2), the payment due date is synced, and collection = due − 2 working days.
+4. The 9 new pr accounts: contracts that came in since should be on pr.
