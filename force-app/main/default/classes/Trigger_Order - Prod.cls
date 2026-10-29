@@ -14,30 +14,70 @@ public class Trigger_Order {
 
 		List<Order> iterList = Trigger.new;
 		Set<Id> acctIds = Util_System.collectIdValues(iterList, 'AccountId');
+		Set<Id> recOrderIds = Util_System.collectIdValues(iterList, 'Subscription25__Recurring_Order__c');
 		Map<Id, Account> acctMap = new Map<Id, Account>([
-			SELECT Id, Invoice_Frequency__c, Reseller_Name__c, Payment_Method_Contracts__c, Subscription25__Create_Invoices_As_Draft__c  FROM Account WHERE Id IN :acctIds
+			SELECT Id, Invoice_Frequency__c, OrderOffsetTerm__c, Reseller_Name__c, Payment_Method_Contracts__c, Subscription25__Create_Invoices_As_Draft__c  FROM Account WHERE Id IN :acctIds
 		]);
+		Map<Id, Subscription25__Recurring_Order__c> recOrderMap = new Map<Id, Subscription25__Recurring_Order__c>([
+			SELECT Id, Subscription25__Months_In_Advance__c FROM Subscription25__Recurring_Order__c WHERE Id IN :recOrderIds
+		]);
+		//20261009 - TRi - recurring orders that already have an order: a new order on them is not the 1st one
+		Set<Id> recOrderIdsWithOrders = new Set<Id>();
+		for (AggregateResult ar : [SELECT Subscription25__Recurring_Order__c roId FROM Order WHERE Subscription25__Recurring_Order__c IN :recOrderIds GROUP BY Subscription25__Recurring_Order__c]) {
+			recOrderIdsWithOrders.add((Id)ar.get('roId'));
+		}
+		//the earliest new order per recurring order in this insert is the 1st one
+		Map<Id, Date> firstEffectiveDateByRecOrder = new Map<Id, Date>();
+		for (Order ordNew : iterList) {
+			if (String.isBlank(ordNew.Subscription25__Recurring_Order__c) || recOrderIdsWithOrders.contains(ordNew.Subscription25__Recurring_Order__c)) {
+				continue;
+			}
+			Date curFirst = firstEffectiveDateByRecOrder.get(ordNew.Subscription25__Recurring_Order__c);
+			if ((curFirst == null) || (ordNew.EffectiveDate < curFirst)) {
+				firstEffectiveDateByRecOrder.put(ordNew.Subscription25__Recurring_Order__c, ordNew.EffectiveDate);
+			}
+		}
 		Account curAcct;
+		Subscription25__Recurring_Order__c curRecOrder;
 		Date curInvDate;
 		Date newInvDate;
 		String paymentMethod;
 		Date nextMonday;
 		Integer curInvDay;
+		Integer curMonthsInAdvance = 0;
+		Boolean isFirstOrderNegativeAdvance;
 
-		for(Order ordNew : iterList){
-
+		for(Order ordNew : iterList){ 
 
 			if ((ordNew.Type == 'Opportunity') || (ordNew.Type == 'Hardware')) {
 				continue;
 			}
 
+			curInvDate = ordNew.EffectiveDate;
+
 			//depending on the invoice frequency of the account, we may need to move the invoice date of the order
 			curAcct = acctMap.get(ordNew.AccountId);
-			curInvDate = (ordNew.Subscription25__Invoice_Date__c != null) ? ordNew.Subscription25__Invoice_Date__c : ordNew.EffectiveDate;
-			curInvDate = ((ordNew.EndDate != null) && (curInvDate >= ordNew.EndDate)) ? ordNew.EndDate : curInvDate;
-			//curInvDate = (curInvDate > date.today()) ? curInvDate : date.today();
+			isFirstOrderNegativeAdvance = false;
+			if (String.isNotBlank(ordNew.Subscription25__Recurring_Order__c)) {
+				curRecOrder = recOrderMap.get(ordNew.Subscription25__Recurring_Order__c);
+				curMonthsInAdvance = curRecOrder.Subscription25__Months_In_Advance__c?.intValue();
+
+				//20260806 - TRi - on the 1st order of a recurring order with Months_In_Advance -1 (arrears), the offset already
+				//shifted curInvDate a month past the period start; the monthly Invoice_Frequency rounding shouldn't roll
+				//that already-shifted date into yet another month on top.
+				//20261009 - TRi - only for -1 and the 1st order on the recurring order (no longer based on the contract's first invoice date)
+				isFirstOrderNegativeAdvance = (curMonthsInAdvance == -1) && (ordNew.EffectiveDate == firstEffectiveDateByRecOrder.get(ordNew.Subscription25__Recurring_Order__c));
+			}
 
 			newInvDate = null;
+
+			// Use curMonthsInAdvance to determine the invoice date
+	
+			curInvDate = (curMonthsInAdvance == 0) ? curInvDate : curInvDate.addMonths((curMonthsInAdvance * -1));
+			//prefent invoicedates in the past
+			curInvDate = (ordNew.Subscription25__Invoice_Date__c != null) ? ordNew.Subscription25__Invoice_Date__c : ((curInvDate > date.today()) ? date.today() : curInvDate);
+			curInvDate = ((ordNew.EndDate != null) && (ordNew.EndDate > curInvDate) && (ordNew.EndDate < date.today())) ? date.today() : curInvDate;
+
 			paymentMethod = (ordNew.Payment_Method__c == null) ? curAcct.Payment_Method_Contracts__c : ordNew.Payment_Method__c;
 
 			//20240315 - TRi - orders paid by card or payment provider are processed on the next invoice cycle
@@ -61,7 +101,11 @@ public class Trigger_Order {
 
 			if(curAcct.Invoice_Frequency__c == 'First of the month'){
 				//set the invoice date to the first of the next month, if it's after the first of the current one
-				newInvDate = curInvDate.day() != 1 ? curInvDate.addMonths(1).toStartOfMonth() : curInvdate;
+				//20260806 - TRi - unless this is the 1st order and a negative Months_In_Advance already moved curInvDate into arrears,
+				//in which case align down to that same month instead of rolling forward again
+				//20261009 - TRi - never align down to a date on or before the end of the order's period
+				isFirstOrderNegativeAdvance = isFirstOrderNegativeAdvance && (ordNew.EndDate != null) && (curInvDate.toStartOfMonth() > ordNew.EndDate);
+				newInvDate = curInvDate.day() == 1 ? curInvdate : (isFirstOrderNegativeAdvance ? curInvDate.toStartOfMonth() : curInvDate.addMonths(1).toStartOfMonth());
 			} else if(curAcct.Invoice_Frequency__c == 'Last of the month'){
 				//set the invoice date to the last day of this month
 				newInvDate = curInvDate.addDays(1).day() != 1 ? curInvDate.addMonths(1).toStartOfMonth().addDays(-1) : curInvdate;
@@ -73,6 +117,7 @@ public class Trigger_Order {
 				}
 			} else if(curAcct.Invoice_Frequency__c == 'Weekly'){
 				//set the invoice date to the next monday (if the current date is monday move it to next monday as well)
+				// date 1900-01-01 is a monday, other valid years, 1990, 2001
 				curInvDay = Math.mod(Date.newInstance(1900, 1, 1).daysBetween(curInvDate), 7); //this is 0 if curInvDate = monday
 				//get the first monday after the current invoice date
 				nextMonday = curInvDate.addDays(7 - curInvDay);
@@ -81,9 +126,7 @@ public class Trigger_Order {
 
 			//system.debug('curInvDate = ' + curInvDate);
 			//system.debug('newInvDate = ' + newInvDate);
-
 			ordNew.Subscription25__Invoice_Date__c = newInvDate;
-
 			
 		}
 	}

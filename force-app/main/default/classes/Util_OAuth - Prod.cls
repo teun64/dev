@@ -1,6 +1,7 @@
 public with sharing class Util_OAuth {
 	//simpleton stuff
 	private static Map<String, Util_OAuth> instances = new Map<String, Util_OAuth>();
+	private static AccessLevel runningMode = AccessLevel.SYSTEM_MODE;
 	/**
 	 * Singleton Constructor. Returns an instance of Util_OAuth, making sure there can be only one instance per context.
 	 * @param namedCredential Named Credential that is used for the request
@@ -55,11 +56,11 @@ public with sharing class Util_OAuth {
 			allVersions.addAll(versions);
 		}
 
-		Database.upsert(logsToInsert.values());
-		Database.insert(allVersions);
+		Database.upsert(logsToInsert.values(), Util_OAuth.runningMode);
+		Database.insert(allVersions, Util_OAuth.runningMode);
 
 		//we have to requery the versions to get the contentdocumentids so we can save the contentdocumentlinks
-		Map<Id, ContentVersion> versions = new Map<Id, ContentVersion>([SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id IN :allVersions]);
+		Map<Id, ContentVersion> versions = new Map<Id, ContentVersion>([SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id IN :allVersions WITH SYSTEM_MODE]);
 		List<ContentDocumentLink> linksToCreate = new List<ContentDocumentLink>();
 		for(String logGuid : versionsPerLog.keySet()){
 			for(ContentVersion file : versionsPerLog.get(logGuid)){
@@ -70,7 +71,9 @@ public with sharing class Util_OAuth {
 				linksToCreate.add(link);
 			}
 		}
-		Database.insert(linksToCreate);
+		Database.insert(linksToCreate, Util_OAuth.runningMode);
+		// saved logs must not be saved again by a next saveToken() in the same transaction (batch execute)
+		this.logs.clear();
 	}
 
 	//some optional parameters here; addAuth and content, default values are true and null
@@ -100,9 +103,8 @@ public with sharing class Util_OAuth {
 		request.setCompressed(false);
 		request.setHeader('Cache-Control', 'private');
 		request.setHeader('Connection', 'Keep-Alive');
-		//if we're sending a payload, set the content length and the request body
+		//if we're sending a payload, set the request body
 		if(!String.isBlank(content)){
-			request.setHeader('Content-Length', String.valueOf(content.length()));
 			request.setBody(content);
 		}
 
