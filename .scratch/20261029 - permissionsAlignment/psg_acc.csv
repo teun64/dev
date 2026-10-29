@@ -1,0 +1,44 @@
+DeveloperName,MasterLabel,NamespacePrefix
+pg_Subscription25User,Subscription25 User (pg),
+pg_PardotEmail,Pardot - Email (pg),
+pg_Pardot,Pardot (pg),
+pg_miSalesDirector,miSalesDirector (pg),
+pg_Platform_1_Access,Platform 1 -  Access (pg),
+pg_AccountRelationType,Account - RelationType (pg),
+pg_Subscription25Admin,Subscription25 Admin (pg),
+pg_Subscription25View,Subscription25 View (pg),
+ScaleCenterUsers,Scale Center Users,force
+SalesWorkspacePSG,Sales Workspace User PSG,force
+SalesCloudSeller,Sales Cloud Seller,force
+SalesCloudCallCoachingSeller,Sales Cloud Call Coaching Seller,force
+pg_miWorkSpace,miWorkSpace (pg),
+MIMarketingManager,MI Marketing Manager,force
+MIDataSpecialist,MI Data Specialist,force
+MIAdmin,MI Admin,force
+SetupWithAgentforceUserPsg,Setup with Agentforce User,force
+PartnerCloudChannelManagerPsg,Partner Channel Manager,force
+PartnerChannelMarketingEligibilityAccess,Partner Channel Marketing User,force
+AdminChannelMarketingEligibilityAccess,Channel Marketing Admin,force
+PartnerCloudPartnerUserPsg,Partner Cloud Partner User PSG,force
+PartnerEmailAndFlowAccessPsg,Partner Email and Flow Access PSG,force
+UnifiedCatalogAdminPsl,Unified Catalog Admin,force
+UnifiedCatalogAgentPsl,Unified Catalog Representative,force
+UnifiedCatalogCommunityUserPsl,Unified Catalog Community User,force
+pg_miSales,miSales (pg),
+pg_miAPIArchiveIntegration,miAPIArchiveIntegration (pg),
+pg_miAPIBussinesAnalyticsIntegration,miAPI Business Analytics Integration (pg),
+pg_CCC_User,Customer Care User (pg),
+pg_miCustomerHub,miCustomerHub (pg),
+pg_miDealerPortal,miDealerPortal (pg),
+pg_miAPIPlatformIntegration,miAPI Platform Integration (pg),
+pg_miAPIPwrBAIntegration,miAPI PowerBA Integration (pg),
+pg_miAPIShopIntegration,miAPI Shop Integration (pg),
+pg_miAPIBackUpIntegration,miAPI BackUp Integration (pg),
+CopilotSalesforceAdminPSG,Agentforce Admin,force
+CopilotSalesforceUserPSG,Access Agentforce Default Agent,force
+pg_CCC_User_NL,Customer Care User (NL - pg),
+pg_Finance_NL,Finance (NL - pg),
+pg_Sales1,Sales (NL),
+pg_miAPIAmazonIntegration,miAPI Amazon Integration (pg),
+pg_miAPILeadIntegration,miAPI Lead Integration (pg),
+pg_miDevOpsCenter_Full,miDevOps Center (Full - pg),
