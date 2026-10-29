@@ -5,7 +5,7 @@
         <name>paymentRemarkPI</name>
     </customLabels>
     <customLabels>
-        <label>Het factuurbedrag wordt rond {0, date,d-M-yyyy} geïncasseerd via uw opgeslagen betaalmethode.</label>
+        <label>Het factuurbedrag wordt op of rond {0, date,d-M-yyyy} geïnd via de betaalmethode waarvoor u toestemming heeft gegeven. De datum waarop het bedrag daadwerkelijk van uw rekening wordt afgeschreven, kan enkele werkdagen afwijken, afhankelijk van de verwerkingstijd van uw bank of betaaldienstverlener.</label>
         <name>paymentRemarkPR</name>
     </customLabels>
     <customLabels>

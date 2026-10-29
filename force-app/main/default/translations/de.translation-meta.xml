@@ -5,7 +5,7 @@
         <name>paymentRemarkPI</name>
     </customLabels>
     <customLabels>
-        <label>Der Rechnungsbetrag wird gegen {0, date,d-M-yyyy} über Ihre hinterlegte Zahlungsmethode eingezogen.</label>
+        <label>Der Rechnungsbetrag wird am oder um den {0, date,d-M-yyyy} über die von Ihnen genehmigte Zahlungsmethode eingezogen. Das Datum, an dem der Betrag tatsächlich von Ihrem Konto abgebucht wird, kann je nach Bearbeitungszeit Ihrer Bank oder Ihres Zahlungsdienstleisters um einige Werktage abweichen.</label>
         <name>paymentRemarkPR</name>
     </customLabels>
     <customLabels>
