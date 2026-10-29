@@ -1,4 +1,4 @@
-import { LightningElement, api, wire, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import getProductDetail from '@salesforce/apex/Ctrl_DealerShop.getProductDetail';
 import toggleFavorite    from '@salesforce/apex/Ctrl_DealerShop.toggleFavorite';
 import { resolveNumberLocale } from 'c/dealerLanguage';
@@ -27,18 +27,23 @@ export default class DealerProductDetail extends LightningElement {
         });
     }
 
-    @wire(getProductDetail, { productId: '$productId', dealerAccountId: '$dealerAccountId' })
-    wiredProduct({ data, error }) {
-        if (data) {
-            this.product = this._enrichProduct(data);
-            this.hasError = false;
-            this.isLoading = false;
-        } else if (error) {
-            this.hasError = true;
-            // The Apex messages are English only; always show the translated text.
-            this.errorMessage = this.shopLabels.DealerShop_ProductLoadError;
-            this.isLoading = false;
-        }
+    // Loaded directly instead of @wire: a wired (cached) result could show an outdated favorite heart.
+    // The shop renders this component fresh for every product it opens.
+    connectedCallback() {
+        if (!this.productId) return;
+        getProductDetail({ productId: this.productId, dealerAccountId: this.dealerAccountId })
+            .then((data) => {
+                this.product = this._enrichProduct(data);
+                this.hasError = false;
+            })
+            .catch(() => {
+                this.hasError = true;
+                // The Apex messages are English only; always show the translated text.
+                this.errorMessage = this.shopLabels.DealerShop_ProductLoadError;
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
     }
 
     _enrichProduct(raw) {

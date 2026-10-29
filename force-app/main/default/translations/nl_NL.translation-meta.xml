@@ -286,15 +286,15 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerPortal_EmailLanguage</name>
     </customLabels>
     <customLabels>
-        <label>Er is een account voor je aangemaakt op het Moving Intelligence Dealer Portal. In het portal kun je producten bestellen en je bestellingen bekijken.</label>
+        <label>Er is een account voor u aangemaakt op het Moving Intelligence Dealer Portal. In het portal kunt u producten bestellen en uw bestellingen bekijken.</label>
         <name>DealerPortal_EmailWelcomeIntro</name>
     </customLabels>
     <customLabels>
-        <label>Je logt in met je e-mailadres: {0}</label>
+        <label>U logt in met uw e-mailadres: {0}</label>
         <name>DealerPortal_EmailLoginHint</name>
     </customLabels>
     <customLabels>
-        <label>Stel je wachtwoord in</label>
+        <label>Stel uw wachtwoord in</label>
         <name>DealerPortal_EmailWelcomeButton</name>
     </customLabels>
     <customLabels>
@@ -310,11 +310,11 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerPortal_EmailSignature</name>
     </customLabels>
     <customLabels>
-        <label>Je nieuwe Dealer Portal-wachtwoord</label>
+        <label>Uw nieuwe Dealer Portal-wachtwoord</label>
         <name>DealerPortal_EmailResetSubject</name>
     </customLabels>
     <customLabels>
-        <label>We hebben een verzoek ontvangen om een nieuw wachtwoord in te stellen voor je Dealer Portal-account.</label>
+        <label>Wij hebben een verzoek ontvangen om een nieuw wachtwoord in te stellen voor uw Dealer Portal-account.</label>
         <name>DealerPortal_EmailResetIntro</name>
     </customLabels>
     <customLabels>
@@ -322,7 +322,7 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerPortal_EmailResetButton</name>
     </customLabels>
     <customLabels>
-        <label>Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren; je wachtwoord blijft hetzelfde.</label>
+        <label>Heeft u dit niet aangevraagd? Dan kunt u deze e-mail negeren; uw wachtwoord blijft hetzelfde.</label>
         <name>DealerPortal_EmailResetIgnore</name>
     </customLabels>
     <customLabels>

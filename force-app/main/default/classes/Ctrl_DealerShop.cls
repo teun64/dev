@@ -654,7 +654,9 @@ public without sharing class Ctrl_DealerShop {
 
     // ── Public methods ────────────────────────────────────────────────────────
 
-    @AuraEnabled(cacheable=true)
+    // Not cacheable: the favorite state must be current every time the grid is rebuilt (a cached
+    // response showed favorites set since the first load as unmarked).
+    @AuraEnabled
     public static ProductPageResult getProducts(String category, Integer pageNum, Integer pageSize, String searchTerm, Id dealerAccountId) {
         Integer safePageNum  = (pageNum  != null && pageNum  > 0) ? pageNum  : 1;
         Integer safePageSize = (pageSize != null && pageSize > 0) ? pageSize : 20;
@@ -816,7 +818,8 @@ public without sharing class Ctrl_DealerShop {
         return result;
     }
 
-    @AuraEnabled(cacheable=true)
+    // Not cacheable for the same reason as getProducts (favorite state).
+    @AuraEnabled
     public static ProductDTO getProductDetail(Id productId, Id dealerAccountId) {
         if (productId == null) throw new AuraHandledException('productId is required.');
 
