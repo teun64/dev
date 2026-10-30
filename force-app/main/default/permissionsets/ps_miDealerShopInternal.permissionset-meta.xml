@@ -49,6 +49,11 @@
         <field>Opportunity.ShippingAttention__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.ShippingCompany__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>miDealerShopInternal (ps)</label>
 </PermissionSet>

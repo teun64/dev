@@ -126,10 +126,16 @@
                                         </div>
                                     </template>
                                     <label class="option-field">
+                                        <span class="option-label">{shopLabels.DealerShop_ShippingCompany}</span>
+                                        <input type="text" class="option-input" maxlength="80" data-field="shippingCompany"
+                                            placeholder={shopLabels.DealerShop_ShippingCompanyPlaceholder}
+                                            value={shippingCompany} oninput={handleRecipientInput} />
+                                    </label>
+                                    <label class="option-field">
                                         <span class="option-label">{shopLabels.DealerShop_Attention}</span>
-                                        <textarea class="option-input option-textarea" rows="2" maxlength="200"
+                                        <input type="text" class="option-input" maxlength="80" data-field="shippingAttention"
                                             placeholder={shopLabels.DealerShop_AttentionPlaceholder}
-                                            value={shippingAttention} oninput={handleAttentionInput}></textarea>
+                                            value={shippingAttention} oninput={handleRecipientInput} />
                                     </label>
                                 </template>
                                 <template lwc:else>

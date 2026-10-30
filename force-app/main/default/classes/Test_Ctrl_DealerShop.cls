@@ -1579,7 +1579,8 @@ private class Test_Ctrl_DealerShop {
             'customerReference'           => '  PO-4711  ',
             'useDifferentShippingAddress' => true,
             'shippingAddress'             => deliveryAddress('Coolsingel 40'),
-            'shippingAttention'           => ' Jan de Vries \r\n\r\nInkoop\nThird line'
+            'shippingCompany'             => '  Vries Logistics B.V. ',
+            'shippingAttention'           => ' Jan de Vries '
         });
 
         String cartJson = orderOptionsCartJson();
@@ -1593,7 +1594,7 @@ private class Test_Ctrl_DealerShop {
         Opportunity opp = [
             SELECT Customer_Reference__c, Use_ShippingAddress__c, ShippingAddress__Street__s,
                    ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s,
-                   ShippingAttention__c
+                   ShippingCompany__c, ShippingAttention__c
             FROM Opportunity WHERE Name = :orderNumber
         ];
         System.assertEquals('PO-4711', opp.Customer_Reference__c, 'The entered reference must be stored, trimmed');
@@ -1602,20 +1603,15 @@ private class Test_Ctrl_DealerShop {
         System.assertEquals('3011AA', opp.ShippingAddress__PostalCode__s, 'Delivery postal code mismatch');
         System.assertEquals('Rotterdam', opp.ShippingAddress__City__s, 'Delivery city mismatch');
         System.assertEquals('NL', opp.ShippingAddress__CountryCode__s, 'Delivery country mismatch');
-        System.assertEquals('Jan de Vries\nInkoop', opp.ShippingAttention__c, 'Attention must be trimmed to 2 non-blank lines');
-    }
-
-    @IsTest
-    static void testAttentionLines_trimmedAndCapped() {
-        System.assertEquals(new List<String>(), Ctrl_DealerShop.attentionLines(null));
-        System.assertEquals(new List<String>{ 'a', 'b' }, Ctrl_DealerShop.attentionLines('\n  a  \r\n\n b\nc'));
-        System.assertEquals(100, Ctrl_DealerShop.attentionLines('x'.repeat(150))[0].length());
+        System.assertEquals('Vries Logistics B.V.', opp.ShippingCompany__c, 'Delivery company must be stored, trimmed');
+        System.assertEquals('Jan de Vries', opp.ShippingAttention__c, 'Attention must be stored, trimmed');
     }
 
     @IsTest
     static void testPlaceOrder_orderOptions_attentionIgnoredWithoutDifferentAddress() {
         String optionsJson = JSON.serialize(new Map<String, Object>{
             'useDifferentShippingAddress' => false,
+            'shippingCompany'             => 'Vries Logistics B.V.',
             'shippingAttention'           => 'Jan de Vries'
         });
 
@@ -1627,8 +1623,9 @@ private class Test_Ctrl_DealerShop {
         }
         Test.stopTest();
 
-        Opportunity opp = [SELECT Use_ShippingAddress__c, ShippingAttention__c FROM Opportunity WHERE Name = :orderNumber];
+        Opportunity opp = [SELECT Use_ShippingAddress__c, ShippingCompany__c, ShippingAttention__c FROM Opportunity WHERE Name = :orderNumber];
         System.assertEquals(false, opp.Use_ShippingAddress__c, 'Without the option the account shipping address is used');
+        System.assertEquals(null, opp.ShippingCompany__c, 'Company only belongs to a different delivery address');
         System.assertEquals(null, opp.ShippingAttention__c, 'Attention only belongs to a different delivery address');
     }
 
@@ -1677,6 +1674,7 @@ private class Test_Ctrl_DealerShop {
         String optionsJson = JSON.serialize(new Map<String, Object>{
             'useDifferentShippingAddress' => true,
             'shippingAddress'             => deliveryAddress('Coolsingel 40'),
+            'shippingCompany'             => 'Vries Logistics B.V.',
             'shippingAttention'           => 'Jan de Vries'
         });
 
@@ -1701,6 +1699,7 @@ private class Test_Ctrl_DealerShop {
         System.assert(!options.countries.isEmpty(), 'The country list must be filled');
         System.assertEquals(true, detail.useDifferentShippingAddress, 'Order detail must report the different delivery address');
         System.assertEquals('Coolsingel 40', detail.shippingAddress.street, 'Order detail must return the delivery address for a reorder');
+        System.assertEquals('Vries Logistics B.V.', detail.shippingCompany, 'Order detail must return the company for a reorder');
         System.assertEquals('Jan de Vries', detail.shippingAttention, 'Order detail must return the attention for a reorder');
     }
 

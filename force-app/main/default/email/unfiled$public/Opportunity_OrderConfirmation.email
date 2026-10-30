@@ -1,7 +1,7 @@
 <messaging:emailTemplate recipientType="Contact" relatedToType="Opportunity" language="{!CASE(UPPER(recipient.Language__c),'NL','nl_NL','DE','de','AT','de','CH','de','EN','en_US','GB','en_US','FR','fr','LU','fr','MC','fr',CASE(LOWER(relatedTo.Account.Sales_Language__c),'nl','nl_NL','de','de','fr','fr','en','en_US','nl_NL'))}" subject="{!$Label.OrderConfirm_Subject} {!relatedTo.Auto_Number__c}">
     <!-- Order confirmation of a Webshop opportunity (Util_OrderConfirmation). Everything comes from the opportunity (no controller: sent as the Automated Process user).
          Language: the recipient's Language__c, else the account's sales language, else Dutch (same rule as Svc_DealerUserSetup.resolveLanguage).
-         Delivery address: the opportunity's own address when Use_ShippingAddress__c is ticked (headed by its attention lines, ShippingAttention__c, line 1 bold - else the account name in bold. The lines are split on the newline taken from $Label.Email_LineBreak: a VF expression cannot write a newline itself, and a controller would fail for the Automated Process user), else the account's shipping address under the account name in bold. Lines with a shipping-method product (shipping costs) are left out. -->
+         Delivery address: the opportunity's own address when Use_ShippingAddress__c is ticked (headed by ShippingCompany__c in bold - blank = the account name - and ShippingAttention__c when filled), else the account's shipping address under the account name in bold. Lines with a shipping-method product (shipping costs) are left out. -->
     <messaging:htmlEmailBody>
         <html>
         <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
@@ -33,9 +33,8 @@
                 </table>
 
                 <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 8px;font-weight:bold;">{!$Label.DealerShop_DeliveryAddress}</p>
-                <apex:variable var="attentionBreak" value="{!FIND(MID($Label.Email_LineBreak, 2, 1), relatedTo.ShippingAttention__c)}" />
                 <apex:outputPanel layout="none" rendered="{!relatedTo.Use_ShippingAddress__c}">
-                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><apex:outputPanel layout="none" rendered="{!ISBLANK(relatedTo.ShippingAttention__c)}"><strong>{!relatedTo.Account.Name}</strong></apex:outputPanel><apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(relatedTo.ShippingAttention__c))}"><strong>{!IF(attentionBreak > 0, LEFT(relatedTo.ShippingAttention__c, attentionBreak - 1), relatedTo.ShippingAttention__c)}</strong><apex:outputPanel layout="none" rendered="{!attentionBreak > 0}"><br/>{!MID(relatedTo.ShippingAttention__c, attentionBreak + 1, 255)}</apex:outputPanel></apex:outputPanel><br/>{!relatedTo.ShippingAddress__Street__s}<br/>{!relatedTo.ShippingAddress__PostalCode__s} {!relatedTo.ShippingAddress__City__s}<br/>{!relatedTo.ShippingAddress__CountryCode__s}</p>
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><strong>{!IF(ISBLANK(relatedTo.ShippingCompany__c), relatedTo.Account.Name, relatedTo.ShippingCompany__c)}</strong><apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(relatedTo.ShippingAttention__c))}"><br/>{!relatedTo.ShippingAttention__c}</apex:outputPanel><br/>{!relatedTo.ShippingAddress__Street__s}<br/>{!relatedTo.ShippingAddress__PostalCode__s} {!relatedTo.ShippingAddress__City__s}<br/>{!relatedTo.ShippingAddress__CountryCode__s}</p>
                 </apex:outputPanel>
                 <apex:outputPanel layout="none" rendered="{!NOT(relatedTo.Use_ShippingAddress__c)}">
                     <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><strong>{!relatedTo.Account.Name}</strong><br/>{!relatedTo.Account.ShippingStreet}<br/>{!relatedTo.Account.ShippingPostalCode} {!relatedTo.Account.ShippingCity}<br/>{!relatedTo.Account.ShippingCountry}</p>

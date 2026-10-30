@@ -101,15 +101,6 @@
         <value>Description Solved</value>
     </labels>
     <labels>
-        <fullName>Email_LineBreak</fullName>
-        <categories>Email</categories>
-        <language>en_US</language>
-        <protected>false</protected>
-        <shortDescription>Line break for VF email templates - do not translate or edit</shortDescription>
-        <value>[
-]</value>
-    </labels>
-    <labels>
         <fullName>EndDate</fullName>
         <language>en_US</language>
         <protected>false</protected>
@@ -2281,6 +2272,22 @@ Access to the webshop requires an account. In your personal account you can view
         <value>New address</value>
     </labels>
     <labels>
+        <fullName>DealerShop_ShippingCompany</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - delivery company field label</shortDescription>
+        <value>Company name (optional)</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_ShippingCompanyPlaceholder</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - delivery company field placeholder</shortDescription>
+        <value>Empty = your own company name</value>
+    </labels>
+    <labels>
         <fullName>DealerShop_Attention</fullName>
         <categories>Dealer Portal</categories>
         <language>en_US</language>
@@ -2294,7 +2301,7 @@ Access to the webshop requires an account. In your personal account you can view
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Dealer Shop cart - attention field placeholder</shortDescription>
-        <value>Name and/or department, max 2 lines. Empty = company name</value>
+        <value>Name and/or department</value>
     </labels>
     <labels>
         <fullName>DealerShop_Street</fullName>

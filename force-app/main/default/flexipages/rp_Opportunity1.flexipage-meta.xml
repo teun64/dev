@@ -775,6 +775,16 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
+                <fieldItem>Record.ShippingCompany__c</fieldItem>
+                <identifier>RecordShippingCompany_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.ShippingAttention__c</fieldItem>
                 <identifier>RecordShippingAttention_cField</identifier>
             </fieldInstance>

@@ -25,7 +25,7 @@ public without sharing class Ctrl_DealerShop {
                 'DealerShop_FavoriteActive', 'DealerShop_FavoriteInactive', 'DealerShop_DealerFavorite',
                 'DealerShop_OrderOptions', 'DealerShop_OrderReference', 'DealerShop_OrderReferencePlaceholder', 'DealerShop_ContactPerson',
                 'DealerShop_DeliveryAddress', 'DealerShop_UseDifferentAddress', 'DealerShop_NewAddress',
-                'DealerShop_Attention', 'DealerShop_AttentionPlaceholder',
+                'DealerShop_ShippingCompany', 'DealerShop_ShippingCompanyPlaceholder', 'DealerShop_Attention', 'DealerShop_AttentionPlaceholder',
                 'DealerShop_Street', 'DealerShop_PostalCode', 'DealerShop_City', 'DealerShop_Country',
                 'DealerShop_NoDefaultAddress', 'DealerShop_AddressIncomplete', 'DealerShop_ListPrice',
                 'DealerShop_BackToOverview', 'DealerShop_PricePerUnit', 'DealerShop_VolumeDiscounts',
@@ -999,9 +999,9 @@ public without sharing class Ctrl_DealerShop {
             opp.ShippingAddress__PostalCode__s  = options.shippingAddress.postalCode.trim().left(20);
             opp.ShippingAddress__City__s        = options.shippingAddress.city.trim().left(40);
             opp.ShippingAddress__CountryCode__s = options.shippingAddress.countryCode;
-            // Attention lines for the different address only (max 2); the confirmation shows them instead of the account name.
-            List<String> attention = attentionLines(options.shippingAttention);
-            opp.ShippingAttention__c = attention.isEmpty() ? null : String.join(attention, '\n');
+            // Company (blank = the account name in the confirmation) and attention, for the different address only.
+            opp.ShippingCompany__c   = String.isNotBlank(options.shippingCompany) ? options.shippingCompany.trim().left(80) : null;
+            opp.ShippingAttention__c = String.isNotBlank(options.shippingAttention) ? options.shippingAttention.trim().left(80) : null;
         }
         Database.update(opp, AccessLevel.SYSTEM_MODE);
 
@@ -1062,19 +1062,6 @@ public without sharing class Ctrl_DealerShop {
             }
         }
         return options;
-    }
-
-    // Attention text → its non-blank, trimmed lines: at most 2, of max 100 chars each.
-    @TestVisible
-    private static List<String> attentionLines(String value) {
-        List<String> lines = new List<String>();
-        if (String.isBlank(value)) return lines;
-        for (String line : value.split('\r\n|\r|\n')) {
-            if (String.isBlank(line)) continue;
-            lines.add(line.trim().left(100));
-            if (lines.size() == 2) break;
-        }
-        return lines;
     }
 
     private static AddressDTO toAddress(String street, String postalCode, String city, String countryCode) {
@@ -1332,7 +1319,7 @@ public without sharing class Ctrl_DealerShop {
         List<Opportunity> opps = [
             SELECT Id, Name, CreatedDate, StageName, CurrencyIsoCode, Use_ShippingAddress__c,
                    ShippingAddress__Street__s, ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s,
-                   ShippingAttention__c
+                   ShippingCompany__c, ShippingAttention__c
             FROM Opportunity
             WHERE Id = :opportunityId
               AND AccountId = :acct.Id
@@ -1404,6 +1391,7 @@ public without sharing class Ctrl_DealerShop {
         result.shippingAddress = opp.Use_ShippingAddress__c
             ? toAddress(opp.ShippingAddress__Street__s, opp.ShippingAddress__PostalCode__s, opp.ShippingAddress__City__s, opp.ShippingAddress__CountryCode__s)
             : null;
+        result.shippingCompany   = opp.Use_ShippingAddress__c ? opp.ShippingCompany__c : null;
         result.shippingAttention = opp.Use_ShippingAddress__c ? opp.ShippingAttention__c : null;
         result.lines       = new List<OrderLineDTO>();
 
@@ -1522,6 +1510,7 @@ public without sharing class Ctrl_DealerShop {
         @AuraEnabled public String            currencyIsoCode;
         @AuraEnabled public Boolean           useDifferentShippingAddress;
         @AuraEnabled public AddressDTO        shippingAddress;
+        @AuraEnabled public String            shippingCompany;
         @AuraEnabled public String            shippingAttention;
         @AuraEnabled public List<OrderLineDTO> lines;
     }
@@ -1551,6 +1540,7 @@ public without sharing class Ctrl_DealerShop {
         public String     customerReference;
         public Boolean    useDifferentShippingAddress;
         public AddressDTO shippingAddress;
+        public String     shippingCompany;
         public String     shippingAttention;
         public String     contactId;
     }
