@@ -10,6 +10,9 @@
  *      "process" = set Closed Won (which in turn publishes "send"); "send" = send the confirmation.
  *  - Ctrl_DealerShop.placeOrder publishes "process" when the business entity has
  *    DealerPortal_Opportunity_AutoProcess__c ticked.
+ *  - The automatic confirmation on Closed Won only goes out when the business entity has
+ *    DealerPortal_Opportunity_SendConfirm__c ticked (2026-10-30); the Resend button always sends.
+ *  - Events are published by Util_OrderProcessPublisher (API 66.0, see there).
  *  - The email (template Opportunity_OrderConfirmation) goes to the opportunity's signer (SignerId__c: Sales
  *    Contact, else the account's contact person), cc the account's confirmation contact / email. Sender = the
  *    first verified org-wide address that allows all profiles of: the business entity's Email (Sales), the
@@ -43,7 +46,8 @@ public without sharing class Util_OrderConfirmation {
         for (Id oppId : opportunityIds) {
             events.add(new Order_Process__e(Opportunity_Id__c = oppId, Action__c = action));
         }
-        if (!events.isEmpty()) EventBus.publish(events);
+        // Via the API 66.0 publisher: at 67.0+ a user without Create on Order_Process__e can't publish.
+        Util_OrderProcessPublisher.publish(events);
     }
 
     // ── Opportunity trigger hooks (Trigger_Opportunity) ─────────────────────────
@@ -92,11 +96,35 @@ public without sharing class Util_OrderConfirmation {
     public static void afterUpdate(List<Opportunity> newList, Map<Id, SObject> oldMap) {
         // Automatically only the first time: an order that order creation put back on Administration and is
         // set to Closed Won again doesn't send a second confirmation (the button can resend on purpose).
-        Set<Id> toSend = new Set<Id>();
+        List<Opportunity> won = new List<Opportunity>();
         for (Opportunity opp : newList) {
-            if (isNewlyWonWebshop(opp, (Opportunity) oldMap.get(opp.Id)) && opp.Order_Confirmation_Sent__c == null) toSend.add(opp.Id);
+            if (isNewlyWonWebshop(opp, (Opportunity) oldMap.get(opp.Id)) && opp.Order_Confirmation_Sent__c == null) won.add(opp);
         }
-        publish(toSend, ACTION_SEND);
+        if (won.isEmpty()) return;
+        publish(withAutoSend(won), ACTION_SEND);
+    }
+
+    // Only orders whose business entity has Send Order Confirmation (Dealer Portal) ticked. Webshop orders are
+    // Dealer Portal orders for now; CustomerHub_Opportunity_SendConfirm__c is reserved until the Customer Hub
+    // has a shop.
+    private static Set<Id> withAutoSend(List<Opportunity> opps) {
+        Set<Id> accountIds = new Set<Id>();
+        for (Opportunity opp : opps) accountIds.add(opp.AccountId);
+        Map<Id, String> resellerByAccount = new Map<Id, String>();
+        for (Account acc : [SELECT Id, Reseller_Name__c FROM Account WHERE Id IN :accountIds WITH SYSTEM_MODE]) {
+            resellerByAccount.put(acc.Id, acc.Reseller_Name__c);
+        }
+        Set<String> sendingResellers = new Set<String>();
+        for (Business_Entities__c be : [
+            SELECT Reseller__c FROM Business_Entities__c
+            WHERE Reseller__c IN :resellerByAccount.values() AND DealerPortal_Opportunity_SendConfirm__c = true
+            WITH SYSTEM_MODE
+        ]) sendingResellers.add(be.Reseller__c);
+        Set<Id> result = new Set<Id>();
+        for (Opportunity opp : opps) {
+            if (sendingResellers.contains(resellerByAccount.get(opp.AccountId))) result.add(opp.Id);
+        }
+        return result;
     }
 
     // ── Event handler (OrderProcessEvent.trigger, Automated Process user) ──────

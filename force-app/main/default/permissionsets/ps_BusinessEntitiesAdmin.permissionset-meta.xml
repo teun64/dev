@@ -33,12 +33,27 @@
         <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
+        <field>Business_Entities__c.Business_Hours_Shipping__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
         <field>Business_Entities__c.Creditor_Identifier_Mandate__c</field>
         <readable>true</readable>
         <editable>true</editable>
     </fieldPermissions>
     <fieldPermissions>
         <field>Business_Entities__c.Currency_Symbol__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.CustomerHub_Opportunity_AutoProcess__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.CustomerHub_Opportunity_SendConfirm__c</field>
         <readable>true</readable>
         <editable>true</editable>
     </fieldPermissions>
@@ -59,6 +74,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <field>Business_Entities__c.Date_New_Branding__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.DealerPortal_Opportunity_AutoProcess__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.DealerPortal_Opportunity_SendConfirm__c</field>
         <readable>true</readable>
         <editable>true</editable>
     </fieldPermissions>
@@ -149,6 +174,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <field>Business_Entities__c.Privacy_Policy_URL__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.Shipping_Cutoff_Time__c</field>
         <readable>true</readable>
         <editable>true</editable>
     </fieldPermissions>

@@ -23,7 +23,10 @@ private class Test_Util_OrderConfirmation {
         insert new Contact(AccountId = acc.Id, FirstName = 'Order', LastName = 'Contact',
             Email = 'order.contact@mvsc.invalid.test', Language__c = 'NL');
 
-        insert new Business_Entities__c(Name = 'Netherlands', Reseller__c = '1', Email_Sales__c = 'sales@mvsc.invalid.test');
+        Business_Entities__c be = new Business_Entities__c(Name = 'Netherlands', Reseller__c = '1', Email_Sales__c = 'sales@mvsc.invalid.test');
+        insert be;
+        // set after insert: org flows can overwrite fields on create
+        update new Business_Entities__c(Id = be.Id, DealerPortal_Opportunity_SendConfirm__c = true);
 
         Product2 prod = new Product2(Name = 'Order Confirmation Product', ProductCode = 'OC-001', IsActive = true);
         insert prod;
@@ -60,6 +63,38 @@ private class Test_Util_OrderConfirmation {
         System.assertNotEquals(null, after.Order_Processed_At__c, 'Closed Won stamps the processing moment');
         System.assertEquals(null, after.Order_Process_Error__c, 'No error expected: ' + after.Order_Process_Error__c);
         System.assertNotEquals(null, after.Order_Confirmation_Sent__c, 'The confirmation is sent on Closed Won; error ' + after.Order_Process_Error__c);
+    }
+
+    @IsTest
+    static void testClosedWon_noConfirmationWhenBusinessEntityDoesNotSend() {
+        update new Business_Entities__c(Id = [SELECT Id FROM Business_Entities__c WHERE Reseller__c = '1' LIMIT 1].Id,
+            DealerPortal_Opportunity_SendConfirm__c = false);
+        Opportunity opp = makeOrder();
+
+        Test.startTest();
+        update new Opportunity(Id = opp.Id, StageName = 'Closed Won');
+        Test.stopTest();
+        Test.getEventBus().deliver();
+
+        Opportunity after = [SELECT Order_Processed_At__c, Order_Confirmation_Sent__c FROM Opportunity WHERE Id = :opp.Id];
+        System.assertNotEquals(null, after.Order_Processed_At__c, 'Closed Won still stamps the processing moment');
+        System.assertEquals(null, after.Order_Confirmation_Sent__c, 'No automatic confirmation when the business entity does not send');
+    }
+
+    // API 67.0+ runs in user mode: a user without Create on Order_Process__e must still be able to publish.
+    @IsTest
+    static void testPublisher_worksForUserWithoutEventPermission() {
+        User u = new User(Alias = 'ocpub', Email = 'ocpub@mvsc.invalid.test', EmailEncodingKey = 'UTF-8', LastName = 'Publisher',
+            LanguageLocaleKey = 'en_US', LocaleSidKey = 'nl_NL', TimeZoneSidKey = 'Europe/Amsterdam',
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1].Id,
+            UserName = 'ocpub' + System.now().getTime() + '@mvsc.invalid.test');
+        insert u;
+        List<Database.SaveResult> results;
+        System.runAs(u) {
+            results = Util_OrderProcessPublisher.publish(new List<Order_Process__e>{
+                new Order_Process__e(Opportunity_Id__c = '006000000000000', Action__c = Util_OrderConfirmation.ACTION_SEND) });
+        }
+        System.assert(results[0].isSuccess(), 'Publish failed: ' + results[0].getErrors());
     }
 
     @IsTest

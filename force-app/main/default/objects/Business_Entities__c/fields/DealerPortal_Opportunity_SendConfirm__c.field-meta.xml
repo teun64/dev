@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DealerPortal_Opportunity_SendConfirm__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When ticked, a Webshop order gets the order confirmation email automatically when it goes to Closed Won (by hand, by the Process Order button or by Auto-Process Orders). When not ticked, no confirmation is sent automatically; the Resend Confirmation button still sends one.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When ticked, a Webshop order gets the order confirmation email automatically when it goes to Closed Won (by hand, by the Process Order button or by Auto-Process Orders). When not ticked, no confirmation is sent automatically; the Resend Confirmation button still sends one.</inlineHelpText>
+    <label>Send Order Confirmation (Dealer Portal)</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>
