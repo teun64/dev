@@ -16,3 +16,4 @@ Validated: **0AfTx0000014PAXKA2** (7/7).
 Done 2026-10-30: the 4 unsent prod orders (2026-00077889/904/905/907) marked Order_Confirmation_Sent__c, not sent.
 
 **LIVE prod 2026-10-30:** 0AfTx0000014PIbKAM. Publisher on API 66 verified; all Send Order Confirmation flags off.
+Help texts (independent settings) LIVE prod 0AfTx0000014PYjKAM.
