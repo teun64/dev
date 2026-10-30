@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Subscription25__Subscription25</members>
+        <name>CustomApplication</name>
+    </types>
+    <types>
+        <members>Business_Entities__c</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
+        <members>ps_BusinessEntitiesAdmin</members>
+        <members>ps_BusinessEntitiesReadOnly</members>
+        <name>PermissionSet</name>
+    </types>
+    <types>
+        <members>Admin</members>
+        <name>Profile</name>
+    </types>
+    <version>68.0</version>
+</Package>

@@ -177,4 +177,8 @@
         <readable>true</readable>
         <editable>true</editable>
     </fieldPermissions>
+    <tabSettings>
+        <tab>Business_Entities__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>
