@@ -1000,7 +1000,7 @@ public without sharing class Ctrl_DealerShop {
             opp.ShippingAddress__City__s        = options.shippingAddress.city.trim().left(40);
             opp.ShippingAddress__CountryCode__s = options.shippingAddress.countryCode;
             // Attention lines for the different address only (max 2); the confirmation shows them instead of the account name.
-            List<String> attention = Ctrl_OrderDeliveryRecipient.attentionLines(options.shippingAttention);
+            List<String> attention = attentionLines(options.shippingAttention);
             opp.ShippingAttention__c = attention.isEmpty() ? null : String.join(attention, '\n');
         }
         Database.update(opp, AccessLevel.SYSTEM_MODE);
@@ -1062,6 +1062,19 @@ public without sharing class Ctrl_DealerShop {
             }
         }
         return options;
+    }
+
+    // Attention text → its non-blank, trimmed lines: at most 2, of max 100 chars each.
+    @TestVisible
+    private static List<String> attentionLines(String value) {
+        List<String> lines = new List<String>();
+        if (String.isBlank(value)) return lines;
+        for (String line : value.split('\r\n|\r|\n')) {
+            if (String.isBlank(line)) continue;
+            lines.add(line.trim().left(100));
+            if (lines.size() == 2) break;
+        }
+        return lines;
     }
 
     private static AddressDTO toAddress(String street, String postalCode, String city, String countryCode) {

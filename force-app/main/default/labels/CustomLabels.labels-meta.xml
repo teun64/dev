@@ -101,6 +101,15 @@
         <value>Description Solved</value>
     </labels>
     <labels>
+        <fullName>Email_LineBreak</fullName>
+        <categories>Email</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Line break for VF email templates - do not translate or edit</shortDescription>
+        <value>[
+]</value>
+    </labels>
+    <labels>
         <fullName>EndDate</fullName>
         <language>en_US</language>
         <protected>false</protected>

@@ -1606,6 +1606,13 @@ private class Test_Ctrl_DealerShop {
     }
 
     @IsTest
+    static void testAttentionLines_trimmedAndCapped() {
+        System.assertEquals(new List<String>(), Ctrl_DealerShop.attentionLines(null));
+        System.assertEquals(new List<String>{ 'a', 'b' }, Ctrl_DealerShop.attentionLines('\n  a  \r\n\n b\nc'));
+        System.assertEquals(100, Ctrl_DealerShop.attentionLines('x'.repeat(150))[0].length());
+    }
+
+    @IsTest
     static void testPlaceOrder_orderOptions_attentionIgnoredWithoutDifferentAddress() {
         String optionsJson = JSON.serialize(new Map<String, Object>{
             'useDifferentShippingAddress' => false,
