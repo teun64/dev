@@ -789,6 +789,16 @@
                 <identifier>RecordShippingAttention_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Order_Process_Error__c</fieldItem>
+                <identifier>RecordOrder_Process_Error_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-c5da2f1f-f69d-4d2a-ad27-ab13d7680515</name>
         <type>Facet</type>
     </flexiPageRegions>

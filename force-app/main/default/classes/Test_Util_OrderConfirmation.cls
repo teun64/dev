@@ -97,6 +97,22 @@ private class Test_Util_OrderConfirmation {
         System.assert(results[0].isSuccess(), 'Publish failed: ' + results[0].getErrors());
     }
 
+    // A refusal (rbu_Opportunity: account not financial-ready) shows in the button result at once and is stored.
+    @IsTest
+    static void testProcessButton_refusalShownAtOnce() {
+        Opportunity opp = makeOrder();
+        update new Account(Id = [SELECT AccountId FROM Opportunity WHERE Id = :opp.Id].AccountId, Bank_Account_Number__c = null);
+
+        Test.startTest();
+        List<String> result = Util_OrderConfirmation.processOrResend(new List<Id>{ opp.Id });
+        Test.stopTest();
+
+        System.assert(result[0].startsWith('The order was NOT processed: '), result[0]);
+        Opportunity after = [SELECT IsWon, Order_Process_Error__c FROM Opportunity WHERE Id = :opp.Id];
+        System.assertEquals(false, after.IsWon, 'A refused order keeps its stage');
+        System.assert(after.Order_Process_Error__c.startsWith('Processing failed: '), after.Order_Process_Error__c);
+    }
+
     @IsTest
     static void testProcessButton_closesOpenOrder_andResendsWonOrder() {
         Opportunity opp = makeOrder();

@@ -146,6 +146,14 @@ public without sharing class Util_OrderConfirmation {
     // (e.g. rbu_Opportunity: account not financial-ready) leaves the order on its stage with the reason.
     @TestVisible
     private static void processOrders(Set<Id> opportunityIds) {
+        closeWon(opportunityIds);
+    }
+
+    // Sets open Webshop orders to Closed Won; a refused order keeps its stage and gets the reason in
+    // Order_Process_Error__c. Returns the reasons by opportunity id.
+    private static Map<Id, String> closeWon(Set<Id> opportunityIds) {
+        Map<Id, String> errors = new Map<Id, String>();
+        if (opportunityIds.isEmpty()) return errors;
         List<Opportunity> toClose = new List<Opportunity>();
         for (Opportunity opp : [
             SELECT Id FROM Opportunity
@@ -158,11 +166,14 @@ public without sharing class Util_OrderConfirmation {
         List<Opportunity> failed = new List<Opportunity>();
         for (Integer i = 0; i < results.size(); i++) {
             if (!results[i].isSuccess()) {
+                String reason = errorText(results[i].getErrors());
+                errors.put(toClose[i].Id, reason);
                 failed.add(new Opportunity(Id = toClose[i].Id,
-                    Order_Process_Error__c = ('Automatic processing failed: ' + errorText(results[i].getErrors())).left(255)));
+                    Order_Process_Error__c = ('Processing failed: ' + reason).left(255)));
             }
         }
         if (!failed.isEmpty()) Database.update(failed, false, AccessLevel.SYSTEM_MODE);
+        return errors;
     }
 
     @TestVisible
@@ -320,6 +331,7 @@ public without sharing class Util_OrderConfirmation {
         ]);
         List<Opportunity> missingShipping = new List<Opportunity>();
         List<String> messages = new List<String>();
+        Map<Id, Integer> messageIndexByProcessed = new Map<Id, Integer>();
         Set<Id> toProcess = new Set<Id>();
         Set<Id> toSend = new Set<Id>();
         for (Id oppId : opportunityIds) {
@@ -340,7 +352,8 @@ public without sharing class Util_OrderConfirmation {
                 messages.add('This order is closed and not won: nothing was sent.');
             } else {
                 toProcess.add(oppId);
-                messages.add('The order is being set to Closed Won; the order confirmation follows. If it stays open, Order Process Error shows why.');
+                messageIndexByProcessed.put(oppId, messages.size());
+                messages.add('The order is set to Closed Won; the order confirmation follows.');
             }
         }
         if (!missingShipping.isEmpty()) {
@@ -353,7 +366,12 @@ public without sharing class Util_OrderConfirmation {
             }
             Database.update(toSave, false, AccessLevel.SYSTEM_MODE);
         }
-        publish(toProcess, ACTION_PROCESS);
+        // Processed right here (not via the event) so the user sees a refusal at once, e.g. rbu_Opportunity:
+        // account not financial-ready. Same as setting the stage by hand; the trigger then sends the confirmation.
+        Map<Id, String> errors = closeWon(toProcess);
+        for (Id oppId : errors.keySet()) {
+            messages[messageIndexByProcessed.get(oppId)] = 'The order was NOT processed: ' + errors.get(oppId);
+        }
         publish(toSend, ACTION_SEND);
         return messages;
     }
