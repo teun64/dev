@@ -210,6 +210,10 @@ global without sharing class Rest_UpsertAccount {
 		if (previousContractsMethod == 'pr' && acc.Payment_Method_Contracts__c?.left(1) == 'I') {
 			acc.Payment_Method_Contracts__c = 'pr';
 		}
+		// 20261030 TRi once on C (set by Finance, e.g. own MI accounts) the platform never changes it
+		if (previousContractsMethod == 'C') {
+			acc.Payment_Method_Contracts__c = 'C';
+		}
 
 		// 20230317 TRi Account has dealer tasks, replacement for the record type b2b_dealer.
 		acc.HasDealerTasks__c = (miAcc.isDealer == null) ? false : miAcc.isDealer;
