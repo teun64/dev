@@ -769,6 +769,16 @@
                 <identifier>RecordShippingAddress_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.ShippingAttention__c</fieldItem>
+                <identifier>RecordShippingAttention_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-c5da2f1f-f69d-4d2a-ad27-ab13d7680515</name>
         <type>Facet</type>
     </flexiPageRegions>

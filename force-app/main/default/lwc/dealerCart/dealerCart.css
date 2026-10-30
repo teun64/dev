@@ -295,6 +295,12 @@
     cursor: pointer;
 }
 
+.option-textarea {
+    resize: none;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
 .address-form {
     display: flex;
     flex-direction: column;

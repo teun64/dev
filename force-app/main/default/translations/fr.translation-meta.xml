@@ -154,6 +154,14 @@ L'accès à la boutique en ligne nécessite un compte. Dans votre compte personn
         <name>DealerShop_NewAddress</name>
     </customLabels>
     <customLabels>
+        <label>À l'attention de (facultatif)</label>
+        <name>DealerShop_Attention</name>
+    </customLabels>
+    <customLabels>
+        <label>Nom et/ou service, 2 lignes max. Vide = nom de la société</label>
+        <name>DealerShop_AttentionPlaceholder</name>
+    </customLabels>
+    <customLabels>
         <label>Rue et numéro</label>
         <name>DealerShop_Street</name>
     </customLabels>

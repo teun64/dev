@@ -127,6 +127,7 @@ export default class DealerOrderDetail extends LightningElement {
             customerReference: '',
             useDifferentShippingAddress: !!this.order.useDifferentShippingAddress,
             shippingAddress: this.order.shippingAddress || null,
+            shippingAttention: this.order.shippingAttention || '',
             openOptions: !!this.order.useDifferentShippingAddress
         });
         this._goToShopCart();

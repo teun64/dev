@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ShippingAttention__c</fullName>
+    <description>Attention lines (t.a.v. / z. Hd. / FAO) for the different delivery address (Use_ShippingAddress__c), max 2 lines. Filled from the Dealer Shop cart order options. The order confirmation shows line 1 bold instead of the account name; empty = the account name.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Attention (max 2 lines) for the different delivery address. Shown instead of the account name in the order confirmation; empty = account name.</inlineHelpText>
+    <label>Shipping Attention</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>TextArea</type>
+</CustomField>

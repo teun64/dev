@@ -154,6 +154,14 @@ Für den Zugang zum Webshop benötigen Sie ein Konto. In Ihrem persönlichen Kon
         <name>DealerShop_NewAddress</name>
     </customLabels>
     <customLabels>
+        <label>z. Hd. (optional)</label>
+        <name>DealerShop_Attention</name>
+    </customLabels>
+    <customLabels>
+        <label>Name und/oder Abteilung, max. 2 Zeilen. Leer = Firmenname</label>
+        <name>DealerShop_AttentionPlaceholder</name>
+    </customLabels>
+    <customLabels>
         <label>Straße und Hausnummer</label>
         <name>DealerShop_Street</name>
     </customLabels>

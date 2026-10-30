@@ -2272,6 +2272,22 @@ Access to the webshop requires an account. In your personal account you can view
         <value>New address</value>
     </labels>
     <labels>
+        <fullName>DealerShop_Attention</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - attention field label</shortDescription>
+        <value>Attention (optional)</value>
+    </labels>
+    <labels>
+        <fullName>DealerShop_AttentionPlaceholder</fullName>
+        <categories>Dealer Portal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Shop cart - attention field placeholder</shortDescription>
+        <value>Name and/or department, max 2 lines. Empty = company name</value>
+    </labels>
+    <labels>
         <fullName>DealerShop_Street</fullName>
         <categories>Dealer Portal</categories>
         <language>en_US</language>

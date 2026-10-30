@@ -43,6 +43,8 @@ const DEFAULT_LABELS = {
     DealerShop_DeliveryAddress: 'Delivery address',
     DealerShop_UseDifferentAddress: 'Use a different delivery address',
     DealerShop_NewAddress: 'New address',
+    DealerShop_Attention: 'Attention (optional)',
+    DealerShop_AttentionPlaceholder: 'Name and/or department, max 2 lines. Empty = company name',
     DealerShop_Street: 'Street and number',
     DealerShop_PostalCode: 'Postal code',
     DealerShop_City: 'City',

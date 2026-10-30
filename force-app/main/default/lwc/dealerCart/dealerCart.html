@@ -125,6 +125,12 @@
                                             </select>
                                         </div>
                                     </template>
+                                    <label class="option-field">
+                                        <span class="option-label">{shopLabels.DealerShop_Attention}</span>
+                                        <textarea class="option-input option-textarea" rows="2" maxlength="200"
+                                            placeholder={shopLabels.DealerShop_AttentionPlaceholder}
+                                            value={shippingAttention} oninput={handleAttentionInput}></textarea>
+                                    </label>
                                 </template>
                                 <template lwc:else>
                                     <p class="address-default">{defaultAddressText}</p>

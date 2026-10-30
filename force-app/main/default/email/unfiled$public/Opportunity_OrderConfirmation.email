@@ -1,7 +1,7 @@
 <messaging:emailTemplate recipientType="Contact" relatedToType="Opportunity" language="{!CASE(UPPER(recipient.Language__c),'NL','nl_NL','DE','de','AT','de','CH','de','EN','en_US','GB','en_US','FR','fr','LU','fr','MC','fr',CASE(LOWER(relatedTo.Account.Sales_Language__c),'nl','nl_NL','de','de','fr','fr','en','en_US','nl_NL'))}" subject="{!$Label.OrderConfirm_Subject} {!relatedTo.Auto_Number__c}">
     <!-- Order confirmation of a Webshop opportunity (Util_OrderConfirmation). Everything comes from the opportunity (no controller: sent as the Automated Process user).
          Language: the recipient's Language__c, else the account's sales language, else Dutch (same rule as Svc_DealerUserSetup.resolveLanguage).
-         Delivery address: the opportunity's own address when Use_ShippingAddress__c is ticked, else the account's shipping address. Lines with a shipping-method product (shipping costs) are left out. -->
+         Delivery address: the opportunity's own address when Use_ShippingAddress__c is ticked (headed by its attention lines, ShippingAttention__c, line 1 bold - else the account name, via c:orderDeliveryRecipient), else the account's shipping address under the account name in bold. Lines with a shipping-method product (shipping costs) are left out. -->
     <messaging:htmlEmailBody>
         <html>
         <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
@@ -34,10 +34,10 @@
 
                 <p style="font-family:Arial,Helvetica,sans-serif;margin:24px 0 8px;font-weight:bold;">{!$Label.DealerShop_DeliveryAddress}</p>
                 <apex:outputPanel layout="none" rendered="{!relatedTo.Use_ShippingAddress__c}">
-                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;">{!relatedTo.Account.Name}<br/>{!relatedTo.ShippingAddress__Street__s}<br/>{!relatedTo.ShippingAddress__PostalCode__s} {!relatedTo.ShippingAddress__City__s}<br/>{!relatedTo.ShippingAddress__CountryCode__s}</p>
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><c:orderDeliveryRecipient attention="{!relatedTo.ShippingAttention__c}" accountName="{!relatedTo.Account.Name}" /><br/>{!relatedTo.ShippingAddress__Street__s}<br/>{!relatedTo.ShippingAddress__PostalCode__s} {!relatedTo.ShippingAddress__City__s}<br/>{!relatedTo.ShippingAddress__CountryCode__s}</p>
                 </apex:outputPanel>
                 <apex:outputPanel layout="none" rendered="{!NOT(relatedTo.Use_ShippingAddress__c)}">
-                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;">{!relatedTo.Account.Name}<br/>{!relatedTo.Account.ShippingStreet}<br/>{!relatedTo.Account.ShippingPostalCode} {!relatedTo.Account.ShippingCity}<br/>{!relatedTo.Account.ShippingCountry}</p>
+                    <p style="font-family:Arial,Helvetica,sans-serif;margin:0 0 16px;"><strong>{!relatedTo.Account.Name}</strong><br/>{!relatedTo.Account.ShippingStreet}<br/>{!relatedTo.Account.ShippingPostalCode} {!relatedTo.Account.ShippingCity}<br/>{!relatedTo.Account.ShippingCountry}</p>
                 </apex:outputPanel>
 
                 <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(relatedTo.Order_Shipping_Date__c))}">

@@ -1,0 +1,5 @@
+<apex:component controller="Ctrl_OrderDeliveryRecipient" access="global">
+    <apex:attribute name="attention" type="String" assignTo="{!attentionText}" description="Opportunity.ShippingAttention__c (blank when the account's own shipping address is used)" />
+    <apex:attribute name="accountName" type="String" assignTo="{!recipientAccountName}" description="Account name, shown when there is no attention" />
+    <apex:outputText value="{!recipientHtml}" escape="false" />
+</apex:component>

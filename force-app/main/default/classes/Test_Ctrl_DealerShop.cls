@@ -1578,7 +1578,8 @@ private class Test_Ctrl_DealerShop {
         String optionsJson = JSON.serialize(new Map<String, Object>{
             'customerReference'           => '  PO-4711  ',
             'useDifferentShippingAddress' => true,
-            'shippingAddress'             => deliveryAddress('Coolsingel 40')
+            'shippingAddress'             => deliveryAddress('Coolsingel 40'),
+            'shippingAttention'           => ' Jan de Vries \r\n\r\nInkoop\nThird line'
         });
 
         String cartJson = orderOptionsCartJson();
@@ -1591,7 +1592,8 @@ private class Test_Ctrl_DealerShop {
 
         Opportunity opp = [
             SELECT Customer_Reference__c, Use_ShippingAddress__c, ShippingAddress__Street__s,
-                   ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s
+                   ShippingAddress__PostalCode__s, ShippingAddress__City__s, ShippingAddress__CountryCode__s,
+                   ShippingAttention__c
             FROM Opportunity WHERE Name = :orderNumber
         ];
         System.assertEquals('PO-4711', opp.Customer_Reference__c, 'The entered reference must be stored, trimmed');
@@ -1600,6 +1602,27 @@ private class Test_Ctrl_DealerShop {
         System.assertEquals('3011AA', opp.ShippingAddress__PostalCode__s, 'Delivery postal code mismatch');
         System.assertEquals('Rotterdam', opp.ShippingAddress__City__s, 'Delivery city mismatch');
         System.assertEquals('NL', opp.ShippingAddress__CountryCode__s, 'Delivery country mismatch');
+        System.assertEquals('Jan de Vries\nInkoop', opp.ShippingAttention__c, 'Attention must be trimmed to 2 non-blank lines');
+    }
+
+    @IsTest
+    static void testPlaceOrder_orderOptions_attentionIgnoredWithoutDifferentAddress() {
+        String optionsJson = JSON.serialize(new Map<String, Object>{
+            'useDifferentShippingAddress' => false,
+            'shippingAttention'           => 'Jan de Vries'
+        });
+
+        String cartJson = orderOptionsCartJson();
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, optionsJson);
+        }
+        Test.stopTest();
+
+        Opportunity opp = [SELECT Use_ShippingAddress__c, ShippingAttention__c FROM Opportunity WHERE Name = :orderNumber];
+        System.assertEquals(false, opp.Use_ShippingAddress__c, 'Without the option the account shipping address is used');
+        System.assertEquals(null, opp.ShippingAttention__c, 'Attention only belongs to a different delivery address');
     }
 
     @IsTest
@@ -1646,7 +1669,8 @@ private class Test_Ctrl_DealerShop {
     static void testGetOrderOptions_previousAddressesDeduplicated_andReorderKeepsAddress() {
         String optionsJson = JSON.serialize(new Map<String, Object>{
             'useDifferentShippingAddress' => true,
-            'shippingAddress'             => deliveryAddress('Coolsingel 40')
+            'shippingAddress'             => deliveryAddress('Coolsingel 40'),
+            'shippingAttention'           => 'Jan de Vries'
         });
 
         String cartJson = orderOptionsCartJson();
@@ -1670,6 +1694,7 @@ private class Test_Ctrl_DealerShop {
         System.assert(!options.countries.isEmpty(), 'The country list must be filled');
         System.assertEquals(true, detail.useDifferentShippingAddress, 'Order detail must report the different delivery address');
         System.assertEquals('Coolsingel 40', detail.shippingAddress.street, 'Order detail must return the delivery address for a reorder');
+        System.assertEquals('Jan de Vries', detail.shippingAttention, 'Order detail must return the attention for a reorder');
     }
 
     // ── Show list prices ─────────────────────────────────────────────────────

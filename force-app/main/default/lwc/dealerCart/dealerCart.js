@@ -29,6 +29,9 @@ export default class DealerCart extends LightningElement {
     @track useDifferentAddress = false;
     @track selectedAddress = NEW_ADDRESS;
     @track newAddress = { street: '', postalCode: '', city: '', countryCode: '' };
+    // Attention lines for the different delivery address (ShippingAttention__c, max 2 lines);
+    // shown instead of the account name in the order confirmation.
+    @track shippingAttention = '';
     @track orderOptionsData = null;
     // Contact person on the order (Sales_Contact__c, the signer): default the account's Main role contact.
     @track selectedContactId = '';
@@ -40,6 +43,7 @@ export default class DealerCart extends LightningElement {
             this.useDifferentAddress = !!stored.useDifferentShippingAddress;
             this.selectedContactId   = stored.contactId || '';
             if (stored.shippingAddress) this.newAddress = { ...this.newAddress, ...stored.shippingAddress };
+            this.shippingAttention   = stored.shippingAttention || '';
             // A reorder hands over its options - show them instead of hiding them behind the toggle.
             this.optionsOpen = !!stored.openOptions;
             if (stored.openOptions) saveOrderOptions({ ...stored, openOptions: false }, this.dealerAccountId);
@@ -133,6 +137,8 @@ export default class DealerCart extends LightningElement {
             if (contact) parts.push(contact.label);
         }
         if (this.useDifferentAddress) {
+            const attention = this.shippingAttention.split('\n')[0].trim();
+            if (attention) parts.push(attention);
             const address = this._formatAddress(this.effectiveShippingAddress);
             if (address) parts.push(address);
         }
@@ -185,6 +191,7 @@ export default class DealerCart extends LightningElement {
             customerReference: this.customerReference,
             useDifferentShippingAddress: this.useDifferentAddress,
             shippingAddress: this.effectiveShippingAddress,
+            shippingAttention: this.shippingAttention,
             contactId: this.selectedContactId
         }, this.dealerAccountId);
     }
@@ -205,6 +212,15 @@ export default class DealerCart extends LightningElement {
 
     handleAddressSelect(event) {
         this.selectedAddress = event.target.value;
+        this._persistOptions();
+    }
+
+    // Max 2 lines: a third line break is dropped as it is typed (the server trims to 2 lines too).
+    handleAttentionInput(event) {
+        const lines = event.target.value.split('\n');
+        const value = lines.length > 2 ? lines.slice(0, 2).join('\n') : event.target.value;
+        if (value !== event.target.value) event.target.value = value;
+        this.shippingAttention = value;
         this._persistOptions();
     }
 
@@ -376,6 +392,7 @@ export default class DealerCart extends LightningElement {
                     customerReference: this.customerReference,
                     useDifferentShippingAddress: this.useDifferentAddress,
                     shippingAddress: this.effectiveShippingAddress,
+                    shippingAttention: this.useDifferentAddress ? this.shippingAttention : null,
                     contactId: this.selectedContactId || null
                 })
             });

@@ -154,6 +154,14 @@ Voor toegang tot de webshop heeft u een account nodig. In uw persoonlijke accoun
         <name>DealerShop_NewAddress</name>
     </customLabels>
     <customLabels>
+        <label>T.a.v. (optioneel)</label>
+        <name>DealerShop_Attention</name>
+    </customLabels>
+    <customLabels>
+        <label>Naam en/of afdeling, max. 2 regels. Leeg = bedrijfsnaam</label>
+        <name>DealerShop_AttentionPlaceholder</name>
+    </customLabels>
+    <customLabels>
         <label>Straat en huisnummer</label>
         <name>DealerShop_Street</name>
     </customLabels>
