@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Business Entity</label>
+    <pluralLabel>Business Entities</pluralLabel>
+    <nameField>
+        <label>Business Entity Name</label>
+        <type>Text</type>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>One row per reseller (Business Entity), keyed by the same Reseller__c picklist value already used on Account.Reseller_Name__c and Subscription25__Administration__c.Reseller__c - joined by value, not by lookup, so this object has no dependency on the Subscription25 managed package. Currently used to configure Dealer Shop shipping cost behaviour per reseller.</description>
+    <sharingModel>ReadWrite</sharingModel>
+    <fields>
+        <fullName>Business_Hours_Shipping__c</fullName>
+        <description>Name of the Business Hours (Setup &gt; Business Hours) that define this entity&apos;s shipping days: its time zone and holidays decide whether an order ships today or on the next working day (order confirmation). Empty or not found = Europe/Amsterdam, Monday to Friday, no holidays.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Name of the Business Hours (Setup &gt; Business Hours) with this entity&apos;s time zone, working days and holidays, e.g. Office (NL). Empty = Europe/Amsterdam, Monday to Friday.</inlineHelpText>
+        <label>Business Hours (Office)</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Shipping_Cutoff_Time__c</fullName>
+        <defaultValue>TIMEVALUE(&quot;15:00:00.000&quot;)</defaultValue>
+        <description>Orders processed (Closed Won) before this local time on a working day are shipped the same day, otherwise on the next working day. Local time and working days come from Business Hours (Office). Empty = 15:00.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Orders processed before this local time on a working day are shipped the same day, otherwise the next working day. Empty = 15:00.</inlineHelpText>
+        <label>Shipping Cut-off Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <type>Time</type>
+    </fields>
+</CustomObject>
