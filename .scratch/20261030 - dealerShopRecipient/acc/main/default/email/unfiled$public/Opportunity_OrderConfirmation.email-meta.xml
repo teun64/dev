@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Webshop order confirmation, sent by Util_OrderConfirmation when the opportunity goes to Closed Won (or via Process Order / Resend Confirmation). Language = recipient's language; texts in OrderConfirm_* labels.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Opportunity - Order Confirmation</name>
+    <style>none</style>
+    <subject>Thank you for your order</subject>
+    <type>visualforce</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

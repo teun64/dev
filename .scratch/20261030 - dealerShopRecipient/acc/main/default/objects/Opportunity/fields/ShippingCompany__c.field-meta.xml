@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ShippingCompany__c</fullName>
+    <description>Company name for the different delivery address (Use_ShippingAddress__c). Filled from the Dealer Shop cart order options. The order confirmation shows it in bold above the address; empty = the account name.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Company name for the different delivery address, shown in the order confirmation. Empty = the account name.</inlineHelpText>
+    <label>Shipping Company</label>
+    <length>80</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

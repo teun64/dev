@@ -1,0 +1,158 @@
+:host {
+    display: block;
+    font-family: var(--brand-font, 'Open Sans', sans-serif);
+}
+
+.order-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: #555 !important;
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: var(--brand-primary, #ff0000) !important;
+}
+
+.order-detail__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.order-detail__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 0.25rem;
+}
+
+.order-detail__meta {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+}
+
+.reorder-btn {
+    background: #0E0F0E;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.reorder-btn:hover {
+    opacity: 0.88;
+}
+
+.spinner-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.error-state,
+.empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+    color: #555;
+    font-size: 1rem;
+}
+
+.line-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.line-table th {
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.line-table td {
+    padding: 0.6rem 1rem;
+    font-size: 0.875rem;
+    color: #333;
+    border-bottom: 1px solid #f2f2f2;
+    vertical-align: middle;
+}
+
+.line-table tr:last-child td {
+    border-bottom: none;
+}
+
+.col-image {
+    width: 56px;
+}
+
+.col-image img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f5f5f5;
+}
+
+.line-name {
+    margin: 0;
+    font-weight: 600;
+    color: #111;
+}
+
+.line-code {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.col-price {
+    white-space: nowrap;
+}
+
+.add-line-btn {
+    background-color: #0E0F0E;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+}
+
+.add-line-btn:hover {
+    opacity: 0.85;
+}
+
+@media (max-width: 700px) {
+    .line-table th:nth-child(4),
+    .line-table td:nth-child(4) {
+        display: none;
+    }
+}

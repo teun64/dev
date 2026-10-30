@@ -1,0 +1,78 @@
+<template>
+    <div class="order-detail">
+        <a href="/dealers/order-history" class="back-link">&lsaquo; {labels.DealerOrder_BackToHistory}</a>
+
+        <template if:true={isLoading}>
+            <div class="spinner-container">
+                <lightning-spinner alternative-text={labels.DealerOrder_Loading} size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={errorMessage}>
+            <div class="error-state">
+                <p>{errorMessage}</p>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={order}>
+                <div class="order-detail__header">
+                    <div>
+                        <h1 class="order-detail__title">{order.orderNumber}</h1>
+                        <p class="order-detail__meta">{order.formattedDate} &middot; {order.statusLabel}</p>
+                    </div>
+                    <template if:false={isEmpty}>
+                        <button class="reorder-btn" onclick={handleReorderAll}>{labels.DealerOrder_ReorderAll}</button>
+                    </template>
+                </div>
+
+                <template if:true={isEmpty}>
+                    <div class="empty-state">
+                        <p>{labels.DealerOrder_NoProducts}</p>
+                    </div>
+                </template>
+
+                <template if:false={isEmpty}>
+                    <table class="line-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>{labels.DealerOrder_Product}</th>
+                                <th>{labels.DealerOrder_Quantity}</th>
+                                <th class="col-price">{labels.DealerOrder_PriceThen}</th>
+                                <th class="col-price">{labels.DealerOrder_PriceNow}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={order.lines} for:item="line">
+                                <tr key={line.productId}>
+                                    <td class="col-image">
+                                        <template lwc:if={line.imageUrl}>
+                                            <img src={line.imageUrl} alt={line.productName} />
+                                        </template>
+                                    </td>
+                                    <td>
+                                        <p class="line-name">{line.productName}</p>
+                                        <p class="line-code">{line.productCode}</p>
+                                    </td>
+                                    <td>{line.quantity}</td>
+                                    <td class="col-price">{line.formattedOriginalPrice}</td>
+                                    <td class="col-price">{line.formattedCurrentPrice}</td>
+                                    <td>
+                                        <button
+                                            class="add-line-btn"
+                                            data-product-id={line.productId}
+                                            onclick={handleAddLineToCart}>
+                                            {labels.DealerOrder_Add}
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </template>
+            </template>
+        </template>
+    </div>
+</template>

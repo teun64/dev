@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Bedrijfsnaam (optioneel)</label>
+        <name>DealerShop_ShippingCompany</name>
+    </customLabels>
+    <customLabels>
+        <label>Leeg = uw eigen bedrijfsnaam</label>
+        <name>DealerShop_ShippingCompanyPlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>T.a.v. (optioneel)</label>
+        <name>DealerShop_Attention</name>
+    </customLabels>
+    <customLabels>
+        <label>Naam en/of afdeling</label>
+        <name>DealerShop_AttentionPlaceholder</name>
+    </customLabels>
+</Translations>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Translations xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customLabels>
+        <label>Nom de la société (facultatif)</label>
+        <name>DealerShop_ShippingCompany</name>
+    </customLabels>
+    <customLabels>
+        <label>Vide = le nom de votre société</label>
+        <name>DealerShop_ShippingCompanyPlaceholder</name>
+    </customLabels>
+    <customLabels>
+        <label>À l'attention de (facultatif)</label>
+        <name>DealerShop_Attention</name>
+    </customLabels>
+    <customLabels>
+        <label>Nom et/ou service</label>
+        <name>DealerShop_AttentionPlaceholder</name>
+    </customLabels>
+</Translations>

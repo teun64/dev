@@ -1,0 +1,77 @@
+<template>
+    <div class="shop-root" style={brandStyle}>
+        <header class="shop-header">
+            <div class="shop-header__search">
+                <input
+                    type="search"
+                    class="shop-search-input"
+                    placeholder={shopLabels.DealerShop_SearchPlaceholder}
+                    value={searchTerm}
+                    oninput={handleSearchInput} />
+            </div>
+            <div class="shop-header__actions">
+                <button class="cart-button" onclick={handleOpenCart}>
+                    <lightning-icon icon-name="utility:cart" size="small"></lightning-icon>
+                    <span class="cart-button__label">{shopLabels.DealerShop_Cart}</span>
+                    <template if:true={cartCount}>
+                        <span class="cart-badge">{cartCount}</span>
+                    </template>
+                </button>
+            </div>
+        </header>
+
+        <c-dealer-category-nav
+            active-category={activeCategory}
+            dealer-account-id={dealerAccountId}
+            shop-labels={shopLabels}
+            oncategorychange={handleCategoryChange}>
+        </c-dealer-category-nav>
+
+        <main class="shop-main">
+            <template if:true={isGridView}>
+                <c-dealer-product-grid
+                    category={activeCategory}
+                    initial-page={activePage}
+                    search-term={searchTerm}
+                    dealer-account-id={dealerAccountId}
+                    shop-labels={shopLabels}
+                    language={language}
+                    onproductselect={handleProductSelect}
+                    onaddtocart={handleAddToCart}
+                    onpagechange={handleGridPageChange}>
+                </c-dealer-product-grid>
+            </template>
+
+            <template if:true={isDetailView}>
+                <c-dealer-product-detail
+                    product-id={selectedProductId}
+                    dealer-account-id={dealerAccountId}
+                    shop-labels={shopLabels}
+                    language={language}
+                    onaddtocart={handleAddToCart}
+                    onbacktoshop={handleBackToShop}>
+                </c-dealer-product-detail>
+            </template>
+
+            <template if:true={isConfirmationView}>
+                <c-dealer-order-confirmation
+                    order-id={orderId}
+                    shop-labels={shopLabels}
+                    onbacktoshop={handleBackToShop}>
+                </c-dealer-order-confirmation>
+            </template>
+        </main>
+
+        <template if:true={cartOpen}>
+            <c-dealer-cart
+                cart-items={cartItems}
+                dealer-account-id={dealerAccountId}
+                shop-labels={shopLabels}
+                onremovefromcart={handleRemoveFromCart}
+                oncartitemchanged={handleCartItemChanged}
+                onclosecart={handleCloseCart}
+                onorderplaced={handleOrderPlaced}>
+            </c-dealer-cart>
+        </template>
+    </div>
+</template>
