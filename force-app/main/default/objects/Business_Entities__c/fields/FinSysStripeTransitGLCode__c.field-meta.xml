@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysStripeTransitGLCode__c</fullName>
+    <description>Exact G/L account code the payout goes to until the bank line arrives (e.g. 100099 Kruisposten). Set directly on the Business Entity (not synced from the Administration). Used by Batch_FinancialSystemStripePostings.</description>
+    <label>FinSys Stripe Transit G/L Code</label>
+    <trackTrending>false</trackTrending>
+    <externalId>false</externalId>
+    <length>20</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

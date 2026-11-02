@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GrossAmount__c</fullName>
+    <description>Sum of the Stripe balance transactions (payments - refunds - disputes ...) before fees.</description>
+    <label>Gross Amount</label>
+    <trackTrending>false</trackTrending>
+    <precision>16</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <type>Currency</type>
+</CustomField>

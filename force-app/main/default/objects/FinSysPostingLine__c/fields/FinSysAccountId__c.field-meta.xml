@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysAccountId__c</fullName>
+    <description>Exact account (debtor) id at the time of posting.</description>
+    <label>FinSys Account Id</label>
+    <trackTrending>false</trackTrending>
+    <externalId>false</externalId>
+    <length>36</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

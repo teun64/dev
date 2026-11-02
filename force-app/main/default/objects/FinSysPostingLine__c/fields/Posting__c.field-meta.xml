@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Posting__c</fullName>
+    <description>Payout this balance transaction belongs to.</description>
+    <label>Posting</label>
+    <trackTrending>false</trackTrending>
+    <referenceTo>FinSysPosting__c</referenceTo>
+    <relationshipLabel>Lines</relationshipLabel>
+    <relationshipName>Lines</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

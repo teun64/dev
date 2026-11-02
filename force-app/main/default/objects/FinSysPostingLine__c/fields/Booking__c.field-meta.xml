@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Booking__c</fullName>
+    <description>Invoice = debtor line with the Exact invoice number (closes the invoice); Fee = Stripe fee type; Suspense = no Exact invoice found, booked to the suspense account.</description>
+    <label>Booking</label>
+    <trackTrending>false</trackTrending>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Invoice</fullName>
+                <default>false</default>
+                <label>Invoice</label>
+            </value>
+            <value>
+                <fullName>Fee</fullName>
+                <default>false</default>
+                <label>Fee</label>
+            </value>
+            <value>
+                <fullName>Suspense</fullName>
+                <default>false</default>
+                <label>Suspense</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

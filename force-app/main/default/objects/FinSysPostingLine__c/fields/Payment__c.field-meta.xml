@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Payment__c</fullName>
+    <description>Payment of the PaymentIntent.</description>
+    <label>Payment</label>
+    <trackTrending>false</trackTrending>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>Payment__c</referenceTo>
+    <relationshipLabel>FinSys Posting Lines</relationshipLabel>
+    <relationshipName>FinSysPostingLines</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>
