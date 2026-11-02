@@ -44,7 +44,10 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             'SELECT Id, Name, Status__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c, PayProv_PaymentIntentId__c, externalId__c,' +
             ' Account__r.PayProv_CustomerId__c, Account__r.PayProv_PaymentMethodId__c, Account__r.PayProv_MandateId__c,' +
             ' Account__r.PayProv_PaymentMethodType__c,' +
-            ' Account__r.Reseller_Name__c, Administration__r.Reseller__c' +
+            ' Account__r.Reseller_Name__c, Administration__r.Reseller__c,' +
+            ' Invoice__c, Invoice__r.Subscription25__Invoice_Number__c, Invoice__r.FinSysInvoiceId__c, Invoice__r.FinSysInvoiceNumber__c,' +
+            ' Account__r.FinancialIdAccount__c, Account__r.FinancialDebtorNumber__c,' +
+            ' Administration__r.Subscription25__Twinfield_Company_Code__c' +
             ' FROM Payment__c' +
             ' WHERE Type__c IN (\'psp-recurring\', \'psp-dd\')' +
             ' AND Status__c IN (\'New\', \'Setup\')' +
@@ -154,7 +157,8 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
                     p.Account__r.PayProv_PaymentMethodId__c,
                     p.Account__r.PayProv_MandateId__c,
                     amountCents, p.CurrencyIsoCode, methodType, p.Id,
-                    p.Id + '-' + String.valueOf(p.Collection_Date__c)
+                    p.Id + '-' + String.valueOf(p.Collection_Date__c),
+                    Svc_PaymentIntent.finSysParams(p, true)
                 );
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing', PayProv_PaymentIntentId__c = paymentIntentId));
             } catch (Exception e) {
@@ -223,10 +227,12 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
         return c;
     }
 
+    @TestVisible
     private static String issuePaymentIntent(
         String stripeAccountId, String customerId,
         String paymentMethodId, String mandateId,
-        Integer amountCents, String currencyCode, String methodType, String paymentId, String idempotencyKey
+        Integer amountCents, String currencyCode, String methodType, String paymentId, String idempotencyKey,
+        List<String> finSysParams
     ) {
         List<String> body = new List<String>{
             'amount=' + amountCents,
@@ -241,6 +247,8 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
         };
         // a card has no mandate (an old direct debit mandate on the account doesn't belong to it)
         if (!Svc_PaymentIntent.CARD.equals(methodType)) body.add('mandate=' + mandateId);
+        // 20261102 TRi Exact references for invoice matching (Svc_PaymentIntent.finSysParams)
+        body.addAll(finSysParams);
         return (String) Svc_PaymentIntent.call('POST', '/v1/payment_intents', stripeAccountId, String.join(body, '&'), idempotencyKey).get('id');
     }
 }

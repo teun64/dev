@@ -188,4 +188,29 @@ private class Test_Batch_ProcessPayments {
 
         System.assertEquals(20, b.getBatchSize());
     }
+
+    // ── 20261102 off-session charge carries the Exact references for invoice matching ──
+    @IsTest
+    static void testIssuePaymentIntentSendsFinSysMetadata() {
+        Payment__c p = new Payment__c(
+            Account__r        = new Account(FinancialIdAccount__c = 'acc-guid', FinancialDebtorNumber__c = '  4711'),
+            Invoice__r        = new Subscription25__Invoice__c(FinSysInvoiceId__c = 'inv-guid', FinSysInvoiceNumber__c = '26100042',
+                                                               Subscription25__Invoice_Number__c = 'I-26100042'),
+            Administration__r = new Subscription25__Administration__c(Subscription25__Twinfield_Company_Code__c = '123456')
+        );
+        Svc_PaymentIntent.mockResponses = new List<String>{ '{"id":"pi_fin","status":"processing"}' };
+
+        String id = Batch_ProcessPayments.issuePaymentIntent('acct_1', 'cus_1', 'pm_1', 'mandate_1', 1350, 'EUR', 'sepa_debit',
+            'a0X000000000001', 'key-1', Svc_PaymentIntent.finSysParams(p, true));
+
+        System.assertEquals('pi_fin', id);
+        String body = Svc_PaymentIntent.sentBodies[0];
+        System.assert(body.contains('mandate=mandate_1'), body);
+        System.assert(body.contains('metadata[FinSysInvoiceId]=inv-guid'), body);
+        System.assert(body.contains('metadata[FinSysInvoiceNumber]=26100042'), 'Raw Exact number, no prefix: ' + body);
+        System.assert(body.contains('metadata[FinSysAccountId]=acc-guid'), body);
+        System.assert(body.contains('metadata[FinSysAccountDebtorNumber]=4711'), 'Debtor number trimmed: ' + body);
+        System.assert(body.contains('metadata[FinSysDivision]=123456'), body);
+        System.assert(body.contains('description=Invoice+I-26100042'), body);
+    }
 }

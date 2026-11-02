@@ -60,7 +60,9 @@ public without sharing class Ctrl_Payment {
         List<Payment__c> payments = Database.queryWithBinds(
             'SELECT Id, Name, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
             '       PayProv_PaymentIntentId__c, PayProv_SetupIntentId__c,' +
-            '       Invoice__c,' +
+            '       Invoice__c, Invoice__r.Subscription25__Invoice_Number__c, Invoice__r.FinSysInvoiceId__c, Invoice__r.FinSysInvoiceNumber__c,' +
+            '       Account__r.FinancialIdAccount__c, Account__r.FinancialDebtorNumber__c,' +
+            '       Administration__r.Subscription25__Twinfield_Company_Code__c,' +
             '       Contact__r.Language__c,' +
             '       Account__c,' +
             '       Account__r.Name,' +

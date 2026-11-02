@@ -11,6 +11,10 @@
  * Created upfront by afl_Payment_Direct_Debit_Setup (prepare → PrepareJob, async because that flow may already
  * have done DML) and on demand by Ctrl_Payment; both use the same idempotency key and request body, so a race
  * between them still returns one intent.
+ * 20261102 TRi every intent carries the financial system (Exact) references for invoice matching (finSysParams):
+ * FinSysAccountId, FinSysAccountDebtorNumber, FinSysDivision and, on a PaymentIntent, FinSysInvoiceId,
+ * FinSysInvoiceNumber (raw Exact number, without the Salesforce prefix) + description "Invoice <Invoice Number>".
+ * Callers select FINSYS fields on the payment (queryPayments, Ctrl_Payment, Batch_ProcessPayments).
  */
 public without sharing class Svc_PaymentIntent {
 
@@ -144,6 +148,9 @@ public without sharing class Svc_PaymentIntent {
                 // 20261028 TRi an intent created before card / Apple Pay / Google Pay (phase 2) only offers direct debit: add card
                 String types = missingTypesUpdate(intent, ddMethod);
                 if (types != null) changes.add(types);
+                // 20261102 TRi created before the Exact ids were known (or before they were sent at all): add them
+                String finSys = finSysUpdate(intent, p, isBacs);
+                if (finSys != null) changes.add(finSys);
                 if (!changes.isEmpty()) {
                     intent = call('POST', endpoint + '/' + stored, accountId, String.join(changes, '&'), null);
                 }
@@ -156,6 +163,8 @@ public without sharing class Svc_PaymentIntent {
         String body = isBacs
             ? paymentIntentBody(p.Id, p.Account__r?.PayProv_CustomerId__c, amount, p.CurrencyIsoCode, ddMethod)
             : setupIntentBody(p.Id, p.Account__r?.PayProv_CustomerId__c, ddMethod);
+        List<String> finSys = finSysParams(p, isBacs);
+        if (!finSys.isEmpty()) body += '&' + String.join(finSys, '&');
         // a canceled predecessor needs its own key, otherwise Stripe would hand back the canceled intent
         Map<String, Object> created = call('POST', endpoint, accountId, body,
             'payprov-' + p.Id + '-' + (String.isBlank(stored) ? 'first' : stored));
@@ -214,6 +223,74 @@ public without sharing class Svc_PaymentIntent {
             'payment_method_types[]=' + CARD,
             'metadata[PaymentID]=' + paymentId
         }, '&');
+    }
+
+    // ── Financial system (Exact) references ───────────────────────────────────
+    // fixed order: the same payment always gives the same body (idempotency keys)
+    private static final List<String> FINSYS_KEYS = new List<String>{
+        'FinSysAccountId', 'FinSysAccountDebtorNumber', 'FinSysInvoiceId', 'FinSysInvoiceNumber', 'FinSysDivision'
+    };
+
+    /**
+     * Exact references of the payment: blank values are left out, the invoice ones only for a PaymentIntent, and the
+     * division (which makes ids and numbers unambiguous) only next to at least one of them.
+     */
+    @TestVisible
+    private static Map<String, String> finSysMetadata(Payment__c p, Boolean isPaymentIntent) {
+        Map<String, String> m = new Map<String, String>{
+            'FinSysAccountId'           => p.Account__r?.FinancialIdAccount__c,
+            'FinSysAccountDebtorNumber' => p.Account__r?.FinancialDebtorNumber__c?.trim()
+        };
+        if (isPaymentIntent) {
+            m.put('FinSysInvoiceId',     p.Invoice__r?.FinSysInvoiceId__c);
+            m.put('FinSysInvoiceNumber', p.Invoice__r?.FinSysInvoiceNumber__c);
+        }
+        Map<String, String> result = new Map<String, String>();
+        for (String k : FINSYS_KEYS) if (String.isNotBlank(m.get(k))) result.put(k, m.get(k));
+        String division = p.Administration__r?.Subscription25__Twinfield_Company_Code__c;
+        if (!result.isEmpty() && String.isNotBlank(division)) result.put('FinSysDivision', division);
+        return result;
+    }
+
+    /** Form-encoded metadata (+ description on a PaymentIntent) for a request body; empty when nothing is known. */
+    public static List<String> finSysParams(Payment__c p, Boolean isPaymentIntent) {
+        List<String> params = new List<String>();
+        Map<String, String> m = finSysMetadata(p, isPaymentIntent);
+        for (String k : FINSYS_KEYS) {
+            if (m.containsKey(k)) params.add('metadata[' + k + ']=' + EncodingUtil.urlEncode(m.get(k), 'UTF-8'));
+        }
+        String invoiceNumber = p.Invoice__r?.Subscription25__Invoice_Number__c;
+        if (isPaymentIntent && String.isNotBlank(invoiceNumber)) {
+            params.add('description=' + EncodingUtil.urlEncode('Invoice ' + invoiceNumber, 'UTF-8'));
+        }
+        return params;
+    }
+
+    /** Update for a reused intent whose Exact references are missing or outdated, or null when they're current. */
+    @TestVisible
+    private static String finSysUpdate(Map<String, Object> intent, Payment__c p, Boolean isPaymentIntent) {
+        Map<String, Object> current = (Map<String, Object>) intent?.get('metadata');
+        Map<String, String> wanted = finSysMetadata(p, isPaymentIntent);
+        for (String k : wanted.keySet()) {
+            if (current == null || !wanted.get(k).equals(String.valueOf(current.get(k)))) {
+                return String.join(finSysParams(p, isPaymentIntent), '&');
+            }
+        }
+        return null;
+    }
+
+    /** Writes the Exact references onto an existing PaymentIntent: metadata + description only, nothing else changes. */
+    public static void updateFinSysMetadata(String stripeAccountId, Payment__c p) {
+        List<String> params = finSysParams(p, true);
+        if (params.isEmpty() || String.isBlank(p.PayProv_PaymentIntentId__c)) return;
+        call('POST', '/v1/payment_intents/' + p.PayProv_PaymentIntentId__c, stripeAccountId, String.join(params, '&'), null);
+    }
+
+    /** Writes the account's Exact references (FinSysAccountId, FinSysAccountDebtorNumber, FinSysDivision) onto its Stripe Customer. */
+    public static void updateCustomerFinSysMetadata(String stripeAccountId, Payment__c p) {
+        List<String> params = finSysParams(p, false);
+        if (params.isEmpty() || String.isBlank(p.Account__r?.PayProv_CustomerId__c)) return;
+        call('POST', '/v1/customers/' + p.Account__r.PayProv_CustomerId__c, stripeAccountId, String.join(params, '&'), null);
     }
 
     public static Integer amountCents(Decimal amount) {
@@ -294,9 +371,25 @@ public without sharing class Svc_PaymentIntent {
             SELECT Id, Name, Status__c, Amount_Gross__c, CurrencyIsoCode,
                    PayProv_PaymentIntentId__c, PayProv_SetupIntentId__c,
                    Account__r.PayProv_CustomerId__c, Account__r.PayProv_MandateId__c, Account__r.PayProv_PaymentMethodId__c,
-                   Account__r.PayProv_PaymentMethodType__c, Administration__r.Reseller__c
+                   Account__r.PayProv_PaymentMethodType__c, Administration__r.Reseller__c,
+                   Invoice__c, Invoice__r.Subscription25__Invoice_Number__c, Invoice__r.FinSysInvoiceId__c, Invoice__r.FinSysInvoiceNumber__c,
+                   Account__r.FinancialIdAccount__c, Account__r.FinancialDebtorNumber__c,
+                   Administration__r.Subscription25__Twinfield_Company_Code__c
             FROM Payment__c
             WHERE Id IN :ids
+            WITH SYSTEM_MODE
+        ];
+    }
+
+    /** Payments of these invoices, with the fields finSysParams / updateCustomerFinSysMetadata read. */
+    public static List<Payment__c> queryPaymentsOfInvoices(Set<Id> invoiceIds) {
+        return [
+            SELECT Id, Name, PayProv_PaymentIntentId__c, Administration__r.Reseller__c, Account__c, Account__r.PayProv_CustomerId__c,
+                   Invoice__c, Invoice__r.Subscription25__Invoice_Number__c, Invoice__r.FinSysInvoiceId__c, Invoice__r.FinSysInvoiceNumber__c,
+                   Account__r.FinancialIdAccount__c, Account__r.FinancialDebtorNumber__c,
+                   Administration__r.Subscription25__Twinfield_Company_Code__c
+            FROM Payment__c
+            WHERE Invoice__c IN :invoiceIds
             WITH SYSTEM_MODE
         ];
     }

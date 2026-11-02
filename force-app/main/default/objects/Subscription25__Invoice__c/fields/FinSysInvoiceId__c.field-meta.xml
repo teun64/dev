@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysInvoiceId__c</fullName>
+    <description>Id (GUID) of this invoice in the financial system (Exact InvoiceID), filled by Batch_FinancialSystemInvoiceIds / Util_FinancialSystem_Invoice. Sent as FinSysInvoiceId in the Stripe PaymentIntent metadata for invoice matching. Only unique within one Exact division.</description>
+    <externalId>true</externalId>
+    <label>FinSys Invoice Id</label>
+    <length>36</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

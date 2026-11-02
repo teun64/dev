@@ -5,6 +5,9 @@
  * A successful finalise / invoice-number load stamps FinancialSystemLastSyncDate__c on the invoice.
  * The account is pushed before its invoice by Batch_FinancialSystemForceSync (FinancialSyncForce__c), not here:
  * the invoice itself reaches Exact through the Subscription25 package.
+ * 20261102 TRi the Exact invoice id (GUID) and the raw Exact invoice number (no prefix) are stored as well
+ * (FinSysInvoiceId__c / FinSysInvoiceNumber__c), for invoice matching via the Stripe metadata; loadFinSysIds fills
+ * them for invoices finalised elsewhere (Batch_FinancialSystemInvoiceIds).
  */
 public without sharing class Util_FinancialSystem_Invoice {
 	private static final String SALES_INVOICE_GET_ENDPOINT = 'api/v1/{0}/bulk/salesinvoice/SalesInvoices';
@@ -34,6 +37,7 @@ public without sharing class Util_FinancialSystem_Invoice {
 
 			//first of all, we need to get the GUID of the invoice, we can get that based on the order number
 			Map<String, String> invoiceDetails = Util_FinancialSystem_Invoice.getInvoiceDetails(admin, inv.Subscription25__Exact_Order_Number__c, mainLog.GUID__c);
+			Util_FinancialSystem_Invoice.applyFinSysIds(inv, invoiceDetails);
 
 			//if the invoice already has an invoice number, store it on the invoice, and we're done
 			if (!String.isBlank(invoiceDetails.get('InvoiceNumber'))) {
@@ -50,6 +54,7 @@ public without sharing class Util_FinancialSystem_Invoice {
 					invoiceNumber = (invoiceNumber == 'null') ? '' : invoiceNumber;
 					if (String.isNotBlank(invoiceNumber)) {
 						inv.Subscription25__Invoice_Number__c = admin.Subscription25__Invoice_Number_Prefix__c + invoiceNumber;
+						Util_FinancialSystem_Invoice.applyFinSysIds(inv, invoiceDetails);
 					}
 				} catch (Exception e) {
 					//if loading the invoice number fails, leave it; next time the job runs it reloads the invoice number
@@ -106,6 +111,7 @@ public without sharing class Util_FinancialSystem_Invoice {
 				inv.Subscription25__Finalized_In_Exact__c = false;
 			} else {
 				inv.Subscription25__Invoice_Number__c = admin.Subscription25__Invoice_Number_Prefix__c + invoiceDetails.get('InvoiceNumber');
+				Util_FinancialSystem_Invoice.applyFinSysIds(inv, invoiceDetails);
 			}
 			inv.FinancialSystemLastSyncDate__c = System.now();
 			Util_FinancialSystem_Invoice.updateInvoice(inv);
@@ -131,11 +137,87 @@ public without sharing class Util_FinancialSystem_Invoice {
 		return msgs;
 	}
 
+	/**
+	 * Stores the Exact invoice id and number (raw, without prefix) of printed invoices (status 50) that don't have
+	 * them yet, and only when prefix + Exact number equals the invoice's own number. A failure sets FinSysNextAttempt__c
+	 * (back-off, one day); a rate limit stops the rest of the chunk.
+	 * Callouts only: the caller saves the returned invoices (after its own callouts) and then calls saveLogs.
+	 * @return the changed fields only (Id + FinSys fields): filled ids, or a back-off when FinSysInvoiceId__c stays blank
+	 */
+	public static List<Subscription25__Invoice__c> loadFinSysIds(Set<Id> invoiceIds, List<Event_Log__c> logs, Set<String> namedCredentials) {
+		List<Subscription25__Invoice__c> changed = new List<Subscription25__Invoice__c>();
+		Boolean rateLimited = false;
+		for (Subscription25__Invoice__c inv : Util_FinancialSystem_Invoice.getInvoices(invoiceIds)) {
+			if (rateLimited || String.isNotBlank(inv.FinSysInvoiceId__c) || String.isBlank(inv.Subscription25__Exact_Order_Number__c)) {
+				continue;
+			}
+			Subscription25__Administration__c admin = inv.Subscription25__Administration__r;
+			namedCredentials.add(admin?.Subscription25__Named_Credential__c);
+			Event_Log__c log = Util_Event.getLog(null, 'S', 'E', 'Invoice', 'loadFinSysIds', inv.Id, inv.Name, null);
+			try {
+				Map<String, String> invoiceDetails = Util_FinancialSystem_Invoice.getInvoiceDetails(admin, inv.Subscription25__Exact_Order_Number__c, log.GUID__c);
+				if (invoiceDetails.get('Status') != '50') {
+					throw new Util_System.CustomException('Invoice is not printed in the financial system (status ' + invoiceDetails.get('Status') + ')');
+				}
+				// the lookup is by order number: only accept the Exact invoice that carries this invoice's own number
+				// (an order invoiced twice, or a sandbox with prod-copied invoices, would otherwise get a wrong id)
+				String expected = (admin?.Subscription25__Invoice_Number_Prefix__c == null ? '' : admin.Subscription25__Invoice_Number_Prefix__c) + invoiceDetails.get('InvoiceNumber');
+				if (expected != inv.Subscription25__Invoice_Number__c) {
+					throw new Util_System.CustomException('Financial system invoice ' + invoiceDetails.get('InvoiceNumber') + ' for order ' + inv.Subscription25__Exact_Order_Number__c + ' does not match invoice number ' + inv.Subscription25__Invoice_Number__c);
+				}
+				Subscription25__Invoice__c upd = new Subscription25__Invoice__c(Id = inv.Id, FinSysNextAttempt__c = null);
+				Util_FinancialSystem_Invoice.applyFinSysIds(upd, invoiceDetails);
+				changed.add(upd);
+			} catch (Util_FinancialSystem.RateLimitException e) {
+				// nothing marked: the next run continues where this one stopped
+				rateLimited = true;
+				log.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
+				log.Message__c = e.getMessage();
+			} catch (Exception e) {
+				changed.add(new Subscription25__Invoice__c(Id = inv.Id, FinSysNextAttempt__c = System.now().addDays(1)));
+				log.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
+				log.Message__c = e.getMessage() + '\n' + e.getStackTraceString();
+			}
+			logs.add(log);
+		}
+		return changed;
+	}
+
+	/** Saves invoices changed by loadFinSysIds (partial success: one bad record doesn't block the others). */
+	public static List<Database.SaveResult> saveInvoices(List<Subscription25__Invoice__c> invoices) {
+		Boolean curEru = Util_System.getEruIluvatar();
+		if (!curEru) {
+			Util_System.setEruIluvatar(true);
+		}
+		List<Database.SaveResult> results = Database.update(invoices, false, AccessLevel.SYSTEM_MODE);
+		if (!curEru) {
+			Util_System.setEruIluvatar(false);
+		}
+		return results;
+	}
+
+	/** Exact invoice id + raw invoice number (no prefix) from getInvoiceDetails; the number only once Exact has one. */
+	private static void applyFinSysIds(Subscription25__Invoice__c inv, Map<String, String> invoiceDetails) {
+		String invoiceId = invoiceDetails.get('InvoiceID');
+		String invoiceNumber = invoiceDetails.get('InvoiceNumber');
+		if (String.isNotBlank(invoiceId) && invoiceId != 'null') {
+			inv.FinSysInvoiceId__c = invoiceId;
+		}
+		if (String.isNotBlank(invoiceNumber) && invoiceNumber != 'null') {
+			inv.FinSysInvoiceNumber__c = invoiceNumber;
+		}
+	}
+
 	private static Subscription25__Invoice__c getInvoice(Id invoiceId) {
+		return Util_FinancialSystem_Invoice.getInvoices(new Set<Id>{ invoiceId })[0];
+	}
+
+	private static List<Subscription25__Invoice__c> getInvoices(Set<Id> invoiceIds) {
 		return [
 			SELECT Id, Name, Subscription25__Exact_Order_Number__c, Subscription25__Invoice_Number__c,
 				Subscription25__Invoice_Date__c, Payment_Method__c, Payment_Method_Result__c, Subscription25__Total_Amount__c,
 				Subscription25__Finalized_In_Exact__c, Reseller__c, Sales_Channel__c,
+				FinSysInvoiceId__c, FinSysInvoiceNumber__c, FinSysNextAttempt__c,
 				Subscription25__Administration__c,
 				Subscription25__Administration__r.Id,
 				Subscription25__Administration__r.Name,
@@ -148,7 +230,7 @@ public without sharing class Util_FinancialSystem_Invoice {
 				Subscription25__Administration__r.Subscription25__Twinfield_Company_Code__c,
 				Subscription25__Administration__r.Subscription25__Invoice_Number_Prefix__c
 			FROM Subscription25__Invoice__c
-			WHERE Id = :invoiceId
+			WHERE Id IN :invoiceIds
 			WITH SYSTEM_MODE
 		];
 	}

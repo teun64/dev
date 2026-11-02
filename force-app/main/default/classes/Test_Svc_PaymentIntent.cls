@@ -161,4 +161,102 @@ private class Test_Svc_PaymentIntent {
         System.assertEquals(t, Svc_PaymentIntent.newToken(paymentId, 'pi_1'), 'Batch and webhook derive the same token');
         System.assertNotEquals(t, Svc_PaymentIntent.newToken(paymentId, 'pi_2'));
     }
+
+    // ── 20261102 Exact references for invoice matching ──
+    private static Payment__c finSysPayment() {
+        return new Payment__c(
+            PayProv_PaymentIntentId__c = 'pi_fin',
+            Account__r        = new Account(FinancialIdAccount__c = 'acc-guid', FinancialDebtorNumber__c = '  4711', PayProv_CustomerId__c = 'cus_fin'),
+            Invoice__r        = new Subscription25__Invoice__c(FinSysInvoiceId__c = 'inv-guid', FinSysInvoiceNumber__c = '26100042',
+                                                               Subscription25__Invoice_Number__c = 'I-26100042'),
+            Administration__r = new Subscription25__Administration__c(Subscription25__Twinfield_Company_Code__c = '123456')
+        );
+    }
+
+    @IsTest
+    static void testFinSysParams() {
+        System.assertEquals(new List<String>{
+            'metadata[FinSysAccountId]=acc-guid',
+            'metadata[FinSysAccountDebtorNumber]=4711',
+            'metadata[FinSysInvoiceId]=inv-guid',
+            'metadata[FinSysInvoiceNumber]=26100042',
+            'metadata[FinSysDivision]=123456',
+            'description=Invoice+I-26100042'
+        }, Svc_PaymentIntent.finSysParams(finSysPayment(), true), 'Fixed order, raw Exact number, prefixed number only in the description');
+
+        System.assertEquals(new List<String>{
+            'metadata[FinSysAccountId]=acc-guid',
+            'metadata[FinSysAccountDebtorNumber]=4711',
+            'metadata[FinSysDivision]=123456'
+        }, Svc_PaymentIntent.finSysParams(finSysPayment(), false), 'SetupIntent / Customer: account references only');
+
+        Payment__c divisionOnly = new Payment__c(
+            Administration__r = new Subscription25__Administration__c(Subscription25__Twinfield_Company_Code__c = '123456'));
+        System.assert(Svc_PaymentIntent.finSysParams(divisionOnly, true).isEmpty(), 'Division alone is not sent');
+        System.assert(Svc_PaymentIntent.finSysParams(new Payment__c(), true).isEmpty(), 'Nothing known: nothing sent');
+    }
+
+    @IsTest
+    static void testFinSysUpdate() {
+        Payment__c p = finSysPayment();
+        Map<String, Object> current = new Map<String, Object>{ 'metadata' => new Map<String, Object>{
+            'PaymentID' => 'x', 'FinSysAccountId' => 'acc-guid', 'FinSysAccountDebtorNumber' => '4711',
+            'FinSysInvoiceId' => 'inv-guid', 'FinSysInvoiceNumber' => '26100042', 'FinSysDivision' => '123456' } };
+        System.assertEquals(null, Svc_PaymentIntent.finSysUpdate(current, p, true), 'Up to date: no update');
+
+        Map<String, Object> missing = new Map<String, Object>{ 'metadata' => new Map<String, Object>{ 'PaymentID' => 'x' } };
+        String upd = Svc_PaymentIntent.finSysUpdate(missing, p, true);
+        System.assert(upd.contains('metadata[FinSysInvoiceNumber]=26100042') && upd.contains('description='), upd);
+        System.assertEquals(null, Svc_PaymentIntent.finSysUpdate(missing, new Payment__c(), true), 'Nothing known: no update');
+    }
+
+    @IsTest
+    static void testGetOrCreateReuseAddsFinSys() {
+        Payment__c p = finSysPayment();
+        p.Id = [SELECT Id FROM Payment__c LIMIT 1].Id;
+        p.Amount_Gross__c = 13.50;
+        Business_Entities__c bacs = new Business_Entities__c(PayProv_DirectDebit_PaymentMethod__c = 'bacs_debit');
+        Svc_PaymentIntent.mockResponses = new List<String>{
+            '{"id":"pi_fin","status":"requires_payment_method","client_secret":"cs_fin","amount":1350,"payment_method_types":["bacs_debit","card"],"metadata":{"PaymentID":"x"}}',
+            '{"id":"pi_fin","status":"requires_payment_method","client_secret":"cs_fin"}'
+        };
+
+        Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreate(p, bacs);
+
+        System.assertEquals('pi_fin', c.intentId, 'Same intent reused');
+        System.assertEquals(2, Svc_PaymentIntent.sentBodies.size(), 'GET + metadata update');
+        System.assert(Svc_PaymentIntent.sentBodies[1].startsWith('POST /v1/payment_intents/pi_fin metadata[FinSysAccountId]=acc-guid'), Svc_PaymentIntent.sentBodies[1]);
+    }
+
+    @IsTest
+    static void testCreateCarriesFinSys() {
+        Payment__c p = finSysPayment();
+        p.Id = [SELECT Id FROM Payment__c LIMIT 1].Id;
+        p.PayProv_PaymentIntentId__c = null;
+        p.Amount_Gross__c = 13.50;
+        p.CurrencyIsoCode = 'GBP';
+        Business_Entities__c bacs = new Business_Entities__c(PayProv_DirectDebit_PaymentMethod__c = 'bacs_debit');
+        Svc_PaymentIntent.mockResponses = new List<String>{ '{"id":"pi_new","client_secret":"cs_new"}' };
+
+        Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreate(p, bacs);
+
+        System.assertEquals('pi_new', c.intentId);
+        String body = Svc_PaymentIntent.sentBodies[0];
+        System.assert(body.contains('metadata[PaymentID]=' + p.Id) && body.contains('metadata[FinSysInvoiceId]=inv-guid')
+            && body.contains('description=Invoice+I-26100042'), body);
+    }
+
+    @IsTest
+    static void testUpdateFinSysMetadataAndCustomer() {
+        Svc_PaymentIntent.mockResponses = new List<String>{ '{"id":"pi_fin"}', '{"id":"cus_fin"}' };
+
+        Svc_PaymentIntent.updateFinSysMetadata('acct_1', finSysPayment());
+        Svc_PaymentIntent.updateCustomerFinSysMetadata('acct_1', finSysPayment());
+        Svc_PaymentIntent.updateFinSysMetadata('acct_1', new Payment__c(PayProv_PaymentIntentId__c = 'pi_none'));
+
+        System.assertEquals(2, Svc_PaymentIntent.sentBodies.size(), 'No call when there is nothing to send');
+        System.assert(Svc_PaymentIntent.sentBodies[0].startsWith('POST /v1/payment_intents/pi_fin metadata['), Svc_PaymentIntent.sentBodies[0]);
+        System.assertEquals('POST /v1/customers/cus_fin metadata[FinSysAccountId]=acc-guid&metadata[FinSysAccountDebtorNumber]=4711&metadata[FinSysDivision]=123456',
+            Svc_PaymentIntent.sentBodies[1]);
+    }
 }
