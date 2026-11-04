@@ -21,7 +21,7 @@ Commit 57d80b6.
   - qty 3 and 7 → 175
   - qty 11 and 25 → 160
   - tier list shows only "from 11".
-- prod: **validated `0AfTx0000014k0UKAQ`** on 2026-11-04 (75/75 tests, Ctrl_DealerShop coverage 96%).
+- prod: validated `0AfTx0000014k0UKAQ` (75/75 tests, 96% coverage). **Quick deployed `0AfTx0000014kq5KAA` on 2026-11-04 (the user ran it).** Read-only check for Fleetaccess B.V. on 800.001.0000: unitPrice 175, tiers only from 11 at 160. The site republish is still ON HOLD.
 
 ## Steps (prod)
 1. Quick deploy (the user runs this, within 10 days of the validation):
