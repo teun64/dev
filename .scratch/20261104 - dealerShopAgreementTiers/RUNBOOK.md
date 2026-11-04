@@ -26,8 +26,11 @@ Commit 57d80b6.
 ## Steps (prod)
 1. Quick deploy (the user runs this, within 10 days of the validation):
    `sf project deploy quick --job-id 0AfTx0000014k0UKAQ -o prod`
-2. Republish the site:
+2. **ON HOLD:** republish the site:
    `sf community publish -n "Dealer Portal" -o prod`
+   - Hold until Salesforce confirms FRA56 is fixed. Trust incident 20004559 / Known Issue a02g700000DKcPp: LWR sites on 264.10 render rich text and HTML blocks without styling after a publish. The impact on FRA56 started 2026-10-27 19:00 UTC.
+   - The quick deploy (step 1) can go ahead without the publish. The price fix is Apex, so N/A and tier pricing are fixed server-side. Only the `dealerCart` safety guard waits for the publish.
+   - To check whether FRA56 is fixed: `curl -s https://api.status.salesforce.com/v1/instances/FRA56/status`. Incident 20004559 should have an `endTime`.
 3. Check in prod: shop on Fleetaccess B.V., 800.001.0000:
    - qty 1–10 → €175
    - qty 11+ → €160
