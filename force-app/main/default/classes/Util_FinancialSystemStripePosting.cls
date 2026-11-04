@@ -26,6 +26,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 
 	private static final Set<String> FEE_TYPES = new Set<String>{ 'stripe_fee', 'tax_fee', 'application_fee' };
 	private static final Integer JOURNAL_TYPE_BANK = 12;
+	private static final Integer JOURNAL_TYPE_SALES = 20;
 	private static final Integer DESCRIPTION_LENGTH = 60;
 
 	/** Retries failed postings and posts the new payouts of one Business Entity. */
@@ -114,6 +115,9 @@ public without sharing class Util_FinancialSystemStripePosting {
 		Subscription25__Administration__c admin;
 		Business_Entities__c be;
 		Boolean bankJournal;
+		// general journal only: a debtor line needs the receivables G/L, taken from the sales journal
+		String receivablesGLId;
+		String receivablesProblem;
 		Map<String, String> glIdByCode = new Map<String, String>();
 	}
 
@@ -139,6 +143,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 			new Map<String, String>{ '$select' => 'Code,Type', '$filter' => 'Code eq \'' + be.FinSysStripeJournalCode__c + '\'' }, 'GET', null, null));
 		if (journals.isEmpty()) throw new PostingException('Journal ' + be.FinSysStripeJournalCode__c + ' not found in the financial system');
 		s.bankJournal = Integer.valueOf(String.valueOf(((Map<String, Object>) journals[0]).get('Type'))) == JOURNAL_TYPE_BANK;
+		if (!s.bankJournal) Util_FinancialSystemStripePosting.loadReceivablesGL(s, base);
 
 		Set<String> codes = new Set<String>{ be.FinSysStripeFeeGLCode__c, be.FinSysStripeTransitGLCode__c, be.FinSysStripeSuspenseGLCode__c };
 		List<String> filter = new List<String>();
@@ -152,6 +157,23 @@ public without sharing class Util_FinancialSystemStripePosting {
 			if (!s.glIdByCode.containsKey(c)) throw new PostingException('G/L account ' + c + ' not found in the financial system');
 		}
 		return s;
+	}
+
+	/** Receivables G/L of the sales journal(s); a bank entry derives it from the debtor, a general journal entry does not. */
+	private static void loadReceivablesGL(Settings s, String base) {
+		Set<String> ids = new Set<String>();
+		for (Object o : Util_FinancialSystemStripePosting.results(Util_FinancialSystem.doRequest(s.admin, base + 'Journals',
+				new Map<String, String>{ '$select' => 'Code,GLAccount', '$filter' => 'Type eq ' + JOURNAL_TYPE_SALES }, 'GET', null, null))) {
+			String id = (String) ((Map<String, Object>) o).get('GLAccount');
+			if (String.isNotBlank(id)) ids.add(id);
+		}
+		if (ids.size() == 1) {
+			s.receivablesGLId = new List<String>(ids)[0];
+		} else {
+			s.receivablesProblem = ids.isEmpty()
+				? 'No sales journal with a receivables G/L account found in the financial system'
+				: 'Sales journals use ' + ids.size() + ' different receivables G/L accounts; cannot choose one for the debtor lines';
+		}
 	}
 
 	private static Subscription25__Administration__c administrationFor(String reseller) {
@@ -393,6 +415,10 @@ public without sharing class Util_FinancialSystemStripePosting {
 			if (l.Booking__c == 'Invoice') {
 				line.put('Account', l.FinSysAccountId__c);
 				line.put('OurRef', Integer.valueOf(l.FinSysInvoiceNumber__c));
+				if (!s.bankJournal) {
+					if (s.receivablesGLId == null) throw new PostingException(s.receivablesProblem);
+					line.put('GLAccount', s.receivablesGLId);
+				}
 			} else {
 				line.put('GLAccount', s.glIdByCode.get(s.be.FinSysStripeSuspenseGLCode__c));
 			}

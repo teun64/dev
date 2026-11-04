@@ -8,6 +8,7 @@ private class Test_Util_FinancialSystemStripePosting {
 	private class ExactPostingMock implements HttpCalloutMock {
 		Integer journalType = 90;
 		Boolean existingEntry = false;
+		String salesJournals = '{"d":{"results":[{"Code":"70","GLAccount":"gl-receivables"},{"Code":"71","GLAccount":"gl-receivables"}]}}';
 		Boolean failPost = false;
 		List<String> posted = new List<String>();
 
@@ -15,7 +16,9 @@ private class Test_Util_FinancialSystemStripePosting {
 			String ep = req.getEndpoint();
 			HttpResponse res = new HttpResponse();
 			res.setStatusCode(200);
-			if (ep.contains('/financial/Journals')) {
+			if (ep.contains('/financial/Journals') && ep.contains('GLAccount')) {
+				res.setBody(salesJournals);
+			} else if (ep.contains('/financial/Journals')) {
 				res.setBody('{"d":{"results":[{"Code":"26","Type":' + journalType + '}]}}');
 			} else if (ep.contains('/financial/GLAccounts')) {
 				res.setBody('{"d":{"results":[{"ID":"gl-fee","Code":"470710"},{"ID":"gl-transit","Code":"100099"},{"ID":"gl-suspense","Code":"210000"}]}}');
@@ -149,6 +152,7 @@ private class Test_Util_FinancialSystemStripePosting {
 		System.assertEquals(4, lines.size(), 'Debtor, suspense, fees, transit');
 		System.assertEquals('acc-guid', line(lines, 0).get('Account'));
 		System.assertEquals(26100042, line(lines, 0).get('OurRef'), 'Raw Exact invoice number closes the invoice');
+		System.assertEquals('gl-receivables', line(lines, 0).get('GLAccount'), 'A general journal needs the receivables G/L on the debtor line');
 		System.assertEquals(-500.00, Decimal.valueOf(String.valueOf(line(lines, 0).get('AmountFC'))), 'Gross amount credits the debtor');
 		System.assertEquals('gl-suspense', line(lines, 1).get('GLAccount'));
 		System.assertEquals(-400.00, Decimal.valueOf(String.valueOf(line(lines, 1).get('AmountFC'))));
@@ -175,9 +179,27 @@ private class Test_Util_FinancialSystemStripePosting {
 
 		System.assertEquals('Posted', posting().Status__c, 'Error: ' + posting().LastError__c);
 		List<Object> lines = postedLines(mock, 'BankEntryLines');
+		System.assertEquals(null, line(lines, 0).get('GLAccount'), 'A bank entry derives the receivables G/L from the debtor');
 		System.assertEquals(500.00, Decimal.valueOf(String.valueOf(line(lines, 0).get('AmountFC'))), 'Payment = money in');
 		System.assertEquals(-4.85, Decimal.valueOf(String.valueOf(line(lines, 2).get('AmountFC'))), 'Fees = money out');
 		System.assertEquals(-895.15, Decimal.valueOf(String.valueOf(line(lines, 3).get('AmountFC'))), 'Payout = money out');
+	}
+
+	@IsTest
+	static void generalJournal_receivablesGLAmbiguous_fails() {
+		ExactPostingMock mock = new ExactPostingMock();
+		mock.salesJournals = '{"d":{"results":[{"Code":"70","GLAccount":"gl-a"},{"Code":"71","GLAccount":"gl-b"}]}}';
+		Test.setMock(HttpCalloutMock.class, mock);
+		Svc_PaymentIntent.mockResponses = stripePayoutX();
+
+		Test.startTest();
+		Util_FinancialSystemStripePosting.run(businessEntityId());
+		Test.stopTest();
+
+		FinSysPosting__c p = posting();
+		System.assertEquals('Failed', p.Status__c);
+		System.assert(p.LastError__c.contains('receivables G/L'), p.LastError__c);
+		System.assertEquals(0, mock.posted.size(), 'Nothing posted');
 	}
 
 	@IsTest
