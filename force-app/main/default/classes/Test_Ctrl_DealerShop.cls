@@ -1415,6 +1415,68 @@ private class Test_Ctrl_DealerShop {
         System.assertEquals(41.65, item.UnitPrice, 'Hidden-price accounts also get the tier price at a tier quantity');
     }
 
+    @IsTest
+    static void testPriceAgreement_ignoresPricebookTiers() {
+        // Regression (prod, Fleetaccess / 800.001.0000): an agreement with only a qty-11 tier on an
+        // entry with 5/11/25 tiers produced 11→price, 11→null, 25→null; the shop showed N/A from 11.
+        // An active Product_Discount__c replaces the pricebook tiers entirely.
+        Product2 prod = new Product2(
+            Name                   = 'Agreement Tier Product',
+            ProductCode            = 'PP-AGR',
+            IsActive               = true,
+            Show_In_Dealer_Shop__c = true,
+            Category_Platform__c   = 'Fleet'
+        );
+        insert prod;
+        insert new PricebookEntry(Pricebook2Id = Test.getStandardPricebookId(), Product2Id = prod.Id, UnitPrice = 49.00, IsActive = true);
+        insert new PricebookEntry(
+            Pricebook2Id       = [SELECT Id FROM Pricebook2 WHERE Name = 'Dealer NL All Pricebook' LIMIT 1].Id,
+            Product2Id         = prod.Id,
+            UnitPrice          = 49.00,
+            IsActive           = true,
+            From_Quantity_1__c = 5,  From_Price_1__c = 47.00,
+            From_Quantity_2__c = 11, From_Price_2__c = 45.00,
+            From_Quantity_3__c = 25, From_Price_3__c = 40.00
+        );
+
+        insert new Product_Discount__c(
+            Account__c         = [SELECT Id FROM Account LIMIT 1].Id,
+            Product__c         = prod.Id,
+            IsActive__c        = true,
+            isFixedPrice__c    = false,
+            From_Quantity_1__c = 11,
+            From_Discount_1__c = 10
+        );
+        // Activate separately - rbb_Product_Discount forces IsActive__c=false on every new record.
+        Product_Discount__c disc = [SELECT Id FROM Product_Discount__c WHERE Product__c = :prod.Id];
+        disc.IsActive__c = true;
+        update disc;
+
+        String cartJson = JSON.serialize(new List<Map<String, Object>>{
+            new Map<String, Object>{ 'productId' => (String) prod.Id, 'quantity' => 25, 'unitPrice' => 49.00 }
+        });
+
+        Ctrl_DealerShop.ProductDTO dto;
+        String orderNumber;
+        Test.startTest();
+        System.runAs(portalUser()) {
+            dto = Ctrl_DealerShop.getProductDetail(prod.Id, null);
+            orderNumber = Ctrl_DealerShop.placeOrder(cartJson, null, null, null);
+        }
+        Test.stopTest();
+
+        System.assertEquals(49.00, dto.unitPrice, 'Below the agreement tier: entry UnitPrice, not the pricebook qty-5 tier');
+        System.assertEquals(1, dto.priceTiers.size(), 'Only the agreement tier, no pricebook tiers: ' + dto.priceTiers);
+        System.assertEquals(11, dto.priceTiers[0].fromQty, 'Agreement tier from-quantity');
+        System.assertEquals(44.10, dto.priceTiers[0].price, 'Agreement tier price = 49.00 - 10%');
+
+        OpportunityLineItem item = [
+            SELECT UnitPrice FROM OpportunityLineItem
+            WHERE Opportunity.Name = :orderNumber AND Product2Id = :prod.Id LIMIT 1
+        ];
+        System.assertEquals(44.10, item.UnitPrice, 'Qty 25 gets the agreement price, not the pricebook qty-25 tier');
+    }
+
     // ── Internal-user (Account record page) context ─────────────────────────────
 
     @IsTest

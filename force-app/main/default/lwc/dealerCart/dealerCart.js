@@ -332,7 +332,7 @@ export default class DealerCart extends LightningElement {
         if (!priceTiers || priceTiers.length === 0) return unitPrice;
         let price = unitPrice;
         for (const tier of priceTiers) {
-            if (quantity >= tier.fromQty) price = tier.price;
+            if (tier.fromQty != null && tier.price != null && quantity >= tier.fromQty) price = tier.price;
         }
         return price;
     }
