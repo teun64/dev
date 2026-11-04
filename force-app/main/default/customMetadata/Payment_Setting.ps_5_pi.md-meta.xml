@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>DE - Payment provider - one-off</label>
+    <protected>false</protected>
+    <values>
+        <field>AutoCreate__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Exact_Invoice_Template__c</field>
+        <value xsi:type="xsd:string">eb35f303-94e9-4a49-bfee-d76d8c3cf89e</value>
+    </values>
+    <values>
+        <field>Invoice_Text__c</field>
+        <value xsi:type="xsd:string">Bitte bezahlen Sie den Rechnungsbetrag bis zum {0} über den Zahlungslink in der Rechnungs-E-Mail.</value>
+    </values>
+    <values>
+        <field>Method__c</field>
+        <value xsi:type="xsd:string">pi</value>
+    </values>
+    <values>
+        <field>Processor__c</field>
+        <value xsi:type="xsd:string">Stripe</value>
+    </values>
+    <values>
+        <field>Reseller__c</field>
+        <value xsi:type="xsd:string">5</value>
+    </values>
+    <values>
+        <field>Term__c</field>
+        <value xsi:nil="true"/>
+    </values>
+</CustomMetadata>
