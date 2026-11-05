@@ -484,6 +484,45 @@ private class Test_Rest_UpsertContract {
         System.assertEquals(Date.newInstance(2026, 6, 30), contr.Subscription25__Termination_Date__c);
     }
 
+    //prod 5266_20190701: the platform keeps sending the replaced (ended) base service line with its old contractEndDate and
+    //isBaseService false. The other base service is not Activated here (Draft in tests), so only the ended-line guard keeps the contract running.
+    private static testMethod void testEndedLineDoesNotTerminateContract(){
+        Test_Rest_UpsertContract.setupSubscriptionFixtures();
+
+        Test.startTest();
+        Test_Rest_UpsertContract.createTwoBaseServices('900651', '900652');
+        Subscription25__Contract_Product__c ended = [SELECT Id FROM Subscription25__Contract_Product__c WHERE extId__c = '900651-1'];
+        Database.update(new Subscription25__Contract_Product__c(Id = ended.Id, Subscription25__Status__c = 'Terminated',
+            Subscription25__Termination_Date__c = Date.today().addDays(-10), Service_End_Date__c = Date.today().addDays(-10),
+            Subscription25__End_Date__c = Date.today().addDays(-10)), AccessLevel.SYSTEM_MODE);
+
+        Map<String, Object> oldLine = Test_Rest_UpsertContract.baseServicePayload('900651', '900651');
+        oldLine.put('contractEndDate', String.valueOf(Date.today().addDays(-10)));
+        oldLine.put('isBaseService', false);
+        Util_Rest.RestResult result = Test_Rest_UpsertContract.callRest(oldLine);
+        Test.stopTest();
+
+        System.assertEquals(true, result.success, String.join(result.messages, '; '));
+        Contract contr = Test_Rest_UpsertContract.getContract('900651-1');
+        System.assertNotEquals('Terminated', contr.Status);
+        System.assertEquals(null, contr.Termination_Method__c);
+        System.assertEquals(null, contr.Subscription25__Termination_Date__c);
+        System.assertEquals(null, contr.Service_End_Date__c);
+        System.assertEquals(null, [SELECT Subscription25__Termination_Date__c FROM Subscription25__Contract_Product__c WHERE extId__c = '900652-1'].Subscription25__Termination_Date__c);
+    }
+
+    private static testMethod void testIsEndedContractProduct(){
+        Contract running = new Contract(Id = '800000000000000AAA', Status = 'Activated');
+        Subscription25__Contract_Product__c ended = new Subscription25__Contract_Product__c(Subscription25__Status__c = 'Terminated', Subscription25__Termination_Date__c = Date.today().addDays(-1));
+        System.assertEquals(true, Rest_UpsertContract.isEndedContractProduct(false, ended, running));
+        //new contract product, terminated contract, termination today or later, not Terminated: not ended
+        System.assertEquals(false, Rest_UpsertContract.isEndedContractProduct(true, ended, running));
+        System.assertEquals(false, Rest_UpsertContract.isEndedContractProduct(false, ended, new Contract(Id = '800000000000000AAA', Status = 'Terminated')));
+        System.assertEquals(false, Rest_UpsertContract.isEndedContractProduct(false, new Subscription25__Contract_Product__c(Subscription25__Status__c = 'Terminated', Subscription25__Termination_Date__c = Date.today()), running));
+        System.assertEquals(false, Rest_UpsertContract.isEndedContractProduct(false, new Subscription25__Contract_Product__c(Subscription25__Status__c = 'Activated', Subscription25__Termination_Date__c = Date.today().addDays(-1)), running));
+        System.assertEquals(false, Rest_UpsertContract.isEndedContractProduct(false, new Subscription25__Contract_Product__c(Subscription25__Status__c = 'Terminated'), running));
+    }
+
     //two base services (900641 terminates, 900642 stays active) on one contract: only the contract product is terminated
     private static void assertOnlyProductTerminated(Map<String, Object> termination){
         Test_Rest_UpsertContract.setupSubscriptionFixtures();

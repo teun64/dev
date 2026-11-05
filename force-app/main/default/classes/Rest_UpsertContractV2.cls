@@ -373,6 +373,16 @@ global with sharing class Rest_UpsertContractV2 {
 
         renewalTerm = ((renewalTerm == null) || (renewalTerm == 0)) ? 1 : renewalTerm;
 
+        // 2026-11-05 - TRi - a contract product that already ended (Terminated, termination date in the past) can no longer change the
+        // contract. The platform keeps sending replaced lines (e.g. 5266_20190701_7633: old base service line ended 2025-06-30, replaced
+        // by a new line on the same contract) on every sync; those calls re-terminated the running contract on the old line's end date.
+        // The line is left as is, the contract stays untouched, no DML at all.
+        if (Rest_UpsertContractV2.isEndedContractProduct(contrProdIsNew, contrProd, contr)) {
+            Rest_UpsertContractV2.skipReason = 'contract product already ended';
+            Util_System.setStatusCascadePrevention(false);
+            return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contrProd.Id));
+        }
+
         if(contr.Status == 'Terminated') {
             Util_System.setStatusCascadePrevention(false);
 
@@ -1032,6 +1042,17 @@ global with sharing class Rest_UpsertContractV2 {
 
         //Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contService.Id));
         return Util_Rest.makeAddedRecord('Contract/Old', String.valueOf(miContract.id), String.valueOf(contrProd.Id));
+    }
+
+    //a contract product that is Terminated with a termination date in the past, on a contract that is still running
+    @TestVisible
+    private static Boolean isEndedContractProduct(Boolean contrProdIsNew, Subscription25__Contract_Product__c contrProd, Contract contr) {
+        return (!contrProdIsNew)
+            && (contr.Id != null)
+            && (contr.Status != 'Terminated')
+            && (contrProd.Subscription25__Status__c == 'Terminated')
+            && (contrProd.Subscription25__Termination_Date__c != null)
+            && (contrProd.Subscription25__Termination_Date__c < Date.today());
     }
 
     private static Date latestDate(Date first, Date second) {
