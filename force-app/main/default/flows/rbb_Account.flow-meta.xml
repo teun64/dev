@@ -361,6 +361,13 @@
                 <elementReference>fOrderOffsetTerm</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Payment_Method_Opportunities__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fPaymentMethodOpportunities</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>ass_03_Commit</targetReference>
         </connector>
@@ -3480,6 +3487,12 @@ TEXT({!$Record.BillingCountryCode})
         <dataType>Number</dataType>
         <expression>IF(NOT(ISBLANK({!$Record.extId_2__c})),-1,0)</expression>
         <scale>0</scale>
+    </formulas>
+    <formulas>
+        <description>For now a new account gets p1 instead of pi as the Opportunities payment method (Rest_UpsertAccount sets pi for UK private customers). Only on create; otherwise the current value.</description>
+        <name>fPaymentMethodOpportunities</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Id}) &amp;&amp; TEXT({!$Record.Payment_Method_Opportunities__c}) = &apos;pi&apos;, &apos;p1&apos;, TEXT({!$Record.Payment_Method_Opportunities__c}))</expression>
     </formulas>
     <formulas>
         <name>fPayProv_CustomerId_Unique</name>
