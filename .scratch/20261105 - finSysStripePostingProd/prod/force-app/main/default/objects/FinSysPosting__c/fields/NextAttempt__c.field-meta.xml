@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NextAttempt__c</fullName>
+    <description>A failed posting is retried from this moment.</description>
+    <label>Next Attempt</label>
+    <trackTrending>false</trackTrending>
+    <required>false</required>
+    <type>DateTime</type>
+</CustomField>

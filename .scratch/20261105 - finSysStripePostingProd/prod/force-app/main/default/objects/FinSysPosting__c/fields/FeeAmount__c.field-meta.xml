@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FeeAmount__c</fullName>
+    <description>Stripe fees of this payout = fee line.</description>
+    <label>Fee Amount</label>
+    <trackTrending>false</trackTrending>
+    <precision>16</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <type>Currency</type>
+</CustomField>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysInvoiceNumber__c</fullName>
+    <description>Invoice number exactly as the financial system (Exact InvoiceNumber) has it, WITHOUT the administration prefix of Invoice Number. Sent as FinSysInvoiceNumber in the Stripe PaymentIntent metadata for invoice matching. Only unique within one Exact division.</description>
+    <externalId>false</externalId>
+    <label>FinSys Invoice Number</label>
+    <length>20</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

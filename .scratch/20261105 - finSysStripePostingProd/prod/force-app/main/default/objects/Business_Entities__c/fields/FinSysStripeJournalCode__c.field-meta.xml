@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysStripeJournalCode__c</fullName>
+    <description>Code of the Stripe journal in the financial system (Exact), e.g. 26. Bank journal: entries via BankEntries; general journal: via GeneralJournalEntries. Set directly on the Business Entity (not synced from the Administration). Used by Batch_FinancialSystemStripePostings.</description>
+    <label>FinSys Stripe Journal Code</label>
+    <trackTrending>false</trackTrending>
+    <externalId>false</externalId>
+    <length>10</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

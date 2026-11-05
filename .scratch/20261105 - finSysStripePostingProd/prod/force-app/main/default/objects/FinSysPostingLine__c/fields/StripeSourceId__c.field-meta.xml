@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>StripeSourceId__c</fullName>
+    <description>Stripe object behind the movement (ch_/py_ payment, re_ refund, dp_ dispute, ...).</description>
+    <label>Stripe Source Id</label>
+    <trackTrending>false</trackTrending>
+    <externalId>false</externalId>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

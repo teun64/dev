@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysStripePostingFrom__c</fullName>
+    <description>Stripe payouts that arrived on or after this date are posted to the financial system. Blank = posting off for this Business Entity. Set directly on the Business Entity (not synced from the Administration). Used by Batch_FinancialSystemStripePostings.</description>
+    <label>FinSys Stripe Posting From</label>
+    <trackTrending>false</trackTrending>
+    <required>false</required>
+    <type>Date</type>
+</CustomField>
