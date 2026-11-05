@@ -86,7 +86,7 @@ private class Test_Util_FinancialSystemStripePosting {
 			'{"data":['
 				+ '{"id":"txn_1","type":"charge","amount":50000,"fee":135,"net":49865,"source":{"id":"py_1","object":"charge","payment_intent":"pi_A"}},'
 				+ '{"id":"txn_2","type":"charge","amount":40000,"fee":150,"net":39850,"source":{"id":"py_2","object":"charge","payment_intent":"pi_unknown"}},'
-				+ '{"id":"txn_3","type":"stripe_fee","amount":-200,"fee":0,"net":-200,"source":null},'
+				+ '{"id":"txn_3","type":"stripe_fee","amount":-200,"fee":0,"net":-200,"source":null,"description":"Radar (2026-10-28): Standard"},'
 				+ '{"id":"txn_4","type":"payout","amount":-89515,"fee":0,"net":-89515,"source":"po_X"}'
 				+ '],"has_more":false}'
 		};
@@ -149,7 +149,7 @@ private class Test_Util_FinancialSystemStripePosting {
 		System.assertEquals('Fee', p.Lines__r[2].Booking__c);
 
 		List<Object> lines = postedLines(mock, 'GeneralJournalEntryLines');
-		System.assertEquals(4, lines.size(), 'Debtor, suspense, fees, transit');
+		System.assertEquals(5, lines.size(), 'Debtor, suspense, processing fees, Radar fee, transit');
 		System.assertEquals('acc-guid', line(lines, 0).get('Account'));
 		System.assertEquals(26100042, line(lines, 0).get('OurRef'), 'Raw Exact invoice number closes the invoice');
 		System.assertEquals('gl-receivables', line(lines, 0).get('GLAccount'), 'A general journal needs the receivables G/L on the debtor line');
@@ -157,10 +157,14 @@ private class Test_Util_FinancialSystemStripePosting {
 		System.assertEquals('gl-suspense', line(lines, 1).get('GLAccount'));
 		System.assertEquals(-400.00, Decimal.valueOf(String.valueOf(line(lines, 1).get('AmountFC'))));
 		System.assertEquals('gl-fee', line(lines, 2).get('GLAccount'));
-		System.assertEquals(4.85, Decimal.valueOf(String.valueOf(line(lines, 2).get('AmountFC'))));
-		System.assertEquals('gl-transit', line(lines, 3).get('GLAccount'));
-		System.assertEquals(895.15, Decimal.valueOf(String.valueOf(line(lines, 3).get('AmountFC'))));
-		System.assertEquals('Stripe payout po_X', line(lines, 3).get('Description'));
+		System.assertEquals(2.85, Decimal.valueOf(String.valueOf(line(lines, 2).get('AmountFC'))), 'Processing fees 1.35 + 1.50');
+		System.assertEquals('Stripe processing fees po_X', line(lines, 2).get('Description'));
+		System.assertEquals('gl-fee', line(lines, 3).get('GLAccount'));
+		System.assertEquals(2.00, Decimal.valueOf(String.valueOf(line(lines, 3).get('AmountFC'))), 'Separately billed Radar fee on its own line');
+		System.assertEquals('Stripe Radar (2026-10-28): Standard', line(lines, 3).get('Description'));
+		System.assertEquals('gl-transit', line(lines, 4).get('GLAccount'));
+		System.assertEquals(895.15, Decimal.valueOf(String.valueOf(line(lines, 4).get('AmountFC'))));
+		System.assertEquals('Stripe payout po_X', line(lines, 4).get('Description'));
 		Decimal total = 0;
 		for (Object o : lines) total += Decimal.valueOf(String.valueOf(((Map<String, Object>) o).get('AmountFC')));
 		System.assertEquals(0, total, 'Entry balances');
@@ -179,10 +183,11 @@ private class Test_Util_FinancialSystemStripePosting {
 
 		System.assertEquals('Posted', posting().Status__c, 'Error: ' + posting().LastError__c);
 		List<Object> lines = postedLines(mock, 'BankEntryLines');
-		System.assertEquals(null, line(lines, 0).get('GLAccount'), 'A bank entry derives the receivables G/L from the debtor');
+		System.assertEquals('gl-receivables', line(lines, 0).get('GLAccount'), 'A bank entry needs the receivables G/L on the debtor line too');
 		System.assertEquals(500.00, Decimal.valueOf(String.valueOf(line(lines, 0).get('AmountFC'))), 'Payment = money in');
-		System.assertEquals(-4.85, Decimal.valueOf(String.valueOf(line(lines, 2).get('AmountFC'))), 'Fees = money out');
-		System.assertEquals(-895.15, Decimal.valueOf(String.valueOf(line(lines, 3).get('AmountFC'))), 'Payout = money out');
+		System.assertEquals(-2.85, Decimal.valueOf(String.valueOf(line(lines, 2).get('AmountFC'))), 'Processing fees = money out');
+		System.assertEquals(-2.00, Decimal.valueOf(String.valueOf(line(lines, 3).get('AmountFC'))), 'Radar fee = money out');
+		System.assertEquals(-895.15, Decimal.valueOf(String.valueOf(line(lines, 4).get('AmountFC'))), 'Payout = money out');
 	}
 
 	@IsTest
@@ -245,7 +250,7 @@ private class Test_Util_FinancialSystemStripePosting {
 		Test.stopTest();
 
 		System.assertEquals('Posted', posting().Status__c, posting().LastError__c + ' / ' + logs());
-		System.assertEquals(4, postedLines(mock, 'GeneralJournalEntryLines').size());
+		System.assertEquals(5, postedLines(mock, 'GeneralJournalEntryLines').size());
 	}
 
 	@IsTest

@@ -5,7 +5,9 @@
  * Entry per payout (all lines on the payout's arrival date):
  *   - per payment / refund / dispute: the debtor with the raw Exact invoice number (OurRef), so Exact closes (or reopens)
  *     the invoice; the gross amount, never netted with the fee. Without a matching Exact invoice: the suspense account.
- *   - Stripe fees of the whole payout on the fee account (one line).
+ *   - fees on the fee account: one line for the processing fees of the payout's payments, plus one line per separately
+ *     billed Stripe fee (e.g. "Radar (2026-10-28): Standard"). Stripe bills those per day for the whole account and takes
+ *     them from the next payout, so they rarely belong to the payments in the same payout.
  *   - the payout amount on the transit account (Kruisposten), matched there with the bank line.
  * The lines balance by themselves (payments - fees = payout), so the Stripe clearing account nets to 0 per payout.
  * Settings on the Business Entity (FinSysStripe*); journal type decides the endpoint: bank journal → BankEntries,
@@ -115,7 +117,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 		Subscription25__Administration__c admin;
 		Business_Entities__c be;
 		Boolean bankJournal;
-		// general journal only: a debtor line needs the receivables G/L, taken from the sales journal
+		// a debtor line needs the receivables G/L (bank and general journal), taken from the sales journal
 		String receivablesGLId;
 		String receivablesProblem;
 		Map<String, String> glIdByCode = new Map<String, String>();
@@ -143,7 +145,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 			new Map<String, String>{ '$select' => 'Code,Type', '$filter' => 'Code eq \'' + be.FinSysStripeJournalCode__c + '\'' }, 'GET', null, null));
 		if (journals.isEmpty()) throw new PostingException('Journal ' + be.FinSysStripeJournalCode__c + ' not found in the financial system');
 		s.bankJournal = Integer.valueOf(String.valueOf(((Map<String, Object>) journals[0]).get('Type'))) == JOURNAL_TYPE_BANK;
-		if (!s.bankJournal) Util_FinancialSystemStripePosting.loadReceivablesGL(s, base);
+		Util_FinancialSystemStripePosting.loadReceivablesGL(s, base);
 
 		Set<String> codes = new Set<String>{ be.FinSysStripeFeeGLCode__c, be.FinSysStripeTransitGLCode__c, be.FinSysStripeSuspenseGLCode__c };
 		List<String> filter = new List<String>();
@@ -159,7 +161,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 		return s;
 	}
 
-	/** Receivables G/L of the sales journal(s); a bank entry derives it from the debtor, a general journal entry does not. */
+	/** Receivables G/L of the sales journal(s); Exact does not derive it from the debtor, not even on a bank entry. */
 	private static void loadReceivablesGL(Settings s, String base) {
 		Set<String> ids = new Set<String>();
 		for (Object o : Util_FinancialSystemStripePosting.results(Util_FinancialSystem.doRequest(s.admin, base + 'Journals',
@@ -303,6 +305,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 			if (FEE_TYPES.contains(type)) {
 				// a Stripe fee movement (negative amount) is a cost, not part of the customers' gross
 				l.Booking__c = 'Fee';
+				l.Description__c = ('Stripe ' + (String.isBlank((String) t.get('description')) ? type : (String) t.get('description'))).left(DESCRIPTION_LENGTH);
 				fees -= l.Amount__c;
 			} else {
 				gross += l.Amount__c;
@@ -399,26 +402,29 @@ public without sharing class Util_FinancialSystemStripePosting {
 		return found.isEmpty() ? null : (Map<String, Object>) found[0];
 	}
 
-	/** Exact entry body: debtor / suspense lines, one fee line, one transit line. */
+	/** Exact entry body: debtor / suspense lines, processing fee line, one line per separately billed fee, transit line. */
 	@TestVisible
 	private static Map<String, Object> entry(Settings s, FinSysPosting__c p, List<FinSysPostingLine__c> lines) {
 		String day = Datetime.newInstanceGmt(p.ArrivalDate__c, Time.newInstance(12, 0, 0, 0)).formatGmt('yyyy-MM-dd');
 		List<Object> out = new List<Object>();
-		Decimal feeDebit = 0;
+		Decimal processingFees = 0;
+		List<Object> otherFees = new List<Object>();
 		for (FinSysPostingLine__c l : lines) {
-			feeDebit += l.FeeAmount__c;
 			if (l.Booking__c == 'Fee') {
-				feeDebit -= l.Amount__c;
+				Decimal debit = l.FeeAmount__c - l.Amount__c;
+				if (debit != 0) {
+					otherFees.add(Util_FinancialSystemStripePosting.feeLine(s, day, debit,
+						String.isBlank(l.Description__c) ? ('Stripe ' + l.StripeType__c + ' ' + p.StripePayoutId__c).left(DESCRIPTION_LENGTH) : l.Description__c));
+				}
 				continue;
 			}
+			processingFees += l.FeeAmount__c;
 			Map<String, Object> line = new Map<String, Object>{ 'Date' => day, 'Description' => l.Description__c };
 			if (l.Booking__c == 'Invoice') {
 				line.put('Account', l.FinSysAccountId__c);
 				line.put('OurRef', Integer.valueOf(l.FinSysInvoiceNumber__c));
-				if (!s.bankJournal) {
-					if (s.receivablesGLId == null) throw new PostingException(s.receivablesProblem);
-					line.put('GLAccount', s.receivablesGLId);
-				}
+				if (s.receivablesGLId == null) throw new PostingException(s.receivablesProblem);
+				line.put('GLAccount', s.receivablesGLId);
 			} else {
 				line.put('GLAccount', s.glIdByCode.get(s.be.FinSysStripeSuspenseGLCode__c));
 			}
@@ -426,15 +432,10 @@ public without sharing class Util_FinancialSystemStripePosting {
 			line.put('AmountFC', Util_FinancialSystemStripePosting.amount(s, -l.Amount__c));
 			out.add(line);
 		}
-		if (feeDebit != 0) {
-			Map<String, Object> fee = new Map<String, Object>{
-				'Date' => day, 'GLAccount' => s.glIdByCode.get(s.be.FinSysStripeFeeGLCode__c),
-				'AmountFC' => Util_FinancialSystemStripePosting.amount(s, feeDebit),
-				'Description' => ('Stripe fees ' + p.StripePayoutId__c).left(DESCRIPTION_LENGTH)
-			};
-			if (String.isNotBlank(s.be.FinSysStripeFeeVATCode__c)) fee.put('VATCode', s.be.FinSysStripeFeeVATCode__c);
-			out.add(fee);
+		if (processingFees != 0) {
+			out.add(Util_FinancialSystemStripePosting.feeLine(s, day, processingFees, ('Stripe processing fees ' + p.StripePayoutId__c).left(DESCRIPTION_LENGTH)));
 		}
+		out.addAll(otherFees);
 		out.add(new Map<String, Object>{
 			'Date' => day, 'GLAccount' => s.glIdByCode.get(s.be.FinSysStripeTransitGLCode__c),
 			'AmountFC' => Util_FinancialSystemStripePosting.amount(s, p.Amount__c),
@@ -447,6 +448,16 @@ public without sharing class Util_FinancialSystemStripePosting {
 			'FinancialPeriod' => p.ArrivalDate__c.month(),
 			(s.bankJournal ? 'BankEntryLines' : 'GeneralJournalEntryLines') => out
 		};
+	}
+
+	private static Map<String, Object> feeLine(Settings s, String day, Decimal debit, String description) {
+		Map<String, Object> fee = new Map<String, Object>{
+			'Date' => day, 'GLAccount' => s.glIdByCode.get(s.be.FinSysStripeFeeGLCode__c),
+			'AmountFC' => Util_FinancialSystemStripePosting.amount(s, debit),
+			'Description' => description
+		};
+		if (String.isNotBlank(s.be.FinSysStripeFeeVATCode__c)) fee.put('VATCode', s.be.FinSysStripeFeeVATCode__c);
+		return fee;
 	}
 
 	/** Debit amount → AmountFC: as is on a general journal; on a bank journal AmountFC is money into the bank (the opposite side). */
