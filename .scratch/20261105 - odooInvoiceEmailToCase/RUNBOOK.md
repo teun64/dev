@@ -295,5 +295,24 @@ undo if the intention was the opposite (reuse across entities). Dev + acc 12/12.
 - Queue + members + access: `records/createFinanceQueue.apex` (idempotent, per org). Dev/acc: queue exists, NO members (Jessica Hak / Floris van Beek are not
   active users there); prod: both are active (profile miFinance) and get the permission set.
 - Dev: 114 OdooProduct rows prefilled from the 673 prod PDFs (1 mapped: CarFleetUK -> CarFleet.01). The 101 Product2 imported earlier under Odoo
-  codes are obsolete (not deleted yet). Mapping suggestions for NL/UK: exact-items/odoo_to_exact_mapping_NL_UK.csv.
+  codes were deleted in dev on 2026-11-06 (with their 101 price book entries; none mapped, no order items). Mapping suggestions for NL/UK: exact-items/odoo_to_exact_mapping_NL_UK.csv.
 - Prod needs: object/tab/permission set/FLS, the queue script, the 3 intake classes; prefill rows (unmapped) so Finance can work from a list.
+
+### 8g. LOG 2026-11-06 — state and where to continue
+- Commits (none pushed, nothing in prod): c1e55c2, 12a3420, f2d7489, e39cf71, 490f6f2 (code), 1b27605 (exact-items CSVs).
+- Dev + acc: all intake/sync classes deployed, tests green (intake 23, Exact sync 10). Queue exists in both, no members.
+- Dev: 114 OdooProduct rows, only CarFleetUK mapped. Acc: Product2 FMC880NL exists (no OdooProduct mapping yet).
+- RESUME HERE (acc Exact test, NL only):
+  1. USER: create item `800.313.0260` (FMC880 box) in the Exact acc NL division: VAT code 2, group 1903 (ledger 801903), price 125.00.
+  2. Acc: create Product2 `800.313.0260`, OdooProduct `FMC880NL` -> that product; repoint/recreate NL test invoice `I-2611-00564705`
+     (case 500G500000rCnT3IAK); run `Svc_OdooExactSync.sync(<invoiceId>)` (NL = Print).
+  3. Check in Exact: number, lines, VAT, total vs Odoo net 125.00, YourRef = Odoo number, journal. Run twice: second run must skip.
+  4. Optional: unmapped-code test (needs a queue member in acc, e.g. the user).
+  5. UK: acc administration has Synchronisation null and there is no UK sample: needs setup first.
+- Open questions for the user: (a) two numbers on NL/UK invoices (Odoo + Exact) acceptable? (b) use Last_Queue__c to return held cases
+  automatically, or Finance by hand? (c) FR/DE use the relation too (implemented for all)? (d) CarFleet-combination UK products onto one
+  Exact item? (e) InterceptionFR/DepotPlainteFR/LevPlainteFR also Service?
+- Before prod (explicit command only): everything in §8-8f; prod OdooProduct object/tab/permission set/FLS, queue script + member assignment,
+  prefilled unmapped rows; fix Test_Rest_UpsertAccount.testUkPrivateOpportunityDefaultIsPi; cutoff for ~30 old New Odoo cases (proposal 30 days);
+  WAITING timeout comment (proposal 3 days); dispatcher step Minut_OdooInvoiceIntake must be inactive in prod, Minut_OdooExactSync inactive;
+  `ODOO-%` exclusion in rau_Subscription25_Invoice_c_Finalized_Create_Payment once anything finalizes these invoices.
