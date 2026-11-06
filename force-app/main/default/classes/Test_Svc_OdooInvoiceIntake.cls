@@ -327,6 +327,19 @@ private class Test_Svc_OdooInvoiceIntake {
 	}
 
 	@isTest
+	static void newProductsGetTheirRecordTypeFromCodeAndName() {
+		Assert.areEqual('Hardware', Svc_OdooInvoiceIntake.productType('FMC880NL', 'FMC880 (box)'));
+		Assert.areEqual('Hardware', Svc_OdooInvoiceIntake.productType('MI01FR', 'Boitier MI01'));
+		Assert.areEqual('Hardware', Svc_OdooInvoiceIntake.productType('FMC880DE', 'Device  FMC880'));
+		Assert.areEqual('Installation', Svc_OdooInvoiceIntake.productType('INSTFR', 'Installation boitier'));
+		Assert.areEqual('Handling', Svc_OdooInvoiceIntake.productType('EXPFR', 'Frais de transport'));
+		Assert.areEqual('Handling', Svc_OdooInvoiceIntake.productType('EXPDE', 'Transport cost'));
+		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('CarLocateDeviceFR', 'Licence CarLocate with Hardware'), 'a licence with a device is a subscription');
+		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('CarReportUK', 'Monthly License CarReport'), 'report is not a port');
+		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('Formation', 'Formation'));
+	}
+
+	@isTest
 	static void entitySevenNeedsThePermission() {
 		Account acc = Test_Data.createAccount('Entity test', '9990001', 'B2B', true);
 		Profile admin = [SELECT Id FROM Profile WHERE Name = 'System Administrator' LIMIT 1];

@@ -340,6 +340,31 @@ public without sharing class Svc_OdooInvoiceIntake {
 	// customer under any other entity (user decision 2026-11-06); all other entities share accounts
 	private static final Set<String> SEPARATE_ENTITIES = new Set<String>{ '4', '7' };
 
+	/**
+	 * Record type (developer name) of a product that arrives for the first time, from its Odoo code and name: devices = Hardware,
+	 * installations = Installation, clearly shipping related = Handling, the rest = Subscription (user, 2026-11-06). A licence that
+	 * includes a device ("... with Hardware") stays a Subscription.
+	 */
+	@TestVisible
+	private static String productType(String code, String name) {
+		String c = (code == null ? '' : code).toLowerCase();
+		String n = (name == null ? '' : name).toLowerCase();
+		String t = c + ' ' + n;
+		if (Pattern.compile('install|^inst').matcher(t).find()) {
+			return 'Installation';
+		}
+		if (Pattern.compile('^exp|transport|shipping|versand|livraison').matcher(t).find()) {
+			return 'Handling';
+		}
+		if (Pattern.compile('^(licen[cs]e|monatlich|monthly)').matcher(n).find()) {
+			return 'Subscription';
+		}
+		if (Pattern.compile('^(fmc\\d|mi01|gl53)').matcher(c).find() || Pattern.compile('^device |^boitier|\\(box\\)').matcher(t).find()) {
+			return 'Hardware';
+		}
+		return 'Subscription';
+	}
+
 	@TestVisible
 	private static Account pick(List<Account> found, String reseller) {
 		List<Account> usable = new List<Account>();
@@ -596,6 +621,10 @@ public without sharing class Svc_OdooInvoiceIntake {
 				Svc_FacturX.Line l = lineByCode.get(key);
 				Product2 p = new Product2(Name = productName(l), ProductCode = lineCode(l), IsActive = true,
 					Description = l.description, CurrencyIsoCode = currencyCode);
+				Schema.RecordTypeInfo rt = Schema.SObjectType.Product2.getRecordTypeInfosByDeveloperName().get(productType(p.ProductCode, p.Name));
+				if (rt != null) {
+					p.RecordTypeId = rt.getRecordTypeId();
+				}
 				newProducts.add(p);
 				productByCode.put(key, p);
 			}
