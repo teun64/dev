@@ -311,6 +311,22 @@ private class Test_Svc_OdooInvoiceIntake {
 	}
 
 	@isTest
+	static void onlyEchoesFranceAndGmbhKeepSeparateAccounts() {
+		Account nl = new Account(Name = 'NL', Reseller_Name__c = '1');
+		Account de = new Account(Name = 'DE', Reseller_Name__c = '5');
+		Account fr = new Account(Name = 'FR', Reseller_Name__c = '4');
+		Account gm = new Account(Name = 'GMBH', Reseller_Name__c = '7');
+		List<Account> all = new List<Account>{ nl, de, fr, gm };
+		Assert.areEqual(de, Svc_OdooInvoiceIntake.pick(new List<Account>{ nl, de }, '5'), 'the own entity is preferred');
+		Assert.areEqual(nl, Svc_OdooInvoiceIntake.pick(new List<Account>{ nl, fr, gm }, '6'), 'NL / DE / UK share accounts, 4 and 7 are not reused');
+		Assert.areEqual(de, Svc_OdooInvoiceIntake.pick(new List<Account>{ de }, '1'), 'an account of another shared entity is reused');
+		Assert.isNull(Svc_OdooInvoiceIntake.pick(new List<Account>{ nl, de, gm }, '4'), 'France only matches its own accounts');
+		Assert.areEqual(fr, Svc_OdooInvoiceIntake.pick(all, '4'));
+		Assert.isNull(Svc_OdooInvoiceIntake.pick(new List<Account>{ nl, de, fr }, '7'), 'Echoes GmbH only matches its own accounts');
+		Assert.areEqual(gm, Svc_OdooInvoiceIntake.pick(all, '7'));
+	}
+
+	@isTest
 	static void entitySevenNeedsThePermission() {
 		Account acc = Test_Data.createAccount('Entity test', '9990001', 'B2B', true);
 		Profile admin = [SELECT Id FROM Profile WHERE Name = 'System Administrator' LIMIT 1];

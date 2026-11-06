@@ -336,13 +336,25 @@ public without sharing class Svc_OdooInvoiceIntake {
 	}
 
 	/** Same reseller first, then the oldest. */
+	// entities that keep their own accounts: a customer of Echoes France (4) or Echoes GmbH (7) is a separate account from the same
+	// customer under any other entity (user decision 2026-11-06); all other entities share accounts
+	private static final Set<String> SEPARATE_ENTITIES = new Set<String>{ '4', '7' };
+
+	@TestVisible
 	private static Account pick(List<Account> found, String reseller) {
+		List<Account> usable = new List<Account>();
 		for (Account a : found) {
+			Boolean sameWorld = SEPARATE_ENTITIES.contains(reseller) ? a.Reseller_Name__c == reseller : !SEPARATE_ENTITIES.contains(a.Reseller_Name__c);
+			if (sameWorld) {
+				usable.add(a);
+			}
+		}
+		for (Account a : usable) {
 			if (a.Reseller_Name__c == reseller) {
 				return a;
 			}
 		}
-		return found.isEmpty() ? null : found[0];
+		return usable.isEmpty() ? null : usable[0];
 	}
 
 	private static Account matched(Account acc, String how, String reseller, Result res) {
@@ -353,9 +365,9 @@ public without sharing class Svc_OdooInvoiceIntake {
 	}
 
 	/**
-	 * Match on VAT, CoC (SIREN/SIRET), name + postal code, within the Odoo company's own reseller only (an account belongs to
-	 * one entity: the same customer under another entity, e.g. 5 and 7, or 4 and the rest, becomes a separate account for now;
-	 * reseller 3 counts as 1, same administration); else create.
+	 * Match on VAT, CoC (SIREN/SIRET), name + postal code (any entity, the Odoo company's own preferred), except for Echoes France (4)
+	 * and Echoes GmbH (7): they only match accounts of their own entity, and no other entity matches theirs (separate accounts, see
+	 * pick); else create.
 	 * rbb_Account derives the reseller from the billing country on create; the Odoo company's reseller is set back with an
 	 * update (vr_FinancialEntityChange: sysadmin / cp_AllowFinancialEntityChange); when that is refused the country's stays.
 	 */
@@ -364,15 +376,11 @@ public without sharing class Svc_OdooInvoiceIntake {
 		if (String.isBlank(b.name)) {
 			throw new IntakeException('The Factur-X has no customer name');
 		}
-		Set<String> entities = new Set<String>{ reseller };
-		if (reseller == '1') {
-			entities.add('3'); // Belgium is handled by the Netherlands administration
-		}
 		String vat = normalizeVat(b.vatNumber);
 		if (vat != null) {
 			Set<String> vats = new Set<String>{ vat, b.vatNumber.trim() };
 			Account found = pick([
-				SELECT Id, Name, Reseller_Name__c FROM Account WHERE VAT_Number__c IN :vats AND Reseller_Name__c IN :entities WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
+				SELECT Id, Name, Reseller_Name__c FROM Account WHERE VAT_Number__c IN :vats WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
 			], reseller);
 			if (found != null) {
 				return matched(found, 'VAT ' + vat, reseller, res);
@@ -385,7 +393,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 				ids.add(legalId.left(9)); // SIRET -> SIREN
 			}
 			Account found = pick([
-				SELECT Id, Name, Reseller_Name__c FROM Account WHERE CoC_Number__c IN :ids AND Reseller_Name__c IN :entities WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
+				SELECT Id, Name, Reseller_Name__c FROM Account WHERE CoC_Number__c IN :ids WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
 			], reseller);
 			if (found != null) {
 				return matched(found, 'CoC ' + legalId, reseller, res);
@@ -394,7 +402,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 		String name = b.name.trim();
 		String postalCode = String.isBlank(b.postalCode) ? null : b.postalCode.trim();
 		Account byName = pick([
-			SELECT Id, Name, Reseller_Name__c FROM Account WHERE Name = :name AND BillingPostalCode = :postalCode AND Reseller_Name__c IN :entities
+			SELECT Id, Name, Reseller_Name__c FROM Account WHERE Name = :name AND BillingPostalCode = :postalCode
 			WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
 		], reseller);
 		if (byName != null) {

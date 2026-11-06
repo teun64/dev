@@ -259,3 +259,26 @@ relation to the rest") — interpreted as: an account belongs to one entity, the
 own reseller (VAT, CoC, name + postal code); the same customer under another entity (5 vs 7, 4 vs the rest) becomes a separate
 account. Reseller 3 counts as 1 (same administration). One filter in findOrCreateAccount (`Reseller_Name__c IN :entities`): easy to
 undo if the intention was the opposite (reuse across entities). Dev + acc 12/12.
+
+### 8e. Decisions of 2026-11-06 (late) + phase 2 built (dev + acc, step INACTIVE, nothing posted to Exact yet)
+- Account matching (user: "only if the source is 4 france or 7 echoes gmbh"): only Echoes France (4) and Echoes GmbH (7) keep their own
+  accounts; they only match accounts of their own entity and no other entity matches theirs. All other sources (1/3/5/6) match any
+  non-4/7 account, the own entity preferred (back to the earlier behaviour, in Apex `pick`). A reused account of another reseller in an
+  Exact administration still stops in waitForDebtorNumber. Supersedes §8d.
+- Sharing (user: "copy acc in prod, remove the existing", read as: prod's rules into acc): acc's 4 owner rules (srBeNeLuxManagement,
+  srBeneluxReps, srGermanyManagement, srGermanyReps; backup in the session scratchpad acc-sharing/) deleted and prod's Account
+  sharingRules (incl. 7 with DE) deployed to acc.
+- Phase 2: `Svc_OdooExactSync` + `Batch_OdooExactSync` + `JobDispatcherStep.Minut_OdooExactSync` (IsActive false, order 45); tests
+  `Test_Svc_OdooExactSync` (mocked Exact) 10/10 in dev and acc.
+  - Exact docs: SalesInvoices.InvoiceNumber is "assigned at entry or at printing depending on setting": the number CANNOT be supplied.
+    So the Odoo number goes in YourRef + Description ("Odoo <nr>"), Exact numbers itself (Import = at entry, Print = at printing,
+    read from Business_Entities__c.FinSysInvoiceNumberMethod__c; blank = stop). Exact's number goes to FinSysInvoiceNumber__c, the
+    Odoo number stays in Invoice_Number__c. NL/UK invoices therefore carry two numbers (open point for the user).
+  - Direct POST salesinvoice/SalesInvoices (no Exact order), single sales journal looked up (Type 20, exactly one needed), items from
+    Administration_Product.Exact_Id__c / Exact (never created), idempotent (lookup by YourRef first), back-off 1 day on failure.
+  - Calls go through Util_FinancialSystem.doRequest: sandbox backstop for production divisions + isFinancialSyncAllowed.
+  - Not set to FINALIZED, so the Payment flow (pi/pr collection) is not triggered; the `ODOO-%` exclusion in
+    rau_Subscription25_Invoice_c_Finalized_Create_Payment is still needed before anything finalizes these invoices (the flow has
+    uncommitted edits from other work in the repo: not touched).
+  - UNVERIFIED against real Exact: Journal/VAT per item/layout on print, the POST response shape. First test in acc: check the
+    division is NOT a production one, then `Svc_OdooExactSync.sync(<invoiceId>)` on one invoice.
