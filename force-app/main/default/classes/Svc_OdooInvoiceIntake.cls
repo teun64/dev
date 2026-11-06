@@ -342,7 +342,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 
 	/**
 	 * Record type (developer name) of a product that arrives for the first time, from its Odoo code and name: devices = Hardware,
-	 * installations = Installation, clearly shipping related = Handling, the rest = Subscription (user, 2026-11-06). A licence that
+	 * installations = Installation, recovery services (impound / release / repatriation) = Service, clearly shipping related = Handling, the rest = Subscription (user, 2026-11-06). A licence that
 	 * includes a device ("... with Hardware") stays a Subscription.
 	 */
 	@TestVisible
@@ -352,6 +352,9 @@ public without sharing class Svc_OdooInvoiceIntake {
 		String t = c + ' ' + n;
 		if (Pattern.compile('install|^inst').matcher(t).find()) {
 			return 'Installation';
+		}
+		if (Pattern.compile('impound|release cost|repatriat|rapatri|fourri|restitution').matcher(t).find()) {
+			return 'Service'; // vehicle recovery services (English / French / German entities sell the same service under their own code)
 		}
 		if (Pattern.compile('^exp|transport|shipping|versand|livraison').matcher(t).find()) {
 			return 'Handling';

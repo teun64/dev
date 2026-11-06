@@ -337,6 +337,12 @@ private class Test_Svc_OdooInvoiceIntake {
 		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('CarLocateDeviceFR', 'Licence CarLocate with Hardware'), 'a licence with a device is a subscription');
 		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('CarReportUK', 'Monthly License CarReport'), 'report is not a port');
 		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('Formation', 'Formation'));
+		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('Impound cost', 'Impound cost'));
+		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('Release Cost', 'Release Cost'));
+		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('Repatriation Cost', 'Repatriation Cost'));
+		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('RapatriementFR', 'Rapatriement'));
+		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('FourriereFR', 'Frais de Fourrières'));
+		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('RestitutionFR', 'Restitution pour les véhicules'));
 	}
 
 	@isTest
