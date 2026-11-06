@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysInvoiceNumberMethod__c</fullName>
+    <label>Invoice Number Method (Financial System)</label>
+    <type>Picklist</type>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <description>How the financial system (Exact) gives an invoice its number. Import: the number exists when the invoice is created (import); Print: Exact assigns it when the invoice is printed. Blank: no financial system. Set per entity; UK = Import, NL and DE = Print.</description>
+    <inlineHelpText>Import = the financial system numbers the invoice on create. Print = it numbers it on print. Blank = no financial system.</inlineHelpText>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Print</fullName>
+                <default>false</default>
+                <label>Print</label>
+            </value>
+            <value>
+                <fullName>Import</fullName>
+                <default>false</default>
+                <label>Import</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
