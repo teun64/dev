@@ -1,0 +1,438 @@
+Code,Description,GLCosts,GLCostsCode,GLRevenue,GLRevenueCode,GLRevenueDescription,IsFractionAllowedItem,IsSalesItem,IsStockItem,ItemGroupCode,ItemGroupDescription,SalesVatCode,SalesVatCodeDescription,Unit,UnitDescription
+LMH052,Sentinel S5 or Ultimate Kit for VW,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.CV.999,LT Subscription - Sentinel Caravan,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+7507,Door Contact,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.CV.12.D,Sentinel CV Annual Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.BlackR.12,MiBlack-R Subscription,,,,,,True,True,False,Black-R,Subscription Black-R,01 ,UK sales standard rate,Ea      ,Each
+800.900.9101,Kickback,,,,,,False,True,False,9101,Kickback,01 ,UK sales standard rate,Ea      ,Each
+SC14911,Diode - 1N4007-T,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+25BCA00041X,MI CV Loom,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.12,Annual Subscription - Sentinel Motorhome,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+008,S5 Tag,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+Data Stellantis,Data Stellantis,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+LMH002,VanGuard Alarm Kit Ford (incl. 24 months support),,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+LMH015,I Track Plus,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+MILMH042,MI Sentinel for VW,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.ASSET.12.P,Asset+ Annual Service Fees,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+LMH028,MI iTrack S5 Kit,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+800.313.0504,Keypad incl 2m cable,,,,,,False,True,True,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+Override Rec,Override Receptical female,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+DX4000,Aguri DX4000 GPS Dash Cam / Speed Trap Detector,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+A0010,Mi01,,,,,,False,True,True,7200,Mi01,01 ,UK sales standard rate,Ea      ,Each
+UK.OLDPRO.24,Pro - Annual Subscription 2 years,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.S7.24,iTrack S7 2 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0509,24V 5pin relay,,,,,,False,True,True,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+Data Nissan,Data Nissan,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+800.313.0100,VT100,,,,,,False,True,True,7500,Teltonika Mi100,01 ,UK sales standard rate,Ea      ,Each
+800.061.0032,Key for MiBlock Active Tag,,,,,,False,True,True,7001,Mi50 Accessories,01 ,UK sales standard rate,pc      ,Piece
+Data Renault,Data Renault,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.S5P.12.D,iTrack Ultimate 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+MILMH062,Sentinel S5 Pro,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.01,Monthly Subscription - Sentinel Motorhome,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.SENTINEL.MH.S5.36.P,Sentinel S5 3 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+RV720,RV720,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.MOREOLDPRO.01,Pro - Monthly Subscription,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+972TPH,S5,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.48.P,iTrack Ultimate 4 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.24,Sentinel S5 2 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0120,Mi120,,,,,,False,True,True,7501,Teltonika Mi120,01 ,UK sales standard rate,Ea      ,Each
+UK.Orange.12,MiOrange Subscription,,,,,,True,True,False,Orange,Subscription Orange,01 ,UK sales standard rate,year    ,Year
+MILCV007,Mi Caravan Sentinel Alarm & Tracking,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+931TPV1,Vanguard for Brownhills,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,pc      ,Piece
+UK.ITRACK.12.D,iTrack Annual Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.ITRACK.S7.60.P,iTrack S7 5 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S7.60.P,Sentinel S7 5 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0500,AT4,,,,,,False,True,True,7910,Queclink GL50B (AT4),01 ,UK sales standard rate,Ea      ,Each
+CarFleet.Dev.01,CarFleet (Device),,,,,,True,True,False,1902,Subscription Echoes Device,01 ,UK sales standard rate,month   ,Month
+800.313.0533,S5 Wiring Loom,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S7.36,iTrack S7 3 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.Blue.01,MiBlue Subscription,,,,,,True,True,False,Blue,Subscription Blue,01 ,UK sales standard rate,month   ,Month
+UK.SENTINEL.MH.S7.12.D,Sentinel S7 1 Year DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+Data Volvo,Data Volvo,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.S7.12,iTrack S7 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.SENTINEL.MH.S7.24,Sentinel S7 2 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+MM0141,Universal Bracket,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+800.313.0506,Sticker VT202B,,,,,,False,True,False,7597,Teltonika Parts,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.999,LT Subscription - iTrack,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.900.9992,Message Handling,,,,,,False,True,False,9990,SOC,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.12.P,Sentinel S5 1 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+A003,VanGuard Alarm kit Fiat,,,,,,False,True,False,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.24.P,Sentinel S5 2 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S7.24.P,iTrack S7 2 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+972TPH-ADR,S5 ADR Kit,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+25BCA00042X,MI iTrack S5 ultimate loom,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+800.313.0260,FMC880,,,,,,False,True,False,1903,Echoes Device,01 ,UK sales standard rate,Ea      ,Each
+931 Siren,Gemini Siren,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+A011,Itrack Secure 5,,,,,,False,True,False,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+800.900.7906,Installation Vanguard,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+MILMH017,Mi iTrack S5 Kit Ultimate,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+MILMH013.2,MI Sentinel S5 Ultimate Kit for Fiat,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.12,Sentinel Ultimate 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.12.P,ITrack Annual Subscription (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+RF,RF Farraday Pouch,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+FMT100,FMT100 Tracker,724f2cdc-e8ea-46d7-96a7-0699d2510173,827500,,,,False,True,False,7500,Teltonika Mi100,01 ,UK sales standard rate,Ea      ,Each
+RV520,MH & CV Sat Nav RV520,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.36.P,iTrack Ultimate 3 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.60.P,Sentinel S5 5 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+953 Module,800.313.0524,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+20BCA00022X,6m Coachman Loom,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+800.900.9004,Delivery fee (> 10 units),,,,,,False,True,False,9001,Carriage,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.60.P,iTrack Ultimate 5 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.VT.12.P,VT Annual Services,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+MILMH052.1,MI Sentinel S5 Kit for VW,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.Red.01,MiRed Subscription,,,,,,True,True,False,Red,Subscription Red,01 ,UK sales standard rate,month   ,Month
+Data Hyundai,Data Hyundai,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+800.313.0213,FMC130 Tracker,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+800.313.0523,Gemini 931 Wiring Loom,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.Green.01,MiGreen Subscription,,,,,,True,True,False,Green,Subscription Green,01 ,UK sales standard rate,month   ,Month
+10504,AT4 Set,,,,,,False,True,True,7910,Queclink GL50B (AT4),01 ,UK sales standard rate,Ea      ,Each
+LMH014 / A009,iTrack,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+800.050.0014,Mi50 Ultimate/S5,,,,,,False,True,True,7000,Mi50 unit (non-fleet),01 ,UK sales standard rate,Ea      ,Each
+22BCA00049X,4 Way - 2 Wire Link,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.24,Sentinel Ultimate 2 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0502,AT4 battery,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.OLDPRO.60,Pro - Annual Subscription 5 years,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+UK.Black.01,MiBlack Subscription,,,,,,True,True,False,Black,Subscription Black,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.12,ITrack Annual Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+OBD,OBD Extention,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+MILMH014,iTrack,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+UK.MOREOLDPRO.01.D,Pro - Monthly Subscription,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+MILMH051.2,MI Sentinel S5 Ultimate Kit for Ford,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+800.313.0510,Relay socket,,,,,,False,True,True,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+MILMH060,Vanguard Alarm +,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+LMH001,VanGuard Alarm Kit Mercedes (incl. 24 months support),,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+FARBOX,Faraday Boxes,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+White.12.P,MiWhite Subscription,,,,,,True,True,False,PrepaidPackages,Prepaid packages,01 ,UK sales standard rate,year    ,Year
+UK.ITRACK.S5P.999,iTrack Ultimate Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.061.0031,Active Tag for MiBlock,,,,,,False,True,True,7001,Mi50 Accessories,01 ,UK sales standard rate,pc      ,Piece
+G200,Anytek Dash Cam,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+972TPH-PATCH,S5S5 KIT Ultimate upgrade,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.48,Sentinel Ultimate 4 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S7.48.P,iTrack S7 4 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.60.P,Sentinel Ultimate 5 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+DX1000,DX1000 DVR Dash Cam,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,False,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+LMH026,Brownhills - Sentinel kit MH,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+Data BMW,Data BMW,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.NavyBlue.01,MiNavyBlue Subscription,,,,,,True,True,False,NavyBlue,Subscription NavyBlue,01 ,UK sales standard rate,month   ,Month
+UK.SENTINEL.MH.S5P.999.P,Sentinel Ultimate Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+MILMH050.2,MI Sentinel S5 Ultimate Kit for Mercedes,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.Azure.24,MiAzure Subscription,,,,,,True,True,False,AzureBlue,Subscription AzureBlue,01 ,UK sales standard rate,year    ,Year
+800.313.0528,Vanguard Caravan Alarm Fixing & Bracket,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+800.900.9008,Carriage,,,,,,False,True,False,9001,Carriage,01 ,UK sales standard rate,Ea      ,Each
+800.900.1903,Installation FMC880,,,,,,False,True,False,1903,Echoes Device,01 ,UK sales standard rate,pc      ,Piece
+UK.ITRACK.S7.999,iTrack S7 Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.001.0000,Mi01-Sentry,,,,,,False,True,True,7200,Mi01,01 ,UK sales standard rate,Ea      ,Each
+CarCollect.01,CarCollect,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+800.900.7701,Installation Pro3,,,,,,False,True,True,7799,Cal Amp installations,01 ,UK sales standard rate,pc      ,Piece
+CarLocate.Dev.01,CarLocate (Device),,,,,,True,True,False,1902,Subscription Echoes Device,01 ,UK sales standard rate,month   ,Month
+800.313.0501,AT6,,,,,,False,True,False,7911,Queclink GL520 (AT6),01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.12.D,Sentinel Ultimate 1 Year DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+Data VW,Data VW,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.S5P.60,iTrack Ultimate 5 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0514,24V Relay,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+25BCA00040X,MI MH Loom,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+BROWN,Sentinel for Brownhills,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+A70A,Anytek Dash Cam,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+800.900.7918,Cancellation fee,,,,,,False,True,True,7998,Cancellation,01 ,UK sales standard rate,pc      ,Piece
+25BCA00043X,MI Sentinel Ultimate loom (MH loom with relay),,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+MILMH006,MI Sentinel for Mercedes,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+LMH023,Mi01,,,,,,False,True,False,7200,Mi01,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.60.P,iTrack S5 5 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.7910,Installation Sentinel Ultimate,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+LCV013,Pro 3,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.12.D,iTrack S5 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.7913,Service call,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+UK.SENTINEL.MH.12.D,Annual Subscription - Sentinel Motorhome,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.313.0532,Pole inverter (Positive to Negative),727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.999.P,iTrack Ultimate Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.ITRACK.S7.999.P,iTrack S7 Lifetime (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.White.12,MiWhite Subscription,,,,,,True,True,False,White,Subscription White,01 ,UK sales standard rate,year    ,Year
+UK.ITRACK.S7.12.D,iTrack S7 1 Year DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.050.0011,Mi50.8,,,,,,False,True,True,7000,Mi50 unit (non-fleet),01 ,UK sales standard rate,Ea      ,Each
+MILMH016,Mi iTrack S5 Kit,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+MILCV017,Mi Coachman Sentinel Upgrade,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+Data Seat,Data Seat,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+10202,VT202 without immobilisation,,,,,,False,True,True,7510,Teltonika Mi202 (VT202),01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.36,iTrack S5 3 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S7.36.P,Sentinel S7 3 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.Green.12,MiGreen Subscription,,,,,,True,True,False,Green,Subscription Green,01 ,UK sales standard rate,year    ,Year
+LMH042,Sentinel Alarm & Tracker - VW S7,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.999.P,LT Subscription - iTrack,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+1,Sell Fixed assets,,,,,,False,True,False,1,Sell Fixed assets,,,Ea      ,Each
+UK.ASSET.12,Asset+ - Annual Service Fees,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+800.900.0020,Finder equipment Mi01/Mi04,,,,,,False,True,True,9002,Other,,,Ea      ,Each
+800.313.0511,AT4 case,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+RY12/RY14,12V Relay,2d623257-076e-41e5-be41-9691f15f25ca,827598,b1f44337-0df1-44a6-86fb-6c01ea4cfa4c,817598,Revenue HW Teltonika accessoiries,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+Data Mercedes,Data Mercedes,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+MILMH015,Mi iTrack Plus,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+A008,Sentinel S5 Ultimate,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+LMH017,iTrack Secure Ultimate,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.CV.12,Sentinel CV Annual Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+K15BEACON,MI S5 Tag (BLE),,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.PROACTIVE.60,ProActive Five Year Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.900.7907,Installation Sentinel S7 Caravan,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+UK.SENTINEL.MH.S7.12.P,Sentinel S7 1 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+sub040,Monthly subs,,,,,,False,True,False,STOCK,Stock Items,,,Ea      ,Each
+Data Kia,Data Kia,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.S5P.48,iTrack Ultimate 4 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.12.P,Sentinel Ultimate 1 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.7912,Installation w/o immobilisation,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+LMH021,Sentinel Upgrade - MH,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+800.900.7908,Installation Sentinel S7,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+UK.INSIGHT.12,Annual Subscription - Insight,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+UK.OLDPRO.12,Pro - Annual Subscription,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+12VRH,12V Relay and Holder,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+LCV017,Coachman Sentinel Upgrade,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.999.P,Sentinel S5 Lifetime (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.RoyalBlue.12,MiRoyalBlue Subscription,,,,,,True,True,False,RoyalBlue,Subscription RoyalBlue,01 ,UK sales standard rate,year    ,Year
+514W,Wireless 4 Eye Parking Sensor,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.OEM.60.U,Sentinel OEM 1 to 5 Year Upgrade,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.052.0004,External GPS antenna (Mi50),,,,,,False,True,True,7001,Mi50 Accessories,01 ,UK sales standard rate,pc      ,Piece
+UK.ITRACK.S5P.24.P,iTrack Ultimate 2 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+DX2000,DX2000 Dash Cam,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+A012,Itrack Secure Ultimate,,,,,,False,True,False,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.12.P,iTrack S5 1 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0530,931 Module,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+800.900.7902,Installation iTrack,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+Data Ford,Data Ford,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+800.900.9007,Activation fee,,,,,,False,True,False,9007,Activation fee,01 ,UK sales standard rate,Ea      ,Each
+953PH,Vanguard Caravan,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+800.900.7917,Installation with immobilisation,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+RV740,MH & CV EU Sat Nav,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.CV.24,2 Year Subscription - Sentinel Caravan,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.VT.12,VT Annual Services,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+UK.ITRACK.S7.36.P,iTrack S7 3 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.061.0030,MiBlock (Active Tag),,,,,,False,True,True,7002,MiBlock,01 ,UK sales standard rate,pc      ,Piece
+10204,VT202 with immobilisation 24V,,,,,,False,True,True,7510,Teltonika Mi202 (VT202),01 ,UK sales standard rate,Ea      ,Each
+UK.LITE.12,Phantom Lite,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+LMH016,Itrack Secure 5,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+FUSES,Thermal Fuses,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+LMH005,Vanguard Camper kit inc. 2 Switches (inc. 24 months support),,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+BTSMP15,BTSMP15QE501/BTSXXX,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+24VRH,24V Relay and Holder,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+800.900.7915,Upgrade Installation Sentinel,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+800.313.0522,Buzzer (S5),727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.PROACTIVE.60.P,ProActive Five Year Subscription (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.900.9991,Recovery fee,,,,,,False,True,False,9991,Recovery,01 ,UK sales standard rate,Ea      ,Each
+LMH019,Pro 3,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.12.P,Sentinel MH Annual Subscription (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+LCV018,Sentinel Upgrade - CV,,,,,,False,True,False,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+800.313.0133,Mi iTrack S5 Kit,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.999.P,LT Subscription - Sentinel Motorhome (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+CarReport.Dev.01,CarReport (Device),,,,,,True,True,False,1902,Subscription Echoes Device,01 ,UK sales standard rate,month   ,Month
+UK.SENTINEL.CV.12.P,Sentinel CV Annual Subscription (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.001.0004,Mi04,,,,,,False,True,True,7210,Mi04,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.12,iTrack Ultimate 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.900.9001,Delivery fee (<= 10 units),,,,,,False,True,False,9001,Carriage,01 ,UK sales standard rate,Ea      ,Each
+LCV019,Mi01,,,,,,False,True,False,7200,Mi01,01 ,UK sales standard rate,Ea      ,Each
+UK.VT.01,VT Annual Services (Monthly by DD),,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.S5.48.P,iTrack S5 4 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+A006,Sentinel S5 - Ford,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+MM0185/MM0195,Ford Bracket 20/21/22,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+800.900.7919,Uninstall & ReinstallUninstall,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+800.900.7911,Installation Tracker,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+LMH027,VanGuard Alarm Kit VW (incl. 24 months support),,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S7.60,Sentinel S7 5 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+21BCA00034X,Insight looms,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+800.900.7909,Installation Sentinel S5,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+800.313.0520,972 Module (S5 - ADR),727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.12,Sentinel S5 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.48,Sentinel S5 4 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S7.12.P,iTrack S7 1 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+LMH003,VanGuard Alarm kit Fiat (incl. 24 months support),,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.PROACTIVE.24.P,ProActive Two Year Subscription (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.Azure.01,MiAzure Subscription,,,,,,True,True,False,AzureBlue,Subscription AzureBlue,01 ,UK sales standard rate,month   ,Month
+MILMH050.1,MI Sentinel S5 Kit for Mercedes,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.60,Sentinel Ultimate 5 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.3903,Installation Mi01,,,,,,False,True,True,7299,Mi01 installations,01 ,UK sales standard rate,pc      ,Piece
+UK.ITRACK.S5.999,iTrack S5 Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.01.D,iTrack Ultimate Monthly DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.12.P,iTrack Ultimate 1 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+LCV008,Coachman Sentinel Tracker,,,,,,False,True,False,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+LCV005,Coachman Vanguard Alarm,,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.999,LT Subscription - Sentinel Motorhome,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.056.0002,"Crimp Cable Lug, Ring Connector",,,,,,False,True,True,7001,Mi50 Accessories,01 ,UK sales standard rate,pc      ,Piece
+FARAPOU,Faraday Pouch,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+Data Skoda,Data Skoda,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+931TPV,Vanguard for Fiat,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+LCV007,Caravan Sentinel Alarm & Tracking,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+MM0161,Fiat Ducato Bracket,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+20BCA00041X,Pro3+ Looms,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+FMC125,FMC125 Tracker,,,,,,False,True,True,7540,Teltonika Other,01 ,UK sales standard rate,Ea      ,Each
+MILMH051.1,MI Sentinel S5 Kit for Ford,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+LCV015,Sentinel S7 CV,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S7.48,iTrack S7 4 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.36,iTrack Ultimate 3 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.12.D,Sentinel S5 1 Year DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.CV.24.P,2 Year Subscription - Sentinel Caravan,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+LMH008,Sentinel Alarm & Tracker - Fiat S7,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+800.313.0525,Vanguard Recepticle,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+LMH025,Brownhills Vanguard alarm (LMH025),,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.999,Sentinel S5 Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0213a,MI 2G to 4G Upgrade,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+LMU-Refurb,Refurbished Tracker,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,pc      ,Piece
+UK.SENTINEL.MH.S7.24.P,Sentinel S7 2 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.8300,Partner discount,,,,,,False,True,False,8300,Discount coupons,01 ,UK sales standard rate,pc      ,Piece
+800.900.9999,Other/Miscellaneous/Sundries,,,,,,False,True,False,9000,Other services,,,Ea      ,Each
+LMH020,S7 Sentinel MH,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+LMH004,VanGuard Alarm Kit Renault,,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+800.050.0010,"Mi50 set, 3 wire",,,,,,False,True,True,7003,Mi50.3 unit (fleet),01 ,UK sales standard rate,Ea      ,Each
+UK.Blue.12,MiBlue Subscription,,,,,,True,True,False,Blue,Subscription Blue,01 ,UK sales standard rate,year    ,Year
+LMH022,iTrack S7,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+UK.RoyalBlue.01,MiRoyalBlue Subscription,,,,,,True,True,False,RoyalBlue,Subscription RoyalBlue,01 ,UK sales standard rate,month   ,Month
+White.36.P,MiWhite Subscription,,,,,,True,True,False,PrepaidPackages,Prepaid packages,01 ,UK sales standard rate,year    ,Year
+UK.PROACTIVE.24,ProActive Two Year Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+CA0854,Spare Siren Loom,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.48.P,Sentinel Ultimate 4 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+MM0167,Ford transit Bracket 2020 siren,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+20BCA00126X,S5 Patch leads,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+807,Window Switch,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+UK.Orange.01,MiOrange Subscription,,,,,,True,True,False,Orange,Subscription Orange,01 ,UK sales standard rate,month   ,Month
+UK.SENTINEL.MH.S5P.36,Sentinel Ultimate 3 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.60,5 Year Subscription - Sentinel Motorhome,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.900.7914,Uninstall & Reinstall,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+UK.OrangeR.01,MiOrange-R Subscription,,,,,,True,True,False,Orange-R,Subscription Orange-R,01 ,UK sales standard rate,month   ,Month
+LMH010,Sentinel S5 - Mercedes,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+MILMH026,MI Brownhills - S5 Sentinel Kit MH,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.PROACTIVE.12,ProActive Annual Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.OrangeR.12,MiOrange-R Subscription,,,,,,True,True,False,Orange-R,Subscription Orange-R,01 ,UK sales standard rate,year    ,Year
+LMH013,Sentinel S5 or Ultimate Kit for Fiat,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+SW02924,Rocker switches,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.PROACTIVE.12.D,ProActive Annual Subscription (Direct Debit),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+CA0855,CA0855 HARNESS 931TPV-1,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7402,Alarm accessories,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.36.P,Sentinel Ultimate 3 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S7.48.P,Sentinel S7 4 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+LMH051,Sentinel S5 or Ultimate Kit for Ford,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+Data AudiUK,Data AudiUK,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+MILMH007,MI Sentinel for Ford,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.PROACTIVE.12.P,ProActive Annual Subscription (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.BlackR.01,MiBlack-R Subscription,,,,,,True,True,False,Black-R,Subscription Black-R,01 ,UK sales standard rate,Ea      ,Each
+LCV006,Vanguard Caravan Alarm (incl. 24 months support),,,,,,False,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+PPWS0000180,Insight TT Loom,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+LMH007,Sentinel Alarm & Tracker- Ford S7,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+MILMH008,MI Sentinel for Fiat,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+LMH011,Sentinel S5 - Ford,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+A002,VanGuard Alarm Kit Ford,,,,,,False,True,False,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+031TMI,Vanguard + for MH,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.01.D,Sentinel S5 Monthly DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+LMH006,Sentinel Alarm & Tracker- Mercedes S7,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.36,Sentinel S5 3 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.01.D,iTrack S5 Monthly DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5P.24,iTrack Ultimate 2 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+LMH009,Sentinel Alarm & Tracker- Renault,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.48.P,Sentinel S5 4 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+Override,Override Touchkey,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+800.313.0529,Vanguard Caravan Alarm Loom,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+MIPRO3F,Mi Pro 3 with installation,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+800.051.0004,Kabelboom 7-aderig Y kabel,,,,,,False,True,True,7001,Mi50 Accessories,01 ,UK sales standard rate,pc      ,Piece
+10205,VT202 with keypad & immob 12V,,,,,,False,True,True,7510,Teltonika Mi202 (VT202),01 ,UK sales standard rate,Ea      ,Each
+800.313.0202,VT202,,,,,,False,True,True,7510,Teltonika Mi202 (VT202),01 ,UK sales standard rate,Ea      ,Each
+800.900.7916,Uninstall & Reinstall (2 visits),,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+800.313.0521,Ultrasonics,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+800.900.9993,Excess calls,,,,,,False,True,False,9990,SOC,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.01,iTtrack - Monthly Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,month   ,Month
+800.313.0507,Fuse holder,,,,,,False,True,True,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+2,CBD,,,,,,False,True,False,2,Clear Bad Debt,01 ,UK sales standard rate,Ea      ,Each
+G1000,Tracker G1000,,,,,,False,True,False,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+800.313.0508,12V 5pin relay,,,,,,False,True,True,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+800.313.0512,Magnetic mounting bracket,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5.60,Sentinel S5 5 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S7.01.D,iTrack S7 Monthly DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.OLDPRO.01,Pro - Monthly Subscription,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+LMU3030,LMU3030 OBD tracker,81878ee7-7db5-4f4f-99cd-7951be4b5f69,827700,,,,False,True,True,7540,Teltonika Other,01 ,UK sales standard rate,Ea      ,Each
+LMH018,iTrack 2OBD,,,,,,False,True,False,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+F002,Insight Plus,,,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+MILMH061,Sentinel Pro,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+800.900.7903,Installation iTrack S5,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+UK.White.01,MiWhite Subscription,,,,,,True,True,False,White,Subscription White,01 ,UK sales standard rate,month   ,Month
+800.056.0001,Flat Connector Contact Standard Power Timer(SPT) 4.8/5.8,,,,,,False,True,True,7001,Mi50 Accessories,01 ,UK sales standard rate,pc      ,Piece
+UK.Black.12,MiBlack Subscription,,,,,,True,True,False,Black,Subscription Black,01 ,UK sales standard rate,year    ,Year
+UK.SENTINEL.MH.S5P.999,Sentinel Ultimate Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.SENTINEL.MH.24,2 Year Subscription - Sentinel Motorhome,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.061.0033,Mi tag key ring case,,,,,,False,True,True,7001,Mi50 Accessories,01 ,UK sales standard rate,Ea      ,Each
+RE03795,Resistors,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+CarReport.01,CarReport,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.AT.12,AT - Annual Service Fees,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+UK.SENTINEL.CV.60,5 Year Subscription - Sentinel Caravan,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.ADVANCED.12,Phantom Lite Advanced,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+UK.PROACTIVE.01,ProActive - Monthly Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,month   ,Month
+UK.White.36.B,MiWhite Subscription,,,,,,True,True,False,WhiteMi04,Subscription MiWhite Mi04,01 ,UK sales standard rate,year    ,Year
+UK.SENTINEL.MH.S7.999,Sentinel S7 Lifetime,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S7.01.D,Sentinel S7 Monthly DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.7920,Installation upgrade 2G to 4G,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+MILMH063,Sentinel Ultimate Pro,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.24.P,iTrack S5 2 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+LMH050,Sentinel S5 or Ultimate Kit for Mercedes,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+CANPH,CAN Phantom Immobiliser,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.12,iTrack S5 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+LCV016,Hobby Pro Tracker Only,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.INSIGHT.01,Annual Subscription - Insight,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+UK.SENTINEL.MH.S7.48,Sentinel S7 4 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.24.P,Sentinel Ultimate 2 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+RDIF,RDIF Cards,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+Data Toyota,Data Toyota,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.ITRACK.S5.24,iTrack S5 2 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.9994,Monitoring Services,,,,,,False,True,False,9990,SOC,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.60.P,5 Year Subscription - Sentinel Motorhome (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.313.0503,Potting compound,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.48,iTrack S5 4 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.60,iTrack S5 5 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+830,Bike sensors,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+800.313.0527,Vanguard Bonnet Switch & Fixings,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+IG,IG Rebate Sum,,,,,,True,True,False,MIT,MIT/IG Rebate Sum,01 ,UK sales standard rate,year    ,Year
+LCV014,Caravan Sentinel Alarm & Tracking,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S5P.01.D,Sentinel Ultimate Monthly DD,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0513, 12v Relay,,,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+800.900.7901,Installation Sentinel,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+LMH012,Sentinel S5 - Fiat,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.Azure.12,MiAzure Subscription,,,,,,True,True,False,AzureBlue,Subscription AzureBlue,01 ,UK sales standard rate,year    ,Year
+800.900.3699,Cancellation fee,,,,,,False,True,True,7998,Cancellation,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.999.P,iTrack S5 Lifetime (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+10206,VT202 with keypad & immob 24V,,,,,,False,True,True,7510,Teltonika Mi202 (VT202),01 ,UK sales standard rate,Ea      ,Each
+800.313.0055,Mi100 (4G) NL,,,,,,False,True,True,7500,Teltonika Mi100,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.24.P,2 Year Subscription - Sentinel Motorhome,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+AGTRVL,Aguri Travel Case,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UlSo,Spare Ultrasonics,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,pc      ,Piece
+UK.SENTINEL.CV.999.P,LT Subscription - Sentinel Caravan (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+A010,I Track Plus,,,,,,False,True,False,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+10203,VT202 with immobilisation 12V,,,,,,False,True,True,7510,Teltonika Mi202 (VT202),01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.CV.60.P,5 Year Subscription - Sentinel Caravan,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.900.9995,Data Recovery,,,,,,False,True,False,9991,Recovery,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S5.36.P,iTrack S5 3 Year (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.900.7904,Installation iTrack Ultimate,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+UK.INSIGHT.12.P,Annual Subscription - Insight (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+22BCA00015X,Duel Splitter,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.OLDPRO.12.D,Pro - Annual Subscription,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+UK.SENTINEL.MH.S7.999.P,Sentinel S7 Lifetime (Prepaid),,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+800.313.0516,AT Mini,,,,,,False,True,True,7910,Queclink GL50B (AT4),01 ,UK sales standard rate,Ea      ,Each
+848PH,Remotes,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.CV.01,Sentinel CV - Monthly Subscription,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+22BCA00002X,Indicator Wire,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S7.12,Sentinel S7 1 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,year    ,Year
+800.313.0526,Vanguard Siren Loom,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+F004,Mi01,,,,,,False,True,False,7200,Mi01,01 ,UK sales standard rate,Ea      ,Each
+800.061.0040,MiBlock 24V,,,,,,False,True,True,7002,MiBlock,01 ,UK sales standard rate,pc      ,Piece
+MIPRO3,Mi Pro 3,,,,,,False,True,True,7511,Teltonika Mi130 Leisure,01 ,UK sales standard rate,Ea      ,Each
+UK.ITRACK.S7.60,iTrack S7 5 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+MILMH052.2,MI Sentinel S5 Ultimate Kit for VW,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+UK.SENTINEL.MH.S7.36,Sentinel S7 3 Year,,,,,,True,True,False,SubSecTrack,Security - Trackers,01 ,UK sales standard rate,Ea      ,Each
+UK.MOREOLDPRO.12,Pro - Monthly Subscription,,,,,,True,True,False,OldSubSecTrack,Security - Trackers (Old Units) / Revenue subscription Other,01 ,UK sales standard rate,month   ,Month
+MILMH013.1,MI Sentinel S5 Kit for Fiat,,,,,,False,True,True,ASSEMBLED,Assembled Products,01 ,UK sales standard rate,Ea      ,Each
+800.313.0505,Sticker VT100,,,,,,False,True,False,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+800.313.0531,Inclination Sensor,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,True,True,True,7401,Gemini,01 ,UK sales standard rate,Ea      ,Each
+BH loom,Brownhills Loom,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+LMU2630,Pro3+ Trackers,81878ee7-7db5-4f4f-99cd-7951be4b5f69,827700,,,,False,True,True,7700,Cal Amp,01 ,UK sales standard rate,Ea      ,Each
+RV750,MH & CV Sat Nav with DVR,7558be71-0b81-4cc8-a47f-3d3314cc3e82,827800,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+F001,Insight TT,,,,,,False,True,True,7506,Teltonika Mi130,01 ,UK sales standard rate,Ea      ,Each
+800.313.0515,Truphone services,,,,,,False,True,False,7598,Teltonika accessories,01 ,UK sales standard rate,Ea      ,Each
+CarFleet.01,CarFleet,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+UK.RedT.01,MiRed Subscription,,,,,,True,True,False,Red,Subscription Red,01 ,UK sales standard rate,month   ,Month
+RY7,24V Relay,2d623257-076e-41e5-be41-9691f15f25ca,827598,b1f44337-0df1-44a6-86fb-6c01ea4cfa4c,817598,Revenue HW Teltonika accessoiries,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+909,PIR,727d5937-3bf9-4536-a1c2-f331d49ceef1,827401,,,,False,True,True,7800,Accessories various,01 ,UK sales standard rate,Ea      ,Each
+UK.AT.12.P,AT Annual Service Fees,,,,,,True,True,False,SubFM,Fleet Management,01 ,UK sales standard rate,year    ,Year
+800.900.7905,Installation Vanguard Caravan,,,,,,False,True,True,7999,Installations MiUK,01 ,UK sales standard rate,pc      ,Piece
+UK.NavyBlue.12,MiNavyBlue Subscription,,,,,,True,True,False,NavyBlue,Subscription NavyBlue,01 ,UK sales standard rate,year    ,Year
+UK.Red.12,MiRed Subscription,,,,,,True,True,False,Red,Subscription Red,01 ,UK sales standard rate,year    ,Year
+CarLocate.01,CarLocate,,,,,,True,True,False,1900,Subscription Echoes OEM,01 ,UK sales standard rate,month   ,Month
+800.900.3604,Installation Mi50 + MiBlock,,,,,,False,True,True,7099,Mi50 installations,01 ,UK sales standard rate,pc      ,Piece
+UK.RedT.12,MiRed Subscription,,,,,,True,True,False,Red,Subscription Red,01 ,UK sales standard rate,year    ,Year

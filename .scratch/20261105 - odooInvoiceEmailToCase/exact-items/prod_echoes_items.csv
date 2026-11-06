@@ -1,0 +1,48 @@
+Division,ItemCode,Description,ItemGroup,ItemGroupDescription,GLRevenueCode,GLRevenueDescription,SalesVatCode,SalesVat,Unit,IsStockItem
+NL,CarGuard.01,CarGuard,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Volvo,Data Volvo,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,CarReport.01,CarReport,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Seat,Data Seat,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Ford,Data Ford,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Nissan,Data Nissan,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Stellantis,Data Stellantis,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Mercedes,Data Mercedes,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Hyundai,Data Hyundai,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,CarLocate.01,CarLocate,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,CarLocate.Dev.01,CarLocate (Device),1902,Subscription Echoes Device,801902,Revenue subscription Echoes Device,2,"BTW hoog tarief, exclusief",pc,False
+NL,CarCollect.01,CarCollect,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Kia,Data Kia,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,800.313.0260,FMC880,1903,Echoes Device,801903,Revenue Echoes Device & installation,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Renault,Data Renault,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Skoda,Data Skoda,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,CarFleet.01,CarFleet,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,CarReport.Dev.01,CarReport (Device),1902,Subscription Echoes Device,801902,Revenue subscription Echoes Device,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Audi,Data Audi,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,ActEch,Activation Echoes,1904,Activation Echoes,801904,Revenue Activation Echoes,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data Toyota,Data Toyota,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data VW,Data VW,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,Data BMW,Data BMW,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,2,"BTW hoog tarief, exclusief",pc,False
+NL,CarFleet.Dev.01,CarFleet (Device),1902,Subscription Echoes Device,801902,Revenue subscription Echoes Device,2,"BTW hoog tarief, exclusief",pc,False
+UK,Data Stellantis,Data Stellantis,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data Nissan,Data Nissan,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data Renault,Data Renault,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,CarFleet.Dev.01,CarFleet (Device),1902,Subscription Echoes Device,801902,Revenue subscription Echoes Device,01,UK sales standard rate,month,False
+UK,Data Volvo,Data Volvo,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,800.313.0260,FMC880,1903,Echoes Device,801903,Revenue Echoes Device & installation,01,UK sales standard rate,Ea,False
+UK,Data Hyundai,Data Hyundai,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data BMW,Data BMW,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,800.900.1903,Installation FMC880,1903,Echoes Device,801903,Revenue Echoes Device & installation,01,UK sales standard rate,pc,False
+UK,CarCollect.01,CarCollect,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,CarLocate.Dev.01,CarLocate (Device),1902,Subscription Echoes Device,801902,Revenue subscription Echoes Device,01,UK sales standard rate,month,False
+UK,Data VW,Data VW,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data Seat,Data Seat,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data Mercedes,Data Mercedes,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data Kia,Data Kia,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data Ford,Data Ford,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,CarReport.Dev.01,CarReport (Device),1902,Subscription Echoes Device,801902,Revenue subscription Echoes Device,01,UK sales standard rate,month,False
+UK,Data Skoda,Data Skoda,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data AudiUK,Data AudiUK,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,CarReport.01,CarReport,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,Data Toyota,Data Toyota,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,CarFleet.01,CarFleet,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False
+UK,CarLocate.01,CarLocate,1900,Subscription Echoes OEM,801900,Revenue subscription Echoes OEM,01,UK sales standard rate,month,False

@@ -1,0 +1,723 @@
+Code,Description,GLCosts,GLCostsCode,GLRevenue,GLRevenueCode,GLRevenueDescription,IsFractionAllowedItem,IsSalesItem,IsStockItem,ItemGroupCode,ItemGroupDescription,SalesVatCode,SalesVatCodeDescription,Unit,UnitDescription
+BE.Black.12,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,BlackRes,Abo Black Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5106.12.24,Mini tracer 24 uur,,,,,,True,True,False,5106,Mini tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+2.1002.02,Bisharp subscription vehicle,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+11.6011.36.01,Cumela pakket,,,,,,True,True,False,6011,Cumela,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3015,Uitbouw op locatie (TACHO),,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5603.12.12,Rijstijlanalyse,,,,,,True,True,False,5603,Rijstijlanalyse,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5301.36.01,Mi30 pakket,,,,,,True,True,False,5301,Mi30,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.061.0006,MiBlock sleutelhanger t.b.v. oude MiBlock,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BE.Grey.01,MiGrey - Trailer beveiliging,,,,,,True,True,False,GreyRes,Abo Grey Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5209.24.01,SCM Beveiligingspakket,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5402.01.01,Paniekhulp,,,,,,True,True,False,5402,Paniekhulp,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+Carbon.12,MiCarbon - Beveiliging met meldkamer,,,,,,True,True,False,Carbon,Subscription Carbon,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+RedT.48,MiRed,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1042.01,Mini-abonnement (NL-dekking),,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3614,Installatie MiClassify,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BE.Orange.36,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,OrangeRes,Abo Orange Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Azure.12,MiAzure - Peilzender,,,,,,True,True,False,AzureBlue,Subscription AzureBlue,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+CarGuard.01,CarGuard,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.8301,Cashback,,,,,,False,True,False,8300,Kortingscoupons,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5117.36.01,Mi7 Peilzender,,,,,,True,True,False,5117,Mi7 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5119.12.01,Mi9 Peilzender,,,,,,True,True,False,5119,Mi9 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5506.12.12,Stilstand Rapportering,,,,,,True,True,False,5506,Stilstand,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+White.01,MiWhite - Peilzender,,,,,,True,True,False,White,Subscription MiWhite,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.313.0256,FMM880,,,,,,False,True,True,7540,Teltonika Other,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Data Volvo,Data Volvo,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0211,4G Trailerunit FMM230 met standaard kabelset,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0100,Mi100,,,,,,False,True,True,7500,Teltonika Mi100,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3702,Installatie Mi40 excl. hardware,,,,,,False,True,True,7199,Mi40 Installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0208,OBD verleng,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+RedTacho.12,MiRedTacho Subscription (12 months),,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.400.0008,Service (Advice),,,,,,False,True,False,3000,Services,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.013.0010,Mi13 Trailer,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.008.0010,Mi8 Peilzender,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0155,12v sigarettenplug,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5409.36.01,MiBlock Rent/Lease,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5508.24.01,Snelheid,,,,,,True,True,False,5508,Snelheid,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Green.72,MiGreen - Wagenparkbeheer,,,,,,True,True,False,Green,Subscription Green,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.058.0004,MiReader set,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0236,Buzzer 85db,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1040.01,Tachograaf Upgrade download service,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0235,Sim Kaarten Tele2,,,,,,False,True,True,7597,Teltonika parts,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.005.0011,Lommy Eye Van Es Mobility GPS groot,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.9001,Verzendkosten,,,,,,False,True,False,9001,Verzendkosten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5211.01.01,SCM beveiligingspakket disarmed,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.313.0175,FMB640 GSM-antenne SMA (female),,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0142,Privé/zakelijk knop,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5409.12.01,MiBlock Rent/Lease,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.061.0030,MiBlock Startonderbreker (Active Tag),,,,,,False,True,True,7002,MiBlock,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3605,Installatie Mi50 + MiBlock Klasse 5 inclusief koppeling,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0257,Ecan02,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5511.12.12,Stationair draaiuren rapportering,,,,,,True,True,False,5511,Stationair draaiuren,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0240,Stekker DC Mannelijk,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5140.48.01,Mi40 pakket,,,,,,True,True,False,5140,Mi40,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1023.01,Huurkoop GPS Hardware + installatie (TACHO),,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.061.0033,Etui Active Tag,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5111.12.01,API A,,,,,,True,True,False,5111,API,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Green.48,MiGreen - Wagenparkbeheer,,,,,,True,True,False,Green,Subscription Green,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0060,MiTacho,,,,,,False,True,True,7509,Teltonika Mi640 (DE/ET),2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5001.01.01,Mi50 basis connectie,,,,,,True,True,False,5001,Mi50 basis connectie,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.313.0026,Mi30 verlengkabel 50cm,,,,,,False,True,True,7598,Teltonika accessories,,,pc      ,Piece
+1.5140.36.01,Mi40 pakket,,,,,,True,True,False,5140,Mi40,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.9990,Car Data,,,,,,False,True,False,9000,Overige diensten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5210.12.02,SCM Beveiligingspakket inclusief klasse 1 en inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Black.60,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,BlackRes,Abo Black Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.005.0041,Bluetooth locator,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0221,FMM230 stekkers accupolen,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5503.24.12,Rittenadministratie,,,,,,True,True,False,5503,Rittenadministratie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+G4SGreecePremium.01,Premium 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5120.24.01,Mi10 Peilzender,,,,,,True,True,False,5120,Mi10 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+CarReport.01,CarReport,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.010.0010,Mi10 Peilzender Oplaadbaar,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5123.12.01,Mi13 Peilzender,,,,,,True,True,False,5123,Mi13 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.914.3013,(L) Inbouw (TACHO),,,,,,False,True,True,7599.L,(L) Teltonika Installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5405.12.01,Melden inbraakalarm,,,,,,True,True,False,5405,Melden inbraakalarm,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Red.36,MiRed - Rittenregistratie,,,,,,True,True,False,RedRes,Abo Red Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5209.01.02,SCM Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+BE.Orange.24,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,OrangeRes,Abo Orange Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0213,FMC130,,,,,,False,True,True,7506,Teltonika Mi130 (NL/DE/ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.Black.36,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,BlackRes,Abo Black Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.9991,Recovery fee,,,,,,False,True,False,9991,Recovery,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+G4SGreeceTracerMi13.24,Tracer service 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5515.12.12,PTO rapportage,,,,,,True,True,False,5515,PTO,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5405.24.01,Melden inbraakalarm,,,,,,True,True,False,5405,Melden inbraakalarm,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5107.12.01,ICL Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5209.36.01,SCM Beveiligingspakket,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5209.12.01,SCM Beveiligingspakket,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5107.24.01,ICL Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Black.84,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,Black,Subscription Black,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3780,Uitbouw Mi40,,,,,,False,True,True,7199,Mi40 Installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+White.60,MiWhite - Peilzender,,,,,,True,True,False,White,Subscription MiWhite,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+WhiteR.01,MiWhite-R (1 maand),,,,,,True,True,False,1901,Subscription MiELive,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5510.01.01,MiClassify,,,,,,True,True,False,5510,MiClassify,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.050.0010,Mi50.3,,,,,,False,True,True,7003,Mi50.3 unit (fleet),2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5107.36.12,Tracer 12 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0209,FMB122,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5603.36.01,Rijstijlanalyse,,,,,,True,True,False,5603,Rijstijlanalyse,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+900.900.9100,Doorbelaste kosten,,,,,,True,True,False,9998,Doorbelaste kosten Bidco,,,pc      ,Piece
+Otto.01,MiGreen - Special Otto,,,,,,True,True,False,Specials,Subscription MiSpecials,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.1052.01,temperature_sensor_subscription,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+900.900.7300,Orders 2017 Peilzender,,,,,,False,True,False,9702,orders 2017 Peilzender,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5507.36.01,Persoonsidentificatie,,,,,,True,True,False,5507,Persoonsidentificatie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5140.01.01,Mi40 pakket,,,,,,True,True,False,5140,Mi40,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+Data Seat,Data Seat,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Red.24,MiRed - Rittenregistratie,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Fivehu.12,MiGreen - Special Fivehu,,,,,,True,True,False,Specials,Subscription MiSpecials,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1034.01,Service,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+G4SGreeceBasic.24,Basic service G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5502.24.12,Live volgen,,,,,,True,True,False,5502,Live volgen,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.White.24,MiWhite - Peilzender,,,,,,True,True,False,WhiteRes,Abo White Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5118.48.01,Mi8 Peilzender,,,,,,True,True,False,5118,Mi8 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.001.0000,Mi01,,,,,,False,True,True,7200,Mi01,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3650,Servicecall Mi50,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5603.24.12,Rijstijlanalyse,,,,,,True,True,False,5603,Rijstijlanalyse,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.055.0101,MiCAN (excl. MB stekker/MB massaoog),,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0167,TACHO kaartlezer voor mobiele app Android Versie,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0226,Temp  kabel,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.OrangeGreen.12,MiOrange & Green - Beveiliging & Wagenparkbeheer,,,,,,True,True,False,Orange+GreenRes,Abo Orange+Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Data Ford,Data Ford,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1012.01,Upgrade Rapportages Uitgebreid -> Alles-in-een,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3000,Installatie Mi100,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1051.01,temperature_sensor_ble_subscription,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Green.36,MiGreen - Wagenparkbeheer,,,,,,True,True,False,Green,Subscription Green,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5209.01.01,SCM Beveiligingspakket,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.313.0225,Omvormer 14-50v -> 12v 1.5A,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+10.5202.12.14,SCM klasse 5,,,,,,True,True,False,5202,SCM klasse 5,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3801,Installatie Mi30,,,,,,False,True,True,7319,Mi30 installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Red.01,MiRed - Rittenregistratie,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+OrangeR.24,MiOrange-R - Beveiliging & Wagenparkbeheer,,,,,,True,True,False,Orange+Green,Subscription Orange-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1050.01,tacho_live,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Data Nissan,Data Nissan,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5408.12.01,MiBlock,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0220,FMM230 stekkers trailer,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5122.24.01,Mi12 Peilzender,,,,,,True,True,False,5122,Mi12 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0130,GPS Box FMM130,,,,,,False,True,True,7526,Teltonika FMM130 (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3050,Servicecall Mi100,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+White.24.P,MiWhite - Peilzender,,,,,,True,True,False,PrepaidPackages,Prepaid packages,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.058.0005,Mifare card,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+G4SGreece13.01,Mi13 Services,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5211.36.01,SCM beveiligingspakket disarmed,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1046.01,Alles-in-een proefabonnement,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.9005,Activatiekosten Carbon,0d0022d9-19ea-40c3-9337-894c859ec6d9,430500,,,,False,True,False,9007,Activation fee Security,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3902,Installatie Mi13,,,,,,False,True,True,7309,Peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5211.48.01,SCM beveiligingspakket disarmed,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Data Stellantis,Data Stellantis,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0239,Voeding stekker 18DVC,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Black.24,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,Black,Subscription Black,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3611,Installatie Mi50 + MiBlock + Carsharing (Eastmen),,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Green.01,MiGreen - Wagenparkbeheer,,,,,,True,True,False,Green,Subscription Green,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.052.0008,Autonorm Adapter Audi,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1049.01,reporting_boxlease,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.316.0002,Alarmsysteem inclusief hellingshoekdetectie,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+G4SGreeceTracer.01,Tracer service 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5506.01.01,Stilstand Rapportering,,,,,,True,True,False,5506,Stilstand,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5301.48.01,Mi30 pakket,,,,,,True,True,False,5301,Mi30,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Blue.24,MiBlue - Beveiliging & Objectbeheer,,,,,,True,True,False,Blue,Subscription Blue,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3620,Installatie Mi50 Marine,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+OrangeR.12,MiOrange-R - Beveiliging & Wagenparkbeheer,,,,,,True,True,False,Orange+Green,Subscription Orange-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.060.0001,MiPanic,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.312.0006,SCM certificaat Klasse 5 (excl. basis Klasse 3),,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.314.0170,(L) TACHO box FMC650,,,,,,False,True,True,7509.L,(L) Teltonika Mi640 (DE/ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+CarbonR.12,"MiCarbon-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Carbon-R,Subscription Carbon-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Green.12,MiGreen - Wagenparkbeheer,,,,,,True,True,False,GreenRes,Abo Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5407.01.01,Immobiliseren,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5712.24.01,MiSwitch,,,,,,True,True,False,5712,MiSwitch,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3680,Uitbouw Mi50,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3901,Installatie Mi01/peilzender,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.058.0002,iButton tbv Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+OrangeR.01,MiOrange-R - Beveiliging & Wagenparkbeheer,,,,,,True,True,False,Orange+Green,Subscription Orange-R,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.313.0201,Buzzer 103dB,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+White.36.B,MiWhite - Peilzender,,,,,,True,True,False,WhiteMi04,Subscription MiWhite Mi04,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.030.0011,Mi30,,,,,,False,True,True,7310,Mi30,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5503.60.01,Rittenadministratie,,,,,,True,True,False,5503,Rittenadministratie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5405.36.01,Melden inbraakalarm,,,,,,True,True,False,5405,Melden inbraakalarm,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5403.24.12,Sabotage detectie,,,,,,True,True,False,5403,Sabotage detectie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Red.12,MiRed - Rittenregistratie,,,,,,True,True,False,RedRes,Abo Red Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5203.36.12,Rittenadministratie pakket,,,,,,True,True,False,5203,Rittenadministratiepakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Grey.12,MiGrey - Trailer beveiliging,,,,,,True,True,False,Grey,Subscription Grey,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5209.48.01,SCM Beveiligingspakket,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Azure.24,MiAzure - Peilzender,,,,,,True,True,False,AzureBlue,Subscription AzureBlue,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Green.60,MiGreen - Wagenparkbeheer,,,,,,True,True,False,Green,Subscription Green,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.308.0010,Behuizing waterdicht (box W3),,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.001.0004,Mi04,,,,,,False,True,True,7210,Mi04,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+CarbonR.24,"MiCarbon-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Carbon-R,Subscription Carbon-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Green.24,MiGreen - Wagenparkbeheer,,,,,,True,True,False,GreenRes,Abo Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5502.48.01,Live volgen,,,,,,True,True,False,5502,Live volgen,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3701,Installatie Mi40 t.b.v. rittenregistratie,,,,,,False,True,True,7199,Mi40 Installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.001.0003,Mi04 ongelaserd,,,,,,False,True,True,7210,Mi04,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.055.0103,MB massaoog tbv MiCAN,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BlackR.12,"MiBlack-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+Green,Subscription Black-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+White.60.B,MiWhite - Peilzender,,,,,,True,True,False,WhiteMi04,Subscription MiWhite Mi04,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3931,Installatie Mi01FS op locatie,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5507.60.01,Persoonsidentificatie,,,,,,True,True,False,5507,Persoonsidentificatie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+11.5406.12.14,Luisterverbinding Paniekbeveiliging,,,,,,True,True,False,5406,Luisterverbinding Paniekbeveiliging,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.061.0050,MiBlock Startonderbreker (BT),,,,,,False,True,True,7002,MiBlock,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3671,Overbouw Mi50 inclusief MiReader en startrelais,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.9102,Combinatiekorting MiWhite en MiWhite-R abonnementen,,,,,,False,True,False,1901,Subscription MiELive,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5209.48.02,SCM Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3601,Installatie Mi50,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0245,FMB920,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5901.01.01,Ecall,,,,,,True,True,False,5901,Ecall,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+BE.BlackGreen.36,"MiBlack & Green - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+GreenRes,Abo Black+Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1000.00,Vrije tekst (maandelijks),,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3608,Installatie Mi50 t.b.v. rittenregistratie,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1022.01,Huurkoop GPS Box (TACHO),,,,,,True,True,False,7512,Lease,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5107.48.01,ICL Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5511.01.01,Stationair draaiuren rapportering,,,,,,True,True,False,5511,Stationair draaiuren,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5603.01.01,Rijstijlanalyse,,,,,,True,True,False,5603,Rijstijlanalyse,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+Orange.24,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,Orange,Subscription Orange,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1013.01,Upgrade Rapportages Fiscaal -> Alles-in-een,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5603.60.01,Rijstijlanalyse,,,,,,True,True,False,5603,Rijstijlanalyse,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+11.6005.03.14,Stern Assist Wagenpark Plus pakket,,,,,,True,True,False,6005,Stern Assist Wagenpark plus,2  ,"BTW hoog tarief, exclusief",kwartaal,Kwartaal
+1.5502.36.01,Live volgen,,,,,,True,True,False,5502,Live volgen,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1035.01,SIM-kaart Werelddekking,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.312.0003,SCM certificaat Klasse TV,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5210.12.01,SCM Beveiligingspakket inclusief klasse 1,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Red.60,MiRed - Rittenregistratie,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+CorpServ,Corporate Service charges,,,,,,True,True,False,9997,Corporate Service charges,,,pc      ,Piece
+Blue.12,MiBlue - Beveiliging & Objectbeheer,,,,,,True,True,False,Blue,Subscription Blue,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5401.01.01,Diefstalopsporing,,,,,,True,True,False,5401,Diefstalopsporing,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+BE.Red.24,MiRed - Rittenregistratie,,,,,,True,True,False,RedRes,Abo Red Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3012,Uitbouw GPS Box,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+G4SGreeceTracerMi13.12,Tracer service 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+BlackR.36,"MiBlack-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+Green,Subscription Black-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1003.01,Rapportage Fiscaal,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.BlackGreen.48,"MiBlack & Green - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+GreenRes,Abo Black+Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Data Mercedes,Data Mercedes,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5512.12.01,Keurmerk RRS,,,,,,True,True,False,5512,Keurmerk RRS,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.302.0011,Externe antenne GSM tbv Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.316.0008,DEFA Handzender,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BE.White.36,MiWhite - Peilzender,,,,,,True,True,False,WhiteRes,Abo White Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5123.24.01,Mi13 Peilzender,,,,,,True,True,False,5123,Mi13 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5106.36.24,Mini tracer 24 uur,,,,,,True,True,False,5106,Mini tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Orange.12,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,OrangeRes,Abo Orange Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1053.01,zzp_boxlease,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0241,2G Trailerunit FMB204 met stekker,,,,,,False,True,True,7507,Teltonika Mi204 (NL/DE),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BlackR.01,"MiBlack-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+Green,Subscription Black-R,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.052.0007,Autonorm Laadruimte detectie,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BE.Green.48,MiGreen - Wagenparkbeheer,,,,,,True,True,False,GreenRes,Abo Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0222,Temp sensorTeltonika,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.9995,Data Recovery,,,,,,False,True,False,9991,Recovery,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5507.48.01,Persoonsidentificatie,,,,,,True,True,False,5507,Persoonsidentificatie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Data Hyundai,Data Hyundai,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0160,Losse magnetische ID Sleutel met sleutelhanger,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0143,Verloopkabel 2G - 4G,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5211.48.02,SCM beveiligingspakket disarmed met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0151,Bestuurdersherkening + Buzzer,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5208.60.01,Beveiligingspakket,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.302.0010,Externe antenne GSM tbv Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5408.01.01,MiBlock,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3630,Vervangen Mi50,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.005.0042,Black dipol antenna with SMA 868Mhz,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1054.01,Tankpaskoppeling,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.OrangeGreen.24,MiOrange & Green - Beveiliging & Wagenparkbeheer,,,,,,True,True,False,Orange+GreenRes,Abo Orange+Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Orange.48,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,OrangeRes,Abo Orange Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5210.01.01,SCM Beveiligingspakket inclusief klasse 1,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.052.0006,Antenne GPS met verlengkabel,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5204.60.01,Wagenparkbeheer pakket,,,,,,True,True,False,5204,Wagenparkbeheerpakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.056.0002,PPI Kabelschoenoog,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0230,FMM003,,,,,,False,True,True,7503,Teltonika Mi003 (NL/DE/ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5211.60.01,SCM beveiligingspakket disarmed,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.061.0009,Kabelboom MiBlock Standalone,,,,,,False,True,True,7002,MiBlock,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0171,Personal Tracker TMT250,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0203,Voedingskabel T11,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+10.5201.12.14,SCM klasse 4,,,,,,True,True,False,5201,SCM klasse 4,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0147,Losse extra magnetische ID Sleutel,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.White.12,MiWhite - Peilzender,,,,,,True,True,False,WhiteRes,Abo White Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.6012.12.01,G4S dienstverleningspakket,,,,,,True,True,False,6012,G4S dienstverleningspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.OrangeGreen.01,MiOrange & Green - Beveiliging & Wagenparkbeheer,,,,,,True,True,False,Orange+GreenRes,Abo Orange+Green Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.055.0102,MB stekker tbv MiCAN,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3602,Installatie Mi50 met inbraakalarm,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3950,Servicecall Mi01,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5503.84.01,Rittenadministratie,,,,,,True,True,False,5503,Rittenadministratie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5507.01.01,Persoonsidentificatie,,,,,,True,True,False,5507,Persoonsidentificatie,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+CarbonR.01,"MiCarbon-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,False,True,False,Carbon-R,Subscription Carbon-R,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5503.01.01,Rittenadministratie,,,,,,True,True,False,5503,Rittenadministratie,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5505.01.01,Draaiuren Rapportering,,,,,,True,True,False,5505,Draaiuren,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5001.36.01,Mi50 basis connectie,,,,,,True,True,False,5001,Mi50 basis connectie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5502.60.01,Live volgen,,,,,,True,True,False,5502,Live volgen,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Green.01,MiGreen - Wagenparkbeheer,,,,,,True,True,False,GreenRes,Abo Green Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3613,Installatie MiPanic,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1064.01,Lease Private/business switch,,,,,,True,True,False,7512,Lease,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.Black.01,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,BlackRes,Abo Black Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+BE.Black.24,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,BlackRes,Abo Black Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.052.0009,Ruggedized antenne 3 meter,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5107.72.01,ICL Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.310.0030,ID Keyhanger,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1021.01,Huurkoop GPS Box + inbouw,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5211.36.02,SCM beveiligingspakket disarmed met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.0020,Finder equipment Mi01/Mi04,,,,,,False,True,False,9991,Recovery,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5203.24.12,Rittenadministratie pakket,,,,,,True,True,False,5203,Rittenadministratiepakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.061.0005,MiBlock pas,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3016,Temperatuursensor kalibratie met rapport,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3612,Installatie MiReader set,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.9101,Kickback,,,,,,False,True,False,9101,Kickback,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.311.0044,Vinatech WEC 3RO 106QA,,,,,,False,True,True,7009,Parts Mi50/40/01,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.061.0035,3 pins Noodcontact met Led lampje,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.030.0010,Mi30 OBD2 dongle,,,,,,False,True,True,7310,Mi30,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Black.01,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,Black,Subscription Black,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.300.0020,Zekeringhouder WD (incl. 2A zekering),,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.9200,reparatie defecte hardware,,,,,,False,True,False,7009,Parts Mi50/40/01,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0165,TACHO box FMC640,,,,,,False,True,True,7509,Teltonika Mi640 (DE/ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0216,RFID reader 125 khz,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.056.0001,PPI Vlaksteekcontact,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0161,Startonderbreking Relais (12V),,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5118.36.01,Mi8 Peilzender,,,,,,True,True,False,5118,Mi8 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5210.24.01,SCM Beveiligingspakket inclusief klasse 1,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0204,USB RFID reader,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1047.01,immob_subscription,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.055.0001,MiCAN,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0172,"FM11YX GPS-antenne MMCX (klein, klik)",,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.058.0006,MiReader set Charlie,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.001.0010,Mi01Container,,,,,,False,True,True,7200,Mi01,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5208.36.01,Beveiligingspakket,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5712.01.01,MiSwitch,,,,,,True,True,False,5712,MiSwitch,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3550,Servicecall Mi04,,,,,,False,True,True,7298,Mi04 installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0156,GPS Box FMT100,,,,,,False,True,True,7520,Teltonika FMT100 (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0131,Vrije tekst (eenmalig),,,,,,False,True,False,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+RoyalBlue.24,MiRoyal Blue - Beveiliging & meldkamer,,,,,,True,True,False,RoyalBlue,Subscription RoyalBlue,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5502.84.01,Live volgen,,,,,,True,True,False,5502,Live volgen,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.052.0010,Verlengkabel t.b.v. Externe GPS Antenne,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0215,RFID reader 13 Mhz,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5210.01.02,SCM Beveiligingspakket inclusief klasse 1 en inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3904,Installatie Mi01 werkplaats inbouwspecialist,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0152,Bestuurdersherkenning + Magn. ID Sleutel + Buzzer + Sleutelh,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5120.01.01,Mi10 Peilzender,,,,,,False,True,False,5120,Mi10 Peilzender,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5402.24.01,Paniekhulp,,,,,,True,True,False,5402,Paniekhulp,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0246,Bluetooth sensor (TT),,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+White.24,MiWhite - Peilzender,,,,,,True,True,False,White,Subscription MiWhite,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5603.48.01,Rijstijlanalyse,,,,,,True,True,False,5603,Rijstijlanalyse,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1033.01,Materiaal tag draadloos,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5503.36.12,Rittenadministratie,,,,,,True,True,False,5503,Rittenadministratie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+White.60.P,MiWhite - Peilzender,,,,,,True,True,False,PrepaidPackages,Prepaid packages,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5119.60.01,Mi9 Peilzender,,,,,,True,True,False,5119,Mi9 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3653,Servicecall Mi50 accessoires,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.052.0002,Antenne combi GSM/GPS tbv Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0227,GPRS Kort Antenne,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.051.0001,Voedingskabel tbv Mi50 (3-aderig),,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5204.24.12,Wagenparkbeheer pakket,,,,,,True,True,False,5204,Wagenparkbeheerpakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5405.01.01,Melden inbraakalarm,,,,,,True,True,False,5405,Melden inbraakalarm,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+G4SGreeceBasic.01,Basic service G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5208.24.02,Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5118.60.01,Mi8 Peilzender,,,,,,True,True,False,5118,Mi8 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3013,Inbouw (TACHO),,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3607,Installatie Mi50 & Autonorm,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5211.01.02,SCM beveiligingspakket disarmed met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.311.0076,M2M3FF (901288),,,,,,False,True,True,7597,Teltonika parts,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1010.01,Upgrade Live -> Alles-in-een,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.009.0010,Mi9 Beacon / Tracking device (GPS/GSM/RF) with internal batt,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+2.1001.01,Bisharp subscription account,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0217,Mifare Classic tag zwart,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5140.60.01,Mi40 pakket,,,,,,True,True,False,5140,Mi40,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.005.0040,"Tag Wolf, IP54, Soldered 3-year CR2354 b",,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1002.01,Live volgen,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.052.0001,Antenne GSM tbv Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3699,Dervingskosten annuleren afspraak,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Blue.01,MiBlue - Beveiliging & Objectbeheer,,,,,,True,True,False,Blue,Subscription Blue,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5203.01.01,Rittenadministratie pakket,,,,,,True,True,False,5203,Rittenadministratiepakket,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+CarLocate.01,CarLocate,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0163,Tracker Mini,,,,,,False,True,True,7550,Iotracker Mini (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5118.12.01,Mi8 Peilzender,,,,,,True,True,False,5118,Mi8 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.314.0163,(L) Tracker Mini,,,,,,False,True,True,7550.L,(L) Iotracker Mini (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5208.01.02,Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.061.0007,Verlengkabel set MiBlock 5m 3 kabels,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3604,Installatie Mi50 + MiBlock Klasse 4 (excl. SCM certificaat),,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5301.60.01,Mi30 pakket,,,,,,True,True,False,5301,Mi30,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3730,Vervangen Mi40,,,,,,False,True,True,7199,Mi40 Installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5512.01.01,Keurmerk RRS,,,,,,True,True,False,5512,Keurmerk RRS,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3920,Installatie Mi01 Marine op locatie bij klant,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.314.0156,(L) GPS Box FMT100,,,,,,False,True,True,7520.L,(L) Teltonika FMT100 (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1044.01,combination_oem_stellantis_renault,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.061.0034,2 pins Noodcontact met Led lampje,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.316.0007,DEFA Klasse 3 alarm,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.010.0011,Mi10 lader,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5204.12.12,Wagenparkbeheer pakket,,,,,,True,True,False,5204,Wagenparkbeheerpakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5107.12.24,Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1001.01,Rapportages uitgebreid,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.005.0020,Lommy Eye 868 mHz -Traxgo without logo,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0237,Batterij PPBA00003510,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5208.12.02,Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.316.0003,Autonorm Klasse 3,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.061.0002,Verlengkabel set MiBlock 5m,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Red.48,MiRed - Rittenregistratie,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0144,Buzzer 95db,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1038.01,Tachograaf Only download service,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.051.0003,Voedingskabel tbv Mi50 (8-aderig) nieuw,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5116.36.01,Mi6 Peilzender,,,,,,True,True,False,5116,Mi6 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5119.01.01,Mi9 Peilzender,,,,,,False,True,False,5119,Mi9 Peilzender,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3501,Installatie Mi04 Dealer Sales,,,,,,False,True,True,7298,Mi04 installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.053.0001,Accu intern tbv Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Green.12,MiGreen - Wagenparkbeheer,,,,,,True,True,False,Green,Subscription Green,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0223,Relais houder,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.008.0012,MiRock L,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5208.48.02,Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+G4SGreecePremium.12,Premium 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3615,Installatie Mi50 excl. hardware,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+CarLocate.Dev.01,CarLocate (Device),,,,,,True,True,False,1902,Subscription Echoes Device,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0212,FMM920 GPS Tracker,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5204.48.01,Wagenparkbeheer pakket,,,,,,True,True,False,5204,Wagenparkbeheerpakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+CarCollect.01,CarCollect,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0169,Temperatuursensor draadloos (Bluetooth),,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.9006,Kosten papieren factuur,,,,,,False,True,False,9000,Overige diensten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+RedT.24,MiRed,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0158,Losse extra ID Sleutel met sleutelhanger,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3930,Installatie Mi01FS ProLease,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1011.01,Upgrade Live -> Rapportages Uitgebreid,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5405.48.01,Melden inbraakalarm,,,,,,True,True,False,5405,Melden inbraakalarm,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.001.1000,Mi01 Peilzender (spatwaterdicht),,,,,,False,True,True,7200,Mi01,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BlackR.60,"MiBlack-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+Green,Subscription Black-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0211.A,4G Trailerunit FMM230 met accupolen stekker,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+White.12,MiWhite - Peilzender,,,,,,True,True,False,White,Subscription MiWhite,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5107.60.01,ICL Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.311.0094,Mi01 Print V1.8 (vanaf run 4-2022),,,,,,False,True,True,7200,Mi01,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.312.0004,SCM certificaat Klasse 1,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Black.36,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,Black,Subscription Black,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Red.12,MiRed - Rittenregistratie,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Data Kia,Data Kia,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3903,Installatie Mi01 op locatie bij klant,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Horizon.01,MiGreen - Special Horizon,,,,,,True,True,False,Specials,Subscription MiSpecials,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5511.24.12,Stationair draaiuren rapportering,,,,,,True,True,False,5511,Stationair draaiuren,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.BlackGreen.24,"MiBlack & Green - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+GreenRes,Abo Black+Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0154,FMB122/FMM130 kabelboom,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.050.0013,"Mi50 set, 7Y wire",,,,,,False,True,True,7000,Mi50 unit (non-fleet),2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.005.0012,Lommy Eye Van Es Mobility Container 9B7,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1045.01,Alles-in-een Reseller eigen voertuig,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0260,FMC880,,,,,,False,True,False,1903,Echoes Device,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.314.0130,(L) GPS Box FMM130,,,,,,False,True,True,7526.L,(L) Teltonika FMM130 (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5502.12.12,Live volgen,,,,,,True,True,False,5502,Live volgen,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0232,Koperen kopje voor antennes,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.9007,Activation fee Security,,,,,,False,True,False,9007,Activation fee Security,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.312.0002,SCM certificaat Klasse 3,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.059.0004,MiClassify Charlie,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+10.5201.24.14,SCM klasse 4,,,,,,True,True,False,5201,SCM klasse 4,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.050.0012,Mi50 set (t.b.v. rittenadministratie),,,,,,False,True,True,7003,Mi50.3 unit (fleet),2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+OrangeR.60,MiOrange-R - Beveiliging & Wagenparkbeheer,,,,,,True,True,False,Orange+Green,Subscription Orange-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.9009,Activation fee Fleet,,,,,,False,True,False,9009,Activation fee Fleet,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5504.60.01,Kilometerstand Rapportering,,,,,,True,True,False,5504,Kilometerstand,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0210,2G Trailerunit FMB204,,,,,,False,True,True,7507,Teltonika Mi204 (NL/DE),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3018,Service op locatie,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.Orange.01,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,OrangeRes,Abo Orange Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5408.36.01,MiBlock,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0205,T001 splitter,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.061.0032,2 pins Noodsleutel voor MiBlock Active Tag,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Data Renault,Data Renault,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5117.24.01,Mi7 Peilzender,,,,,,True,True,False,5117,Mi7 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5504.01.01,Kilometerstand Rapportering,,,,,,True,True,False,5504,Kilometerstand,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3051,Servicecall Mi120,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5510.24.12,MiClassify,,,,,,True,True,False,5510,MiClassify,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.308.0014,Behuizing waterdichte hoes Mi6/Mi7 Peilz,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+900.900.7000,Mi50 orders 2017,,,,,,False,True,False,9701,orders 2017 Mi50,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1036.01,Tachogram extra voertuig,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0141,Losse extra ID Sleutel,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+RedT.36,MiRed,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5208.01.01,Beveiligingspakket,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3970,Overbouw Mi01/peilzender,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5409.24.01,MiBlock Rent/Lease,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.312.0001,SCM certificaat Klasse 4 (excl. basis Klasse 1),,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+2,Clear Bad Debt,,,,,,False,True,False,2,Clear Bad Debt,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.061.0020,MiBlock Startonderbreker,,,,,,False,True,True,7002,MiBlock,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+G4SGreeceB.01,G4S Greece B,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+BlackR.24,"MiBlack-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+Green,Subscription Black-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1058.01,Lease Driver Identification,,,4fb199e6-09bd-45a6-acb2-276c38d0d26f,817512,Revenue legacy huurkoop ET,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Orange.36,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,Orange,Subscription Orange,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Red.36,MiRed - Rittenregistratie,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5203.72.01,Rittenadministratie pakket,,,,,,True,True,False,5203,Rittenadministratiepakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.058.0003,Keyfob tbv MiReader,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.061.0004,MiBlock antenne,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3652,Servicecall klasse 3 alarm,,,,,,False,True,True,7499,Alarm klasse 2 - 3 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.316.0006,Klasse 3 Autonorm incl. installatie excl. cert.,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3011,Voorrijkosten,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Orange.01,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,Orange,Subscription Orange,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3603,Installatie uitbreiding Mi50 met MiBlock,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+RedT.12,MiRed,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5201.84.01,SCM klasse 4,,,,,,True,True,False,5201,SCM klasse 4,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0055,Mi100 (4G),,,,,,False,True,True,7500,Teltonika Mi100,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+MiELive.12,MiELive,,,,,,True,True,False,1901,Subscription MiELive,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5503.12.12,Rittenadministratie,,,,,,True,True,False,5503,Rittenadministratie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5119.48.01,Mi9 Peilzender,,,,,,True,True,False,5119,Mi9 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+White.36.P,MiWhite - Peilzender,,,,,,True,True,False,PrepaidPackages,Prepaid packages,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3017,Overbouw op locatie GPS Box,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5208.24.01,Beveiligingspakket,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Data Skoda,Data Skoda,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5502.01.01,Live volgen,,,,,,True,True,False,5502,Live volgen,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+White.36,MiWhite - Peilzender,,,,,,True,True,False,White,Subscription MiWhite,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5140.24.01,Mi40 pakket,,,,,,True,True,False,5140,Mi40,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5122.36.01,Mi12 Peilzender,,,,,,True,True,False,5122,Mi12 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+RedLiteT.12,MiRed Lite (12 Months - T),,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+900.900.7100,Mi accessoires orders 2017,,,,,,False,True,False,9710,orders 2017 accessoires,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5503.48.12,Rittenadministratie,,,,,,True,True,False,5503,Rittenadministratie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+RedT.60,MiRed,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3003,Installatie Mi120 excl. HW,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0258,TAT141,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5211.12.01,SCM beveiligingspakket disarmed,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.311.0095,Mi01 Print VBrotronics (vanaf run 06-2026),,,,,,False,True,True,7200,Mi01,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5117.01.01,Mi7 Peilzender,,,,,,True,True,False,5117,Mi7 Peilzender,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5120.12.01,Mi10 Peilzender,,,,,,True,True,False,5120,Mi10 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5123.01.01,Mi13 Peilzender,,,,,,True,True,False,5123,Mi13 Peilzender,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.314.0165,(L) TACHO box FMC640,,,,,,False,True,True,7509.L,(L) Teltonika Mi640 (DE/ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+CarFleet.01,CarFleet,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5209.60.01,SCM Beveiligingspakket,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5512.24.01,Keurmerk RRS,,,,,,True,True,False,5512,Keurmerk RRS,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Red.60,MiRed - Rittenregistratie,,,,,,True,True,False,RedRes,Abo Red Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3014,Overbouw op locatie (TACHO),,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.052.0004,Antenne GPS tbv Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3010,Installatie (fleet),,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0229,FMP100,,,,,,False,True,True,7540,Teltonika Other,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.9002,Vrachtverzekering,,,,,,False,True,False,9001,Verzendkosten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5515.24.12,PTO rapportage,,,,,,True,True,False,5515,PTO,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.005.0010,Lommy Eye Van Es Mobility GPS,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+RoyalBlue.12,MiRoyal Blue - Beveiliging & meldkamer,,,,,,True,True,False,RoyalBlue,Subscription RoyalBlue,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5122.12.01,Mi12 Peilzender,,,,,,True,True,False,5122,Mi12 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0177,TACHO kaartlezer voor mobiele app IOS versie,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0146,Bestuurdersherkenning,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0214,FMB640,,,,,,False,True,True,7509,Teltonika Mi640 (DE/ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3710,Installatie Mi40 dagtarief min. 6 objecten,,,,,,False,True,True,7199,Mi40 Installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.061.0031,Active Tag voor MiBlock,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5515.01.01,PTO rapportage,,,,,,True,True,False,5515,PTO,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+G4SGreecePremium.24,Premium 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.1037.01,TACHO Kaarthotel,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+11.6007.12.01,Interpolis - rijcoach plus pakket,,,,,,True,True,False,6007,Interpolis rijcoach plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Green.24,MiGreen - Wagenparkbeheer,,,,,,True,True,False,Green,Subscription Green,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+RoyalBlue.01,MiRoyal Blue - Beveiliging & meldkamer,,,,,,True,True,False,RoyalBlue,Subscription RoyalBlue,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5301.12.01,Mi30 pakket,,,,,,True,True,False,5301,Mi30,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1043.01,Combination_boxlease,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1063.01,Lease Driver Identification + ID tag + buzzer + key ring,,,4fb199e6-09bd-45a6-acb2-276c38d0d26f,817512,Revenue legacy huurkoop ET,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.316.0005,Klasse 3 Defa alarm incl. installatie excl. cert.,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.032.0002,Verlengkabel Mi30 - 150cm flat,,,,,,False,True,True,7311,Mi30 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5122.01.01,Mi12 Peilzender,,,,,,True,True,False,5122,Mi12 Peilzender,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.032.0001,Verlengkabel Mi30 - 60cm flat,,,,,,False,True,True,7311,Mi30 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Black.60,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,Black,Subscription Black,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5211.24.01,SCM beveiligingspakket disarmed,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+CarLocate.Act,CarLocate Recovery,,,,,,False,True,False,9992,Recovery CarLocate,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+G4SGreeceBasic.12,Basic service G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5712.12.01,MiSwitch,,,,,,True,True,False,5712,MiSwitch,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5107.12.12,Tracer 12 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+RedPro.12,MiRedPro (12 months),,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0238,FMM150,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0174,GPS-antenne SMA (male),,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.308.0062,Behuizing dummy Mi13 w/o wire,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1020.01,Huurkoop GPS Box,,,,,,True,True,False,7512,Lease,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0168,Temperatuursensor bedraad,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5508.01.01,Snelheid,,,,,,True,True,False,5508,Snelheid,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.061.0008,MiBlock drukknop,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0242,FM11YX kabelboom 12v sigarettenplug,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5211.12.02,SCM beveiligingspakket disarmed met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1041.01,Temperatuurregistratie,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0243,FMM150 + Ecan02,,,,,,False,True,True,7511,Teltonika ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5507.24.12,Persoonsidentificatie,,,,,,True,True,False,5507,Persoonsidentificatie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5403.12.12,Sabotage detectie,,,,,,True,True,False,5403,Sabotage detectie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5209.36.02,SCM Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0044,Mi880 (4G),,,,,,False,True,True,7500,Teltonika Mi100,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Carbon.24,MiCarbon - Beveiliging met meldkamer,,,,,,True,True,False,Carbon,Subscription Carbon,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Red.01,MiRed - Rittenregistratie,,,,,,True,True,False,RedRes,Abo Red Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.900.3651,Servicecall MiBlock,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5204.36.01,Wagenparkbeheer pakket,,,,,,True,True,False,5204,Wagenparkbeheerpakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3802,Installatie Mi30 werkplaats inbouwspecialist,,,,,,False,True,True,7319,Mi30 installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1056.01,Lease Other,,,,,,True,True,False,7512,Lease,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+VanGent.12,MiGreen - Special Van Gent,,,,,,True,True,False,Specials,Subscription MiSpecials,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.BlackGreen.01,"MiBlack & Green - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+GreenRes,Abo Black+Green Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+Grey.01,MiGrey - Trailer beveiliging,,,,,,True,True,False,Grey,Subscription Grey,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5209.84.01,SCM Beveiligingspakket,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.012.0010,Mi12 Peilzender Container,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0218,Bedrijfspas lezer USB,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5116.12.01,Mi6 Peilzender,,,,,,True,True,False,5116,Mi6 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5203.60.01,Rittenadministratie pakket,,,,,,True,True,False,5203,Rittenadministratiepakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0153,FMB122/FMM130 kabelboom 12v sigarettenplug,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Orange.48,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,Orange,Subscription Orange,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5208.12.01,Beveiligingspakket,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3905,Installatie MI01 uitbr. klantlocatie i.c.m. ander MI product,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5209.12.02,SCM Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5111.12.02,API D,,,,,,True,True,False,5111,API,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5504.12.12,Kilometerstand Rapportering,,,,,,True,True,False,5504,Kilometerstand,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Red.48,MiRed - Rittenregistratie,,,,,,True,True,False,RedRes,Abo Red Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5116.24.01,Mi6 Peilzender,,,,,,True,True,False,5116,Mi6 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5209.24.02,SCM Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5405.12.12,Extern alarm,,,,,,True,True,False,5405,Melden inbraakalarm,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+RedT.01,MiRed,,,,,,True,True,False,Red,Subscription Red,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5203.48.12,Rittenadministratie pakket,,,,,,True,True,False,5203,Rittenadministratiepakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Azure.01,MiAzure - Peilzender,,,,,,True,True,False,AzureBlue,Subscription AzureBlue,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5209.60.02,SCM Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.050.0015,Mi50.M,,,,,,False,True,True,7000,Mi50 unit (non-fleet),2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+White.48.P,MiWhite - Peilzender,,,,,,True,True,False,PrepaidPackages,Prepaid packages,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3502,Installation MiRetreever on location customer (Direct Sales),,,,,,False,True,True,7298,Mi04 installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5408.24.01,MiBlock,,,,,,True,True,False,5408,MiBlock abo,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+G4SGreeceC.01,G4S Greece C,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.313.0224,Relais 24 volts ET,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BE.Green.36,MiGreen - Wagenparkbeheer,,,,,,True,True,False,GreenRes,Abo Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.052.0005,Autonorm kabelset t.b.v. Klasse 5,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5402.36.01,Paniekhulp,,,,,,True,True,False,5402,Paniekhulp,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+CarReport.Dev.01,CarReport (Device),,,,,,True,True,False,1902,Subscription Echoes Device,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0219,Zwarte raamkit klei,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.316.0004,Upgrade OEM Alarmsysteem,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Black.12,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,Black,Subscription Black,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5405.60.01,Melden inbraakalarm,,,,,,True,True,False,5405,Melden inbraakalarm,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0162,Trailer inbouwkit,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+90.5501.60.14,Haaglanden Lease pakket,,,,,,True,True,False,5501,Positiebepaling,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0149,Sleutelhanger los,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3606,Installatie MiBlock (standalone),,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+Data Audi,Data Audi,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5508.12.01,Snelheid,,,,,,True,True,False,5508,Snelheid,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.050.0011,Mi50.8,,,,,,False,True,True,7000,Mi50 unit (non-fleet),2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1000.01,Alles-in-een,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.308.0061,Behuizing dummy Mi13 w. wire,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3001,Installatie Mi120,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0145,Bestuurdersherkenning Keypad,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0120,Mi120,,,,,,False,True,True,7501,Teltonika Mi120,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.315.0001,Interface box t.b.v. electro-heftruck,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1032.01,Beperkt live volgen,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+11.6004.03.14,Stern Assist Wagenpark pakket,,,,,,True,True,False,6004,Stern Assist Wagenpark,2  ,"BTW hoog tarief, exclusief",kwartaal,Kwartaal
+10.5202.24.14,SCM klasse 5,,,,,,True,True,False,5202,SCM klasse 5,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5505.12.12,Draaiuren Rapportering,,,,,,True,True,False,5505,Draaiuren,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3750,Servicecall Mi40,,,,,,False,True,True,7199,Mi40 Installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3500,Installatie Mi04 Direct Sales,,,,,,False,True,True,7298,Mi04 installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1014.01,Upgrade Rapportages Fiscaal -> Live Volgen,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3631,Inleren noodsleutel,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BE.BlackGreen.60,"MiBlack & Green - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+GreenRes,Abo Black+Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+ActEch,Activation Echoes,,,,,,False,True,False,1904,Activation Echoes,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3020,No Show,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.312.0005,Schouwing/periodieke keuring incl. certificaat,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.008.0011,Mi8 Tracer,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+NavyBlue.01,MiNavy Blue,,,,,,True,True,False,NavyBlue,Subscription NavyBlue,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+Data Toyota,Data Toyota,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5118.24.01,Mi8 Peilzender,,,,,,True,True,False,5118,Mi8 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5117.12.01,Mi7 Peilzender,,,,,,True,True,False,5117,Mi7 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.006.0012,Mi6 Peilzender,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5107.72.24,Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.008.0013,MiRock XL,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5001.24.12,Mi50 basis connectie,,,,,,True,True,False,5001,Mi50 basis connectie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.040.0010,Mi40,,,,,,False,True,True,7100,Mi40,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0164,Klein materiaal,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Yellow.12,MiYellow - Werkmaterieel,,,,,,True,True,False,Yellow,Subscription Yellow,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.2130,4G Transitie - GPS Box FMM130,,,,,,False,True,True,7526,Teltonika FMM130 (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5001.12.12,Mi50 basis connectie,,,,,,True,True,False,5001,Mi50 basis connectie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Data VW,Data VW,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+White.48,MiWhite - Peilzender,,,,,,True,True,False,White,Subscription MiWhite,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.BlackGreen.12,"MiBlack & Green - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+GreenRes,Abo Black+Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.051.0004,Kabelboom 7-aderig Y kabel,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.051.0002,Voedingskabel tbv Mi50 (8-aderig) oude labels,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5504.24.12,Kilometerstand Rapportering,,,,,,True,True,False,5504,Kilometerstand,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5203.12.12,Rittenadministratie pakket,,,,,,True,True,False,5203,Rittenadministratiepakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5401.12.12,Diefstalopsporing,,,,,,True,True,False,5401,Diefstalopsporing,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.0233,Kabelgoot,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+BlackR.48,"MiBlack-R - Beveiliging, meldkamer & Wagenparkbeheer",,,,,,True,True,False,Black+Green,Subscription Black-R,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5510.12.12,MiClassify,,,,,,True,True,False,5510,MiClassify,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Green.60,MiGreen - Wagenparkbeheer,,,,,,True,True,False,GreenRes,Abo Green Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3019,Inbouw op basis van nacalculatie. Per uur,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1031.01,Rijgedrag en brandstofverbruik,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.9008,Carriage,,,,,,False,True,False,9001,Verzendkosten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+G4SGreeceTracerMi13.01,Tracer service 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.1048.01,live_boxlease,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0231,Spot trace,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+NavyBlue.12,MiNavy Blue,,,,,,True,True,False,NavyBlue,Subscription NavyBlue,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3616,Installatie DEFA Klasse 3,,,,,,False,True,True,7499,Alarm klasse 2 - 3 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.313.0170,TACHO box FMC650,,,,,,False,True,True,7509,Teltonika Mi640 (DE/ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Data BMW,Data BMW,,,,,,True,True,False,1900,Subscription Echoes OEM,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+Carbon.01,MiCarbon - Beveiliging met meldkamer,,,,,,False,True,False,Carbon,Subscription Carbon,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5204.01.01,Wagenparkbeheer pakket,,,,,,True,True,False,5204,Wagenparkbeheerpakket,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.1039.01,Tachograaf DDD Only download service,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0150,Bestuurdersherkenning + ID Sleutel + Buzzer,,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5208.36.02,Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5211.24.02,SCM beveiligingspakket disarmed met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.1057.01,Subscription other,,,4fb199e6-09bd-45a6-acb2-276c38d0d26f,817512,Revenue legacy huurkoop ET,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3610,Installatie Mi50 dagtarief min. 6 objecten,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.061.0040,MiBlock 24V,,,,,,False,True,True,7002,MiBlock,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.9003,Administratiekosten,,,,,,False,True,False,9000,Overige diensten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.061.0003,MiBlock LED,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3670,Overbouw Mi50,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BE.White.48,MiWhite - Peilzender,,,,,,True,True,False,WhiteRes,Abo White Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.316.0001,Klasse 2,,,,,,False,True,True,7400,Alarm klasse 2 - 3,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5208.48.01,Beveiligingspakket,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.9010,Verzendkosten buitenland,,,,,,False,True,False,9001,Verzendkosten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+BE.Grey.12,MiGrey - Trailer beveiliging,,,,,,True,True,False,GreyRes,Abo Grey Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5211.60.02,SCM beveiligingspakket disarmed met inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Black.48,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,Black,Subscription Black,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Breeman.01,MiGreen - Special Breeman,,,,,,True,True,False,Specials,Subscription MiSpecials,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.313.0180,TAT141 Asset Tracker (4G),,,,,,False,True,True,7526,Teltonika FMM130 (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.1055.01,Installation (Monthly),,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5119.36.01,Mi9 Peilzender,,,,,,True,True,False,5119,Mi9 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+G4SGreeceTracer.12,Tracer service 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+1.5140.12.01,Mi40 pakket,,,,,,True,True,False,5140,Mi40,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5901.12.12,Ecall,,,,,,True,True,False,5901,Ecall,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5208.60.02,Beveiligingspakket met inbraakalarm,,,,,,True,True,False,5206,Beveiligingspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5119.24.01,Mi9 Peilzender,,,,,,True,True,False,5119,Mi9 Peilzender,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+GreenS.12,MiGreen with eCall (12 Months),,,,,,True,True,False,6012,G4S dienstverleningspakket,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+Yellow.01,MiYellow - Werkmaterieel,,,,,,True,True,False,Yellow,Subscription Yellow,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+Orange.12,MiOrange - Beveiliging zonder meldkamer,,,,,,True,True,False,Orange,Subscription Orange,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.059.0001,MiClassify,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.1015.01,Upgrade Rapportages Fiscaal -> Rapportages Uitgebreid,,,,,,True,True,False,1800,Subscription ET,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.308.0015,Behuizing Cover Mi8/Mi9 Peilzender,,,,,,False,True,True,7201,Mi01/peilzender accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3002,Installatie Mi100 excl. HW,,,,,,False,True,True,7599,Teltonika installations,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5210.24.02,SCM Beveiligingspakket inclusief klasse 1 en inbraakalarm,,,,,,True,True,False,5207,SCM Plus,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.313.2256,4G Transitie - FMM880,,,,,,False,True,True,7540,Teltonika Other,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5505.24.12,Draaiuren Rapportering,,,,,,True,True,False,5505,Draaiuren,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.308.0013,Behuizing waterdichte hoes Mi50,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3621,Installatie Mi50 Marine+,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5301.24.01,Mi30 pakket,,,,,,True,True,False,5301,Mi30,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3770,Overbouw Mi40,,,,,,False,True,True,7199,Mi40 Installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.3980,Uitbouw Mi01/peilzender,,,,,,False,True,True,7299,Mi01/peilzender installatie,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+900.900.7700,Mi40 orders 2017,,,,,,False,True,False,9700,orders 2017 Mi40,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.900.3622,Installatie Mi50 met relais,,,,,,False,True,True,7099,Mi50 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5403.01.01,Sabotage detectie,,,,,,True,True,False,5403,Sabotage detectie,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.061.0036,3 pins Noodsleutel voor MiBlock Active Tag,,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5402.12.01,Paniekhulp,,,,,,True,True,False,5402,Paniekhulp,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.9999,Diversen,,,,,,False,True,False,9000,Overige diensten,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5107.36.01,ICL Tracer 24 uur,,,,,,True,True,False,5107,Tracer,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+1.5111.12.03,API Mi13,,,,,,True,True,False,5111,API,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.900.3609,Installatie Autonorm Klasse 3 (excl. SCM certificaat),,,,,,False,True,True,7499,Alarm klasse 2 - 3 installaties,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.900.8300,Kortingscoupons,,,,,,False,True,False,8300,Kortingscoupons,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+CarFleet.Dev.01,CarFleet (Device),,,,,,True,True,False,1902,Subscription Echoes Device,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0173,GPS-antenne SMA (female),,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+White.48.B,MiWhite - Peilzender (48 maanden),,,,,,True,True,False,WhiteMi04,Subscription MiWhite Mi04,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.052.0003,Antenne GPS tbv Mi50 (oud),,,,,,False,True,True,7001,Mi50 accessoires,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+800.914.3010,(L) Installatie op locatie,,,,,,False,True,True,7599.L,(L) Teltonika Installations,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.313.0228,Bluetooth sensor (MineW),,,,,,False,True,True,7598,Teltonika accessories,2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+800.314.0256,(L) FMM880,,,,,,False,True,True,7540.L,(L) Teltonika Other SGU (ET),2  ,"BTW hoog tarief, exclusief",pc      ,Piece
+1.5711.12.01,Battery management,,,,,,True,True,False,5711,Battery management,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+BE.Black.48,MiBlack - Beveiliging met meldkamer,,,,,,True,True,False,BlackRes,Abo Black Reseller,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+G4SGreeceTracer.24,Tracer service 24x7 G4S,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+G4SGreeceA.01,G4S Greece A,,,,,,True,True,False,Export,Abo Export,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+BE.White.01,MiWhite - Peilzender,,,,,,True,True,False,WhiteRes,Abo White Reseller,2  ,"BTW hoog tarief, exclusief",maand   ,Maand
+800.007.0011,Mi7 Peilzender,,,,,,False,True,True,7301,Peilzenders,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk
+1.5507.12.12,Persoonsidentificatie,,,,,,True,True,False,5507,Persoonsidentificatie,2  ,"BTW hoog tarief, exclusief",jaar    ,Jaar
+800.061.0037,MiBlock AT met 7Y wire,,,,,,False,True,True,7002,MiBlock,2  ,"BTW hoog tarief, exclusief",stuk    ,Stuk

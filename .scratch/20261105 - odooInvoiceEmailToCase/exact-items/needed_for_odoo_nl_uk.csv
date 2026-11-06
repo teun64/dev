@@ -1,0 +1,2 @@
+Division,ItemCode,Description,ItemGroup,GLRevenueCode,SalesVatCode,SalesVat,Unit,Source
+NL,FMC880NL,FMC880 (box),1903,801903,2,"BTW hoog tarief, exclusief",pc,Odoo invoice 01250436 (21%)

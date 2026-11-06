@@ -1,0 +1,23 @@
+ProductCode,Name,Prefix,ExactItemCode,InExactProd,RecordType
+FMC880NL,FMC880 (box),01,800.313.0260,yes,Hardware
+CarFleetUK,Monthly License CarFleet,04,CarFleet.01,yes,Subscription
+CarFleet-CarCollectUK,Monthly License CarFleet+CarCollect,04,,no single item,Subscription
+DataStellantisUK,Data Stellantis,04,Data Stellantis,yes,Subscription
+DataFordUK,Data Ford,04,Data Ford,yes,Subscription
+DataMercedesUK,Data Mercedes,04,Data Mercedes,yes,Subscription
+DataRenaultUK,Data Renault,04,Data Renault,yes,Subscription
+CarLocateUK,Monthly License CarLocate,04,CarLocate.01,yes,Subscription
+CarReportUK,Monthly License CarReport,04,CarReport.01,yes,Subscription
+CarCollectUK,Monthly License CarCollect,04,CarCollect.01,yes,Subscription
+DataSeatUK,Data Seat,04,Data Seat,yes,Subscription
+DataKiaUK,Data Kia,04,Data Kia,yes,Subscription
+DataBMWUK,Data BMW,04,Data BMW,yes,Subscription
+DataAudiUK,DataAudiUK,04,Data AudiUK,yes,Subscription
+DataVolvoUK,Data Volvo,04,Data Volvo,yes,Subscription
+DataVWUK,Data VW,04,Data VW,yes,Subscription
+DataSkodaUK,Data Skoda,04,Data Skoda,yes,Subscription
+DataToyotaUK,Data Toyota,04,Data Toyota,yes,Subscription
+DataNissanUK,Data Nissan,04,Data Nissan,yes,Subscription
+CarFleet-CarLocateDeviceUK,Monthly License CarFleet+CarLocate with Hardware,04,,no single item,Subscription
+CarFleet-CarLocateUK,Monthly License CarFleet+CarLocate,04,,no single item,Subscription
+DataHyundaiUK,Data Hyundai,04,Data Hyundai,yes,Subscription

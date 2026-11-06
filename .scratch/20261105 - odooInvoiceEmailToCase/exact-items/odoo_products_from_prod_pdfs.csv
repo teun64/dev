@@ -1,0 +1,115 @@
+ProductCode,Name,RecordType,Currency,Prefixes
+CarFleetDE,Monatlich Lizenz CarFleet,Subscription,EUR,03
+CarLocateDeviceDE,Licence CarLocate with Hardware,Subscription,EUR,03
+CarLocateDE,Monatlich Lizenz CarLocate,Subscription,EUR,03
+DataVWDE,Data VW,Subscription,EUR,03
+DataVolvoDE,Data Volvo,Subscription,EUR,03
+DataMercedesDE,Data Mercedes,Subscription,EUR,03
+DataAudiDE,Data Audi,Subscription,EUR,03
+DataTeslaDE,Data Tesla,Subscription,EUR,03
+DataBMWDE,Data BMW,Subscription,EUR,03
+DataFordDE,Data Ford,Subscription,EUR,03
+CarLocate-CarCollectDE,Monatlich Lizenz CarLocate+CarCollect,Subscription,EUR,03
+CarCollectDE,Monatlich Lizenz CarCollect,Subscription,EUR,03
+DataKiaDE,Data Kia,Subscription,EUR,03
+DataSeatDE,Data Seat,Subscription,EUR,03
+DataHyundaiDE,Data Hyundai,Subscription,EUR,03
+DataStellantisDE,Data Stellantis,Subscription,EUR,03
+DataSkodaDE,Data Skoda,Subscription,EUR,03
+DataRenaultDE,Data Renault,Subscription,EUR,03
+DataToyotaDE,Data Toyota,Subscription,EUR,03
+CarFleetDeviceDE,Licence CarFleet with Hardware,Subscription,EUR,03
+CarReportDE,Monatlich Lizenz CarReport,Subscription,EUR,03
+DataManDE,Data Man,Subscription,EUR,03
+CarGuardDE,Monatlich Lizenz CarGuard,Subscription,EUR,03
+DataNissanDE,Data Nissan,Subscription,EUR,03
+DataPolestarDE,Data Polestar,Subscription,EUR,03
+CarLocateFR,Licence CarLocate,Subscription,EUR,02
+DataBMWFR,Data BMW,Subscription,EUR,02
+DataRenaultFR,Data Renault,Subscription,EUR,02
+DataNissanFR,Data Nissan,Subscription,EUR,02
+DataFordFR,Data Ford,Subscription,EUR,02
+DataMercedesFR,Data Mercedes,Subscription,EUR,02
+DataVWFR,Data VW,Subscription,EUR,02
+DataStellantisFR,Data Stellantis,Subscription,EUR,02
+DataKiaFR,Data Kia,Subscription,EUR,02
+MAPUP,MAPUP,Subscription,EUR,02
+CarFleetDeviceFR,Licence CarFleet with Hardware,Subscription,EUR,02
+CarFleetFR,Licence CarFleet,Subscription,EUR,02
+DataAudiFR,Data Audi,Subscription,EUR,02
+DataHyundaiFR,Data Hyundai,Subscription,EUR,02
+DataSkodaFR,Data Skoda,Subscription,EUR,02
+CarLocateDeviceFR,Licence CarLocate with Hardware,Subscription,EUR,02
+CarCollectFR,Licence CarCollect,Subscription,EUR,02
+DataToyotaFR,Data Toyota,Subscription,EUR,02
+DataVolvoFR,Data Volvo,Subscription,EUR,02
+DataManFR,Data Man,Subscription,EUR,02
+DataTeslaFR,Data Tesla,Subscription,EUR,02
+CarReportFR,CarReport License,Subscription,EUR,02
+DataSeatFR,Data Seat,Subscription,EUR,02
+CarFleet-CarCollectFR,Licence CarFleet+CarCollect,Subscription,EUR,02
+Release Cost,Release Cost,Subscription,EUR,03
+Repatriation Cost,Repatriation Cost,Subscription,EUR,03
+Impound cost,Impound cost,Subscription,EUR,03
+FMC130DE,Device  FMC130,Hardware,EUR,03
+EXPDE,Transport cost,Handling,EUR,03
+MI01DE,Device MI01,Hardware,EUR,03
+Boitier FMC003,Boitier FMC003,Hardware,EUR,03
+FMC880DE,Device  FMC880,Hardware,EUR,03
+CarFleet-CarCollectDeviceDE,Licence CarFleet+CarCollect with Hardware,Subscription,EUR,03
+CarFleet-CarCollectDE,Monatlich Lizenz CarFleet+CarCollect,Subscription,EUR,03
+MI01FR,Boitier MI01,Hardware,EUR,02
+EXPFR,Frais de transport,Handling,EUR,02
+CarCollectDeviceFR,CarCollect License with Hardware,Subscription,EUR,02
+Activation + Location,Activation + Location,Subscription,EUR,02
+Location,Location,Subscription,EUR,02
+DepotPlainteFR,Dépôt de plainte pour les véhicules,Subscription,EUR,02
+RestitutionFR,Restitution pour les véhicules,Subscription,EUR,02
+FourriereFR,Frais de Fourrières,Subscription,EUR,02
+LevPlainteFR,Levée de plainte pour le véhicule,Subscription,EUR,02
+RapatriementFR,Rapatriement,Subscription,EUR,02
+InterceptionFR,Interception pour les véhicules,Subscription,EUR,02
+FMC880FR,Boitier FMC880,Hardware,EUR,02
+DataMercedesEVFR,Data Mercedes EV,Subscription,EUR,02
+Remote Activation KIA,Remote Activation KIA,Subscription,EUR,02
+Forfait CarFleet,Forfait CarFleet,Subscription,EUR,02
+CarFleet-CarLocateFR,Licence CarFleet+CarLocate,Subscription,EUR,02
+CarFleet-CarLocateDeviceFR,Licence CarFleet+CarLocate with Hardware,Subscription,EUR,02
+FMC130FR,Boitier FMC130,Hardware,EUR,02
+SIVFR,SIV,Subscription,EUR,02
+GL53MG_FR,Mi A1,Hardware,EUR,02
+CarFidFR,Licence CarFid,Subscription,EUR,02
+CarFleetAPIFR,Licence CarFleet API,Subscription,EUR,02
+CarReport License,CarReport License,Subscription,EUR,02
+CarLocate-CarCollectFR,Licence CarLocate+CarCollect,Subscription,EUR,02
+ONESHOTFR,ONESHOT,Subscription,EUR,02
+OEMFR,OEM,Subscription,EUR,02
+Activation,Activation,Subscription,EUR,02
+DataPolestarFR,DataPolestarFR,Subscription,EUR,02
+INSTFR,Installation boitier,Installation,EUR,02
+Relais,Relais,Subscription,EUR,02
+Support Relais,Support relais,Subscription,EUR,02
+CarFleet-CarCollectDeviceFR,CarFleet+CarCollect License with Hardware,Subscription,EUR,02
+Formation,Formation,Subscription,EUR,02
+FMC880NL,FMC880 (box),Hardware,EUR,01
+CarFleetUK,Monthly License CarFleet,Subscription,GBP,04
+CarFleet-CarCollectUK,Monthly License CarFleet+CarCollect,Subscription,GBP,04
+DataStellantisUK,Data Stellantis,Subscription,GBP,04
+DataFordUK,Data Ford,Subscription,GBP,04
+DataMercedesUK,Data Mercedes,Subscription,GBP,04
+DataRenaultUK,Data Renault,Subscription,GBP,04
+CarLocateUK,Monthly License CarLocate,Subscription,GBP,04
+CarReportUK,Monthly License CarReport,Subscription,GBP,04
+CarCollectUK,Monthly License CarCollect,Subscription,GBP,04
+DataSeatUK,Data Seat,Subscription,GBP,04
+DataKiaUK,Data Kia,Subscription,GBP,04
+DataBMWUK,Data BMW,Subscription,GBP,04
+DataAudiUK,DataAudiUK,Subscription,GBP,04
+DataVolvoUK,Data Volvo,Subscription,GBP,04
+DataVWUK,Data VW,Subscription,GBP,04
+DataSkodaUK,Data Skoda,Subscription,GBP,04
+DataToyotaUK,Data Toyota,Subscription,GBP,04
+DataNissanUK,Data Nissan,Subscription,GBP,04
+CarFleet-CarLocateDeviceUK,Monthly License CarFleet+CarLocate with Hardware,Subscription,GBP,04
+CarFleet-CarLocateUK,Monthly License CarFleet+CarLocate,Subscription,GBP,04
+DataHyundaiUK,Data Hyundai,Subscription,GBP,04
