@@ -63,8 +63,8 @@ private class Test_Svc_OdooInvoiceIntake {
 
 		Subscription25__Invoice__c inv = [
 			SELECT Id, Subscription25__Status__c, Subscription25__Email_Status__c, Subscription25__Sync_State__c, Subscription25__Account__c,
-				Subscription25__Contact_Person__c, Subscription25__Invoice_Date__c, Subscription25__Due_Date__c, Subscription25__Total_Amount__c,
-				Subscription25__Purchase_Order_Number__c, Sales_Channel__c, Subscription25__PDF_Attachment_Name__c,
+				Subscription25__Contact_Person__c, Subscription25__Invoice_Date__c, Subscription25__Due_Date__c, Subscription25__Total_Amount__c, Subscription25__Gross_Amount__c,
+				Subscription25__Purchase_Order_Number__c, Subscription25__Invoice_Number__c, Sales_Channel__c, Subscription25__PDF_Attachment_Name__c,
 				Subscription25__Administration__r.Reseller__c
 			FROM Subscription25__Invoice__c WHERE Subscription25__External_ID__c = 'ODOO-02256232'
 		];
@@ -76,13 +76,18 @@ private class Test_Svc_OdooInvoiceIntake {
 		Assert.areEqual(Date.newInstance(2026, 10, 30), inv.Subscription25__Due_Date__c);
 		Assert.areEqual(535.00, inv.Subscription25__Total_Amount__c);
 		Assert.areEqual('PO-4711', inv.Subscription25__Purchase_Order_Number__c);
+		Assert.areEqual('02256232', inv.Subscription25__Invoice_Number__c, 'the Odoo number is the invoice number');
 		Assert.areEqual('Echoes', inv.Sales_Channel__c);
 		Assert.isNull(inv.Subscription25__PDF_Attachment_Name__c, 'the package PDF field is never set');
 
-		Account acc = [SELECT Name, Reseller_Name__c, PrimaryBrand__c, VAT_Number__c, BillingCountryCode, BillingPostalCode FROM Account WHERE Id = :inv.Subscription25__Account__c];
+		Account acc = [SELECT Name, Reseller_Name__c, PrimaryBrand__c, Sales_Channel__c, VAT_Number__c, BillingCountryCode, BillingPostalCode FROM Account WHERE Id = :inv.Subscription25__Account__c];
 		Assert.areEqual('ACTION AUTOMOBILE', acc.Name);
 		Assert.areEqual('4', acc.Reseller_Name__c);
 		Assert.areEqual('E', acc.PrimaryBrand__c);
+		Assert.areEqual('Echoes', acc.Sales_Channel__c, 'sales channel on a created account');
+		Account details = [SELECT Sales_Language__c, Cost_Center_invoicing__c FROM Account WHERE Id = :acc.Id];
+		Assert.areEqual('fr', details.Sales_Language__c, 'French customer of the French reseller');
+		Assert.areEqual('785', details.Cost_Center_invoicing__c, 'buyer reference -> cost center (invoice)');
 		Assert.areEqual('FR19483161238', acc.VAT_Number__c);
 		Assert.areEqual('FR', acc.BillingCountryCode);
 
@@ -96,7 +101,8 @@ private class Test_Svc_OdooInvoiceIntake {
 			FROM Order WHERE Subscription25__Invoice__c = :inv.Id];
 		Assert.areEqual(Date.newInstance(2026, 9, 1), ord.EffectiveDate);
 		Assert.areEqual(Date.newInstance(2026, 9, 30), ord.EndDate);
-		Assert.areEqual('Draft', ord.Status);
+		Assert.areEqual('Activated', ord.Status);
+		Assert.areEqual(642.00, inv.Subscription25__Gross_Amount__c, 'gross = net 535 + VAT 107 as in Odoo');
 		Assert.areEqual(3, ord.OrderItems.size());
 		Assert.areEqual(-6, ord.OrderItems[2].Quantity);
 		Assert.areEqual(Date.newInstance(2026, 9, 1), ord.OrderItems[0].ServiceDate);
@@ -113,6 +119,7 @@ private class Test_Svc_OdooInvoiceIntake {
 		Assert.areEqual(em.Subject, copy.Subject);
 		Assert.areEqual(SENDER, copy.FromAddress);
 		Assert.areEqual(2, [SELECT COUNT() FROM ContentDocumentLink WHERE LinkedEntityId = :inv.Id], 'PDF + CSV linked to the invoice');
+		Assert.areEqual(2, [SELECT COUNT() FROM ContentDocumentLink WHERE LinkedEntityId IN (SELECT Id FROM EmailMessage WHERE RelatedToId = :inv.Id)], 'PDF + CSV also on the e-mail copy');
 
 		Case c = [SELECT Status, AccountId, ContactId, (SELECT CommentBody FROM CaseComments) FROM Case WHERE Id = :em.ParentId];
 		Assert.areEqual('Processed', c.Status);
@@ -229,6 +236,14 @@ private class Test_Svc_OdooInvoiceIntake {
 
 	@isTest
 	static void helpers() {
+		Assert.areEqual('fr', Svc_OdooInvoiceIntake.languageFor('4', 'FR'));
+		Assert.areEqual('en', Svc_OdooInvoiceIntake.languageFor('4', 'ES'), 'country of another reseller: English');
+		Assert.areEqual('nl', Svc_OdooInvoiceIntake.languageFor('1', 'BE'));
+		Assert.areEqual('en', Svc_OdooInvoiceIntake.languageFor('1', 'FR'));
+		Assert.areEqual('en', Svc_OdooInvoiceIntake.languageFor('6', 'GB'));
+		Assert.areEqual('en', Svc_OdooInvoiceIntake.languageFor('6', 'NL'));
+		Assert.areEqual('de', Svc_OdooInvoiceIntake.languageFor('5', 'DE'));
+		Assert.areEqual('de', Svc_OdooInvoiceIntake.languageFor('5', 'ES'), 'German reseller: always German');
 		Assert.areEqual('02256232', Svc_OdooInvoiceIntake.getRef('Echoes Facture (Réf 02256232)'));
 		Assert.areEqual('01250436', Svc_OdooInvoiceIntake.getRef('Moving Intelligence B.V. Factuur (Ref 01250436)'));
 		Assert.isNull(Svc_OdooInvoiceIntake.getRef('RE: Echoes Invoice (Ref 02256196)'));

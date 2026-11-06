@@ -6,7 +6,7 @@
  * Per e-mail, all or nothing (savepoint):
  *  - company/reseller from the Odoo number prefix: 01 -> 1 (NL), 02 -> 4 (Echoes FR), 03 -> 5 (DE), 04 -> 6 (UK)
  *  - Account: match within the reseller on VAT, CoC (SIREN/SIRET), name + postal code; else create
- *    (PrimaryBrand__c = 'E' on create only, existing accounts are never changed)
+ *    (PrimaryBrand__c = 'E' and Sales_Channel__c = 'Echoes' on create only, existing accounts are never changed)
  *  - Contact: by the buyer e-mail of the Factur-X (own domains skipped); name derived from first.last@ e-mails
  *  - Product2 per line code (no code: the line name is code and name) + price book entry + administration product
  *  - Subscription25__Invoice__c: DRAFT, Email_Status SENT, not synced (phase 2 = Exact with the Odoo number)
@@ -40,6 +40,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 	private static final Map<String, String> RESELLER_BY_COUNTRY = new Map<String, String>{
 		'NL' => '1', 'GR' => '2', 'BE' => '1', 'FR' => '4', 'AT' => '5', 'CH' => '5', 'DE' => '5', 'GB' => '6', 'IE' => '6'
 	};
+	private static final Map<String, String> LANGUAGE_BY_RESELLER = new Map<String, String>{ '1' => 'nl', '4' => 'fr', '5' => 'de', '6' => 'en' };
 	private static final Map<String, String> VAT_COUNTRY_BY_RESELLER = new Map<String, String>{ '1' => 'NL', '4' => 'FR', '5' => 'DE', '6' => 'UK' };
 	private static final Map<String, String> VAT_CURRENCY_BY_RESELLER = new Map<String, String>{ '1' => 'EUR', '4' => 'EUR', '5' => 'EUR', '6' => 'GBP' };
 
@@ -142,7 +143,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 			];
 			if (!existing.isEmpty()) {
 				Subscription25__Invoice__c inv = existing[0];
-				copyEmailToInvoice(em.Id, inv.Id);
+				copyEmailToInvoice(em.Id, inv.Id, files);
 				closeCase(c.Id, inv.Subscription25__Account__c, inv.Subscription25__Contact_Person__c);
 				res.status = 'DUPLICATE';
 				res.invoiceId = inv.Id;
@@ -179,7 +180,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 			verifyTotals(fx, inv.Id, res);
 
 			linkFiles(files, inv.Id);
-			copyEmailToInvoice(em.Id, inv.Id);
+			copyEmailToInvoice(em.Id, inv.Id, files);
 			closeCase(c.Id, acc.Id, con?.Id);
 
 			inv = [SELECT Id, Name FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
@@ -371,6 +372,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 			Name = name.left(255),
 			Reseller_Name__c = reseller,
 			PrimaryBrand__c = 'E',
+			Sales_Channel__c = 'Echoes',
 			// Odoo invoices are paid by bank transfer; 08 is allowed for every reseller (the field default I8 is not for 6)
 			Payment_Method_Contracts__c = '08',
 			Payment_Method_Opportunities__c = '08',
@@ -397,7 +399,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 				throw new IntakeException('Account ' + acc.Name + ' cannot be created: ' + firstError + ' / ' + retry.getErrors()[0].getMessage());
 			}
 		}
-		acc = [SELECT Id, Name, Reseller_Name__c, Subscription25__Always_Apply_Domestic_VAT__c FROM Account WHERE Id = :acc.Id WITH SYSTEM_MODE];
+		acc = [SELECT Id, Name, Reseller_Name__c, BillingCountryCode, Subscription25__Always_Apply_Domestic_VAT__c FROM Account WHERE Id = :acc.Id WITH SYSTEM_MODE];
 		if ((fx.taxTotal == null || fx.taxTotal == 0) && acc.Subscription25__Always_Apply_Domestic_VAT__c) {
 			// Odoo charged no VAT (export / reverse charge) but rbb_Account made a customer without VAT number domestic:
 			// let the package apply the EU / non-EU rate like Odoo did (new accounts only)
@@ -416,7 +418,30 @@ public without sharing class Svc_OdooInvoiceIntake {
 		} else {
 			res.notes.add('Account ' + acc.Name + ' created (reseller ' + reseller + ')');
 		}
+		// after the reseller is final: rbb_Account sets the language from the country / the running user on create, so set it here;
+		// the buyer reference (the customer's own reference, the same on every invoice) is the account's invoice cost center
+		Account details = new Account(Id = acc.Id, Sales_Language__c = languageFor(acc.Reseller_Name__c, acc.BillingCountryCode));
+		if (String.isNotBlank(fx.buyerReference)) {
+			details.Cost_Center_invoicing__c = fx.buyerReference.left(255);
+		}
+		Database.SaveResult dr = Database.update(details, false, AccessLevel.SYSTEM_MODE);
+		if (!dr.isSuccess()) {
+			res.notes.add('CHECK: language / cost center of account ' + acc.Name + ' not set: ' + dr.getErrors()[0].getMessage());
+		}
 		return acc;
+	}
+
+	/**
+	 * Language of a new account: the reseller's language when the customer's country belongs to that reseller, otherwise English;
+	 * German reseller (5): always German.
+	 */
+	@TestVisible
+	private static String languageFor(String reseller, String countryCode) {
+		if (reseller == '5') {
+			return 'de';
+		}
+		String language = LANGUAGE_BY_RESELLER.get(reseller);
+		return language != null && RESELLER_BY_COUNTRY.get(countryCode) == reseller ? language : 'en';
 	}
 
 	private static Contact findOrCreateContact(Svc_FacturX.Invoice fx, Account acc, Result res) {
@@ -641,6 +666,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 			Subscription25__Due_Date__c = fx.dueDate,
 			Subscription25__Status__c = 'DRAFT',
 			Subscription25__Create_As_Draft__c = true,
+			Subscription25__Invoice_Number__c = fx.invoiceNumber,
 			Subscription25__Email_Status__c = 'SENT',
 			Subscription25__UBL_Email_Status__c = 'WILL_NOT_BE_SENT',
 			Subscription25__Sync_State__c = 'NOT_APPLICABLE',
@@ -672,7 +698,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 			Subscription25__Administration__c = admin.Id,
 			Subscription25__Invoice_Date__c = fx.issueDate,
 			OrderReferenceNumber = fx.invoiceNumber,
-			PoNumber = fx.buyerOrderReference == null ? null : fx.buyerOrderReference.left(80),
+			PoNumber = fx.buyerOrderReference == null || fx.buyerOrderReference == fx.invoiceNumber ? null : fx.buyerOrderReference.left(80),
 			Description = 'Odoo ' + (fx.isCreditNote() ? 'credit note ' : 'invoice ') + fx.invoiceNumber,
 			CurrencyIsoCode = currencyCode
 		);
@@ -700,6 +726,11 @@ public without sharing class Svc_OdooInvoiceIntake {
 			));
 		}
 		Database.insert(items, AccessLevel.SYSTEM_MODE);
+
+		// complete (lines with the VAT of Odoo): activate. Linking the order to the invoice only afterwards would let the package
+		// recalculate the line VAT (0% for an EU customer with a VAT number on the NL-based administration) and break the gross
+		ord.Status = 'Activated';
+		Database.update(ord, AccessLevel.SYSTEM_MODE);
 	}
 
 	/** Net total must match Odoo (else rollback); a VAT/gross difference only gives a note. */
@@ -720,7 +751,9 @@ public without sharing class Svc_OdooInvoiceIntake {
 			Decimal expectedGross = fx.grandTotal * sign;
 			Decimal gross = inv.Subscription25__Gross_Amount__c == null ? 0 : inv.Subscription25__Gross_Amount__c;
 			if (Math.abs(gross - expectedGross) > 0.01) {
-				res.notes.add('CHECK VAT: gross in Salesforce ' + gross + ', Odoo ' + expectedGross);
+				// Odoo calculates VAT on the invoice total per rate, Salesforce per line: a few cents of rounding is expected
+				Boolean rounding = Math.abs(gross - expectedGross) <= 0.01 * fx.lines.size();
+				res.notes.add((rounding ? 'VAT rounding (Odoo: on the total, Salesforce: per line): ' : 'CHECK VAT: ') + 'gross in Salesforce ' + gross + ', Odoo ' + expectedGross);
 			}
 		}
 	}
@@ -749,15 +782,16 @@ public without sharing class Svc_OdooInvoiceIntake {
 	 * RelatedToId of a received e-mail cannot be changed, so the invoice gets a copy of the e-mail (activity on the
 	 * invoice); the original stays on the case.
 	 */
-	private static void copyEmailToInvoice(Id emailMessageId, Id invoiceId) {
+	private static void copyEmailToInvoice(Id emailMessageId, Id invoiceId, List<ContentVersion> files) {
 		EmailMessage src = [
 			SELECT Subject, FromAddress, FromName, ToAddress, CcAddress, BccAddress, TextBody, HtmlBody, MessageDate, Headers
 			FROM EmailMessage WHERE Id = :emailMessageId WITH SYSTEM_MODE
 		];
-		Database.insert(new EmailMessage(
+		// files can only be attached to a draft e-mail: insert as draft, attach, then set to read
+		EmailMessage copy = new EmailMessage(
 			RelatedToId = invoiceId,
 			Incoming = true,
-			Status = '1', // read
+			Status = '5', // draft
 			Subject = src.Subject,
 			FromAddress = src.FromAddress,
 			FromName = src.FromName,
@@ -768,7 +802,11 @@ public without sharing class Svc_OdooInvoiceIntake {
 			HtmlBody = src.HtmlBody,
 			MessageDate = src.MessageDate,
 			Headers = src.Headers
-		), AccessLevel.SYSTEM_MODE);
+		);
+		Database.insert(copy, AccessLevel.SYSTEM_MODE);
+		linkFiles(files, copy.Id);
+		copy.Status = '1'; // read
+		Database.update(copy, AccessLevel.SYSTEM_MODE);
 	}
 
 	private static void closeCase(Id caseId, Id accountId, Id contactId) {
