@@ -81,7 +81,7 @@ public without sharing class Svc_OdooExactSync {
 			}
 			String odooNumber = inv.Subscription25__External_ID__c.substringAfter(EXTERNAL_ID_PREFIX);
 			List<OrderItem> items = [
-				SELECT Quantity, UnitPrice, Product_Name__c, Description, PricebookEntry.Product2Id, PricebookEntry.Product2.Name, PricebookEntry.Product2.ProductCode
+				SELECT Quantity, UnitPrice, Product_Name__c, Description, PricebookEntry.Product2Id, PricebookEntry.Product2.Name, PricebookEntry.Product2.ProductCode, PricebookEntry.Product2.ExtProductCode__c
 				FROM OrderItem WHERE Order.Subscription25__Invoice__c = :invoiceId WITH SYSTEM_MODE ORDER BY OrderItemNumber
 			];
 			if (items.isEmpty()) {
@@ -171,16 +171,16 @@ public without sharing class Svc_OdooExactSync {
 		Set<String> codes = new Set<String>();
 		for (OrderItem oi : items) {
 			productIds.add(oi.PricebookEntry.Product2Id);
-			codes.add(oi.PricebookEntry.Product2.ProductCode);
+			codes.add(exactCode(oi.PricebookEntry.Product2.ExtProductCode__c, oi.PricebookEntry.Product2.ProductCode));
 		}
 		Map<String, String> ids = new Map<String, String>();
 		List<Subscription25__Administration_Product__c> toCache = new List<Subscription25__Administration_Product__c>();
 		List<Subscription25__Administration_Product__c> missing = new List<Subscription25__Administration_Product__c>();
 		for (Subscription25__Administration_Product__c ap : [
-				SELECT Id, Subscription25__Product__r.ProductCode, Exact_Id__c FROM Subscription25__Administration_Product__c
+				SELECT Id, Subscription25__Product__r.ProductCode, Subscription25__Product__r.ExtProductCode__c, Exact_Id__c FROM Subscription25__Administration_Product__c
 				WHERE Subscription25__Administration__c = :admin.Id AND Subscription25__Product__c IN :productIds WITH SYSTEM_MODE]) {
 			if (String.isNotBlank(ap.Exact_Id__c)) {
-				ids.put(ap.Subscription25__Product__r.ProductCode, ap.Exact_Id__c);
+				ids.put(exactCode(ap.Subscription25__Product__r.ExtProductCode__c, ap.Subscription25__Product__r.ProductCode), ap.Exact_Id__c);
 			} else {
 				missing.add(ap);
 			}
@@ -191,7 +191,7 @@ public without sharing class Svc_OdooExactSync {
 			Map<String, String> found = Util_FinancialSystem_Order.getExactItemIds(admin, unknown);
 			ids.putAll(found);
 			for (Subscription25__Administration_Product__c ap : missing) {
-				String id = found.get(ap.Subscription25__Product__r.ProductCode);
+				String id = found.get(exactCode(ap.Subscription25__Product__r.ExtProductCode__c, ap.Subscription25__Product__r.ProductCode));
 				if (String.isNotBlank(id)) {
 					ap.Exact_Id__c = id;
 					toCache.add(ap);
@@ -206,6 +206,11 @@ public without sharing class Svc_OdooExactSync {
 		// saved after the last callout (no DML before a callout)
 		pendingCache = toCache;
 		return ids;
+	}
+
+	/** The Exact item code of a product: Product Code (External) when filled, else the Product Code. */
+	private static String exactCode(String external, String productCode) {
+		return String.isBlank(external) ? productCode : external.trim();
 	}
 
 	private static String salesJournal(Subscription25__Administration__c admin, String company, String guid) {
@@ -225,7 +230,7 @@ public without sharing class Svc_OdooExactSync {
 		for (OrderItem oi : items) {
 			String name = String.isBlank(oi.Product_Name__c) ? oi.PricebookEntry.Product2.Name : oi.Product_Name__c;
 			lines.add(new Map<String, Object>{
-				'Item' => itemIds.get(oi.PricebookEntry.Product2.ProductCode),
+				'Item' => itemIds.get(exactCode(oi.PricebookEntry.Product2.ExtProductCode__c, oi.PricebookEntry.Product2.ProductCode)),
 				'Quantity' => oi.Quantity,
 				'UnitPrice' => oi.UnitPrice,
 				'Description' => name
