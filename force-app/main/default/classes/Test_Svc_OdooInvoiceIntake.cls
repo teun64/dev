@@ -9,7 +9,8 @@ private class Test_Svc_OdooInvoiceIntake {
 			Test_Data.createVATRate('EUR - Sell within the EU', 0, false, false),
 			Test_Data.createVATRate('EUR - Sell outside the EU', 0, false, false),
 			Test_Data.createVATRate('EUR - No VAT', 0, false, false),
-			Test_Data.createVATRate('NL - VAT high rate', 21, false, false)
+			Test_Data.createVATRate('NL - VAT high rate', 21, false, false),
+			Test_Data.createVATRate('DE - VAT high rate', 19, false, false)
 		};
 		Database.insert(rates, AccessLevel.SYSTEM_MODE);
 
@@ -24,7 +25,25 @@ private class Test_Svc_OdooInvoiceIntake {
 		admin.Subscription25__Twinfield_Company_Code__c = '4444409876';
 		Subscription25__Administration__c adminNl = Test_Data.createAdministration(false); // reseller 1, synced with Exact
 		adminNl.Name = 'Netherlands';
-		Database.insert(new List<Subscription25__Administration__c>{ admin, adminNl }, AccessLevel.SYSTEM_MODE);
+		Subscription25__Administration__c adminGmbH = Test_Data.createAdministration(false); // Echoes GmbH: reseller 7, no Exact
+		adminGmbH.Name = 'Germany (echoes)';
+		adminGmbH.Reseller__c = '7';
+		adminGmbH.External_ID__c = 7;
+		adminGmbH.Subscription25__Billing_Country__c = 'DE';
+		adminGmbH.Subscription25__Invoice_Number_Prefix__c = 'EG';
+		adminGmbH.Subscription25__Synchronisation__c = null;
+		adminGmbH.Subscription25__Named_Credential__c = null;
+		adminGmbH.Subscription25__Twinfield_Company_Code__c = '4444409877';
+		Database.insert(new List<Subscription25__Administration__c>{ admin, adminNl, adminGmbH }, AccessLevel.SYSTEM_MODE);
+
+		// the running user is the 'automation user': may set Customer Entity 7 (vr_EchoesGmbHEntity)
+		System.runAs(new User(Id = UserInfo.getUserId())) {
+			Id permissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'ps_miAllowEchoesGmbHEntity'].Id;
+			// the running user may already have it (automation / job user, or set by hand in a sandbox)
+			if ([SELECT COUNT() FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSetId = :permissionSetId] == 0) {
+				Database.insert(new PermissionSetAssignment(AssigneeId = UserInfo.getUserId(), PermissionSetId = permissionSetId));
+			}
+		}
 
 		Database.insert(new Subscription25__Schedulable_Class__c(
 			Name = 'Batch_OdooInvoiceIntake',
@@ -87,6 +106,14 @@ private class Test_Svc_OdooInvoiceIntake {
 		Assert.areEqual('Echoes', acc.Sales_Channel__c, 'sales channel on a created account');
 		Account details = [SELECT Sales_Language__c, Cost_Center_invoicing__c FROM Account WHERE Id = :acc.Id];
 		Assert.areEqual('fr', details.Sales_Language__c, 'French customer of the French reseller');
+		Subscription25__Debtor_Number__c debtor = [
+			SELECT Subscription25__Debtor_Number__c, Subscription25__Composite_Key__c, Subscription25__Administration__r.Reseller__c
+			FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acc.Id
+		];
+		Assert.areEqual(String.valueOf(acc.Id).substring(6, 15), debtor.Subscription25__Debtor_Number__c, 'made-up debtor number: account Id without first 6 / last 3');
+		Assert.areEqual(String.valueOf(acc.Id) + String.valueOf(inv.Subscription25__Administration__c), debtor.Subscription25__Composite_Key__c);
+		Assert.areEqual('4', debtor.Subscription25__Administration__r.Reseller__c);
+		Assert.areEqual(null, [SELECT FinancialDebtorNumber__c FROM Account WHERE Id = :acc.Id].FinancialDebtorNumber__c, 'never on the account: that feeds Exact and Stripe');
 		Assert.areEqual('785', details.Cost_Center_invoicing__c, 'buyer reference -> cost center (invoice)');
 		Assert.areEqual('FR19483161238', acc.VAT_Number__c);
 		Assert.areEqual('FR', acc.BillingCountryCode);
@@ -235,6 +262,76 @@ private class Test_Svc_OdooInvoiceIntake {
 	}
 
 	@isTest
+	static void echoesGmbHInvoiceGetsResellerSevenAccount() {
+		EmailMessage em = createOdooEmail('Echoes GmbH Rechnung (Ref 03251903)', '03251903', pdf('03251903', 'jan.jito@example.com'));
+
+		List<Svc_OdooInvoiceIntake.Result> results;
+		Test.startTest();
+		// runAs: the permission set assignment of the test setup is only seen after a user switch
+		System.runAs(new User(Id = UserInfo.getUserId())) {
+			results = Svc_OdooInvoiceIntake.process(new Set<Id>{ em.Id });
+		}
+		Test.stopTest();
+		Assert.areEqual('PROCESSED', results[0].status, results[0].message);
+
+		Subscription25__Invoice__c inv = [
+			SELECT Subscription25__Account__c, Subscription25__Administration__r.Reseller__c, Subscription25__Invoice_Number__c, Subscription25__Gross_Amount__c
+			FROM Subscription25__Invoice__c WHERE Subscription25__External_ID__c = 'ODOO-03251903'
+		];
+		Assert.areEqual('7', inv.Subscription25__Administration__r.Reseller__c, 'prefix 03 = Echoes GmbH = reseller 7');
+		Assert.areEqual('03251903', inv.Subscription25__Invoice_Number__c);
+		// the sample lines carry 20% VAT, the German administration applies its own 19% (a real GmbH invoice is 19%): net equal, gross flagged
+		Assert.areEqual(636.65, inv.Subscription25__Gross_Amount__c);
+		Assert.isTrue(String.join(results[0].notes, '|').contains('CHECK VAT'), String.join(results[0].notes, '|'));
+		Account acc = [SELECT Reseller_Name__c, Sales_Language__c FROM Account WHERE Id = :inv.Subscription25__Account__c];
+		Assert.areEqual('7', acc.Reseller_Name__c, 'the account follows the administration (set by the automation user)');
+		Assert.areEqual('de', acc.Sales_Language__c, 'German reseller: always German, also for a French customer');
+		Assert.areEqual(1, [SELECT COUNT() FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acc.Id AND Subscription25__Administration__r.Reseller__c = '7']);
+	}
+
+	@isTest
+	static void sameCustomerOfAnotherEntityBecomesASeparateAccount() {
+		Account other = Test_Data.createAccount('ACTION AUTOMOBILE', '9990003', 'B2B', false);
+		other.VAT_Number__c = 'FR19483161238';
+		other.BillingCountryCode = 'NL';
+		Database.insert(other);
+		Assert.areEqual('1', [SELECT Reseller_Name__c FROM Account WHERE Id = :other.Id].Reseller_Name__c, 'precondition: an NL (reseller 1) account with the same VAT');
+		EmailMessage em = createOdooEmail('Echoes Facture (Réf 02256232)', '02256232', pdf('02256232', 'compta@example.com'));
+
+		Test.startTest();
+		List<Svc_OdooInvoiceIntake.Result> results = Svc_OdooInvoiceIntake.process(new Set<Id>{ em.Id });
+		Test.stopTest();
+		Assert.areEqual('PROCESSED', results[0].status, results[0].message);
+
+		Id invoiceAccount = [SELECT Subscription25__Account__c FROM Subscription25__Invoice__c WHERE Subscription25__External_ID__c = 'ODOO-02256232'].Subscription25__Account__c;
+		Assert.areNotEqual(other.Id, invoiceAccount, 'an account of another entity is not reused');
+		Assert.areEqual(2, [SELECT COUNT() FROM Account WHERE VAT_Number__c = 'FR19483161238'], 'the same customer exists once per entity');
+		Assert.areEqual('4', [SELECT Reseller_Name__c FROM Account WHERE Id = :invoiceAccount].Reseller_Name__c);
+		Assert.areEqual('1', [SELECT Reseller_Name__c FROM Account WHERE Id = :other.Id].Reseller_Name__c, 'the other account stays as it is');
+	}
+
+	@isTest
+	static void entitySevenNeedsThePermission() {
+		Account acc = Test_Data.createAccount('Entity test', '9990001', 'B2B', true);
+		Profile admin = [SELECT Id FROM Profile WHERE Name = 'System Administrator' LIMIT 1];
+		User noPermission = new User(
+			ProfileId = admin.Id, Alias = 'noperm', Email = 'noperm@example.invalid', Username = 'noperm' + System.currentTimeMillis() + '@example.invalid',
+			LastName = 'NoPerm', TimeZoneSidKey = 'Europe/Amsterdam', LocaleSidKey = 'nl_NL', EmailEncodingKey = 'UTF-8', LanguageLocaleKey = 'en_US'
+		);
+		Database.insert(noPermission);
+		System.runAs(noPermission) {
+			Database.SaveResult r = Database.update(new Account(Id = acc.Id, Reseller_Name__c = '7'), false);
+			Assert.isFalse(r.isSuccess(), 'a UI user cannot set entity 7');
+			Assert.isTrue(r.getErrors()[0].getMessage().contains('Odoo invoice intake'), r.getErrors()[0].getMessage());
+		}
+		Database.SaveResult ok;
+		System.runAs(new User(Id = UserInfo.getUserId())) {
+			ok = Database.update(new Account(Id = acc.Id, Reseller_Name__c = '7'), false);
+		}
+		Assert.isTrue(ok.isSuccess(), 'the automation user (with the permission) can: ' + (ok.isSuccess() ? '' : String.valueOf(ok.getErrors())));
+	}
+
+	@isTest
 	static void helpers() {
 		Assert.areEqual('fr', Svc_OdooInvoiceIntake.languageFor('4', 'FR'));
 		Assert.areEqual('en', Svc_OdooInvoiceIntake.languageFor('4', 'ES'), 'country of another reseller: English');
@@ -244,6 +341,7 @@ private class Test_Svc_OdooInvoiceIntake {
 		Assert.areEqual('en', Svc_OdooInvoiceIntake.languageFor('6', 'NL'));
 		Assert.areEqual('de', Svc_OdooInvoiceIntake.languageFor('5', 'DE'));
 		Assert.areEqual('de', Svc_OdooInvoiceIntake.languageFor('5', 'ES'), 'German reseller: always German');
+		Assert.areEqual('de', Svc_OdooInvoiceIntake.languageFor('7', 'FR'), 'Echoes GmbH: always German');
 		Assert.areEqual('02256232', Svc_OdooInvoiceIntake.getRef('Echoes Facture (Réf 02256232)'));
 		Assert.areEqual('01250436', Svc_OdooInvoiceIntake.getRef('Moving Intelligence B.V. Factuur (Ref 01250436)'));
 		Assert.isNull(Svc_OdooInvoiceIntake.getRef('RE: Echoes Invoice (Ref 02256196)'));

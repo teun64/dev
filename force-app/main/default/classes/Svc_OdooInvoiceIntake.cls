@@ -35,14 +35,14 @@ public without sharing class Svc_OdooInvoiceIntake {
 	public static final Set<String> OWN_DOMAINS = new Set<String>{
 		'echoes.solutions', 'movingintelligence.nl', 'movingintelligence.com', 'movingintelligence.co.uk', 'movingintelligence.de', 'movingintelligence.eu'
 	};
-	public static final Map<String, String> RESELLER_BY_PREFIX = new Map<String, String>{ '01' => '1', '02' => '4', '03' => '5', '04' => '6' };
+	public static final Map<String, String> RESELLER_BY_PREFIX = new Map<String, String>{ '01' => '1', '02' => '4', '03' => '7', '04' => '6' };
 	// mirror of rbb_Account.fFinancialEntity (billing country -> customer entity), used when the Odoo company's entity is refused
 	private static final Map<String, String> RESELLER_BY_COUNTRY = new Map<String, String>{
 		'NL' => '1', 'GR' => '2', 'BE' => '1', 'FR' => '4', 'AT' => '5', 'CH' => '5', 'DE' => '5', 'GB' => '6', 'IE' => '6'
 	};
-	private static final Map<String, String> LANGUAGE_BY_RESELLER = new Map<String, String>{ '1' => 'nl', '4' => 'fr', '5' => 'de', '6' => 'en' };
-	private static final Map<String, String> VAT_COUNTRY_BY_RESELLER = new Map<String, String>{ '1' => 'NL', '4' => 'FR', '5' => 'DE', '6' => 'UK' };
-	private static final Map<String, String> VAT_CURRENCY_BY_RESELLER = new Map<String, String>{ '1' => 'EUR', '4' => 'EUR', '5' => 'EUR', '6' => 'GBP' };
+	private static final Map<String, String> LANGUAGE_BY_RESELLER = new Map<String, String>{ '1' => 'nl', '4' => 'fr', '5' => 'de', '6' => 'en', '7' => 'de' };
+	private static final Map<String, String> VAT_COUNTRY_BY_RESELLER = new Map<String, String>{ '1' => 'NL', '4' => 'FR', '5' => 'DE', '6' => 'UK', '7' => 'DE' };
+	private static final Map<String, String> VAT_CURRENCY_BY_RESELLER = new Map<String, String>{ '1' => 'EUR', '4' => 'EUR', '5' => 'EUR', '6' => 'GBP', '7' => 'EUR' };
 
 	private static final Pattern REF_PATTERN = Pattern.compile('\\((?:Ref|R\u00e9f)\\.?\\s*(\\d{8})\\)');
 	private static final Pattern REPLY_PATTERN = Pattern.compile('(?i)^\\s*(re|tr|fw|fwd|aw|wg|antw)\\s*:.*');
@@ -213,6 +213,8 @@ public without sharing class Svc_OdooInvoiceIntake {
 	 */
 	private static Boolean waitForDebtorNumber(Account acc, Subscription25__Administration__c admin, Result res) {
 		if (admin.Subscription25__Synchronisation__c != 'Exact') {
+			// no Exact environment: nothing to wait for, the debtor number is made up (same record as an Exact one)
+			ensureFakeDebtorNumber(acc, admin, res);
 			return false;
 		}
 		Integer debtorNumbers = [
@@ -242,6 +244,30 @@ public without sharing class Svc_OdooInvoiceIntake {
 		res.message = 'Account ' + state.Name + ' has no debtor number for ' + admin.Name + ' yet: flagged for the Exact account sync, '
 			+ 'the invoice follows on a next run';
 		return true;
+	}
+
+	/**
+	 * Administration without Exact: the account gets a Subscription25 debtor number record anyway, so every administration is
+	 * handled the same. The number is made from the account Id without its first 6 and last 3 characters (the record number
+	 * stays). It lives on Subscription25__Debtor_Number__c only, never on Account.FinancialDebtorNumber__c (that one feeds
+	 * Exact and Stripe). An account that already has a record (e.g. the real number of another administration) is left alone:
+	 * the package takes the first record of an account.
+	 */
+	private static void ensureFakeDebtorNumber(Account acc, Subscription25__Administration__c admin, Result res) {
+		List<Subscription25__Debtor_Number__c> existing = [
+			SELECT Subscription25__Administration__c FROM Subscription25__Debtor_Number__c WHERE Subscription25__Account__c = :acc.Id WITH SYSTEM_MODE
+		];
+		if (!existing.isEmpty()) {
+			return;
+		}
+		String accountId = String.valueOf(acc.Id);
+		Database.insert(new Subscription25__Debtor_Number__c(
+			Subscription25__Account__c = acc.Id,
+			Subscription25__Administration__c = admin.Id,
+			Subscription25__Debtor_Number__c = accountId.substring(6, 15),
+			Subscription25__Composite_Key__c = accountId + String.valueOf(admin.Id)
+		), AccessLevel.SYSTEM_MODE);
+		res.notes.add('Debtor number ' + accountId.substring(6, 15) + ' made up for ' + admin.Name + ' (no Exact environment)');
 	}
 
 	private static void finish(Savepoint sp, Result res, Boolean dryRun) {
@@ -320,13 +346,16 @@ public without sharing class Svc_OdooInvoiceIntake {
 	}
 
 	private static Account matched(Account acc, String how, String reseller, Result res) {
-		res.notes.add('Account ' + acc.Name + ' matched on ' + how
-			+ (acc.Reseller_Name__c == reseller ? '' : ' (CHECK: its reseller is ' + acc.Reseller_Name__c + ', the Odoo company is ' + reseller + ')'));
+		// a reseller that differs from the Odoo company's is no problem here: Exact administrations stop it in waitForDebtorNumber,
+		// the others (4, 7) have no financial system behind them
+		res.notes.add('Account ' + acc.Name + ' matched on ' + how);
 		return acc;
 	}
 
 	/**
-	 * Match on VAT, CoC (SIREN/SIRET), name + postal code (any reseller, the Odoo company's reseller preferred); else create.
+	 * Match on VAT, CoC (SIREN/SIRET), name + postal code, within the Odoo company's own reseller only (an account belongs to
+	 * one entity: the same customer under another entity, e.g. 5 and 7, or 4 and the rest, becomes a separate account for now;
+	 * reseller 3 counts as 1, same administration); else create.
 	 * rbb_Account derives the reseller from the billing country on create; the Odoo company's reseller is set back with an
 	 * update (vr_FinancialEntityChange: sysadmin / cp_AllowFinancialEntityChange); when that is refused the country's stays.
 	 */
@@ -335,11 +364,15 @@ public without sharing class Svc_OdooInvoiceIntake {
 		if (String.isBlank(b.name)) {
 			throw new IntakeException('The Factur-X has no customer name');
 		}
+		Set<String> entities = new Set<String>{ reseller };
+		if (reseller == '1') {
+			entities.add('3'); // Belgium is handled by the Netherlands administration
+		}
 		String vat = normalizeVat(b.vatNumber);
 		if (vat != null) {
 			Set<String> vats = new Set<String>{ vat, b.vatNumber.trim() };
 			Account found = pick([
-				SELECT Id, Name, Reseller_Name__c FROM Account WHERE VAT_Number__c IN :vats WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
+				SELECT Id, Name, Reseller_Name__c FROM Account WHERE VAT_Number__c IN :vats AND Reseller_Name__c IN :entities WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
 			], reseller);
 			if (found != null) {
 				return matched(found, 'VAT ' + vat, reseller, res);
@@ -352,7 +385,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 				ids.add(legalId.left(9)); // SIRET -> SIREN
 			}
 			Account found = pick([
-				SELECT Id, Name, Reseller_Name__c FROM Account WHERE CoC_Number__c IN :ids WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
+				SELECT Id, Name, Reseller_Name__c FROM Account WHERE CoC_Number__c IN :ids AND Reseller_Name__c IN :entities WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
 			], reseller);
 			if (found != null) {
 				return matched(found, 'CoC ' + legalId, reseller, res);
@@ -361,7 +394,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 		String name = b.name.trim();
 		String postalCode = String.isBlank(b.postalCode) ? null : b.postalCode.trim();
 		Account byName = pick([
-			SELECT Id, Name, Reseller_Name__c FROM Account WHERE Name = :name AND BillingPostalCode = :postalCode
+			SELECT Id, Name, Reseller_Name__c FROM Account WHERE Name = :name AND BillingPostalCode = :postalCode AND Reseller_Name__c IN :entities
 			WITH SYSTEM_MODE ORDER BY CreatedDate LIMIT 20
 		], reseller);
 		if (byName != null) {
@@ -433,11 +466,11 @@ public without sharing class Svc_OdooInvoiceIntake {
 
 	/**
 	 * Language of a new account: the reseller's language when the customer's country belongs to that reseller, otherwise English;
-	 * German reseller (5): always German.
+	 * German resellers (5, 7): always German.
 	 */
 	@TestVisible
 	private static String languageFor(String reseller, String countryCode) {
-		if (reseller == '5') {
+		if (reseller == '5' || reseller == '7') {
 			return 'de';
 		}
 		String language = LANGUAGE_BY_RESELLER.get(reseller);

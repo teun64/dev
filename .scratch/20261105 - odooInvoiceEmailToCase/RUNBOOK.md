@@ -178,3 +178,84 @@ All questions answered (§1, §1a). Phase 1 = SF intake; phase 2 = Exact with th
 - acc differences: Germany has no Exact sync in acc (prod: Exact), so the DE WAITING path is not exercised in acc either.
 - Leftover acc test data: accounts ACTION AUTOMOBILE, EUROPCAR UK, CanoCar GmbH, ATLAS SOUTENIR LES COMPETENCES (brand E, 2026-11-05), 4 invoices + orders, 5 test cases, products CarFidFR, CarFleetDE, Formation, CarCollectFR, Data*FR.
 - Still open before prod: §6 points 5–7 (backlog cutoff, WAITING timeout, finalize pi/pr risk) and the job-user permission `cp_AllowFinancialEntityChange`.
+
+## 8. Reseller 7 (Echoes GmbH) + debtor numbers for every administration (2026-11-06, dev)
+
+Decisions (user): all administrations are handled equally; no Exact environment -> made-up debtor number from the account Id
+(skip first 6 and last 3 characters; `0001Vh1Rj` from `001G500001Vh1RjIAJ`), on `Subscription25__Debtor_Number__c` only (never on
+`Account.FinancialDebtorNumber__c`: that one feeds Exact and Stripe; rab_Account_Debtor_Number only fires when the account's own
+number is filled, so it leaves the made-up record alone and replaces it by the real one later). Reseller 7 = "DE - Echoes GmbH",
+same definition as reseller 4 (no Exact), VAT definition of Germany (shared rate records, default `DE - VAT high rate`),
+definition + address of Moving Intelligence GmbH, legal + bank data of Echoes GmbH. Not selectable by users on accounts:
+validation rule `vr_EchoesGmbHEntity` (needs custom permission `cp_AllowEchoesGmbHEntity` = ps_miAllowEchoesGmbHEntity, for the
+automation / job users). Odoo prefix 03 -> reseller 7 (was 5).
+
+Echoes GmbH data (printed on invoice PDF 03251903, checked 2026-11-06; the Factur-X only carries address, IBAN and a wrong HRB):
+Gubener Straße 47, 10243 Berlin (same as MI GmbH, PLZ ok); Deutsche Bank, IBAN DE24 5907 0070 0037 0098 00 (mod-97 ok),
+BIC DEUTDEDB595; Amtsgericht Berlin-Charlottenburg HRB 280681B; USt-IdNr DE352676584; managing director Mathieu Chènebit.
+(Factur-X says HRB 108498: not used.)
+
+Components (repo): globalValueSets/BusinessEnitites (+7; acc: its Administration.Reseller__c uses a second set `Reseller`: add 7 there
+too), customPermissions/cp_AllowEchoesGmbHEntity, permissionsets/ps_miAllowEchoesGmbHEntity, Account validationRule
+vr_EchoesGmbHEntity, Account sharing rules sr_Accounts_CustomerBase_FR + sr_Accounts_ServiceBase_FR (+ "DE - Echoes GmbH"; deploy
+each org's OWN retrieved copy + the addition: git has `deactivated`, the orgs `Deactivated`; acc has no such rules), CMDT
+Payment_Method_Rule I3/I4/I8 (Allowed_Resellers + 7) and BrandThemeConfig.E (ResellerCodes 4,7), Rest_UpsertAccount
+(excludedResellers + '7'), Svc_OdooInvoiceIntake (maps, languageFor, ensureFakeDebtorNumber).
+Records: `records/createEchoesGmbH.apex` (Business Entity + Administration "Germany (echoes)", idempotent, per org).
+NOT done (optional, core flows): rbb_Account (fLanguage / fFinancialEntity), rbc_Opportunity (fOptionActivationFeeRemark excludes
+6 and 4), rbb_Payment_Batch (dec_01_Reseller_Reset on reseller 4).
+
+Findings: on FINALIZED the package prefixes the administration's Invoice_Number_Prefix__c to Invoice_Number__c
+(dev: 02256232 -> FR02256232). New administration prefix: EG (-> EG03251903). Ask the user whether a blank prefix is wanted.
+Job user needs both cp_AllowFinancialEntityChange and cp_AllowEchoesGmbHEntity.
+
+Dev result 2026-11-06: 11/11 tests (Test_Svc_OdooInvoiceIntake + Test_Svc_FacturX). Extra findings while building:
+- Record types hide a new global value until it is added: Account B2B + B2C (Reseller_Name__c), Case Default/Platform/Theft
+  (Reseller__c + ServiceEntity__c; the case-close flow copies the account's reseller to the case; acc has no Platform RT).
+  Lead Marketing/Sales also lack 7: not changed (no leads for this entity). Done in dev from dev's own copies; acc + prod prepared
+  (`$scratch/rtall/deploy-<org>`, `rtcase/deploy-<org>`), not deployed. The mdapi RecordType retrieve only returns a picklist entry
+  when the CustomField is in the same package.
+- A new account for prefix 03 is created with reseller 7 by the automation user (needs cp_AllowEchoesGmbHEntity AND
+  cp_AllowFinancialEntityChange); without the permission the intake keeps the country reseller and writes a "CHECK" note.
+- The package applies the administration's VAT rate (DE 19%) to the lines, whatever the Odoo line says (the net always matches): a
+  real GmbH invoice is 19%, so equal; a difference only gives the "CHECK VAT" note.
+- Test_Rest_UpsertAccount.testUkPrivateOpportunityDefaultIsPi fails in dev WITHOUT our change (it expects pi, the temporary
+  UK pi->p1 on create gives p1): fix/skip that test before Rest_UpsertAccount (+ '7' in excludedResellers) goes to prod.
+
+### 8b. Reseller 7 rolled out to acc (2026-11-06, user: "rollout reseller 7 to acc 1st"), flows + sharing in dev
+- acc: GVS BusinessEnitites + acc's own GVS `Reseller` (+7), cp/ps/vr, CMDT I3/I4/I8 + BrandThemeConfig.E, Account B2B/B2C and
+  Case Default/Theft record types (+7), records (administration "Germany (echoes)" + business entity, prefix EG), the acc user got
+  ps_miAllowEchoesGmbHEntity, Svc_OdooInvoiceIntake + tests 11/11. acc has no Account sharing rules (nothing deployed there).
+- acc e2e (one e-mail per transaction; 3 in one transaction hit governor limits, as known): 02256107 + 02256345 (made-up debtor
+  numbers, net/gross = Odoo), 03251903 (administration Germany (echoes), net 435.00 gross 517.65 = Odoo, debtor 0001VeWYY).
+  Matched accounts get a "CHECK: its reseller is 5, the Odoo company is 7" note: expected for every DE customer (decision pending).
+- Sharing (user): 7 follows 5. Repo Account.sharingRules = prod's current file + "DE - Echoes GmbH" added to
+  sr_Accounts_CustomerBase_DE / ServiceBase_DE (value `DE - Moving Intelligence GmbH,DE - Echoes GmbH`). Deployed to dev only.
+- Flows, 7 handled as 4 (dev only): rbb_Payment_Batch (reset to reseller 0 like 2 and 4), rbc_Opportunity (activation-fee remark
+  excluded like 4 and 6), rbb_Account (fLanguage when the country is blank: 7 = de). Repo copies of rbb_Account / rbc_Opportunity
+  were stale (hundreds of lines behind prod): they are now prod's copy + the edit; dev got dev's own copy + the edit.
+  Rest_UpsertAccount ('7' in excludedResellers) deployed to dev with NoTestRun (its test fails without our change, see §8).
+- Regression (REBEL Lease payload, fresh id) dev vs acc control: identical results (Mart roleless, billing contact Afdeling
+  Administratie); the roles in the payload doc (Chris Main;Shipping) no longer match either org: doc is outdated, not our change.
+- Invoice number: prod data (90 days) shows Finalized_In_Exact = true on every numbered NL, DE and UK invoice, so UK is not visible as
+  "import"; the code decides dynamically (number already at Exact after the order sync = taken, else print then read). Not built.
+
+### 8c. Decisions of 2026-11-06 (evening)
+- The intake no longer writes "CHECK: its reseller is X, the Odoo company is Y" on a matched account (user: drop it). Exact
+  administrations still stop in waitForDebtorNumber when the reseller differs; 4/7 have no financial system. Dev + acc 11/11.
+- Business Entity setting `FinSysInvoiceNumberMethod__c` (Print / Import; blank = no financial system): UK = Import, NL + DE = Print
+  (user: only UK is import; prod data cannot show it, all numbered invoices there have Finalized_In_Exact = true). Field in repo
+  (objects/Business_Entities__c/fields), FLS: Admin profile + miModifyAllData edit, ps_miSubscription25_User read, deployed from each org's
+  own retrieved copy. Values: records/setInvoiceNumberMethod.apex (dev + acc done). The sync (Util_FinancialSystem_Invoice) does NOT read
+  it yet: it still decides dynamically (number already at Exact -> take it, else print). Use it for phase 2 (Odoo number on create).
+- acc: flows rbb_Account / rbc_Opportunity / rbb_Payment_Batch (7 as 4) deployed from acc's own copies. Acc has no reseller sharing
+  criteria rules (only 4 owner rules): nothing to extend; prod's rules are NOT copied there.
+- Prod still needs (on explicit command): all of §8 + §8b components, the record types (Account B2B/B2C, Case Default/Platform/Theft),
+  the sharing rules (prod file already in the repo), the 3 flows (lands as Draft: activate), the field + FLS + values, the records
+  script, ps_miAllowEchoesGmbHEntity for the job user, and a fix for Test_Rest_UpsertAccount before Rest_UpsertAccount.
+
+### 8d. Account matching per entity (user, 2026-11-06: "for now reseller 5 and 7 should result in a duplicate, the same for 4 in
+relation to the rest") — interpreted as: an account belongs to one entity, the intake only matches an account of the Odoo company's
+own reseller (VAT, CoC, name + postal code); the same customer under another entity (5 vs 7, 4 vs the rest) becomes a separate
+account. Reseller 3 counts as 1 (same administration). One filter in findOrCreateAccount (`Reseller_Name__c IN :entities`): easy to
+undo if the intention was the opposite (reuse across entities). Dev + acc 12/12.
