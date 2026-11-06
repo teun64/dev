@@ -80,6 +80,13 @@
                     <stringValue>4</stringValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>$Record.Reseller__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>7</stringValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>ass_01_Reseller</targetReference>
             </connector>

@@ -3,58 +3,6 @@
     <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <description>The platform status (extStatus_N__c) is empty when the platform id (extId_N__c) is empty. The status itself is set by Rest_UpsertAccount (statusId of the platform).</description>
-        <name>ass_01_ExtStatus</name>
-        <label>1. Platform Status</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>$Record.extStatus_1__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fExtStatus1</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.extStatus_2__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fExtStatus2</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.extStatus_3__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fExtStatus3</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.extStatus_4__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fExtStatus4</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.extStatus_5__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fExtStatus5</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.extStatus_6__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fExtStatus6</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>ass_01_Billing_Country</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <name>ass_01_Account_Name_Bank</name>
         <label>1. Account Name (Bank)</label>
         <locationX>0</locationX>
@@ -103,47 +51,19 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_InvoiceAddress</name>
-        <label>1. Billing Address</label>
+        <name>ass_01_Billing_Country</name>
+        <label>1. Billing Country</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>$Record.InvoiceAddress__City__s</assignToReference>
+            <assignToReference>$Record.BillingCountryCode</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.BillingCity</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.InvoiceAddress__CountryCode__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingCountryCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.InvoiceAddress__Street__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingStreet</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.InvoiceAddress__StateCode__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingStateCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.InvoiceAddress__PostalCode__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingPostalCode</elementReference>
+                <elementReference>fBillingCountryCode</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dec_01_Shipping_Address</targetReference>
+            <targetReference>dec_01_FinancialEntity</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -216,22 +136,6 @@
         </connector>
     </assignments>
     <assignments>
-        <name>ass_01_Commit_StatusChangedOn</name>
-        <label>1. Commit (Status Changed On)</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>vCommit</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>dec_01_Customer_Entity_Changed</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <name>ass_01_Commit_SeriviceEntities</name>
         <label>1. Commit (Service Entitites)</label>
         <locationX>0</locationX>
@@ -248,6 +152,22 @@
         </connector>
     </assignments>
     <assignments>
+        <name>ass_01_Commit_StatusChangedOn</name>
+        <label>1. Commit (Status Changed On)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>vCommit</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Customer_Entity_Changed</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>ass_01_Currency</name>
         <label>1. Currency</label>
         <locationX>0</locationX>
@@ -261,36 +181,6 @@
         </assignmentItems>
         <connector>
             <targetReference>ass_02_Commit</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_StatusChangedOn</name>
-        <label>1. Status Changed On</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>$Record.StatusPrevious__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record__Prior.Status__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.StatusChangedOn__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Flow.CurrentDateTime</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.StatusChangedBy__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$User.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>ass_01_Commit_StatusChangedOn</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -428,6 +318,144 @@
         </connector>
     </assignments>
     <assignments>
+        <name>ass_01_EstablishmentAddress_Copies</name>
+        <label>1. Establishment Address Copies</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Visiting_City__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCity</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Visiting_Country__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCountryCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Visiting_Postal_Code__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingPostalCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Visiting_State__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStateCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Subscription25__Visiting_Street__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStreet</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__Street__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStreet</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__City__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCity</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__PostalCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingPostalCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__StateCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStateCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.VisitingAddress__CountryCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCountryCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>vEstablishmentAddressSet</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Bank_Account_Number</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>The platform status (extStatus_N__c) is empty when the platform id (extId_N__c) is empty. The status itself is set by Rest_UpsertAccount (statusId of the platform).</description>
+        <name>ass_01_ExtStatus</name>
+        <label>1. Platform Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_1__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus1</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_2__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus2</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_3__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus3</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_4__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus4</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_5__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus5</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.extStatus_6__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fExtStatus6</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Billing_Country</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>ass_01_FinancialEntity</name>
         <label>1. Financial Entity</label>
         <locationX>0</locationX>
@@ -457,6 +485,50 @@
         </assignmentItems>
         <connector>
             <targetReference>ass_06_Commit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>ass_01_InvoiceAddress</name>
+        <label>1. Billing Address</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.InvoiceAddress__City__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCity</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.InvoiceAddress__CountryCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingCountryCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.InvoiceAddress__Street__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStreet</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.InvoiceAddress__StateCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingStateCode</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.InvoiceAddress__PostalCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.BillingPostalCode</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>dec_01_Shipping_Address</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -642,6 +714,36 @@
         </connector>
     </assignments>
     <assignments>
+        <name>ass_01_StatusChangedOn</name>
+        <label>1. Status Changed On</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.StatusPrevious__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record__Prior.Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.StatusChangedOn__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.StatusChangedBy__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>ass_01_Commit_StatusChangedOn</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Force sync to Exact</description>
         <name>ass_01_Sync_2_Exact</name>
         <label>1. Sync 2 Exact</label>
@@ -810,108 +912,6 @@
         </assignmentItems>
         <connector>
             <targetReference>ass_09_Commit</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_EstablishmentAddress_Copies</name>
-        <label>1. Establishment Address Copies</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>$Record.Subscription25__Visiting_City__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingCity</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.Subscription25__Visiting_Country__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingCountryCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.Subscription25__Visiting_Postal_Code__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingPostalCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.Subscription25__Visiting_State__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingStateCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.Subscription25__Visiting_Street__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingStreet</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.VisitingAddress__Street__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingStreet</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.VisitingAddress__City__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingCity</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.VisitingAddress__PostalCode__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingPostalCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.VisitingAddress__StateCode__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingStateCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>$Record.VisitingAddress__CountryCode__s</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.BillingCountryCode</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>vEstablishmentAddressSet</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>dec_01_Bank_Account_Number</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>ass_01_Billing_Country</name>
-        <label>1. Billing Country</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>$Record.BillingCountryCode</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>fBillingCountryCode</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>dec_01_FinancialEntity</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1831,45 +1831,6 @@
         </rules>
     </decisions>
     <decisions>
-        <name>dec_01_Invoice_Address</name>
-        <label>1. Invoice Address</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>dec_01_Shipping_Address</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_Invoice_Address_Set</name>
-            <conditionLogic>((1 OR 2) AND 3)</conditionLogic>
-            <conditions>
-                <leftValueReference>vEstablishmentAddressSet</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.useInvoiceAddress__c</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.useInvoiceAddress__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_InvoiceAddress</targetReference>
-            </connector>
-            <label>Set</label>
-        </rules>
-    </decisions>
-    <decisions>
         <name>dec_01_Billing_Contacts</name>
         <label>1. Billing Contact(s)</label>
         <locationX>0</locationX>
@@ -1906,6 +1867,45 @@
                 <targetReference>ass_01_Billing_Attendant_to</targetReference>
             </connector>
             <label>Set</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Billing_Country</name>
+        <label>1. Billing Country</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>ass_01_Commit</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Billing_Country_Changed</name>
+            <conditionLogic>(1 OR 2) AND 3</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.BillingCountryCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>fAllowResellerChange</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_02_FinancialEntity</targetReference>
+            </connector>
+            <label>Changed</label>
         </rules>
     </decisions>
     <decisions>
@@ -2076,38 +2076,6 @@
         </rules>
     </decisions>
     <decisions>
-        <name>dec_01_Status</name>
-        <label>1. Status</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>dec_01_Customer_Entity_Changed</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_Status_Changed</name>
-            <conditionLogic>or</conditionLogic>
-            <conditions>
-                <leftValueReference>$Record.Id</leftValueReference>
-                <operator>IsBlank</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.Status__c</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_StatusChangedOn</targetReference>
-            </connector>
-            <label>Changed</label>
-        </rules>
-    </decisions>
-    <decisions>
         <name>dec_01_Defaults</name>
         <label>1. Defaults</label>
         <locationX>0</locationX>
@@ -2222,6 +2190,66 @@
                 <targetReference>ass_01_Direct_Debit_UK</targetReference>
             </connector>
             <label>Reset</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_EstablishmentAddress</name>
+        <label>1. Establishment / Billing Address</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Bank_Account_Number</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_EstablishmentAddress_Changed</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingStreet</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingCity</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingPostalCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingStateCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.BillingCountryCode</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_EstablishmentAddress_Copies</targetReference>
+            </connector>
+            <label>Changed</label>
         </rules>
     </decisions>
     <decisions>
@@ -2477,10 +2505,50 @@
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
-            </conditions>            <connector>
+            </conditions>
+            <connector>
                 <targetReference>ass_01_Sync_2_Exact</targetReference>
             </connector>
             <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>dec_01_Invoice_Address</name>
+        <label>1. Invoice Address</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Shipping_Address</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Invoice_Address_Set</name>
+            <conditionLogic>((1 OR 2) AND 3)</conditionLogic>
+            <conditions>
+                <leftValueReference>vEstablishmentAddressSet</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.useInvoiceAddress__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.useInvoiceAddress__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_InvoiceAddress</targetReference>
+            </connector>
+            <label>Set</label>
         </rules>
     </decisions>
     <decisions>
@@ -2908,6 +2976,38 @@
         </rules>
     </decisions>
     <decisions>
+        <name>dec_01_Status</name>
+        <label>1. Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>dec_01_Customer_Entity_Changed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>dec_01_Status_Changed</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Id</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>ass_01_StatusChangedOn</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>dec_01_Terminated_Subscriptions</name>
         <label>1. Terminated (Subscriptions)</label>
         <locationX>0</locationX>
@@ -3019,105 +3119,6 @@
                 <targetReference>ass_02_UPDATE_VAT_Number_Fields</targetReference>
             </connector>
             <label>WSONE 2 SF</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>dec_01_Billing_Country</name>
-        <label>1. Billing Country</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>ass_01_Commit</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_Billing_Country_Changed</name>
-            <conditionLogic>(1 OR 2) AND 3</conditionLogic>
-            <conditions>
-                <leftValueReference>$Record.BillingCountryCode</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.Id</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>fAllowResellerChange</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_02_FinancialEntity</targetReference>
-            </connector>
-            <label>Changed</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>dec_01_EstablishmentAddress</name>
-        <label>1. Establishment / Billing Address</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>dec_01_Bank_Account_Number</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>dec_01_EstablishmentAddress_Changed</name>
-            <conditionLogic>or</conditionLogic>
-            <conditions>
-                <leftValueReference>$Record.Id</leftValueReference>
-                <operator>IsBlank</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.BillingStreet</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.BillingCity</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.BillingPostalCode</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.BillingStateCode</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record.BillingCountryCode</leftValueReference>
-                <operator>IsChanged</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>ass_01_EstablishmentAddress_Copies</targetReference>
-            </connector>
-            <label>Changed</label>
         </rules>
     </decisions>
     <decisions>
@@ -3300,42 +3301,6 @@
     <description>Checks Account before update</description>
     <environments>Default</environments>
     <formulas>
-        <description>Platform 1 status, empty when extId_1__c is empty</description>
-        <name>fExtStatus1</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!$Record.extId_1__c}), &apos;&apos;, TEXT({!$Record.extStatus_1__c}))</expression>
-    </formulas>
-    <formulas>
-        <description>Platform 2 status, empty when extId_2__c is empty</description>
-        <name>fExtStatus2</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!$Record.extId_2__c}), &apos;&apos;, TEXT({!$Record.extStatus_2__c}))</expression>
-    </formulas>
-    <formulas>
-        <description>Platform 3 status, empty when extId_3__c is empty</description>
-        <name>fExtStatus3</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!$Record.extId_3__c}), &apos;&apos;, TEXT({!$Record.extStatus_3__c}))</expression>
-    </formulas>
-    <formulas>
-        <description>Platform 4 status, empty when extId_4__c is empty</description>
-        <name>fExtStatus4</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!$Record.extId_4__c}), &apos;&apos;, TEXT({!$Record.extStatus_4__c}))</expression>
-    </formulas>
-    <formulas>
-        <description>Platform 5 status, empty when extId_5__c is empty</description>
-        <name>fExtStatus5</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!$Record.extId_5__c}), &apos;&apos;, TEXT({!$Record.extStatus_5__c}))</expression>
-    </formulas>
-    <formulas>
-        <description>Platform 6 status, empty when extId_6__c is empty</description>
-        <name>fExtStatus6</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!$Record.extId_6__c}), &apos;&apos;, TEXT({!$Record.extStatus_6__c}))</expression>
-    </formulas>
-    <formulas>
         <name>fAccountNumberUK</name>
         <dataType>String</dataType>
         <expression>RIGHT({!$Record.Bank_Account_Number__c},8)</expression>
@@ -3378,6 +3343,16 @@ RIGHT((&quot;00000000&quot; + BLANKVALUE({!$Record.Bank_6_Account_Number__c},&ap
         <expression>UPPER({!$Record.Bank_BIC__c})</expression>
     </formulas>
     <formulas>
+        <description>Billing country; when empty, derived from the platform ids (1 MI / 5 EuropeTrack = NL, 2 Trackpilot = DE, 3 Chiron / 4 AMI = GB, 6 Echoes = FR), otherwise left empty. Never the running user&apos;s default country: that reset 1,353 accounts to NL / reseller 1 on 2026-08-28.</description>
+        <name>fBillingCountryCode</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE(TEXT({!$Record.BillingCountryCode}),
+IF(OR(NOT(ISBLANK({!$Record.extId_1__c})),NOT(ISBLANK({!$Record.extId_5__c}))),&apos;NL&apos;,
+IF(NOT(ISBLANK({!$Record.extId_2__c})),&apos;DE&apos;,
+IF(OR(NOT(ISBLANK({!$Record.extId_3__c})),NOT(ISBLANK({!$Record.extId_4__c}))),&apos;GB&apos;,
+IF(NOT(ISBLANK({!$Record.extId_6__c})),&apos;FR&apos;,&apos;&apos;)))))</expression>
+    </formulas>
+    <formulas>
         <name>fCOCNumber</name>
         <dataType>String</dataType>
         <expression>IF(ISBLANK({!$Record.CoC_Number__c}), &apos;&apos;, IF(AND({!fCOCNumberCheck},(TEXT({!$Record.Reseller_Name__c})!=&apos;5&apos;)), UPPER(RIGHT((&apos;0000000000&apos; +{!$Record.CoC_Number__c}),IF((TEXT({!$Record.Reseller_Name__c})=&apos;3&apos;),10,8))), {!$Record.CoC_Number__c}))</expression>
@@ -3406,6 +3381,42 @@ RIGHT((&quot;00000000&quot; + BLANKVALUE({!$Record.Bank_6_Account_Number__c},&ap
         <name>fDossierNumber</name>
         <dataType>String</dataType>
         <expression>IF((LEN({!fCOCNumber})&gt;8),RIGHT({!fCOCNumber},8),{!fCOCNumber})</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 1 status, empty when extId_1__c is empty</description>
+        <name>fExtStatus1</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_1__c}), &apos;&apos;, TEXT({!$Record.extStatus_1__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 2 status, empty when extId_2__c is empty</description>
+        <name>fExtStatus2</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_2__c}), &apos;&apos;, TEXT({!$Record.extStatus_2__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 3 status, empty when extId_3__c is empty</description>
+        <name>fExtStatus3</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_3__c}), &apos;&apos;, TEXT({!$Record.extStatus_3__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 4 status, empty when extId_4__c is empty</description>
+        <name>fExtStatus4</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_4__c}), &apos;&apos;, TEXT({!$Record.extStatus_4__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 5 status, empty when extId_5__c is empty</description>
+        <name>fExtStatus5</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_5__c}), &apos;&apos;, TEXT({!$Record.extStatus_5__c}))</expression>
+    </formulas>
+    <formulas>
+        <description>Platform 6 status, empty when extId_6__c is empty</description>
+        <name>fExtStatus6</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.extId_6__c}), &apos;&apos;, TEXT({!$Record.extStatus_6__c}))</expression>
     </formulas>
     <formulas>
         <name>fFinancialEntity</name>
@@ -3461,6 +3472,7 @@ TEXT({!$Record.Reseller_Name__c})
 ,&apos;4&apos;,&apos;fr&apos;,
 &apos;5&apos;,&apos;de&apos;,
 &apos;6&apos;,&apos;en&apos;,
+&apos;7&apos;,&apos;de&apos;,
 BLANKVALUE({!$User.DefaultLanguage__c},&apos;en&apos;)
 )
 ,
@@ -3564,16 +3576,6 @@ TEXT({!$Record.BillingCountryCode})
         <name>fVATNumber</name>
         <dataType>String</dataType>
         <expression>IF(ISBLANK({!$Record.VAT_Number__c}),&apos;&apos;,IF(({!$Record.VAT_Number__c}=&apos;-&apos;), {!$Record.VAT_Number__c}, UPPER({!$Record.VAT_Number__c})))</expression>
-    </formulas>
-    <formulas>
-        <description>Billing country; when empty, derived from the platform ids (1 MI / 5 EuropeTrack = NL, 2 Trackpilot = DE, 3 Chiron / 4 AMI = GB, 6 Echoes = FR), otherwise left empty. Never the running user&apos;s default country: that reset 1,353 accounts to NL / reseller 1 on 2026-08-28.</description>
-        <name>fBillingCountryCode</name>
-        <dataType>String</dataType>
-        <expression>BLANKVALUE(TEXT({!$Record.BillingCountryCode}),
-IF(OR(NOT(ISBLANK({!$Record.extId_1__c})),NOT(ISBLANK({!$Record.extId_5__c}))),&apos;NL&apos;,
-IF(NOT(ISBLANK({!$Record.extId_2__c})),&apos;DE&apos;,
-IF(OR(NOT(ISBLANK({!$Record.extId_3__c})),NOT(ISBLANK({!$Record.extId_4__c}))),&apos;GB&apos;,
-IF(NOT(ISBLANK({!$Record.extId_6__c})),&apos;FR&apos;,&apos;&apos;)))))</expression>
     </formulas>
     <formulas>
         <name>fWSONEDossierNumber</name>
@@ -3754,7 +3756,7 @@ IF(NOT(ISBLANK({!$Record.extId_6__c})),&apos;FR&apos;,&apos;&apos;)))))</express
         </value>
     </variables>
     <variables>
-        <name>vFinancialSystemReset</name>
+        <name>vEstablishmentAddressSet</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -3764,7 +3766,7 @@ IF(NOT(ISBLANK({!$Record.extId_6__c})),&apos;FR&apos;,&apos;&apos;)))))</express
         </value>
     </variables>
     <variables>
-        <name>vEstablishmentAddressSet</name>
+        <name>vFinancialSystemReset</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
