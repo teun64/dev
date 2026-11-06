@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>cp_AllowEchoesGmbHEntity</name>
+    </customPermissions>
+    <description>Allows setting Customer Entity 7 (DE - Echoes GmbH) on an Account; without it vr_EchoesGmbHEntity blocks it. For the automation / job users (Odoo invoice intake), not for UI users.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miAllowEchoesGmbHEntity (ps)</label>
+</PermissionSet>

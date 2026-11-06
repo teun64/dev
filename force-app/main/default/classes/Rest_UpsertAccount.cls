@@ -418,7 +418,7 @@ global without sharing class Rest_UpsertAccount {
 
 			//if the reseller is not 1, 2, 3 or 4, trigger a call to exact as well
 			/*
-					Set<String> excludedResellers = new Set<String>{'2', '3', '4'};
+					Set<String> excludedResellers = new Set<String>{'2', '3', '4', '7'};
 					if(!excludedResellers.contains(acc.Reseller_Name__c)){
 						Util_Exact.syncAccountAsync(acc.Id);
 					} */

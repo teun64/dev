@@ -15,12 +15,12 @@
         <criteriaItems>
             <field>Reseller_Name__c</field>
             <operation>equals</operation>
-            <value>DE - Moving Intelligence GmbH</value>
+            <value>DE - Moving Intelligence GmbH,DE - Echoes GmbH</value>
         </criteriaItems>
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
@@ -44,7 +44,7 @@
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
@@ -69,7 +69,7 @@
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
@@ -93,7 +93,7 @@
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
@@ -113,7 +113,7 @@
         <criteriaItems>
             <field>Reseller_Name__c</field>
             <operation>equals</operation>
-            <value>DE - Moving Intelligence GmbH</value>
+            <value>DE - Moving Intelligence GmbH,DE - Echoes GmbH</value>
         </criteriaItems>
         <criteriaItems>
             <field>ServiceEntityDE__c</field>
@@ -123,7 +123,7 @@
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
@@ -153,7 +153,7 @@
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
@@ -183,7 +183,7 @@
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
@@ -213,8 +213,24 @@
         <criteriaItems>
             <field>Status__c</field>
             <operation>notEqual</operation>
-            <value>deactivated</value>
+            <value>Deactivated</value>
         </criteriaItems>
         <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
     </sharingCriteriaRules>
+    <sharingOwnerRules>
+        <fullName>srBeneluxReps</fullName>
+        <accessLevel>Edit</accessLevel>
+        <accountSettings>
+            <caseAccessLevel>Edit</caseAccessLevel>
+            <contactAccessLevel>Edit</contactAccessLevel>
+            <opportunityAccessLevel>Edit</opportunityAccessLevel>
+        </accountSettings>
+        <label>BeNeLux Reps</label>
+        <sharedTo>
+            <roleAndSubordinatesInternal>rg_miCustomerBaseNL_Representatives</roleAndSubordinatesInternal>
+        </sharedTo>
+        <sharedFrom>
+            <roleAndSubordinatesInternal>rg_miCustomerBaseNL_Representatives</roleAndSubordinatesInternal>
+        </sharedFrom>
+    </sharingOwnerRules>
 </SharingRules>
