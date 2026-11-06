@@ -65,19 +65,6 @@ private class Test_Svc_OdooExactSync {
 	}
 
 	@isTest
-	static void aProductCodeExternalIsTheExactItemCode() {
-		Id invId = invoice(Svc_OdooExactSync.METHOD_IMPORT, true);
-		Database.update(new Product2(Id = [SELECT PricebookEntry.Product2Id FROM OrderItem WHERE Order.Subscription25__Invoice__c = :invId LIMIT 1].PricebookEntry.Product2Id, ProductCode = 'ODOO-ONLY', ExtProductCode__c = 'FMC880NL'));
-		Mock mock = new Mock();
-		mock.numberAtEntry = true;
-		Test.setMock(HttpCalloutMock.class, mock);
-		Test.startTest();
-		Svc_OdooExactSync.Result res = Svc_OdooExactSync.sync(invId);
-		Test.stopTest();
-		Assert.isTrue(res.success, 'the item is found under its external code: ' + res.message);
-	}
-
-	@isTest
 	static void importMethodTakesTheNumberAtEntryWithoutPrinting() {
 		Id invId = invoice(Svc_OdooExactSync.METHOD_IMPORT, true);
 		Mock mock = new Mock();

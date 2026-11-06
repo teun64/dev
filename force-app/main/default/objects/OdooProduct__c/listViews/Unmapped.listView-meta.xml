@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unmapped</fullName>
+    <columns>NAME</columns>
+    <columns>OdooName__c</columns>
+    <columns>Entity__c</columns>
+    <columns>FirstInvoice__c</columns>
+    <columns>Product__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters><field>Mapped__c</field><operation>equals</operation><value>0</value></filters>
+    <label>Unmapped</label>
+</ListView>

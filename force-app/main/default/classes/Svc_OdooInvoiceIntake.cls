@@ -23,10 +23,20 @@
  */
 public without sharing class Svc_OdooInvoiceIntake {
 	public class IntakeException extends Exception {}
+	/** One or more Odoo product codes have no financial system product yet (OdooProduct__c.Product__c): the case waits for Finance. */
+	public class MappingHoldException extends Exception {
+		public Map<String, String> unmapped = new Map<String, String>(); // Odoo code -> Odoo name
+		public String entity;
+		public String invoiceNumber;
+	}
 
 	public static final String MARKER = '[Odoo intake]';
 	public static final String CASE_STATUS_NEW = 'New';
 	public static final String CASE_STATUS_PROCESSED = 'Processed';
+	// the case waits here for Finance (queue below) to link the Odoo products; set back to New (+ its own queue) to retry
+	public static final String CASE_STATUS_HOLD = 'In progress';
+	public static final String FINANCE_QUEUE = 'gqCaseFinanceExcellenceCenter';
+	public static final String HOLD_MARKER = '[Odoo intake hold]';
 	public static final String EXTERNAL_ID_PREFIX = 'ODOO-';
 	public static final Set<String> SENDERS = new Set<String>{
 		'invoicing@echoes.solutions', 'invoicing@movingintelligence.nl', 'invoicing@movingintelligence.co.uk', 'invoicing@movingintelligence.de'
@@ -59,7 +69,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 		public Id caseId;
 		public Id invoiceId;
 		public String invoiceNumber;
-		public String status; // PROCESSED, DUPLICATE, WAITING, FAILED, SKIPPED
+		public String status; // PROCESSED, DUPLICATE, WAITING, ON_HOLD, FAILED, SKIPPED
 		public String message;
 		public List<String> notes = new List<String>();
 
@@ -166,6 +176,8 @@ public without sharing class Svc_OdooInvoiceIntake {
 			Subscription25__Administration__c admin = admins[0];
 			String currencyCode = String.isBlank(fx.currencyCode) ? VAT_CURRENCY_BY_RESELLER.get(reseller) : fx.currencyCode;
 
+			Map<String, Product2> productByCode = resolveProducts(fx);
+
 			Account acc = findOrCreateAccount(fx, reseller, res);
 			Contact con = findOrCreateContact(fx, acc, res);
 			if (waitForDebtorNumber(acc, admin, res)) {
@@ -173,7 +185,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 				finish(sp, res, dryRun);
 				return;
 			}
-			Map<String, PricebookEntry> pbeByCode = ensureProducts(fx, admin, reseller, currencyCode, res);
+			Map<String, PricebookEntry> pbeByCode = ensureProducts(productByCode, admin, reseller, currencyCode);
 
 			Subscription25__Invoice__c inv = createInvoice(fx, em, acc, con, admin, currencyCode);
 			createOrder(fx, inv, acc, admin, currencyCode, pbeByCode, res);
@@ -190,6 +202,9 @@ public without sharing class Svc_OdooInvoiceIntake {
 				+ currencyCode + ' ' + fx.taxBasisTotal + ')';
 			addComment(c.Id, MARKER + ' Processed: ' + res.message + (res.notes.isEmpty() ? '' : '\n- ' + String.join(res.notes, '\n- ')));
 			finish(sp, res, dryRun);
+		} catch (MappingHoldException h) {
+			Database.rollback(sp);
+			putOnHold(em.ParentId, h, res, dryRun);
 		} catch (Exception e) {
 			Database.rollback(sp);
 			res.status = 'FAILED';
@@ -339,34 +354,6 @@ public without sharing class Svc_OdooInvoiceIntake {
 	// entities that keep their own accounts: a customer of Echoes France (4) or Echoes GmbH (7) is a separate account from the same
 	// customer under any other entity (user decision 2026-11-06); all other entities share accounts
 	private static final Set<String> SEPARATE_ENTITIES = new Set<String>{ '4', '7' };
-
-	/**
-	 * Record type (developer name) of a product that arrives for the first time, from its Odoo code and name: devices = Hardware,
-	 * installations = Installation, recovery services (impound / release / repatriation) = Service, clearly shipping related = Handling, the rest = Subscription (user, 2026-11-06). A licence that
-	 * includes a device ("... with Hardware") stays a Subscription.
-	 */
-	@TestVisible
-	private static String productType(String code, String name) {
-		String c = (code == null ? '' : code).toLowerCase();
-		String n = (name == null ? '' : name).toLowerCase();
-		String t = c + ' ' + n;
-		if (Pattern.compile('install|^inst').matcher(t).find()) {
-			return 'Installation';
-		}
-		if (Pattern.compile('impound|release cost|repatriat|rapatri|fourri|restitution').matcher(t).find()) {
-			return 'Service'; // vehicle recovery services (English / French / German entities sell the same service under their own code)
-		}
-		if (Pattern.compile('^exp|transport|shipping|versand|livraison').matcher(t).find()) {
-			return 'Handling';
-		}
-		if (Pattern.compile('^(licen[cs]e|monatlich|monthly)').matcher(n).find()) {
-			return 'Subscription';
-		}
-		if (Pattern.compile('^(fmc\\d|mi01|gl53)').matcher(c).find() || Pattern.compile('^device |^boitier|\\(box\\)').matcher(t).find()) {
-			return 'Hardware';
-		}
-		return 'Subscription';
-	}
 
 	@TestVisible
 	private static Account pick(List<Account> found, String reseller) {
@@ -598,9 +585,11 @@ public without sharing class Svc_OdooInvoiceIntake {
 		return name == null ? null : CODE_PREFIX_PATTERN.matcher(name.trim()).replaceFirst('').left(255);
 	}
 
-	/** Product2 + active standard price book entry (in the invoice currency) + administration product per line code. */
-	private static Map<String, PricebookEntry> ensureProducts(Svc_FacturX.Invoice fx, Subscription25__Administration__c admin, String reseller,
-			String currencyCode, Result res) {
+	/**
+	 * The financial system product (Product2) per Odoo line code, from the Odoo Product relation (OdooProduct__c). Codes that are not
+	 * mapped yet stop the intake with a MappingHoldException; the caller then records them (putOnHold) and parks the case with Finance.
+	 */
+	private static Map<String, Product2> resolveProducts(Svc_FacturX.Invoice fx) {
 		Map<String, Svc_FacturX.Line> lineByCode = new Map<String, Svc_FacturX.Line>();
 		for (Svc_FacturX.Line l : fx.lines) {
 			String key = lineCode(l).toLowerCase();
@@ -609,37 +598,79 @@ public without sharing class Svc_OdooInvoiceIntake {
 			}
 		}
 		Map<String, Product2> productByCode = new Map<String, Product2>();
-		for (Product2 p : [
-			SELECT Id, Name, ProductCode, IsActive FROM Product2 WHERE ProductCode IN :lineByCode.keySet()
-			WITH SYSTEM_MODE ORDER BY IsActive DESC, CreatedDate ASC
+		List<String> codes = lineCodes(fx);
+		for (OdooProduct__c op : [
+			SELECT OdooCode__c, Product__c, Product__r.Id, Product__r.Name, Product__r.ProductCode, Product__r.IsActive
+			FROM OdooProduct__c WHERE OdooCode__c IN :codes AND Product__c != null WITH SYSTEM_MODE
 		]) {
-			String key = p.ProductCode.toLowerCase();
-			if (!productByCode.containsKey(key)) {
-				productByCode.put(key, p);
-			}
+			productByCode.put(op.OdooCode__c.toLowerCase(), op.Product__r);
 		}
-		List<Product2> newProducts = new List<Product2>();
+		MappingHoldException hold = new MappingHoldException();
 		for (String key : lineByCode.keySet()) {
 			if (!productByCode.containsKey(key)) {
 				Svc_FacturX.Line l = lineByCode.get(key);
-				Product2 p = new Product2(Name = productName(l), ProductCode = lineCode(l), IsActive = true,
-					Description = l.description, CurrencyIsoCode = currencyCode);
-				Schema.RecordTypeInfo rt = Schema.SObjectType.Product2.getRecordTypeInfosByDeveloperName().get(productType(p.ProductCode, p.Name));
-				if (rt != null) {
-					p.RecordTypeId = rt.getRecordTypeId();
-				}
-				newProducts.add(p);
-				productByCode.put(key, p);
+				hold.unmapped.put(lineCode(l), productName(l));
 			}
 		}
-		if (!newProducts.isEmpty()) {
-			Database.insert(newProducts, AccessLevel.SYSTEM_MODE);
-			List<String> codes = new List<String>();
-			for (Product2 p : newProducts) {
-				codes.add(p.ProductCode);
-			}
-			res.notes.add('Products created: ' + String.join(codes, ', '));
+		if (!hold.unmapped.isEmpty()) {
+			hold.entity = fx.invoiceNumber.left(2);
+			hold.invoiceNumber = fx.invoiceNumber;
+			hold.setMessage('Odoo product(s) without a financial system product: ' + String.join(new List<String>(hold.unmapped.keySet()), ', '));
+			throw hold;
 		}
+		return productByCode;
+	}
+
+	private static List<String> lineCodes(Svc_FacturX.Invoice fx) {
+		List<String> codes = new List<String>();
+		for (Svc_FacturX.Line l : fx.lines) {
+			codes.add(lineCode(l));
+		}
+		return codes;
+	}
+
+	/**
+	 * Records the unmapped Odoo codes (OdooProduct__c without product, for Finance to link) and parks the case: Status In progress,
+	 * owner the Finance queue (when it exists) and a comment with the original owner. Finance sets the case back to New and its own
+	 * queue once the products are linked; the next run picks it up.
+	 */
+	private static void putOnHold(Id caseId, MappingHoldException h, Result res, Boolean dryRun) {
+		res.status = 'ON_HOLD';
+		res.message = 'Odoo invoice ' + h.invoiceNumber + ' waits for Finance: no financial system product for ' + String.join(new List<String>(h.unmapped.keySet()), ', ');
+		if (dryRun) {
+			return;
+		}
+		List<OdooProduct__c> existing = [SELECT OdooCode__c FROM OdooProduct__c WHERE OdooCode__c IN :h.unmapped.keySet() WITH SYSTEM_MODE];
+		Set<String> have = new Set<String>();
+		for (OdooProduct__c op : existing) {
+			have.add(op.OdooCode__c.toLowerCase());
+		}
+		List<OdooProduct__c> toCreate = new List<OdooProduct__c>();
+		for (String code : h.unmapped.keySet()) {
+			if (!have.contains(code.toLowerCase())) {
+				toCreate.add(new OdooProduct__c(Name = code.left(80), OdooCode__c = code, OdooName__c = h.unmapped.get(code),
+					Entity__c = h.entity, FirstInvoice__c = h.invoiceNumber));
+			}
+		}
+		if (!toCreate.isEmpty()) {
+			Database.insert(toCreate, AccessLevel.SYSTEM_MODE);
+		}
+		Case c = [SELECT Id, Owner.Name FROM Case WHERE Id = :caseId WITH SYSTEM_MODE];
+		List<Group> queues = [SELECT Id FROM Group WHERE Type = 'Queue' AND DeveloperName = :FINANCE_QUEUE WITH SYSTEM_MODE LIMIT 1];
+		Case upd = new Case(Id = caseId, Status = CASE_STATUS_HOLD);
+		if (!queues.isEmpty()) {
+			upd.OwnerId = queues[0].Id;
+		}
+		Database.update(upd, AccessLevel.SYSTEM_MODE);
+		addComment(caseId, HOLD_MARKER + ' ' + res.message + '.\nOriginal owner/queue: ' + c.Owner.Name
+			+ '\nLink these products to a financial system product under Odoo Products (' + String.join(new List<String>(h.unmapped.keySet()), ', ')
+			+ '), then set this case back to New and to its original queue: the invoice is created on the next run.'
+			+ (queues.isEmpty() ? '\n(Queue ' + FINANCE_QUEUE + ' does not exist in this org: the owner is unchanged.)' : ''));
+	}
+
+	/** Active standard price book entry (in the invoice currency) + administration product per mapped product. */
+	private static Map<String, PricebookEntry> ensureProducts(Map<String, Product2> productByCode, Subscription25__Administration__c admin, String reseller,
+			String currencyCode) {
 		Set<Id> productIds = new Set<Id>();
 		for (Product2 p : productByCode.values()) {
 			productIds.add(p.Id);

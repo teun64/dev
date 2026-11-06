@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Finance: link Odoo product codes to financial system products (Odoo Products tab); Odoo invoice cases wait for this.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Odoo Product Mapping</label>
+    <fieldPermissions><editable>true</editable><field>OdooProduct__c.OdooName__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>OdooProduct__c.Product__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>OdooProduct__c.Entity__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>OdooProduct__c.FirstInvoice__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>OdooProduct__c.Mapped__c</field><readable>true</readable></fieldPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>OdooProduct__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <tabSettings><tab>OdooProduct__c</tab><visibility>Visible</visibility></tabSettings>
+</PermissionSet>

@@ -282,3 +282,18 @@ undo if the intention was the opposite (reuse across entities). Dev + acc 12/12.
     uncommitted edits from other work in the repo: not touched).
   - UNVERIFIED against real Exact: Journal/VAT per item/layout on print, the POST response shape. First test in acc: check the
     division is NOT a production one, then `Svc_OdooExactSync.sync(<invoiceId>)` on one invoice.
+
+### 8f. Odoo Product relation (user, 2026-11-06) — replaces Product2.ExtProductCode__c and the auto-created Product2
+- New object `OdooProduct__c` (Name + `OdooCode__c` unique, `OdooName__c`, `Product__c` lookup Product2 = financial system product, `Entity__c`,
+  `FirstInvoice__c`, formula `Mapped__c`), tab, list views Unmapped / All, permission set `ps_miOdooProductMapping` (Finance).
+- Intake: each line code is looked up in `OdooProduct__c`; the linked Product2 is booked (price book entry + administration product as before).
+  An unmapped code stops the intake BEFORE anything is created (`MappingHoldException`): unmapped rows are recorded, the case goes to
+  Status **In progress** (user choice), owner = queue `gqCaseFinanceExcellenceCenter` (when it exists in the org), comment `[Odoo intake hold] ...` with the
+  original owner. Finance links the products, sets the case back to New + its original queue; the next run creates the invoice
+  (the hold comment does not block a retry, unlike the `[Odoo intake]` failure comment).
+- The Exact booking (Svc_OdooExactSync) uses the linked Product2's ProductCode as Exact item code (ExtProductCode__c removed again).
+- Queue + members + access: `records/createFinanceQueue.apex` (idempotent, per org). Dev/acc: queue exists, NO members (Jessica Hak / Floris van Beek are not
+  active users there); prod: both are active (profile miFinance) and get the permission set.
+- Dev: 114 OdooProduct rows prefilled from the 673 prod PDFs (1 mapped: CarFleetUK -> CarFleet.01). The 101 Product2 imported earlier under Odoo
+  codes are obsolete (not deleted yet). Mapping suggestions for NL/UK: exact-items/odoo_to_exact_mapping_NL_UK.csv.
+- Prod needs: object/tab/permission set/FLS, the queue script, the 3 intake classes; prefill rows (unmapped) so Finance can work from a list.

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Product__c</fullName>
+    <label>Financial System Product</label>
+    <type>Lookup</type>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Odoo Products</relationshipLabel>
+    <relationshipName>OdooProducts</relationshipName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <required>false</required>
+    <description>The Product2 (financial system product, synced to Exact by its Product Code) that invoice lines with this Odoo code are booked on. Blank = not mapped yet: the intake puts the case on hold.</description>
+</CustomField>

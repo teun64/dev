@@ -45,6 +45,14 @@ private class Test_Svc_OdooInvoiceIntake {
 			}
 		}
 
+		// Odoo codes of the fixture invoices -> financial system products
+		Product2 carFleet = Test_Data.createProduct('Monatlich Lizenz CarFleet', 'CarFleetDE', 'EXTODOO1', 'Subscription', true);
+		Product2 formation = Test_Data.createProduct('Formation', 'Formation', 'EXTODOO2', 'Subscription', true);
+		Database.insert(new List<OdooProduct__c>{
+			new OdooProduct__c(Name = 'CarFleetDE', OdooCode__c = 'CarFleetDE', Product__c = carFleet.Id),
+			new OdooProduct__c(Name = 'Formation', OdooCode__c = 'Formation', Product__c = formation.Id)
+		}, AccessLevel.SYSTEM_MODE);
+
 		Database.insert(new Subscription25__Schedulable_Class__c(
 			Name = 'Batch_OdooInvoiceIntake',
 			Subscription25__Unique_Name__c = 'Batch_OdooInvoiceIntake'
@@ -327,22 +335,28 @@ private class Test_Svc_OdooInvoiceIntake {
 	}
 
 	@isTest
-	static void newProductsGetTheirRecordTypeFromCodeAndName() {
-		Assert.areEqual('Hardware', Svc_OdooInvoiceIntake.productType('FMC880NL', 'FMC880 (box)'));
-		Assert.areEqual('Hardware', Svc_OdooInvoiceIntake.productType('MI01FR', 'Boitier MI01'));
-		Assert.areEqual('Hardware', Svc_OdooInvoiceIntake.productType('FMC880DE', 'Device  FMC880'));
-		Assert.areEqual('Installation', Svc_OdooInvoiceIntake.productType('INSTFR', 'Installation boitier'));
-		Assert.areEqual('Handling', Svc_OdooInvoiceIntake.productType('EXPFR', 'Frais de transport'));
-		Assert.areEqual('Handling', Svc_OdooInvoiceIntake.productType('EXPDE', 'Transport cost'));
-		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('CarLocateDeviceFR', 'Licence CarLocate with Hardware'), 'a licence with a device is a subscription');
-		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('CarReportUK', 'Monthly License CarReport'), 'report is not a port');
-		Assert.areEqual('Subscription', Svc_OdooInvoiceIntake.productType('Formation', 'Formation'));
-		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('Impound cost', 'Impound cost'));
-		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('Release Cost', 'Release Cost'));
-		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('Repatriation Cost', 'Repatriation Cost'));
-		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('RapatriementFR', 'Rapatriement'));
-		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('FourriereFR', 'Frais de Fourrières'));
-		Assert.areEqual('Service', Svc_OdooInvoiceIntake.productType('RestitutionFR', 'Restitution pour les véhicules'));
+	static void unmappedOdooProductsPutTheCaseOnHold() {
+		delete [SELECT Id FROM OdooProduct__c WHERE OdooCode__c = 'Formation'];
+		EmailMessage em = createOdooEmail('Echoes Facture (Réf 02256232)', '02256232', pdf('02256232', 'compta@example.com'));
+
+		Test.startTest();
+		List<Svc_OdooInvoiceIntake.Result> results = Svc_OdooInvoiceIntake.process(new Set<Id>{ em.Id });
+		Test.stopTest();
+
+		Assert.areEqual('ON_HOLD', results[0].status, results[0].message);
+		Assert.areEqual(Svc_OdooInvoiceIntake.CASE_STATUS_HOLD, [SELECT Status FROM Case WHERE Id = :em.ParentId].Status);
+		Assert.areEqual(0, [SELECT COUNT() FROM Subscription25__Invoice__c WHERE Subscription25__External_ID__c = 'ODOO-02256232'], 'nothing is created');
+		OdooProduct__c op = [SELECT Name, OdooName__c, Entity__c, FirstInvoice__c, Mapped__c FROM OdooProduct__c WHERE OdooCode__c = 'Formation'];
+		Assert.isFalse(op.Mapped__c, 'recorded for Finance to link');
+		Assert.areEqual('02', op.Entity__c);
+		Assert.areEqual('02256232', op.FirstInvoice__c);
+		Assert.areEqual(1, [SELECT COUNT() FROM CaseComment WHERE ParentId = :em.ParentId AND CommentBody LIKE :(Svc_OdooInvoiceIntake.HOLD_MARKER + '%')]);
+
+		// Finance links the product and sets the case back to New: the next run creates the invoice
+		Product2 target = [SELECT Id FROM Product2 WHERE ProductCode = 'Formation' LIMIT 1];
+		Database.update(new OdooProduct__c(Id = op.Id, Product__c = target.Id));
+		Database.update(new Case(Id = em.ParentId, Status = 'New'));
+		Assert.areEqual('PROCESSED', Svc_OdooInvoiceIntake.process(new Set<Id>{ em.Id })[0].status);
 	}
 
 	@isTest

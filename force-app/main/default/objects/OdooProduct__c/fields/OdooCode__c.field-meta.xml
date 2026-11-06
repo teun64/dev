@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OdooCode__c</fullName>
+    <label>Odoo Product Code</label>
+    <type>Text</type>
+    <length>255</length>
+    <required>true</required>
+    <unique>true</unique>
+    <caseSensitive>false</caseSensitive>
+    <externalId>true</externalId>
+    <description>Product code as it appears on the Odoo invoice (Factur-X SellerAssignedID; the line name when the line has no code).</description>
+</CustomField>
