@@ -46,3 +46,7 @@ $RECYCLE.BIN/
 
 # graphify knowledge graph output
 graphify-out/
+
+# Odoo intake test invoices (real customer data)
+.scratch/20261105 - odooInvoiceEmailToCase/pdf/
+.scratch/20261105 - odooInvoiceEmailToCase/fx/
