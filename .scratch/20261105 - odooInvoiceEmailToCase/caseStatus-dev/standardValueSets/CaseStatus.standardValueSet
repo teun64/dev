@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>New</fullName>
+        <default>true</default>
+        <label>New</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Investigation</fullName>
+        <default>false</default>
+        <label>Investigation</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Response Received</fullName>
+        <default>false</default>
+        <label>Response Received</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Reopened</fullName>
+        <default>false</default>
+        <label>Reopened</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>In progress</fullName>
+        <default>false</default>
+        <label>In progress</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Call Back</fullName>
+        <default>false</default>
+        <label>Call Back</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>On Hold</fullName>
+        <default>false</default>
+        <label>On Hold</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Scheduled</fullName>
+        <default>false</default>
+        <label>Scheduled</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Activated</fullName>
+        <default>false</default>
+        <label>Activated</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>After Sales</fullName>
+        <default>false</default>
+        <label>After Sales</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Canceled</fullName>
+        <default>false</default>
+        <label>Canceled</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Closed</fullName>
+        <default>false</default>
+        <label>Closed</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Detected</fullName>
+        <default>false</default>
+        <label>Detected</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Email sent</fullName>
+        <default>false</default>
+        <label>Email sent</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Exported</fullName>
+        <default>false</default>
+        <label>Exported</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>False alarm</fullName>
+        <default>false</default>
+        <label>False alarm</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Leaver</fullName>
+        <default>false</default>
+        <label>Leaver</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Renewal</fullName>
+        <default>false</default>
+        <label>Renewal</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Solved</fullName>
+        <default>false</default>
+        <label>Solved</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Processed</fullName>
+        <default>false</default>
+        <label>Processed</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Succesfull</fullName>
+        <default>false</default>
+        <label>Succesfull</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>To Orange</fullName>
+        <default>false</default>
+        <label>To Orange</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>No activation requested</fullName>
+        <default>false</default>
+        <label>No activation requested</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>No hardware received</fullName>
+        <default>false</default>
+        <label>No hardware received</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>No reaction</fullName>
+        <default>false</default>
+        <label>No reaction</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Not traceable</fullName>
+        <default>false</default>
+        <label>Not traceable</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Unsolved</fullName>
+        <default>false</default>
+        <label>Unsolved</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Unsuccesfull</fullName>
+        <default>false</default>
+        <label>Unsuccesfull</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Upsell</fullName>
+        <default>false</default>
+        <label>Upsell</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Duplicate</fullName>
+        <default>false</default>
+        <label>Duplicate</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Spam</fullName>
+        <default>false</default>
+        <label>Spam</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+        <label>Other</label>
+        <closed>true</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Escalated</fullName>
+        <default>false</default>
+        <label>Escalated</label>
+        <closed>false</closed>
+    </standardValue>
+    <standardValue>
+        <fullName>Merged</fullName>
+        <default>false</default>
+        <label>Merged</label>
+        <closed>true</closed>
+    </standardValue>
+</StandardValueSet>
