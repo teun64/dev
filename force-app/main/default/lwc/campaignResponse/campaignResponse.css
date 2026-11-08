@@ -1,0 +1,38 @@
+.cr-root {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+.cr-hello {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.cr-intro,
+.cr-text {
+    margin-bottom: 1rem;
+}
+.cr-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.cr-answer {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+.cr-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.cr-done {
+    font-size: 1.125rem;
+    margin-top: 1rem;
+}
+.cr-error {
+    color: #c23934;
+    margin-top: 1rem;
+}

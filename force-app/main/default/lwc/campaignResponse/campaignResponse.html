@@ -1,0 +1,55 @@
+<template>
+    <div class="cr-root">
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <template lwc:if={isInvalid}>
+            <p class="cr-text">{t.invalid}</p>
+        </template>
+
+        <template lwc:if={isValid}>
+            <p class="cr-hello">{hello}</p>
+            <p class="cr-intro">{intro}</p>
+
+            <template lwc:if={alreadyAnswered}>
+                <p class="cr-text">{t.already} <strong>{currentAnswerLabel}</strong></p>
+            </template>
+
+            <template lwc:if={showChoices}>
+                <p class="cr-text">{t.pick}</p>
+                <div class="cr-choices">
+                    <template for:each={choices} for:item="c">
+                        <lightning-button key={c.code} label={c.label} data-code={c.code}
+                            onclick={handleChoice} class="cr-choice"></lightning-button>
+                    </template>
+                </div>
+            </template>
+
+            <template lwc:if={showConfirm}>
+                <p class="cr-answer">{answerLabel}</p>
+                <template lwc:if={isNotNow}>
+                    <lightning-radio-group name="quarter" label={t.quarter} options={quarterOptions}
+                        value={quarter} onchange={handleQuarter} type="button"></lightning-radio-group>
+                </template>
+                <div class="cr-actions">
+                    <lightning-button variant="brand" label={t.confirm} onclick={handleConfirm}
+                        disabled={isSaving}></lightning-button>
+                    <lightning-button variant="base" label={t.change} onclick={handleChange}
+                        disabled={isSaving}></lightning-button>
+                </div>
+                <template lwc:if={isSaving}>
+                    <p class="cr-text">{t.saving}</p>
+                </template>
+            </template>
+
+            <template lwc:if={isDone}>
+                <p class="cr-done">{doneText}</p>
+            </template>
+        </template>
+
+        <template lwc:if={hasError}>
+            <p class="cr-error">{t.error}</p>
+        </template>
+    </div>
+</template>

@@ -25,6 +25,16 @@
                             <value>Campaign.Child_Campaign</value>
                         </valueListItems>
                         <valueListItems>
+                            <value>Campaign.Release_Batch</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.CampaignRole__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Source</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
                             <value>ViewCampaignHierarchy</value>
                         </valueListItems>
                     </valueList>

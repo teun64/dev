@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MailBatchReleasedOn__c</fullName>
+    <description>Date the member's batch is released for mailing. The mail cycle starts on or after this date.</description>
+    <inlineHelpText>Fill in to start the mail cycle for this member (usually for the whole batch at once).</inlineHelpText>
+    <label>Mail Batch Released On</label>
+    <externalId>false</externalId>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

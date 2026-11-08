@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Daily: runs afl - CampaignMember - Mail Cycle for every campaign member in the mail cycle (Mail Stage Waiting or Due). Runs early so the Due mails are in Data Cloud before the Growth segments refresh.</description>
+    <environments>Default</environments>
+    <interviewLabel>stf - CampaignMember - Mail Cycle {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>stf - CampaignMember - Mail Cycle</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>afl_01_CampaignMember_Mail_Cycle</targetReference>
+        </connector>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>MailStage__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Waiting</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>MailStage__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Due</stringValue>
+            </value>
+        </filters>
+        <object>CampaignMember</object>
+        <schedule>
+            <dayOfMonthToRun>0</dayOfMonthToRun>
+            <frequency>Daily</frequency>
+            <frequencyNumber>0</frequencyNumber>
+            <startDate>2026-11-07</startDate>
+            <startTime>03:00:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>afl_01_CampaignMember_Mail_Cycle</name>
+        <label>1. Mail Cycle</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>afl_CampaignMember_Mail_Cycle</flowName>
+        <inputAssignments>
+            <name>recordId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+</Flow>

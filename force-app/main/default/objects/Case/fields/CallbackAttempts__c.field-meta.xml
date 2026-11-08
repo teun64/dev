@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CallbackAttempts__c</fullName>
+    <description>Number of call-back tries that didn't reach the customer. At the maximum (Svc_SalesCallback.MAX_ATTEMPTS) the Case closes as not reached.</description>
+    <inlineHelpText>Tries that didn't reach the customer.</inlineHelpText>
+    <label>Callback Attempts</label>
+    <precision>2</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MailCompletedStatus__c</fullName>
+    <description>Campaign member status set when the mail cycle ends without an answer. Must be one of this campaign's member statuses. Empty = status is not changed.</description>
+    <inlineHelpText>Member status after the last mail without an answer, e.g. No response, closed.</inlineHelpText>
+    <label>Mail Completed Status</label>
+    <externalId>false</externalId>
+    <length>40</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

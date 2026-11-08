@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CallbackLabel__c</fullName>
+    <description>Shown in the subject of a sales call-back Case from this campaign (Callback - {label} - {Account}), e.g. 2G/4G conversion. Empty = the campaign name.</description>
+    <inlineHelpText>What a call-back from this campaign is about, shown in the Case subject (e.g. 2G/4G conversion).</inlineHelpText>
+    <label>Callback Label</label>
+    <externalId>false</externalId>
+    <length>80</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Sales call-back: log a try that didn't reach the customer (scr - Case - Callback Not Reached)</description>
+    <flowDefinition>scr_Case_Callback_Not_Reached</flowDefinition>
+    <label>Callback Not Reached</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <type>Flow</type>
+</QuickAction>

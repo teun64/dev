@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MaxMailAttempts__c</fullName>
+    <description>Number of mails in the mail cycle of this campaign (sfl - CampaignMember - Mail Cycle). The last one is the final mail.</description>
+    <inlineHelpText>After this many mails without an answer the member is set to Completed.</inlineHelpText>
+    <label>Max Attempts (Mail)</label>
+    <externalId>false</externalId>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

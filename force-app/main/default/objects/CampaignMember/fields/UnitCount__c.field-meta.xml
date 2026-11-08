@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UnitCount__c</fullName>
+    <description>Number of the account's active 2G units in the campaign selection (Source Selection). Kept up to date by Batch_CampaignSource for members in Source and Operational.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The customer's active 2G units in this campaign.</inlineHelpText>
+    <label>Unit Count</label>
+    <precision>6</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

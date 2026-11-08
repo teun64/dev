@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CallbackLastAgent__c</fullName>
+    <description>Agent who logged the last call-back try. Their manager gets the mail when the customer isn't reached.</description>
+    <label>Callback Last Agent</label>
+    <referenceTo>User</referenceTo>
+    <relationshipName>CallbackCases</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Lookup</type>
+</CustomField>

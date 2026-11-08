@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RecontactFrom__c</fullName>
+    <description>For Response = Not now: first day of the chosen quarter; no mails or calls before this date.</description>
+    <label>Recontact From</label>
+    <externalId>false</externalId>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

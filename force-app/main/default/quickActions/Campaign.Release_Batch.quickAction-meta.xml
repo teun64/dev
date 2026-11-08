@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Staged campaign: move the next members (by priority) from this Source campaign to the Operational campaign and start their mail cycle (scr - Campaign - Release Batch)</description>
+    <flowDefinition>scr_Campaign_Release_Batch</flowDefinition>
+    <label>Release Batch</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <type>Flow</type>
+</QuickAction>

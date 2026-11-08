@@ -344,6 +344,13 @@
                     <stringValue>Callback</stringValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>dgr_01_Case.CallbackSource__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>ass_01_Case_Callback</targetReference>
             </connector>

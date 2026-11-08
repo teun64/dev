@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Test_afl_CampaignMember_Mail_Cycle</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>site/Customer_Hub1.sfdc_cms__route/cp_Response__c</members>
+        <members>site/Customer_Hub1.sfdc_cms__view/Response</members>
+        <name>DigitalExperience</name>
+    </types>
+    <types>
+        <members>rp_Campaign</members>
+        <name>FlexiPage</name>
+    </types>
+    <types>
+        <members>afl_CampaignMember_Mail_Cycle</members>
+        <members>rab_Case_Callback_Due</members>
+        <members>rab_Voice_Call</members>
+        <members>scr_Campaign_Release_Batch</members>
+        <members>scr_Case_Callback_Not_Reached</members>
+        <members>scr_Case_Callback_Reached</members>
+        <members>scr_Case_Create_Opportunity</members>
+        <members>stf_CampaignMember_Mail_Cycle</members>
+        <name>Flow</name>
+    </types>
+    <types>
+        <members>Campaign-Campaign Layout</members>
+        <members>CampaignMember-Campaign Member Page Layout</members>
+        <members>Product2-Platform</members>
+        <name>Layout</name>
+    </types>
+    <types>
+        <members>Case.gqCaseSalesCallback1_Case</members>
+        <name>ListView</name>
+    </types>
+    <types>
+        <members>Campaign.Release_Batch</members>
+        <members>Case.Callback_Not_Reached</members>
+        <members>Case.Callback_Reached</members>
+        <name>QuickAction</name>
+    </types>
+    <version>68.0</version>
+</Package>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>act_01_Expire</name>
+        <label>1. Expire Callback</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Svc_SalesCallback</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>step</name>
+            <value>
+                <stringValue>expire</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>Svc_SalesCallback</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>68.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Sales call-back not done before Callback Due On (2 working days): Svc_SalesCallback closes it as not reached, mails the manager and puts the campaign member back into the mail cycle. A Case that is closed before then no longer meets the entry conditions, so nothing happens.</description>
+    <environments>Default</environments>
+    <interviewLabel>rab - Case - Callback Due {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rab - Case - Callback Due</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterFormula>AND(NOT(ISBLANK(TEXT({!$Record.CallbackSource__c}))), NOT(ISBLANK({!$Record.CallbackDueOn__c})), NOT({!$Record.IsClosed}))</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <scheduledPaths>
+            <name>sch_01_Due</name>
+            <connector>
+                <targetReference>act_01_Expire</targetReference>
+            </connector>
+            <label>Callback Due</label>
+            <offsetNumber>0</offsetNumber>
+            <offsetUnit>Minutes</offsetUnit>
+            <recordField>CallbackDueOn__c</recordField>
+            <timeSource>RecordField</timeSource>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

@@ -1,14 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>67.0</apiVersion>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <actionCalls>
+        <name>act_02_MoveOffer</name>
+        <label>2. Move Member to Offer</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Svc_CampaignMove</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>scr_01_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>scr_01_Error</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>campaignMemberId</name>
+            <value>
+                <elementReference>recordId.CampaignMemberId__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>role</name>
+            <value>
+                <stringValue>Offer</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>Svc_CampaignMove</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>68.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-
-    <!-- ═══════ ASSIGNMENTS ═══════ -->
     <assignments>
-        <name>ass_Seed_Case</name>
-        <label>Seed Case</label>
-        <locationX>176</locationX>
-        <locationY>240</locationY>
+        <name>ass_01_Case</name>
+        <label>1. Case</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>rCase</assignToReference>
             <operator>Assign</operator>
@@ -17,30 +44,30 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Screen_Create_Opportunity</targetReference>
+            <targetReference>scr_01_CreateOpportunity</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>ass_Relate_Opp_To_Case</name>
-        <label>Relate Opportunity to Case</label>
-        <locationX>176</locationX>
-        <locationY>600</locationY>
+        <name>ass_01_Case_Opportunity</name>
+        <label>1. Case - Opportunity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>rCase.Opportunity__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>dcr_Create_Opportunity.Id</elementReference>
+                <elementReference>dcr_01_Opportunity.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Check_Close_Case</targetReference>
+            <targetReference>dec_01_CaseClose</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>ass_Close_Case</name>
-        <label>Close Case</label>
-        <locationX>176</locationX>
-        <locationY>840</locationY>
+        <name>ass_01_Close_Case</name>
+        <label>1. Case - Close</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>rCase.Status</assignToReference>
             <operator>Assign</operator>
@@ -56,18 +83,41 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>dur_Case</targetReference>
+            <targetReference>dur_01_Case</targetReference>
         </connector>
     </assignments>
-
-    <!-- ═══════ DECISIONS ═══════ -->
+    <decisions>
+        <name>dec_02_Member</name>
+        <label>2. Campaign Member</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>scr_01_Success</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Member</defaultConnectorLabel>
+        <rules>
+            <name>dec_02_Member_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>recordId.CampaignMemberId__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>act_02_MoveOffer</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Check_Has_Account</name>
         <label>Case has Account?</label>
-        <locationX>176</locationX>
-        <locationY>120</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_No_Account</targetReference>
+            <targetReference>scr_01_Warning_Account</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No Account</defaultConnectorLabel>
         <rules>
@@ -81,22 +131,22 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_Seed_Case</targetReference>
+                <targetReference>ass_01_Case</targetReference>
             </connector>
             <label>Has Account</label>
         </rules>
     </decisions>
     <decisions>
-        <name>Check_Close_Case</name>
-        <label>Close Case?</label>
-        <locationX>176</locationX>
-        <locationY>720</locationY>
+        <name>dec_01_CaseClose</name>
+        <label>1. Case Close</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>dur_Case</targetReference>
+            <targetReference>dur_01_Case</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
-            <name>Should_Close_Case</name>
+            <name>dec_01_CaseClose_Yes</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>chk_CloseCase</leftValueReference>
@@ -106,22 +156,27 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>ass_Close_Case</targetReference>
+                <targetReference>ass_01_Close_Case</targetReference>
             </connector>
             <label>Yes</label>
         </rules>
     </decisions>
-
-    <description>Quick Action: create an Opportunity linked to the current Case. Requires an Account on the Case.</description>
-
-    <!-- ═══════ DYNAMIC CHOICE SETS ═══════ -->
+    <description>Quick Action: create an Opportunity linked to the current Case. Requires an Account on the Case. A Case with a Campaign (sales call-back) links the Opportunity to that campaign (CampaignId; in a staged campaign the Offer sister campaign) and names it after the campaign Callback Label; its campaign member then moves to the Offer campaign (Svc_CampaignMove).</description>
+    <dynamicChoiceSets>
+        <name>ccs_LeadSource</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>LeadSource</picklistField>
+        <picklistObject>Opportunity</picklistObject>
+    </dynamicChoiceSets>
     <dynamicChoiceSets>
         <name>ccs_RecordTypes</name>
         <dataType>String</dataType>
         <displayField>Name</displayField>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>SObjectType</field>
+            <field>SobjectType</field>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Opportunity</stringValue>
@@ -138,23 +193,20 @@
         <valueField>Id</valueField>
     </dynamicChoiceSets>
     <dynamicChoiceSets>
-        <name>ccs_LeadSource</name>
-        <dataType>Picklist</dataType>
-        <displayField xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-        <object xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-        <picklistField>LeadSource</picklistField>
-        <picklistObject>Opportunity</picklistObject>
-    </dynamicChoiceSets>
-    <dynamicChoiceSets>
         <name>ccs_Stages</name>
         <dataType>Picklist</dataType>
-        <displayField xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-        <object xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
         <picklistField>StageName</picklistField>
         <picklistObject>Opportunity</picklistObject>
     </dynamicChoiceSets>
-
-    <!-- ═══════ FORMULAS ═══════ -->
+    <environments>Default</environments>
+    <formulas>
+        <description>Opportunity campaign: the Offer campaign next to the Case campaign (staged campaign), otherwise the Case campaign.</description>
+        <name>fCampaignId</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!rOfferCampaign.Id}), {!recordId.Campaign__c}, {!rOfferCampaign.Id})</expression>
+    </formulas>
     <formulas>
         <name>fDefaultCloseDate</name>
         <dataType>Date</dataType>
@@ -163,9 +215,8 @@
     <formulas>
         <name>fDefaultName</name>
         <dataType>String</dataType>
-        <expression>{!recordId.CaseNumber} &amp; &apos; - &apos; &amp; {!recordId.Account.Name}</expression>
+        <expression>IF(ISBLANK({!recordId.Campaign__c}), {!recordId.CaseNumber}, BLANKVALUE({!recordId.Campaign__r.CallbackLabel__c}, {!recordId.Campaign__r.Name})) &amp; &apos; - &apos; &amp; {!recordId.Account.Name}</expression>
     </formulas>
-
     <interviewLabel>scr - Case - Create Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
     <label>scr - Case - Create Opportunity</label>
     <processMetadataValues>
@@ -187,18 +238,17 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
-
-    <!-- ═══════ RECORD CREATES ═══════ -->
     <recordCreates>
-        <name>dcr_Create_Opportunity</name>
-        <label>Create Opportunity</label>
-        <locationX>176</locationX>
-        <locationY>480</locationY>
+        <name>dcr_01_Opportunity</name>
+        <label>1. Opportunity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
-            <targetReference>ass_Relate_Opp_To_Case</targetReference>
+            <targetReference>ass_01_Case_Opportunity</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Screen_Error</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>scr_01_Error</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>AccountId</field>
@@ -207,21 +257,21 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Case__c</field>
+            <field>CampaignId</field>
             <value>
-                <elementReference>recordId.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>LeadSource</field>
-            <value>
-                <elementReference>pick_LeadSource</elementReference>
+                <elementReference>fCampaignId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>CloseDate</field>
             <value>
                 <elementReference>inp_CloseDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LeadSource</field>
+            <value>
+                <elementReference>pick_LeadSource</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -257,66 +307,98 @@
         <object>Opportunity</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
-
-    <!-- ═══════ RECORD UPDATES ═══════ -->
-    <recordUpdates>
-        <name>dur_Case</name>
-        <label>Case</label>
-        <locationX>176</locationX>
-        <locationY>960</locationY>
+    <recordLookups>
+        <name>dgr_01_OfferCampaign</name>
+        <label>1. Offer Campaign</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>dcr_01_Opportunity</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ParentId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId.Campaign__r.ParentId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>CampaignRole__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Offer</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Campaign</object>
+        <outputReference>rOfferCampaign</outputReference>
+        <queriedFields>Id</queriedFields>
+    </recordLookups>
+    <recordUpdates>
+        <name>dur_01_Case</name>
+        <label>1. Case</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>dec_02_Member</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Screen_Error</targetReference>
+            <targetReference>scr_01_Error</targetReference>
         </faultConnector>
         <inputReference>rCase</inputReference>
     </recordUpdates>
-
     <runInMode>SystemModeWithoutSharing</runInMode>
-
-    <!-- ═══════ SCREENS ═══════ -->
     <screens>
-        <name>Screen_No_Account</name>
-        <label>No Account on Case</label>
-        <locationX>440</locationX>
-        <locationY>240</locationY>
-        <allowBack>false</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>false</allowPause>
-        <fields>
-            <name>msg_NoAccount</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Cannot create an Opportunity&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;This Case does not have an Account. Please add an Account to the Case before creating an Opportunity.&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>false</showHeader>
-    </screens>
-    <screens>
-        <name>Screen_Create_Opportunity</name>
+        <name>scr_01_CreateOpportunity</name>
         <label>Create Opportunity</label>
-        <locationX>176</locationX>
-        <locationY>360</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>dcr_Create_Opportunity</targetReference>
+            <targetReference>dgr_01_OfferCampaign</targetReference>
         </connector>
         <fields>
             <name>display_Account</name>
             <fieldText>&lt;p&gt;&lt;strong&gt;Account&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!recordId.Account.Name}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>display_Contact</name>
             <fieldText>&lt;p&gt;&lt;strong&gt;Contact&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!recordId.Contact.Name}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>display_Owner</name>
             <fieldText>&lt;p&gt;&lt;strong&gt;Owner&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$User.FirstName} {!$User.LastName}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>pick_RecordType</name>
@@ -324,7 +406,16 @@
             <dataType>String</dataType>
             <fieldText>Record Type</fieldText>
             <fieldType>DropdownBox</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>pick_LeadSource</name>
@@ -332,7 +423,16 @@
             <dataType>String</dataType>
             <fieldText>Lead Source</fieldText>
             <fieldType>DropdownBox</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>inp_Name</name>
@@ -342,7 +442,16 @@
             </defaultValue>
             <fieldText>Name</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>pick_Stage</name>
@@ -350,7 +459,16 @@
             <dataType>String</dataType>
             <fieldText>Stage</fieldText>
             <fieldType>DropdownBox</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>inp_CloseDate</name>
@@ -360,7 +478,16 @@
             </defaultValue>
             <fieldText>Close Date</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>chk_CloseCase</name>
@@ -370,7 +497,16 @@
             </defaultValue>
             <fieldText>Close Case as Solved (Reason: Opportunity Created)</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>chk_OpenOpportunity</name>
@@ -380,16 +516,49 @@
             </defaultValue>
             <fieldText>Open Opportunity after saving</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <name>Screen_Success</name>
+        <name>scr_01_Error</name>
+        <label>Something went wrong</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>msg_Error</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Could not complete the action&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>scr_01_Success</name>
         <label>Opportunity Created</label>
-        <locationX>176</locationX>
-        <locationY>1080</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -397,6 +566,14 @@
             <name>msg_Success</name>
             <fieldText>&lt;p&gt;&lt;strong&gt;Opportunity created&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!inp_Name} has been created and linked to this Case.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>cmp_OpenOpportunity</name>
@@ -405,7 +582,7 @@
             <inputParameters>
                 <name>recordId</name>
                 <value>
-                    <elementReference>dcr_Create_Opportunity</elementReference>
+                    <elementReference>dcr_01_Opportunity</elementReference>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -420,38 +597,60 @@
                     <elementReference>recordId.AccountId</elementReference>
                 </value>
             </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
     <screens>
-        <name>Screen_Error</name>
-        <label>Something went wrong</label>
-        <locationX>440</locationX>
-        <locationY>1080</locationY>
+        <name>scr_01_Warning_Account</name>
+        <label>No Account on Case</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
-            <name>msg_Error</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Could not complete the action&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <name>msg_NoAccount</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Cannot create an Opportunity&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;This Case does not have an Account. Please add an Account to the Case before creating an Opportunity.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
-
-    <!-- ═══════ START ═══════ -->
     <start>
-        <locationX>176</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Check_Has_Account</targetReference>
         </connector>
     </start>
     <status>Active</status>
-
-    <!-- ═══════ VARIABLES ═══════ -->
+    <variables>
+        <name>rOfferCampaign</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Campaign</objectType>
+    </variables>
     <variables>
         <name>rCase</name>
         <dataType>SObject</dataType>
@@ -468,5 +667,4 @@
         <isOutput>false</isOutput>
         <objectType>Case</objectType>
     </variables>
-
 </Flow>

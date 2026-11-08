@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QueueRoutingConfig xmlns="http://soap.sforce.com/2006/04/metadata">
+    <capacityType>INHERITED</capacityType>
+    <capacityWeight>5.0</capacityWeight>
+    <isAttributeBased>false</isAttributeBased>
+    <label>Case (Sales Callback NL)</label>
+    <pausedCapacityWeight>10.0</pausedCapacityWeight>
+    <routingModel>LEAST_ACTIVE</routingModel>
+    <routingPriority>3</routingPriority>
+</QueueRoutingConfig>

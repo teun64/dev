@@ -12,6 +12,8 @@ public class Trigger_Opportunity {
 		}
 		if(Trigger.isUpdate && Trigger.isAfter){
 			Util_OrderConfirmation.afterUpdate((List<Opportunity>)Trigger.new, Trigger.oldMap);
+			// Closed Lost on a staged campaign offer: the member goes back to the Source campaign (Svc_CampaignOffer)
+			Svc_CampaignOffer.afterUpdate((List<Opportunity>)Trigger.new, (Map<Id, Opportunity>)Trigger.oldMap);
 		}
 	}
 

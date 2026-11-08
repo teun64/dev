@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>gqCaseSalesCallback1_Case</fullName>
+    <columns>CASES.CASE_NUMBER</columns>
+    <columns>ACCOUNT.NAME</columns>
+    <columns>NAME</columns>
+    <columns>CASES.SUBJECT</columns>
+    <columns>CASES.STATUS</columns>
+    <columns>CallbackAttempts__c</columns>
+    <columns>CallbackDueOn__c</columns>
+    <columns>CASES.CREATED_DATE</columns>
+    <filterScope>Queue</filterScope>
+    <label>Case - Sales - Callback (NL)</label>
+    <queue>gqCaseSalesCallback1</queue>
+    <sharedTo>
+        <roleAndSubordinatesInternal>rg_miCustomerBaseNL_Management</roleAndSubordinatesInternal>
+    </sharedTo>
+</ListView>

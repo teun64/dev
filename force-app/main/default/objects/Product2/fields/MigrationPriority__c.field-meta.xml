@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MigrationPriority__c</fullName>
+    <description>Migration campaigns: order in which customers with this hardware are released (lower first, e.g. Mi50 1, Mi40 2, MiTracer (Mi01) 3, MiRetreever (Mi04) 4). Empty = last (9). Member priority = this × 10 + segment (1 B2B 3+, 2 B2B 1-2, 3 B2C), using the customer's best 2G hardware. Read by Svc_CampaignSource.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Migration campaigns: release order of customers with this hardware (lower first). Empty = last.</inlineHelpText>
+    <label>Migration Priority</label>
+    <precision>2</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MailIntervalDays__c</fullName>
+    <description>Days between two mails of the mail cycle (sfl - CampaignMember - Mail Cycle).</description>
+    <inlineHelpText>Days between two mails. Members that answer in this period get no next mail.</inlineHelpText>
+    <label>Mail Interval (Days)</label>
+    <defaultValue>14</defaultValue>
+    <externalId>false</externalId>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

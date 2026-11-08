@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ResponseUrl__c</fullName>
+    <description>Personal response link (Customer Hub base URL + /response?token=), stamped together with Response Token. Mail buttons add the answer: &amp;a=callme, &amp;a=offer, &amp;a=notnow or &amp;a=notinterested. Stamped text instead of a formula so the Data Cloud stream can take it, like Contact.Preference_Center_Url__c.</description>
+    <externalId>false</externalId>
+    <label>Response URL</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

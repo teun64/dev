@@ -3239,4 +3239,12 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Order confirmation: questions line (Reply-To = the business entity sales email)</shortDescription>
         <value>Questions about your order? Simply reply to this email.</value>
     </labels>
+    <labels>
+        <fullName>SalesCallback_FallbackManagerEmail</fullName>
+        <categories>Sales Callback</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Sales call-back: fallback manager email (not-reached mail)</shortDescription>
+        <value>nboersma@movingintelligence.com</value>
+    </labels>
 </CustomLabels>

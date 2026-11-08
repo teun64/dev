@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MigrationProduct__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Migration campaigns: the product offered in place of this hardware (e.g. Mi50 → Mi50.M). Set on the hardware product the Asset points to (Contract Hardware → Product). An "Offer" answer creates an Opportunity with one line per migration product, quantity = the customer's active 2G contracts on that hardware. Read by Svc_CampaignOffer.</description>
+    <inlineHelpText>Product offered in place of this hardware in a migration campaign (e.g. Mi50 → Mi50.M).</inlineHelpText>
+    <label>Migration Product</label>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Migrated From</relationshipLabel>
+    <relationshipName>MigratedFrom</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
