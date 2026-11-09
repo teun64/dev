@@ -3,7 +3,7 @@
     <fullName>All</fullName>
     <columns>NAME</columns>
     <columns>OdooName__c</columns>
-    <columns>Entity__c</columns>
+    <columns>OdooEntity__c</columns>
     <columns>Product__c</columns>
     <columns>Mapped__c</columns>
     <filterScope>Everything</filterScope>

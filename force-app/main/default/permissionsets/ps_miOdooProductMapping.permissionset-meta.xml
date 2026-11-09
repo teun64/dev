@@ -5,8 +5,8 @@
     <label>Odoo Product Mapping</label>
     <fieldPermissions><editable>true</editable><field>OdooProduct__c.OdooName__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>OdooProduct__c.Product__c</field><readable>true</readable></fieldPermissions>
-    <fieldPermissions><editable>true</editable><field>OdooProduct__c.Entity__c</field><readable>true</readable></fieldPermissions>
-    <fieldPermissions><editable>true</editable><field>OdooProduct__c.FirstInvoice__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>OdooProduct__c.OdooEntity__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>OdooProduct__c.OdooFirstInvoice__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>OdooProduct__c.Mapped__c</field><readable>true</readable></fieldPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>

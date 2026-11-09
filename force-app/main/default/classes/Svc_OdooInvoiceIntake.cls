@@ -649,7 +649,7 @@ public without sharing class Svc_OdooInvoiceIntake {
 		for (String code : h.unmapped.keySet()) {
 			if (!have.contains(code.toLowerCase())) {
 				toCreate.add(new OdooProduct__c(Name = code.left(80), OdooCode__c = code, OdooName__c = h.unmapped.get(code),
-					Entity__c = h.entity, FirstInvoice__c = h.invoiceNumber));
+					OdooEntity__c = h.entity, OdooFirstInvoice__c = h.invoiceNumber));
 			}
 		}
 		if (!toCreate.isEmpty()) {

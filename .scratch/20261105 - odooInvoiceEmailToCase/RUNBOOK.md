@@ -284,8 +284,8 @@ undo if the intention was the opposite (reuse across entities). Dev + acc 12/12.
     division is NOT a production one, then `Svc_OdooExactSync.sync(<invoiceId>)` on one invoice.
 
 ### 8f. Odoo Product relation (user, 2026-11-06) — replaces Product2.ExtProductCode__c and the auto-created Product2
-- New object `OdooProduct__c` (Name + `OdooCode__c` unique, `OdooName__c`, `Product__c` lookup Product2 = financial system product, `Entity__c`,
-  `FirstInvoice__c`, formula `Mapped__c`), tab, list views Unmapped / All, permission set `ps_miOdooProductMapping` (Finance).
+- New object `OdooProduct__c` (Name + `OdooCode__c` unique, `OdooName__c`, `Product__c` lookup Product2 = financial system product, `OdooEntity__c`,
+  `OdooFirstInvoice__c`, formula `Mapped__c`), tab, list views Unmapped / All, permission set `ps_miOdooProductMapping` (Finance).
 - Intake: each line code is looked up in `OdooProduct__c`; the linked Product2 is booked (price book entry + administration product as before).
   An unmapped code stops the intake BEFORE anything is created (`MappingHoldException`): unmapped rows are recorded, the case goes to
   Status **In progress** (user choice), owner = queue `gqCaseFinanceExcellenceCenter` (when it exists in the org), comment `[Odoo intake hold] ...` with the

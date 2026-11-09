@@ -3,8 +3,8 @@
     <fullName>Unmapped</fullName>
     <columns>NAME</columns>
     <columns>OdooName__c</columns>
-    <columns>Entity__c</columns>
-    <columns>FirstInvoice__c</columns>
+    <columns>OdooEntity__c</columns>
+    <columns>OdooFirstInvoice__c</columns>
     <columns>Product__c</columns>
     <columns>CREATED_DATE</columns>
     <filterScope>Everything</filterScope>

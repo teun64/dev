@@ -35,7 +35,7 @@ List<SObject> perms = new List<SObject>();
 for (PermissionSet p : admins) {
 	if (!haveObj.contains(String.valueOf(p.Id))) perms.add(new ObjectPermissions(ParentId = p.Id, SobjectType = 'OdooProduct__c', PermissionsRead = true, PermissionsCreate = true, PermissionsEdit = true, PermissionsDelete = true, PermissionsViewAllRecords = true, PermissionsModifyAllRecords = true));
 	if (!haveFld.contains(p.Id + 'OdooProduct__c.Mapped__c')) perms.add(new FieldPermissions(ParentId = p.Id, SobjectType = 'OdooProduct__c', Field = 'OdooProduct__c.Mapped__c', PermissionsRead = true, PermissionsEdit = false));
-	for (String f : new List<String>{ 'OdooName__c', 'Product__c', 'Entity__c', 'FirstInvoice__c' }) {
+	for (String f : new List<String>{ 'OdooName__c', 'Product__c', 'OdooEntity__c', 'OdooFirstInvoice__c' }) {
 		if (!haveFld.contains(p.Id + 'OdooProduct__c.' + f)) perms.add(new FieldPermissions(ParentId = p.Id, SobjectType = 'OdooProduct__c', Field = 'OdooProduct__c.' + f, PermissionsRead = true, PermissionsEdit = true));
 	}
 }

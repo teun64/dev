@@ -346,10 +346,10 @@ private class Test_Svc_OdooInvoiceIntake {
 		Assert.areEqual('ON_HOLD', results[0].status, results[0].message);
 		Assert.areEqual(Svc_OdooInvoiceIntake.CASE_STATUS_HOLD, [SELECT Status FROM Case WHERE Id = :em.ParentId].Status);
 		Assert.areEqual(0, [SELECT COUNT() FROM Subscription25__Invoice__c WHERE Subscription25__External_ID__c = 'ODOO-02256232'], 'nothing is created');
-		OdooProduct__c op = [SELECT Name, OdooName__c, Entity__c, FirstInvoice__c, Mapped__c FROM OdooProduct__c WHERE OdooCode__c = 'Formation'];
+		OdooProduct__c op = [SELECT Name, OdooName__c, OdooEntity__c, OdooFirstInvoice__c, Mapped__c FROM OdooProduct__c WHERE OdooCode__c = 'Formation'];
 		Assert.isFalse(op.Mapped__c, 'recorded for Finance to link');
-		Assert.areEqual('02', op.Entity__c);
-		Assert.areEqual('02256232', op.FirstInvoice__c);
+		Assert.areEqual('02', op.OdooEntity__c);
+		Assert.areEqual('02256232', op.OdooFirstInvoice__c);
 		Assert.areEqual(1, [SELECT COUNT() FROM CaseComment WHERE ParentId = :em.ParentId AND CommentBody LIKE :(Svc_OdooInvoiceIntake.HOLD_MARKER + '%')]);
 
 		// Finance links the product and sets the case back to New: the next run creates the invoice

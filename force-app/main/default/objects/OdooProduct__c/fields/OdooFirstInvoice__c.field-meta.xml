@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>FirstInvoice__c</fullName>
+    <fullName>OdooFirstInvoice__c</fullName>
     <label>First Invoice (Odoo)</label>
     <type>Text</type>
     <length>20</length>
