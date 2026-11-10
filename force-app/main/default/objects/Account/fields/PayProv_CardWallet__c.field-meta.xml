@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PayProv_CardWallet__c</fullName>
+    <description>Wallet of the saved card (apple_pay, google_pay), read from Stripe; empty for a plain card.</description>
+    <externalId>false</externalId>
+    <label>Payment Provider Card Wallet</label>
+    <length>40</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -36,7 +36,8 @@ public without sharing class Svc_StripeEventProcessor {
         Map<Id, Payment__c> paymentMap = new Map<Id, Payment__c>();
         if (!paymentSfIds.isEmpty()) {
             paymentMap = new Map<Id, Payment__c>([
-                SELECT Id, Name, Status__c, Account__c, externalId__c, Amount_Gross__c, CurrencyIsoCode, PayProv_PaymentIntentId__c,
+                SELECT Id, Name, Status__c, Type__c, Account__c, externalId__c, Amount_Gross__c, CurrencyIsoCode, PayProv_PaymentIntentId__c,
+                       Dunning_Step__c, Dunning_Action__c,
                        Account__r.Reseller_Name__c, Account__r.PayProv_PaymentMethodType__c
                 FROM Payment__c
                 WHERE Id IN :paymentSfIds
@@ -89,6 +90,13 @@ public without sharing class Svc_StripeEventProcessor {
         // saved payment method per account, typed afterwards by Svc_PaymentIntent.TypeJob (needs a callout)
         Map<Id, String>                 savedMethod              = new Map<Id, String>();
         Map<Id, String>                 savedMethodStripeAccount = new Map<Id, String>();
+        // PaymentIntent that saved a direct debit method without naming its mandate (SEPA via a payment, no mandate event)
+        Map<Id, String>                 savedMethodIntent        = new Map<Id, String>();
+        // pay-now payments (dunning link): only TypeJob decides what is saved (card, iDEAL's SEPA mandate; no bank transfer)
+        Set<Id>                         payNowAccounts           = new Set<Id>();
+        // dunning cycle (Svc_PaymentDunning): next-step fields per payment, refused methods to clear per account
+        Map<Id, Payment__c>             dunningUpdates = new Map<Id, Payment__c>();
+        Map<Id, String>                 refusedMethods = new Map<Id, String>();
 
         for (ParsedEvent p : parsed) {
             // 3a. Populate event custom fields
@@ -110,7 +118,15 @@ public without sharing class Svc_StripeEventProcessor {
             // 3b. Resolve Account ID
             Id accountId = accountResolution.resolve(p.customerId, p.paymentMethodId);
 
-            if (accountId != null && (String.isNotBlank(p.paymentMethodId) || String.isNotBlank(p.mandateId))) {
+            // 20261109 TRi a failed charge or setup carries the refused method: never store it (it would undo a cleared method)
+            Boolean payNow = Svc_PaymentIntent.PAY_NOW.equals(p.checkout);
+            if (payNow && accountId != null && !isFailedAttempt(p.eventType) && String.isNotBlank(p.paymentMethodId)
+                    && String.isNotBlank(p.stripeAccountId) && String.isNotBlank(p.paymentIntentId)) {
+                savedMethod.put(accountId, p.paymentMethodId);
+                savedMethodStripeAccount.put(accountId, p.stripeAccountId);
+                savedMethodIntent.put(accountId, p.paymentIntentId);
+                payNowAccounts.add(accountId);
+            } else if (accountId != null && !payNow && !isFailedAttempt(p.eventType) && (String.isNotBlank(p.paymentMethodId) || String.isNotBlank(p.mandateId))) {
                 if (!accountMap.containsKey(accountId)) {
                     accountMap.put(accountId, new Account(Id = accountId));
                 }
@@ -120,6 +136,7 @@ public without sharing class Svc_StripeEventProcessor {
                 if (String.isNotBlank(p.paymentMethodId) && String.isNotBlank(p.stripeAccountId)) {
                     savedMethod.put(accountId, p.paymentMethodId);
                     savedMethodStripeAccount.put(accountId, p.stripeAccountId);
+                    if (String.isNotBlank(p.paymentIntentId) && String.isBlank(p.mandateId)) savedMethodIntent.put(accountId, p.paymentIntentId);
                 }
             }
 
@@ -174,10 +191,29 @@ public without sharing class Svc_StripeEventProcessor {
                     }
                     paymentUpdates.put(payment.Id, pu);
                 }
-                if (!awaitsCustomer && isFailure(p.eventType, p.errorCode)) {
+                Boolean failed   = !awaitsCustomer && isFailure(p.eventType, p.errorCode);
+                Boolean reversed = isReversal(p.eventType, p.errorCode);
+                // 20261109 TRi a collected payment that fails goes into the dunning cycle (mails, retry, link) instead of
+                // a Case: the batch's off-session charge, or a debit that was already accepted (a direct debit that fails
+                // days later, a reversal). Only the move into Failed/Reversed counts: a repeated event (redelivery,
+                // reconcile, the batch's own 402 for the same charge) leaves the step as it is. A failed first checkout
+                // or setup on the payment page keeps the Case: the customer has no saved method to retry with.
+                if ((failed || reversed) && Svc_PaymentDunning.TYPES.contains(payment.Type__c)
+                        && isCollectionFailure(p, currentStatus)) {
+                    if (!Svc_PaymentDunning.OPEN_STATUSES.contains(currentStatus)) {
+                        Payment__c current = dunningUpdates.containsKey(payment.Id) ? dunningView(payment, dunningUpdates.get(payment.Id)) : payment;
+                        Payment__c d = Svc_PaymentDunning.next(current, p.errorCode, p.declineCode, reversed, p.paymentIntentId);
+                        if (d != null) dunningUpdates.put(payment.Id, d);
+                        if (!reversed && Svc_PaymentDunning.isPermanent(p.errorCode, p.declineCode) && String.isNotBlank(p.paymentMethodId)) {
+                            refusedMethods.put(payment.Account__c, p.paymentMethodId);
+                        }
+                    }
+                    continue;
+                }
+                if (failed) {
                     newCases.add(buildFailureCase(payment, p.errorMessage, p.errorCode, queueId, contactId));
                 }
-                if (isReversal(p.eventType, p.errorCode)) {
+                if (reversed) {
                     newCases.add(buildReversalCase(payment, p.errorCode, queueId, contactId));
                 }
             }
@@ -188,12 +224,29 @@ public without sharing class Svc_StripeEventProcessor {
         linkEarlierMandates(accountMap, parsed);
 
         // before the account update: compares against the method the account had so far
-        enqueueTypeJob(savedMethod, savedMethodStripeAccount);
+        enqueueTypeJob(savedMethod, savedMethodStripeAccount, savedMethodIntent, payNowAccounts);
+
+        // dunning fields only while the payment ends this run still failed (a later event in the run may have paid it)
+        for (Payment__c d : dunningUpdates.values()) {
+            Payment__c pu = paymentUpdates.get(d.Id);
+            if (pu == null || !Svc_PaymentDunning.OPEN_STATUSES.contains(pu.Status__c)) continue;
+            for (String f : d.getPopulatedFieldsAsMap().keySet()) {
+                if (f != 'Id' && !(f == 'externalId__c' && pu.externalId__c != null)) pu.put(f, d.get(f));
+            }
+        }
 
         // 4. DML
         if (!eventUpdates.isEmpty())   update eventUpdates;
+        // before the account update: a method saved in this same run is never the refused one
+        Svc_PaymentDunning.clearMethods(refusedMethods);
         if (!accountMap.isEmpty())     update accountMap.values();
         if (!paymentUpdates.isEmpty()) Database.update(paymentUpdates.values(), AccessLevel.SYSTEM_MODE);
+        // 20261109 TRi paid after the dunning suspension Case: tell the agent on that Case
+        List<Payment__c> paidInDunning = new List<Payment__c>();
+        for (Payment__c pu : paymentUpdates.values()) {
+            if (DEBITING_STATUSES.contains(pu.Status__c) && paymentMap.containsKey(pu.Id)) paidInDunning.add(paymentMap.get(pu.Id));
+        }
+        Svc_PaymentDunning.notePaid(paidInDunning, 'Processing/Paid');
         if (!newCases.isEmpty())       insertOrAppendCases(newCases);
     }
 
@@ -260,7 +313,7 @@ public without sharing class Svc_StripeEventProcessor {
     }
 
     /** Only for a method that is new on the account or not typed yet: repeat charges reuse the same, typed method. */
-    private static void enqueueTypeJob(Map<Id, String> savedMethod, Map<Id, String> savedMethodStripeAccount) {
+    private static void enqueueTypeJob(Map<Id, String> savedMethod, Map<Id, String> savedMethodStripeAccount, Map<Id, String> savedMethodIntent, Set<Id> payNowAccounts) {
         if (savedMethod.isEmpty()) return;
         for (Account a : [SELECT Id, PayProv_PaymentMethodId__c, PayProv_PaymentMethodType__c FROM Account
                           WHERE Id IN :savedMethod.keySet() WITH SYSTEM_MODE]) {
@@ -269,7 +322,7 @@ public without sharing class Svc_StripeEventProcessor {
             }
         }
         if (savedMethod.isEmpty() || Limits.getQueueableJobs() >= Limits.getLimitQueueableJobs()) return;
-        System.enqueueJob(new Svc_PaymentIntent.TypeJob(savedMethod, savedMethodStripeAccount));
+        System.enqueueJob(new Svc_PaymentIntent.TypeJob(savedMethod, savedMethodStripeAccount, savedMethodIntent, payNowAccounts));
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -295,11 +348,14 @@ public without sharing class Svc_StripeEventProcessor {
                 p.customerId      = (String) obj.get('customer');
                 p.paymentMethodId = (String) obj.get('payment_method');
                 p.mandateId       = (String) obj.get('mandate');
+                p.setupFutureUsage = (String) obj.get('setup_future_usage');
                 Map<String, Object> metadata = (Map<String, Object>) obj.get('metadata');
                 if (metadata != null) p.paymentSfId = (String) metadata.get('PaymentID');
+                if (metadata != null) p.checkout    = (String) metadata.get('Checkout');
                 Map<String, Object> err = (Map<String, Object>) obj.get('last_payment_error');
                 if (err != null) {
                     p.errorCode    = (String) err.get('code');
+                    p.declineCode  = (String) err.get('decline_code');
                     p.errorMessage = (String) err.get('message');
                 }
 
@@ -313,6 +369,7 @@ public without sharing class Svc_StripeEventProcessor {
                 Map<String, Object> err = (Map<String, Object>) obj.get('last_setup_error');
                 if (err != null) {
                     p.errorCode    = (String) err.get('code');
+                    p.declineCode  = (String) err.get('decline_code');
                     p.errorMessage = (String) err.get('message');
                 }
 
@@ -381,6 +438,25 @@ public without sharing class Svc_StripeEventProcessor {
             || (Svc_PaymentIntent.STATUS_ACTION_REQUIRED.equals(currentStatus) && 'payment_intent_authentication_failure'.equals(errorCode));
     }
 
+    private static Boolean isCollectionFailure(ParsedEvent p, String currentStatus) {
+        if (!'payment_intent.payment_failed'.equals(p.eventType)) return false;
+        return String.isBlank(p.setupFutureUsage) || DEBITING_STATUSES.contains(currentStatus)
+            || Svc_PaymentDunning.OPEN_STATUSES.contains(currentStatus);
+    }
+
+    private static Boolean isFailedAttempt(String evtType) {
+        return 'payment_intent.payment_failed'.equals(evtType) || 'setup_intent.setup_failed'.equals(evtType);
+    }
+
+    /** The payment as the dunning cycle sees it after an earlier failure in this same run. */
+    private static Payment__c dunningView(Payment__c payment, Payment__c earlier) {
+        Payment__c v = payment.clone(true, true);
+        v.Dunning_Step__c   = earlier.Dunning_Step__c;
+        v.Dunning_Action__c = earlier.Dunning_Action__c;
+        if (earlier.externalId__c != null) v.externalId__c = earlier.externalId__c;
+        return v;
+    }
+
     private static Boolean isFailure(String evtType, String errorCode) {
         return ('payment_intent.payment_failed'.equals(evtType) && !REVERSAL_CODES.contains(errorCode))
             || 'setup_intent.setup_failed'.equals(evtType);
@@ -443,6 +519,9 @@ public without sharing class Svc_StripeEventProcessor {
         String paymentSfId;    // Salesforce Payment__c record Id from metadata
         Id     stripeAccountId; // stripeGC__Stripe_Account__c of the event (= Business_Entities__c.PayProv_Account__c)
         String errorCode;
+        String declineCode;     // card: the specific reason under code card_declined (insufficient_funds, lost_card…)
+        String setupFutureUsage; // PaymentIntent: off_session on a checkout on the payment page, empty on the batch's off-session charge
+        String checkout;         // metadata[Checkout]: paynow / renewal for the dunning payment page
         String errorMessage;
     }
 }

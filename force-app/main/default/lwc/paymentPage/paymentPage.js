@@ -32,6 +32,15 @@ const I18N = {
         columnProvider: 'Secure Payment',
         pageText: 'Please review your order details below, then complete your secure payment on the right.',
         authenticateText: 'Your bank asks you to confirm this payment. Check the details below, then confirm the payment on the right.',
+        dunningPayText: 'We could not collect this payment. Please pay the outstanding amount now on the right. The payment method you use is also saved for your next invoices.',
+        dunningRenewText: 'We could not collect this payment: your saved payment details can no longer be used (for example an expired card or a cancelled mandate). Please renew your payment details on the right; the outstanding amount is paid right away and your new details are saved for your next invoices.',
+        renewCardText: 'The card you use for this payment expires before the collection date. Please enter new payment details on the right; this payment is collected with them on the collection date.',
+        retryScheduledTitle: 'Payment will be retried',
+        retryScheduledBody: 'This payment could not be collected. We will try again automatically on {0}. No action is needed.',
+        redirectFailed: 'The payment at your bank was not completed. Please try again or choose another payment method.',
+        bankTransferTitle: 'Bank transfer chosen',
+        bankTransferBody: 'Please transfer the amount using the bank details and reference from the instructions. We register the payment as soon as the transfer arrives.',
+        bankTransferLink: 'Show the bank transfer instructions',
         customer: 'Name',
         reference: 'Reference',
         beneficiary: 'Beneficiary',
@@ -59,6 +68,15 @@ const I18N = {
         columnProvider: 'Veilig betalen',
         pageText: 'Controleer hieronder uw bestelgegevens en rond vervolgens rechts uw beveiligde betaling af.',
         authenticateText: 'Uw bank vraagt u deze betaling te bevestigen. Controleer hieronder de gegevens en bevestig rechts de betaling.',
+        dunningPayText: 'We konden deze betaling niet incasseren. Betaal het openstaande bedrag nu rechts. De betaalmethode die u gebruikt, wordt ook bewaard voor uw volgende facturen.',
+        dunningRenewText: 'We konden deze betaling niet incasseren: uw opgeslagen betaalgegevens kunnen niet meer worden gebruikt (bijvoorbeeld een verlopen kaart of een ingetrokken machtiging). Vernieuw rechts uw betaalgegevens; het openstaande bedrag wordt direct betaald en uw nieuwe gegevens worden bewaard voor uw volgende facturen.',
+        renewCardText: 'De kaart waarmee u deze betaling doet, verloopt vóór de incassodatum. Vul rechts nieuwe betaalgegevens in; deze betaling wordt daarmee op de incassodatum geïncasseerd.',
+        retryScheduledTitle: 'Betaling wordt opnieuw geprobeerd',
+        retryScheduledBody: 'Deze betaling kon niet worden geïncasseerd. We proberen het op {0} automatisch opnieuw. U hoeft niets te doen.',
+        redirectFailed: 'De betaling bij uw bank is niet afgerond. Probeer het opnieuw of kies een andere betaalmethode.',
+        bankTransferTitle: 'Bankoverschrijving gekozen',
+        bankTransferBody: 'Maak het bedrag over met de bankgegevens en het kenmerk uit de instructies. Wij verwerken de betaling zodra de overschrijving binnen is.',
+        bankTransferLink: 'Toon de instructies voor de overschrijving',
         customer: 'Naam',
         reference: 'Referentie',
         beneficiary: 'Begunstigde',
@@ -86,6 +104,15 @@ const I18N = {
         columnProvider: 'Sichere Zahlung',
         pageText: 'Bitte überprüfen Sie unten Ihre Bestelldetails und schließen Sie anschließend rechts Ihre sichere Zahlung ab.',
         authenticateText: 'Ihre Bank bittet Sie, diese Zahlung zu bestätigen. Prüfen Sie unten die Angaben und bestätigen Sie rechts die Zahlung.',
+        dunningPayText: 'Wir konnten diese Zahlung nicht einziehen. Bitte bezahlen Sie den offenen Betrag jetzt rechts. Die verwendete Zahlungsmethode wird auch für Ihre nächsten Rechnungen gespeichert.',
+        dunningRenewText: 'Wir konnten diese Zahlung nicht einziehen: Ihre gespeicherten Zahlungsdaten können nicht mehr verwendet werden (zum Beispiel eine abgelaufene Karte oder ein widerrufenes Mandat). Bitte erneuern Sie rechts Ihre Zahlungsdaten; der offene Betrag wird sofort bezahlt und Ihre neuen Daten werden für Ihre nächsten Rechnungen gespeichert.',
+        renewCardText: 'Die Karte, mit der Sie diese Zahlung leisten, läuft vor dem Einzugsdatum ab. Bitte geben Sie rechts neue Zahlungsdaten ein; diese Zahlung wird damit am Einzugsdatum eingezogen.',
+        retryScheduledTitle: 'Zahlung wird erneut versucht',
+        retryScheduledBody: 'Diese Zahlung konnte nicht eingezogen werden. Wir versuchen es am {0} automatisch erneut. Sie müssen nichts tun.',
+        redirectFailed: 'Die Zahlung bei Ihrer Bank wurde nicht abgeschlossen. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsmethode.',
+        bankTransferTitle: 'Banküberweisung gewählt',
+        bankTransferBody: 'Bitte überweisen Sie den Betrag mit den Bankdaten und dem Verwendungszweck aus der Anleitung. Wir verbuchen die Zahlung, sobald die Überweisung eingegangen ist.',
+        bankTransferLink: 'Anleitung für die Überweisung anzeigen',
         customer: 'Name',
         reference: 'Referenz',
         beneficiary: 'Empfänger',
@@ -113,6 +140,15 @@ const I18N = {
         columnProvider: 'Paiement sécurisé',
         pageText: 'Veuillez vérifier les détails de votre commande ci-dessous, puis finalisez votre paiement sécurisé à droite.',
         authenticateText: 'Votre banque vous demande de confirmer ce paiement. Vérifiez les détails ci-dessous, puis confirmez le paiement à droite.',
+        dunningPayText: 'Nous n\'avons pas pu prélever ce paiement. Veuillez régler le montant dû maintenant à droite. Le moyen de paiement utilisé est également enregistré pour vos prochaines factures.',
+        dunningRenewText: 'Nous n\'avons pas pu prélever ce paiement : vos coordonnées de paiement enregistrées ne peuvent plus être utilisées (par exemple une carte expirée ou un mandat révoqué). Veuillez renouveler vos coordonnées de paiement à droite ; le montant dû est réglé immédiatement et vos nouvelles coordonnées sont enregistrées pour vos prochaines factures.',
+        renewCardText: 'La carte utilisée pour ce paiement expire avant la date de prélèvement. Veuillez saisir de nouvelles coordonnées de paiement à droite ; ce paiement sera prélevé avec celles-ci à la date de prélèvement.',
+        retryScheduledTitle: 'Le paiement sera de nouveau tenté',
+        retryScheduledBody: 'Ce paiement n\'a pas pu être prélevé. Nous réessaierons automatiquement le {0}. Aucune action n\'est requise.',
+        redirectFailed: 'Le paiement auprès de votre banque n\'a pas abouti. Veuillez réessayer ou choisir un autre moyen de paiement.',
+        bankTransferTitle: 'Virement bancaire choisi',
+        bankTransferBody: 'Veuillez virer le montant avec les coordonnées bancaires et la référence indiquées dans les instructions. Nous enregistrons le paiement dès réception du virement.',
+        bankTransferLink: 'Afficher les instructions de virement',
         customer: 'Nom',
         reference: 'Référence',
         beneficiary: 'Bénéficiaire',
@@ -160,6 +196,19 @@ export default class PaymentPage extends LightningElement {
     // correctly via Intl formatting — these plain-text labels were the gap).
     _alreadyProcessed = false;
     _alreadyScheduled = false;
+    _retryScheduled = false;   // dunning: a failed payment waiting for its automatic retry
+    bankTransferUrl;           // dunning: bank transfer chosen, Stripe's hosted instructions
+    showRedirectFailed = false; // back from the bank (iDEAL) without paying
+
+    // Stripe adds redirect_status (succeeded / failed / processing) to the return url after a bank redirect (iDEAL)
+    get _redirectStatus() {
+        try {
+            return new URLSearchParams(window.location.search).get('redirect_status');
+        } catch (e) {
+            return null;
+        }
+    }
+    get labelRedirectFailed() { return this._t.redirectFailed; }
     _methodSaved = false;
     _scheduledDate;
 
@@ -168,7 +217,15 @@ export default class PaymentPage extends LightningElement {
     get labelPageTitle()      { return this._t.pageTitle; }
     get labelColumnOrder()    { return this._t.columnOrder; }
     get labelColumnProvider() { return this._t.columnProvider; }
-    get paymentPageText()     { return this.isAuthenticateMode ? this._t.authenticateText : this._t.pageText; }
+    get paymentPageText() {
+        if (this.isAuthenticateMode) return this._t.authenticateText;
+        // dunning (Ctrl_Payment.PaymentData.dunning): the payment failed, or the saved card expires before collection
+        const dunning = this.payment?.dunning;
+        if (dunning === 'renew')     return this._t.dunningRenewText;
+        if (dunning === 'pay')       return this._t.dunningPayText;
+        if (dunning === 'renewCard') return this._t.renewCardText;
+        return this._t.pageText;
+    }
     get labelCustomer()       { return this._t.customer; }
     get labelReference()      { return this._t.reference; }
     get labelBeneficiary()    { return this._t.beneficiary; }
@@ -176,12 +233,17 @@ export default class PaymentPage extends LightningElement {
     get labelDate()           { return this._t.date; }
     get labelAmount()         { return this._t.amount; }
     get labelSuccessTitle() {
-        if (this._alreadyScheduled) return this._t.alreadyScheduledTitle;
+        if (this.bankTransferUrl) return this._t.bankTransferTitle;
+        if (this._alreadyScheduled) return this._retryScheduled ? this._t.retryScheduledTitle : this._t.alreadyScheduledTitle;
         if (this._methodSaved)      return this._t.successSetupTitle;
         return this._alreadyProcessed ? this._t.alreadyProcessedTitle : this._t.successTitle;
     }
     get labelSuccessBody() {
-        if (this._alreadyScheduled) return this._t.alreadyScheduledBody.replace('{0}', this._formatDate(this._scheduledDate));
+        if (this.bankTransferUrl) return this._t.bankTransferBody;
+        if (this._alreadyScheduled) {
+            const body = this._retryScheduled ? this._t.retryScheduledBody : this._t.alreadyScheduledBody;
+            return body.replace('{0}', this._formatDate(this._scheduledDate));
+        }
         // SetupIntent completed: the method is saved, nothing is charged until the collection date
         if (this._methodSaved) {
             const date = this.payment?.collectionDate;
@@ -195,6 +257,7 @@ export default class PaymentPage extends LightningElement {
             ? new Date(value).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })
             : '';
     }
+    get labelBankTransferLink() { return this._t.bankTransferLink; }
     get labelLineNumber()     { return this._t.lineNumber; }
     get labelProductCode()    { return this._t.productCode; }
     get labelProductName()    { return this._t.productName; }
@@ -423,18 +486,26 @@ export default class PaymentPage extends LightningElement {
                     this.hasError     = true;
                     this.errorMessage = data.errorMessage || 'Payment not found.';
                 } else if (data.alreadyProcessed) {
-                    this._alreadyProcessed = true;
+                    // just back from the bank with a paid iDEAL: "payment received", not "already completed"
+                    this._alreadyProcessed = this._redirectStatus !== 'succeeded' && this._redirectStatus !== 'processing';
+                    this._applyCustomerLanguage(data.language);
                     this.viewState         = 'success';
                 } else if (data.alreadyScheduled) {
                     this._alreadyScheduled = true;
+                    this._retryScheduled   = data.dunning === 'retry';
                     this._scheduledDate    = data.collectionDate;
                     this._applyCustomerLanguage(data.language);
                     this.viewState         = 'success';
+                } else if (data.bankTransferUrl) {
+                    this.bankTransferUrl = data.bankTransferUrl;
+                    this._applyCustomerLanguage(data.language);
+                    this.viewState       = 'success';
                 } else if (data.errorMessage) {
                     this.hasError     = true;
                     this.errorMessage = data.errorMessage;
                 } else {
                     this.payment = data;
+                    this.showRedirectFailed = this._redirectStatus === 'failed';
                     this._applyCustomerLanguage(data.language);
                 }
                 this.isLoading = false;
@@ -481,12 +552,16 @@ export default class PaymentPage extends LightningElement {
                 intentMode:    d?.intentMode,
                 futureConsent: d?.futureConsent === true
             }).catch(() => {});
+        } else if (status === 'requires_action' && this.payment?.dunning) {
+            // bank transfer: Stripe showed the instructions; reload to keep them on the page (the payment waits for the money)
+            this._loadPayment(this._token);
         } else if (status === 'canceled' || status === 'requires_payment_method') {
             this.intentMessage = d?.intentMessage || 'Payment was not completed.';
             this.viewState     = 'error';
             // authenticate mode: the payment stays Action Required and the customer can try again;
             // rab_Payment_Action_Required creates the one Case when it expires
-            if (this.payment?.paymentId && !this.isAuthenticateMode) {
+            // dunning: no Case either - the customer can try again and the dunning mails follow up
+            if (this.payment?.paymentId && !this.isAuthenticateMode && !this.payment?.dunning) {
                 createPaymentFailureCase({
                     paymentId: this.payment.paymentId,
                     reason: d?.intentMessage || status

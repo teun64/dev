@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Failure_Code__c</fullName>
+    <description>Last failure reason from the payment provider (Stripe decline_code, else code), e.g. insufficient_funds, expired_card. Decides retry vs renew in the dunning cycle.</description>
+    <externalId>false</externalId>
+    <label>Failure Code</label>
+    <length>80</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

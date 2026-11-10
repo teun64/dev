@@ -28,6 +28,12 @@ public without sharing class Ctrl_Payment {
         @AuraEnabled public String billingCountry;
         @AuraEnabled public ProductLine productLine;
         @AuraEnabled public String language;          // nl/de/fr/en from the contact's Language__c, null when unknown
+        // dunning (Svc_PaymentDunning): 'retry' (automatic retry on collectionDate), 'pay' (failed, pay now), 'renew'
+        // (failed, the saved method was refused for good: pay now with new details), 'renewCard' (the saved card expires
+        // before collectionDate: save a new one); null for a normal payment
+        @AuraEnabled public String dunning;
+        @AuraEnabled public String suspensionDate;
+        @AuraEnabled public String bankTransferUrl;   // dunning: the customer chose bank transfer, Stripe's instructions
     }
 
     public class ProductLine {
@@ -60,6 +66,8 @@ public without sharing class Ctrl_Payment {
         List<Payment__c> payments = Database.queryWithBinds(
             'SELECT Id, Name, externalId__c, Type__c, Status__c, CurrencyIsoCode, Request_Date__c, Amount_Gross__c, Collection_Date__c,' +
             '       PayProv_PaymentIntentId__c, PayProv_SetupIntentId__c,' +
+            '       Dunning_Step__c, Dunning_Action__c, Retry_Date__c, Suspension_Date__c, Card_Renewal_Requested__c,' +
+            '       Card_Expires_Before_Collection__c,' +
             '       Invoice__c, Invoice__r.Subscription25__Invoice_Number__c, Invoice__r.FinSysInvoiceId__c, Invoice__r.FinSysInvoiceNumber__c,' +
             '       Account__r.FinancialIdAccount__c, Account__r.FinancialDebtorNumber__c,' +
             '       Administration__r.Subscription25__Twinfield_Company_Code__c,' +
@@ -183,6 +191,63 @@ public without sharing class Ctrl_Payment {
             return result;
         }
 
+        // 20261109 TRi dunning: a failed payment waits for its one automatic retry, or is paid here now - with the saved
+        // method or new details, which are then saved for the next invoices too
+        if (Svc_PaymentDunning.OPEN_STATUSES.contains(p.Status__c) && p.Dunning_Step__c == Svc_PaymentDunning.STEP_RETRY) {
+            result.alreadyScheduled = true;
+            result.dunning          = 'retry';
+            result.collectionDate   = isoDate(p.Retry_Date__c);
+            return result;
+        }
+        if (Svc_PaymentDunning.OPEN_STATUSES.contains(p.Status__c) && p.Dunning_Step__c != null) {
+            result.dunning        = p.Dunning_Action__c == Svc_PaymentDunning.ACTION_RENEW ? 'renew' : 'pay';
+            result.suspensionDate = isoDate(p.Suspension_Date__c);
+            result.mode           = 'payment';
+            // Pay: card first (no direct debit offered). Renew: the kind of method the customer had first, with the
+            // direct debit consent when that is a debit (Svc_PaymentIntent.getOrCreatePayNow)
+            String lastType = p.Account__r?.PayProv_PaymentMethodType__c;
+            result.paymentMethodType = result.dunning != 'renew' ? Svc_PaymentIntent.CARD
+                : Svc_PaymentIntent.CARD.equals(lastType) ? Svc_PaymentIntent.CARD : ddMethod;
+            try {
+                Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreatePayNow(p, businessEntity);
+                if (c.processed) {
+                    result.alreadyProcessed = true;
+                    return result;
+                }
+                if (c.bankTransferUrl != null) {
+                    result.bankTransferUrl = c.bankTransferUrl;
+                    return result;
+                }
+                result.clientSecret = c.clientSecret;
+                Payment__c stored = Svc_PaymentIntent.storeUpdate(p, c);
+                if (stored != null) Database.update(stored, AccessLevel.SYSTEM_MODE);
+            } catch (Exception e) {
+                result.errorMessage = 'Could not initialise payment: ' + e.getMessage();
+            }
+            return result;
+        }
+
+        // 20261109 TRi the saved card expires before the collection date (Batch_CardExpiryCheck mailed the customer):
+        // save a new method now, the batch collects with it on the collection date
+        if (p.Status__c == 'New' && p.Card_Renewal_Requested__c != null && p.Card_Expires_Before_Collection__c) {
+            result.dunning           = 'renewCard';
+            result.mode              = 'setup';
+            result.paymentMethodType = 'bacs_debit'.equals(ddMethod) ? Svc_PaymentIntent.CARD : ddMethod;
+            try {
+                Svc_PaymentIntent.Checkout c = Svc_PaymentIntent.getOrCreateRenewal(p, businessEntity);
+                if (c.processed) {
+                    result.alreadyScheduled = true;
+                    return result;
+                }
+                result.clientSecret = c.clientSecret;
+                Payment__c stored = Svc_PaymentIntent.storeUpdate(p, c);
+                if (stored != null) Database.update(stored, AccessLevel.SYSTEM_MODE);
+            } catch (Exception e) {
+                result.errorMessage = 'Could not initialise setup: ' + e.getMessage();
+            }
+            return result;
+        }
+
         // Mandate or saved card already on file: Batch_ProcessPayments collects it off-session on the collection date.
         // The page never creates a PaymentIntent then — opening the link must not debit the customer.
         if (Svc_PaymentIntent.hasUsableMethod(p.Account__r)) {
@@ -208,6 +273,11 @@ public without sharing class Ctrl_Payment {
         }
 
         return result;
+    }
+
+    private static String isoDate(Date d) {
+        return d == null ? null
+            : d.year() + '-' + String.valueOf(d.month()).leftPad(2, '0') + '-' + String.valueOf(d.day()).leftPad(2, '0');
     }
 
     // ── Business Entity resolution ────────────────────────────────────────────
@@ -310,7 +380,7 @@ public without sharing class Ctrl_Payment {
         if (String.isBlank(token)) return;
 
         List<Payment__c> payments = Database.queryWithBinds(
-            'SELECT Id, Account__c FROM Payment__c' +
+            'SELECT Id, Name, Account__c, Dunning_Step__c FROM Payment__c' +
             ' WHERE externalId__c = :token' +
             ' AND Status__c != \'Closed\'' +
             ' LIMIT 1',
@@ -328,6 +398,7 @@ public without sharing class Ctrl_Payment {
             Status__c = newStatus,
             Interaction_Status__c = 'Request Processed by Customer'
         ), AccessLevel.SYSTEM_MODE);
+        if (newStatus == 'Processing') Svc_PaymentDunning.notePaid(payments, newStatus);
 
         // Disclosure only - the mandate is already reused for future subscription payments
         // regardless of this checkbox (see Ctrl_PaymentMandate). This just records that the

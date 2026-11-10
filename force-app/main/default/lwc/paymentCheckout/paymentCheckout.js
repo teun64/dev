@@ -89,7 +89,7 @@ export default class PaymentCheckout extends LightningElement {
     // ?v= busts the CDN's static-resource cache (cache-control: public, max-age=45 days,
     // observed independently of the site's own publish step) - bump this on every future
     // change to paymentCheckoutHtml.html, or the new HTML can sit unserved for weeks.
-    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=16`;
+    iframeSrc = `${PAYMENT_PROVIDER}/paymentCheckoutHtml.html?v=17`;
 
 
     // --- Computed Properties ---
@@ -120,6 +120,8 @@ export default class PaymentCheckout extends LightningElement {
                     mode: this.mode,
                     paymentMethodType: this.paymentMethodType,
                     paymentMethodId: this.paymentMethodId,
+                    // back here after a bank redirect (iDEAL)
+                    returnUrl: window.location.href,
                     theme: this.theme,
                     // Stripe's elements({locale}) only accepts its own short/hyphenated codes
                     // (nl, de, fr, en, en-GB, auto, ...) — this.localeSet is the underscored
@@ -204,6 +206,13 @@ export default class PaymentCheckout extends LightningElement {
                 console.log('✅ paymentCheckout - handleMessage - providerResult', data.result);
                 this.dispatchEvent(new CustomEvent('checkoutresult', {detail: data.result}));
                 break;
+
+            case 'providerRedirect':
+                // iDEAL: the bank's page opens in the whole window (banks refuse to open inside an iframe)
+                if (typeof data.url === 'string' && data.url.startsWith('https://')) {
+                    window.location.assign(data.url);
+                }
+                return; // no event
 
             case 'resizeIframe':
                 if (this.iframe && data.height) {

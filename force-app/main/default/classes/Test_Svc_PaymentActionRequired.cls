@@ -71,20 +71,21 @@ private class Test_Svc_PaymentActionRequired {
         }
     }
 
-    // ── expire: Failed + exactly one Case naming a card payment ──
+    // ── expire: Failed and into the dunning cycle at mail 2 (pay via the link), no Case ──
     @IsTest
-    static void testExpireFailsAndCreatesOneCase() {
+    static void testExpireStartsDunningWithoutCase() {
         Payment__c p = byToken('tok_ar_waiting');
 
         Test.startTest();
         Svc_PaymentActionRequired.run(new List<Svc_PaymentActionRequired.Request>{ request(p.Id, Svc_PaymentActionRequired.STEP_EXPIRE) });
         Test.stopTest();
 
-        System.assertEquals('Failed', byToken('tok_ar_waiting').Status__c);
-        List<Case> cases = [SELECT Subject, Description, ContactId FROM Case WHERE Subject LIKE 'Card payment failure%'];
-        System.assertEquals(1, cases.size(), 'One Case per expired payment');
-        System.assert(cases[0].Subject.endsWith(p.Name), cases[0].Subject);
-        System.assertNotEquals(null, cases[0].ContactId, 'Payment contact on the Case');
+        Payment__c after = [SELECT Status__c, Dunning_Step__c, Dunning_Action__c, Failure_Code__c FROM Payment__c WHERE Id = :p.Id WITH SYSTEM_MODE];
+        System.assertEquals('Failed', after.Status__c);
+        System.assertEquals(Svc_PaymentDunning.STEP_REQUESTED, after.Dunning_Step__c, 'No retry: an off-session retry would ask for 3-D Secure again');
+        System.assertEquals(Svc_PaymentDunning.ACTION_PAY, after.Dunning_Action__c, 'The card stays: the customer confirms on-session');
+        System.assertEquals('authentication_required', after.Failure_Code__c);
+        System.assertEquals(0, [SELECT COUNT() FROM Case WHERE Subject LIKE 'Card payment failure%'], 'No Case: the dunning mails follow up');
     }
 
     // ── a payment that is no longer Action Required is left alone ──

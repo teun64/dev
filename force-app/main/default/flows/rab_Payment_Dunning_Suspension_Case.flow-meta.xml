@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>act_01_Case</name>
+        <label>1. Suspension Case</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Svc_PaymentDunning</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>mode</name>
+            <value>
+                <stringValue>mail</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>paymentId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>step</name>
+            <value>
+                <stringValue>Suspension Case</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>Svc_PaymentDunning</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>68.0</apiVersion>
+    <description>Dunning cycle (Svc_PaymentDunning), step Suspension Case: Case in the reseller's gqPayment queue: the agent takes the appropriate action (suspend the services). Svc_PaymentDunning only acts while the payment is still Failed/Reversed on this step, so paying ends the cycle.</description>
+    <environments>Default</environments>
+    <interviewLabel>rab - Payment - Dunning Suspension Case {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>rab - Payment - Dunning Suspension Case</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>(1 OR 2) AND 3</filterLogic>
+        <filters>
+            <field>Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Failed</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Reversed</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Dunning_Step__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Suspension Case</stringValue>
+            </value>
+        </filters>
+        <object>Payment__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>act_01_Case</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

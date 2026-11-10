@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Card_Expires_Before_Collection__c</fullName>
+    <description>True when the Account's saved card (PayProv_CardExpiry__c) expires before this payment's collection date. Used by Batch_CardExpiryCheck.</description>
+    <formula>NOT(ISBLANK(Account__r.PayProv_CardExpiry__c)) &amp;&amp; NOT(ISBLANK(Collection_Date__c)) &amp;&amp; Account__r.PayProv_CardExpiry__c &lt; Collection_Date__c</formula>
+    <label>Card Expires Before Collection</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

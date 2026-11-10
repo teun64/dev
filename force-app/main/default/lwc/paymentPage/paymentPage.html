@@ -18,6 +18,11 @@
 
     <!-- Main checkout layout -->
     <template if:true={isReady}>
+        <template if:true={showRedirectFailed}>
+            <div class="slds-notify slds-notify_alert slds-theme_warning slds-var-m-around_medium" role="alert">
+                <span>{labelRedirectFailed}</span>
+            </div>
+        </template>
         <template if:true={hasBrandIdentity}>
             <div class="pp-brand-bar"></div>
         </template>
@@ -179,6 +184,11 @@
                     class="slds-var-m-bottom_medium"></lightning-icon>
                 <h2 class="slds-text-heading_medium slds-var-m-bottom_small">{labelSuccessTitle}</h2>
                 <p class="slds-text-body_regular">{labelSuccessBody}</p>
+                <template if:true={bankTransferUrl}>
+                    <p class="slds-var-m-top_medium">
+                        <a href={bankTransferUrl} target="_blank" rel="noopener">{labelBankTransferLink}</a>
+                    </p>
+                </template>
             </div>
         </div>
     </template>

@@ -203,6 +203,9 @@
             let billingCountry;
             let applePay;
             let paymentMethodId;
+            // the page the customer returns to after a bank redirect (iDEAL), and the method picked in the Payment Element
+            let returnUrl;
+            let selectedType;
             let submitPaymentLabel = '';
             let submitSetupLabel = '';
             let submitLabel = '';
@@ -280,6 +283,7 @@
                 // No Stripe Link: with the customer's e-mail prefilled Link takes over the form with a previously saved card
                 elementOptions.wallets = { link: 'never' };
                 intent = elements.create("payment", elementOptions);
+                intent.on('change', (event) => { selectedType = event.value?.type; });
                 intent.mount(elementContainer);
 
                 observeResize();
@@ -305,7 +309,7 @@
                 if (!data || !data.type) return;
 
                 if (data.type === 'initProvider') {
-                    const { publishableKey, clientSecret, mode: modeIn, paymentMethodType: paymentMethodTypeIn, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, futureConsentLabel: futureConsentLbl, futureConsentRequiredLabel: futureConsentRequiredLbl, amount: formattedAmount, billingEmail: bEmail, billingName: bName, billingAddressLine1: bAddressLine1, billingCity: bCity, billingPostalCode: bPostalCode, billingCountry: bCountry, applePay: applePayIn, paymentMethodId: paymentMethodIdIn } = data;
+                    const { publishableKey, clientSecret, mode: modeIn, paymentMethodType: paymentMethodTypeIn, theme: themeSet, locale: localeSet, cancelLabel: cancelLbl, cancelConfirmLabel: cancelConfirmLbl, processingLabel: processingLbl, submitPaymentLabel: submitPaymentLbl, submitSetupLabel: submitSetupLbl, futureConsentLabel: futureConsentLbl, futureConsentRequiredLabel: futureConsentRequiredLbl, amount: formattedAmount, billingEmail: bEmail, billingName: bName, billingAddressLine1: bAddressLine1, billingCity: bCity, billingPostalCode: bPostalCode, billingCountry: bCountry, applePay: applePayIn, paymentMethodId: paymentMethodIdIn, returnUrl: returnUrlIn } = data;
                     // Assigning (not re-declaring) the module-level `mode`/`paymentMethodType`
                     // here on purpose — showsFutureConsent() below reads those module-level
                     // bindings. Destructuring them directly as const would shadow the outer
@@ -320,6 +324,7 @@
                     billingCountry      = bCountry;
                     applePay            = applePayIn || null;
                     paymentMethodId     = paymentMethodIdIn || null;
+                    returnUrl           = returnUrlIn || document.referrer || window.location.href;
                     theme = themeSet || 'none';
                     cancelLabel = cancelLbl || 'Cancel';
                     cancelConfirmLabel = cancelConfirmLbl || 'Are you sure you want to cancel this checkout session?';
@@ -449,6 +454,20 @@
                                     elements,
                                     redirect: 'if_required'
                                 });
+                            } else if (selectedType === 'ideal') {
+                                // iDEAL always goes to the bank's page, which won't open inside this iframe: Stripe returns
+                                // the redirect url (handleActions false) and the page opens it in the whole window; the
+                                // bank sends the customer back to returnUrl (the payment link)
+                                const idealResponse = await provider.confirmIdealPayment(cs, {
+                                    payment_method: { ideal: {}, billing_details: { name: billingName, email: billingEmail } },
+                                    return_url: returnUrl
+                                }, { handleActions: false });
+                                const redirectUrl = idealResponse.paymentIntent?.next_action?.redirect_to_url?.url;
+                                if (!idealResponse.error && redirectUrl) {
+                                    parent.postMessage({ type: 'providerRedirect', url: redirectUrl }, window.location.origin);
+                                    return;
+                                }
+                                response = idealResponse;
                             } else {
                                 response = await provider.confirmPayment({
                                     elements,

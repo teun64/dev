@@ -6,8 +6,11 @@
  * without a saved type are charged with the Business Entity's direct debit method, as before.
  *   - New:   recurring payment, the Account already had a mandate when the payment was created.
  *   - Setup: first payment, the customer has completed the mandate setup since.
+ *   - Failed/Reversed on Dunning Step 'Retry Planned': the one automatic retry of the dunning cycle, on Retry_Date__c.
  * A successful request moves the payment to Processing; Svc_StripeEventProcessor takes it from there (Paid/Failed).
- * A Stripe error or missing configuration sets Failed and opens a Case in the reseller's gqPayment queue.
+ * A decline by the bank (Stripe error with a PaymentIntent) sets Failed and moves the payment into / through the dunning
+ * cycle (Svc_PaymentDunning: mails, no Case); a refused-for-good method is cleared from the Account. Missing
+ * configuration or any other error sets Failed and opens a Case in the reseller's gqPayment queue.
  * Each request carries an idempotency key (payment + collection date): if the status update after a successful
  * request fails, the next run gets the same PaymentIntent back from Stripe instead of charging twice. An intent
  * already stored on the payment (PayProv_PaymentIntentId__c) is checked first: processing/succeeded → only the
@@ -41,7 +44,8 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
     public override Database.QueryLocator startBatch(Database.BatchableContext bc) {
         // no bind variables: the Subscription25 job framework runs the locator outside this method's scope
         return Database.getQueryLocator(
-            'SELECT Id, Name, Status__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c, PayProv_PaymentIntentId__c, externalId__c,' +
+            'SELECT Id, Name, Status__c, Type__c, Collection_Date__c, CurrencyIsoCode, Amount_Gross__c, Account__c, PayProv_PaymentIntentId__c, externalId__c,' +
+            ' Dunning_Step__c, Dunning_Action__c, Retry_Date__c,' +
             ' Account__r.PayProv_CustomerId__c, Account__r.PayProv_PaymentMethodId__c, Account__r.PayProv_MandateId__c,' +
             ' Account__r.PayProv_PaymentMethodType__c,' +
             ' Account__r.Reseller_Name__c, Administration__r.Reseller__c,' +
@@ -50,7 +54,9 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             ' Administration__r.Subscription25__Twinfield_Company_Code__c' +
             ' FROM Payment__c' +
             ' WHERE Type__c IN (\'psp-recurring\', \'psp-dd\')' +
-            ' AND Status__c IN (\'New\', \'Setup\')' +
+            // 20261109 TRi plus the dunning retry (Svc_PaymentDunning): once, on its Retry Date
+            ' AND (Status__c IN (\'New\', \'Setup\')' +
+            '      OR (Status__c IN (\'Failed\', \'Reversed\') AND Dunning_Step__c = \'Retry Planned\' AND Retry_Date__c <= TODAY))' +
             ' AND Payment_Batch__c = null' +
             ' AND Collection_Date__c <= TODAY' +
             ' AND Account__r.PayProv_CustomerId__c != null' +
@@ -115,6 +121,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
 
         List<Payment__c> statusUpdates = new List<Payment__c>();
         List<Case>       failureCases  = new List<Case>();
+        Map<Id, String>  refusedMethods = new Map<Id, String>();
 
         for (Payment__c p : payments) {
             Business_Entities__c businessEntity = resellerToBusinessEntity.get(p.Administration__r?.Reseller__c);
@@ -129,8 +136,10 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
             if (String.isBlank(stripeAccountId)) preflightError = 'No Stripe account configured on Business Entity.';
             else if (amountCents <= 0)            preflightError = 'Invalid payment amount (' + p.Amount_Gross__c + ').';
 
+            Boolean isRetry = p.Dunning_Step__c == Svc_PaymentDunning.STEP_RETRY;
             if (preflightError != null) {
-                statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed'));
+                // a retry that can't run is not retried every day: the dunning flow moves it on to the payment link
+                statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed', Retry_Date__c = isRetry ? null : p.Retry_Date__c));
                 failureCases.add(buildFailureCase(p, preflightError, resellerToQueue, accountToContact));
                 continue;
             }
@@ -157,7 +166,8 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
                     p.Account__r.PayProv_PaymentMethodId__c,
                     p.Account__r.PayProv_MandateId__c,
                     amountCents, p.CurrencyIsoCode, methodType, p.Id,
-                    p.Id + '-' + String.valueOf(p.Collection_Date__c),
+                    // the retry is a new charge: its own key, never the first attempt's intent back from Stripe
+                    p.Id + '-' + String.valueOf(p.Collection_Date__c) + (isRetry ? '-retry' : ''),
                     Svc_PaymentIntent.finSysParams(p, true)
                 );
                 statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Processing', PayProv_PaymentIntentId__c = paymentIntentId));
@@ -172,7 +182,20 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
                     statusUpdates.add(u);
                     continue;
                 }
-                statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed'));
+                // 20261109 TRi declined by the bank (the charge exists in Stripe): the dunning cycle mails the customer,
+                // no Case. The payment_failed webhook of the same charge then finds the payment Failed and leaves it.
+                Payment__c d = se != null && String.isNotBlank(se.paymentIntentId)
+                    ? Svc_PaymentDunning.next(p, se.code, se.declineCode, false, se.paymentIntentId) : null;
+                if (d != null) {
+                    d.Status__c = 'Failed';
+                    d.PayProv_PaymentIntentId__c = se.paymentIntentId;
+                    statusUpdates.add(d);
+                    if (Svc_PaymentDunning.isPermanent(se.code, se.declineCode)) {
+                        refusedMethods.put(p.Account__c, p.Account__r.PayProv_PaymentMethodId__c);
+                    }
+                    continue;
+                }
+                statusUpdates.add(new Payment__c(Id = p.Id, Status__c = 'Failed', Retry_Date__c = isRetry ? null : p.Retry_Date__c));
                 failureCases.add(buildFailureCase(p, 'Stripe error: ' + e.getMessage(), resellerToQueue, accountToContact));
             }
         }
@@ -187,6 +210,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
                 addError(byId.get(statusUpdates[i].Id).Name + ' status ' + statusUpdates[i].Status__c + ': ' + results[i].getErrors()[0].getMessage());
             }
         }
+        Svc_PaymentDunning.clearMethods(refusedMethods);
         if (!failureCases.isEmpty()) {
             for (Database.SaveResult r : Database.insert(failureCases, false, AccessLevel.SYSTEM_MODE)) {
                 if (!r.isSuccess()) addError('Case: ' + r.getErrors()[0].getMessage());
