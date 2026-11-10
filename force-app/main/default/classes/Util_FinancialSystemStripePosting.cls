@@ -5,6 +5,7 @@
  * Entry per payout (all lines on the payout's arrival date):
  *   - per payment / refund / dispute: the debtor with the raw Exact invoice number (OurRef), so Exact closes (or reopens)
  *     the invoice; the gross amount, never netted with the fee. Without a matching Exact invoice: the suspense account.
+ *     An intent that is no longer on its payment (dunning retry / pay-now replaced it) is matched via metadata[PaymentID].
  *   - fees on the fee account: one line for the processing fees of the payout's payments, plus one line per separately
  *     billed Stripe fee (e.g. "Radar (2026-10-28): Standard"). Stripe bills those per day for the whole account and takes
  *     them from the next payout, so they rarely belong to the payments in the same payout.
@@ -25,6 +26,11 @@ public without sharing class Util_FinancialSystemStripePosting {
 	// per execute: ~4 callouts per payout (balance transactions, duplicate check, post) within the 100 callout limit
 	@TestVisible
 	private static Integer maxPayoutsPerRun = 15;
+
+	// per transaction: Stripe reads of earlier PaymentIntents (addEarlierIntents), on top of the ~60 payout callouts
+	@TestVisible
+	private static Integer maxIntentLookups = 20;
+	private static Integer intentLookups = 0;
 
 	private static final Set<String> FEE_TYPES = new Set<String>{ 'stripe_fee', 'tax_fee', 'application_fee' };
 	private static final Integer JOURNAL_TYPE_BANK = 12;
@@ -281,6 +287,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 		]) {
 			paymentByIntent.put(pay.PayProv_PaymentIntentId__c, pay);
 		}
+		Util_FinancialSystemStripePosting.addEarlierIntents(be.PayProv_Account__c, intentIds, paymentByIntent);
 
 		List<FinSysPostingLine__c> lines = new List<FinSysPostingLine__c>();
 		Decimal gross = 0;
@@ -338,6 +345,38 @@ public without sharing class Util_FinancialSystemStripePosting {
 			throw new PostingException('Payout ' + p.StripePayoutId__c + ' does not add up: gross ' + gross + ' - fees ' + fees + ' <> payout ' + p.Amount__c);
 		}
 		return lines;
+	}
+
+	/**
+	 * A payment only holds its latest PaymentIntent: a dunning retry or a pay-now link replaces it, so a later reversal
+	 * (payment_failure_refund, dispute) of the earlier intent finds no payment. Those intents are read from Stripe and
+	 * matched through metadata[PaymentID], which every intent Salesforce creates carries. Capped per transaction
+	 * (maxIntentLookups) to stay within the callout limit; what is left over goes to suspense as before.
+	 */
+	private static void addEarlierIntents(String stripeAccountId, Set<String> intentIds, Map<String, Payment__c> paymentByIntent) {
+		Map<String, Id> paymentIdByIntent = new Map<String, Id>();
+		for (String pi : intentIds) {
+			if (paymentByIntent.containsKey(pi) || intentLookups >= maxIntentLookups) continue;
+			intentLookups++;
+			try {
+				Map<String, Object> intent = Svc_PaymentIntent.call('GET', '/v1/payment_intents/' + pi, stripeAccountId, null, null);
+				Map<String, Object> metadata = (Map<String, Object>) intent.get('metadata');
+				String paymentId = metadata == null ? null : (String) metadata.get('PaymentID');
+				if (String.isNotBlank(paymentId) && paymentId instanceof Id) paymentIdByIntent.put(pi, Id.valueOf(paymentId));
+			} catch (Svc_PaymentIntent.StripeException e) {
+				System.debug(LoggingLevel.WARN, 'PaymentIntent ' + pi + ' not read: ' + e.getMessage());
+			}
+		}
+		if (paymentIdByIntent.isEmpty()) return;
+		Map<Id, Payment__c> payments = new Map<Id, Payment__c>([
+			SELECT Id, PayProv_PaymentIntentId__c, Account__c, Account__r.FinancialIdAccount__c, Invoice__c,
+				Invoice__r.Subscription25__Invoice_Number__c, Invoice__r.FinSysInvoiceNumber__c, Invoice__r.Subscription25__Administration__c
+			FROM Payment__c WHERE Id IN :paymentIdByIntent.values() WITH SYSTEM_MODE
+		]);
+		for (String pi : paymentIdByIntent.keySet()) {
+			Payment__c pay = payments.get(paymentIdByIntent.get(pi));
+			if (pay != null) paymentByIntent.put(pi, pay);
+		}
 	}
 
 	/** Why a movement can't be booked on its invoice, or null when it can. */

@@ -45,7 +45,7 @@ Failed off-session payment (Type psp-recurring / psp-dd), driven by `Payment__c.
 - Layout Payment__c-Payment: Dunning section deployed dev.
 
 ## Open before prod
-- Exact posting: reversal + later pay-now charge on the same invoice — check Util_FinancialSystemStripePosting doesn't double-post.
+- Exact posting (checked 2026-11-10): no double post, but Util_FinancialSystemStripePosting matches a balance transaction to Payment__c only by the CURRENT PayProv_PaymentIntentId__c. Retry and pay-now put a new PI on the payment, so a later reversal (payment_failure_refund / dispute) of the old PI lands on Suspense ('No Salesforce payment for pi_…') while the pay-now charge closes the invoice again → invoice looks paid twice in Exact, reversal sits in suspense. FIXED 2026-11-10: addEarlierIntents — unmatched PI → GET the PI, match via metadata[PaymentID] (max 20 lookups per transaction, rest stays suspense). Deployed dev, Test_Util_FinancialSystemStripePosting 11/11 + Test_Svc_PaymentDunning green. **Util_FinancialSystemStripePosting is LIVE in prod (UK+NL): include it in the acc and prod deploys.**
 - Browser check of the page texts (LWC never rendered by me; Node lint broken locally).
 - Manuals: Stripe Payments key-user (536f1973) + developer (d0e930cc), Payment Methods docs, generic manual Finance → Payments.
 

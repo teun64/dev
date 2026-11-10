@@ -88,7 +88,9 @@ private class Test_Util_FinancialSystemStripePosting {
 				+ '{"id":"txn_2","type":"charge","amount":40000,"fee":150,"net":39850,"source":{"id":"py_2","object":"charge","payment_intent":"pi_unknown"}},'
 				+ '{"id":"txn_3","type":"stripe_fee","amount":-200,"fee":0,"net":-200,"source":null,"description":"Radar (2026-10-28): Standard"},'
 				+ '{"id":"txn_4","type":"payout","amount":-89515,"fee":0,"net":-89515,"source":"po_X"}'
-				+ '],"has_more":false}'
+				+ '],"has_more":false}',
+			// addEarlierIntents: pi_unknown is not an intent of a Salesforce payment
+			'{"id":"pi_unknown","object":"payment_intent","metadata":{}}'
 		};
 	}
 
@@ -319,6 +321,42 @@ private class Test_Util_FinancialSystemStripePosting {
 		Test.stopTest();
 
 		System.assertEquals('Posted', posting().Status__c, 'Error: ' + posting().LastError__c);
+	}
+
+	@IsTest
+	static void reversalOfEarlierIntent_bookedOnItsInvoice() {
+		// dunning replaced the payment's intent (pi_old → pi_new): the reversal of pi_old still reopens the invoice
+		Payment__c first = [SELECT Account__c, Administration__c, Invoice__c FROM Payment__c WHERE PayProv_PaymentIntentId__c = 'pi_A'];
+		Payment__c dunned = new Payment__c(
+			Account__c = first.Account__c, Administration__c = first.Administration__c, Invoice__c = first.Invoice__c, Type__c = 'psp-dd',
+			Status__c = 'Processing', CurrencyIsoCode = 'EUR', Amount_Gross__c = 100, Request_Date__c = Date.today(),
+			PayProv_PaymentIntentId__c = 'pi_new'
+		);
+		Database.insert(dunned, AccessLevel.SYSTEM_MODE);
+		ExactPostingMock mock = new ExactPostingMock();
+		Test.setMock(HttpCalloutMock.class, mock);
+		Svc_PaymentIntent.mockResponses = new List<String>{
+			'{"data":[{"id":"po_X","amount":39665,"currency":"eur","arrival_date":1762128000,"status":"paid"}],"has_more":false}',
+			'{"data":['
+				+ '{"id":"txn_1","type":"charge","amount":50000,"fee":135,"net":49865,"source":{"id":"py_1","object":"charge","payment_intent":"pi_A"}},'
+				+ '{"id":"txn_2","type":"payment_failure_refund","amount":-10000,"fee":0,"net":-10000,"source":{"id":"pyr_1","object":"refund","payment_intent":"pi_old"}},'
+				+ '{"id":"txn_3","type":"stripe_fee","amount":-200,"fee":0,"net":-200,"source":null,"description":"Radar (2026-10-28): Standard"}'
+				+ '],"has_more":false}',
+			'{"id":"pi_old","object":"payment_intent","metadata":{"PaymentID":"' + dunned.Id + '"}}'
+		};
+
+		Test.startTest();
+		Util_FinancialSystemStripePosting.run(businessEntityId());
+		Test.stopTest();
+
+		FinSysPosting__c p = posting();
+		System.assertEquals('Posted', p.Status__c, 'Error: ' + p.LastError__c);
+		System.assertEquals(0, p.SuspenseAmount__c, 'Nothing on suspense');
+		System.assertEquals('Invoice', p.Lines__r[1].Booking__c, 'Reversal on the invoice: ' + p.Lines__r[1].SuspenseReason__c);
+		System.assertEquals(dunned.Id, p.Lines__r[1].Payment__c);
+		System.assertEquals('26100042', p.Lines__r[1].FinSysInvoiceNumber__c);
+		System.assertEquals(-100.00, p.Lines__r[1].Amount__c);
+		System.assert(Svc_PaymentIntent.sentBodies.contains('GET /v1/payment_intents/pi_old'), Svc_PaymentIntent.sentBodies);
 	}
 
 	@IsTest
