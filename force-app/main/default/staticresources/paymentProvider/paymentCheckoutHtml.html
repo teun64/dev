@@ -234,17 +234,15 @@
             const futureConsentLabelEl = document.getElementById('future-consent-label');
             const futureConsentErrorEl = document.getElementById('future-consent-error');
 
-            // Disclosure only, shown for mandate-based/reusable payment methods only (Direct
-            // Debit schemes, iDEAL) - never for a plain one-off card payment. `mode` can't be
-            // used for this: BACS establishes its mandate in a single PaymentIntent step
-            // (mode 'payment', same as a one-off card charge), SEPA/ACH via a separate
-            // SetupIntent (mode 'setup') - see Ctrl_Payment.getPaymentData. Reuse of the
-            // mandate for future subscription payments already happens regardless of this
-            // checkbox; see Ctrl_Payment.finalizeCheckout.
-            // 20261110 TRi follows the method picked in the Payment Element (a dunning link offers card next to iDEAL /
-            // direct debit); before the first pick, the method the page starts with.
-            const FUTURE_CONSENT_METHODS = ['sepa_debit', 'bacs_debit', 'ach_debit', 'ideal'];
-            const showsFutureConsent = () => FUTURE_CONSENT_METHODS.includes(selectedType || paymentMethodType);
+            // Consent to future collections, required whenever the method picked is saved for the next invoices. Every
+            // intent on this page saves it (direct debit mandate, card incl. Apple Pay / Google Pay, iDEAL | Wero's
+            // generated SEPA mandate - see Svc_PaymentIntent), except a bank transfer (customer_balance), which only pays
+            // this invoice. Follows the method picked in the Payment Element; before the first pick, the one the page
+            // starts with. Not when confirming 3-D Secure for a method that is already saved (authenticate).
+            // Reuse of the method for future subscription payments happens regardless of this checkbox; see
+            // Ctrl_Payment.finalizeCheckout. 20261110 TRi was direct debit / iDEAL only, by the starting method.
+            const ONE_OFF_METHODS = ['customer_balance'];
+            const showsFutureConsent = () => !isAuthenticate() && !ONE_OFF_METHODS.includes(selectedType || paymentMethodType);
             const updateFutureConsent = () => {
                 const shown = showsFutureConsent();
                 if (futureConsentContainer.style.display === (shown ? 'flex' : 'none')) return;
