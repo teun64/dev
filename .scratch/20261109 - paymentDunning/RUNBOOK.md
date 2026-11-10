@@ -54,6 +54,9 @@ iDEAL | Wero comes with a SEPA direct debit approval, so the Pay link now sets p
 - acc iDEAL | Wero e2e by user (PM#000136974): Paid; Account got generated SEPA pm_1UaDCO… + mandate_1UaDCO… (active, multi_use, online acceptance). TEST Teun card NL now has SEPA instead of its card (pm_1UVY4A…).
 - Consent checkbox (paymentCheckoutHtml) follows the method picked in the Payment Element. User (same day): a saved card needs consent too → shown + required for every saved method (direct debit, card, wallets, iDEAL), hidden only for bank transfer (customer_balance, one-off) and 3-D Secure confirmation (authenticate); iframe ?v=19. Deployed dev + acc, republished. acc demos: PM#000136975 Pay (token cb8b9ace9a0387140a64fa635d07129b), PM#000136976 Renew (token d71d5da3d8d6b3c28bb45778f425ae65).
 
+- acc demos closed 2026-11-10: PM#000136976 Cancelled (PI canceled); PM#000136975 was already Paid by the user (my cancel overwrote it to Cancelled, restored to Paid within the hour). TEST Teun card NL now holds SEPA pm_1UaDRV… + mandate_1UaDRV… (from the user's test payments).
+- Key-user manual (536f1973) updated: iDEAL | Wero saves its SEPA mandate, consent checkbox rule, return screen after the bank.
+
 ## Later (user, 2026-11-10)
 - **Renew with iDEAL | Wero in Wero countries (NL…)**: offer iDEAL on the Renew link, but only together with a SEPA direct debit mandate (iDEAL payment + generated SEPA PM/mandate saved as the recurring method). Not built.
 
