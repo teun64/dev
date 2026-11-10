@@ -2,6 +2,12 @@
 <Queue xmlns="http://soap.sforce.com/2006/04/metadata">
     <doesSendEmailToMembers>false</doesSendEmailToMembers>
     <name>Case - Administration (NL)</name>
+    <queueMembers>
+        <publicGroups>
+            <publicGroup>guAftersalesNL</publicGroup>
+            <publicGroup>guFinanceNL</publicGroup>
+        </publicGroups>
+    </queueMembers>
     <queueSobject>
         <sobjectType>Case</sobjectType>
     </queueSobject>

@@ -5,6 +5,7 @@
     <queueMembers>
         <publicGroups>
             <publicGroup>guAftersalesNL</publicGroup>
+            <publicGroup>guFinanceNL</publicGroup>
         </publicGroups>
     </queueMembers>
     <queueSobject>
