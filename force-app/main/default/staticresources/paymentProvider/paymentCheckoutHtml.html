@@ -241,8 +241,17 @@
             // SetupIntent (mode 'setup') - see Ctrl_Payment.getPaymentData. Reuse of the
             // mandate for future subscription payments already happens regardless of this
             // checkbox; see Ctrl_Payment.finalizeCheckout.
+            // 20261110 TRi follows the method picked in the Payment Element (a dunning link offers card next to iDEAL /
+            // direct debit); before the first pick, the method the page starts with.
             const FUTURE_CONSENT_METHODS = ['sepa_debit', 'bacs_debit', 'ach_debit', 'ideal'];
-            const showsFutureConsent = () => FUTURE_CONSENT_METHODS.includes(paymentMethodType);
+            const showsFutureConsent = () => FUTURE_CONSENT_METHODS.includes(selectedType || paymentMethodType);
+            const updateFutureConsent = () => {
+                const shown = showsFutureConsent();
+                if (futureConsentContainer.style.display === (shown ? 'flex' : 'none')) return;
+                futureConsentContainer.style.display = shown ? 'flex' : 'none';
+                futureConsentErrorEl.textContent = '';
+                postHeight();
+            };
 
             // 'authenticate': an off-session charge waiting for 3-D Secure - the customer confirms the existing
             // PaymentIntent with the saved method, so there is no Payment Element to build
@@ -283,7 +292,7 @@
                 // No Stripe Link: with the customer's e-mail prefilled Link takes over the form with a previously saved card
                 elementOptions.wallets = { link: 'never' };
                 intent = elements.create("payment", elementOptions);
-                intent.on('change', (event) => { selectedType = event.value?.type; });
+                intent.on('change', (event) => { selectedType = event.value?.type; updateFutureConsent(); });
                 intent.mount(elementContainer);
 
                 observeResize();
