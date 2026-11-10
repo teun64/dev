@@ -57,7 +57,18 @@ iDEAL | Wero comes with a SEPA direct debit approval, so the Pay link now sets p
 - acc demos closed 2026-11-10: PM#000136976 Cancelled (PI canceled); PM#000136975 was already Paid by the user (my cancel overwrote it to Cancelled, restored to Paid within the hour). TEST Teun card NL now holds SEPA pm_1UaDRV… + mandate_1UaDRV… (from the user's test payments).
 - Key-user manual (536f1973) updated: iDEAL | Wero saves its SEPA mandate, consent checkbox rule, return screen after the bank.
 
+## Prod check 2026-11-10 (prod_check.apex, run by user)
+- Live Stripe: NL acct_1S3wZf… card/Apple Pay/iDEAL/SEPA active, **bank transfer (customer_balance) not active**; DE acct_1S3wcn… **card only** (no SEPA, iDEAL, bank transfer); UK acct_1Ro22z… card/Apple Pay/Bacs, **no bank transfer**.
+  → as built, every Pay link (offers customer_balance) and a DE Renew link (offers sepa_debit) would fail to create the PaymentIntent in prod.
+- Failure codes (4 events, last year): authentication_required (1), payment_intent_authentication_failure (3) — both in PAY_CODES.
+- **No gqPayment queues in prod** → suspension Case owner = running user (scheduled flow = Automated Process). Stripe customers: only reseller 6 (UK, 56 accounts).
+
+- User: bank transfer switched on in Stripe (NL, UK) — re-run prod_check.apex before the prod deploy to confirm. DE: Wero (not iDEAL) and SEPA to be activated by Floris (identification on the DE Stripe account).
+- Fallback (Svc_PaymentIntent.createWithActiveTypes): a type the Stripe account refuses ('The payment method type "x" is invalid') is left out with its options and the create retried (card never); pay-now / renewal intents. Pay-now reuse accepts an intent offering a subset of the wanted types. Deployed dev + acc (102 tests green).
+- Queues gqPayment1 (NL), gqPayment3 (BE), gqPayment5 (DE), gqPayment6 (UK) — Case, no members yet — deployed dev + acc; **include in the prod deploy** and add members in prod. Test_Ctrl_PaymentCase reuses an existing gqPayment1.
+
 ## Later (user, 2026-11-10)
+- **DE Wero**: once Floris has activated it on the DE Stripe account, offer Wero on the DE Pay link (payNowTypes now offers iDEAL for NL only).
 - **Renew with iDEAL | Wero in Wero countries (NL…)**: offer iDEAL on the Renew link, but only together with a SEPA direct debit mandate (iDEAL payment + generated SEPA PM/mandate saved as the recurring method). Not built.
 
 ## Open before prod

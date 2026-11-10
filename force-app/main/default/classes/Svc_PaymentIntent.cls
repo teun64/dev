@@ -218,7 +218,8 @@ public without sharing class Svc_PaymentIntent {
                 return c;
             }
             List<Object> offered = (List<Object>) intent.get('payment_method_types');
-            if (payNow && a == Action.REUSE && offered != null && new Set<Object>(offered).equals(new Set<Object>((List<Object>) types))
+            // an intent made without a method Stripe refused (createWithActiveTypes) offers fewer: still reused
+            if (payNow && a == Action.REUSE && offered != null && !offered.isEmpty() && new Set<Object>((List<Object>) types).containsAll(offered)
                     && (renew || !types.contains(IDEAL) || savesIdeal(intent))) {
                 c.intentId     = stored;
                 c.clientSecret = (String) intent.get('client_secret');
@@ -234,7 +235,6 @@ public without sharing class Svc_PaymentIntent {
             'currency=' + p.CurrencyIsoCode.toLowerCase(),
             'customer=' + p.Account__r?.PayProv_CustomerId__c
         };
-        for (String t : types) body.add('payment_method_types[]=' + t);
         if (renew) {
             // the new recurring method (direct debit or card) is saved for the next invoices
             body.add('setup_future_usage=off_session');
@@ -255,12 +255,48 @@ public without sharing class Svc_PaymentIntent {
         body.add('metadata[PaymentType]=Direct Debit');
         body.add('metadata[Checkout]=' + PAY_NOW);
         body.addAll(finSysParams(p, true));
-        Map<String, Object> created = call('POST', '/v1/payment_intents', accountId, String.join(body, '&'),
+        Map<String, Object> created = createWithActiveTypes('/v1/payment_intents', accountId, body, types,
             'payprov-' + p.Id + '-' + PAY_NOW + '-' + (String.isBlank(stored) ? 'first' : stored));
         c.intentId     = (String) created.get('id');
         c.clientSecret = (String) created.get('client_secret');
         c.isNew        = c.intentId != stored;
         return c;
+    }
+
+    /**
+     * Creates the intent with payment_method_types; a type the Stripe account has not activated (Stripe: 'The payment
+     * method type "customer_balance" is invalid…') is left out, with its payment_method_options, and the create is
+     * retried, so a link still works with what is active (live accounts differ: DE card only, bank transfer off).
+     * Card is never left out. Each retry gets its own idempotency key (other parameters).
+     */
+    @TestVisible
+    private static Map<String, Object> createWithActiveTypes(String endpoint, String accountId, List<String> body, List<String> types, String idempotencyKey) {
+        List<String> remaining = new List<String>(types);
+        String key = idempotencyKey;
+        while (true) {
+            List<String> params = new List<String>();
+            for (String t : remaining) params.add('payment_method_types[]=' + t);
+            for (String b : body) {
+                Boolean dropped = false;
+                for (String t : types) {
+                    if (!remaining.contains(t) && b.startsWith('payment_method_options[' + t + ']')) dropped = true;
+                }
+                if (!dropped) params.add(b);
+            }
+            try {
+                return call('POST', endpoint, accountId, String.join(params, '&'), key);
+            } catch (StripeException e) {
+                String refused = null;
+                for (String t : remaining) {
+                    if (t != CARD && e.getMessage() != null && e.getMessage().contains('"' + t + '"')) refused = t;
+                }
+                if (refused == null) throw e;
+                System.debug(LoggingLevel.WARN, 'Svc_PaymentIntent: ' + refused + ' not active on ' + accountId + ', left out: ' + e.getMessage());
+                remaining.remove(remaining.indexOf(refused));
+                key += '-no-' + refused;
+            }
+        }
+        return null;
     }
 
     public static final String IDEAL = 'ideal';
@@ -328,13 +364,13 @@ public without sharing class Svc_PaymentIntent {
         List<String> body = new List<String>{
             'customer=' + p.Account__r?.PayProv_CustomerId__c,
             'usage=off_session',
-            'payment_method_types[]=' + CARD,
             'metadata[PaymentID]=' + p.Id,
             'metadata[Checkout]=' + RENEWAL
         };
-        if (!'bacs_debit'.equals(ddMethod)) body.add(2, 'payment_method_types[]=' + ddMethod);
+        List<String> types = new List<String>{ CARD };
+        if (!'bacs_debit'.equals(ddMethod)) types.add(0, ddMethod);
         body.addAll(finSysParams(p, false));
-        Map<String, Object> created = call('POST', '/v1/setup_intents', accountId, String.join(body, '&'),
+        Map<String, Object> created = createWithActiveTypes('/v1/setup_intents', accountId, body, types,
             'payprov-' + p.Id + '-' + RENEWAL + '-' + (String.isBlank(stored) ? 'first' : stored));
         c.intentId     = (String) created.get('id');
         c.clientSecret = (String) created.get('client_secret');

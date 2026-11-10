@@ -385,6 +385,26 @@ private class Test_Svc_PaymentDunning {
         System.assert(!create.contains('&setup_future_usage='), 'No top-level saving: the bank transfer stays one-off');
     }
 
+    // ── a payment method the live Stripe account has not activated is left out, the link still works ──
+    @IsTest
+    static void testPayNowLeavesOutInactiveMethod() {
+        setPayment(new Map<String, Object>{ 'Status__c' => 'Failed', 'Dunning_Step__c' => Svc_PaymentDunning.STEP_REQUESTED,
+            'Dunning_Action__c' => Svc_PaymentDunning.ACTION_PAY, 'PayProv_PaymentIntentId__c' => null });
+        Svc_PaymentIntent.mockResponses = new List<String>{
+            '{"error":{"type":"invalid_request_error","message":"The payment method type \\"customer_balance\\" is invalid. Please ensure the provided type is activated in your dashboard."}}',
+            '{"id":"pi_paynow","client_secret":"cs_paynow"}'
+        };
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('tok_dun', 'en');
+        Test.stopTest();
+        System.assertEquals('cs_paynow', d.clientSecret, 'Error: ' + d.errorMessage);
+        Integer n = Svc_PaymentIntent.sentBodies.size();
+        System.assert(Svc_PaymentIntent.sentBodies[n - 2].contains('payment_method_types[]=customer_balance'), Svc_PaymentIntent.sentBodies[n - 2]);
+        String retry = Svc_PaymentIntent.sentBodies[n - 1];
+        System.assert(!retry.contains('customer_balance'), 'Type and its options left out: ' + retry);
+        System.assert(retry.contains('payment_method_types[]=card'), retry);
+    }
+
     // ── payment page: a second visit reuses the pay-now intent ──
     @IsTest
     static void testPagePayNowReused() {

@@ -53,14 +53,17 @@ private class Test_Ctrl_PaymentCase {
 
         // Queue for reseller '1' — setup objects (Group + QueueSObject) must be inserted in a
         // separate runAs block to avoid the mixed-DML rule with non-setup objects above
-        System.runAs(new User(Id = UserInfo.getUserId())) {
-            Group q = new Group(
-                Name          = 'Payment NL',
-                DeveloperName = 'gqPayment1',
-                Type          = 'Queue'
-            );
-            insert q;
-            insert new QueueSObject(QueueId = q.Id, SObjectType = 'Case');
+        // (the org's own gqPayment1 is used when it exists: a second one with that name can't be inserted)
+        if ([SELECT COUNT() FROM Group WHERE DeveloperName = 'gqPayment1' AND Type = 'Queue'] == 0) {
+            System.runAs(new User(Id = UserInfo.getUserId())) {
+                Group q = new Group(
+                    Name          = 'Payment NL',
+                    DeveloperName = 'gqPayment1',
+                    Type          = 'Queue'
+                );
+                insert q;
+                insert new QueueSObject(QueueId = q.Id, SObjectType = 'Case');
+            }
         }
     }
 
@@ -142,7 +145,7 @@ private class Test_Ctrl_PaymentCase {
             SELECT Id FROM Subscription25__Administration__c LIMIT 1
         ];
         Account acc = Test_Data.createAccount('Beta Corp', '9004', 'B2B', false);
-        acc.Reseller_Name__c = '6'; // no queue created for reseller 6
+        acc.Reseller_Name__c = '6'; // the Case is created whether or not reseller 6 has a queue
         insert acc;
 
         Payment__c pmt = new Payment__c(
