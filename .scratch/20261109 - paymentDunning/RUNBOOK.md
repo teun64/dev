@@ -77,6 +77,7 @@ iDEAL | Wero comes with a SEPA direct debit approval, so the Pay link now sets p
 - 2026-11-10 user ran fls.apex (27 rows, 3 sets) and sub25_record.apex (record created; 0 open card payments for the first expiry run); CMDT JobDispatcherStep.Day_CardExpiryCheck deployed (Day, order 65, active). **Prod rollout complete.** prod_check re-run 17:08: bank transfer (customer_balance) available + on for NL and UK; DE still card + Apple/Google Pay only (fallback leaves the rest out); 4 gqCasePayment queues present. Remaining: Later items below.
 
 ## Later (user, 2026-11-10)
+- Stripe payment-method activation and checks: owned by Floris (user, 2026-11-10), no further checks from us.
 - **DE Wero**: once Floris has activated it on the DE Stripe account, offer Wero on the DE Pay link (payNowTypes now offers iDEAL for NL only).
 - **Renew with iDEAL | Wero in Wero countries (NL…)**: offer iDEAL on the Renew link, but only together with a SEPA direct debit mandate (iDEAL payment + generated SEPA PM/mandate saved as the recurring method). Not built.
 
