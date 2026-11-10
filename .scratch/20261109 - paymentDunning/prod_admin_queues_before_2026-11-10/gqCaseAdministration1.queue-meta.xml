@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queue xmlns="http://soap.sforce.com/2006/04/metadata">
+    <doesIncludeBosses>true</doesIncludeBosses>
+    <doesSendEmailToMembers>false</doesSendEmailToMembers>
+    <name>Case - Administration (NL)</name>
+    <queueMembers>
+        <users>
+            <user>bvink@movingintelligence.nl</user>
+            <user>bvanderbeek@movingintelligence.nl</user>
+            <user>bplaire@movingintelligence.nl</user>
+            <user>ftetelepta@movingintelligence.nl</user>
+            <user>gmooyman@movingintelligence.nl</user>
+            <user>jheesen@movingintelligence.nl</user>
+            <user>jmaassen@movingintelligence.nl</user>
+            <user>lnoczinski@movingintelligence.nl</user>
+            <user>mspee@movingintelligence.nl</user>
+            <user>mvanhunen@movingintelligence.com</user>
+            <user>nsual@movingintelligence.nl</user>
+            <user>pschuttevaer@movingintelligence.nl</user>
+            <user>rvandrunen@movingintelligence.nl</user>
+            <user>rgroenen@movingintelligence.nl</user>
+            <user>rvankekem@movingintelligence.nl</user>
+            <user>rplomp@movingintelligence.nl</user>
+            <user>rvogelzang@movingintelligence.nl</user>
+            <user>sgeeve@movingintelligence.nl</user>
+            <user>tsalimans@movingintelligence.nl</user>
+            <user>tbeekmans@movingintelligence.nl</user>
+        </users>
+    </queueMembers>
+    <queueSobject>
+        <sobjectType>Case</sobjectType>
+    </queueSobject>
+</Queue>

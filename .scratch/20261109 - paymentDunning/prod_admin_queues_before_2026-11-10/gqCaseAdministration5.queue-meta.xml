@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queue xmlns="http://soap.sforce.com/2006/04/metadata">
+    <doesIncludeBosses>true</doesIncludeBosses>
+    <doesSendEmailToMembers>false</doesSendEmailToMembers>
+    <name>Case - Administration (DE)</name>
+    <queueMembers>
+        <users>
+            <user>abachmann@movingintelligence.de</user>
+            <user>croesel@movingintelligence.de</user>
+            <user>dlorenz@movingintelligence.de</user>
+            <user>mkuehnel@movingintelligence.de</user>
+            <user>rwilke@movingintelligence.de</user>
+            <user>shribar@movingintelligence.de</user>
+        </users>
+    </queueMembers>
+    <queueSobject>
+        <sobjectType>Case</sobjectType>
+    </queueSobject>
+</Queue>

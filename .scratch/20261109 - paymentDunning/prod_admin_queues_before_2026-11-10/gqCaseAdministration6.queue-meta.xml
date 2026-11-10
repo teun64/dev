@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queue xmlns="http://soap.sforce.com/2006/04/metadata">
+    <doesIncludeBosses>true</doesIncludeBosses>
+    <doesSendEmailToMembers>false</doesSendEmailToMembers>
+    <name>Case - Administration (UK)</name>
+    <queueMembers>
+        <users>
+            <user>abradley@movingintelligence.co.uk</user>
+            <user>asmith@movingintelligence.co.uk</user>
+            <user>byearsley@movingintelligence.co.uk</user>
+            <user>jstanhope@movingintelligence.co.uk</user>
+            <user>lwilson@movingintelligence.co.uk</user>
+            <user>lquinn@movingintelligence.co.uk</user>
+            <user>mabery@movingintelligence.co.uk</user>
+            <user>naspinall@movingintelligence.co.uk</user>
+            <user>pwebb@movingintelligence.co.uk</user>
+            <user>sbateman@movingintelligence.co.uk</user>
+            <user>smcgrath@movingintelligence.co.uk</user>
+        </users>
+    </queueMembers>
+    <queueSobject>
+        <sobjectType>Case</sobjectType>
+    </queueSobject>
+</Queue>
