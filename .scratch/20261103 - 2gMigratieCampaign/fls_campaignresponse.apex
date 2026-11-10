@@ -3,7 +3,7 @@
 List<String> fields = new List<String>{
   'Campaign.CampaignRole__c', 'Campaign.MailScheduleDays__c', 'CampaignMember.ResponseToken__c', 'CampaignMember.ResponseUrl__c',
   'Product2.MigrationProduct__c', 'Product2.MigrationPriority__c', 'Campaign.SourceSelection__c', 'Campaign.SourceCountryCodes__c',
-  'CampaignMember.Account__c', 'CampaignMember.UnitCount__c'};
+  'CampaignMember.Account__c', 'CampaignMember.UnitCount__c', 'CampaignMember.Dealer__c', 'CampaignMember.LargeAccount__c'};
 List<PermissionSet> adminSets = [SELECT Id FROM PermissionSet WHERE Profile.Name = 'System Administrator' OR Name = 'miModifyAllData'];
 List<PermissionSet> salesSets = [SELECT Id FROM PermissionSet WHERE Profile.Name IN ('miSales','miFinance','miMarketing','miAfterSales')];
 Map<Id, Boolean> editBySet = new Map<Id, Boolean>();

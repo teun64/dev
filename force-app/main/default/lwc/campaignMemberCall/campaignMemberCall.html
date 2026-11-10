@@ -1,0 +1,54 @@
+<template>
+    <lightning-card title="Call" icon-name="standard:call">
+        <template lwc:if={phoneOnly}><lightning-badge slot="actions" label="Large account · phone only"></lightning-badge></template>
+        <template lwc:if={loading}><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></template>
+        <div class="slds-p-horizontal_medium">
+            <template lwc:if={error}><p class="slds-text-color_error">{error}</p></template>
+            <template lwc:if={data}>
+                <div class="cols">
+                    <section class="box">
+                        <h3 class="sub">Account</h3>
+                        <a href="#" data-id={data.accountId} onclick={openRecord} class="name">{data.accountName}</a>
+                        <dl>
+                            <dt>Phone</dt><dd><lightning-click-to-dial value={data.accountPhone} record-id={data.accountId}></lightning-click-to-dial></dd>
+                            <dt>City</dt><dd>{data.accountCity}</dd>
+                            <dt>Owner</dt><dd>{data.accountOwner}</dd>
+                            <dt>Active subscriptions</dt><dd>{data.activeSubscriptions}</dd>
+                        </dl>
+                    </section>
+                    <section class="box">
+                        <h3 class="sub">Contact</h3>
+                        <a href="#" data-id={data.contactId} onclick={openRecord} class="name">{data.contactName}</a>
+                        <dl>
+                            <dt>Phone</dt><dd><lightning-click-to-dial value={data.contactPhone} record-id={data.contactId}></lightning-click-to-dial></dd>
+                            <dt>Mobile</dt><dd><lightning-click-to-dial value={data.contactMobile} record-id={data.contactId}></lightning-click-to-dial></dd>
+                            <dt>Email</dt><dd><lightning-formatted-email value={data.contactEmail}></lightning-formatted-email></dd>
+                        </dl>
+                    </section>
+                    <section class="box">
+                        <h3 class="sub">Campaign</h3>
+                        <a href="#" data-id={data.campaignId} onclick={openRecord} class="name">{data.campaignName}</a>
+                        <dl>
+                            <dt>Answer</dt><dd>{answered}</dd>
+                            <dt>Status</dt><dd>{data.status}</dd>
+                            <dt>2G units</dt><dd>{data.unitCount}</dd>
+                            <dt>Priority</dt><dd>{data.priority}</dd>
+                        </dl>
+                    </section>
+                </div>
+
+                <div class="buttons">
+                    <lightning-button variant="brand" label="Offer" icon-name="utility:moneybag" onclick={handleOffer} disabled={disabled}></lightning-button>
+                    <lightning-button label="Not now" icon-name="utility:clock" onclick={toggleNotNow} disabled={disabled}></lightning-button>
+                    <lightning-button variant="destructive-text" label="Not interested" icon-name="utility:close" onclick={handleNotInterested} disabled={disabled}></lightning-button>
+                </div>
+                <template lwc:if={showNotNow}>
+                    <div class="notnow">
+                        <lightning-combobox class="quarter" label="Contact again from" value={quarter} options={data.quarters} onchange={handleQuarter}></lightning-combobox>
+                        <lightning-button variant="brand" label="Save Not now" onclick={handleNotNowSave} disabled={disabled}></lightning-button>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

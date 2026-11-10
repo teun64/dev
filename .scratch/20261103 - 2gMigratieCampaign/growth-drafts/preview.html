@@ -1,0 +1,217 @@
+<title>2G Migratie mails</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* layout: a review sheet - notes column on top, then the three mails as they land in the inbox */
+:root{
+  --bg:#f3f4f6; --fg:#1d2430; --muted:#5b6575; --line:#d9dde4; --accent:#c8102e; --note:#fff6d6; --note-fg:#5a4500;
+  --mail-bg:#ffffff; --mail-fg:#222222; --mail-line:#e4e4e4;
+  --sans:"IBM Plex Sans",Arial,Helvetica,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#14181f;--fg:#e6e9ee;--muted:#9aa4b2;--line:#2c333e;--accent:#ff4d64;--note:#3a3214;--note-fg:#f3dd94;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14181f;--fg:#e6e9ee;--muted:#9aa4b2;--line:#2c333e;--accent:#ff4d64;--note:#3a3214;--note-fg:#f3dd94;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55}
+.wrap{max-width:980px;margin:0 auto;padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1{font-size:1.7rem;margin:0;text-wrap:balance} h2{font-size:1.15rem;margin:0 0 8px} p{margin:0}
+.lede{color:var(--muted);max-width:68ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.panel{border-top:2px solid var(--accent);padding-top:12px;min-width:0}
+.panel ul{margin:6px 0 0;padding-left:18px;display:grid;gap:6px}
+code{font-family:var(--mono);font-size:.86em;word-break:break-all}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs a{font-weight:600;color:var(--fg);text-decoration:none;border:1px solid var(--line);padding:6px 12px;border-radius:4px}
+.tabs a:hover,.tabs a:focus-visible{border-color:var(--accent);outline:none}
+.mail{display:grid;gap:10px}
+.meta{display:grid;gap:2px;font-size:.92rem}
+.meta .k{display:inline-block;min-width:88px;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.frame{background:var(--mail-bg);color:var(--mail-fg);max-width:640px;width:100%;border:1px solid var(--line);font-family:Arial,Helvetica,sans-serif;font-size:14px}
+.header-img{aspect-ratio:640/220;max-width:100%;background:repeating-linear-gradient(135deg,#eef0f3 0 12px,#e6e9ed 12px 24px);display:grid;place-items:center;color:#59606b;font-size:.85rem;text-align:center;padding:8px}
+.body{padding:20px 24px;display:grid;gap:12px}
+.body h3{font-size:17px;margin:6px 0 0;color:#111}
+.body ul{margin:0;padding-left:20px}
+.hw{border:1px dashed #c9cdd3;padding:8px 10px;display:grid;gap:4px}
+.rule{font-size:11px;background:#fff6d6;color:#5a4500;justify-self:start;padding:1px 6px;border-radius:3px;font-family:var(--mono)}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:6px 0}
+.btn{display:inline-block;padding:10px 18px;text-decoration:none;font-weight:bold;border-radius:3px}
+.btn.primary{background:#c8102e;color:#fff}
+.btn.secondary{background:#fff;color:#c8102e;border:1px solid #c8102e}
+.logo{height:34px;width:160px;max-width:100%;background:#f1f1f1;color:#777;font-size:11px;display:grid;place-items:center}
+.contact{font-size:13px} .footer{font-size:12px;color:#666} .footer a{color:#c8102e}
+hr{border:0;border-top:1px solid var(--mail-line);margin:4px 0}
+.note{background:var(--note);color:var(--note-fg);padding:10px 12px;border-radius:4px;font-size:.92rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem} th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top} th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tw{overflow-x:auto}
+</style>
+<div class="wrap">
+<header style="display:grid;gap:8px">
+  <h1>2G Migratie mails: draft for marketing</h1>
+  <p class="lede">Three Growth mails for the 2G Migratie campaign: mail 1 on the day a batch is released, mail 2 after 5 days and mail 3 after 12 days, the reminders only to customers who haven't chosen yet. Built on marketing's own prod mail <b>2g-4gvervangen</b> (same header, logo, wording and button style). Texts are a first proposal; marketing owns the final wording.</p>
+</header>
+
+<section class="grid">
+  <div class="panel"><h2>Where the drafts are</h2>
+    <ul>
+      <li><b>dev Growth</b>, folder <code>Moving Intelligence/Campaigns/Year 2026/M20261109 2G Migratie</code>: “M20261109 2G Migratie - mail 1/2/3”.</li>
+      <li><b>Not in prod or acc.</b> A prod copy is ready (folder <code>Emails/M20261109 2G Migratie</code>, prod image references) and goes in only on an explicit go.</li>
+    </ul></div>
+  <div class="panel"><h2>The choice buttons</h2>
+    <ul>
+      <li>Each button opens the customer's own response page, where they confirm their choice with one click.</li>
+      <li>Mail 1 and 2: <b>Bel mij terug</b>, <b>Stuur mij een offerte</b>, <b>Nu niet, later</b> (the page asks for Q1–Q4 2027).</li>
+      <li>No dealer choice in the mails: "Processed by dealer" is recorded by sales on the phone script.</li>
+      <li>Mail 3 adds <b>Geen interesse</b>.</li>
+    </ul></div>
+  <div class="panel"><h2>Preference center</h2>
+    <ul>
+      <li>The footer links to the customer's own Customer Hub preference page (decision 2026-10-09), not Growth's unsubscribe link.</li>
+      <li>Check before sending: if Growth refuses a promotional send without its own opt-out link, add it next to ours.</li>
+    </ul></div>
+</section>
+
+<section style="display:grid;gap:10px">
+  <h2>What marketing still has to do</h2>
+  <div class="tw"><table>
+    <tr><th>Item</th><th>Now in the draft</th><th>To do</th></tr>
+    <tr><td>Choice buttons</td><td><code>https://customer.movingintelligence.com/response?token=TOKEN&amp;a=callme</code> (and offer / notnow / notinterested)</td><td>Replace <code>…?token=TOKEN</code> with the merge field for the member's <b>Response URL</b> and keep <code>&amp;a=…</code>. Growth accepts only real URLs, so TOKEN is a marker.</td></tr>
+    <tr><td>Preference link</td><td><code>https://customer.movingintelligence.com/preferences?token=TOKEN</code></td><td>Replace with the merge field for the contact's <b>Preference Center URL</b>.</td></tr>
+    <tr><td>Hardware blocks</td><td>One block each for Mi50, Mi40, Mi01 and Mi04, all visible</td><td>Set a visibility rule per block (“customer has Mi50”, …). A customer with two types sees both blocks.</td></tr>
+    <tr><td>Texts</td><td>Draft wording, “medio 2027” taken from 2g-4gvervangen</td><td>Final wording. The €100 cashback and the named specialist from the old mail are left out: add them back only if the offer still runs.</td></tr>
+    <tr><td>Sender, segments, flow</td><td>-</td><td>As planned in the Growth report: one segment per mail, released batches only.</td></tr>
+  </table></div>
+  <p class="note">The merge fields and the hardware visibility need data Growth can't read yet: the campaign member's Response URL and hardware, and the contact's preference link, have to come through Data Cloud first. In prod only a small part of the 2G contacts has a preference link until the backfill runs. Both block sending, not the drafts.</p>
+</section>
+
+<nav class="tabs" aria-label="Mails"><a href="#mail1">Mail 1 · day 0</a><a href="#mail2">Mail 2 · business day 3</a><a href="#mail3">Mail 3 · business day 8</a><a href="#confirmations">Confirmations</a></nav>
+
+<article class="mail" id="mail1">
+  <div class="meta">
+    <div><span class="k">Mail 1</span> dag 0</div>
+    <div><span class="k">Onderwerp</span> Uw 2G-hardware stopt medio 2027: kies hoe u overstapt naar 4G</div>
+    <div><span class="k">Preheader</span> Laat ons weten wat u wilt: wij bellen u terug, sturen een offerte of nemen later contact op.</div>
+  </div>
+  <div class="frame">
+    <div class="header-img">Header: “Mailing switch 2g 4g header”</div>
+    <div class="body">
+      <p class="intro"><strong>Telecomproviders hebben aangekondigd dat het 2G-netwerk medio 2027 definitief wordt uitgefaseerd.</strong><br /><br />Volgens onze gegevens gebruikt u nog hardware die via 2G verbinding maakt. Zonder vervanging kunnen uw voertuigen op termijn geen data meer verzenden en kunnen wij ze niet meer volgen. Hieronder ziet u om welke hardware het gaat.</p>
+      <h3>Uw hardware op 2G</h3>
+      <div class="hw"><span class="rule">Alleen tonen als de klant Mi50 heeft</span><p>Uw <strong>Mi50</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi50, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi40 heeft</span><p>Uw <strong>Mi40</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi40, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi01 heeft</span><p>Uw <strong>Mi01</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi01, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi04 heeft</span><p>Uw <strong>Mi04</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi04, met dezelfde functies als u nu gebruikt.</p></div>
+      <h3>Waarom nu overstappen naar 4G?</h3>
+      <p>Met moderne 4G-hardware bent u verzekerd van:</p>
+      <ul><li>Betrouwbare en toekomstbestendige connectiviteit</li><li>Volledige continuïteit van uw fleetoplossingen</li><li>Naleving van wet- en regelgeving, zonder zorgen</li></ul>
+      <h3>Wat wilt u?</h3>
+      <p>Kies hieronder wat u het beste past. U ziet uw keuze daarna nog op een bevestigingspagina, en pas als u daar bevestigt, verwerken wij hem.</p>
+      <div class="btns"><a class="btn primary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=callme">Bel mij terug</a><a class="btn primary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=offer">Stuur mij een offerte</a><a class="btn secondary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=notnow">Nu niet, later</a></div>
+      <p>Met vriendelijke groet,</p>
+      <div class="logo">Logo Moving Intelligence</div>
+      <p class="contact"><strong>T</strong>&nbsp; +31 88 99 00 000<br><strong>E</strong>&nbsp; sales@movingintelligence.nl</p>
+      <hr>
+      <p class="footer">Adres van de organisatie | <a href="#" title="https://customer.movingintelligence.com/preferences?token=TOKEN">E-mailvoorkeuren beheren</a></p>
+    </div>
+  </div>
+</article>
+<article class="mail" id="mail2">
+  <div class="meta">
+    <div><span class="k">Mail 2</span> werkdag 3 · alleen zonder reactie</div>
+    <div><span class="k">Onderwerp</span> Herinnering: kies hoe u overstapt van 2G naar 4G</div>
+    <div><span class="k">Preheader</span> Wij hebben uw keuze nog niet ontvangen. Met één klik laat u weten wat u wilt.</div>
+  </div>
+  <div class="frame">
+    <div class="header-img">Header: “Mailing switch 2g 4g header”</div>
+    <div class="body">
+      <p class="intro"><strong>Telecomproviders hebben aangekondigd dat het 2G-netwerk medio 2027 definitief wordt uitgefaseerd.</strong><br /><br />Een paar dagen geleden schreven wij u hierover. Wij hebben uw keuze nog niet ontvangen. Uw hardware hieronder verbindt nog via 2G en moet vóór die tijd vervangen worden.</p>
+      <h3>Uw hardware op 2G</h3>
+      <div class="hw"><span class="rule">Alleen tonen als de klant Mi50 heeft</span><p>Uw <strong>Mi50</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi50, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi40 heeft</span><p>Uw <strong>Mi40</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi40, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi01 heeft</span><p>Uw <strong>Mi01</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi01, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi04 heeft</span><p>Uw <strong>Mi04</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi04, met dezelfde functies als u nu gebruikt.</p></div>
+      <h3>Waarom nu overstappen naar 4G?</h3>
+      <p>Met moderne 4G-hardware bent u verzekerd van:</p>
+      <ul><li>Betrouwbare en toekomstbestendige connectiviteit</li><li>Volledige continuïteit van uw fleetoplossingen</li><li>Naleving van wet- en regelgeving, zonder zorgen</li></ul>
+      <h3>Wat wilt u?</h3>
+      <p>Kies hieronder wat u het beste past. U ziet uw keuze daarna nog op een bevestigingspagina, en pas als u daar bevestigt, verwerken wij hem.</p>
+      <div class="btns"><a class="btn primary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=callme">Bel mij terug</a><a class="btn primary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=offer">Stuur mij een offerte</a><a class="btn secondary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=notnow">Nu niet, later</a></div>
+      <p>Met vriendelijke groet,</p>
+      <div class="logo">Logo Moving Intelligence</div>
+      <p class="contact"><strong>T</strong>&nbsp; +31 88 99 00 000<br><strong>E</strong>&nbsp; sales@movingintelligence.nl</p>
+      <hr>
+      <p class="footer">Adres van de organisatie | <a href="#" title="https://customer.movingintelligence.com/preferences?token=TOKEN">E-mailvoorkeuren beheren</a></p>
+    </div>
+  </div>
+</article>
+<article class="mail" id="mail3">
+  <div class="meta">
+    <div><span class="k">Mail 3</span> werkdag 8 · alleen zonder reactie</div>
+    <div><span class="k">Onderwerp</span> Laatste herinnering: uw 2G-hardware en de overstap naar 4G</div>
+    <div><span class="k">Preheader</span> Kies hoe u overstapt, of laat ons weten dat u geen interesse heeft.</div>
+  </div>
+  <div class="frame">
+    <div class="header-img">Header: “Mailing switch 2g 4g header”</div>
+    <div class="body">
+      <p class="intro"><strong>Telecomproviders hebben aangekondigd dat het 2G-netwerk medio 2027 definitief wordt uitgefaseerd.</strong><br /><br />Dit is onze laatste mail hierover. Uw hardware hieronder verbindt nog via 2G. Kies hoe u wilt overstappen. Heeft u geen interesse, laat het ons dan ook weten: dan mailen wij u hier niet meer over.</p>
+      <h3>Uw hardware op 2G</h3>
+      <div class="hw"><span class="rule">Alleen tonen als de klant Mi50 heeft</span><p>Uw <strong>Mi50</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi50, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi40 heeft</span><p>Uw <strong>Mi40</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi40, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi01 heeft</span><p>Uw <strong>Mi01</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi01, met dezelfde functies als u nu gebruikt.</p></div><div class="hw"><span class="rule">Alleen tonen als de klant Mi04 heeft</span><p>Uw <strong>Mi04</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi04, met dezelfde functies als u nu gebruikt.</p></div>
+      <h3>Waarom nu overstappen naar 4G?</h3>
+      <p>Met moderne 4G-hardware bent u verzekerd van:</p>
+      <ul><li>Betrouwbare en toekomstbestendige connectiviteit</li><li>Volledige continuïteit van uw fleetoplossingen</li><li>Naleving van wet- en regelgeving, zonder zorgen</li></ul>
+      <h3>Wat wilt u?</h3>
+      <p>Kies hieronder wat u het beste past. U ziet uw keuze daarna nog op een bevestigingspagina, en pas als u daar bevestigt, verwerken wij hem.</p>
+      <div class="btns"><a class="btn primary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=callme">Bel mij terug</a><a class="btn primary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=offer">Stuur mij een offerte</a><a class="btn secondary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=notnow">Nu niet, later</a><a class="btn secondary" href="#" title="https://customer.movingintelligence.com/response?token=TOKEN&amp;a=notinterested">Geen interesse</a></div>
+      <p>Met vriendelijke groet,</p>
+      <div class="logo">Logo Moving Intelligence</div>
+      <p class="contact"><strong>T</strong>&nbsp; +31 88 99 00 000<br><strong>E</strong>&nbsp; sales@movingintelligence.nl</p>
+      <hr>
+      <p class="footer">Adres van de organisatie | <a href="#" title="https://customer.movingintelligence.com/preferences?token=TOKEN">E-mailvoorkeuren beheren</a></p>
+    </div>
+  </div>
+</article>
+<h2 id="confirmations">Confirmation mails (Salesforce, sent automatically)</h2>
+<p class="lede">Three Lightning email templates in the folder “Campaigns”, sent from sales@movingintelligence.nl right after the customer confirms the choice. In dev now; Dutch only.</p>
+<article class="mail" id="confirmCallMe">
+  <div class="meta">
+    <div><span class="k">Bevestiging “Bel mij terug”</span> template <code>campaignConfirmCallMe_NL</code></div>
+    <div><span class="k">Onderwerp</span> Bevestiging: wij bellen u binnen 3 werkdagen over de overstap naar 4G</div>
+    <div><span class="k">Wanneer</span> After “Bel mij terug” on the page. Not sent when the rep records it on a call.</div>
+  </div>
+  <div class="frame">
+    <div class="header-img">Header: standard Moving Intelligence banner (miemailheader)</div>
+    <div class="body">
+      <p>Beste Erik,</p><p>Bedankt voor uw reactie. U heeft aangegeven dat u graag wordt teruggebeld over de overstap van uw 2G-hardware naar 4G.</p><p><strong>Binnen 3 werkdagen neemt een van onze adviseurs telefonisch contact met u op.</strong> Samen bespreken we welke 4G-hardware bij u past en hoe de vervanging verloopt.</p><p>Wilt u ons voor die tijd al iets laten weten, of bent u op bepaalde momenten niet bereikbaar? Beantwoord dan gerust deze e-mail.</p>
+      <p>Met vriendelijke groet,<br><strong>Team Sales, Moving Intelligence</strong></p>
+      <div class="logo">Logo Moving Intelligence</div>
+      <hr>
+      <p class="footer">U ontvangt deze e-mail als bevestiging van de keuze die u heeft doorgegeven. … <a href="#">U kunt hier uw voorkeuren beheren</a>. Heeft u deze keuze niet zelf doorgegeven? Beantwoord dan deze e-mail, dan lossen we dit graag voor u op.</p>
+    </div>
+  </div>
+</article>
+<article class="mail" id="confirmOffer">
+  <div class="meta">
+    <div><span class="k">Bevestiging “Offerte”</span> template <code>campaignConfirmOffer_NL</code></div>
+    <div><span class="k">Onderwerp</span> Bevestiging: u ontvangt binnen 4 werkdagen uw offerte voor 4G</div>
+    <div><span class="k">Wanneer</span> After “Stuur mij een offerte”, on the page or on a call.</div>
+  </div>
+  <div class="frame">
+    <div class="header-img">Header: standard Moving Intelligence banner (miemailheader)</div>
+    <div class="body">
+      <p>Beste Erik,</p><p>Bedankt voor uw aanvraag. U heeft aangegeven dat u een offerte wilt ontvangen voor de vervanging van uw 2G-hardware door 4G-hardware.</p><p><strong>Binnen 4 werkdagen ontvangt u de offerte van ons.</strong> Hierin staat de 4G-hardware die uw huidige hardware vervangt, met dezelfde functies als u nu gebruikt.</p><p>Heeft u in de tussentijd vragen? Beantwoord dan gerust deze e-mail.</p>
+      <p>Met vriendelijke groet,<br><strong>Team Sales, Moving Intelligence</strong></p>
+      <div class="logo">Logo Moving Intelligence</div>
+      <hr>
+      <p class="footer">U ontvangt deze e-mail als bevestiging van de keuze die u heeft doorgegeven. … <a href="#">U kunt hier uw voorkeuren beheren</a>. Heeft u deze keuze niet zelf doorgegeven? Beantwoord dan deze e-mail, dan lossen we dit graag voor u op.</p>
+    </div>
+  </div>
+</article>
+<article class="mail" id="confirmNotNow">
+  <div class="meta">
+    <div><span class="k">Bevestiging “Nu niet”</span> template <code>campaignConfirmNotNow_NL</code></div>
+    <div><span class="k">Onderwerp</span> Bevestiging: wij nemen in het tweede kwartaal van 2027 (april tot en met juni) weer contact met u op</div>
+    <div><span class="k">Wanneer</span> After “Nu niet, later”. The quarter is filled in from the chosen date (example: Q2 2027).</div>
+  </div>
+  <div class="frame">
+    <div class="header-img">Header: standard Moving Intelligence banner (miemailheader)</div>
+    <div class="body">
+      <p>Beste Erik,</p><p>Bedankt voor uw reactie. U heeft aangegeven dat u de overstap van uw 2G-hardware naar 4G liever later regelt.</p><p><strong>Wij nemen in het tweede kwartaal van 2027 (april tot en met juni) weer contact met u op.</strong> Tot die tijd ontvangt u van ons geen e-mails meer over de overstap.</p><p>Houd er rekening mee dat het 2G-netwerk medio 2027 definitief wordt uitgefaseerd. Wilt u toch eerder overstappen? Beantwoord dan gerust deze e-mail.</p>
+      <p>Met vriendelijke groet,<br><strong>Team Sales, Moving Intelligence</strong></p>
+      <div class="logo">Logo Moving Intelligence</div>
+      <hr>
+      <p class="footer">U ontvangt deze e-mail als bevestiging van de keuze die u heeft doorgegeven. … <a href="#">U kunt hier uw voorkeuren beheren</a>. Heeft u deze keuze niet zelf doorgegeven? Beantwoord dan deze e-mail, dan lossen we dit graag voor u op.</p>
+    </div>
+  </div>
+</article>
+</div>

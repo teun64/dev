@@ -45,6 +45,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>Ctrl_CampaignMemberCall</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Ctrl_Invoice</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -66,6 +70,10 @@
     </classAccesses>
     <classAccesses>
         <apexClass>Ctrl_PaymentMandate</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>Ctrl_StagedCampaignOverview</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>

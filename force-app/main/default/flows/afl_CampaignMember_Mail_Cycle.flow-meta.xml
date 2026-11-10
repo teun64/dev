@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
+        <name>act_01_ScheduleDue</name>
+        <label>1. Schedule Due (business days)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>Util_BusinessDays</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>dec_02_Stage</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>days</name>
+            <value>
+                <elementReference>fScheduleDays</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>startDate</name>
+            <value>
+                <elementReference>rCampaignMember.MailBatchReleasedOn__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>Util_BusinessDays</nameSegment>
+        <offset>0</offset>
+        <outputParameters>
+            <assignToReference>vScheduleDue</assignToReference>
+            <name>resultDate</name>
+        </outputParameters>
+    </actionCalls>
+    <actionCalls>
         <name>act_06_NotReacted</name>
         <label>6. Move to Not Reacted</label>
         <locationX>0</locationX>
@@ -150,7 +180,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>dec_02_Stage</targetReference>
+                <targetReference>act_01_ScheduleDue</targetReference>
             </connector>
             <label>Yes</label>
         </rules>
@@ -304,8 +334,15 @@
             <label>Move</label>
         </rules>
     </decisions>
-    <description>Mail cycle of one campaign member (generic, any campaign with Max Attempts (Mail)): Waiting -&gt; Due (mail 1) once the batch is released, the next mail on the days of the Mail Schedule (Days) counted from the release (empty: every Mail Interval (Days)) while there is no answer, Completed on the last schedule day after the last mail (+ Mail Completed Status; in a staged campaign the member then moves from Operational to the Not reacted campaign, Svc_CampaignMove), Stopped as soon as Response is filled. Growth sends the mail that is Due. Called daily by stf - CampaignMember - Mail Cycle.</description>
+    <description>Mail cycle of one campaign member (generic, any campaign with Max Attempts (Mail)): Waiting -&gt; Due (mail 1) once the batch is released, the next mail on the days of the Mail Schedule (Days), in business days (Sales (NL), Util_BusinessDays) counted from the release (empty: every Mail Interval (Days)) while there is no answer, Completed on the last schedule day after the last mail (+ Mail Completed Status; in a staged campaign the member then moves from Operational to the Not reacted campaign, Svc_CampaignMove), Stopped as soon as Response is filled. Growth sends the mail that is Due. Called daily by stf - CampaignMember - Mail Cycle.</description>
     <environments>Default</environments>
+    <formulas>
+        <description>Business days after the release for the next step (Mail Schedule (Days) value); 0 when there is none.</description>
+        <name>fScheduleDays</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISBLANK({!fScheduleDayText}), 0, VALUE({!fScheduleDayText}))</expression>
+        <scale>0</scale>
+    </formulas>
     <formulas>
         <name>fLastMail</name>
         <dataType>Boolean</dataType>
@@ -323,10 +360,10 @@
         <expression>IF(ISBLANK({!rCampaignMember.MailDueOn__c}), TRUE,
 IF(OR(ISBLANK({!fScheduleDayText}), ISBLANK({!rCampaignMember.MailBatchReleasedOn__c})),
 {!rCampaignMember.MailDueOn__c} + BLANKVALUE({!rCampaign.MailIntervalDays__c}, 14) &lt;= {!$Flow.CurrentDate},
-{!rCampaignMember.MailBatchReleasedOn__c} + VALUE({!fScheduleDayText}) &lt;= {!$Flow.CurrentDate}))</expression>
+{!vScheduleDue} &lt;= {!$Flow.CurrentDate}))</expression>
     </formulas>
     <formulas>
-        <description>Day (after mail 1) of the step after the current mail, from the campaign Mail Schedule (Days), e.g. "5,12,20": mail 1 → 5, mail 2 → 12, mail 3 → 20 (closing day). Blank when there is no schedule or no value for this mail.</description>
+        <description>Day (after mail 1) of the step after the current mail, from the campaign Mail Schedule (Days), e.g. "3,8,14" (business days): mail 1 → 3, mail 2 → 8, mail 3 → 14 (closing day). Blank when there is no schedule or no value for this mail.</description>
         <name>fScheduleDayText</name>
         <dataType>String</dataType>
         <expression>TRIM(MID(SUBSTITUTE(SUBSTITUTE({!rCampaign.MailScheduleDays__c}, &apos; &apos;, &apos;&apos;), &apos;,&apos;, &apos;                    &apos;), (BLANKVALUE({!rCampaignMember.MailNumber__c}, 1) - 1) * 20 + 1, 20))</expression>
@@ -455,6 +492,13 @@ IF(OR(ISBLANK({!fScheduleDayText}), ISBLANK({!rCampaignMember.MailBatchReleasedO
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vScheduleDue</name>
+        <dataType>Date</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
 </Flow>

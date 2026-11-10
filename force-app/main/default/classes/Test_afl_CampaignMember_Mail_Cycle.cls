@@ -79,8 +79,10 @@ private class Test_afl_CampaignMember_Mail_Cycle {
 		System.assertEquals(2, cm.MailNumber__c);
 	}
 
-	// 2G schedule "5,12,20": mail 2 on day 5, mail 3 on day 12, closed on day 20 (days after the release)
+	// schedule "5,12,20": mail 2 on day 5, mail 3 on day 12, closed on day 20 (business days after the release; here every
+	// day counts, so the dates don't depend on the weekday the test runs; the business-day math: Test_Util_BusinessDays)
 	static void useSchedule() {
+		Util_BusinessDays.everyDayForTest = true;
 		Campaign camp = [SELECT Id FROM Campaign WHERE Name = 'Mail Cycle Campaign' WITH SYSTEM_MODE];
 		Database.update(new Campaign(Id = camp.Id, MaxMailAttempts__c = 3, MailScheduleDays__c = '5, 12, 20'), AccessLevel.SYSTEM_MODE);
 	}

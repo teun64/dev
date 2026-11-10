@@ -145,6 +145,25 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>stagedCampaignOverview</componentName>
+                <identifier>stagedCampaignOverview</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentName>campaignCallList</componentName>
+                <identifier>campaignCallList</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.CampaignRole__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Large account</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>

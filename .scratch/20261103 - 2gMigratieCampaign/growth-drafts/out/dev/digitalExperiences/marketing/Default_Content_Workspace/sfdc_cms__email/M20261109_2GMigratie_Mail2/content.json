@@ -1,0 +1,1021 @@
+{
+  "type": "sfdc_cms__email",
+  "title": "M20261109 2G Migratie - mail 2",
+  "urlName": "m20261109-2g-migratie-mail-2",
+  "contentBody": {
+    "backgroundColor": "#FFFDFD",
+    "lightning:backgroundImage": {
+      "position": "center center",
+      "repeat": "no-repeat",
+      "size": "cover"
+    },
+    "lightning:brandSource": "MovingintelligenceGeneral",
+    "lightning:colorScheme": "{!$brand.colorScheme}",
+    "lightning:dataProviders": [
+      {
+        "attributes": {
+          "dataGraphApiName": "Data_Graph"
+        },
+        "definition": "sfdc_cms__dataGraphDataProvider",
+        "sfdcExpressionKey": "$dataGraph"
+      }
+    ],
+    "lightning:expressions": [],
+    "lightning:padding": "{!$brand.spacing.none}",
+    "messagePurpose": "promotional",
+    "preheader": "Wij hebben uw keuze nog niet ontvangen. Met één klik laat u weten wat u wilt.",
+    "sfdc_cms:attachments": [],
+    "sfdc_cms:block": {
+      "definition": "sfdc_cms/rootContentBlock",
+      "id": "f74c3abc-37a6-423e-a374-853c689ca7bb",
+      "type": "block",
+      "children": [
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "c948fda0-bbd6-4963-9247-28215e768134",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "4b2e22ff-58b0-40f5-9ed3-fc6b7b3dac38",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "imageFitConfig": {
+                      "width": {
+                        "unit": "%",
+                        "value": 100.0
+                      }
+                    },
+                    "imageInfo": {
+                      "altText": "",
+                      "overrideAltText": false,
+                      "source": {
+                        "ref": "MCCYOX7B4IKZGYLA65VTJXO3NZLM",
+                        "type": "imageReference"
+                      },
+                      "url": "/cms/media/MCCYOX7B4IKZGYLA65VTJXO3NZLM?fileName=Mailing+switch+2g+4g+header.png&fileHash=717440b1384e4aab7bc5706efbc5252b"
+                    },
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment": "center",
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition": "lightning/image",
+                  "id": "412266d7-3179-4e32-8db7-d232c05634b0",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "align": "left",
+                    "level": 3.0,
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.heading.heading3}",
+                    "text": "<strong>Telecomproviders hebben aangekondigd dat het 2G-netwerk medio 2027 definitief wordt uitgefaseerd.</strong><br /><br />Een paar dagen geleden schreven wij u hierover. Wij hebben uw keuze nog niet ontvangen. Uw hardware hieronder verbindt nog via 2G en moet vóór die tijd vervangen worden."
+                  },
+                  "definition": "lightning/heading",
+                  "id": "906e16f5-0226-44e6-847c-1956f7b58bb5",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "align": "left",
+                    "level": 3.0,
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.heading.heading2}",
+                    "text": "Uw hardware op 2G"
+                  },
+                  "definition": "lightning/heading",
+                  "id": "82f545f7-6e45-4480-a6cc-33d66d372143",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "c3c95bc2-830f-429e-9332-485181c94f65",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "19f029d0-7653-4032-b9d5-b04651d900da",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.none}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "Uw <strong>Mi50</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi50, met dezelfde functies als u nu gebruikt."
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "a86e1093-be99-4b7b-955a-04305f229732",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "9cbe80fd-62ac-4e10-b1a3-ba72809f6ee8",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "9e7ffd7b-c494-4396-868d-bf1ce1026951",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.none}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "Uw <strong>Mi40</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi40, met dezelfde functies als u nu gebruikt."
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "1312cae9-400e-46da-b15d-8cd3a439a654",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "63c323fb-6468-4b39-adbc-8c6697daa2cd",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "4ab670c6-0a29-48ce-a51a-bf51554dda60",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.none}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "Uw <strong>Mi01</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi01, met dezelfde functies als u nu gebruikt."
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "76ba3e74-2f57-4dea-8db9-e88773b70e27",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "ce7610b0-dc7f-43f5-85fc-02859a951eac",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "7009c415-2f3d-4be4-9e08-7d64f11df6d6",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.none}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "Uw <strong>Mi04</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi04, met dezelfde functies als u nu gebruikt."
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "229b9e74-a85b-4e84-98fc-a67d72a7b01f",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "47083bea-542b-49f0-94bc-b2ad3643b972",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "b13add8f-4380-4cef-99c7-0acbcfa66df4",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "level": 3.0,
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.heading.heading2}",
+                    "text": "Waarom nu overstappen naar 4G?"
+                  },
+                  "definition": "lightning/heading",
+                  "id": "bbf0e5ce-a756-461a-9a6e-b432b4436d30",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.none}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "Met moderne 4G-hardware bent u verzekerd van:"
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "0ce97177-c564-46ce-98d5-86afb44936e8",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "content": {
+                      "attributes": {
+                        "listStyle": "unordered"
+                      },
+                      "definition": "lightning/listElement",
+                      "id": "eb475761-7dc3-4086-b164-fee12e82eab0",
+                      "type": "block",
+                      "children": [
+                        {
+                          "definition": "lightning/listItem",
+                          "id": "a643388c-4db6-4909-a3d6-9b58023580d0",
+                          "type": "block",
+                          "children": [
+                            {
+                              "attributes": {
+                                "text": "Betrouwbare en toekomstbestendige connectiviteit",
+                                "align": "left"
+                              },
+                              "definition": "lightning/paragraph",
+                              "id": "6f107413-9c2e-4d34-9b0f-fcb4eb84949f",
+                              "type": "block"
+                            }
+                          ]
+                        },
+                        {
+                          "definition": "lightning/listItem",
+                          "id": "7fe40033-fc84-4d2f-a5d2-1e766870d373",
+                          "type": "block",
+                          "children": [
+                            {
+                              "attributes": {
+                                "text": "Volledige continuïteit van uw fleetoplossingen",
+                                "align": "left"
+                              },
+                              "definition": "lightning/paragraph",
+                              "id": "bb72807d-fb53-4282-a331-697ae6c94158",
+                              "type": "block"
+                            }
+                          ]
+                        },
+                        {
+                          "definition": "lightning/listItem",
+                          "id": "30fb259b-e06b-4fe9-8ec0-8f77cdaeadbd",
+                          "type": "block",
+                          "children": [
+                            {
+                              "attributes": {
+                                "text": "Naleving van wet- en regelgeving, zonder zorgen",
+                                "align": "left"
+                              },
+                              "definition": "lightning/paragraph",
+                              "id": "aafa9375-8697-4dd5-ace3-b1a83580d92f",
+                              "type": "block"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.none}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition": "lightning/list",
+                  "id": "536547cb-b9f8-4a6f-8b57-329fa3e0dcf4",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "align": "left",
+                    "level": 3.0,
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.heading.heading2}",
+                    "text": "Wat wilt u?"
+                  },
+                  "definition": "lightning/heading",
+                  "id": "7d40b2ea-04fe-44de-9da0-07a09b9588bc",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.none}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "Kies hieronder wat u het beste past. U ziet uw keuze daarna nog op een bevestigingspagina, en pas als u daar bevestigt, verwerken wij hem."
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "56b0d772-3226-4b82-8ce5-b76edf3123ab",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "lightning:borderRadius": "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth": "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup": "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:click": {
+                      "actions": [
+                        {
+                          "attributes": {
+                            "openInNewTab": true,
+                            "url": "https://movingintelligence--dev.sandbox.my.site.com/hub/response?token=TOKEN&a=callme"
+                          },
+                          "definition": "sfdc_cms__navigateToUrlAction",
+                          "generatedUrl": "https://movingintelligence--dev.sandbox.my.site.com/hub/response?token=TOKEN&a=callme"
+                        }
+                      ]
+                    },
+                    "lightning:horizontalAlignment": "center",
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography": "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup": "{!$brand.buttonStyleGroup.primary}",
+                    "text": "Bel mij terug",
+                    "width": "auto"
+                  },
+                  "definition": "lightning/actionButton",
+                  "id": "fbdba6ce-8d42-402f-aabe-dc346b68dd59",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "lightning:borderRadius": "{!$brand.buttonStyleGroup.primary.lightning:borderRadius}",
+                    "lightning:borderWidth": "{!$brand.buttonStyleGroup.primary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup": "{!$brand.buttonStyleGroup.primary.lightning:buttonColorGroup}",
+                    "lightning:click": {
+                      "actions": [
+                        {
+                          "attributes": {
+                            "openInNewTab": true,
+                            "url": "https://movingintelligence--dev.sandbox.my.site.com/hub/response?token=TOKEN&a=offer"
+                          },
+                          "definition": "sfdc_cms__navigateToUrlAction",
+                          "generatedUrl": "https://movingintelligence--dev.sandbox.my.site.com/hub/response?token=TOKEN&a=offer"
+                        }
+                      ]
+                    },
+                    "lightning:horizontalAlignment": "center",
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.buttonStyleGroup.primary.lightning:padding}",
+                    "lightning:typography": "{!$brand.buttonStyleGroup.primary.lightning:typography}",
+                    "sfdc_cms:styleGroup": "{!$brand.buttonStyleGroup.primary}",
+                    "text": "Stuur mij een offerte",
+                    "width": "auto"
+                  },
+                  "definition": "lightning/actionButton",
+                  "id": "d4e15ae1-3a09-4d79-a32a-0e7a8b51cc0d",
+                  "type": "block"
+                },
+                {
+                  "attributes": {
+                    "lightning:borderRadius": "{!$brand.buttonStyleGroup.secondary.lightning:borderRadius}",
+                    "lightning:borderWidth": "{!$brand.buttonStyleGroup.secondary.lightning:borderWidth}",
+                    "lightning:buttonColorGroup": "{!$brand.buttonStyleGroup.secondary.lightning:buttonColorGroup}",
+                    "lightning:click": {
+                      "actions": [
+                        {
+                          "attributes": {
+                            "openInNewTab": true,
+                            "url": "https://movingintelligence--dev.sandbox.my.site.com/hub/response?token=TOKEN&a=notnow"
+                          },
+                          "definition": "sfdc_cms__navigateToUrlAction",
+                          "generatedUrl": "https://movingintelligence--dev.sandbox.my.site.com/hub/response?token=TOKEN&a=notnow"
+                        }
+                      ]
+                    },
+                    "lightning:horizontalAlignment": "center",
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.buttonStyleGroup.secondary.lightning:padding}",
+                    "lightning:typography": "{!$brand.buttonStyleGroup.secondary.lightning:typography}",
+                    "sfdc_cms:styleGroup": "{!$brand.buttonStyleGroup.secondary}",
+                    "text": "Nu niet, later",
+                    "width": "auto"
+                  },
+                  "definition": "lightning/actionButton",
+                  "id": "dc87f1ef-218b-434e-abf5-8917e3cd6591",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "5c783da0-58bf-477a-bc43-0c57c449f576",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "b251ec23-5a82-48df-81be-63e37d7971ea",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "Met vriendelijke groet,"
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "868ea056-d522-4e58-9dfc-3aad6e51c425",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "6b8a302b-27d0-4a17-bc55-ce72dbfc0bd0",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "3c2d74a4-656a-42a6-b148-b7e1441c7c66",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "imageFitConfig": {
+                      "width": {
+                        "unit": "%",
+                        "value": 25.0
+                      }
+                    },
+                    "imageInfo": {
+                      "altText": "",
+                      "overrideAltText": false,
+                      "source": {
+                        "ref": "MCP4BBR4BDUFHRVHZDUTJ5CPPZ4Q",
+                        "type": "imageReference"
+                      },
+                      "url": "/cms/media/MCP4BBR4BDUFHRVHZDUTJ5CPPZ4Q"
+                    },
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment": "left",
+                    "lightning:margin": "{!$brand.spacing.xSmall}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}"
+                  },
+                  "definition": "lightning/image",
+                  "id": "bb6d7cb7-6f8a-416a-b926-9f82437f3d09",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "dbccb74b-04c9-4c56-a71d-55998b7c2546",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "4639ae4c-9a3b-4726-9b03-8fb251fc31b6",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "<strong>T</strong>  &#43;31 88 99 00 000<br /><strong>E </strong> sales&#64;movingintelligence.nl"
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "9bf665cc-83c7-44d2-9341-5b05f5c64f03",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "a844a6ed-d6ef-4b22-b550-a42f66f78915",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "43d91cf4-6392-40a7-8002-1ec9d6dc355e",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:horizontalAlignment": "center",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lineStyle": "solid",
+                    "lineWeight": {
+                      "unit": "px",
+                      "value": 1.0
+                    },
+                    "lineWidth": {
+                      "unit": "%",
+                      "value": 100.0
+                    }
+                  },
+                  "definition": "lightning/divider",
+                  "id": "e0369a93-51a5-4e93-93db-dfdfb4122917",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "attributes": {
+            "lightning:backgroundImage": {
+              "position": "center center",
+              "repeat": "no-repeat",
+              "size": "cover"
+            },
+            "lightning:borderRadius": "{!$brand.borderRadius.square}",
+            "lightning:borderWidth": "{!$brand.borderWeight.none}",
+            "lightning:colorScheme": "{!$brand.colorScheme}",
+            "lightning:margin": "{!$brand.spacing.none}",
+            "lightning:padding": "{!$brand.spacing.xSmall}",
+            "stackOnMobile": true,
+            "reverseOrderOnMobile": false
+          },
+          "definition": "lightning/section",
+          "id": "10887893-1fd8-410e-856e-1a28f9ea7c95",
+          "type": "block",
+          "children": [
+            {
+              "attributes": {
+                "columnWidth": 12.0,
+                "lightning:backgroundImage": {
+                  "position": "center center",
+                  "repeat": "no-repeat",
+                  "size": "cover"
+                },
+                "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                "lightning:colorScheme": "{!$brand.colorScheme}",
+                "lightning:margin": "{!$brand.spacing.none}",
+                "lightning:padding": "{!$brand.spacing.xSmall}",
+                "lightning:verticalAlignment": "top"
+              },
+              "definition": "lightning/column",
+              "id": "d67d624a-6c2a-43ef-aec4-a587c3f9d0f8",
+              "type": "block",
+              "children": [
+                {
+                  "attributes": {
+                    "align": "left",
+                    "lightning:borderRadius": "{!$brand.borderRadius.square}",
+                    "lightning:borderWidth": "{!$brand.borderWeight.none}",
+                    "lightning:colorGroup": {
+                      "backgroundColor": "{!$brand.colorScheme.root}",
+                      "borderColor": "{!$brand.colorScheme.neutral}",
+                      "linkColor": "{!$brand.colorScheme.primaryAccent}",
+                      "textColor": "{!$brand.colorScheme.contrast}"
+                    },
+                    "lightning:margin": "{!$brand.spacing.none}",
+                    "lightning:padding": "{!$brand.spacing.xSmall}",
+                    "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
+                    "text": "{!$organization.Address} | <a href=\"https://movingintelligence--dev.sandbox.my.site.com/hub/preferences?token=TOKEN\">E-mailvoorkeuren beheren</a><br />"
+                  },
+                  "definition": "lightning/paragraph",
+                  "id": "3c16d2e4-37c8-4af8-b118-f3d8f778021a",
+                  "type": "block"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "sfdc_cms:description": "2G Migratie campaign, mail 2 (business day 3). DRAFT for marketing.",
+    "sfdc_cms:title": "M20261109 2G Migratie - mail 2",
+    "subjectLine": "Herinnering: kies hoe u overstapt van 2G naar 4G",
+    "sfdc_cms:variants": []
+  }
+}

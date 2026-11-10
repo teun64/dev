@@ -379,3 +379,108 @@ User decision (G15): "Make an offer" creates an Opportunity with the equivalent 
 - Deployed Svc_CampaignOffer + Test_Svc_CampaignOffer to acc: deploy 0AfG500000TQvA1KAL, RunSpecifiedTests (Test_Svc_CampaignOffer + Test_Svc_CampaignResponse) 27/27 passed.
 - Live body in acc checked: it contains SOURCE_CALL (agent on a call, otherwise account owner).
 - acc package step1 already had both classes; for a prod deploy the package doesn't change.
+
+## 2026-11-09 (13) — acc test data stays
+- User: leave the acc test data (ZZ 2G Test + 5 children and member, Case MI00273391, Opportunity 006G500000aQfijIAC). No cleanup planned in acc.
+
+## 2026-11-09 (14) — Growth mail drafts (mail 1-3) for marketing
+- Base: marketing's own prod mail "2g-4gvervangen" (MCDL5QFH6TZNG2ZNUTQBCNKSGOIQ, folder Emails/M20260218-2g4gRenee; same layout family as the latest mailing M20261021PHPmailing). Copy in growth-drafts/base_2g-4gvervangen_prod.json.
+- Generator growth-drafts/build_drafts.py → out/dev + out/prod (mdapi, one item per mail, new apiNames M20261109_2GMigratie_Mail1/2/3, fresh block ids) + preview.
+- Content: header + intro ("medio 2027" from the base) + one hardware block per type (Mi50, Mi40, Mi01, Mi04; visibility rule to be set by marketing, no flag fields exist) + why-4G list + "Wat wilt u?" + buttons Bel mij terug / Stuur mij een offerte / Nu niet, later (+ Geen interesse in mail 3) + signature + footer with the Customer Hub preference link. €100 cashback and the named specialist left out.
+- Growth refuses non-URL placeholders on buttons ("Something's not right with this URL"), so links are real URLs with TOKEN: <hub>/response?token=TOKEN&a=<answer>, <hub>/preferences?token=TOKEN. Marketing swaps them for the merge fields once Data Cloud has CampaignMember.ResponseUrl__c / Contact.Preference_Center_Url__c.
+- DEPLOYED TO dev Growth (0Afbd00000ByyHVCAZ): 20Ybd000008cQXxEAM / …XyEAM / …XzEAM, folder Moving Intelligence/Campaigns/Year 2026/M20261109 2G Migratie. dev image keys: header MCCYOX7B4IKZGYLA65VTJXO3NZLM, logo MCP4BBR4BDUFHRVHZDUTJ5CPPZ4Q.
+- prod: out/prod ready (prod image refs, folder Emails/M20261109 2G Migratie), NOT deployed — needs explicit go.
+- Preview for marketing: https://claude.ai/artifact/Bsbsy8YWZiUU59FW3s3L2m
+
+## 2026-11-09 (15) — admin overview on the parent campaign (dev)
+- User order: 1 status, 2 transfer + start of mail 1, 3 revenue. New: `Ctrl_StagedCampaignOverview` (+ `Test_Ctrl_StagedCampaignOverview`, 5 tests), LWC `stagedCampaignOverview`, placed on `rp_Campaign` above the tabs (renders nothing on child or normal campaigns).
+- 1 Status: members per role campaign (clickable), released (has a batch), reacted, waiting after mail 1/2/3, reactions (current answer, share of released), Not now per quarter, call-backs per Case status, tables per batch and per hardware (tens digit of Priority__c → Product2.MigrationPriority__c names; 9/unknown = Not mapped).
+- 2 Release: ready vs parked in Source, ready per priority, number + button "Release N and start mail 1" with confirm → Svc_CampaignRelease.release; gated on CampaignMember create+edit+delete; toast + reload. Growth sends mail 1 from its segment (not connected yet).
+- 3 Revenue: Opportunities on the role campaigns, Open / Won / Lost count + amount (EUR). Costs wait for the margin definition.
+- Member figures from ONE query loop (number fields can't be GROUP BY'd); rows = members (2G ~26k < 50k).
+- Deployed dev 0Afbd00000BywKYCAZ, 12/12 (with Test_Svc_CampaignMove), coverage 168/178. Live dev check on ZZ 2G Test (701bd00000pt7kPAAQ): matches a direct count; 16 query rows.
+- acc/prod package: add ApexClass Ctrl_StagedCampaignOverview + Test_Ctrl_StagedCampaignOverview, LWC stagedCampaignOverview, FlexiPage rp_Campaign. Non-admin users need Apex class access to Ctrl_StagedCampaignOverview (DML script, which permission set = to decide).
+
+## 2026-11-09 (16) — new answer Dealer ("Via mijn miDealer") (dev)
+- User decision: own 6th sub-campaign, no dealer name on the page. Answer `Dealer` (code `dealer`) → member to role campaign `Dealer`, MailStage Stopped, Status "Via dealer" (only if the campaign has that member status), open call-back closes (like Not interested). No call-back, no Opportunity.
+- Changed: Response__c + CampaignRole__c picklists (+ Dealer), Svc_CampaignMove (ROLE_DEALER), Svc_CampaignResponse (ANSWER_DEALER, targetRole, call-back close), Ctrl_CampaignResponseGuest (code dealer), Svc_CampaignSource (comment; Dealer left alone like Offer/NI/NR), LWC campaignResponse (nl/en labels + thank-you), scr_Case_Callback_Reached (choice chDealer), Ctrl_StagedCampaignOverview + LWC (role, answer, per-batch/hardware column), tests (+dealer_movesToDealerAndClosesOpenCallback, setup with 6 children).
+- GOTCHA: Campaign record types Generic + Marketing restrict CampaignRole__c values → a new value must be added to both record types (retrieve RecordType + the CustomField together, else the RT file omits the custom picklist; deploy only RecordType+CustomField members, not CustomObject). Top-level Campaign settings checked unchanged. Deploy the picklist fields BEFORE the code (tests run against the old value list otherwise).
+- dev: 0Afbd00000Bz66zCAB 57/57; Customer Hub published; child "ZZ 2G Test - Dealer" created; live submit(dealer) on de Witte token: Source → ZZ 2G Test - Dealer, Response Dealer, Stopped.
+- Mail drafts: button "Via mijn miDealer" (&a=dealer) in mails 1-3, redeployed dev Growth 0Afbd00000Bz6i5CAB, preview v2. Process scheme v5, report v31.
+- acc/prod: (1) picklist fields, (2) that org's own Campaign record types + Dealer (retrieve there, add value, deploy RT only), (3) code + LWC + flow, (4) Customer Hub publish, (5) create the Dealer child under the parent (+ optional member status "Via dealer").
+
+## 2026-11-09 (17) — Dealer + admin overview DEPLOYED TO acc
+- Pre-check: acc = HEAD for rp_Campaign, Svc_CampaignResponse/Move/Source, Ctrl_CampaignResponseGuest, campaignResponse (only trailing newline / platform styleProperties differences on scr_Case_Callback_Reached).
+- 1 picklists Response__c + CampaignRole__c: 0AfG500000TRNmDKAX. 2 acc Campaign record types Generic + Marketing + Dealer (acc's own RT files, RT+CustomField members only); Campaign top-level settings unchanged before/after.
+- 3 validate 0AfG500000TRNr3KAH (69/69: Test_Svc_CampaignResponse, Test_Ctrl_StagedCampaignOverview, Test_Svc_CampaignMove, Test_Svc_CampaignSource, Test_Svc_CampaignOffer, Test_Svc_SalesCallback, Test_afl_CampaignMember_Mail_Cycle) → quick deploy 0AfG500000TRO5ZKAX. scr_Case_Callback_Reached active = latest.
+- 4 Customer Hub published. 5 child "ZZ 2G Test - Dealer" created under 701G500001Vq0zGIAR.
+- Live: overview on the acc parent OK (11 rows); submit(dealer) on the acc test token: Not interested → ZZ 2G Test - Dealer, Response Dealer, Stopped; /hub/response?…&a=dealer HTTP 200.
+- Still open: Apex class access to Ctrl_StagedCampaignOverview for non-admins (which permission set?); Growth mail drafts are dev only.
+
+## (18) 2026-11-09 — change of plan: Dealer only on the phone script (dev)
+- User: leave Dealer out of the mails; make it an option on the phone script ("Processed by dealer") with a dealer account selection. User choices: new CampaignMember field **and** fill the account's Preferred Installation Specialist when empty; remove the dealer choice from the response page.
+- Dealer–customer relation (checked prod): Experience Cloud has none. Dealer Portal users (Customer Community Plus) only see their own account; IsPartner = 0. Existing Account lookups: `Kickback_Reseller__c` (1,177, 1,073 to a dealer; filled by the MI platform sync via Rest_UpsertAccount kickbackId → don't write) and `Preferred_Installation_Specialist__c` (511, 491 to a dealer; manual).
+- New field `CampaignMember.Dealer__c` (Lookup Account, filter Relation_type__c = Dealer, Distributor, SetNull). Moves along with Svc_CampaignMove (all custom fields). FLS: added to fls_campaignresponse.apex (dev run: 6 inserted).
+- `Svc_CampaignResponse`: Request.dealerId; Dealer answer sets Dealer__c (other answers clear it) and fills Account.Preferred_Installation_Specialist__c only when empty (account = member Account__c, else Contact.AccountId). The page no longer closes a call-back on Dealer (page can't send it).
+- `Ctrl_CampaignResponseGuest` + `lwc/campaignResponse`: back to HEAD (no 'dealer' code). Guest submit 'dealer' → invalid (checked dev).
+- `scr_Case_Callback_Reached`: choice "Processed by dealer"; lookup `lkpDealer` (CampaignMember.Dealer__c, required, only when Dealer chosen), prefilled with the account's Preferred Installation Specialist, else Kickback Reseller, when that is a Dealer/Distributor (dgr_01_Account / dgr_01_PreferredDealer / dgr_01_KickbackDealer, field-by-field into variables so an empty account can't fault). → action dealerId.
+- Growth drafts: Dealer button removed (build_drafts.py), redeployed dev Growth 0Afbd00000BzaLCCAZ; preview v3.
+- dev deploy: field 0Afbd00000BzappCAB; code+flow+LWC 0Afbd00000Bzat3CAB (Test_Svc_CampaignResponse + Test_Ctrl_StagedCampaignOverview 28/28); flow v3 active; Customer Hub published. Live: ZZ member 00vbd000009glGfAAI → Dealer, Dealer__c + account Preferred = Zoutewelle Banden B.V.
+- Open: browser check of the flow screen (lookup + prefill) as a sales user (miSales has read on Dealer__c; check the lookup works without edit). acc: needs explicit go — order: field → FLS script → classes/LWC/flow (RunSpecifiedTests) → publish Customer Hub. acc still has the page Dealer choice from (17) until then.
+
+## (19) 2026-11-10 — confirmation mails (dev) + large accounts (design, open)
+**Confirmation mails (built dev):**
+- Lightning templates (SFX, Contact) in new folder `Campaigns` (folderShares AllInternalUsers): `campaignConfirmCallMe_NL` (gebeld binnen 3 werkdagen), `campaignConfirmOffer_NL` (offerte binnen 4 werkdagen), `campaignConfirmNotNow_NL` (#PERIODE# = "het tweede kwartaal van 2027 (april tot en met juni)"). Base paymentRetryPlanned_NL (miemailheader, Arial inline, preference link).
+- Flow: Svc_CampaignResponse.apply → on OUTCOME_APPLIED + staged + answer Call me/Offer/Not now (Call me not when caseId set = rep on the call) → `Util_CampaignConfirmationPublisher` (API **66.0**, like Util_OrderProcessPublisher: guest has no Create on the event) publishes `CampaignConfirmation__e` (HighVolume, PublishAfterCommit; CampaignMemberId__c, Answer__c) → trigger `CampaignConfirmationEvent` → `Svc_CampaignConfirmation.send` as Automated Process: renderStoredEmailTemplate(contact) + #PERIODE# replace, saveAsActivity, sender sales@movingintelligence.nl else noreply@movingintelligence.com (allow-all, verified). Skips when the member answered something else since, or no email.
+- dev deploy: templates+event 0Afbd00000C05iLCAR; code 0Afbd00000C00tzCAB (Test_Svc_CampaignConfirmation 6 + Test_Svc_CampaignResponse + Test_Ctrl_StagedCampaignOverview = 34/34).
+- Live dev as real guest (/hub/webruntime/api/apex/execute submit notnow 2027-04-01, member 00vbd000009fvehAAA, contact .invalid address): EmailMessage by Automated Process from noreply@movingintelligence.com, subject + body with quarter OK, preference link OK.
+- Only NL (the page also offers EN). Templates are 2G-specific; a next staged campaign needs its own (then a Campaign field for the template set).
+- Preview: mail preview v4 (section Confirmations).
+
+**Large accounts (prod counts 2026-11-10, read-only):**
+- 2G accounts (End User, platform 1, Mi50/Mi40/MiTracer/MiRetreever, ≥1 on 2G) = 26,007.
+- With Account.Subscriptions_Activated__c ≥ 10 (all active subs): **526** (B2B 512, B2C 14).
+- With ≥ 10 active subs on the 2G hardware types: 485 (≥25: 148, ≥50: 50, ≥100: 18); with ≥ 10 2G units themselves: 248.
+- Omni-Channel prod: skills-based routing in use (20 ServiceResources; skills sd/sc/sl/ss/sp/sv/sr, e.g. svGeneral). Proposal: skills `svDeskSales` + `svLargeAccount`; call-back routed by routeWork/PendingServiceRouting with SkillRequirement (create + Not Reached paths), 7th child role "Large account" + member flag PhoneOnly__c guarding every path back into mail; refill job (Util_JobDispatcher) "open < 4 → next 10 by Priority__c". Waiting for the user's answers.
+- Case ↔ member: already linked (Case.CampaignMemberId__c text + Case.Campaign__c lookup; Svc_CampaignMove keeps them in sync; lookups to CampaignMember are not allowed by Salesforce).
+
+## (20) 2026-11-10 — large accounts: phone only, worked from the campaign member (dev)
+- User: forget Omni-Channel/skills (and the top-up rule). The large-account person works from the campaign member: account + contact shown on the member, buttons Offer / Not interested / Not now.
+- Defaults taken (not answered): basis = Account.Subscriptions_Activated__c >= 10 (526 prod); Not now / Closed Lost of a large account → back to Large account; growing to 10+ moves a member only while it is still in Source; Offer and Not now from the member page also send the confirmation mail.
+- New role value `Large account` (CampaignRole__c + record types Generic/Marketing, dev; checked by rolled-back inserts). Child "ZZ 2G Test - Large account" 701bd00000qlXnNAAU in dev.
+- New field `CampaignMember.LargeAccount__c` (checkbox, carried by Svc_CampaignMove). FLS: fls_campaignresponse.apex (dev run). NB anonymous Apex can't even compile a SOQL on a field without FLS.
+- Code: Svc_CampaignMove.ROLE_LARGE_ACCOUNT; Svc_CampaignSource (LARGE_FROM_SUBSCRIPTIONS = 10; new large account → Large account child with flag, fallback Source when no child; Source member grown large → moved; Large account members updated like Source and pruned like Source); Svc_CampaignRelease skips LargeAccount__c; Svc_CampaignOffer Closed Lost: flagged → Large account; Svc_CampaignResponse: Not now of a flagged member → Large account, Result.campaignMemberId (moved Id); overview ROLES + Large account.
+- Member page: CampaignMember has no quick actions ("Source Object: bad value for restricted picklist field: CampaignMember"), so LWC `campaignMemberCall` (account/contact with click-to-dial, campaign, Offer / Not now + quarter / Not interested; navigates to the Opportunity or the moved member) on new FlexiPage `rp_CampaignMember`, activated by CustomObject CampaignMember actionOverride View/Large → Flexipage (top-level elements copied from a fresh retrieve; re-retrieve diff = only the override). Repo now has objects/CampaignMember/CampaignMember.object-meta.xml.
+- Call list: LWC `campaignCallList` on rp_Campaign, visible when CampaignRole__c = Large account (no answer or Not now date reached, by priority; link to member). Controller `Ctrl_CampaignMemberCall` (with sharing; answers need CampaignMember create/update/delete).
+- dev deploy 0Afbd00000C08mgCAB: 75/75 (Test_Ctrl_CampaignMemberCall 7, Test_Svc_CampaignSource +2, response, offer, move, overview, confirmation, mail cycle). Object 0Afbd00000C04O6CAJ.
+- Live dev: .invalid member moved to Large account → getMember OK → Not now Q2 2027 stays in Large account (flag, MailStage Stopped) → call list toCall 0 / waiting 1 → confirmation mail by Automated Process.
+- Open: Apex class access (Ctrl_CampaignMemberCall, Ctrl_StagedCampaignOverview) for the non-admin large-account person (which permission set?); browser check of the member page; acc needs explicit go (order: role value + record types → fields → FLS → code/LWC/pages → object override → Large account child).
+
+## (21) 2026-11-10 — class access for the campaign controllers (dev)
+- ps_miAPEXOperationalClasses is NOT used by everybody (prod: only the 6 API PSGs + pg_miFinance + pg_Subscription25User, no direct assignments); the near-everyone group is pg_miWorkSpace (58/78). User's choice anyway: classes into ps_miAPEXOperationalClasses, and that set into **pg_miSales** + **pg_miSupport** (After Sales; general group, pg_miSupport_NL is its country pair). Side effect: those users get all ~390 operational classes.
+- Script `access_campaigncalling.apex` (additive SetupEntityAccess + PermissionSetGroupComponent; skips groups the org doesn't have). dev: 2 classes granted, added to pg_miSales (dev has no pg_miSupport), group recalculated (Updated). acc: only pg_miSales exists. prod: both groups.
+- Repo: pg_miSales file + ps_miAPEXOperationalClasses file updated to match (not deployed — permission set deploys replace the whole set; use the script per org).
+
+## (22) 2026-11-10 — mail schedule 3,8,20 (dev)
+- User: mail 2 on day 3, mail 3 on day 8. Not reacted stays on day 20. Campaign.MailScheduleDays__c is data on each child campaign (no code change): dev "ZZ 2G Test" children updated 5,12,20 → 3,8,20 (5 campaigns; no members mid-cycle).
+- acc: set "3,8,20" on the ZZ 2G Test children on go. Prod: use "3,8,20" when creating the campaigns (wherever this runbook says 5,12,20).
+- Growth drafts: build_drafts.py days 3/8, redeployed dev Growth 0Afbd00000C0ESHCA3. Preview v5, scheme v10, report v38.
+
+## (23) 2026-11-10 — mail schedule in business days (dev)
+- User: business days, mail 2 on day 3, mail 3 on day 8. Closing set to **14** business days (≈ the old calendar day 20) → schedule "3,8,14".
+- New `Util_BusinessDays` (invocable "Add Business Days", business hours Sales (NL) = same as the call-back; no such hours → Mon–Fri; a day is a business day when the hours open on it; cached per date) + `Test_Util_BusinessDays`. Flow `afl_CampaignMember_Mail_Cycle`: act_01_ScheduleDue (release date + fScheduleDays) → vScheduleDue; fNextMailReached schedule branch = vScheduleDue <= today. The no-schedule fallback (Mail Interval (Days)) stays calendar days. Test_afl_CampaignMember_Mail_Cycle uses Util_BusinessDays.everyDayForTest (dates independent of the weekday). Field help MailScheduleDays__c updated.
+- dev deploy 0Afbd00000C0Im1CAF (22/22), flow v4 active; dev ZZ children → "3,8,14"; Growth drafts redeployed 0Afbd00000C0IyvCAF ("business day"/"werkdag").
+- Live: 13 Nov +3/+8/+14 = 18 Nov / 25 Nov / 3 Dec; 23 Dec +3 = 29 Dec (Christmas skipped, UK Boxing substitute counted); 23 Apr 2027 +3 = 29 Apr (King's Day skipped). **Ascension Day 2027 (6 May) is a Holiday record but not linked to Sales (NL)** → counted as a working day (call-back too). Admin: link it (Setup → Business Hours → Sales (NL) → Holidays).
+- acc/prod: deploy Util_BusinessDays (+test), the flow and the field; set "3,8,14" on the campaigns. On go.
+
+## (24) 2026-11-10 — DEPLOYED to acc: (18)–(23)
+- Pre-check: all affected components in acc last modified by Teun on 8–9 Nov (own deploys) → no drift.
+- 1. Role value "Large account": acc's own RecordType Generic/Marketing + CampaignRole__c retrieved, value added, deployed only those members 0AfG500000TShZDKA1; rolled-back inserts OK on both record types.
+- 2. Fields CampaignMember.Dealer__c, LargeAccount__c, Campaign.MailScheduleDays__c (help), CampaignConfirmation__e (+2 fields), email folder Campaigns + 3 templates: 0AfG500000TSjWAKA1.
+- 3. fls_campaignresponse.apex: 12 inserted.
+- 4. Validation 0AfG500000TSodtKAD (78/78: response, source, overview, member call, confirmation, business days, mail cycle, offer, move) → quick deploy 0AfG500000TSopBKAT. Flows active: scr_Case_Callback_Reached v3, afl_CampaignMember_Mail_Cycle v2.
+- 5. CampaignMember View/Large override → rp_CampaignMember (acc's own top-level elements; re-retrieve diff = only the override).
+- 6. access_campaigncalling.apex: 2 classes on ps_miAPEXOperationalClasses, set added to pg_miSales (acc has no pg_miSupport).
+- 7. Customer Hub published. Data: "ZZ 2G Test - Large account" 701G500001W0VYwIAN created; schedule 3,8,14 on the 5 mail children.
+- Live acc: guest submit 'dealer' → invalid; guest notnow 2027-04-01 → Source + confirmation mail by Automated Process (noreply@…, to contactinfo@demo.com.invalid); member moved to Large account → getMember OK → Not now stays in Large account (flag) → call list waiting 1; business days same as dev. Not tested live in acc on purpose: dealer answer (Account update) and Offer (Opportunity) — acc's Exact link can reach the prod division.
+- acc test member now 00vG500000DWZhVIAX in "ZZ 2G Test - Large account" (Not now Q2 2027). Test data stays.

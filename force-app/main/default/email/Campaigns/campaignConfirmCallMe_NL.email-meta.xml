@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Campaign - confirmation "Call me" (2G migration) - NL. Sent by Svc_CampaignConfirmation.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>campaignConfirmCallMe_NL</name>
+    <relatedEntityType>Contact</relatedEntityType>
+    <style>none</style>
+    <subject>Bevestiging: wij bellen u binnen 3 werkdagen over de overstap naar 4G</subject>
+    <type>custom</type>
+    <uiType>SFX</uiType>
+</EmailTemplate>

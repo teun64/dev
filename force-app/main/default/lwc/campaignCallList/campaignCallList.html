@@ -1,0 +1,11 @@
+<template>
+    <lightning-card title={title} icon-name="standard:call">
+        <lightning-button-icon slot="actions" icon-name="utility:refresh" alternative-text="Refresh" onclick={handleRefresh}></lightning-button-icon>
+        <template lwc:if={loading}><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></template>
+        <div class="slds-p-horizontal_medium">
+            <template lwc:if={error}><p class="slds-text-color_error">{error}</p></template>
+            <p class="hint">Members without an answer, and Not now members whose date has come, highest priority first. Open a member to call and record the answer.</p>
+            <lightning-datatable key-field="memberId" data={rows} columns={columns} hide-checkbox-column></lightning-datatable>
+        </div>
+    </lightning-card>
+</template>

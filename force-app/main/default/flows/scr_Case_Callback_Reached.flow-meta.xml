@@ -30,6 +30,12 @@
             </value>
         </inputParameters>
         <inputParameters>
+            <name>dealerId</name>
+            <value>
+                <elementReference>lkpDealer.recordId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
             <name>note</name>
             <value>
                 <elementReference>txtNote</elementReference>
@@ -52,6 +58,14 @@
     </actionCalls>
     <apiVersion>68.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <choices>
+        <name>chDealer</name>
+        <choiceText>Processed by dealer</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Dealer</stringValue>
+        </value>
+    </choices>
     <choices>
         <name>chNotInterested</name>
         <choiceText>Not interested</choiceText>
@@ -111,7 +125,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>scr_02_Answer</targetReference>
+                <targetReference>dgr_01_Account</targetReference>
             </connector>
             <label>Open</label>
         </rules>
@@ -141,8 +155,13 @@
             <label>Other</label>
         </rules>
     </decisions>
-    <description>Case button Callback Reached: the agent reached the customer on a sales call-back. A campaign answer goes through Svc_CampaignResponse (the same as the response page): Offer keeps the Case open for Create Opportunity, Not now / Not interested close it as Succesfull. Other closes it without touching the campaign member.</description>
+    <description>Case button Callback Reached: the agent reached the customer on a sales call-back. A campaign answer goes through Svc_CampaignResponse (the same as the response page): Offer keeps the Case open for Create Opportunity, Not now / Not interested close it as Succesfull. Other closes it without touching the campaign member. Processed by dealer: sales picks the dealer (prefilled with the account's Preferred Installation Specialist, otherwise its Kickback Reseller, when that is a dealer or distributor); the member gets it as Dealer__c.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>fDealerDefault</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE({!vPreferredDealerId}, {!vKickbackDealerId})</expression>
+    </formulas>
     <formulas>
         <name>fDescription</name>
         <dataType>String</dataType>
@@ -175,6 +194,110 @@
     </processMetadataValues>
     <processType>Flow</processType>
     <recordLookups>
+        <name>dgr_01_Account</name>
+        <label>1. Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dgr_01_PreferredDealer</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>rCase.AccountId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <outputAssignments>
+            <assignToReference>vKickbackId</assignToReference>
+            <field>Kickback_Reseller__c</field>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>vPreferredId</assignToReference>
+            <field>Preferred_Installation_Specialist__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_01_KickbackDealer</name>
+        <label>1. Kickback Dealer</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>scr_02_Answer</targetReference>
+        </connector>
+        <filterLogic>1 AND (2 OR 3)</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>vKickbackId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Relation_type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Dealer</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Relation_type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Distributor</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <outputAssignments>
+            <assignToReference>vKickbackDealerId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>dgr_01_PreferredDealer</name>
+        <label>1. Preferred Dealer</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dgr_01_KickbackDealer</targetReference>
+        </connector>
+        <filterLogic>1 AND (2 OR 3)</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>vPreferredId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Relation_type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Dealer</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Relation_type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Distributor</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <outputAssignments>
+            <assignToReference>vPreferredDealerId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
         <name>dgr_01_Case</name>
         <label>1. Case</label>
         <locationX>0</locationX>
@@ -195,6 +318,7 @@
         <object>Case</object>
         <outputReference>rCase</outputReference>
         <queriedFields>Id</queriedFields>
+        <queriedFields>AccountId</queriedFields>
         <queriedFields>IsClosed</queriedFields>
         <queriedFields>Description</queriedFields>
         <queriedFields>CallbackSource__c</queriedFields>
@@ -268,6 +392,7 @@
             <name>rdoAnswer</name>
             <choiceReferences>chOffer</choiceReferences>
             <choiceReferences>chNotNow</choiceReferences>
+            <choiceReferences>chDealer</choiceReferences>
             <choiceReferences>chNotInterested</choiceReferences>
             <choiceReferences>chOther</choiceReferences>
             <dataType>String</dataType>
@@ -291,6 +416,60 @@
                     <operator>EqualTo</operator>
                     <rightValue>
                         <stringValue>Not now</stringValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>lkpDealer</name>
+            <extensionName>flowruntime:lookup</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>objectApiName</name>
+                <value>
+                    <stringValue>CampaignMember</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>fieldApiName</name>
+                <value>
+                    <stringValue>Dealer__c</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Dealer</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxValues</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>recordId</name>
+                <value>
+                    <elementReference>fDealerDefault</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>required</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>rdoAnswer</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <stringValue>Dealer</stringValue>
                     </rightValue>
                 </conditions>
             </visibilityRule>
@@ -367,6 +546,34 @@
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vKickbackDealerId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vKickbackId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vPreferredDealerId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vPreferredId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
 </Flow>

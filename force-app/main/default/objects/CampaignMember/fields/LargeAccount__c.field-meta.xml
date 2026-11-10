@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LargeAccount__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Large account (10+ active subscriptions, Svc_CampaignSource.LARGE_FROM_SUBSCRIPTIONS): phone only, worked from the member page by the large-account person, never in the mail cycle. Set by the Source job when it places the member in the Large account campaign; moves along with the member, so Not now and Closed Lost lead back to Large account instead of Source, and the release skips it.</description>
+    <inlineHelpText>Phone only: this member is called from the member page and never gets the campaign mails.</inlineHelpText>
+    <label>Large Account</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

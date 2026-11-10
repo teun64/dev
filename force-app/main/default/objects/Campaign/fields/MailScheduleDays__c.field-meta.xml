@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>MailScheduleDays__c</fullName>
-    <description>Mail cycle schedule in days after mail 1 (= the batch release), comma separated: one day per next mail, then the day the member is closed (Completed + Mail Completed Status + moved to the Follow-up Campaign). E.g. "5,12,20" with Max Attempts (Mail) 3: mail 2 on day 5, mail 3 on day 12, closed on day 20. Must have Max Attempts (Mail) values. Empty = every Mail Interval (Days). Read by afl - CampaignMember - Mail Cycle.</description>
-    <inlineHelpText>Days after mail 1, comma separated: each next mail, then the closing day. E.g. 5,12,20 = mail 2 on day 5, mail 3 on day 12, closed on day 20. Empty = Mail Interval (Days).</inlineHelpText>
+    <description>Mail cycle schedule in business days (business hours Sales (NL): weekends and holidays skipped, Util_BusinessDays) after mail 1 (= the batch release), comma separated: one day per next mail, then the day the member is closed (Completed + Mail Completed Status + moved to the Follow-up Campaign). E.g. "3,8,14" with Max Attempts (Mail) 3: mail 2 on business day 3, mail 3 on business day 8, closed on business day 14. Must have Max Attempts (Mail) values. Empty = every Mail Interval (Days). Read by afl - CampaignMember - Mail Cycle.</description>
+    <inlineHelpText>Business days after mail 1 (weekends and Sales (NL) holidays skipped), comma separated: each next mail, then the closing day. E.g. 3,8,14 = mail 2 on business day 3, mail 3 on business day 8, closed on business day 14. Empty = Mail Interval (Days).</inlineHelpText>
     <label>Mail Schedule (Days)</label>
     <externalId>false</externalId>
     <length>100</length>

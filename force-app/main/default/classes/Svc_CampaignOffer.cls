@@ -10,7 +10,8 @@
  * instead, so sales can add them. An open Opportunity for the same account and campaign is reused, not duplicated.
  *
  * Closed Lost (Trigger_Opportunity): the account's member of the Offer campaign moves back to the Source campaign
- * (answer and mail cycle cleared), so the Source job keeps it up to date and a later release mails it again.
+ * (answer and mail cycle cleared), so the Source job keeps it up to date and a later release mails it again. A large
+ * account (LargeAccount__c) goes back to the Large account campaign instead (phone only).
  * Not when another open Opportunity of the same account is still on that campaign.
  */
 public without sharing class Svc_CampaignOffer {
@@ -112,17 +113,21 @@ public without sharing class Svc_CampaignOffer {
 		}
 		if (keys.isEmpty()) return;
 		Set<Id> memberIds = new Set<Id>();
+		Set<Id> largeIds = new Set<Id>();
 		for (CampaignMember cm : [
-			SELECT Id, CampaignId, Account__c, Contact.AccountId FROM CampaignMember
+			SELECT Id, CampaignId, Account__c, Contact.AccountId, LargeAccount__c FROM CampaignMember
 			WHERE CampaignId IN :offerIds AND (Account__c IN :accountIds OR Contact.AccountId IN :accountIds) WITH SYSTEM_MODE
 		]) {
 			Id accountId = cm.Account__c != null ? cm.Account__c : cm.Contact.AccountId;
-			if (keys.contains(cm.CampaignId + '|' + accountId)) memberIds.add(cm.Id);
+			if (keys.contains(cm.CampaignId + '|' + accountId)) (cm.LargeAccount__c ? largeIds : memberIds).add(cm.Id);
 		}
 		// answer cleared: the old mail links work again, and the release starts a fresh mail cycle
-		Svc_CampaignMove.move(memberIds, Svc_CampaignMove.ROLE_SOURCE, new Map<String, Object>{
+		Map<String, Object> cleared = new Map<String, Object>{
 			'Response__c' => null, 'MailStage__c' => null, 'MailNumber__c' => null, 'MailDueOn__c' => null, 'RecontactFrom__c' => null
-		});
+		};
+		Svc_CampaignMove.move(memberIds, Svc_CampaignMove.ROLE_SOURCE, cleared);
+		// large accounts are phone only: back to the Large account campaign, never into the mail cycle
+		Svc_CampaignMove.move(largeIds, Svc_CampaignMove.ROLE_LARGE_ACCOUNT, cleared);
 	}
 
 	// migration product → number of the account's active 2G contracts on hardware with that migration product

@@ -12,12 +12,19 @@
  *                     Opportunity (account owner) is the follow-up. On a call-back Case the Case gets the Opportunity
  *                     and closes as reached.
  *  - Not now        → Source, RecontactFrom__c = the chosen quarter start (default: the next quarter); the next batch
- *                     release skips the member until that date
+ *                     release skips the member until that date. A large account (LargeAccount__c) waits in the Large
+ *                     account campaign instead (phone only).
  *  - Not interested → Not interested
+ *  - Dealer         → Dealer (processed by dealer: the customer switches through their miDealer; no Opportunity). Only on
+ *                     the call-back (sales picks the dealer): Dealer__c = that dealer, and the member's account gets it as
+ *                     Preferred Installation Specialist when that is empty. Not offered on the response page (user 2026-11-09).
  * A campaign without a role keeps the member where it is (only the fields and the call-back).
  * The same answer twice (a second click, a mail scanner) changes nothing. A different answer replaces the first; an open
  * call-back gets a note so the rep sees it. "Not interested" on the page closes an open call-back (no call needed; user
  * decision 2026-11-07).
+ *
+ * Staged campaigns: Call me, Offer and Not now get a confirmation mail (Svc_CampaignConfirmation; Call me not when the
+ * rep is on the call). The same answer twice sends nothing.
  *
  * Also stamps the response token + link on new members (Trigger CampaignMember).
  */
@@ -27,6 +34,7 @@ public without sharing class Svc_CampaignResponse {
 	public static final String ANSWER_OFFER          = 'Offer';
 	public static final String ANSWER_NOT_NOW        = 'Not now';
 	public static final String ANSWER_NOT_INTERESTED = 'Not interested';
+	public static final String ANSWER_DEALER         = 'Dealer';
 
 	public static final String OUTCOME_APPLIED   = 'applied';
 	public static final String OUTCOME_UNCHANGED = 'unchanged';
@@ -39,7 +47,8 @@ public without sharing class Svc_CampaignResponse {
 		ANSWER_CALL_ME        => 'Call requested',
 		ANSWER_OFFER          => 'Offer requested',
 		ANSWER_NOT_NOW        => 'Postponed',
-		ANSWER_NOT_INTERESTED => 'Declined'
+		ANSWER_NOT_INTERESTED => 'Declined',
+		ANSWER_DEALER         => 'Via dealer'
 	};
 
 	private static final AccessLevel RUNNING_MODE = AccessLevel.SYSTEM_MODE;
@@ -47,7 +56,7 @@ public without sharing class Svc_CampaignResponse {
 	public class Request {
 		@InvocableVariable(label='Campaign Member Id' description='The member who answered (empty for a call-back without campaign)')
 		public String campaignMemberId;
-		@InvocableVariable(label='Answer' description='Call me, Offer, Not now or Not interested' required=true)
+		@InvocableVariable(label='Answer' description='Call me, Offer, Not now, Not interested or Dealer' required=true)
 		public String answer;
 		@InvocableVariable(label='Recontact From' description='Not now: first day of the chosen quarter (default: next quarter)')
 		public Date recontactFrom;
@@ -57,6 +66,8 @@ public without sharing class Svc_CampaignResponse {
 		public String note;
 		@InvocableVariable(label='Case Id' description='Call: the call-back Case the rep is on (reached the customer)')
 		public Id caseId;
+		@InvocableVariable(label='Dealer Id' description='Dealer: the dealer account that handles the switch')
+		public Id dealerId;
 	}
 
 	public class Result {
@@ -66,9 +77,11 @@ public without sharing class Svc_CampaignResponse {
 		public Id caseId;
 		@InvocableVariable(label='Opportunity Id' description='Offer: the Opportunity made')
 		public Id opportunityId;
+		@InvocableVariable(label='Campaign Member Id' description='The member after the answer (a move gives it a new Id)')
+		public Id campaignMemberId;
 	}
 
-	@InvocableMethod(label='Apply Campaign Answer' description='Applies a customer answer (Call me, Offer, Not now, Not interested) to a campaign member.')
+	@InvocableMethod(label='Apply Campaign Answer' description='Applies a customer answer (Call me, Offer, Not now, Not interested, Dealer) to a campaign member.')
 	public static List<Result> run(List<Request> requests) {
 		List<Result> results = new List<Result>();
 		for (Request r : requests) results.add(apply(r));
@@ -93,7 +106,8 @@ public without sharing class Svc_CampaignResponse {
 		Date recontactFrom = ANSWER_NOT_NOW.equals(r.answer)
 			? (r.recontactFrom == null ? quarterStarts(Date.today(), 1)[0] : r.recontactFrom)
 			: null;
-		if (r.answer.equals(cm.Response__c) && recontactFrom == cm.RecontactFrom__c) {
+		Id dealerId = ANSWER_DEALER.equals(r.answer) ? r.dealerId : null;
+		if (r.answer.equals(cm.Response__c) && recontactFrom == cm.RecontactFrom__c && dealerId == cm.Dealer__c) {
 			res.outcome = OUTCOME_UNCHANGED;
 			res.caseId = openCallbackId(cm.ContactId, cm.CampaignId);
 			return res;
@@ -104,13 +118,19 @@ public without sharing class Svc_CampaignResponse {
 			Response__c = r.answer,
 			ResponseOn__c = Datetime.now(),
 			MailStage__c = 'Stopped',
-			RecontactFrom__c = recontactFrom
+			RecontactFrom__c = recontactFrom,
+			Dealer__c = dealerId
 		), RUNNING_MODE);
+		if (dealerId != null) setPreferredDealer(cm.Account__c != null ? cm.Account__c : cm.Contact.AccountId, dealerId);
 
 		// staged campaign: the member moves to the sister campaign of the answer (the fields above move along)
 		Id memberId = cm.Id;
 		Id campaignId = cm.CampaignId;
 		String role = targetRole(cm.Campaign.CampaignRole__c, r.answer);
+		// large accounts are phone only: "Not now" waits in the Large account campaign, not in Source (never released)
+		if (cm.LargeAccount__c && Svc_CampaignMove.ROLE_SOURCE.equals(role)) {
+			role = Svc_CampaignMove.ROLE_LARGE_ACCOUNT;
+		}
 		if (role != null && !role.equals(cm.Campaign.CampaignRole__c)) {
 			Map<String, Object> values = ANSWER_NOT_NOW.equals(r.answer)
 				? new Map<String, Object>{ 'MailStage__c' => null, 'MailNumber__c' => null, 'MailDueOn__c' => null }
@@ -158,7 +178,12 @@ public without sharing class Svc_CampaignResponse {
 			if (openId != null && ANSWER_NOT_INTERESTED.equals(r.answer)) closeCallback(openId, r.answer, r.note, false);
 			else if (openId != null) noteOnCase(openId, r.answer, r.note);
 		}
+		// confirmation mail (Call me / Offer / Not now), sent after commit by the Automated Process user
+		if (Svc_CampaignConfirmation.confirms(r.answer, cm.Campaign.CampaignRole__c, r.caseId)) {
+			Util_CampaignConfirmationPublisher.publish(new List<CampaignConfirmation__e>{ Svc_CampaignConfirmation.event(memberId, r.answer) });
+		}
 		res.outcome = OUTCOME_APPLIED;
+		res.campaignMemberId = memberId;
 		return res;
 	}
 
@@ -203,10 +228,19 @@ public without sharing class Svc_CampaignResponse {
 			return null;
 		}
 		List<CampaignMember> found = [
-			SELECT Id, CampaignId, ContactId, Response__c, RecontactFrom__c, Campaign.CampaignRole__c
+			SELECT Id, CampaignId, ContactId, Response__c, RecontactFrom__c, Dealer__c, Account__c, Contact.AccountId,
+			       LargeAccount__c, Campaign.CampaignRole__c
 			FROM CampaignMember WHERE Id = :cmId WITH SYSTEM_MODE
 		];
 		return found.isEmpty() ? null : found[0];
+	}
+
+	// the account keeps its own choice: only an empty Preferred Installation Specialist gets the dealer
+	private static void setPreferredDealer(Id accountId, Id dealerId) {
+		if (accountId == null) return;
+		Account a = [SELECT Id, Preferred_Installation_Specialist__c FROM Account WHERE Id = :accountId WITH SYSTEM_MODE];
+		if (a.Preferred_Installation_Specialist__c != null) return;
+		Database.update(new Account(Id = a.Id, Preferred_Installation_Specialist__c = dealerId), RUNNING_MODE);
 	}
 
 	private static Boolean hasStatus(Id campaignId, String status) {
@@ -219,6 +253,7 @@ public without sharing class Svc_CampaignResponse {
 		if (String.isBlank(currentRole)) return null;
 		if (ANSWER_NOT_NOW.equals(answer)) return Svc_CampaignMove.ROLE_SOURCE;
 		if (ANSWER_NOT_INTERESTED.equals(answer)) return Svc_CampaignMove.ROLE_NOT_INTERESTED;
+		if (ANSWER_DEALER.equals(answer)) return Svc_CampaignMove.ROLE_DEALER;
 		if (ANSWER_OFFER.equals(answer)) return Svc_CampaignMove.ROLE_OFFER;
 		// Call me: back into the operational campaign, unless the offer is already made (Offer = finished)
 		if (Svc_CampaignMove.ROLE_OFFER.equals(currentRole)) return null;

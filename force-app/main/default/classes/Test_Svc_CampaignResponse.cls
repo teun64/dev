@@ -12,7 +12,7 @@ private class Test_Svc_CampaignResponse {
 		Campaign parent = new Campaign(Name = 'Response', IsActive = true);
 		Database.insert(parent, AccessLevel.SYSTEM_MODE);
 		List<Campaign> children = new List<Campaign>();
-		for (String role : new List<String>{ 'Source', 'Operational', 'Offer', 'Not interested', 'Not reacted' }) {
+		for (String role : new List<String>{ 'Source', 'Operational', 'Offer', 'Not interested', 'Not reacted', 'Dealer' }) {
 			children.add(new Campaign(Name = 'Response - ' + role, ParentId = parent.Id, IsActive = true,
 				CampaignRole__c = role, CallbackLabel__c = '2G/4G conversion'));
 		}
@@ -20,7 +20,8 @@ private class Test_Svc_CampaignResponse {
 		Id operationalId = children[1].Id;
 		Database.insert(new List<CampaignMemberStatus>{
 			new CampaignMemberStatus(CampaignId = operationalId, Label = 'Call requested', SortOrder = 10),
-			new CampaignMemberStatus(CampaignId = children[3].Id, Label = 'Declined', SortOrder = 11)
+			new CampaignMemberStatus(CampaignId = children[3].Id, Label = 'Declined', SortOrder = 11),
+			new CampaignMemberStatus(CampaignId = children[5].Id, Label = 'Via dealer', SortOrder = 12)
 		}, AccessLevel.SYSTEM_MODE);
 		Contact con = Test_Data.createContact(acct.Id, 'Main', null, 'main@response.test', true);
 		Database.insert(new CampaignMember(CampaignId = operationalId, ContactId = con.Id, Status = 'Sent', MailStage__c = 'Due',
@@ -179,6 +180,52 @@ private class Test_Svc_CampaignResponse {
 		System.assertEquals(cm.CampaignId, c.Campaign__c);
 	}
 
+	static Account dealer(String name) {
+		Account d = Test_Data.createAccount(name, (String) null, 'B2B', true);
+		// separate update: the create flows set their own defaults
+		Database.update(new Account(Id = d.Id, Relation_type__c = 'Dealer'), AccessLevel.SYSTEM_MODE);
+		return d;
+	}
+
+	@IsTest
+	static void dealer_onCallback_movesSetsDealerAndPreferred() {
+		Id caseId = Svc_CampaignResponse.apply(request(Svc_CampaignResponse.ANSWER_CALL_ME)).caseId;
+		Account d = dealer('Response Dealer');
+		Svc_CampaignResponse.Request r = request(Svc_CampaignResponse.ANSWER_DEALER);
+		r.source = 'Call';
+		r.caseId = caseId;
+		r.dealerId = d.Id;
+		Test.startTest();
+		Svc_CampaignResponse.apply(r);
+		Test.stopTest();
+		CampaignMember cm = [SELECT Id, CampaignId, Campaign.CampaignRole__c, Status, MailStage__c, Dealer__c, Contact.AccountId
+			FROM CampaignMember WHERE Id = :member().Id WITH SYSTEM_MODE];
+		System.assertEquals('Dealer', cm.Campaign.CampaignRole__c);
+		System.assertEquals('Via dealer', cm.Status);
+		System.assertEquals('Stopped', cm.MailStage__c, 'no more mails');
+		System.assertEquals(d.Id, cm.Dealer__c, 'the dealer moved along');
+		System.assertEquals(d.Id, [SELECT Preferred_Installation_Specialist__c FROM Account WHERE Id = :cm.Contact.AccountId WITH SYSTEM_MODE]
+			.Preferred_Installation_Specialist__c, 'empty: the account gets the dealer');
+		System.assert([SELECT IsClosed FROM Case WHERE Id = :caseId WITH SYSTEM_MODE].IsClosed, 'the call-back is done');
+		System.assertEquals(0, [SELECT COUNT() FROM Opportunity WHERE CampaignId = :cm.CampaignId WITH SYSTEM_MODE]);
+	}
+
+	@IsTest
+	static void dealer_keepsAccountPreferred() {
+		Account own = dealer('Own Dealer');
+		Account d = dealer('Response Dealer');
+		Id accountId = [SELECT Contact.AccountId FROM CampaignMember WHERE Id = :member().Id WITH SYSTEM_MODE].Contact.AccountId;
+		Database.update(new Account(Id = accountId, Preferred_Installation_Specialist__c = own.Id), AccessLevel.SYSTEM_MODE);
+		Svc_CampaignResponse.Request r = request(Svc_CampaignResponse.ANSWER_DEALER);
+		r.dealerId = d.Id;
+		Test.startTest();
+		Svc_CampaignResponse.apply(r);
+		Test.stopTest();
+		System.assertEquals(d.Id, [SELECT Dealer__c FROM CampaignMember WHERE Id = :member().Id WITH SYSTEM_MODE].Dealer__c);
+		System.assertEquals(own.Id, [SELECT Preferred_Installation_Specialist__c FROM Account WHERE Id = :accountId WITH SYSTEM_MODE]
+			.Preferred_Installation_Specialist__c, 'the account keeps its own choice');
+	}
+
 	@IsTest
 	static void callMeAfterNotInterested_backToOperational() {
 		Svc_CampaignResponse.apply(request(Svc_CampaignResponse.ANSWER_NOT_INTERESTED));
@@ -235,6 +282,7 @@ private class Test_Svc_CampaignResponse {
 		System.assertEquals('Source', Svc_CampaignResponse.targetRole('Operational', 'Not now'));
 		System.assertEquals('Operational', Svc_CampaignResponse.targetRole('Not reacted', 'Call me'));
 		System.assertEquals('Offer', Svc_CampaignResponse.targetRole('Operational', 'Offer'));
+		System.assertEquals('Dealer', Svc_CampaignResponse.targetRole('Not reacted', 'Dealer'));
 		System.assertEquals(null, Svc_CampaignResponse.targetRole('Offer', 'Call me'), 'offer made = finished');
 	}
 

@@ -31,6 +31,11 @@
                 <default>false</default>
                 <label>Not interested</label>
             </value>
+            <value>
+                <fullName>Dealer</fullName>
+                <default>false</default>
+                <label>Dealer</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -48,7 +48,7 @@ public without sharing class Svc_CampaignRelease {
 		Date today = Date.today();
 		Map<Id, CampaignMember> members = new Map<Id, CampaignMember>([
 			SELECT Id FROM CampaignMember
-			WHERE CampaignId = :sourceId AND (RecontactFrom__c = null OR RecontactFrom__c <= :today)
+			WHERE CampaignId = :sourceId AND (RecontactFrom__c = null OR RecontactFrom__c <= :today) AND LargeAccount__c = false
 			WITH SYSTEM_MODE
 			ORDER BY Priority__c ASC NULLS LAST, CreatedDate ASC
 			LIMIT :Math.min(size, MAX_SIZE)

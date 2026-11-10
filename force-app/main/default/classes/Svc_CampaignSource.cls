@@ -8,10 +8,14 @@
  * (Modem__c '1' or empty). Optional billing country filter (Campaign.SourceCountryCodes__c).
  * One member per account under the parent: the Main contact (active ACR with role Main, the oldest when there are more).
  *  - new account                       → member in Source: Account__c, UnitCount__c (2G units), Priority__c
- *  - already in Source                 → Priority__c + UnitCount__c updated, RecontactFrom__c ("Not now") kept
+ *  - large account (Subscriptions_Activated__c >= LARGE_FROM_SUBSCRIPTIONS) → in the Large account campaign instead,
+ *    LargeAccount__c = true (phone only, never mailed; falls back to Source when the parent has no Large account child)
+ *  - already in Source                 → Priority__c + UnitCount__c updated, RecontactFrom__c ("Not now") kept; a large
+ *                                        account in Source moves to Large account
+ *  - already in Large account          → Priority__c + UnitCount__c updated
  *  - already in Operational            → UnitCount__c updated
- *  - in Offer / Not interested / Not reacted → left alone (never back into Source)
- *  - account without 2G units any more → removed from Source; in Operational only counted (user decision pending)
+ *  - in Offer / Not interested / Not reacted / Dealer → left alone (never back into Source)
+ *  - account without 2G units any more → removed from Source / Large account; in Operational only counted (user decision pending)
  * Priority = Migration Priority of the account's best 2G hardware (Product2.MigrationPriority__c, empty = 9) × 10
  * + segment: 1 B2B with 3+ units, 2 B2B with 1-2, 3 B2C (units = all active contracts on mapped hardware, as in the matrix).
  */
@@ -23,6 +27,8 @@ public without sharing class Svc_CampaignSource {
 	public static final Integer SEGMENT_B2B_SMALL = 2;
 	public static final Integer SEGMENT_B2C = 3;
 	public static final Integer LARGE_FROM_UNITS = 3;
+	// large account: phone only, from this many active subscriptions (Account.Subscriptions_Activated__c; user 2026-11-10)
+	public static final Integer LARGE_FROM_SUBSCRIPTIONS = 10;
 	public static final Integer RANK_UNKNOWN = 9;
 
 	private static final AccessLevel RUNNING_MODE = AccessLevel.SYSTEM_MODE;
@@ -39,6 +45,7 @@ public without sharing class Svc_CampaignSource {
 		public Integer noMainContact = 0;
 		public Integer removed = 0;
 		public Integer operationalOutOfScope = 0;
+		public Integer movedToLarge = 0;
 
 		public void add(Result other) {
 			added += other.added;
@@ -47,12 +54,13 @@ public without sharing class Svc_CampaignSource {
 			noMainContact += other.noMainContact;
 			removed += other.removed;
 			operationalOutOfScope += other.operationalOutOfScope;
+			movedToLarge += other.movedToLarge;
 		}
 
 		public override String toString() {
 			return 'added ' + added + ', updated ' + updated + ', already in another stage ' + elsewhere
 				+ ', no Main contact ' + noMainContact + ', removed ' + removed
-				+ ', Operational without 2G (not removed) ' + operationalOutOfScope;
+				+ ', Operational without 2G (not removed) ' + operationalOutOfScope + ', moved to Large account ' + movedToLarge;
 		}
 	}
 
@@ -88,6 +96,9 @@ public without sharing class Svc_CampaignSource {
 
 		Map<Id, Campaign> sourceByParent = new Map<Id, Campaign>();
 		for (Campaign c : sourceCampaigns) sourceByParent.put(c.ParentId, c);
+		Map<Id, Id> largeByParent = largeAccountCampaigns(sourceByParent.keySet());
+		Set<Id> largeAccountIds = largeAccounts(scopeByAccount.keySet());
+		Set<Id> toLarge = new Set<Id>();
 		Map<String, CampaignMember> existing = existingMembers(sourceByParent.keySet(), scopeByAccount.keySet(),
 			new Set<Id>(mainByAccount.values()));
 
@@ -106,6 +117,7 @@ public without sharing class Svc_CampaignSource {
 				CampaignMember cm = existing.get(source.ParentId + '|' + accountId);
 				if (cm == null && contactId != null) cm = existing.get(source.ParentId + '|' + contactId);
 				Decimal priority = priority(s, acct);
+				Id largeId = largeAccountIds.contains(accountId) ? largeByParent.get(source.ParentId) : null;
 				if (cm == null) {
 					if (contactId == null) {
 						res.noMainContact++;
@@ -115,14 +127,16 @@ public without sharing class Svc_CampaignSource {
 						res.elsewhere++;
 						continue;
 					}
-					inserts.add(new CampaignMember(CampaignId = source.Id, ContactId = contactId, Account__c = accountId,
-						UnitCount__c = s.units2G, Priority__c = priority));
+					inserts.add(new CampaignMember(CampaignId = largeId != null ? largeId : source.Id, ContactId = contactId,
+						Account__c = accountId, UnitCount__c = s.units2G, Priority__c = priority, LargeAccount__c = largeId != null));
 					res.added++;
-				} else if (cm.CampaignId == source.Id) {
+				} else if (cm.CampaignId == source.Id || cm.Campaign.CampaignRole__c == Svc_CampaignMove.ROLE_LARGE_ACCOUNT) {
 					if (cm.Priority__c != priority || cm.UnitCount__c != s.units2G || cm.Account__c != accountId) {
 						updates.add(new CampaignMember(Id = cm.Id, Priority__c = priority, UnitCount__c = s.units2G, Account__c = accountId));
 						res.updated++;
 					}
+					// grown into a large account while still in Source: phone only from now on
+					if (largeId != null && cm.CampaignId == source.Id) toLarge.add(cm.Id);
 				} else if (cm.Campaign.CampaignRole__c == Svc_CampaignMove.ROLE_OPERATIONAL) {
 					if (cm.UnitCount__c != s.units2G || cm.Account__c != accountId) {
 						updates.add(new CampaignMember(Id = cm.Id, UnitCount__c = s.units2G, Account__c = accountId));
@@ -136,7 +150,11 @@ public without sharing class Svc_CampaignSource {
 		if (!dryRun) {
 			if (!inserts.isEmpty()) Database.insert(inserts, RUNNING_MODE);
 			if (!updates.isEmpty()) Database.update(updates, RUNNING_MODE);
+			if (!toLarge.isEmpty()) {
+				Svc_CampaignMove.move(toLarge, Svc_CampaignMove.ROLE_LARGE_ACCOUNT, new Map<String, Object>{ 'LargeAccount__c' => true });
+			}
 		}
+		res.movedToLarge = toLarge.size();
 		return res;
 	}
 
@@ -145,7 +163,7 @@ public without sharing class Svc_CampaignSource {
 	public static String memberQuery() {
 		return 'SELECT Id, CampaignId, Campaign.CampaignRole__c, Account__c, Contact.AccountId FROM CampaignMember'
 			+ ' WHERE Campaign.ParentId IN :parentIds AND Campaign.CampaignRole__c IN (\'' + Svc_CampaignMove.ROLE_SOURCE
-			+ '\', \'' + Svc_CampaignMove.ROLE_OPERATIONAL + '\')';
+			+ '\', \'' + Svc_CampaignMove.ROLE_OPERATIONAL + '\', \'' + Svc_CampaignMove.ROLE_LARGE_ACCOUNT + '\')';
 	}
 
 	public static Result prune(List<CampaignMember> members, Boolean dryRun) {
@@ -158,7 +176,8 @@ public without sharing class Svc_CampaignSource {
 		for (CampaignMember cm : members) {
 			Scope s = scopeByAccount.get(accountOf(cm));
 			if (s != null && s.units2G > 0) continue;
-			if (cm.Campaign.CampaignRole__c == Svc_CampaignMove.ROLE_SOURCE) {
+			if (cm.Campaign.CampaignRole__c == Svc_CampaignMove.ROLE_SOURCE
+				|| cm.Campaign.CampaignRole__c == Svc_CampaignMove.ROLE_LARGE_ACCOUNT) {
 				deletes.add(new CampaignMember(Id = cm.Id));
 				res.removed++;
 			} else {
@@ -234,6 +253,26 @@ public without sharing class Svc_CampaignSource {
 			byKey.put(cm.Campaign.ParentId + '|' + cm.ContactId, cm);
 		}
 		return byKey;
+	}
+
+	// parent → its Large account child (the oldest when there are more)
+	private static Map<Id, Id> largeAccountCampaigns(Set<Id> parentIds) {
+		Map<Id, Id> byParent = new Map<Id, Id>();
+		for (Campaign c : [
+			SELECT Id, ParentId FROM Campaign WHERE ParentId IN :parentIds AND CampaignRole__c = :Svc_CampaignMove.ROLE_LARGE_ACCOUNT
+			WITH SYSTEM_MODE ORDER BY CreatedDate
+		]) if (!byParent.containsKey(c.ParentId)) byParent.put(c.ParentId, c.Id);
+		return byParent;
+	}
+
+	@TestVisible
+	private static Set<Id> largeOverride;
+
+	private static Set<Id> largeAccounts(Set<Id> accountIds) {
+		if (largeOverride != null) return largeOverride;
+		return new Map<Id, Account>([
+			SELECT Id FROM Account WHERE Id IN :accountIds AND Subscriptions_Activated__c >= :LARGE_FROM_SUBSCRIPTIONS WITH SYSTEM_MODE
+		]).keySet();
 	}
 
 	private static Id accountOf(CampaignMember cm) {

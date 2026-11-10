@@ -1,0 +1,33 @@
+<html>
+ <head>
+  <title></title>
+ </head>
+ <body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
+  <div style="font-family:Arial,Helvetica,sans-serif; max-width:600px; margin:0 0 16px 0;">
+   <img alt="mi-email-header" src="https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK" style="max-width:600px; width:100%; height:auto; display:block; border:0;" title="mi-email-header" width="600" />
+  </div>
+  <div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Beste {{{Recipient.FirstName}}},</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Bedankt voor uw reactie. U heeft aangegeven dat u graag wordt teruggebeld over de overstap van uw 2G-hardware naar 4G.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Binnen 3 werkdagen neemt een van onze adviseurs telefonisch contact met u op.</strong> Samen bespreken we welke 4G-hardware bij u past en hoe de vervanging verloopt.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Wilt u ons voor die tijd al iets laten weten, of bent u op bepaalde momenten niet bereikbaar? Beantwoord dan gerust deze e-mail.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Met vriendelijke groet,
+    <br />
+    <strong style="font-family:Arial,Helvetica,sans-serif;">Team Sales, Moving Intelligence</strong></p>
+   <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
+    <div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;">
+     <img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" />
+    </div>
+    <div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&#xa0;</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;">
+     <strong style="font-family:Arial,Helvetica,sans-serif;">knowledge in motion<span style="font-family:Arial,Helvetica,sans-serif; color:#FF0000;">.</span></strong>
+     <br />
+     <a href="https://movingintelligence.nl" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.nl</a>
+    </div>
+   </div>
+   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">U ontvangt deze e-mail als bevestiging van de keuze die u heeft doorgegeven. Wij vinden het belangrijk om zorgvuldig en respectvol met onze klanten te communiceren. <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">U kunt hier uw voorkeuren beheren</a>.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Heeft u deze keuze niet zelf doorgegeven? Beantwoord dan deze e-mail, dan lossen we dit graag voor u op.</p>
+  </div>
+ </body>
+</html>

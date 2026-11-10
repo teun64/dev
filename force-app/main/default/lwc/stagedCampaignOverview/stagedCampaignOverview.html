@@ -1,0 +1,91 @@
+<template>
+    <template lwc:if={staged}>
+        <lightning-card title="Staged campaign overview" icon-name="standard:campaign">
+            <lightning-button-icon slot="actions" icon-name="utility:refresh" alternative-text="Refresh" onclick={handleRefresh}></lightning-button-icon>
+            <template lwc:if={loading}><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></template>
+            <div class="slds-p-horizontal_medium">
+
+                <!-- 1. Status -->
+                <h2 class="section">1. Status</h2>
+                <div class="tiles">
+                    <template for:each={campaigns} for:item="c">
+                        <button key={c.key} class="tile link" data-id={c.recordId} onclick={openCampaign} disabled={c.missing}>
+                            <span class="tile-label">{c.label}</span>
+                            <span class="tile-value">{c.count}</span>
+                        </button>
+                    </template>
+                </div>
+
+                <div class="tiles">
+                    <div class="tile"><span class="tile-label">Released (got mail 1)</span><span class="tile-value">{releasedLabel}</span></div>
+                    <div class="tile"><span class="tile-label">Reacted</span><span class="tile-value">{reactedLabel}</span></div>
+                    <template for:each={mails} for:item="m">
+                        <div key={m.key} class="tile"><span class="tile-label">Waiting after {m.label}</span><span class="tile-value">{m.count}</span></div>
+                    </template>
+                </div>
+
+                <h3 class="sub">Reactions <span class="hint">current answer of the members, share of released</span></h3>
+                <div class="tiles">
+                    <template for:each={reactions} for:item="r">
+                        <div key={r.key} class="tile"><span class="tile-label">{r.label}</span><span class="tile-value">{r.count}</span><span class="tile-hint">{r.share}</span></div>
+                    </template>
+                </div>
+
+                <template lwc:if={hasNotNow}>
+                    <h3 class="sub">Not now: contact again from</h3>
+                    <div class="chips">
+                        <template for:each={notNow} for:item="q"><span key={q.key} class="chip">{q.label}: <b>{q.count}</b></span></template>
+                    </div>
+                </template>
+
+                <template lwc:if={hasCallbacks}>
+                    <h3 class="sub">Call-backs <span class="hint">by Case status</span></h3>
+                    <div class="chips">
+                        <template for:each={callbacks} for:item="c"><span key={c.key} class="chip">{c.label}: <b>{c.count}</b></span></template>
+                    </div>
+                </template>
+
+                <template lwc:if={hasBatches}>
+                    <h3 class="sub">Per batch</h3>
+                    <lightning-datatable key-field="key" data={batches} columns={batchColumns} hide-checkbox-column column-widths-mode="auto"></lightning-datatable>
+                    <h3 class="sub">Per hardware <span class="hint">best 2G unit of the customer (from the priority)</span></h3>
+                    <lightning-datatable key-field="key" data={hardware} columns={hardwareColumns} hide-checkbox-column column-widths-mode="auto"></lightning-datatable>
+                </template>
+
+                <!-- 2. Release -->
+                <h2 class="section">2. Release from Source and start mail 1</h2>
+                <div class="tiles">
+                    <div class="tile"><span class="tile-label">Ready in Source</span><span class="tile-value">{data.sourceReady}</span></div>
+                    <div class="tile"><span class="tile-label">Parked (Not now, later quarter)</span><span class="tile-value">{data.sourceParked}</span></div>
+                </div>
+                <template lwc:if={hasSourceByPriority}>
+                    <div class="chips">
+                        <template for:each={sourceByPriority} for:item="p"><span key={p.key} class="chip">{p.label}: <b>{p.count}</b></span></template>
+                    </div>
+                </template>
+                <template lwc:if={data.canRelease}>
+                    <div class="release">
+                        <lightning-input type="number" label="Number to release" value={size} min="1" max={maxSize} onchange={handleSize} class="size"></lightning-input>
+                        <lightning-button variant="brand" label={releaseLabel} onclick={handleRelease} disabled={releaseDisabled}></lightning-button>
+                    </div>
+                </template>
+                <template lwc:else>
+                    <p class="hint">You don't have the access to release members.</p>
+                </template>
+                <p class="hint">Highest priority first; members parked by "Not now" wait until their quarter. Released members get Mail Stage Due / mail 1 today; Growth sends the mail from its segment.</p>
+
+                <!-- 3. Revenue -->
+                <h2 class="section">3. Revenue <span class="hint">Opportunities from this campaign</span></h2>
+                <div class="tiles">
+                    <template for:each={revenue} for:item="r">
+                        <div key={r.key} class="tile"><span class="tile-label">{r.label} ({r.count})</span><span class="tile-value">{r.amountLabel}</span></div>
+                    </template>
+                </div>
+                <p class="hint slds-p-bottom_small">Amounts only. Costs (hardware, installation, call time) follow once the margin is defined.</p>
+            </div>
+        </lightning-card>
+    </template>
+    <template lwc:elseif={error}>
+        <lightning-card title="Staged campaign overview"><p class="slds-p-horizontal_medium slds-text-color_error">{error}</p></lightning-card>
+    </template>
+</template>

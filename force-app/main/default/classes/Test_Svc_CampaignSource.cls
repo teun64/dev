@@ -100,6 +100,41 @@ private class Test_Svc_CampaignSource {
 		System.assertEquals(Date.newInstance(2027, 4, 1), after.RecontactFrom__c, 'Not now kept');
 	}
 
+	static void addLargeAccountCampaign() {
+		Campaign parent = [SELECT Id FROM Campaign WHERE Name = 'Source Test' WITH SYSTEM_MODE];
+		Database.insert(new Campaign(Name = 'Source Test - Large account', ParentId = parent.Id, IsActive = true,
+			CampaignRole__c = Svc_CampaignMove.ROLE_LARGE_ACCOUNT), AccessLevel.SYSTEM_MODE);
+		Svc_CampaignSource.largeOverride = new Set<Id>{ accounts().get('Source B2B').Id };
+	}
+
+	@IsTest
+	static void sync_largeAccount_inLargeAccountCampaign() {
+		useScopes(4);
+		addLargeAccountCampaign();
+		Test.startTest();
+		sync();
+		Test.stopTest();
+		List<CampaignMember> large = [SELECT Account__r.Name, LargeAccount__c FROM CampaignMember
+			WHERE Campaign.Name = 'Source Test - Large account' WITH SYSTEM_MODE];
+		System.assertEquals(1, large.size());
+		System.assertEquals('Source B2B', large[0].Account__r.Name);
+		System.assert(large[0].LargeAccount__c, 'phone only');
+		System.assertEquals(1, members('Source').size(), 'only the B2C member');
+	}
+
+	@IsTest
+	static void sync_grownIntoLargeAccount_movesFromSource() {
+		useScopes(4);
+		sync();
+		addLargeAccountCampaign();
+		Test.startTest();
+		Svc_CampaignSource.Result res = sync();
+		Test.stopTest();
+		System.assertEquals(1, res.movedToLarge);
+		System.assertEquals(1, [SELECT COUNT() FROM CampaignMember WHERE Campaign.Name = 'Source Test - Large account' AND LargeAccount__c = true WITH SYSTEM_MODE]);
+		System.assertEquals(1, members('Source').size());
+	}
+
 	@IsTest
 	static void sync_memberInOtherStage_notBackIntoSource() {
 		useScopes(4);

@@ -17,13 +17,15 @@ public without sharing class Svc_CampaignMove {
 	public static final String ROLE_OFFER          = 'Offer';
 	public static final String ROLE_NOT_INTERESTED = 'Not interested';
 	public static final String ROLE_NOT_REACTED    = 'Not reacted';
+	public static final String ROLE_DEALER         = 'Dealer';
+	public static final String ROLE_LARGE_ACCOUNT  = 'Large account';
 
 	private static final AccessLevel RUNNING_MODE = AccessLevel.SYSTEM_MODE;
 
 	public class Request {
 		@InvocableVariable(label='Campaign Member Id' required=true)
 		public String campaignMemberId;
-		@InvocableVariable(label='Role' description='Source, Operational, Offer, Not interested or Not reacted' required=true)
+		@InvocableVariable(label='Role' description='Source, Operational, Offer, Not interested, Not reacted or Dealer' required=true)
 		public String role;
 		@InvocableVariable(label='Mail Stage' description='Mail Stage of the moved member (empty = Stopped, Completed for Not reacted)')
 		public String mailStage;
