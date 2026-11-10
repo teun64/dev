@@ -9,7 +9,7 @@
   <div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
    <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Beste {{{Recipient.FirstName}}},</p>
    <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Wij hebben de onderstaande betaling niet kunnen incasseren; het bedrag staat daardoor nog open.</p>
-   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Wilt u het openstaande bedrag betalen via de knop hieronder? U kunt betalen met uw bankrekening of kaart; de betaalmethode die u gebruikt, wordt ook bewaard voor uw volgende facturen.</p>
+   <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">Wilt u het openstaande bedrag betalen via de knop hieronder? U kunt betalen met uw kaart, iDEAL | Wero of een bankoverschrijving. Een kaart wordt bewaard voor uw volgende facturen; met iDEAL | Wero geeft u ook een machtiging voor SEPA-incasso voor uw volgende facturen. Een bankoverschrijving betaalt alleen deze factuur.</p>
    <table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
     <tbody>
      <tr>

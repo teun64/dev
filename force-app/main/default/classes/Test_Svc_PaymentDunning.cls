@@ -365,6 +365,26 @@ private class Test_Svc_PaymentDunning {
         System.assertEquals('pi_paynow', payment().PayProv_PaymentIntentId__c);
     }
 
+    // ── payment page, Pay: card and iDEAL | Wero (its SEPA mandate) are saved, a bank transfer is one-off ──
+    @IsTest
+    static void testPagePayNowPaySavesCardAndIdeal() {
+        setPayment(new Map<String, Object>{ 'Status__c' => 'Failed', 'Dunning_Step__c' => Svc_PaymentDunning.STEP_REQUESTED,
+            'Dunning_Action__c' => Svc_PaymentDunning.ACTION_PAY, 'PayProv_PaymentIntentId__c' => null });
+        Account acc = account();
+        acc.BillingCountryCode = 'NL';
+        Database.update(acc, AccessLevel.SYSTEM_MODE);
+        Svc_PaymentIntent.mockResponses = new List<String>{ '{"id":"pi_paynow","client_secret":"cs_paynow"}' };
+        Test.startTest();
+        Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('tok_dun', 'en');
+        Test.stopTest();
+        System.assertEquals('pay', d.dunning, 'Error: ' + d.errorMessage);
+        String create = Svc_PaymentIntent.sentBodies[Svc_PaymentIntent.sentBodies.size() - 1];
+        System.assert(create.contains('payment_method_types[]=ideal') && create.contains('payment_method_types[]=customer_balance'), create);
+        System.assert(create.contains('payment_method_options[card][setup_future_usage]=off_session'), create);
+        System.assert(create.contains('payment_method_options[ideal][setup_future_usage]=off_session'), create);
+        System.assert(!create.contains('&setup_future_usage='), 'No top-level saving: the bank transfer stays one-off');
+    }
+
     // ── payment page: a second visit reuses the pay-now intent ──
     @IsTest
     static void testPagePayNowReused() {
@@ -374,7 +394,8 @@ private class Test_Svc_PaymentDunning {
         Svc_PaymentIntent.mockResponses = new List<String>{ JSON.serialize(new Map<String, Object>{
             'id' => 'pi_paynow', 'status' => 'requires_payment_method', 'client_secret' => 'cs_again',
             'metadata' => new Map<String, Object>{ 'Checkout' => 'paynow' },
-            'payment_method_types' => Svc_PaymentIntent.payNowTypes(withAccount, 'sepa_debit') }) };
+            'payment_method_types' => Svc_PaymentIntent.payNowTypes(withAccount, 'sepa_debit'),
+            'payment_method_options' => new Map<String, Object>{ 'ideal' => new Map<String, Object>{ 'setup_future_usage' => 'off_session' } } }) };
         Test.startTest();
         Ctrl_Payment.PaymentData d = Ctrl_Payment.getPaymentData('tok_dun', 'en');
         Test.stopTest();
@@ -429,15 +450,36 @@ private class Test_Svc_PaymentDunning {
         System.assertEquals('sepa_debit', after.PayProv_PaymentMethodType__c);
     }
 
+    // iDEAL | Wero comes with a SEPA direct debit approval: its generated SEPA method + mandate collect the next invoices
     @IsTest
-    static void testPayNowIdealSavesNothing() {
+    static void testPayNowIdealSavesGeneratedSepa() {
         Account acc = account();
-        Svc_PaymentIntent.mockResponses = new List<String>{ '{"id":"pm_ideal","type":"ideal"}' };
+        Svc_PaymentIntent.mockResponses = new List<String>{
+            '{"id":"pm_ideal","type":"ideal"}',
+            '{"id":"pi_paynow","latest_charge":{"payment_method_details":{"type":"ideal","ideal":{"generated_sepa_debit":"pm_gen_sepa","generated_sepa_debit_mandate":"mandate_gen"}}}}'
+        };
         Test.startTest();
         new Svc_PaymentIntent.TypeJob(new Map<Id, String>{ acc.Id => 'pm_ideal' }, new Map<Id, String>{ acc.Id => null },
             new Map<Id, String>{ acc.Id => 'pi_paynow' }, new Set<Id>{ acc.Id }).execute(null);
         Test.stopTest();
-        System.assertEquals('pm_dun001', account().PayProv_PaymentMethodId__c, 'A one-off iDEAL payment is no renewal');
+        Account after = [SELECT PayProv_PaymentMethodId__c, PayProv_MandateId__c, PayProv_PaymentMethodType__c FROM Account WHERE Id = :acc.Id WITH SYSTEM_MODE];
+        System.assertEquals('pm_gen_sepa', after.PayProv_PaymentMethodId__c);
+        System.assertEquals('mandate_gen', after.PayProv_MandateId__c);
+        System.assertEquals('sepa_debit', after.PayProv_PaymentMethodType__c);
+    }
+
+    @IsTest
+    static void testPayNowIdealWithoutMandateSavesNothing() {
+        Account acc = account();
+        Svc_PaymentIntent.mockResponses = new List<String>{
+            '{"id":"pm_ideal","type":"ideal"}',
+            '{"id":"pi_paynow","latest_charge":{"payment_method_details":{"type":"ideal","ideal":{}}}}'
+        };
+        Test.startTest();
+        new Svc_PaymentIntent.TypeJob(new Map<Id, String>{ acc.Id => 'pm_ideal' }, new Map<Id, String>{ acc.Id => null },
+            new Map<Id, String>{ acc.Id => 'pi_paynow' }, new Set<Id>{ acc.Id }).execute(null);
+        Test.stopTest();
+        System.assertEquals('pm_dun001', account().PayProv_PaymentMethodId__c, 'No generated SEPA: the saved method stays');
     }
 
     @IsTest

@@ -185,7 +185,8 @@ public without sharing class Svc_PaymentIntent {
      * PaymentIntent, tagged metadata[Checkout]=paynow (payNowTypes):
      *   - Pay (the saved method stays): what pays right away - card (with Apple Pay / Google Pay), iDEAL (EUR, Dutch
      *     customers) and bank transfer (Stripe customer balance); no direct debit, it would only tell days later whether
-     *     it failed again. Only a card is saved for the next invoices; iDEAL and a bank transfer are one-off.
+     *     it failed again. A card is saved for the next invoices, and so is the SEPA direct debit the customer approves
+     *     with iDEAL | Wero (its generated SEPA mandate, 20261110); a bank transfer is one-off.
      *   - Renew (the saved method was refused for good): a renewal of the recurring method - the business entity's
      *     direct debit or a card, saved for the next invoices (setup_future_usage); no iDEAL or bank transfer.
      * A later visit reuses the pay-now intent; one that waits for a bank transfer returns its instructions instead.
@@ -217,7 +218,8 @@ public without sharing class Svc_PaymentIntent {
                 return c;
             }
             List<Object> offered = (List<Object>) intent.get('payment_method_types');
-            if (payNow && a == Action.REUSE && offered != null && new Set<Object>(offered).equals(new Set<Object>((List<Object>) types))) {
+            if (payNow && a == Action.REUSE && offered != null && new Set<Object>(offered).equals(new Set<Object>((List<Object>) types))
+                    && (renew || !types.contains(IDEAL) || savesIdeal(intent))) {
                 c.intentId     = stored;
                 c.clientSecret = (String) intent.get('client_secret');
                 return c;
@@ -237,8 +239,10 @@ public without sharing class Svc_PaymentIntent {
             // the new recurring method (direct debit or card) is saved for the next invoices
             body.add('setup_future_usage=off_session');
         } else {
-            // only a card is saved; iDEAL and a bank transfer are one-off payments
+            // a card is saved, and iDEAL | Wero's generated SEPA direct debit (the customer approves its mandate);
+            // a bank transfer is a one-off payment
             body.add('payment_method_options[card][setup_future_usage]=off_session');
+            if (types.contains(IDEAL)) body.add('payment_method_options[ideal][setup_future_usage]=off_session');
             body.add('payment_method_options[customer_balance][funding_type]=bank_transfer');
             if ('GBP'.equalsIgnoreCase(p.CurrencyIsoCode)) {
                 body.add('payment_method_options[customer_balance][bank_transfer][type]=gb_bank_transfer');
@@ -272,6 +276,13 @@ public without sharing class Svc_PaymentIntent {
         if ('EUR'.equalsIgnoreCase(p.CurrencyIsoCode) && 'NL'.equals(p.Account__r?.BillingCountryCode)) types.add(IDEAL);
         types.add('customer_balance');
         return types;
+    }
+
+    // a pay-now intent made before iDEAL saved its SEPA mandate is replaced, not reused
+    private static Boolean savesIdeal(Map<String, Object> intent) {
+        Map<String, Object> options = (Map<String, Object>) intent.get('payment_method_options');
+        Map<String, Object> ideal = options == null ? null : (Map<String, Object>) options.get(IDEAL);
+        return ideal != null && 'off_session'.equals(ideal.get('setup_future_usage'));
     }
 
     // EU bank transfers need the country of the bank account Stripe hands out: the customer's, else NL
@@ -539,7 +550,8 @@ public without sharing class Svc_PaymentIntent {
 
         /**
          * What a pay-now payment leaves on the Account for the next invoices: a card as itself; a direct debit (Renew)
-         * with the mandate of its charge; iDEAL or a bank transfer nothing - the Account keeps what it had.
+         * with the mandate of its charge; iDEAL | Wero the SEPA direct debit it generated, with that mandate; a bank
+         * transfer nothing - the Account keeps what it had.
          */
         private Account payNowMethod(Id accountId, String pm) {
             String stripeAccountId = stripeAccountByAccount.get(accountId);
@@ -555,6 +567,14 @@ public without sharing class Svc_PaymentIntent {
                 if (String.isBlank(mandate)) return null;
                 return new Account(Id = accountId, PayProv_PaymentMethodId__c = pm, PayProv_MandateId__c = mandate,
                     PayProv_PaymentMethodType__c = type, PayProv_CardExpiry__c = null, PayProv_CardWallet__c = null);
+            }
+            if (IDEAL.equals(type)) {
+                Map<String, Object> ideal = chargeDetails(stripeAccountId, intentByAccount.get(accountId), IDEAL);
+                String sepa    = ideal == null ? null : (String) ideal.get('generated_sepa_debit');
+                String mandate = ideal == null ? null : (String) ideal.get('generated_sepa_debit_mandate');
+                if (String.isBlank(sepa) || String.isBlank(mandate)) return null;
+                return new Account(Id = accountId, PayProv_PaymentMethodId__c = sepa, PayProv_MandateId__c = mandate,
+                    PayProv_PaymentMethodType__c = 'sepa_debit', PayProv_CardExpiry__c = null, PayProv_CardWallet__c = null);
             }
             return null;
         }
