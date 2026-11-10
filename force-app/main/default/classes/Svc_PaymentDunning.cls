@@ -4,7 +4,7 @@
  *   1. Retry Planned      mail 1 "failed, we retry on <Retry Date>"; Batch_ProcessPayments retries once on day 4
  *   2. Payment Requested  mail 2 "failed again, pay via the link" (Pay) or "renew your payment details" (Renew)
  *   3. Final Notice       5 days later, still open: mail 3, last warning, services suspended after <Suspension Date>
- *   4. Suspension Case    5 days later, still open: Case in the reseller's gqPayment queue, the agent takes action
+ *   4. Suspension Case    5 days later, still open: Case in the reseller's gqCasePayment queue, the agent takes action
  * Every new failure moves the payment one step on (next); the flows' scheduled paths move it on when the customer
  * does nothing (advance). Paying (Processing/Paid) ends the cycle: the flows only act while the payment is Failed or
  * Reversed and still on the step they were started for.
@@ -206,7 +206,7 @@ public without sharing class Svc_PaymentDunning {
     private static void suspensionCases(List<Payment__c> payments) {
         Map<Id, Id> contactByPayment = Svc_PaymentActionRequired.contacts(payments);
         Set<String> queueNames = new Set<String>();
-        for (Payment__c p : payments) queueNames.add('gqPayment' + p.Account__r?.Reseller_Name__c);
+        for (Payment__c p : payments) queueNames.add('gqCasePayment' + p.Account__r?.Reseller_Name__c);
         Map<String, Id> queueByName = new Map<String, Id>();
         for (Group g : [SELECT Id, DeveloperName FROM Group WHERE Type = 'Queue' AND DeveloperName IN :queueNames WITH SYSTEM_MODE]) {
             queueByName.put(g.DeveloperName, g.Id);
@@ -240,7 +240,7 @@ public without sharing class Svc_PaymentDunning {
                 Origin      = 'Direct Debit',
                 Status      = 'New'
             );
-            Id queueId = queueByName.get('gqPayment' + p.Account__r?.Reseller_Name__c);
+            Id queueId = queueByName.get('gqCasePayment' + p.Account__r?.Reseller_Name__c);
             if (queueId != null) c.OwnerId = queueId;
             cases.add(c);
         }

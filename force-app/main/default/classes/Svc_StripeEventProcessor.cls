@@ -57,7 +57,7 @@ public without sharing class Svc_StripeEventProcessor {
         Map<String, Id> resellerToQueue = new Map<String, Id>();
         if (!resellerCodes.isEmpty()) {
             Set<String> queueNames = new Set<String>();
-            for (String code : resellerCodes) queueNames.add('gqPayment' + code);
+            for (String code : resellerCodes) queueNames.add('gqCasePayment' + code);
             for (Group g : [SELECT Id, DeveloperName FROM Group
                             WHERE Type = 'Queue' AND DeveloperName IN :queueNames]) {
                 resellerToQueue.put(g.DeveloperName, g.Id);
@@ -144,7 +144,7 @@ public without sharing class Svc_StripeEventProcessor {
             Id resolvedPaymentId = String.isNotBlank(p.paymentSfId) ? (Id) p.paymentSfId : null;
             if (resolvedPaymentId != null && paymentMap.containsKey(resolvedPaymentId)) {
                 Payment__c payment = paymentMap.get(resolvedPaymentId);
-                String queueName = 'gqPayment' + payment.Account__r?.Reseller_Name__c;
+                String queueName = 'gqCasePayment' + payment.Account__r?.Reseller_Name__c;
                 Id queueId   = resellerToQueue.get(queueName);
                 Id contactId = accountToContact.get(payment.Account__c);
 

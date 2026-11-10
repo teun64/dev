@@ -30,7 +30,7 @@
         <offset>0</offset>
     </actionCalls>
     <apiVersion>68.0</apiVersion>
-    <description>Dunning cycle (Svc_PaymentDunning), step Suspension Case: Case in the reseller's gqPayment queue: the agent takes the appropriate action (suspend the services). Svc_PaymentDunning only acts while the payment is still Failed/Reversed on this step, so paying ends the cycle.</description>
+    <description>Dunning cycle (Svc_PaymentDunning), step Suspension Case: Case in the reseller's gqCasePayment queue: the agent takes the appropriate action (suspend the services). Svc_PaymentDunning only acts while the payment is still Failed/Reversed on this step, so paying ends the cycle.</description>
     <environments>Default</environments>
     <interviewLabel>rab - Payment - Dunning Suspension Case {!$Flow.CurrentDateTime}</interviewLabel>
     <label>rab - Payment - Dunning Suspension Case</label>

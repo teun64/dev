@@ -42,7 +42,7 @@ public without sharing class Ctrl_PaymentCase {
             contactId = contactRels[0].ContactId;
         }
 
-        // Resolve queue by reseller code — e.g. gqPayment1, gqPayment6
+        // Resolve queue by reseller code — e.g. gqCasePayment1, gqCasePayment6
         Id queueId = null;
         String resellerCode = p.Account__r?.Reseller_Name__c;
         if (String.isNotBlank(resellerCode)) {
@@ -52,7 +52,7 @@ public without sharing class Ctrl_PaymentCase {
                 ' WHERE Type = \'Queue\'' +
                 ' AND DeveloperName = :queueDeveloperName' +
                 ' LIMIT 1',
-                new Map<String, Object>{ 'queueDeveloperName' => 'gqPayment' + resellerCode },
+                new Map<String, Object>{ 'queueDeveloperName' => 'gqCasePayment' + resellerCode },
                 AccessLevel.SYSTEM_MODE
             );
             if (!queues.isEmpty()) {

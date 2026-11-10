@@ -1,7 +1,7 @@
 // READ-ONLY prod check before the dunning deploy (2026-11-10). Nothing is written in Salesforce or Stripe.
 // 1. per Stripe account: are iDEAL and bank transfer (customer_balance) available in live mode?
 // 2. failure codes of real failed payments (last 365 days) to compare with Svc_PaymentDunning RENEW_CODES / PAY_CODES
-// 3. the gqPayment<reseller> queues the suspension Case goes to
+// 3. the gqCasePayment<reseller> queues the suspension Case goes to
 // Run: sf apex run -o prod -f ".scratch/20261109 - paymentDunning/prod_check.apex" | grep CHECK
 
 Map<String, Object> stripeGet(Id stripeAccount, String endpoint) {
@@ -84,7 +84,7 @@ System.debug('CHECK failed events read: ' + events + ' (max 400)');
 for (String k : codes.keySet()) System.debug('CHECK code ' + codes.get(k) + 'x ' + k);
 
 // 3. queues
-for (Group g : [SELECT DeveloperName FROM Group WHERE Type = 'Queue' AND DeveloperName LIKE 'gqPayment%']) System.debug('CHECK queue ' + g.DeveloperName);
+for (Group g : [SELECT DeveloperName FROM Group WHERE Type = 'Queue' AND DeveloperName LIKE 'gqCasePayment%']) System.debug('CHECK queue ' + g.DeveloperName);
 for (AggregateResult r : [SELECT Reseller_Name__c n, COUNT(Id) c FROM Account WHERE PayProv_CustomerId__c != null GROUP BY Reseller_Name__c]) {
     System.debug('CHECK reseller ' + r.get('n') + ' accounts with Stripe customer: ' + r.get('c'));
 }

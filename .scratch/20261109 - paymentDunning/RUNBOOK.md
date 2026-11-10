@@ -10,7 +10,7 @@ Failed off-session payment (Type psp-recurring / psp-dd), driven by `Payment__c.
 | Retry Planned | first temporary failure (insufficient funds, generic decline) | mail 1 `paymentRetryPlanned_*`; Batch_ProcessPayments retries once on `Retry_Date__c` (day 4, own idempotency key `-retry`) |
 | Payment Requested | retry failed, or permanent failure / reversal / 3DS not confirmed | mail 2 `paymentFailedPay_*` or (Renew) `paymentFailedRenew_*`; link = pay-now PaymentIntent (dd + card/wallets, saves the method) |
 | Final Notice | +5 days still open (or a new failure) | mail 3 `paymentFinalNotice_*`, suspension after `Suspension_Date__c` (+5), amount stays due |
-| Suspension Case | +5 days still open | Case "Suspend service – failing payment – PM#…" in gqPayment<reseller>; the agent acts |
+| Suspension Case | +5 days still open | Case "Suspend service – failing payment – PM#…" in gqCasePayment<reseller>; the agent acts |
 
 - Permanent failure (expired/lost/stolen card, closed account, revoked mandate…, `Svc_PaymentDunning.RENEW_CODES`): no retry, saved method cleared from the Account (`Dunning_Action__c = Renew`), the customer renews via the link (pays right away, new details saved).
 - No Cases for the early steps (webhook, batch decline, 3DS expiry, failed attempt on the page). Configuration errors and duplicate charges still get a Case.
@@ -35,7 +35,7 @@ Failed off-session payment (Type psp-recurring / psp-dd), driven by `Payment__c.
 3. FLS: anonymous Apex `fls.apex` (FieldPermissions insert: System Administrator + miModifyAllData read/edit, ps_miSubscription25_User read; formula read only). Prod: give the user a `!` command.
 4. Data **before the CMDT deploy**: `Subscription25__Schedulable_Class__c` Name = Unique Name = `Batch_CardExpiryCheck` (Schedulable false, no cron: runs via the Day dispatcher). Without it the dispatcher's startStep throws and every later Day step is skipped. Count first: open card payments with unknown expiry = Stripe calls on the first run.
 5. `sf community publish -n "Customer Hub"` (LWR serves the last-published paymentPage).
-6. Check gqPayment<reseller> queues exist (dev has none → Case owner = running user).
+6. Check gqCasePayment<reseller> queues exist (dev has none → Case owner = running user).
 7. Prod-only check: let the user allow a prod read of `stripeGC__Stripe_Event__c` failure bodies to confirm the real code/decline_code values against RENEW_CODES / PAY_CODES (acc only had `insufficient_funds/generic_decline` on bacs).
 
 ## dev log
@@ -45,7 +45,7 @@ Failed off-session payment (Type psp-recurring / psp-dd), driven by `Payment__c.
 - Layout Payment__c-Payment: Dunning section deployed dev.
 
 ## acc log
-- 2026-11-10 deployed: 9 fields, FLS 27 rows, Apex (135 payment tests green, incl. Util_FinancialSystemStripePosting fix), 4 flows (active), 15 templates, paymentPage/paymentCheckout/paymentProvider, Sub25 record Batch_CardExpiryCheck (a1YG5000004VX2DMAW) before CMDT Day_CardExpiryCheck, layout (acc's own + Dunning section), Customer Hub republished. 0 open card payments for the first expiry run. No gqPayment queues in acc (same as before: Case owner = running user).
+- 2026-11-10 deployed: 9 fields, FLS 27 rows, Apex (135 payment tests green, incl. Util_FinancialSystemStripePosting fix), 4 flows (active), 15 templates, paymentPage/paymentCheckout/paymentProvider, Sub25 record Batch_CardExpiryCheck (a1YG5000004VX2DMAW) before CMDT Day_CardExpiryCheck, layout (acc's own + Dunning section), Customer Hub republished. 0 open card payments for the first expiry run. No gqCasePayment queues in acc (same as before: Case owner = running user).
 - e2e TEST Teun card NL (001G500001UqbEbIAJ) with pm_card_chargeCustomerFail: PM#000136974 (a1nG500000ihTGfIAM) → Retry Planned 14-11 + mail paymentRetryPlanned_EN (payment had no Contact → EN), no Case → retry (Retry_Date set to today) new PI → Payment Requested + paymentFailedPay_EN → page: pay-now card PI, reused on reload. Account card restored to pm_1UVY4A…. Payment left open as acc demo (token eedfc96dbb2ab572c00d016bc01a4319): Final Notice ~11-15, Suspension Case ~11-20 unless paid/cancelled.
 
 ## 2026-11-10 change: iDEAL | Wero on Pay saves its SEPA mandate (user)
@@ -61,11 +61,12 @@ iDEAL | Wero comes with a SEPA direct debit approval, so the Pay link now sets p
 - Live Stripe: NL acct_1S3wZf… card/Apple Pay/iDEAL/SEPA active, **bank transfer (customer_balance) not active**; DE acct_1S3wcn… **card only** (no SEPA, iDEAL, bank transfer); UK acct_1Ro22z… card/Apple Pay/Bacs, **no bank transfer**.
   → as built, every Pay link (offers customer_balance) and a DE Renew link (offers sepa_debit) would fail to create the PaymentIntent in prod.
 - Failure codes (4 events, last year): authentication_required (1), payment_intent_authentication_failure (3) — both in PAY_CODES.
-- **No gqPayment queues in prod** → suspension Case owner = running user (scheduled flow = Automated Process). Stripe customers: only reseller 6 (UK, 56 accounts).
+- **No gqCasePayment queues in prod** → suspension Case owner = running user (scheduled flow = Automated Process). Stripe customers: only reseller 6 (UK, 56 accounts).
 
 - User: bank transfer switched on in Stripe (NL, UK) — re-run prod_check.apex before the prod deploy to confirm. DE: Wero (not iDEAL) and SEPA to be activated by Floris (identification on the DE Stripe account).
 - Fallback (Svc_PaymentIntent.createWithActiveTypes): a type the Stripe account refuses ('The payment method type "x" is invalid') is left out with its options and the create retried (card never); pay-now / renewal intents. Pay-now reuse accepts an intent offering a subset of the wanted types. Deployed dev + acc (102 tests green).
-- Queues gqPayment1 (NL), gqPayment3 (BE), gqPayment5 (DE), gqPayment6 (UK) — Case, no members yet — deployed dev + acc; **include in the prod deploy** and add members in prod. Test_Ctrl_PaymentCase reuses an existing gqPayment1.
+- Queues gqCasePayment1 (NL), gqCasePayment3 (BE), gqCasePayment5 (DE), gqCasePayment6 (UK) — Case, no members yet — deployed dev + acc; **include in the prod deploy** and add members in prod. Test_Ctrl_PaymentCase reuses an existing gqCasePayment1.
+- 2026-11-10 renamed gqPayment* → gqCasePayment* (naming like gqCaseAdministration*); dev + acc deployed, old queues deleted (destructive), 59/59 tests. The prefix is also used by Batch_ProcessPayments, Svc_StripeEventProcessor and Ctrl_PaymentCase (live in prod) — **deploy those together with the queues to prod**.
 
 ## Later (user, 2026-11-10)
 - **DE Wero**: once Floris has activated it on the DE Stripe account, offer Wero on the DE Pay link (payNowTypes now offers iDEAL for NL only).

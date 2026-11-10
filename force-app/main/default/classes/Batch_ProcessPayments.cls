@@ -10,7 +10,7 @@
  * A successful request moves the payment to Processing; Svc_StripeEventProcessor takes it from there (Paid/Failed).
  * A decline by the bank (Stripe error with a PaymentIntent) sets Failed and moves the payment into / through the dunning
  * cycle (Svc_PaymentDunning: mails, no Case); a refused-for-good method is cleared from the Account. Missing
- * configuration or any other error sets Failed and opens a Case in the reseller's gqPayment queue.
+ * configuration or any other error sets Failed and opens a Case in the reseller's gqCasePayment queue.
  * Each request carries an idempotency key (payment + collection date): if the status update after a successful
  * request fails, the next run gets the same PaymentIntent back from Stripe instead of charging twice. An intent
  * already stored on the payment (PayProv_PaymentIntentId__c) is checked first: processing/succeeded → only the
@@ -85,7 +85,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
         Map<String, Id> resellerToQueue = new Map<String, Id>();
         if (!resellerCodes.isEmpty()) {
             Set<String> queueNames = new Set<String>();
-            for (String code : resellerCodes) queueNames.add('gqPayment' + code);
+            for (String code : resellerCodes) queueNames.add('gqCasePayment' + code);
             for (Group g : [SELECT Id, DeveloperName FROM Group
                             WHERE Type = 'Queue' AND DeveloperName IN :queueNames WITH SYSTEM_MODE]) {
                 resellerToQueue.put(g.DeveloperName, g.Id);
@@ -234,7 +234,7 @@ global class Batch_ProcessPayments extends Subscription25.Job_AbstractBatch2 imp
         Payment__c p, String reason,
         Map<String, Id> resellerToQueue, Map<Id, Id> accountToContact
     ) {
-        Id queueId   = resellerToQueue.get('gqPayment' + p.Account__r?.Reseller_Name__c);
+        Id queueId   = resellerToQueue.get('gqCasePayment' + p.Account__r?.Reseller_Name__c);
         Id contactId = accountToContact.get(p.Account__c);
         Case c = new Case(
             AccountId   = p.Account__c,

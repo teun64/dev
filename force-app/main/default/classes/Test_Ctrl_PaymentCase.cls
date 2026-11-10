@@ -53,12 +53,12 @@ private class Test_Ctrl_PaymentCase {
 
         // Queue for reseller '1' — setup objects (Group + QueueSObject) must be inserted in a
         // separate runAs block to avoid the mixed-DML rule with non-setup objects above
-        // (the org's own gqPayment1 is used when it exists: a second one with that name can't be inserted)
-        if ([SELECT COUNT() FROM Group WHERE DeveloperName = 'gqPayment1' AND Type = 'Queue'] == 0) {
+        // (the org's own gqCasePayment1 is used when it exists: a second one with that name can't be inserted)
+        if ([SELECT COUNT() FROM Group WHERE DeveloperName = 'gqCasePayment1' AND Type = 'Queue'] == 0) {
             System.runAs(new User(Id = UserInfo.getUserId())) {
                 Group q = new Group(
                     Name          = 'Payment NL',
-                    DeveloperName = 'gqPayment1',
+                    DeveloperName = 'gqCasePayment1',
                     Type          = 'Queue'
                 );
                 insert q;
@@ -101,8 +101,8 @@ private class Test_Ctrl_PaymentCase {
         System.assertEquals('Direct Debit', c.Origin);
         System.assertEquals('New',          c.Status);
 
-        Group q = [SELECT Id FROM Group WHERE DeveloperName = 'gqPayment1' LIMIT 1];
-        System.assertEquals(q.Id, c.OwnerId, 'Case owned by gqPayment1 queue');
+        Group q = [SELECT Id FROM Group WHERE DeveloperName = 'gqCasePayment1' LIMIT 1];
+        System.assertEquals(q.Id, c.OwnerId, 'Case owned by gqCasePayment1 queue');
     }
 
     @IsTest
