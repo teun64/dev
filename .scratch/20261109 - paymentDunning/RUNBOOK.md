@@ -76,6 +76,17 @@ iDEAL | Wero comes with a SEPA direct debit approval, so the Pay link now sets p
 - gqCaseAdministration1/5/6 deployed to prod on user request (2026-11-10): individual users replaced by the groups (after sales + finance per country). Previous members saved in prod_admin_queues_before_2026-11-10/. Active users who were direct members and are not in the groups (no longer queue members): NL Bas Vink, Guy Mooyman, Jonas Maassen, Martin Hunen, Paul Schuttevaer, Rob Groenen, Ron Plomp, Robert Kekem, Roxanne Vogelzang, Sylvana Geeve, Tom Beekmans; DE Arndt Bachmann, Matthias Kühnel, Sascha Hribar; UK Amanda Smith, Laura Wilson, Matt Abery, Sarah Bateman.
 - 2026-11-10 user ran fls.apex (27 rows, 3 sets) and sub25_record.apex (record created; 0 open card payments for the first expiry run); CMDT JobDispatcherStep.Day_CardExpiryCheck deployed (Day, order 65, active). **Prod rollout complete.** prod_check re-run 17:08: bank transfer (customer_balance) available + on for NL and UK; DE still card + Apple/Google Pay only (fallback leaves the rest out); 4 gqCasePayment queues present. Remaining: Later items below.
 
+## Go-live check plan (prod, read-only: dunning_monitor.apex)
+Prod volume is low (UK only, 56 Stripe customers; 15 collections 11-12 → 11-23), so the checks follow the first real cases:
+| Date | What to see |
+|---|---|
+| 2026-11-16 (after 09:10) | PM#000207118 (jason robertson, UK, Action Required since 11-09 08:09 UTC) expires: Failed, step Payment Requested, action Pay, mail paymentFailedPay_EN, **no Case**; its link offers card / Apple Pay / Google Pay / bank transfer |
+| 2026-11-19 | Bacs results of the 11-12 / 11-13 collections (~6 days): a failure → Retry Planned + mail 1, retry date +4, no Case; or Payment Requested for a permanent code (action Renew, method cleared) |
+| 2026-11-21 | PM#000207118 still open → Final Notice + mail 3, suspension date set |
+| 2026-11-23 / 24 | first retries run (new PI, own -retry key); result back via webhook |
+| 2026-11-26 | PM#000207118 still open → Case "Suspend service – failing payment – PM#000207118" owned by queue gqCasePayment6 (After sales UK + Finance UK) |
+Each check: `sf apex run -o prod -f ".scratch/20261109 - paymentDunning/dunning_monitor.apex" | grep CHECK`. Also watch "outside cycle" (Failed without a step) and payment Cases other than Suspend service / configuration / charged twice. Side note: PM#000207118 has Collection Date 11-20 although charged 11-09 (date moved after the charge?) — look at it on 11-16.
+
 ## Later (user, 2026-11-10)
 - Stripe payment-method activation and checks: owned by Floris (user, 2026-11-10), no further checks from us.
 - **DE Wero**: once Floris has activated it on the DE Stripe account, offer Wero on the DE Pay link (payNowTypes now offers iDEAL for NL only).
