@@ -76,15 +76,22 @@ iDEAL | Wero comes with a SEPA direct debit approval, so the Pay link now sets p
 - gqCaseAdministration1/5/6 deployed to prod on user request (2026-11-10): individual users replaced by the groups (after sales + finance per country). Previous members saved in prod_admin_queues_before_2026-11-10/. Active users who were direct members and are not in the groups (no longer queue members): NL Bas Vink, Guy Mooyman, Jonas Maassen, Martin Hunen, Paul Schuttevaer, Rob Groenen, Ron Plomp, Robert Kekem, Roxanne Vogelzang, Sylvana Geeve, Tom Beekmans; DE Arndt Bachmann, Matthias Kühnel, Sascha Hribar; UK Amanda Smith, Laura Wilson, Matt Abery, Sarah Bateman.
 - 2026-11-10 user ran fls.apex (27 rows, 3 sets) and sub25_record.apex (record created; 0 open card payments for the first expiry run); CMDT JobDispatcherStep.Day_CardExpiryCheck deployed (Day, order 65, active). **Prod rollout complete.** prod_check re-run 17:08: bank transfer (customer_balance) available + on for NL and UK; DE still card + Apple/Google Pay only (fallback leaves the rest out); 4 gqCasePayment queues present. Remaining: Later items below.
 
+## Post go-live actions 2026-11-10 (prod)
+- Open payments checked: no Failed / Reversed psp payments in prod. 23 Processing (all bacs_debit, collection 11-05 → 11-20), 14 Setup (10 Mail Sent since 10-29, 4 Awaiting Invoice Email), 1 New, 1 Action Required.
+- 9 escalation Cases "Direct Debit Escalation — No Authorisation Received" (MI00433087/088, MI00433596/597/598/599, MI00434912/913, MI00435443; 11-04 → 11-09) were owned by Teun (no queue then) → moved to gqCasePayment6 (Case - Payment (UK)) on user request. New escalations go to the queue. Setup payments without a method are not collected and never enter the dunning cycle: the escalation Case + call is the only follow-up.
+- PM#000207118 (jason robertson, first payment, 3DS not confirmed on the page since 11-09): on user request expired early via Svc_PaymentActionRequired.run(step 'expire') → Failed, Payment Requested, action Pay, code authentication_required; mail "Your payment is still outstanding – PM#000207118" sent 16:37 to jason_robertson@btinternet.com, no Case. The D+7 path (11-16) is a no-op now. Next if unpaid: Final Notice ~11-15, Suspension Case ~11-20 in gqCasePayment6. (Check plan dates for this payment move 5-6 days earlier.)
+- PM#000211638 (C J Blinco, New, collection 11-06, has PM + mandate) waits for its invoice email: I-2611-00785740 PENDING. Part of 3,711 UK invoices of the 11-08 run still PENDING (only 1 invoice mail sent on 11-10 vs 765 on 11-09); Job_FinalizeInvoicesInExact is working through them. User is on it.
+- Exact rate limits 11-10 16:35 (Administration fields, reset 11-11 00:00 UTC): UK 4,580 / 5,000 left (~420 used), NL 192,416 / 200,000, DE 4,970 / 5,000. FinancialRateLimitMaxPercentage__c empty → 90% default (~4,500 UK calls/day). No 429 / rate-limit messages in 224 error/warning Event_Logs of the last 3 days (top errors: invalid VAT numbers 61, Invoice address Forbidden 23, invalid bank account 11). The UK backlog is not limited by Exact.
+
 ## Go-live check plan (prod, read-only: dunning_monitor.apex)
 Prod volume is low (UK only, 56 Stripe customers; 15 collections 11-12 → 11-23), so the checks follow the first real cases:
 | Date | What to see |
 |---|---|
-| 2026-11-16 (after 09:10) | PM#000207118 (jason robertson, UK, Action Required since 11-09 08:09 UTC) expires: Failed, step Payment Requested, action Pay, mail paymentFailedPay_EN, **no Case**; its link offers card / Apple Pay / Google Pay / bank transfer |
+| ~~2026-11-16~~ done early 11-10 | PM#000207118 (jason robertson, UK, Action Required since 11-09 08:09 UTC) expires: Failed, step Payment Requested, action Pay, mail paymentFailedPay_EN, **no Case**; its link offers card / Apple Pay / Google Pay / bank transfer |
 | 2026-11-19 | Bacs results of the 11-12 / 11-13 collections (~6 days): a failure → Retry Planned + mail 1, retry date +4, no Case; or Payment Requested for a permanent code (action Renew, method cleared) |
-| 2026-11-21 | PM#000207118 still open → Final Notice + mail 3, suspension date set |
+| 2026-11-15 | PM#000207118 (mail 2 sent early on 11-10) still open → Final Notice + mail 3, suspension date set |
 | 2026-11-23 / 24 | first retries run (new PI, own -retry key); result back via webhook |
-| 2026-11-26 | PM#000207118 still open → Case "Suspend service – failing payment – PM#000207118" owned by queue gqCasePayment6 (After sales UK + Finance UK) |
+| 2026-11-20 | PM#000207118 still open → Case "Suspend service – failing payment – PM#000207118" owned by queue gqCasePayment6 (After sales UK + Finance UK) |
 Each check: `sf apex run -o prod -f ".scratch/20261109 - paymentDunning/dunning_monitor.apex" | grep CHECK`. Also watch "outside cycle" (Failed without a step) and payment Cases other than Suspend service / configuration / charged twice. Side note: PM#000207118 has Collection Date 11-20 although charged 11-09 (date moved after the charge?) — look at it on 11-16.
 
 ## Later (user, 2026-11-10)
