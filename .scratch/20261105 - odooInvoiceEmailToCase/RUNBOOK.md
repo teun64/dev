@@ -316,3 +316,23 @@ undo if the intention was the opposite (reuse across entities). Dev + acc 12/12.
   prefilled unmapped rows; fix Test_Rest_UpsertAccount.testUkPrivateOpportunityDefaultIsPi; cutoff for ~30 old New Odoo cases (proposal 30 days);
   WAITING timeout comment (proposal 3 days); dispatcher step Minut_OdooInvoiceIntake must be inactive in prod, Minut_OdooExactSync inactive;
   `ODOO-%` exclusion in rau_Subscription25_Invoice_c_Finalized_Create_Payment once anything finalizes these invoices.
+
+### 8h. LOG 2026-11-09 .. 11-11 — OdooProduct__c in PROD, renames, invoice number check
+- PROD (user command 2026-11-09): deployed `OdooProduct__c` (object, fields, list views Unmapped/All, tab), `ps_miOdooProductMapping`, Admin profile
+  FLS (partial), `rp_Product` page (related list "Odoo Products"; built on prod's own copy, which differs from the repo: prod has
+  productImageUploader), Finance console app `mi_Finance_Console` (tab + workspace mapping; prod copy as base, now in the repo).
+  Permission set assigned to Jessica Hak, Floris Beek and Teun Rietman. 114 OdooProduct rows prefilled (all unmapped except CarFleetUK -> CarFleet.01).
+  NOT in prod: intake/sync classes, dispatcher steps, the Finance queue (`createFinanceQueue.apex` is not run; do it with the classes).
+  Prod deploys of non-Apex metadata still need a test level: `NoTestRun` is refused, used `RunSpecifiedTests Test_Util_System` (full validation
+  run: 649/651, failures unrelated: Test_Rest_UpsertAccount.testUkPrivateOpportunityDefaultIsPi, Test_Orders.testFirstOrderNegativeAdvanceInvoiceDate (month rollover)).
+- Field rename (user: consistent Odoo prefix): `Entity__c` -> `OdooEntity__c`, `FirstInvoice__c` -> `OdooFirstInvoice__c`; labels `Product Code (Odoo)`,
+  `Product Name (Odoo)`, `Entity (Odoo)`, `First Invoice (Odoo)`; lookup label `Product`. Done in dev, acc and prod (new field, data copy of 114 rows, old
+  field deleted). Gotchas: a renamed source file keeps the old `<fullName>` inside; sf source tracking treated the rename as a deletion, so deployed via
+  `--metadata-dir` (convert source first). `Mapped__c` (formula, only drives the Unmapped view) is redundant: removal proposed, not decided.
+- Invoice number: the intake sets `Subscription25__Invoice_Number__c` = Odoo number on INSERT (since 11-06). The 4 first dev invoices (11-05) predate
+  that and have none; one (ODOO-03251903) was recreated: `I-2611-00443749`, number 03251903. Editing the number on an existing invoice adds the
+  administration prefix (flow rbu_Subscription25_Invoice_c, before-update), so never patch it: recreate. The Exact booking reads the number from
+  External_ID__c (ODOO-<nr>), so it is unaffected.
+- A case with an old `[Odoo intake]` comment is not retried: delete the comment (and set the case New) to redo it.
+- Dev: CarFleetDE now mapped to CarFleet.01 (test mapping). Still open: acc Exact test (needs item 800.313.0260 in Exact acc NL), 3 old dev invoices
+  without number (redo needs FR/UK products mapped), prod to-do in §8g.
