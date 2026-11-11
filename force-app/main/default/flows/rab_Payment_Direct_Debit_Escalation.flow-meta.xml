@@ -251,6 +251,12 @@
     <description>Escalation flow for direct debit setup requests. When Interaction_Status__c is set to &apos;Mail Sent&apos;, sends reminder emails at D+2 and D+4, then creates an escalation case at D+6 if the customer has not yet completed the authorisation.</description>
     <environments>Default</environments>
     <formulas>
+        <description>20261111 TRi the reseller's payment queue (gqCasePayment&lt;reseller&gt;), else the running user as before</description>
+        <name>fCaseOwnerId</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE({!vQueueId}, {!$User.Id})</expression>
+    </formulas>
+    <formulas>
         <name>fCaseSubject</name>
         <dataType>String</dataType>
         <expression>&apos;Direct Debit Escalation — No Authorisation Received: &apos; &amp; {!$Record.Name}</expression>
@@ -282,6 +288,11 @@
 &apos;CH&apos;,&apos;DE&apos;,
 &apos;LU&apos;,&apos;DE&apos;,
 &apos;EN&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>fQueueName</name>
+        <dataType>String</dataType>
+        <expression>&apos;gqCasePayment&apos; &amp; TEXT({!$Record.Account__r.Reseller_Name__c})</expression>
     </formulas>
     <interviewLabel>rab - Payment - Direct Debit - Escalation {!$Flow.CurrentDateTime}</interviewLabel>
     <label>rab - Payment - Direct Debit - Escalation</label>
@@ -331,6 +342,12 @@
             <field>Invoice__c</field>
             <value>
                 <elementReference>$Record.Invoice__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>fCaseOwnerId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -436,13 +453,43 @@
         </outputAssignments>
     </recordLookups>
     <recordLookups>
+        <name>dgt_Queue_Payment</name>
+        <label>Get Payment Queue</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>dcr_Escalation_Case</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Type</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Queue</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>fQueueName</elementReference>
+            </value>
+        </filters>
+        <object>Group</object>
+        <outputAssignments>
+            <assignToReference>vQueueId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
         <name>dgt_RecordType_Case</name>
         <label>Get Case Record Type</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>dcr_Escalation_Case</targetReference>
+            <targetReference>dgt_Queue_Payment</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -575,6 +622,13 @@
     </variables>
     <variables>
         <name>vOrgWideEmail_D4</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>vQueueId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
