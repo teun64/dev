@@ -37,7 +37,7 @@ private class Test_Util_FinancialSystem {
 		admin.Subscription25__Twinfield_Company_Code__c = '1234509876';
 		Database.insert(admin, AccessLevel.SYSTEM_MODE);
 		return [
-			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
+			SELECT Id, Name, Reseller__c, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
 				Acceptance_Environment_Available__c, Daily_Limit__c, FinancialRateLimitMaxPercentage__c,
 				FinancialRateLimitRemaining__c, FinancialRateLimitResetOn__c, FinancialRateLimitCheckedOn__c
 			FROM Subscription25__Administration__c WHERE Id = :admin.Id WITH SYSTEM_MODE

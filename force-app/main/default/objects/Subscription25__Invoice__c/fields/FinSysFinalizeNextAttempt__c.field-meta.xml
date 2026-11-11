@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysFinalizeNextAttempt__c</fullName>
+    <description>Back-off of the finalize batch: after a failure the invoice is not tried again before this moment.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Back-off of the finalize batch: after a failure the invoice is not tried again before this moment.</inlineHelpText>
+    <label>FinSys Finalize Next Attempt</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

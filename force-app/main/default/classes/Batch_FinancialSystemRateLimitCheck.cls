@@ -46,7 +46,7 @@ global class Batch_FinancialSystemRateLimitCheck extends Subscription25.Job_Abst
 	 */
 	public static void check(Set<Id> adminIds) {
 		List<Subscription25__Administration__c> admins = [
-			SELECT Id, Name, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
+			SELECT Id, Name, Reseller__c, Subscription25__Active__c, Subscription25__Synchronisation__c, Subscription25__Named_Credential__c, Subscription25__Twinfield_Company_Code__c,
 				Acceptance_Environment_Available__c, Daily_Limit__c, FinancialRateLimitMaxPercentage__c,
 				FinancialRateLimitRemaining__c, FinancialRateLimitResetOn__c, FinancialRateLimitCheckedOn__c
 			FROM Subscription25__Administration__c
@@ -57,34 +57,42 @@ global class Batch_FinancialSystemRateLimitCheck extends Subscription25.Job_Abst
 		List<Event_Log__c> logs = new List<Event_Log__c>();
 		Set<String> namedCredentials = new Set<String>();
 		for (Subscription25__Administration__c admin : admins) {
-			if (!Util_FinancialSystem.isSyncEnabled(admin)) {
-				continue;
-			}
-			// usage of the previous period, before this check refreshes the values
-			Util_FinancialSystem.Limits before = new Util_FinancialSystem.Limits(admin);
-			Event_Log__c log = Util_Event.createLog('S', 'E', 'Subscription25__Administration__c', 'RateLimitCheck', admin.Id, admin.Name, null);
-			log.Result_Status__c = Util_Event.LogResultStatus.COMPLETED.name();
-			log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
-			log.Message__c = '';
-			namedCredentials.add(admin.Subscription25__Named_Credential__c);
-			try {
-				Util_FinancialSystem.doRequest(admin, ME_ENDPOINT, new Map<String, String>{ '$select' => 'CurrentDivision' }, 'GET', null, log.GUID__c);
-				Util_FinancialSystem.Limits lim = Util_FinancialSystem.getLimits(admin);
-				log.Message__c = 'Daily limit ' + lim.dailyLimit + ', remaining ' + lim.dailyRemaining
-					+ ' (' + lim.usedPercentage() + '% used), batch maximum ' + lim.maxPercentage + '%.';
-				Decimal prevUsed = before.usedPercentage();
-				if (prevUsed != null && prevUsed > before.maxPercentage) {
-					log.Result_Status__c = Util_Event.LogResultStatus.WARNING.name();
-					log.Message__c += ' Previous check: ' + prevUsed + '% used, above the maximum.';
-				}
-			} catch (Exception e) {
-				log.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
-				log.Message__c = e.getTypeName() + ': ' + e.getMessage();
-			}
-			logs.add(log);
+			Batch_FinancialSystemRateLimitCheck.checkOne(admin, Util_FinancialSystem.CredentialPurpose.SYNC, logs, namedCredentials);
+			// the finalize credential of the Business Entity has its own limit
+			Batch_FinancialSystemRateLimitCheck.checkOne(admin, Util_FinancialSystem.CredentialPurpose.FINALIZE, logs, namedCredentials);
 		}
 		Util_FinancialSystem.saveLimits();
 		Util_FinancialSystem.saveLogs(logs, namedCredentials, null);
+	}
+
+
+	private static void checkOne(Subscription25__Administration__c admin, Util_FinancialSystem.CredentialPurpose purpose, List<Event_Log__c> logs, Set<String> namedCredentials) {
+		if (!Util_FinancialSystem.isSyncEnabled(admin, purpose)) {
+			return;
+		}
+		Boolean finalizeCredential = purpose == Util_FinancialSystem.CredentialPurpose.FINALIZE;
+		// usage of the previous period, before this check refreshes the values
+		Util_FinancialSystem.Limits before = new Util_FinancialSystem.Limits(admin, purpose);
+		Event_Log__c log = Util_Event.createLog('S', 'E', 'Subscription25__Administration__c', finalizeCredential ? 'RateLimitCheckFinalize' : 'RateLimitCheck', admin.Id, admin.Name, null);
+		log.Result_Status__c = Util_Event.LogResultStatus.COMPLETED.name();
+		log.Integration_Status__c = Util_Event.LogEventStatus.PROCESSED.name();
+		log.Message__c = '';
+		namedCredentials.add(Util_FinancialSystem.namedCredential(admin, purpose));
+		try {
+			Util_FinancialSystem.doRequest(admin, purpose, ME_ENDPOINT, new Map<String, String>{ '$select' => 'CurrentDivision' }, 'GET', null, log.GUID__c);
+			Util_FinancialSystem.Limits lim = Util_FinancialSystem.getLimits(admin, purpose);
+			log.Message__c = (finalizeCredential ? 'Finalize credential: ' : '') + 'Daily limit ' + lim.dailyLimit + ', remaining ' + lim.dailyRemaining
+				+ ' (' + lim.usedPercentage() + '% used), batch maximum ' + lim.maxPercentage + '%.';
+			Decimal prevUsed = before.usedPercentage();
+			if (prevUsed != null && prevUsed > before.maxPercentage) {
+				log.Result_Status__c = Util_Event.LogResultStatus.WARNING.name();
+				log.Message__c += ' Previous check: ' + prevUsed + '% used, above the maximum.';
+			}
+		} catch (Exception e) {
+			log.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
+			log.Message__c = e.getTypeName() + ': ' + e.getMessage();
+		}
+		logs.add(log);
 	}
 
 	public override void finishBatch(Database.BatchableContext bc) {

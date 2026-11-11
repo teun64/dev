@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSys_FI__c</fullName>
+    <description>Named Credential used only by Batch_FinancialSystemFinalizeInvoices to finalise invoices. Own Exact app = own API limit, stored in the Finalize* fields. Blank: the entity is not finalised by this batch (legacy path stays).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Named Credential used only by Batch_FinancialSystemFinalizeInvoices to finalise invoices.</inlineHelpText>
+    <label>FinSys Credential Finalize Invoice (FI)</label>
+    <length>80</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+</CustomField>

@@ -30,6 +30,48 @@ public without sharing class Util_FinancialSystem {
 
 	public class RateLimitException extends Exception {}
 
+	/**
+	 * Which credential (and which rate-limit state) a call belongs to. SYNC: the custom Apex sync (account, contact, order)
+	 * and the other callers, on the administration's credential. FINALIZE: Batch_FinancialSystemFinalizeInvoices, on its own
+	 * credential stored on the Business Entity (own Exact app = own API limit).
+	 */
+	public enum CredentialPurpose { SYNC, FINALIZE }
+
+	@TestVisible
+	private static Map<String, Business_Entities__c> entitiesByReseller;
+
+	/** The Business Entity of a reseller (joined by value, see Business_Entities__c.Reseller__c), or null. */
+	public static Business_Entities__c getEntity(String reseller) {
+		if (Util_FinancialSystem.entitiesByReseller == null) {
+			Util_FinancialSystem.entitiesByReseller = new Map<String, Business_Entities__c>();
+			for (Business_Entities__c e : [
+					SELECT Id, Reseller__c, FinSys_TM__c, FinSys_FI__c,
+						FinalizeDailyLimit__c, FinalizeRateLimitMaxPercentage__c, FinalizeRateLimitRemaining__c, FinalizeRateLimitResetOn__c,
+						SyncDailyLimit__c, SyncRateLimitMaxPercentage__c, SyncRateLimitRemaining__c, SyncRateLimitResetOn__c
+					FROM Business_Entities__c WITH SYSTEM_MODE]) {
+				Util_FinancialSystem.entitiesByReseller.put(e.Reseller__c, e);
+			}
+		}
+		return String.isBlank(reseller) ? null : Util_FinancialSystem.entitiesByReseller.get(reseller);
+	}
+
+	/**
+	 * The Named Credential for a purpose. SYNC: Business_Entities__c.FinSys_TM__c, else the administration's own credential. FINALIZE (FinSys_FI__c) has no fallback: without its own credential the administration is skipped,
+	 * so the finalize batch never uses (and eats the limit of) the shared credential.
+	 */
+	public static String namedCredential(Subscription25__Administration__c admin, CredentialPurpose purpose) {
+		if (admin == null) {
+			return null;
+		}
+		if (purpose == CredentialPurpose.FINALIZE) {
+			String nc = Util_FinancialSystem.getEntity(admin.Reseller__c)?.FinSys_FI__c;
+			return String.isBlank(nc) ? null : nc.trim();
+		}
+		// SYNC: the Business Entity's own credential (FinSys_TM__c), else the administration's
+		String tm = Util_FinancialSystem.getEntity(admin.Reseller__c)?.FinSys_TM__c;
+		return String.isBlank(tm) ? admin.Subscription25__Named_Credential__c : tm.trim();
+	}
+
 	// ---------------------------------------------------------------- administration
 
 	/**
@@ -46,10 +88,15 @@ public without sharing class Util_FinancialSystem {
 	 * True when the administration syncs to Exact, is active and may be called from this org.
 	 */
 	public static Boolean isSyncEnabled(Subscription25__Administration__c admin) {
+		return Util_FinancialSystem.isSyncEnabled(admin, CredentialPurpose.SYNC);
+	}
+
+	/** Same, for the credential of the given purpose (FINALIZE: the Business Entity's own credential must be filled). */
+	public static Boolean isSyncEnabled(Subscription25__Administration__c admin, CredentialPurpose purpose) {
 		return admin != null
 			&& admin.Subscription25__Active__c
 			&& admin.Subscription25__Synchronisation__c == Util_FinancialSystem.SYNC_EXACT
-			&& String.isNotBlank(admin.Subscription25__Named_Credential__c)
+			&& String.isNotBlank(Util_FinancialSystem.namedCredential(admin, purpose))
 			&& Util_System.isFinancialSyncAllowed(admin)
 			&& !(Util_FinancialSystem.isSandbox() && admin.Subscription25__Twinfield_Company_Code__c != null
 				&& Util_FinancialSystem.getProductionDivisions().contains(admin.Subscription25__Twinfield_Company_Code__c.trim()));
@@ -84,19 +131,28 @@ public without sharing class Util_FinancialSystem {
 	 */
 	public static String doRequest(Subscription25__Administration__c admin, String endpoint, Map<String, String> params,
 			String method, String requestBody, String logGuid) {
+		return Util_FinancialSystem.doRequest(admin, CredentialPurpose.SYNC, endpoint, params, method, requestBody, logGuid);
+	}
+
+	public static String doRequest(Subscription25__Administration__c admin, CredentialPurpose purpose, String endpoint, Map<String, String> params,
+			String method, String requestBody, String logGuid) {
 		Util_FinancialSystem.lastErrorStatus = null;
+		String namedCredential = Util_FinancialSystem.namedCredential(admin, purpose);
+		if (admin != null && String.isBlank(namedCredential)) {
+			throw new Util_System.FinancialSyncException('No ' + purpose.name() + ' Named Credential configured for ' + admin.Name + '.');
+		}
 		if (admin == null || !Util_System.isFinancialSyncAllowed(admin)) {
 			throw new Util_System.FinancialSyncException('Financial system sync is not allowed for this administration from this org.');
 		}
 		Util_FinancialSystem.assertNotProductionFromSandbox(admin, endpoint);
-		Util_FinancialSystem.Limits lim = Util_FinancialSystem.getLimits(admin);
+		Util_FinancialSystem.Limits lim = Util_FinancialSystem.getLimits(admin, purpose);
 		if (!lim.hasCapacity(1)) {
 			throw new Util_FinancialSystem.RateLimitException('Financial system rate limit reached for ' + admin.Name + '; retry after the reset.');
 		}
 
 		HttpResponse res;
 		try {
-			res = Util_OAuth.getInstance(admin.Subscription25__Named_Credential__c, logGuid).doRequest(endpoint, params, method, requestBody);
+			res = Util_OAuth.getInstance(namedCredential, logGuid).doRequest(endpoint, params, method, requestBody);
 		} catch (CalloutException e) {
 			throw new Util_System.FinancialSyncException('Callout to the financial system failed: ' + e.getMessage());
 		}
@@ -297,13 +353,19 @@ public without sharing class Util_FinancialSystem {
 
 	public static final Decimal DEFAULT_MAX_PERCENTAGE = 90;
 
-	private static Map<Id, Util_FinancialSystem.Limits> limitsByAdmin = new Map<Id, Util_FinancialSystem.Limits>();
+	// key: administration Id + purpose (the finalize credential has its own limit state)
+	private static Map<String, Util_FinancialSystem.Limits> limitsByAdmin = new Map<String, Util_FinancialSystem.Limits>();
 
 	public static Util_FinancialSystem.Limits getLimits(Subscription25__Administration__c admin) {
-		if (!Util_FinancialSystem.limitsByAdmin.containsKey(admin.Id)) {
-			Util_FinancialSystem.limitsByAdmin.put(admin.Id, new Util_FinancialSystem.Limits(admin));
+		return Util_FinancialSystem.getLimits(admin, CredentialPurpose.SYNC);
+	}
+
+	public static Util_FinancialSystem.Limits getLimits(Subscription25__Administration__c admin, CredentialPurpose purpose) {
+		String key = admin.Id + ':' + purpose.name();
+		if (!Util_FinancialSystem.limitsByAdmin.containsKey(key)) {
+			Util_FinancialSystem.limitsByAdmin.put(key, new Util_FinancialSystem.Limits(admin, purpose));
 		}
-		return Util_FinancialSystem.limitsByAdmin.get(admin.Id);
+		return Util_FinancialSystem.limitsByAdmin.get(key);
 	}
 
 	/**
@@ -312,13 +374,31 @@ public without sharing class Util_FinancialSystem {
 	 */
 	public static void saveLimits() {
 		List<Subscription25__Administration__c> toUpdate = new List<Subscription25__Administration__c>();
-		for (Id adminId : Util_FinancialSystem.limitsByAdmin.keySet()) {
-			Util_FinancialSystem.Limits lim = Util_FinancialSystem.limitsByAdmin.get(adminId);
+		Map<Id, Business_Entities__c> entityUpdates = new Map<Id, Business_Entities__c>();
+		for (Util_FinancialSystem.Limits lim : Util_FinancialSystem.limitsByAdmin.values()) {
 			if (lim.callsMade == 0) {
 				continue;
 			}
+			if (lim.onEntity) {
+				// FINALIZE always; SYNC when the entity has its own sync credential. One entity can hold both states.
+				Business_Entities__c upd = entityUpdates.containsKey(lim.entityId) ? entityUpdates.get(lim.entityId) : new Business_Entities__c(Id = lim.entityId);
+				Datetime resetOn = lim.dailyReset == null ? null : Datetime.newInstance(lim.dailyReset);
+				if (lim.purpose == CredentialPurpose.FINALIZE) {
+					upd.FinalizeDailyLimit__c = lim.dailyLimit;
+					upd.FinalizeRateLimitRemaining__c = lim.dailyRemaining;
+					upd.FinalizeRateLimitResetOn__c = resetOn;
+					upd.FinalizeRateLimitCheckedOn__c = System.now();
+				} else {
+					upd.SyncDailyLimit__c = lim.dailyLimit;
+					upd.SyncRateLimitRemaining__c = lim.dailyRemaining;
+					upd.SyncRateLimitResetOn__c = resetOn;
+					upd.SyncRateLimitCheckedOn__c = System.now();
+				}
+				entityUpdates.put(lim.entityId, upd);
+				continue;
+			}
 			toUpdate.add(new Subscription25__Administration__c(
-				Id = adminId,
+				Id = lim.ownerId,
 				Daily_Limit__c = lim.dailyLimit,
 				FinancialRateLimitRemaining__c = lim.dailyRemaining,
 				FinancialRateLimitResetOn__c = lim.dailyReset == null ? null : Datetime.newInstance(lim.dailyReset),
@@ -327,6 +407,9 @@ public without sharing class Util_FinancialSystem {
 		}
 		if (!toUpdate.isEmpty()) {
 			Database.update(toUpdate, false, AccessLevel.SYSTEM_MODE);
+		}
+		if (!entityUpdates.isEmpty()) {
+			Database.update(entityUpdates.values(), false, AccessLevel.SYSTEM_MODE);
 		}
 	}
 
@@ -344,17 +427,55 @@ public without sharing class Util_FinancialSystem {
 		public Decimal maxPercentage;
 		public Boolean limited = false;
 		public Integer callsMade = 0;
+		public CredentialPurpose purpose = CredentialPurpose.SYNC;
+		// record that stores this state: the administration (SYNC) or the Business Entity (FINALIZE)
+		public Id ownerId;
+		public Id entityId;
+		// true: the state is stored on the Business Entity (FINALIZE, or SYNC with its own FinSys_TM__c credential)
+		public Boolean onEntity = false;
 
 		public Limits(Subscription25__Administration__c admin) {
-			this.dailyLimit = admin.Daily_Limit__c == null ? Util_FinancialSystem.ASSUMED_DAILY_LIMIT : admin.Daily_Limit__c.intValue();
-			this.maxPercentage = admin.FinancialRateLimitMaxPercentage__c == null
-				? Util_FinancialSystem.DEFAULT_MAX_PERCENTAGE : admin.FinancialRateLimitMaxPercentage__c;
-			// the stored remaining value only counts until its reset moment
-			if (admin.FinancialRateLimitResetOn__c != null && admin.FinancialRateLimitResetOn__c > System.now()
-					&& admin.FinancialRateLimitRemaining__c != null) {
-				this.dailyRemaining = admin.FinancialRateLimitRemaining__c.intValue();
-				this.dailyReset = admin.FinancialRateLimitResetOn__c.getTime();
+			this(admin, CredentialPurpose.SYNC);
+		}
+
+		public Limits(Subscription25__Administration__c admin, CredentialPurpose purpose) {
+			this.purpose = purpose;
+			this.ownerId = admin.Id;
+			Decimal storedLimit = admin.Daily_Limit__c;
+			Decimal storedMax = admin.FinancialRateLimitMaxPercentage__c;
+			Decimal storedRemaining = admin.FinancialRateLimitRemaining__c;
+			Datetime storedReset = admin.FinancialRateLimitResetOn__c;
+			Business_Entities__c entity = Util_FinancialSystem.getEntity(admin.Reseller__c);
+			if (purpose == CredentialPurpose.FINALIZE) {
+				this.entityId = entity?.Id;
+				this.onEntity = entity != null;
+				storedLimit = entity?.FinalizeDailyLimit__c;
+				storedMax = entity?.FinalizeRateLimitMaxPercentage__c;
+				storedRemaining = entity?.FinalizeRateLimitRemaining__c;
+				storedReset = entity?.FinalizeRateLimitResetOn__c;
+			} else if (entity != null && String.isNotBlank(entity.FinSys_TM__c)) {
+				// own sync credential = own Exact app = own limit
+				this.entityId = entity.Id;
+				this.onEntity = true;
+				storedLimit = entity.SyncDailyLimit__c;
+				storedMax = entity.SyncRateLimitMaxPercentage__c;
+				storedRemaining = entity.SyncRateLimitRemaining__c;
+				storedReset = entity.SyncRateLimitResetOn__c;
 			}
+			this.dailyLimit = storedLimit == null ? Util_FinancialSystem.ASSUMED_DAILY_LIMIT : storedLimit.intValue();
+			this.maxPercentage = storedMax == null ? Util_FinancialSystem.DEFAULT_MAX_PERCENTAGE : storedMax;
+			// the stored remaining value only counts until its reset moment
+			if (storedReset != null && storedReset > System.now() && storedRemaining != null) {
+				this.dailyRemaining = storedRemaining.intValue();
+				this.dailyReset = storedReset.getTime();
+			}
+		}
+
+		/** True when the minutely window is exhausted (as opposed to the daily share): waiting a minute helps. */
+		public Boolean isMinutelyBlocked(Integer n) {
+			Long now = System.now().getTime();
+			return this.minutelyRemaining != null && (this.minutelyReset == null || this.minutelyReset > now)
+				&& this.minutelyRemaining - n < Util_FinancialSystem.MINUTELY_RESERVE;
 		}
 
 		/**

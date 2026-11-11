@@ -494,7 +494,7 @@ public without sharing class Util_FinancialSystem_Order {
 			Order ord = ctx.ord;
 			Order upd = new Order(Id = ord.Id);
 			if (ctx.admin != null) {
-				namedCredentials.add(ctx.admin.Subscription25__Named_Credential__c);
+				namedCredentials.add(Util_FinancialSystem.namedCredential(ctx.admin, Util_FinancialSystem.CredentialPurpose.SYNC));
 			}
 			if (ctx.result.success) {
 				upd.Exact_Id__c = ord.Exact_Id__c;

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SyncRateLimitResetOn__c</fullName>
+    <description>When the daily API limit of the sync credential resets (X-RateLimit-Reset).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When the daily API limit of the sync credential resets (X-RateLimit-Reset).</inlineHelpText>
+    <label>Sync Rate Limit Reset On</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

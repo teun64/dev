@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SyncRateLimitCheckedOn__c</fullName>
+    <description>Last moment the sync credential limit state was stored.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Last moment the sync credential limit state was stored.</inlineHelpText>
+    <label>Sync Rate Limit Checked On</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

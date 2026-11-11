@@ -113,7 +113,7 @@ public without sharing class Util_FinancialSystemStripePosting {
 			+ 'Payouts posted: ' + posted + ', failed: ' + failed + (saveErrors.isEmpty() ? '' : '\nSave errors: ' + String.join(saveErrors, '\n'));
 		if (failed > 0 || !saveErrors.isEmpty()) log.Result_Status__c = Util_Event.LogResultStatus.ERROR.name();
 		Util_FinancialSystem.saveLimits();
-		Util_FinancialSystem.saveLogs(new List<Event_Log__c>{ log }, new Set<String>{ admin?.Subscription25__Named_Credential__c }, null);
+		Util_FinancialSystem.saveLogs(new List<Event_Log__c>{ log }, new Set<String>{ Util_FinancialSystem.namedCredential(admin, Util_FinancialSystem.CredentialPurpose.SYNC) }, null);
 	}
 
 	// ── Settings ──────────────────────────────────────────────────────────────

@@ -136,7 +136,7 @@ public without sharing class Svc_OdooExactSync {
 				save(new Subscription25__Invoice__c(Id = invoiceId, FinSysNextAttempt__c = System.now().addDays(1)));
 			}
 		}
-		Util_FinancialSystem.saveLogs(new List<Event_Log__c>{ log }, new Set<String>{ admin?.Subscription25__Named_Credential__c }, log.GUID__c);
+		Util_FinancialSystem.saveLogs(new List<Event_Log__c>{ log }, new Set<String>{ Util_FinancialSystem.namedCredential(admin, Util_FinancialSystem.CredentialPurpose.SYNC) }, log.GUID__c);
 		return res;
 	}
 

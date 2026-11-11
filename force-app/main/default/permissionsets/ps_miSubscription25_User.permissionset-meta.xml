@@ -2611,4 +2611,14 @@
         <tab>standard-Order</tab>
         <visibility>Visible</visibility>
     </tabSettings>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Subscription25__Invoice__c.FinSysFinalizeAttempts__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Subscription25__Invoice__c.FinSysFinalizeNextAttempt__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 </PermissionSet>

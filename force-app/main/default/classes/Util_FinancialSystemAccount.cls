@@ -243,7 +243,7 @@ public without sharing class Util_FinancialSystemAccount {
 				limitedAdmins.add(admin.Id);
 				continue;
 			}
-			namedCredentials.add(admin.Subscription25__Named_Credential__c);
+			namedCredentials.add(Util_FinancialSystem.namedCredential(admin, Util_FinancialSystem.CredentialPurpose.SYNC));
 			Event_Log__c log = Util_Event.getLog(null, 'S', 'E', 'Account', 'contact2Exact', accountId, acct.Exact_Account_Name__c, null);
 			log.Message__c = '';
 			Map<String, String> state = Util_FinancialSystemAccount.readState(acct.FinancialSyncState__c);
@@ -1320,7 +1320,7 @@ public without sharing class Util_FinancialSystemAccount {
 			Account upd = new Account(Id = acct.Id);
 			logByAccount.put(acct.Id, ctx.log);
 			if (ctx.admin != null) {
-				namedCredentials.add(ctx.admin.Subscription25__Named_Credential__c);
+				namedCredentials.add(Util_FinancialSystem.namedCredential(ctx.admin, Util_FinancialSystem.CredentialPurpose.SYNC));
 			}
 			// ids / debtor number / matching bookkeeping found during the callouts
 			upd.FinancialIdAccount__c = acct.FinancialIdAccount__c;
