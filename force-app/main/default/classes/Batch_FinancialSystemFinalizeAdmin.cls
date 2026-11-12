@@ -21,6 +21,9 @@ public without sharing class Batch_FinancialSystemFinalizeAdmin implements Datab
 	private static final Integer MAX_PER_RUN = 1000;
 	@TestVisible
 	private static final Integer MAX_ROUNDS = 60;
+	// per run when the dispatcher is the 5-minute one (Minut): the rest follows in the next round, the chain never waits long
+	@TestVisible
+	private static Integer minutPerRun = 50;
 
 	private final Id adminId;
 	// administrations still to do after this one (dispatcher chain); empty for a continuation
@@ -96,6 +99,9 @@ public without sharing class Batch_FinancialSystemFinalizeAdmin implements Datab
 		Subscription25__Administration__c admin = Batch_FinancialSystemFinalizeAdmin.getAdministration(this.adminId);
 		Integer n = Util_FinancialSystem.isSyncEnabled(admin, Util_FinancialSystem.CredentialPurpose.FINALIZE)
 			? Batch_FinancialSystemFinalizeAdmin.invoiceRoom(admin) : 0;
+		if (this.dispatcher == 'Minut') {
+			n = Math.min(n, Batch_FinancialSystemFinalizeAdmin.minutPerRun);
+		}
 		Datetime now = System.now();
 		Id adminIdLocal = this.adminId;
 		return Database.getQueryLocator([

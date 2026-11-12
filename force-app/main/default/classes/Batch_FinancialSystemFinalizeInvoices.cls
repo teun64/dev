@@ -1,12 +1,12 @@
 /**
- * 20261111 TRi The one generic batch the job dispatcher calls (JobDispatcherStep Hour_FinancialSystemFinalizeInvoices) to
+ * 20261111 TRi The one generic batch the job dispatcher calls (JobDispatcherStep Minut_FinancialSystemFinalizeInvoices) to
  * finalise invoices in the financial system. It does no callouts: in finishBatch it picks the administrations that have
  * something to do - sync enabled, an own finalize Named Credential on the Business Entity, invoices due, capacity left in
  * the finalize limit - and starts Batch_FinancialSystemFinalizeAdmin for the first one; every admin batch starts the
  * next one from its finish, and the last one hands over to the dispatcher's next step. Nothing to do = next step at once.
  * Entities without a finalize credential stay on the legacy path (Subscription25 Job_FinalizeInvoicesInExact).
  * Scheduled as a Subscription25 job (Subscription25__Schedulable_Class__c, Name = Unique Name = class name; acc/prod
- * (Sub25 v2.66) need the record); chained as a step of the Hour dispatcher.
+ * (Sub25 v2.66) need the record); chained as the last step of the Minut dispatcher.
  * Manual run: Database.executeBatch(new Batch_FinancialSystemFinalizeInvoices(), 1);
  */
 global class Batch_FinancialSystemFinalizeInvoices extends Subscription25.Job_AbstractBatch2 implements Util_JobDispatcher.Step {

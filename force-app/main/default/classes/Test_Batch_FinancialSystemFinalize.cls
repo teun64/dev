@@ -123,6 +123,27 @@ private class Test_Batch_FinancialSystemFinalize {
 	}
 
 	@IsTest
+	static void adminBatch_minutDispatcher_isCappedPerRun() {
+		entity('Exact_NL');
+		invoice();
+		Batch_FinancialSystemFinalizeAdmin.minutPerRun = 0;
+		Integer minut = 0;
+		Database.QueryLocatorIterator itminut = ((Database.QueryLocator) new Batch_FinancialSystemFinalizeAdmin(admin().Id, new List<Id>(), 'Minut', 1).start(null)).iterator();
+		while (itminut.hasNext()) {
+			itminut.next();
+			minut++;
+		}
+		Integer hour = 0;
+		Database.QueryLocatorIterator ithour = ((Database.QueryLocator) new Batch_FinancialSystemFinalizeAdmin(admin().Id, new List<Id>(), 'Hour', 1).start(null)).iterator();
+		while (ithour.hasNext()) {
+			ithour.next();
+			hour++;
+		}
+		System.assertEquals(0, minut, 'Minut: capped');
+		System.assertEquals(1, hour, 'Hour: not capped');
+	}
+
+	@IsTest
 	static void adminBatch_invoiceWithNumberOnlyGetsTheFlag() {
 		entity('Exact_NL');
 		Subscription25__Invoice__c inv = invoice();
