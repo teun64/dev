@@ -97,3 +97,9 @@ An entity only moves when its `FinSysNamedCredentialFinalize__c` is filled; enti
 - Gotcha: every Administration SOQL feeding doRequest/namedCredential must select `Reseller__c` (loud SObjectException otherwise). Field labels max 40 chars.
 - Legacy `Util_Exact*` (Sub25-era path) still reads the administration credential - untouched.
 - Not yet: prod; Hour dispatcher unscheduled in dev/prod; fill TM/FI per entity (user).
+
+## Git (2026-11-12)
+- Committed and pushed to `main` as `ad4195f` (31 files: classes, tests, Hour dispatcher step, Business Entity + invoice fields, `ps_miSubscription25_User` grants, this runbook).
+- Deliberately NOT committed: `miModifyAllData.permissionset-meta.xml` (partial set, a deploy would replace the whole set; FLS goes via FieldPermissions DML), unrelated permission-set drafts (`ps_miOLDFinancialSystem`, `ps_miSyncFinancialSystem`, `cp_miSyncFinancialSystem`), and the scratch `profile/` helper folder.
+- Gotcha: a first commit with pathspec `-- .` swept in unrelated tracked changes; it was soft-reset (never pushed) and redone with explicit files. Use explicit paths, never `.`.
+- Still open: user fills `FinSys_FI__c` / `FinSys_TM__c` per entity (dev/acc/prod); schedule Hour dispatcher in dev + prod; prod deploy only on explicit command (incl. Schedulable_Class record for `Batch_FinancialSystemFinalizeInvoices`, batch size 1).
