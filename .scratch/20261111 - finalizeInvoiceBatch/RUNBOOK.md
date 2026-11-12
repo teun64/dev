@@ -141,3 +141,11 @@ An entity only moves when its `FinSysNamedCredentialFinalize__c` is filled; enti
 - Legacy `Job_FinalizeInvoicesInExact`: already off in prod (Schedulable__c false, no scheduled job). Cron string kept.
 - Backlog at switch-on: UK 1175, NL 348, DE 7.
 - Open: watch the first Minut rounds (Event_Log__c errors, `FinSysFinalizeAttempts__c`), the UK flag behaviour above; the credential metadata (auth providers, ec/nc, remote sites) is not in the repo yet.
+
+## UK numbers on create (2026-11-12) - FIX LIVE
+
+- Finding: the UK administration generates the invoice number on create, NL/DE only on print. A number alone is NOT proof of finalized.
+- First prod rounds flagged ~102 UK invoices as finalized without printing (old shortcut: number present = flag).
+- Fix (commit 02a72cc, dev/acc/prod): `finalizeInvoice` reads the Exact status. Status 50 = processed: flag only. Otherwise (open): print, then flag. Flagged invoice without number: just load the number. Guard: number AND flag = already finalized.
+- Repair prod: cleared the flag on the 102 UK invoices (modified since 2026-11-12 19:01 UTC), step `Minut_FinancialSystemFinalizeInvoices` re-activated (IsActive true). Test: I-2611-00782892 (GB26757852) was already status 50, got the flag only.
+- Watch: next Minut rounds re-check ~150 UK invoices with one status read each.
