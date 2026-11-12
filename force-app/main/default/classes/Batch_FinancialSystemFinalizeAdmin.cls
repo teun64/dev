@@ -146,15 +146,9 @@ public without sharing class Batch_FinancialSystemFinalizeAdmin implements Datab
 	}
 
 	private void finalizeOne(Subscription25__Invoice__c inv, Util_FinancialSystem.Limits lim) {
-		if (String.isNotBlank(inv.Subscription25__Invoice_Number__c)) {
-			// already has its number (the flag was never set): finalized, no Exact call
-			Util_FinancialSystem_Invoice.saveInvoices(new List<Subscription25__Invoice__c>{
-				new Subscription25__Invoice__c(Id = inv.Id, Subscription25__Finalized_In_Exact__c = true)
-			});
-			this.processed++;
-			return;
-		}
-		List<String> msgs = inv.Subscription25__Finalized_In_Exact__c
+		// a number alone is no proof: UK numbers an invoice on create. finalizeInvoice checks the status in Exact (open = print, processed = flag)
+		// and only a flagged invoice without a number just loads it
+		List<String> msgs = inv.Subscription25__Finalized_In_Exact__c && String.isBlank(inv.Subscription25__Invoice_Number__c)
 			? Util_FinancialSystem_Invoice.loadInvoiceNumber(inv.Id, null, Util_FinancialSystem.CredentialPurpose.FINALIZE)
 			: Util_FinancialSystem_Invoice.finalizeInvoice(inv.Id, null, Util_FinancialSystem.CredentialPurpose.FINALIZE);
 		this.processed++;

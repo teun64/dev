@@ -143,22 +143,60 @@ private class Test_Batch_FinancialSystemFinalize {
 		System.assertEquals(1, hour, 'Hour: not capped');
 	}
 
-	@IsTest
-	static void adminBatch_invoiceWithNumberOnlyGetsTheFlag() {
+	// UK numbers an invoice when it is created: the Exact status decides, not the number
+	private class NumberedMock implements HttpCalloutMock {
+		public String status;
+		public Boolean printCalled = false;
+		public HttpResponse respond(HttpRequest req) {
+			HttpResponse res = new HttpResponse();
+			res.setStatusCode(200);
+			if (req.getMethod() == 'POST' && req.getEndpoint().contains('Print')) {
+				printCalled = true;
+				res.setBody('{"d":{}}');
+			} else {
+				res.setBody('{"d":{"results":[{"InvoiceID": "invoice_sync", "InvoiceNumber": "123", "Status": "' + status + '"}]}}');
+			}
+			return res;
+		}
+	}
+
+	private static Subscription25__Invoice__c numberedInvoice() {
 		entity('Exact_NL');
 		Subscription25__Invoice__c inv = invoice();
 		Util_FinancialSystem_Invoice.saveInvoices(new List<Subscription25__Invoice__c>{
-			new Subscription25__Invoice__c(Id = inv.Id, Subscription25__Invoice_Number__c = 'NL123', Subscription25__Finalized_In_Exact__c = false)
+			new Subscription25__Invoice__c(Id = inv.Id, Subscription25__Invoice_Number__c = 'TTT123', Subscription25__Finalized_In_Exact__c = false)
 		});
 		System.assert(Batch_FinancialSystemFinalizeAdmin.hasWork(admin().Id), 'COMPLETE, flag false, number present: still work');
-		// no mock: a callout would fail the test
+		return inv;
+	}
+
+	@IsTest
+	static void adminBatch_numberedInvoiceProcessedInExact_getsTheFlagWithoutPrinting() {
+		numberedInvoice();
+		NumberedMock mock = new NumberedMock();
+		mock.status = '50';
+		Test.setMock(HttpCalloutMock.class, mock);
 		Test.startTest();
 		Database.executeBatch(new Batch_FinancialSystemFinalizeAdmin(admin().Id), 1);
 		Test.stopTest();
 
-		System.assertEquals(true, invoice().Subscription25__Finalized_In_Exact__c, 'Flag set without an Exact call');
-		System.assertEquals('TTTNL123', invoice().Subscription25__Invoice_Number__c, 'Number untouched');
+		System.assertEquals(true, invoice().Subscription25__Finalized_In_Exact__c, 'Processed in Exact: flagged');
+		System.assertEquals(false, mock.printCalled, 'Nothing to print');
 		System.assert(!Batch_FinancialSystemFinalizeAdmin.hasWork(admin().Id), 'Nothing left');
+	}
+
+	@IsTest
+	static void adminBatch_numberedInvoiceStillOpenInExact_isNotFlaggedWithoutPrinting() {
+		numberedInvoice();
+		NumberedMock mock = new NumberedMock();
+		mock.status = '20';
+		Test.setMock(HttpCalloutMock.class, mock);
+		Test.startTest();
+		Database.executeBatch(new Batch_FinancialSystemFinalizeAdmin(admin().Id), 1);
+		Test.stopTest();
+
+		// the layout lookup needs a Payment_Setting__mdt; without one the print is not reached and the invoice stays unflagged
+		System.assertEquals(mock.printCalled, invoice().Subscription25__Finalized_In_Exact__c, 'Flagged only when it was printed');
 	}
 
 	@IsTest

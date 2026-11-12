@@ -42,7 +42,8 @@ public without sharing class Util_FinancialSystem_Invoice {
 			if (String.isBlank(inv.Subscription25__Exact_Order_Number__c)) {
 				throw new Util_System.CustomException('This invoice is not yet synced');
 			}
-			if (!String.isBlank(inv.Subscription25__Invoice_Number__c)) {
+			// a number alone does not mean finalized: the UK administration numbers an invoice when it is created, NL and DE when it is printed
+			if (!String.isBlank(inv.Subscription25__Invoice_Number__c) && inv.Subscription25__Finalized_In_Exact__c) {
 				throw new Util_System.CustomException('This invoice is already finalized');
 			}
 
@@ -50,14 +51,19 @@ public without sharing class Util_FinancialSystem_Invoice {
 			Map<String, String> invoiceDetails = Util_FinancialSystem_Invoice.getInvoiceDetails(admin, inv.Subscription25__Exact_Order_Number__c, mainLog.GUID__c, purpose);
 			Util_FinancialSystem_Invoice.applyFinSysIds(inv, invoiceDetails);
 
-			//if the invoice already has an invoice number, store it on the invoice, and we're done
+			// the status in Exact decides, not the number: 50 = processed (printed), anything else = still open, print it
+			Boolean printedInExact = invoiceDetails.get('Status') == '50';
 			if (!String.isBlank(invoiceDetails.get('InvoiceNumber'))) {
 				inv.Subscription25__Invoice_Number__c = admin.Subscription25__Invoice_Number_Prefix__c + invoiceDetails.get('InvoiceNumber');
+			}
+			if (printedInExact) {
+				inv.Subscription25__Finalized_In_Exact__c = true;
 			} else {
 				String templateId = Util_FinancialSystem_Invoice.getExactInvoiceTemplateId(inv.Reseller__c, inv.Payment_Method_Result__c, inv.Subscription25__Total_Amount__c);
 				Util_FinancialSystem_Invoice.printInvoice(admin, invoiceDetails.get('InvoiceID'), inv.Subscription25__Invoice_Date__c, templateId, mainLog.GUID__c, purpose);
 				inv.Subscription25__Finalized_In_Exact__c = true;
-
+			}
+			if (String.isBlank(inv.Subscription25__Invoice_Number__c)) {
 				//now we can get the invoice details again to get the invoice number
 				try {
 					invoiceDetails = Util_FinancialSystem_Invoice.getInvoiceDetails(admin, inv.Subscription25__Exact_Order_Number__c, mainLog.GUID__c, purpose);
