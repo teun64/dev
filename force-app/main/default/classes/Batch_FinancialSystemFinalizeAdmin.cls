@@ -59,8 +59,9 @@ public without sharing class Batch_FinancialSystemFinalizeAdmin implements Datab
 		return ![
 			SELECT Id FROM Subscription25__Invoice__c
 			WHERE Subscription25__Administration__c = :adminId
-				AND Subscription25__Invoice_Number__c = null
+				AND Subscription25__Sync_State__c = 'COMPLETE'
 				AND Subscription25__Exact_Order_Number__c != null
+				AND (Subscription25__Finalized_In_Exact__c = false OR Subscription25__Invoice_Number__c = null)
 				AND (FinSysFinalizeNextAttempt__c = null OR FinSysFinalizeNextAttempt__c <= :now)
 			WITH SYSTEM_MODE
 			LIMIT 1
@@ -98,11 +99,12 @@ public without sharing class Batch_FinancialSystemFinalizeAdmin implements Datab
 		Datetime now = System.now();
 		Id adminIdLocal = this.adminId;
 		return Database.getQueryLocator([
-			SELECT Id, Subscription25__Finalized_In_Exact__c, FinSysFinalizeAttempts__c
+			SELECT Id, Subscription25__Finalized_In_Exact__c, Subscription25__Invoice_Number__c, FinSysFinalizeAttempts__c
 			FROM Subscription25__Invoice__c
 			WHERE Subscription25__Administration__c = :adminIdLocal
-				AND Subscription25__Invoice_Number__c = null
+				AND Subscription25__Sync_State__c = 'COMPLETE'
 				AND Subscription25__Exact_Order_Number__c != null
+				AND (Subscription25__Finalized_In_Exact__c = false OR Subscription25__Invoice_Number__c = null)
 				AND (FinSysFinalizeNextAttempt__c = null OR FinSysFinalizeNextAttempt__c <= :now)
 			WITH SYSTEM_MODE
 			ORDER BY FinSysFinalizeNextAttempt__c ASC NULLS FIRST, CreatedDate ASC
@@ -138,6 +140,14 @@ public without sharing class Batch_FinancialSystemFinalizeAdmin implements Datab
 	}
 
 	private void finalizeOne(Subscription25__Invoice__c inv, Util_FinancialSystem.Limits lim) {
+		if (String.isNotBlank(inv.Subscription25__Invoice_Number__c)) {
+			// already has its number (the flag was never set): finalized, no Exact call
+			Util_FinancialSystem_Invoice.saveInvoices(new List<Subscription25__Invoice__c>{
+				new Subscription25__Invoice__c(Id = inv.Id, Subscription25__Finalized_In_Exact__c = true)
+			});
+			this.processed++;
+			return;
+		}
 		List<String> msgs = inv.Subscription25__Finalized_In_Exact__c
 			? Util_FinancialSystem_Invoice.loadInvoiceNumber(inv.Id, null, Util_FinancialSystem.CredentialPurpose.FINALIZE)
 			: Util_FinancialSystem_Invoice.finalizeInvoice(inv.Id, null, Util_FinancialSystem.CredentialPurpose.FINALIZE);

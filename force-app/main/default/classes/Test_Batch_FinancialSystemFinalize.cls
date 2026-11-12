@@ -17,6 +17,10 @@ private class Test_Batch_FinancialSystemFinalize {
 		Subscription25__Invoice__c inv = Test_Data.createInvoice(admin.Id, acc.Id, 'DRAFT', false);
 		inv.Subscription25__Exact_Order_Number__c = '123';
 		Database.insert(inv, AccessLevel.SYSTEM_MODE);
+		// the package sets the state itself on insert: force it afterwards
+		Util_FinancialSystem_Invoice.saveInvoices(new List<Subscription25__Invoice__c>{
+			new Subscription25__Invoice__c(Id = inv.Id, Subscription25__Sync_State__c = 'COMPLETE')
+		});
 		Database.insert(new Subscription25__Schedulable_Class__c(
 			Name = 'Batch_FinancialSystemFinalizeInvoices', Subscription25__Unique_Name__c = 'Batch_FinancialSystemFinalizeInvoices'
 		), AccessLevel.SYSTEM_MODE);
@@ -34,7 +38,7 @@ private class Test_Batch_FinancialSystemFinalize {
 	}
 
 	private static Subscription25__Invoice__c invoice() {
-		return [SELECT Id, Subscription25__Invoice_Number__c, FinSysFinalizeAttempts__c, FinSysFinalizeNextAttempt__c FROM Subscription25__Invoice__c WITH SYSTEM_MODE LIMIT 1];
+		return [SELECT Id, Subscription25__Invoice_Number__c, Subscription25__Finalized_In_Exact__c, FinSysFinalizeAttempts__c, FinSysFinalizeNextAttempt__c FROM Subscription25__Invoice__c WITH SYSTEM_MODE LIMIT 1];
 	}
 
 	@IsTest
@@ -116,6 +120,33 @@ private class Test_Batch_FinancialSystemFinalize {
 		Database.update(e, AccessLevel.SYSTEM_MODE);
 		Util_FinancialSystem.entitiesByReseller = null;
 		System.assert(Batch_FinancialSystemFinalizeInvoices.pickAdministrations().isEmpty(), '95% used, above the 90% share');
+	}
+
+	@IsTest
+	static void adminBatch_invoiceWithNumberOnlyGetsTheFlag() {
+		entity('Exact_NL');
+		Subscription25__Invoice__c inv = invoice();
+		Util_FinancialSystem_Invoice.saveInvoices(new List<Subscription25__Invoice__c>{
+			new Subscription25__Invoice__c(Id = inv.Id, Subscription25__Invoice_Number__c = 'NL123', Subscription25__Finalized_In_Exact__c = false)
+		});
+		System.assert(Batch_FinancialSystemFinalizeAdmin.hasWork(admin().Id), 'COMPLETE, flag false, number present: still work');
+		// no mock: a callout would fail the test
+		Test.startTest();
+		Database.executeBatch(new Batch_FinancialSystemFinalizeAdmin(admin().Id), 1);
+		Test.stopTest();
+
+		System.assertEquals(true, invoice().Subscription25__Finalized_In_Exact__c, 'Flag set without an Exact call');
+		System.assertEquals('TTTNL123', invoice().Subscription25__Invoice_Number__c, 'Number untouched');
+		System.assert(!Batch_FinancialSystemFinalizeAdmin.hasWork(admin().Id), 'Nothing left');
+	}
+
+	@IsTest
+	static void hasWork_requiresCompleteSyncState() {
+		Subscription25__Invoice__c inv = invoice();
+		Util_FinancialSystem_Invoice.saveInvoices(new List<Subscription25__Invoice__c>{
+			new Subscription25__Invoice__c(Id = inv.Id, Subscription25__Sync_State__c = 'PENDING')
+		});
+		System.assert(!Batch_FinancialSystemFinalizeAdmin.hasWork(admin().Id), 'Not COMPLETE: no work');
 	}
 
 	@IsTest

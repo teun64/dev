@@ -103,3 +103,15 @@ An entity only moves when its `FinSysNamedCredentialFinalize__c` is filled; enti
 - Deliberately NOT committed: `miModifyAllData.permissionset-meta.xml` (partial set, a deploy would replace the whole set; FLS goes via FieldPermissions DML), unrelated permission-set drafts (`ps_miOLDFinancialSystem`, `ps_miSyncFinancialSystem`, `cp_miSyncFinancialSystem`), and the scratch `profile/` helper folder.
 - Gotcha: a first commit with pathspec `-- .` swept in unrelated tracked changes; it was soft-reset (never pushed) and redone with explicit files. Use explicit paths, never `.`.
 - Still open: user fills `FinSys_FI__c` / `FinSys_TM__c` per entity (dev/acc/prod); schedule Hour dispatcher in dev + prod; prod deploy only on explicit command (incl. Schedulable_Class record for `Batch_FinancialSystemFinalizeInvoices`, batch size 1).
+
+## dev 2026-11-12
+- Hour dispatcher scheduled in dev with `Batch_JobDispatcher.scheduleHourly()` (`GoMeddo Subscription - Batch_JobDispatcher - Hour - 0 23 * * * ?`, WAITING). Hour dispatcher is now scheduled in dev + acc; prod still open.
+- Eligibility confirmed (no code change): an administration is only picked when active, `Synchronisation = Exact` and `FinSys_FI__c` is filled on its Business Entity; empty `FinSys_FI__c` = skipped (no fallback to the shared credential). Same check in the Admin batch and the RateLimitCheck.
+
+## Selection aligned with the user's finalized check (2026-11-12, dev + acc DEPLOYED, 29/29 tests)
+- User's check: `Sync_State__c = 'COMPLETE' AND Finalized_In_Exact__c = false`. Counts before the change: prod 1154 (UK 1153, NL 1) vs 1149 picked by the old batch filter; acc 2804 vs 2789; dev 1 vs 1 (different invoices).
+- `Batch_FinancialSystemFinalizeAdmin` (hasWork + start query) now: `Sync_State__c = 'COMPLETE' AND Exact_Order_Number__c != null AND (Finalized_In_Exact__c = false OR Invoice_Number__c = null)` (second part keeps the "load number" path for flag true / no number).
+- Invoice that already has an invoice number (prod 5, acc 15): flag set to true, no Exact call.
+- Not handled (prod 1, probably the NL one): COMPLETE, flag false, no Exact order number - nothing to look up; for the user to check.
+- Dev findings during the UK test: Schedulable_Class records for `Batch_FinancialSystemFinalizeInvoices` (size 1) and `Batch_FinancialSystemRateLimitCheck` (size 10) were missing in dev (created); principal `np_FinSysFI_UK` was granted to no permission set (granted to `ps_miFinancialSystem` + `ps_miSyncFinancialSystem` in dev - check the same in acc/prod). TM + FI credentials both reach Exact UK in dev (limit 10000). No UK invoice in dev to finalize, real finalize run still untested.
+- Test gotcha: the package sets `Sync_State__c` on insert; force 'COMPLETE' with an update afterwards. Invoice number gets a fixture prefix (TTT).
