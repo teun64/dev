@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AuthProvider xmlns="http://soap.sforce.com/2006/04/metadata">
+    <authorizeUrl>https://start.exactonline.nl/api/oauth2/auth</authorizeUrl>
+    <consumerKey>cf3d3637-8b14-4d11-afc3-c0b365a4715b</consumerKey>
+    <consumerSecret>Placeholder_Value</consumerSecret>
+    <friendlyName>ap_FinSysTM_NL</friendlyName>
+    <includeOrgIdInIdentifier>false</includeOrgIdInIdentifier>
+    <isPkceEnabled>false</isPkceEnabled>
+    <providerType>OpenIdConnect</providerType>
+    <requireMfa>false</requireMfa>
+    <sendAccessTokenInHeader>true</sendAccessTokenInHeader>
+    <sendClientCredentialsInHeader>false</sendClientCredentialsInHeader>
+    <sendSecretInApis>true</sendSecretInApis>
+    <tokenUrl>https://start.exactonline.nl/api/oauth2/token</tokenUrl>
+</AuthProvider>
