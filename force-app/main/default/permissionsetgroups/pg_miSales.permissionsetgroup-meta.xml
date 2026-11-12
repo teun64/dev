@@ -5,7 +5,6 @@
     <permissionSets>ps_miAPEXOperationalClasses</permissionSets>
     <permissionSets>ps_miDealerShopInternal</permissionSets>
     <permissionSets>ps_miLeadIntegrationUser</permissionSets>
-    <permissionSets>ps_miSyncFinancialSystem</permissionSets>
     <permissionSets>trailheadapp__Th_Badge_User</permissionSets>
     <status>Updated</status>
 </PermissionSetGroup>
