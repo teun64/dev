@@ -1,35 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <classAccesses>
-        <apexClass>Ctrl_SyncWithExact</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>Inv_FinancialSystemAccount</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>Inv_FinancialSystemCreateOrders</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>Inv_FinancialSystemOrder</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>Util_Exact</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>Util_OAuth</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>Inv_syncAccountToFinancialSystem</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>Inv_syncOrderToFinancialSystem</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <customPermissions>
@@ -46,8 +22,13 @@
     </externalCredentialPrincipalAccesses>
     <externalCredentialPrincipalAccesses>
         <enabled>true</enabled>
-        <externalCredentialPrincipal>ec_FinancialSystemUK-NamedPrincipalUK</externalCredentialPrincipal>
+        <externalCredentialPrincipal>ec_FinSysFI_UK-np_FinSysFI_UK</externalCredentialPrincipal>
     </externalCredentialPrincipalAccesses>
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal>ec_FinSysTM_UK-np_FinSysTM_UK</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
+    <description>Financial system (Exact) sync and finalize: Account and Order sync actions (cp_miFinancialSystemSync) and the named principals NL, DE and UK (TM sync, FI finalize). The old Exact sync classes were removed. Backup/subset: ps_miSyncFinancialSystem.</description>
     <hasActivationRequired>false</hasActivationRequired>
     <label>miFinancialSystem (ps)</label>
     <objectPermissions>

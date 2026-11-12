@@ -60,7 +60,7 @@
                                     <rightValue>true</rightValue>
                                 </criteria>
                                 <criteria>
-                                    <leftValue>{!$Permission.CustomPermission.cp_miSyncFinancialSystem}</leftValue>
+                                    <leftValue>{!$Permission.CustomPermission.cp_miFinancialSystemSync}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
