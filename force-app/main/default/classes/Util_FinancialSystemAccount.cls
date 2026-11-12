@@ -715,7 +715,7 @@ public without sharing class Util_FinancialSystemAccount {
 		String endpoint = String.format(ACCOUNT_ENDPOINT, new List<String>{ division });
 		if (String.isBlank(acct.FinancialIdAccount__c)) {
 			Util_FinancialSystemAccount.ExactAccount body = new Util_FinancialSystemAccount.ExactAccount(acct, null);
-			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
+			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', Util_FinancialSystemAccount.accountPayload(body, false), guid);
 			ctx.result.calls++;
 			Util_FinancialSystemAccount.ExactGetAccount created = (Util_FinancialSystemAccount.ExactGetAccount) JSON.deserialize(response, Util_FinancialSystemAccount.ExactGetAccount.class);
 			acct.FinancialIdAccount__c = created.ID;
@@ -733,16 +733,15 @@ public without sharing class Util_FinancialSystemAccount {
 			return;
 		}
 		Util_FinancialSystemAccount.ExactAccount body = new Util_FinancialSystemAccount.ExactAccount(acct, ctx.exactMainContact != null ? ctx.exactMainContact : Util_FinancialSystemAccount.exactContactId(ctx, acct.Contact_person__c));
-		if (!ctx.matched && Util_FinancialSystemAccount.hash(body) == ctx.state.get(STATE_ACCOUNT)) {
+		if (!ctx.matched && String.isBlank(body.AccountManager) && Util_FinancialSystemAccount.hash(body) == ctx.state.get(STATE_ACCOUNT)) {
+			// (with a default account manager the account is sent every time, so Exact gets it again)
 			// unchanged since the last sync
 			ctx.exactMainContact = body.MainContact;
 			return;
 		}
 		// MainContact is not sent here but set in step 4, after the contacts: a stored contact id may no longer exist in
 		// Exact ("Ongeldige referentie: Hoofdcontactpersoon" fails the whole account) and an empty one clears it in Exact
-		Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(body));
-		payload.remove('MainContact');
-		Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acct.FinancialIdAccount__c + '\')', null, 'PUT', JSON.serialize(payload), guid);
+		Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acct.FinancialIdAccount__c + '\')', null, 'PUT', Util_FinancialSystemAccount.accountPayload(body, true), guid);
 		ctx.result.calls++;
 		// main contact in Exact: known from the match, or the one this sync set before (its contact fingerprint exists);
 		// otherwise unknown, so step 4 sets it
@@ -1462,6 +1461,15 @@ public without sharing class Util_FinancialSystemAccount {
 	}
 
 	@TestVisible
+	/** The account body as JSON; AccountManager is always sent (null when the Business Entity has none, which clears it in Exact), MainContact left out when asked. */
+	private static String accountPayload(Util_FinancialSystemAccount.ExactAccount body, Boolean withoutMainContact) {
+		Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(body));
+		if (withoutMainContact) {
+			payload.remove('MainContact');
+		}
+		return JSON.serialize(payload);
+	}
+
 	private static String hash(Object payload) {
 		Blob digest = Crypto.generateDigest('SHA-256', Blob.valueOf(JSON.serialize(payload)));
 		return EncodingUtil.convertToHex(digest).left(24);
@@ -1488,6 +1496,7 @@ public without sharing class Util_FinancialSystemAccount {
 		String Classification2;
 		String Classification3;
 		String MainContact;
+		String AccountManager; // default account manager of the Business Entity; null (sent as null) when none
 
 		ExactAccount(Account acct, String mainContact) {
 			this.Code = String.isBlank(acct.FinancialDebtorNumber__c) ? null : acct.FinancialDebtorNumber__c;
@@ -1506,6 +1515,8 @@ public without sharing class Util_FinancialSystemAccount {
 			this.MainContact = String.isBlank(mainContact) ? null : mainContact;
 			try {
 				Subscription25__Administration__c admin = Util_FinancialSystem.getAdministrationForReseller(String.isBlank(acct.Reseller_Name__c) ? '1' : acct.Reseller_Name__c);
+				String manager = Util_FinancialSystem.getEntity(admin.Reseller__c)?.FinSysAccountManagerDefault__c;
+				this.AccountManager = String.isBlank(manager) ? null : manager.trim();
 				this.Classification1 = Util_FinancialSystem.getExactRelationId(admin.Id, 'C1', acct.FinancialAccountClassification1__c);
 				this.Classification2 = Util_FinancialSystem.getExactRelationId(admin.Id, 'C2', acct.FinancialAccountClassification2__c);
 				this.Classification3 = Util_FinancialSystem.getExactRelationId(admin.Id, 'C3', acct.FinancialAccountClassification3__c);

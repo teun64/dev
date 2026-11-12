@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <help>Exact GUID van de standaard relatiebeheerder. Indien gevuld, wordt deze bij elke synchronisatie van een account naar Exact meegestuurd.</help>
+        <label>Relatiebeheerder</label>
+        <name>FinSysAccountManagerDefault__c</name>
+    </fields>
+</CustomObjectTranslation>

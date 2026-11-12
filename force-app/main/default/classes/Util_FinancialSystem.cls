@@ -45,7 +45,7 @@ public without sharing class Util_FinancialSystem {
 		if (Util_FinancialSystem.entitiesByReseller == null) {
 			Util_FinancialSystem.entitiesByReseller = new Map<String, Business_Entities__c>();
 			for (Business_Entities__c e : [
-					SELECT Id, Reseller__c, FinSys_TM__c, FinSys_FI__c,
+					SELECT Id, Reseller__c, FinSys_TM__c, FinSys_FI__c, FinSysAccountManagerDefault__c,
 						FinalizeDailyLimit__c, FinalizeRateLimitMaxPercentage__c, FinalizeRateLimitRemaining__c, FinalizeRateLimitResetOn__c,
 						SyncDailyLimit__c, SyncRateLimitMaxPercentage__c, SyncRateLimitRemaining__c, SyncRateLimitResetOn__c
 					FROM Business_Entities__c WITH SYSTEM_MODE]) {

@@ -160,6 +160,57 @@ public class Test_Util_FinancialSystemAccount {
 		System.assertEquals(new List<String>(), second.calls, 'Nothing changed, nothing sent');
 	}
 
+	private static void setDefaultAccountManager(String manager) {
+		Subscription25__Administration__c admin = [SELECT Reseller__c FROM Subscription25__Administration__c LIMIT 1];
+		List<Business_Entities__c> existing = [SELECT Id FROM Business_Entities__c WHERE Reseller__c = :admin.Reseller__c WITH SYSTEM_MODE];
+		Business_Entities__c be = existing.isEmpty() ? new Business_Entities__c(Name = 'BE Test', Reseller__c = admin.Reseller__c) : existing[0];
+		be.FinSysAccountManagerDefault__c = manager;
+		Database.upsert(be, AccessLevel.SYSTEM_MODE);
+	}
+
+	@IsTest
+	static void defaultAccountManager_isSentOnCreate() {
+		setDefaultAccountManager('11111111-2222-3333-4444-555555555555');
+		Account acc = account();
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest(); // after the DML above: callouts may not follow uncommitted work
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		System.assert(sim.body('POST Account').contains('"AccountManager":"11111111-2222-3333-4444-555555555555"'), sim.bodies);
+	}
+
+	@IsTest
+	static void defaultAccountManager_isOfferedAgainOnAnUnchangedAccount() {
+		Account acc = account();
+		Test.setMock(HttpCalloutMock.class, new ExactSim());
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+
+		setDefaultAccountManager('11111111-2222-3333-4444-555555555555');
+		Database.update(new Account(Id = acc.Id, SyncToFinancialSystem__c = true), AccessLevel.SYSTEM_MODE); // flagged again, nothing else changed
+		Util_FinancialSystem.entitiesByReseller = null; // the first sync cached the entities without the default
+		ExactSim second = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, second);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + second.calls);
+		System.assertEquals(1, second.count('PUT Account'), second.calls);
+		System.assert(second.body('PUT Account').contains('"AccountManager":"11111111-2222-3333-4444-555555555555"'), second.bodies);
+	}
+
+	@IsTest
+	static void noDefaultAccountManager_isSentAsNull() {
+		Account acc = account();
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
+		Test.stopTest();
+		System.assert(sim.body('POST Account').contains('"AccountManager":null'), sim.bodies);
+	}
+
 	@IsTest
 	static void changedAccountName_onlyAccountIsSentAgain() {
 		Account acc = account();

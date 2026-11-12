@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinSysAccountManagerDefault__c</fullName>
+    <description>Exact Account Manager (GUID) offered as the account manager on every account sync to Exact for this Business Entity. Empty = not sent, Exact keeps its own value.</description>
+    <inlineHelpText>Exact GUID of the default account manager. When set, it is sent to Exact every time an account is synced.</inlineHelpText>
+    <label>Default Account Manager (Fin. System)</label>
+    <trackTrending>false</trackTrending>
+    <externalId>false</externalId>
+    <length>40</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
