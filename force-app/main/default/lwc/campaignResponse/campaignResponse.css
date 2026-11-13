@@ -3,12 +3,20 @@
     margin: 0 auto;
     padding: 2rem 1rem;
 }
+.cr-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+.cr-description {
+    white-space: pre-line;
+    margin-bottom: 1.5rem;
+}
 .cr-hello {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
-.cr-intro,
 .cr-text {
     margin-bottom: 1rem;
 }

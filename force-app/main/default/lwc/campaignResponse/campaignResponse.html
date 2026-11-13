@@ -9,8 +9,13 @@
         </template>
 
         <template lwc:if={isValid}>
+            <template lwc:if={campaignName}>
+                <h2 class="cr-title">{campaignName}</h2>
+            </template>
+            <template lwc:if={campaignDescription}>
+                <p class="cr-description">{campaignDescription}</p>
+            </template>
             <p class="cr-hello">{hello}</p>
-            <p class="cr-intro">{intro}</p>
 
             <template lwc:if={alreadyAnswered}>
                 <p class="cr-text">{t.already} <strong>{currentAnswerLabel}</strong></p>
@@ -27,6 +32,7 @@
             </template>
 
             <template lwc:if={showConfirm}>
+                <p class="cr-text">{t.yourChoice}</p>
                 <p class="cr-answer">{answerLabel}</p>
                 <template lwc:if={isNotNow}>
                     <lightning-radio-group name="quarter" label={t.quarter} options={quarterOptions}

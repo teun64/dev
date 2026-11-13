@@ -293,8 +293,33 @@ private class Test_Svc_CampaignResponse {
 		Ctrl_CampaignResponseGuest.PageData data = Ctrl_CampaignResponseGuest.getResponse(cm.ResponseToken__c);
 		System.assert(data.valid);
 		System.assertEquals('2G/4G conversion', data.campaignLabel);
+		System.assertEquals('Response', data.campaignName, 'the main (parent) campaign, not the child');
+		System.assert(data.translations.isEmpty());
 		System.assertEquals(4, data.quarters.size());
 		System.assertEquals(null, data.currentAnswer);
+	}
+
+	@IsTest
+	static void guest_getResponse_mainCampaignDescriptionAndTranslation() {
+		CampaignMember cm = member();
+		Campaign parent = [SELECT Id FROM Campaign WHERE Name = 'Response' WITH SYSTEM_MODE];
+		Database.update(new Campaign(Id = parent.Id, Description = 'Uw 2G-hardware stopt.'), AccessLevel.SYSTEM_MODE);
+		Id baseRt = Schema.SObjectType.Data_Translation__c.getRecordTypeInfosByDeveloperName().get('Base').getRecordTypeId();
+		Data_Translation__c dt = new Data_Translation__c(RecordTypeId = baseRt, Campaign__c = parent.Id, Language__c = 'en',
+			Name__c = '2G switch-off', Description__c = 'Your 2G hardware stops.');
+		Database.insert(dt, AccessLevel.SYSTEM_MODE);
+
+		Ctrl_CampaignResponseGuest.PageData data = Ctrl_CampaignResponseGuest.getResponse(cm.ResponseToken__c);
+		System.assertEquals('Response', data.campaignName);
+		System.assertEquals('Uw 2G-hardware stopt.', data.campaignDescription);
+		System.assertEquals(1, data.translations.size());
+		System.assertEquals('en', data.translations[0].language);
+		System.assertEquals('2G switch-off', data.translations[0].name);
+		System.assertEquals('Your 2G hardware stops.', data.translations[0].description);
+		Data_Translation__c saved = [SELECT Source_Id__c, Composite_Key__c, Source_Name__c FROM Data_Translation__c WHERE Id = :dt.Id WITH SYSTEM_MODE];
+		System.assertEquals(String.valueOf(parent.Id), saved.Source_Id__c, 'rbb_Data_Translation: the campaign is the source');
+		System.assertEquals(String.valueOf(parent.Id) + 'en', saved.Composite_Key__c);
+		System.assertEquals('Response', saved.Source_Name__c);
 	}
 
 	@IsTest

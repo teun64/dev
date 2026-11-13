@@ -9,7 +9,7 @@ const CODES = ['callme', 'offer', 'notnow', 'notinterested'];
 const I18N = {
     nl: {
         hello: (name) => (name ? `Beste ${name},` : 'Beste klant,'),
-        intro: (label) => `Uw keuze voor: ${label}`,
+        yourChoice: 'Uw keuze:',
         pick: 'Wat wilt u?',
         answers: {
             callme: 'Bel mij terug',
@@ -23,8 +23,8 @@ const I18N = {
         change: 'Andere keuze',
         saving: 'Bezig met opslaan…',
         done: {
-            callme: 'Bedankt. Een medewerker belt u binnen 2 werkdagen.',
-            offer: 'Bedankt. Een medewerker neemt binnen 2 werkdagen contact met u op over de aanbieding.',
+            callme: 'Bedankt. Een medewerker belt u binnen 3 werkdagen.',
+            offer: 'Bedankt. Binnen 4 werkdagen ontvangt u de aanbieding van ons.',
             notnow: 'Bedankt. Wij nemen in het gekozen kwartaal weer contact met u op.',
             notinterested: 'Bedankt voor uw antwoord. Wij sturen u hierover geen berichten meer.'
         },
@@ -34,7 +34,7 @@ const I18N = {
     },
     en: {
         hello: (name) => (name ? `Dear ${name},` : 'Dear customer,'),
-        intro: (label) => `Your choice for: ${label}`,
+        yourChoice: 'Your choice:',
         pick: 'What would you like?',
         answers: {
             callme: 'Call me back',
@@ -48,8 +48,8 @@ const I18N = {
         change: 'Other choice',
         saving: 'Saving…',
         done: {
-            callme: 'Thank you. One of our staff will call you within 2 working days.',
-            offer: 'Thank you. One of our staff will contact you about the offer within 2 working days.',
+            callme: 'Thank you. One of our staff will call you within 3 working days.',
+            offer: 'Thank you. You will receive our offer within 4 working days.',
             notnow: 'Thank you. We will contact you again in the chosen quarter.',
             notinterested: 'Thank you for your answer. We will not send you further messages about this.'
         },
@@ -119,8 +119,17 @@ export default class CampaignResponse extends LightningElement {
         return this.t.hello(this.data?.firstName);
     }
 
-    get intro() {
-        return this.t.intro(this.data?.campaignLabel);
+    // the main campaign in the page language (Data_Translation__c), otherwise its own name and description
+    get translation() {
+        return (this.data?.translations || []).find((t) => t.language === this.lang);
+    }
+
+    get campaignName() {
+        return this.translation?.name || this.data?.campaignName;
+    }
+
+    get campaignDescription() {
+        return this.translation?.description || this.data?.campaignDescription;
     }
 
     get alreadyAnswered() {

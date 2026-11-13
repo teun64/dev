@@ -365,6 +365,13 @@
         <relatedList>RelatedCampaignMemberStatusList</relatedList>
     </relatedLists>
     <relatedLists>
+        <fields>NAME</fields>
+        <fields>Language__c</fields>
+        <fields>Name__c</fields>
+        <fields>Description__c</fields>
+        <relatedList>Data_Translation__c.Campaign__c</relatedList>
+    </relatedLists>
+    <relatedLists>
         <fields>Name</fields>
         <fields>FlowType</fields>
         <fields>ProgressStatus</fields>

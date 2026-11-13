@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campaign__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Source ID for a campaign: Name__c and Description__c in this language replace the campaign's Name and Description on the Customer Hub response page (record type Base, one row per language). For a staged campaign, translate the parent (main) campaign.</description>
+    <inlineHelpText>The campaign this translation is for (the main campaign of a staged campaign). Shown on the response page in this language.</inlineHelpText>
+    <label>Campaign</label>
+    <referenceTo>Campaign</referenceTo>
+    <relationshipLabel>Translations</relationshipLabel>
+    <relationshipName>Data_Translations</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

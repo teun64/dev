@@ -202,7 +202,8 @@ public without sharing class Svc_CampaignResponse {
 		if (String.isBlank(token) || !Pattern.matches('[0-9a-f]{64}', token)) return null;
 		List<CampaignMember> found = [
 			SELECT Id, CampaignId, ContactId, Response__c, RecontactFrom__c, Contact.FirstName, Contact.Account.Name,
-			       Campaign.Name, Campaign.CallbackLabel__c, Campaign.IsActive, Campaign.CampaignRole__c
+			       Campaign.Name, Campaign.CallbackLabel__c, Campaign.IsActive, Campaign.CampaignRole__c,
+			       Campaign.Description, Campaign.ParentId, Campaign.Parent.Name, Campaign.Parent.Description
 			FROM CampaignMember WHERE ResponseToken__c = :token WITH SYSTEM_MODE LIMIT 1
 		];
 		return found.isEmpty() ? null : found[0];

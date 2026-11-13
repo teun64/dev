@@ -19,9 +19,18 @@ public without sharing class Ctrl_CampaignResponseGuest {
 		@AuraEnabled public String firstName;
 		@AuraEnabled public String accountName;
 		@AuraEnabled public String campaignLabel;
+		@AuraEnabled public String campaignName;          // the main (parent) campaign, otherwise the member's campaign
+		@AuraEnabled public String campaignDescription;
+		@AuraEnabled public List<Translation> translations = new List<Translation>();   // per language; the page picks its language
 		@AuraEnabled public String currentAnswer;   // code of the answer already given, if any
 		@AuraEnabled public String recontactFrom;   // yyyy-MM-dd, Not now
 		@AuraEnabled public List<String> quarters = new List<String>();   // yyyy-MM-dd quarter starts for Not now
+	}
+
+	public class Translation {
+		@AuraEnabled public String language;
+		@AuraEnabled public String name;
+		@AuraEnabled public String description;
 	}
 
 	@AuraEnabled(cacheable=true)
@@ -33,6 +42,10 @@ public without sharing class Ctrl_CampaignResponseGuest {
 		data.firstName = cm.Contact?.FirstName;
 		data.accountName = cm.Contact?.Account?.Name;
 		data.campaignLabel = String.isNotBlank(cm.Campaign.CallbackLabel__c) ? cm.Campaign.CallbackLabel__c : cm.Campaign.Name;
+		Id mainId = cm.Campaign.ParentId != null ? cm.Campaign.ParentId : cm.CampaignId;
+		data.campaignName = cm.Campaign.ParentId != null ? cm.Campaign.Parent.Name : cm.Campaign.Name;
+		data.campaignDescription = cm.Campaign.ParentId != null ? cm.Campaign.Parent.Description : cm.Campaign.Description;
+		data.translations = translations(mainId);
 		data.currentAnswer = codeOf(cm.Response__c);
 		data.recontactFrom = cm.RecontactFrom__c == null ? null : String.valueOf(cm.RecontactFrom__c);
 		for (Date d : quarterOptions()) data.quarters.add(String.valueOf(d));
@@ -67,6 +80,22 @@ public without sharing class Ctrl_CampaignResponseGuest {
 			System.debug(LoggingLevel.ERROR, 'Ctrl_CampaignResponseGuest.submit: ' + e.getMessage());
 			throw new AuraHandledException('Your answer could not be saved. Please try again later.');
 		}
+	}
+
+	// Data_Translation__c rows of the main campaign; an empty name or description falls back to the campaign's own
+	private static List<Translation> translations(Id campaignId) {
+		List<Translation> result = new List<Translation>();
+		for (Data_Translation__c dt : [
+			SELECT Language__c, Name__c, Description__c FROM Data_Translation__c
+			WHERE Campaign__c = :campaignId AND Language__c != null WITH SYSTEM_MODE ORDER BY Language__c
+		]) {
+			Translation t = new Translation();
+			t.language = dt.Language__c;
+			t.name = dt.Name__c;
+			t.description = dt.Description__c;
+			result.add(t);
+		}
+		return result;
 	}
 
 	private static List<Date> quarterOptions() {
