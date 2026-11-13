@@ -221,12 +221,13 @@ private class Test_Svc_CampaignOffer {
 		};
 		for (CampaignOfferProduct__c r : bad) {
 			r.Campaign__c = campaignId;
-			Database.SaveResult sr = Database.insert(r, false);
+			Database.SaveResult sr = Database.insert(r, false, AccessLevel.SYSTEM_MODE);   // system mode: FLS must not decide, only the validation rules
 			System.assert(!sr.isSuccess(), 'should be refused: ' + r);
 		}
 		CampaignOfferProduct__c ok = row(hwProduct.Id, mi50, mi50, 'Accessories__c', 'x', 1);
 		ok.Campaign__c = campaignId;
-		System.assert(Database.insert(ok, false).isSuccess());
+		Database.SaveResult okResult = Database.insert(ok, false, AccessLevel.SYSTEM_MODE);
+		System.assert(okResult.isSuccess(), String.valueOf(okResult.getErrors()));
 	}
 
 	// ── Opportunity name: prefix + account (debtor number) ───────────────────
