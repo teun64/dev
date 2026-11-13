@@ -89,6 +89,17 @@ public without sharing class Svc_CampaignResponse {
 	}
 
 	public static Result apply(Request r) {
+		// the answer code opens its own call-back: the "Call me" member trigger (Svc_CampaignCallMe) stays silent meanwhile
+		Boolean before = Svc_CampaignCallMe.suppress;
+		Svc_CampaignCallMe.suppress = true;
+		try {
+			return applyAnswer(r);
+		} finally {
+			Svc_CampaignCallMe.suppress = before;
+		}
+	}
+
+	private static Result applyAnswer(Request r) {
 		Result res = new Result();
 		res.outcome = OUTCOME_INVALID;
 		if (r == null || !STATUS_BY_ANSWER.containsKey(r.answer)) return res;

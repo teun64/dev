@@ -125,6 +125,85 @@ public without sharing class Svc_SalesCallback {
 		return c.Id;
 	}
 
+	/**
+	 * Bulk request: one result Id per request, same rules as request() (one open call-back per Contact + Campaign: a new
+	 * Case or the note added to the open one; also between requests of the same call). One query per object, one insert and
+	 * one update for all. Requests without Contact give null; requests without Campaign are handled one by one.
+	 */
+	public static List<Id> requestBulk(List<Request> requests) {
+		List<Id> ids = new List<Id>();
+		Set<Id> contactIds = new Set<Id>();
+		Set<Id> campaignIds = new Set<Id>();
+		for (Request r : requests) {
+			ids.add(null);
+			if (r.contactId != null && r.campaignId != null) {
+				contactIds.add(r.contactId);
+				campaignIds.add(r.campaignId);
+			}
+		}
+		Map<String, Case> openByKey = new Map<String, Case>();
+		if (!contactIds.isEmpty()) {
+			for (Case c : [
+				SELECT Id, Description, ContactId, Campaign__c FROM Case
+				WHERE ContactId IN :contactIds AND Campaign__c IN :campaignIds AND Origin = :ORIGIN
+				  AND CallbackSource__c != null AND IsClosed = false
+				WITH SYSTEM_MODE ORDER BY CreatedDate DESC
+			]) if (!openByKey.containsKey(c.ContactId + '|' + c.Campaign__c)) openByKey.put(c.ContactId + '|' + c.Campaign__c, c);
+		}
+		Map<Id, Contact> contacts = new Map<Id, Contact>([
+			SELECT Id, AccountId, Account.Name, Name FROM Contact WHERE Id IN :contactIds WITH SYSTEM_MODE
+		]);
+		Map<Id, Campaign> campaigns = new Map<Id, Campaign>([
+			SELECT Id, Name, CallbackLabel__c FROM Campaign WHERE Id IN :campaignIds WITH SYSTEM_MODE
+		]);
+		Id queue = contactIds.isEmpty() ? null : queueId();
+		Datetime due = contactIds.isEmpty() ? null : dueOn(Datetime.now());
+		Map<String, Case> newByKey = new Map<String, Case>();
+		Map<Id, Case> noteUpdates = new Map<Id, Case>();
+		for (Integer i = 0; i < requests.size(); i++) {
+			Request r = requests[i];
+			if (r.contactId == null) continue;
+			if (r.campaignId == null) {
+				ids[i] = request(r);
+				continue;
+			}
+			String key = r.contactId + '|' + r.campaignId;
+			Case open = openByKey.get(key);
+			if (open != null) {
+				if (String.isNotBlank(r.note)) {
+					Case upd = noteUpdates.containsKey(open.Id) ? noteUpdates.get(open.Id) : new Case(Id = open.Id, Description = open.Description);
+					upd.Description = addNote(upd.Description, r.note);
+					noteUpdates.put(open.Id, upd);
+				}
+				ids[i] = open.Id;
+				continue;
+			}
+			Case created = newByKey.get(key);
+			if (created == null) {
+				Contact con = contacts.get(r.contactId);
+				Campaign camp = campaigns.get(r.campaignId);
+				String label = String.isNotBlank(camp.CallbackLabel__c) ? camp.CallbackLabel__c : camp.Name;
+				created = new Case(
+					OwnerId = queue, Origin = ORIGIN, Priority = 'High', Status = 'New', ContactId = con.Id, AccountId = con.AccountId,
+					Subject = ('Callback - ' + label + ' - ' + (con.AccountId != null ? con.Account.Name : con.Name)).left(255),
+					Description = addNote(null, r.note), Campaign__c = r.campaignId, CampaignMemberId__c = r.campaignMemberId,
+					CallbackSource__c = r.source, CallbackAttempts__c = 0, CallbackDueOn__c = due
+				);
+				newByKey.put(key, created);
+			} else if (String.isNotBlank(r.note)) {
+				created.Description = addNote(created.Description, r.note);
+			}
+		}
+		if (!newByKey.isEmpty()) Database.insert(newByKey.values(), RUNNING_MODE);
+		if (!noteUpdates.isEmpty()) Database.update(noteUpdates.values(), RUNNING_MODE);
+		for (Integer i = 0; i < requests.size(); i++) {
+			Request r = requests[i];
+			if (ids[i] != null || r.contactId == null || r.campaignId == null) continue;
+			ids[i] = newByKey.get(r.contactId + '|' + r.campaignId).Id;
+		}
+		return ids;
+	}
+
 	// ── Not reached ───────────────────────────────────────────────────────────
 	public static void notReached(Id caseId, String note) {
 		notReached(new Map<Id, String>{ caseId => note });
