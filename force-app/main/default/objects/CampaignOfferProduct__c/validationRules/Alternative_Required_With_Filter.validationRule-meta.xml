@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Alternative_Required_With_Filter</fullName>
+    <active>true</active>
+    <description>A filter gives true/false: the false case needs an alternative product.</description>
+    <errorConditionFormula>AND( OR( NOT( ISBLANK( FilterField__c ) ), NOT( ISBLANK( FilterValue__c ) ) ), ISBLANK( AlternativeProduct__c ) )</errorConditionFormula>
+    <errorDisplayField>AlternativeProduct__c</errorDisplayField>
+    <errorMessage>Alternative Product is required when a filter is set.</errorMessage>
+</ValidationRule>

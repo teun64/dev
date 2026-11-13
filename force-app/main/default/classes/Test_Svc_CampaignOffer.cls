@@ -112,6 +112,120 @@ private class Test_Svc_CampaignOffer {
 	@IsTest
 	static void quantities_noHardware_empty() {
 		Id accountId = [SELECT Id FROM Account WHERE Name = 'Offer Account' WITH SYSTEM_MODE].Id;
-		System.assert(Svc_CampaignOffer.quantities(accountId).isEmpty());
+		System.assert(Svc_CampaignOffer.quantities(accountId, [SELECT Id FROM Campaign WHERE Name = 'Offer Campaign' WITH SYSTEM_MODE].Id).qtyByProduct.isEmpty());
+	}
+
+	// ── CampaignOfferProduct__c mapping ──────────────────────────────────────
+	static Asset hw(Id productId, String accessories) {
+		return new Asset(Name = 'hw', Product2Id = productId, Accessories__c = accessories);
+	}
+
+	static CampaignOfferProduct__c row(Id hardware, Id offer, Id alt, String field, String value, Integer priority) {
+		return new CampaignOfferProduct__c(Hardware__c = hardware, OfferProduct__c = offer, AlternativeProduct__c = alt,
+			FilterField__c = field, FilterValue__c = value, Priority__c = priority);
+	}
+
+	@IsTest
+	static void resolve_filterTrueOffer_falseAlternative_noFilterAlways() {
+		Id mi50 = productId('Mi50.M'), mi01 = productId('Mi01.M');
+		Product2 hwProduct = Test_Data.createProduct('HW Mi50', 'T-HW50', 't-hw50', 'Hardware', true);
+		List<CampaignOfferProduct__c> rows = new List<CampaignOfferProduct__c>{
+			row(hwProduct.Id, mi50, mi01, 'Accessories__c', 'Klasse 5 module (intern)', 1)
+		};
+		Svc_CampaignOffer.Plan plan = new Svc_CampaignOffer.Plan();
+		Svc_CampaignOffer.resolve(new List<Asset>{
+			hw(hwProduct.Id, 'Miblock;Klasse 5 module (intern)'), hw(hwProduct.Id, 'Klasse 5 module (intern)'), hw(hwProduct.Id, 'Miblock'), hw(hwProduct.Id, null)
+		}, rows, plan);
+		System.assertEquals(2, plan.qtyByProduct.get(mi50));
+		System.assertEquals(2, plan.qtyByProduct.get(mi01));
+		System.assert(plan.notes.isEmpty());
+		// no filter: always the offer product
+		plan = new Svc_CampaignOffer.Plan();
+		Svc_CampaignOffer.resolve(new List<Asset>{ hw(hwProduct.Id, null) }, new List<CampaignOfferProduct__c>{ row(hwProduct.Id, mi01, null, null, null, 1) }, plan);
+		System.assertEquals(1, plan.qtyByProduct.get(mi01));
+	}
+
+	@IsTest
+	static void resolve_noRowOrNoAlternative_note() {
+		Id mi50 = productId('Mi50.M');
+		Product2 hwProduct = Test_Data.createProduct('HW Other', 'T-HWO', 't-hwo', 'Hardware', true);
+		Svc_CampaignOffer.Plan plan = new Svc_CampaignOffer.Plan();
+		// filter false without alternative → unmapped; hardware without any row → unmapped
+		Svc_CampaignOffer.resolve(new List<Asset>{ hw(hwProduct.Id, 'Miblock'), hw(productId('Mi01.M'), null) },
+			new List<CampaignOfferProduct__c>{ row(hwProduct.Id, mi50, null, 'Accessories__c', 'Klasse 5 module (intern)', 1) }, plan);
+		System.assert(plan.qtyByProduct.isEmpty());
+		System.assertEquals(1, plan.notes.size());
+		System.assert(plan.notes[0].contains('1x HW Other') && plan.notes[0].contains('1x Mi01.M'), plan.notes[0]);
+	}
+
+	@IsTest
+	static void resolve_priority_firstRowThatGivesProductWins() {
+		Id mi50 = productId('Mi50.M'), mi01 = productId('Mi01.M');
+		Product2 hwProduct = Test_Data.createProduct('HW Prio', 'T-HWP', 't-hwp', 'Hardware', true);
+		// row 1 only has an offer product for Klasse 5, row 2 (no filter) catches the rest
+		Svc_CampaignOffer.Plan plan = new Svc_CampaignOffer.Plan();
+		Svc_CampaignOffer.resolve(new List<Asset>{ hw(hwProduct.Id, 'Klasse 5 module (intern)'), hw(hwProduct.Id, null) },
+			new List<CampaignOfferProduct__c>{
+				row(hwProduct.Id, mi50, null, 'Accessories__c', 'Klasse 5 module (intern)', 1),
+				row(hwProduct.Id, mi01, null, null, null, 2)
+			}, plan);
+		System.assertEquals(1, plan.qtyByProduct.get(mi50));
+		System.assertEquals(1, plan.qtyByProduct.get(mi01));
+	}
+
+	@IsTest
+	static void offer_noRowsConfigured_hardwareNoteOnly() {
+		// quantityOverride unset: the contract query runs (no contracts here) → no lines, no note, Opportunity still made
+		Id oppId = offer();
+		System.assertNotEquals(null, oppId);
+		System.assertEquals(0, [SELECT COUNT() FROM OpportunityLineItem WHERE OpportunityId = :oppId WITH SYSTEM_MODE]);
+	}
+
+	@IsTest
+	static void loadRows_campaignScopeAndInvalidField() {
+		Id campaignId = [SELECT Id FROM Campaign WHERE Name = 'Offer Campaign' WITH SYSTEM_MODE].Id;
+		Campaign other = new Campaign(Name = 'Other Main', IsActive = true);
+		Database.insert(other, AccessLevel.SYSTEM_MODE);
+		Product2 hwProduct = Test_Data.createProduct('HW Scope', 'T-HWS', 't-hws', 'Hardware', true);
+		Id offerProduct = productId('Mi50.M');
+		CampaignOfferProduct__c second = row(hwProduct.Id, offerProduct, null, null, null, 2);
+		second.Campaign__c = campaignId;
+		CampaignOfferProduct__c first = row(hwProduct.Id, offerProduct, null, null, null, 1);
+		first.Campaign__c = campaignId;
+		CampaignOfferProduct__c foreign = row(hwProduct.Id, offerProduct, null, null, null, 1);
+		foreign.Campaign__c = other.Id;
+		CampaignOfferProduct__c bad = row(hwProduct.Id, offerProduct, offerProduct, 'Nope__c', 'x', 3);
+		bad.Campaign__c = campaignId;
+		Database.insert(new List<CampaignOfferProduct__c>{ second, first, foreign, bad }, AccessLevel.SYSTEM_MODE);
+		Test.startTest();
+		List<String> notes = new List<String>();
+		List<CampaignOfferProduct__c> rows = Svc_CampaignOffer.loadRows(campaignId, notes);
+		Test.stopTest();
+		System.assertEquals(2, rows.size());
+		System.assertEquals(first.Id, rows[0].Id, 'by priority');
+		System.assertEquals(second.Id, rows[1].Id);
+		System.assertEquals(1, notes.size());
+	}
+
+	@IsTest
+	static void validation_requiredProductsAndFilterPair() {
+		Id campaignId = [SELECT Id FROM Campaign WHERE Name = 'Offer Campaign' WITH SYSTEM_MODE].Id;
+		Product2 hwProduct = Test_Data.createProduct('HW Val', 'T-HWV', 't-hwv', 'Hardware', true);
+		Id mi50 = productId('Mi50.M');
+		List<CampaignOfferProduct__c> bad = new List<CampaignOfferProduct__c>{
+			row(hwProduct.Id, null, null, null, null, 1),                                            // no offer product
+			row(null, mi50, null, null, null, 1),                                                    // no hardware
+			row(hwProduct.Id, mi50, null, 'Accessories__c', 'x', 1),                                 // filter without alternative
+			row(hwProduct.Id, mi50, mi50, 'Accessories__c', null, 1),                                // field without value
+			row(hwProduct.Id, mi50, mi50, null, 'x', 1)                                              // value without field
+		};
+		for (CampaignOfferProduct__c r : bad) {
+			r.Campaign__c = campaignId;
+			Database.SaveResult sr = Database.insert(r, false);
+			System.assert(!sr.isSuccess(), 'should be refused: ' + r);
+		}
+		CampaignOfferProduct__c ok = row(hwProduct.Id, mi50, mi50, 'Accessories__c', 'x', 1);
+		ok.Campaign__c = campaignId;
+		System.assert(Database.insert(ok, false).isSuccess());
 	}
 }

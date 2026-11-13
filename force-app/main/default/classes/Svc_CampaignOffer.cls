@@ -1,8 +1,9 @@
 /**
  * The "Offer" answer of a migration campaign (Svc_CampaignResponse): an Opportunity for the member's account with one
  * line per migration product. Each hardware product the customer has points to the product offered in its place
- * (Product2.MigrationProduct__c, e.g. Mi50 → Mi50.M, MiTracer (Mi01) → Mi01.M); the quantity = the account's active
- * contracts on that hardware with a 2G modem (Modem__c '1' or empty), so the offer replaces every 2G unit.
+ * (CampaignOfferProduct__c: per main campaign + hardware type an offer product, optionally depending on an Asset field
+ * with an alternative product); the quantity = the account's active contracts on that hardware with a 2G modem
+ * (Modem__c '1' or empty), so the offer replaces every 2G unit. Hardware without a row is listed in the Description.
  *
  * The Opportunity is linked to the campaign the member is in when it is made (the Offer campaign: the member moves
  * first). Record type Standard_Opportunity; rbc_Opportunity sets the price book and stage; the owner is the agent when the answer comes
@@ -65,7 +66,8 @@ public without sharing class Svc_CampaignOffer {
 		if (SOURCE_CALL.equals(source) && UserInfo.getUserType() == 'Standard') opp.OwnerId = UserInfo.getUserId();
 		else if (con.Account.Owner.IsActive && con.Account.Owner.UserType == 'Standard') opp.OwnerId = con.Account.OwnerId;
 		Database.insert(opp, RUNNING_MODE);
-		addLines(opp.Id, quantities(con.AccountId));
+		Plan plan = quantities(con.AccountId, campaignId);
+		addLines(opp.Id, plan.qtyByProduct, plan.notes);
 		return opp.Id;
 	}
 
@@ -130,27 +132,110 @@ public without sharing class Svc_CampaignOffer {
 		Svc_CampaignMove.move(largeIds, Svc_CampaignMove.ROLE_LARGE_ACCOUNT, cleared);
 	}
 
-	// migration product → number of the account's active 2G contracts on hardware with that migration product
+	/** Offer lines (product → quantity) plus notes for the Opportunity Description (no product configured, bad filter field). */
 	@TestVisible
-	private static Map<Id, Integer> quantities(Id accountId) {
-		Map<Id, Integer> qtyByProduct = new Map<Id, Integer>();
-		if (quantityOverride != null) return quantityOverride;
-		for (AggregateResult ar : [
-			SELECT Hardware__r.Product2.MigrationProduct__c product, COUNT(Id) n
-			FROM Contract
-			WHERE AccountId = :accountId AND Status = 'Activated' AND Active__c = true
-			  AND Hardware__r.Product2.MigrationProduct__c != null
-			  AND (Hardware__r.Modem__c = '1' OR Hardware__r.Modem__c = null)
-			WITH SYSTEM_MODE
-			GROUP BY Hardware__r.Product2.MigrationProduct__c
-		]) {
-			qtyByProduct.put((Id) ar.get('product'), (Integer) ar.get('n'));
-		}
-		return qtyByProduct;
+	private class Plan {
+		public Map<Id, Integer> qtyByProduct = new Map<Id, Integer>();
+		public List<String> notes = new List<String>();
 	}
 
-	private static void addLines(Id oppId, Map<Id, Integer> qtyByProduct) {
-		if (qtyByProduct.isEmpty()) return;
+	/**
+	 * Per active 2G contract (hardware modem '1' or empty) the offer product comes from CampaignOfferProduct__c: rows of
+	 * the main campaign, per hardware type in Priority order; the first row that gives a product
+	 * wins. No filter = offer product; filter on an Asset field = offer product when true, alternative product when false.
+	 */
+	@TestVisible
+	private static Plan quantities(Id accountId, Id campaignId) {
+		Plan plan = new Plan();
+		if (quantityOverride != null) {
+			plan.qtyByProduct = quantityOverride;
+			return plan;
+		}
+		// one entry per contract (an asset can be on more than one contract)
+		List<Id> hardwareIds = new List<Id>();
+		for (Contract c : [
+			SELECT Hardware__c FROM Contract
+			WHERE AccountId = :accountId AND Status = 'Activated' AND Active__c = true AND Hardware__c != null
+			  AND (Hardware__r.Modem__c = '1' OR Hardware__r.Modem__c = null)
+			WITH SYSTEM_MODE
+		]) hardwareIds.add(c.Hardware__c);
+		if (hardwareIds.isEmpty()) return plan;
+		List<CampaignOfferProduct__c> rows = loadRows(campaignId, plan.notes);
+		Set<String> fields = new Set<String>{ 'Id', 'Product2Id' };
+		for (CampaignOfferProduct__c r : rows) if (String.isNotBlank(r.FilterField__c)) fields.add(r.FilterField__c.toLowerCase());
+		Map<Id, Asset> assets = new Map<Id, Asset>((List<Asset>) Database.queryWithBinds(
+			'SELECT ' + String.join(new List<String>(fields), ', ') + ' FROM Asset WHERE Id IN :ids',
+			new Map<String, Object>{ 'ids' => new Set<Id>(hardwareIds) }, AccessLevel.SYSTEM_MODE));
+		List<Asset> perContract = new List<Asset>();
+		for (Id hardwareId : hardwareIds) if (assets.containsKey(hardwareId)) perContract.add(assets.get(hardwareId));
+		resolve(perContract, rows, plan);
+		return plan;
+	}
+
+	// rows of the campaign or its parent, by Priority
+	@TestVisible
+	private static List<CampaignOfferProduct__c> loadRows(Id campaignId, List<String> notes) {
+		Set<Id> scope = new Set<Id>{ campaignId };
+		for (Campaign c : [SELECT ParentId FROM Campaign WHERE Id = :campaignId AND ParentId != null WITH SYSTEM_MODE]) scope.add(c.ParentId);
+		Map<String, Schema.SObjectField> assetFields = Schema.SObjectType.Asset.fields.getMap();
+		List<CampaignOfferProduct__c> result = new List<CampaignOfferProduct__c>();
+		for (CampaignOfferProduct__c r : [
+			SELECT Name, Campaign__c, Hardware__c, Priority__c, FilterField__c, FilterValue__c, OfferProduct__c, AlternativeProduct__c
+			FROM CampaignOfferProduct__c
+			WHERE Active__c = true AND Campaign__c IN :scope
+			WITH SYSTEM_MODE ORDER BY Priority__c NULLS LAST, Name
+		]) {
+			if (String.isNotBlank(r.FilterField__c) && !assetFields.containsKey(r.FilterField__c.toLowerCase())) {
+				notes.add(r.Name + ' ignored: Asset has no field ' + r.FilterField__c + '.');
+				continue;
+			}
+			result.add(r);
+		}
+		return result;
+	}
+
+	@TestVisible
+	private static void resolve(List<Asset> hardware, List<CampaignOfferProduct__c> rows, Plan plan) {
+		Map<Id, Integer> unmapped = new Map<Id, Integer>();
+		for (Asset a : hardware) {
+			Id product = null;
+			for (CampaignOfferProduct__c r : rows) {
+				if (r.Hardware__c != a.Product2Id) continue;
+				product = productFor(r, a);
+				if (product != null) break;
+			}
+			if (product == null) unmapped.put(a.Product2Id, (unmapped.containsKey(a.Product2Id) ? unmapped.get(a.Product2Id) : 0) + 1);
+			else plan.qtyByProduct.put(product, (plan.qtyByProduct.containsKey(product) ? plan.qtyByProduct.get(product) : 0) + 1);
+		}
+		if (unmapped.isEmpty()) return;
+		Map<Id, Product2> names = new Map<Id, Product2>([SELECT Name FROM Product2 WHERE Id IN :unmapped.keySet() WITH SYSTEM_MODE]);
+		List<String> parts = new List<String>();
+		for (Id hardwareProductId : unmapped.keySet()) {
+			parts.add(unmapped.get(hardwareProductId) + 'x ' + (names.containsKey(hardwareProductId) ? names.get(hardwareProductId).Name : String.valueOf(hardwareProductId)));
+		}
+		plan.notes.add('No offer product configured for 2G hardware: ' + String.join(parts, ', ') + '. Add these lines by hand.');
+	}
+
+	private static Id productFor(CampaignOfferProduct__c r, Asset a) {
+		if (String.isBlank(r.FilterField__c)) return r.OfferProduct__c;
+		return filterMatches(a, r.FilterField__c, r.FilterValue__c) ? r.OfferProduct__c : r.AlternativeProduct__c;
+	}
+
+	// multipicklist: includes the value; other types: equals the value as text (null = empty text, checkbox true/false)
+	private static Boolean filterMatches(Asset a, String field, String value) {
+		Object current = a.get(field);
+		String want = value == null ? '' : value.trim();
+		Schema.DescribeFieldResult d = Schema.SObjectType.Asset.fields.getMap().get(field.toLowerCase()).getDescribe();
+		if (d.getType() == Schema.DisplayType.MULTIPICKLIST) {
+			if (current == null) return false;
+			for (String v : ((String) current).split(';')) if (v.trim().equalsIgnoreCase(want)) return true;
+			return false;
+		}
+		return (current == null ? '' : String.valueOf(current)).equalsIgnoreCase(want);
+	}
+
+	private static void addLines(Id oppId, Map<Id, Integer> qtyByProduct, List<String> notes) {
+		if (qtyByProduct.isEmpty() && notes.isEmpty()) return;
 		// re-query: rbc_Opportunity chose the price book
 		Opportunity opp = [SELECT Id, Pricebook2Id, CurrencyIsoCode, Description FROM Opportunity WHERE Id = :oppId WITH SYSTEM_MODE];
 		Set<Id> productIds = qtyByProduct.keySet();
@@ -178,8 +263,9 @@ public without sharing class Svc_CampaignOffer {
 				Quantity = qtyByProduct.get(productId), UnitPrice = e.UnitPrice));
 		}
 		if (!lines.isEmpty()) Database.insert(lines, RUNNING_MODE);
-		if (!missing.isEmpty()) {
-			String note = 'No active price in the price book for: ' + String.join(missing, ', ') + '. Add these lines by hand.';
+		if (!missing.isEmpty()) notes.add('No active price in the price book for: ' + String.join(missing, ', ') + '. Add these lines by hand.');
+		if (!notes.isEmpty()) {
+			String note = String.join(notes, '\n');
 			Database.update(new Opportunity(Id = opp.Id,
 				Description = String.isBlank(opp.Description) ? note : opp.Description + '\n' + note), RUNNING_MODE);
 		}

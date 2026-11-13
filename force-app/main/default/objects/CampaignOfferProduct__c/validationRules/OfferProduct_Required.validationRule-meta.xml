@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OfferProduct_Required</fullName>
+    <active>true</active>
+    <description>Offer product cannot be empty (lookup is optional because Product2 cannot have required lookup children).</description>
+    <errorConditionFormula>ISBLANK( OfferProduct__c )</errorConditionFormula>
+    <errorDisplayField>OfferProduct__c</errorDisplayField>
+    <errorMessage>Offer Product is required.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Filter_Field_And_Value_Together</fullName>
+    <active>true</active>
+    <description>A filter needs both a field and a value.</description>
+    <errorConditionFormula>OR( AND( ISBLANK( FilterField__c ), NOT( ISBLANK( FilterValue__c ) ) ), AND( NOT( ISBLANK( FilterField__c ) ), ISBLANK( FilterValue__c ) ) )</errorConditionFormula>
+    <errorDisplayField>FilterValue__c</errorDisplayField>
+    <errorMessage>Filter Field and Filter Value must both be filled or both empty.</errorMessage>
+</ValidationRule>

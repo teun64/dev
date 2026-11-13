@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OfferProduct__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Product put on the Opportunity: always when no filter is set, otherwise when the filter is true.</description>
+    <inlineHelpText>Product put on the Opportunity: always when no filter is set, otherwise when the filter is true.</inlineHelpText>
+    <label>Offer Product</label>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Campaign Offer Products (offer)</relationshipLabel>
+    <relationshipName>CampaignOfferProducts</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

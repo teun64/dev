@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AlternativeProduct__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Product put on the Opportunity when the filter is false. Empty = no line (a note is added to the Opportunity).</description>
+    <inlineHelpText>Product put on the Opportunity when the filter is false. Empty = no line (a note is added to the Opportunity).</inlineHelpText>
+    <label>Alternative Product</label>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Campaign Offer Products (alternative)</relationshipLabel>
+    <relationshipName>CampaignOfferAlternatives</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
