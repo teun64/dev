@@ -48,13 +48,16 @@ public without sharing class Svc_CampaignOffer {
 		];
 		if (!open.isEmpty()) return open[0].Id;
 
-		Campaign camp = [SELECT Id, Name, CallbackLabel__c, Parent.CallbackLabel__c FROM Campaign WHERE Id = :campaignId WITH SYSTEM_MODE];
+		Campaign camp = [SELECT Id, Name, CallbackLabel__c, Parent.CallbackLabel__c, OpportunityNamePrefix__c, Parent.OpportunityNamePrefix__c FROM Campaign WHERE Id = :campaignId WITH SYSTEM_MODE];
 		String label = String.isNotBlank(camp.CallbackLabel__c) ? camp.CallbackLabel__c
 			: (String.isNotBlank(camp.Parent?.CallbackLabel__c) ? camp.Parent.CallbackLabel__c : camp.Name);
+		String prefix = String.isNotBlank(camp.OpportunityNamePrefix__c) ? camp.OpportunityNamePrefix__c : camp.Parent?.OpportunityNamePrefix__c;
+		Account acct = [SELECT FinancialDebtorNumber__c FROM Account WHERE Id = :con.AccountId WITH SYSTEM_MODE];
 		Opportunity opp = new Opportunity(
 			// explicit: the site guest (response page) has no default Opportunity record type
 			RecordTypeId = Schema.SObjectType.Opportunity.getRecordTypeInfosByDeveloperName().get('Standard_Opportunity').getRecordTypeId(),
-			Name = (label + ' - ' + con.Account.Name).left(120),
+			Name = String.isNotBlank(prefix) ? opportunityName(prefix, con.Account.Name, acct.FinancialDebtorNumber__c)
+				: (label + ' - ' + con.Account.Name).left(120),
 			AccountId = con.AccountId,
 			ContactId = con.Id,
 			CampaignId = campaignId,
@@ -69,6 +72,23 @@ public without sharing class Svc_CampaignOffer {
 		Plan plan = quantities(con.AccountId, campaignId);
 		addLines(opp.Id, plan.qtyByProduct, plan.notes);
 		return opp.Id;
+	}
+
+	public static final Integer NAME_MAX = 120;
+	public static final String PREFIX_DROP = 'voorstel voor ';
+
+	/**
+	 * {prefix}{account} ({debtor number}). Too long for Opportunity.Name → "voorstel voor " is dropped from the prefix;
+	 * still too long → the account name is cut (the debtor number always stays). No debtor number → no brackets.
+	 */
+	@TestVisible
+	private static String opportunityName(String prefix, String accountName, String debtorNumber) {
+		String suffix = String.isBlank(debtorNumber) ? '' : ' (' + debtorNumber.trim() + ')';
+		String start = prefix.endsWith(' ') ? prefix : prefix + ' ';
+		if ((start + accountName + suffix).length() > NAME_MAX) start = start.replace(PREFIX_DROP, '');
+		if (!start.endsWith(' ')) start += ' ';
+		Integer room = NAME_MAX - start.length() - suffix.length();
+		return start + accountName.left(room < 0 ? 0 : room) + suffix;
 	}
 
 	// ── Closed Lost → back to Source ─────────────────────────────────────────

@@ -228,4 +228,43 @@ private class Test_Svc_CampaignOffer {
 		ok.Campaign__c = campaignId;
 		System.assert(Database.insert(ok, false).isSuccess());
 	}
+
+	// ── Opportunity name: prefix + account (debtor number) ───────────────────
+	@IsTest
+	static void opportunityName_prefixAccountDebtor() {
+		System.assertEquals('2g/4g migratievoorstel voor Acme BV (12345)',
+			Svc_CampaignOffer.opportunityName('2g/4g migratievoorstel voor ', 'Acme BV', '12345'));
+		// prefix without trailing space (a Text field may trim it), no debtor number → no brackets
+		System.assertEquals('2g/4g migratievoorstel voor Acme BV',
+			Svc_CampaignOffer.opportunityName('2g/4g migratievoorstel voor', 'Acme BV', null));
+	}
+
+	@IsTest
+	static void opportunityName_tooLong_dropsVoorstelVoor_thenCutsAccount() {
+		String longName = 'A'.repeat(100);
+		// 28 + 100 + 8 > 120 → "voorstel voor " dropped: "2g/4g migratie " (15) + 100 + 8 = 123 > 120 → account cut, debtor stays
+		String name = Svc_CampaignOffer.opportunityName('2g/4g migratievoorstel voor ', longName, '12345');
+		System.assertEquals(120, name.length());
+		System.assert(name.startsWith('2g/4g migratie A'), name);
+		System.assert(name.endsWith(' (12345)'), name);
+		// just fits after dropping: no cut
+		String mid = 'B'.repeat(95);
+		name = Svc_CampaignOffer.opportunityName('2g/4g migratievoorstel voor ', mid, '12345');
+		System.assertEquals('2g/4g migratie ' + mid + ' (12345)', name);
+	}
+
+	@IsTest
+	static void offer_prefixOnParent_nameWithDebtor() {
+		Campaign parent = new Campaign(Name = 'Main', IsActive = true, OpportunityNamePrefix__c = '2g/4g migratievoorstel voor ');
+		Database.insert(parent, AccessLevel.SYSTEM_MODE);
+		Campaign child = [SELECT Id FROM Campaign WHERE Name = 'Offer Campaign' WITH SYSTEM_MODE];
+		child.ParentId = parent.Id;
+		Database.update(child, AccessLevel.SYSTEM_MODE);
+		Account acct = [SELECT Id FROM Account WHERE Name = 'Offer Account' WITH SYSTEM_MODE];
+		acct.FinancialDebtorNumber__c = '40001';
+		Database.update(acct, AccessLevel.SYSTEM_MODE);
+		Svc_CampaignOffer.quantityOverride = new Map<Id, Integer>();
+		Id oppId = offer();
+		System.assertEquals('2g/4g migratievoorstel voor Offer Account (40001)', [SELECT Name FROM Opportunity WHERE Id = :oppId WITH SYSTEM_MODE].Name);
+	}
 }
