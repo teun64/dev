@@ -5,7 +5,8 @@ List<List<String>> spec = new List<List<String>>{
   // hardware Product2.Name, offer code, alternative code, filter field, filter value
   new List<String>{ 'Mi50', '3011', '3010', 'Accessories__c', 'Klasse 5 module (intern)' },
   new List<String>{ 'Mi40', '3030', null, null, null },
-  new List<String>{ 'MiTracer', '3040', null, null, null }   // Mi01
+  new List<String>{ 'MiTracer', '3040', null, null, null },   // Mi01
+  new List<String>{ 'MiRetreever', '3040', null, null, null }   // Mi04 (user 2026-11-16: 3040)
 };
 Id campaignId = [SELECT Id FROM Campaign WHERE Name = :campaignName AND ParentId = null LIMIT 1].Id;
 Set<String> codes = new Set<String>(); Set<String> names = new Set<String>();
