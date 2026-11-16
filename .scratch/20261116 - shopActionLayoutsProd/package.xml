@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types><members>Shop_Action__c-Shop Action Layout</members><members>Shop_Action_Product__c-Shop Action Product Layout</members><name>Layout</name></types>
+    <types><members>Shop_Action__c.All</members><name>ListView</name></types>
+    <version>68.0</version>
+</Package>
