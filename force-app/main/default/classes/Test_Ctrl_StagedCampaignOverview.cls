@@ -110,4 +110,22 @@ private class Test_Ctrl_StagedCampaignOverview {
 			}
 		}
 	}
+
+	@IsTest
+	static void extraLargeAccountChild_ownTile() {
+		Campaign extra = new Campaign(Name = 'Overview - Large account - Germany', ParentId = parent().Id, IsActive = true, CampaignRole__c = 'Large account');
+		Database.insert(extra, AccessLevel.SYSTEM_MODE);
+		Account acct = [SELECT Id FROM Account WHERE Name = 'Overview Account' LIMIT 1];
+		Contact con = Test_Data.createContact(acct.Id, 'German', null, 'de@overview.test', true);
+		Database.insert(new CampaignMember(CampaignId = extra.Id, ContactId = con.Id), AccessLevel.SYSTEM_MODE);
+
+		Ctrl_StagedCampaignOverview.Overview o = Ctrl_StagedCampaignOverview.getOverview(parent().Id);
+
+		Assert.areEqual(8, o.campaigns.size(), '7 roles + the extra Large account child');
+		Assert.areEqual('Large account', o.campaigns[6].label);
+		Assert.areEqual(0, o.campaigns[6].count, 'the oldest Large account child has no members');
+		Assert.areEqual('Large account - Germany', o.campaigns[7].label, 'named after the child, without the parent name');
+		Assert.areEqual(1, o.campaigns[7].count);
+		Assert.areEqual(extra.Id, o.campaigns[7].recordId);
+	}
 }

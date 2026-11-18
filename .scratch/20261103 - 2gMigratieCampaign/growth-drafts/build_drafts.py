@@ -20,6 +20,9 @@ IMAGES = {'dev': {'MCJQ2MS5XXGJE6LFIRM34WVVWSNE': 'MCCYOX7B4IKZGYLA65VTJXO3NZLM'
 HUB = {'dev': 'https://movingintelligence--dev.sandbox.my.site.com/hub', 'prod': 'https://customer.movingintelligence.com'}
 RESPONSE_URL = {e: h + '/response?token=TOKEN' for e, h in HUB.items()}
 PREFERENCE_URL = {e: h + '/preferences?token=TOKEN' for e, h in HUB.items()}
+# Preference link = Contact.Preference_Center_Url__c via the Data Cloud data graph, same merge as marketing's mail
+# "M20261113 - MiRedPro" ("Beheer uw voorkeuren"). Needs PreferenceCenterUrl__c in the audience's data graph.
+PREFERENCE_MERGE = '{{fallback (get (get @root "$dataGraph") "PreferenceCenterUrl__c") ""}}'
 
 HARDWARE = [
     ('Mi50', 'Uw <strong>Mi50</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi50, met dezelfde functies als u nu gebruikt.'),
@@ -127,7 +130,7 @@ def build(mail, env):
     ] + [button(*b, env) for b in mail['buttons']]))
     tail = [fresh(x) for x in root['children'][1:]]  # greeting, logo, contact, divider, footer
     tail[-1]['children'][0]['children'][0]['attributes']['text'] = (
-        '{!$organization.Address} | <a href="' + PREFERENCE_URL[env] + '">E-mailvoorkeuren beheren</a><br />')
+        '{{$organization.Address}} | <a href="' + PREFERENCE_MERGE + '" target="_blank" rel="noopener noreferrer" style="color:#000000">Beheer uw voorkeuren</a><br />')
     r['children'] = sections + tail
     r['id'] = str(uuid.uuid4())
     title = f'M20261109 2G Migratie - mail {mail["n"]}'
@@ -192,7 +195,7 @@ def preview_mail(m):
       <div class="logo">Logo Moving Intelligence</div>
       <p class="contact"><strong>T</strong>&nbsp; +31 88 99 00 000<br><strong>E</strong>&nbsp; sales@movingintelligence.nl</p>
       <hr>
-      <p class="footer">Adres van de organisatie | <a href="#" title="{PREFERENCE_URL['prod']}">E-mailvoorkeuren beheren</a></p>
+      <p class="footer">Adres van de organisatie | <a href="#" title="Contact.Preference_Center_Url__c">Beheer uw voorkeuren</a></p>
     </div>
   </div>
 </article>'''

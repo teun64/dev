@@ -27,7 +27,7 @@
     "sfdc_cms:attachments": [],
     "sfdc_cms:block": {
       "definition": "sfdc_cms/rootContentBlock",
-      "id": "aa8890c0-4957-4539-9967-dd89e8824a9a",
+      "id": "c528abda-9351-492e-8d36-618c97269790",
       "type": "block",
       "children": [
         {
@@ -46,7 +46,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "c40857dd-0a2d-4fa8-98aa-a33fbe304a32",
+          "id": "a30c3e67-ce63-49b3-b311-66a6b53abfbf",
           "type": "block",
           "children": [
             {
@@ -65,7 +65,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "7f1c7bd7-3f41-4fe9-a208-ba2af7bae302",
+              "id": "5eb49139-6073-4bb2-b181-9ff6a0f867c7",
               "type": "block",
               "children": [
                 {
@@ -99,7 +99,7 @@
                     "lightning:typography": "{!$brand.typography.paragraph.paragraph1}"
                   },
                   "definition": "lightning/image",
-                  "id": "bc49429c-f3dd-4254-8acb-fbe891e11bcb",
+                  "id": "f021d15b-d468-49c9-9593-b6abc5ec164b",
                   "type": "block"
                 },
                 {
@@ -120,7 +120,7 @@
                     "text": "<strong>Telecomproviders hebben aangekondigd dat het 2G-netwerk medio 2027 definitief wordt uitgefaseerd.</strong><br /><br />Volgens onze gegevens gebruikt u nog hardware die via 2G verbinding maakt. Zonder vervanging kunnen uw voertuigen op termijn geen data meer verzenden en kunnen wij ze niet meer volgen. Hieronder ziet u om welke hardware het gaat."
                   },
                   "definition": "lightning/heading",
-                  "id": "d937f7c5-6fff-4f62-b8ae-113f552535ff",
+                  "id": "f88ae27e-15e9-4b55-8d47-3e42a676ab02",
                   "type": "block"
                 },
                 {
@@ -141,7 +141,7 @@
                     "text": "Uw hardware op 2G"
                   },
                   "definition": "lightning/heading",
-                  "id": "abb16f70-29da-43e4-97d1-d87c34ec3aca",
+                  "id": "86a9e9b5-e56b-4206-b513-d87964e9e002",
                   "type": "block"
                 }
               ]
@@ -164,7 +164,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "73d17853-1dcb-402f-a0d0-8e8f82ed5945",
+          "id": "3f609b88-4f4f-43f7-9797-335786fde376",
           "type": "block",
           "children": [
             {
@@ -183,7 +183,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "87d09419-0c6c-4236-a7bd-498342f60bcf",
+              "id": "200a2646-9963-4abd-a734-f1203134b88b",
               "type": "block",
               "children": [
                 {
@@ -203,7 +203,7 @@
                     "text": "Uw <strong>Mi50</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi50, met dezelfde functies als u nu gebruikt."
                   },
                   "definition": "lightning/paragraph",
-                  "id": "5dce7a04-b1ca-460c-8fc3-e9188d3da752",
+                  "id": "343729c8-4454-404e-bbf2-8620ee91e813",
                   "type": "block"
                 }
               ]
@@ -226,7 +226,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "c6649cbf-7f4e-4647-a54a-92b40b036b6c",
+          "id": "54308487-1e9d-4c47-a868-c806b3d75d86",
           "type": "block",
           "children": [
             {
@@ -245,7 +245,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "2e84c369-9b6a-4bff-b49e-2b5790ff0307",
+              "id": "9144ac8e-ea5d-43af-a9b2-a558279000ea",
               "type": "block",
               "children": [
                 {
@@ -265,7 +265,7 @@
                     "text": "Uw <strong>Mi40</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi40, met dezelfde functies als u nu gebruikt."
                   },
                   "definition": "lightning/paragraph",
-                  "id": "dedd4a59-937d-4e1d-93ce-4e65d9333f10",
+                  "id": "e262a5b1-d221-45a6-b0c9-8aef2adea4e7",
                   "type": "block"
                 }
               ]
@@ -288,7 +288,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "e85a433d-c178-4cdf-919d-78e90bb0f3e8",
+          "id": "5594c71d-20d6-483a-9da2-3448407b2d26",
           "type": "block",
           "children": [
             {
@@ -307,7 +307,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "2710296e-5dc1-404e-8a69-0ad795b163ea",
+              "id": "aa6a29f4-ad60-4d42-ab30-e14aa0fcc03d",
               "type": "block",
               "children": [
                 {
@@ -327,7 +327,7 @@
                     "text": "Uw <strong>Mi01</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi01, met dezelfde functies als u nu gebruikt."
                   },
                   "definition": "lightning/paragraph",
-                  "id": "d477d37d-a113-477c-9594-18aa76cb494c",
+                  "id": "5a811c10-fb1f-477b-a18a-ca61378aada4",
                   "type": "block"
                 }
               ]
@@ -350,7 +350,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "f164c089-987a-4f68-8094-55e2262584bc",
+          "id": "9251131b-170e-48c6-a6cf-71853e1fd0bd",
           "type": "block",
           "children": [
             {
@@ -369,7 +369,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "57b6eb77-0302-4e99-8ebc-11b29d9e9ec6",
+              "id": "441fa137-15bc-4461-bd5d-1d7dfb3006be",
               "type": "block",
               "children": [
                 {
@@ -389,7 +389,7 @@
                     "text": "Uw <strong>Mi04</strong> verbindt via 2G. Wij vervangen hem door de 4G-versie van de Mi04, met dezelfde functies als u nu gebruikt."
                   },
                   "definition": "lightning/paragraph",
-                  "id": "33585946-6163-414e-b3f1-34b5966bd6aa",
+                  "id": "5e55d3ec-4156-49cb-881c-dd1cec55c0c2",
                   "type": "block"
                 }
               ]
@@ -412,7 +412,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "08743077-3af5-4e43-9b56-354388a2cb10",
+          "id": "d6051d55-6939-4d42-b3cd-4e50c18f8c6d",
           "type": "block",
           "children": [
             {
@@ -431,7 +431,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "6a42087d-273e-4a1b-9cbf-7ca858d02ece",
+              "id": "0532397f-a10b-43a8-a946-e6ff1b1d894d",
               "type": "block",
               "children": [
                 {
@@ -452,7 +452,7 @@
                     "text": "Waarom nu overstappen naar 4G?"
                   },
                   "definition": "lightning/heading",
-                  "id": "88fbe11d-e63e-46b9-8952-ceba408c3880",
+                  "id": "178d88d4-fcf0-4152-b212-885dc75abf01",
                   "type": "block"
                 },
                 {
@@ -472,7 +472,7 @@
                     "text": "Met moderne 4G-hardware bent u verzekerd van:"
                   },
                   "definition": "lightning/paragraph",
-                  "id": "dd38f2b9-1aff-49c2-9abe-137286cb68ae",
+                  "id": "e23e367d-afae-4b8a-915b-8a95097b263f",
                   "type": "block"
                 },
                 {
@@ -482,12 +482,12 @@
                         "listStyle": "unordered"
                       },
                       "definition": "lightning/listElement",
-                      "id": "292a77a0-ba12-4f77-aa08-00ada0484237",
+                      "id": "af5808e6-d6d5-48b6-9f28-0acd990166a7",
                       "type": "block",
                       "children": [
                         {
                           "definition": "lightning/listItem",
-                          "id": "c739a56d-4230-4f0a-8af9-99b96cd7bb93",
+                          "id": "759461a3-c075-4975-9731-83a10c5f0496",
                           "type": "block",
                           "children": [
                             {
@@ -496,14 +496,14 @@
                                 "align": "left"
                               },
                               "definition": "lightning/paragraph",
-                              "id": "acbda8ee-d6ef-42d9-9191-19b74ef8fb79",
+                              "id": "1d5942bf-4d8a-474b-a231-e8493b57d0e7",
                               "type": "block"
                             }
                           ]
                         },
                         {
                           "definition": "lightning/listItem",
-                          "id": "d617cb63-6fe8-44d0-a881-f8069add7a39",
+                          "id": "d07650ca-8051-42d6-a56e-137b055abf21",
                           "type": "block",
                           "children": [
                             {
@@ -512,14 +512,14 @@
                                 "align": "left"
                               },
                               "definition": "lightning/paragraph",
-                              "id": "14c7f247-b917-4f4c-91c9-885ad7e00529",
+                              "id": "19e786f3-2617-4cf8-b285-a746abf04fcb",
                               "type": "block"
                             }
                           ]
                         },
                         {
                           "definition": "lightning/listItem",
-                          "id": "0e468e9c-a8f6-4e59-bd66-5c25752c1969",
+                          "id": "23df7b7f-8fc8-479c-90be-59ebd3f021ee",
                           "type": "block",
                           "children": [
                             {
@@ -528,7 +528,7 @@
                                 "align": "left"
                               },
                               "definition": "lightning/paragraph",
-                              "id": "fd092525-3427-456c-8541-830decf3fb43",
+                              "id": "2343ee5a-a37b-4d4a-af30-93ed3dd4332c",
                               "type": "block"
                             }
                           ]
@@ -548,7 +548,7 @@
                     "lightning:typography": "{!$brand.typography.paragraph.paragraph1}"
                   },
                   "definition": "lightning/list",
-                  "id": "e3474630-c50f-4127-b735-6d41d5e8e960",
+                  "id": "a04abc84-7853-4c5e-ba23-1d753713e5d7",
                   "type": "block"
                 },
                 {
@@ -569,7 +569,7 @@
                     "text": "Wat wilt u?"
                   },
                   "definition": "lightning/heading",
-                  "id": "b2512a41-4196-4a20-8c60-5fd6065e9750",
+                  "id": "519b0446-4089-4343-bff2-64c126a2c140",
                   "type": "block"
                 },
                 {
@@ -589,7 +589,7 @@
                     "text": "Kies hieronder wat u het beste past. U ziet uw keuze daarna nog op een bevestigingspagina, en pas als u daar bevestigt, verwerken wij hem."
                   },
                   "definition": "lightning/paragraph",
-                  "id": "6ced087a-bf4b-4833-80b5-7e97a2c4ea31",
+                  "id": "ec384dda-88fd-4784-8375-5218c7209d7b",
                   "type": "block"
                 },
                 {
@@ -618,7 +618,7 @@
                     "width": "auto"
                   },
                   "definition": "lightning/actionButton",
-                  "id": "7e040995-7df0-40b3-9567-84202b459cbe",
+                  "id": "233a9389-fe77-4d4d-a59e-555c74e6458c",
                   "type": "block"
                 },
                 {
@@ -647,7 +647,7 @@
                     "width": "auto"
                   },
                   "definition": "lightning/actionButton",
-                  "id": "e9c05ced-60dd-48cf-9e5e-e6be1ba51fe5",
+                  "id": "5de372fa-468b-4ede-9b21-2a145e825159",
                   "type": "block"
                 },
                 {
@@ -676,7 +676,7 @@
                     "width": "auto"
                   },
                   "definition": "lightning/actionButton",
-                  "id": "e7f30dde-aba5-4afb-b624-36991cbb298d",
+                  "id": "47e6d955-f94a-4b66-a3bf-38ee11b1f9bc",
                   "type": "block"
                 }
               ]
@@ -699,7 +699,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "4f839ffc-75d8-47d6-8676-379d5384f689",
+          "id": "8401ed9c-c6cc-4171-bc29-1abbd1641af1",
           "type": "block",
           "children": [
             {
@@ -718,7 +718,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "f9268c3d-2392-49ad-84f4-c3828d2b7e83",
+              "id": "74cc1645-f34d-455d-b685-cb7dbca91e50",
               "type": "block",
               "children": [
                 {
@@ -738,7 +738,7 @@
                     "text": "Met vriendelijke groet,"
                   },
                   "definition": "lightning/paragraph",
-                  "id": "426573d8-d42d-4239-bfa6-07c795e53e78",
+                  "id": "b50340b6-9df7-4378-95e7-9a424d822ecb",
                   "type": "block"
                 }
               ]
@@ -761,7 +761,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "f7813379-af05-4ad9-94a3-f3c5ee8f2d95",
+          "id": "a297efb6-3218-4e3a-b59e-1b9f86a24df6",
           "type": "block",
           "children": [
             {
@@ -780,7 +780,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "d9a12568-5650-433d-8ad3-034cb9a5714f",
+              "id": "782211f2-fb07-46a5-be0f-0a6ae20bf930",
               "type": "block",
               "children": [
                 {
@@ -814,7 +814,7 @@
                     "lightning:typography": "{!$brand.typography.paragraph.paragraph1}"
                   },
                   "definition": "lightning/image",
-                  "id": "c7655a1d-b7ba-47f4-adbd-89d0bd40fbac",
+                  "id": "aee52a3c-0a9e-41e0-921e-5e555a1cd42c",
                   "type": "block"
                 }
               ]
@@ -837,7 +837,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "2edad6f6-47d5-4047-9f14-fe71fb643190",
+          "id": "de2a5750-3ac6-4000-a047-469f6cc6cd4c",
           "type": "block",
           "children": [
             {
@@ -856,7 +856,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "89135fae-2008-4cea-9c49-1ecd9cfe2daa",
+              "id": "3296aa4c-1ad2-422c-be63-60bb00b9ef59",
               "type": "block",
               "children": [
                 {
@@ -876,7 +876,7 @@
                     "text": "<strong>T</strong>  &#43;31 88 99 00 000<br /><strong>E </strong> sales&#64;movingintelligence.nl"
                   },
                   "definition": "lightning/paragraph",
-                  "id": "bc96a8b5-e5e9-4834-a30e-676bcbb99beb",
+                  "id": "913ed369-435c-47bd-b11c-0fec43540d62",
                   "type": "block"
                 }
               ]
@@ -899,7 +899,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "804e0e92-d176-4f46-8c99-f5cdf2e3eb52",
+          "id": "c9275f23-373d-4871-ba15-32942a6ea2b0",
           "type": "block",
           "children": [
             {
@@ -918,7 +918,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "fb29131d-791e-4d81-9d9f-0ec8bc054c1c",
+              "id": "0abc1c5e-8afd-46c0-abf4-f579a7cad330",
               "type": "block",
               "children": [
                 {
@@ -942,7 +942,7 @@
                     }
                   },
                   "definition": "lightning/divider",
-                  "id": "e3c42496-5c9b-4626-8431-506cf2d35ce9",
+                  "id": "57ab2808-eb04-4391-8936-feac45da6f1f",
                   "type": "block"
                 }
               ]
@@ -965,7 +965,7 @@
             "reverseOrderOnMobile": false
           },
           "definition": "lightning/section",
-          "id": "13c7a0e2-d470-4ed7-872c-180e3de88a2e",
+          "id": "c5513c33-1f1d-4f08-a626-24d8e984f37f",
           "type": "block",
           "children": [
             {
@@ -984,7 +984,7 @@
                 "lightning:verticalAlignment": "top"
               },
               "definition": "lightning/column",
-              "id": "86e93ee0-df9a-4044-b4cf-0c29e8d63114",
+              "id": "182accef-e074-4dd9-8df9-d38f28fe98e5",
               "type": "block",
               "children": [
                 {
@@ -1001,10 +1001,10 @@
                     "lightning:margin": "{!$brand.spacing.none}",
                     "lightning:padding": "{!$brand.spacing.xSmall}",
                     "lightning:typography": "{!$brand.typography.paragraph.paragraph1}",
-                    "text": "{!$organization.Address} | <a href=\"https://movingintelligence--dev.sandbox.my.site.com/hub/preferences?token=TOKEN\">E-mailvoorkeuren beheren</a><br />"
+                    "text": "{{$organization.Address}} | <a href=\"{{fallback (get (get @root \"$dataGraph\") \"PreferenceCenterUrl__c\") \"\"}}\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:#000000\">Beheer uw voorkeuren</a><br />"
                   },
                   "definition": "lightning/paragraph",
-                  "id": "7b7edfd5-5795-4994-af73-85df79b93209",
+                  "id": "88eb8a21-7818-4017-9695-4f0b4b7abab9",
                   "type": "block"
                 }
               ]

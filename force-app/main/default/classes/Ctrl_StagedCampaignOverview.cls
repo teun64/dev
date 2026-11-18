@@ -89,11 +89,28 @@ public with sharing class Ctrl_StagedCampaignOverview {
 		Map<String, Box> byRole = new Map<String, Box>();
 		Map<Id, String> roleOf = new Map<Id, String>();
 		for (String role : ROLES) byRole.put(role, new Box(role));
+		// the oldest child of a role is the role's own box; more children of the same role (2G Migratie: Large account per
+		// country) get their own box right after it, named after the child
+		Map<Id, Box> boxOf = new Map<Id, Box>();
+		Map<String, List<Box>> extras = new Map<String, List<Box>>();
 		for (Campaign child : children.values()) {
 			roleOf.put(child.Id, child.CampaignRole__c);
-			if (byRole.get(child.CampaignRole__c).recordId == null) byRole.get(child.CampaignRole__c).recordId = child.Id;
+			Box roleBox = byRole.get(child.CampaignRole__c);
+			if (roleBox.recordId == null) {
+				roleBox.recordId = child.Id;
+				boxOf.put(child.Id, roleBox);
+			} else {
+				Box extra = new Box(child.Name.startsWith(c.Name + ' - ') ? child.Name.substringAfter(c.Name + ' - ') : child.Name);
+				extra.recordId = child.Id;
+				boxOf.put(child.Id, extra);
+				if (!extras.containsKey(child.CampaignRole__c)) extras.put(child.CampaignRole__c, new List<Box>());
+				extras.get(child.CampaignRole__c).add(extra);
+			}
 		}
-		o.campaigns = byRole.values();
+		for (String role : ROLES) {
+			o.campaigns.add(byRole.get(role));
+			if (extras.containsKey(role)) o.campaigns.addAll(extras.get(role));
+		}
 		Map<String, Box> reactions = boxes(ANSWERS);
 		Map<String, Box> mails = boxes(new List<String>{ 'Mail 1', 'Mail 2', 'Mail 3' });
 		Map<String, Box> notNow = new Map<String, Box>();
@@ -117,7 +134,7 @@ public with sharing class Ctrl_StagedCampaignOverview {
 			Decimal batch = cm.MailBatch__c;
 			Decimal priority = cm.Priority__c;
 			Date recontact = cm.RecontactFrom__c;
-			byRole.get(role).count += n;
+			boxOf.get(cm.CampaignId).count += n;
 
 			if (role == Svc_CampaignMove.ROLE_SOURCE) {
 				if (recontact != null && recontact > today) o.sourceParked += n;
