@@ -14,6 +14,8 @@
  * ContactId, so Ctrl_DealerShop.getDealerContext() resolves the dealer Account through the
  * Contact. The Account owner needs a role for that link.
  *
+ * Re-activating an existing user sends a password reset email (no welcome email is sent then).
+ *
  * Entry points: the Contact actions Enable/Disable Customer User (via Inv_CustomerUser) and
  * createOrUpdateDealerUser(). Only sysadmins or holders of cp_miExperienceCloudCustomer_Admin
  * may call them; all DML runs in system mode.
@@ -101,7 +103,9 @@ public without sharing class Svc_DealerUserSetup {
         User existing = findExistingUser(contactId, username);
 
         Id userId;
+        Boolean reactivated = false;
         if (existing != null) {
+            reactivated = !existing.IsActive;
             existing.Username = username;
             existing.Email    = email;
             existing.IsActive = true;
@@ -132,6 +136,12 @@ public without sharing class Svc_DealerUserSetup {
             dml.EmailHeader.triggerUserEmail = true;
             Database.insert(u, dml, AccessLevel.SYSTEM_MODE);
             userId = u.Id;
+        }
+
+        // Reactivation sends no welcome email (that only fires on insert), and a deactivate/activate
+        // cycle invalidates the old welcome link: send a password reset mail instead.
+        if (reactivated) {
+            System.resetPassword(userId, true);
         }
 
         assignPsgIfExists(userId);
