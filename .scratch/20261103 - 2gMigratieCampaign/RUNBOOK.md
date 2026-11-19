@@ -542,3 +542,4 @@ User: Mi40 → 3030, Mi01 (MiTracer) → 3012, Mi50 → 3011 when Asset.Accessor
 - OPEN: Data Cloud streams + segment (Rapid publish), Source job schedule + entity restriction on go-live, ZZ live test prod, final acc test, 3040 confirmation, 43 contacts without preference link.
 - TO DO (user 2026-11-19): decide how Large account, Greece, Germany and United Kingdom members are handled (callers, language, offer/Opportunity route, owner, call list).
 - DECISIONS (user 2026-11-19): scope = all mapped 2G hardware (25,444 accounts of entity 1, 35,948 units: Mi50 26,138, MiTracer 5,949, Mi40 3,844, Mi04 17). Product 3040 (MiTracer + Mi04 offer) stays OPEN: 5,236 + 2 accounts, 4,616 accounts have only these. Call-back owner decided when calling starts. How to handle Large account / Greece / DE / UK stays open.
+- TO DISCUSS NEXT SESSION (user 2026-11-19): the response token (CampaignMember.ResponseToken__c / ResponseUrl__c).
