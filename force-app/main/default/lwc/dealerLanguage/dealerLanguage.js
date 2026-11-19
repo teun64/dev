@@ -1,15 +1,27 @@
-// Domain TLD determines the visitor's language - dealer.movingintelligence.nl -> nl_NL,
-// .de -> de, .fr -> fr, everything else (.com, .co.uk, the my.site.com sandbox domain,
-// localhost during dev) falls back to en. Values must match this org's actual registered
-// translation locale codes (see force-app/main/default/translations/*.translation-meta.xml
-// file names) - Dutch is registered as nl_NL, not nl. Shared by dealerHome and dealerShop
-// so both resolve the same visitor language the same way.
+// Domain TLD determines the visitor's language where the domain is country specific:
+// dealer.movingintelligence.nl -> nl_NL, .de -> de, .fr -> fr. Every other domain (.com, .co.uk,
+// the my.site.com sandbox domain, localhost during dev) is language neutral and follows the
+// browser/computer language (navigator.languages), falling back to en. Values must match this
+// org's actual registered translation locale codes (see force-app/main/default/translations/*.
+// translation-meta.xml file names) - Dutch is registered as nl_NL, not nl. Shared by dealerHome,
+// dealerShop and the order pages so they all resolve the same visitor language the same way.
 const HOSTNAME_LANGUAGE_MAP = { '.nl': 'nl_NL', '.de': 'de', '.fr': 'fr' };
+const BROWSER_LANGUAGE_MAP = { nl: 'nl_NL', de: 'de', fr: 'fr', en: 'en' };
 
 export function resolveLanguageFromHostname() {
     const host = window.location.hostname;
     for (const [suffix, lang] of Object.entries(HOSTNAME_LANGUAGE_MAP)) {
         if (host.endsWith(suffix)) return lang;
+    }
+    return resolveLanguageFromBrowser();
+}
+
+// First browser language we have a translation for (nl-BE -> nl_NL, de-AT -> de, ...), else en.
+export function resolveLanguageFromBrowser() {
+    const preferred = (typeof navigator !== 'undefined' && (navigator.languages || [navigator.language])) || [];
+    for (const tag of preferred) {
+        const lang = BROWSER_LANGUAGE_MAP[String(tag || '').toLowerCase().split('-')[0]];
+        if (lang) return lang;
     }
     return 'en';
 }
