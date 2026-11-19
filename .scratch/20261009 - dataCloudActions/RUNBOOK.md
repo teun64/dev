@@ -57,8 +57,18 @@ Note: until step 3 is finished, Contact/Account data is briefly missing in Data 
 
 ## Order for the 2G Migratie mails (2026-11-19)
 Growth sends the 2G mails (drafts in prod Growth, `Emails/M20261109 2G Migratie`); the buttons and footer need Data Cloud data. Each prod step needs an explicit go.
-1. [ ] **CampaignMember stream: add the 2G fields** (`ResponseUrl__c`, `ResponseToken__c`, `MailStage__c`, `MailNumber__c`, `MailDueOn__c`, `Response__c`, `Priority__c`, `MailBatch__c`, `Account__c`, `UnitCount__c`, role). Connector read access field by field (FieldPermissions inserts), never by deploying `sfdc_a360_sfcrm_data_extract`. Unblocks the real response buttons. Independent of the other steps.
+1. [x] **DONE prod 2026-11-19** — **CampaignMember stream: add the 2G fields** (`ResponseUrl__c`, `ResponseToken__c`, `MailStage__c`, `MailNumber__c`, `MailDueOn__c`, `Response__c`, `Priority__c`, `MailBatch__c`, `Account__c`, `UnitCount__c`, role). Connector read access field by field (FieldPermissions inserts), never by deploying `sfdc_a360_sfcrm_data_extract`. Unblocks the real response buttons. Independent of the other steps.
 2. [ ] **Contact + Account recreate (action 3 above).** Unblocks the footer link `Contact.Preference_Center_Url__c` (43 contacts still without) and fixes the Account data (not loaded since 2025-02-20). Extend the Account keep-list first (see Dependency check). Briefly no Contact/Account data in Data Cloud; Growth flows are inactive meanwhile.
 3. [ ] **Growth segments per mail** (stage Due + mail number 1/2/3), connected with Rapid publish. Marketing swaps the `TOKEN` URLs for the merge fields and adds the hardware visibility rules.
 - The stream API is off in acc, so nothing can be tested there; start with the Product2 trial (action 1) to prove the PATCH format.
 - Not needed for the 2G mails: Product2, Asset, CommunicationPreference.
+
+### Done 2026-11-19 (prod): CampaignMember stream
+- FieldPermissions (read only) inserted for the 10 fields on `sfdc_a360_sfcrm_data_extract` (0PSbR000000194TWAQ); the set itself was not deployed.
+- `PATCH /services/data/v68.0/ssot/data-streams/CampaignMember_00D1Q000001eKrH` with body `{"sourceFields":[{"name":"X__c","dataType":"Text|Number|Date",...}]}` ADDS fields (existing ones stay: 38 -> 48). Key is `dataType` (not `datatype`); types must match the source (picklist/reference/string = Text, double = Number, date = Date + `"format":"yyyy-MM-dd"`), otherwise a clear BAD_REQUEST. Format proven; usable for Product2/Asset (disable) probing.
+- Stream went PROCESSING then ACTIVE / SUCCESS. DLO column names drop the double underscore (`Account_c`). Still to do: check the fields in the CampaignMember DMO mapping, and wait for the next load before using `ResponseUrl__c` in Growth.
+
+### Done 2026-11-19 (prod): CampaignMember DMO fields + mapping
+- Custom fields on `ssot__CampaignMember__dlm`: `PATCH /ssot/data-model-objects/ssot__CampaignMember__dlm` with `{"fields":[{"name":"X__c","label":"..","dataType":"Text|Number|Date"}]}` (key `dataType`; POST /fields does not exist). Added: ResponseUrl, ResponseToken, MailStage, MailNumber, MailDueOn, MailBatch, Response, Priority, UnitCount, Account (all `__c`).
+- Mapping: `PATCH /ssot/data-model-object-mappings/CampaignMember_Home_map_CampaignMember_1733992784996/field-mappings` with `{"sourceEntityDeveloperName":"CampaignMember_Home__dll","targetEntityDeveloperName":"ssot__CampaignMember__dlm","fieldMapping":[{"sourceFieldDeveloperName":"ResponseUrl_c__c","targetFieldDeveloperName":"ResponseUrl__c"}, ...]}`. DLO column names are `<Field>_c__c`. Result: 13 -> 23 field mappings.
+- Still to check: values present after the next load (query the DMO), add the fields to the data graph used by Growth merge fields (`$dataGraph`), segments per mail.
