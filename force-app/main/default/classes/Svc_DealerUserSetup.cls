@@ -28,6 +28,8 @@ public without sharing class Svc_DealerUserSetup {
     @TestVisible private static final String PERMISSION_NAME = 'cp_miExperienceCloudCustomer_Admin';
     private static final String             NETWORK_NAME     = 'Dealer Portal';
     private static final String             USERNAME_SUFFIX  = 'miDealer';
+    @TestVisible private static final String INVITE_TEMPLATE = 'DealerPortal_Invite';
+    @TestVisible private static final String FALLBACK_SENDER = 'info@movingintelligence.com';
 
     public class SetupException extends Exception {}
 
@@ -103,9 +105,11 @@ public without sharing class Svc_DealerUserSetup {
         User existing = findExistingUser(contactId, username);
 
         Id userId;
+        Boolean sendInvite = true;
         Boolean reactivated = false;
         if (existing != null) {
             reactivated = !existing.IsActive;
+            sendInvite  = reactivated; // an already active user gets no Salesforce mail, so no heads-up either
             existing.Username = username;
             existing.Email    = email;
             existing.IsActive = true;
@@ -144,6 +148,8 @@ public without sharing class Svc_DealerUserSetup {
             System.resetPassword(userId, true);
         }
 
+        if (sendInvite) sendInviteEmail(userId, con);
+
         assignPsgIfExists(userId);
         Id memberPsId = assignMemberPsIfExists(userId);
         ensureNetworkAccess(memberPsId);
@@ -157,6 +163,53 @@ public without sharing class Svc_DealerUserSetup {
         }
 
         return userId;
+    }
+
+    /**
+     * Heads-up mail from us (template DealerPortal_Invite, in the user's language): a separate Salesforce
+     * mail with the login link follows. Sender = the reseller's org-wide address, like the order
+     * confirmation: Business Entity Email_Sales__c, then the administration's billing email, then info@.
+     * Reply-To = the reseller's sales email. Never throws: a failed heads-up must not block the user.
+     */
+    private static void sendInviteEmail(Id userId, Contact con) {
+        try {
+            List<EmailTemplate> tpl = [SELECT Id FROM EmailTemplate WHERE DeveloperName = :INVITE_TEMPLATE WITH SYSTEM_MODE LIMIT 1];
+            if (tpl.isEmpty()) return;
+
+            String reseller = con.Account?.Reseller_Name__c;
+            String salesEmail;
+            String billingEmail;
+            if (reseller != null) {
+                for (Business_Entities__c be : [
+                    SELECT Email_Sales__c FROM Business_Entities__c WHERE Reseller__c = :reseller WITH SYSTEM_MODE LIMIT 1
+                ]) salesEmail = be.Email_Sales__c;
+                for (Subscription25__Administration__c adm : [
+                    SELECT Subscription25__Billing_Email_Address__c FROM Subscription25__Administration__c
+                    WHERE Reseller__c = :reseller WITH SYSTEM_MODE LIMIT 1
+                ]) billingEmail = adm.Subscription25__Billing_Email_Address__c;
+            }
+            Map<String, Id> senderByAddress = new Map<String, Id>();
+            for (OrgWideEmailAddress owe : [
+                SELECT Id, Address FROM OrgWideEmailAddress WHERE IsVerified = true AND IsAllowAllProfiles = true WITH SYSTEM_MODE
+            ]) senderByAddress.put(owe.Address.toLowerCase(), owe.Id);
+            Id senderId;
+            for (String addr : new List<String>{ salesEmail, billingEmail, FALLBACK_SENDER }) {
+                if (String.isNotBlank(addr) && senderByAddress.containsKey(addr.toLowerCase())) {
+                    senderId = senderByAddress.get(addr.toLowerCase());
+                    break;
+                }
+            }
+
+            Messaging.SingleEmailMessage msg = new Messaging.SingleEmailMessage();
+            msg.setTemplateId(tpl[0].Id);
+            msg.setTargetObjectId(userId);
+            msg.setSaveAsActivity(false);
+            if (senderId != null) msg.setOrgWideEmailAddressId(senderId);
+            if (String.isNotBlank(salesEmail)) msg.setReplyTo(salesEmail);
+            Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ msg }, false);
+        } catch (Exception e) {
+            System.debug(LoggingLevel.WARN, 'Dealer Portal invite email not sent: ' + e.getMessage());
+        }
     }
 
     @future
@@ -178,7 +231,7 @@ public without sharing class Svc_DealerUserSetup {
     private static Contact getContact(Id contactId) {
         List<Contact> cons = [
             SELECT Id, AccountId, FirstName, LastName, Email, Language__c, Account.Sales_Language__c,
-                   Account.Owner.Name, Account.Owner.UserRoleId
+                   Account.Reseller_Name__c, Account.Owner.Name, Account.Owner.UserRoleId
             FROM Contact WHERE Id = :contactId WITH SYSTEM_MODE LIMIT 1
         ];
         if (cons.isEmpty()) throw new SetupException('Contact ' + contactId + ' not found.');

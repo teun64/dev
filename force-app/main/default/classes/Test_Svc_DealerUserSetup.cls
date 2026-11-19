@@ -192,7 +192,10 @@ public class Test_Svc_DealerUserSetup {
         Test.startTest();
         Id firstUserId = Svc_DealerUserSetup.createOrUpdateDealerUser(email, con.Id);
         Id secondUserId = Svc_DealerUserSetup.createOrUpdateDealerUser(email, con.Id);
+        Integer inviteMails = Limits.getEmailInvocations();
         Test.stopTest();
+
+        System.assertEquals(1, inviteMails, 'New user gets one invite mail; updating the already active user sends none');
 
         System.assertNotEquals(null, firstUserId, 'Should return a new User Id on first call');
         System.assertEquals(firstUserId, secondUserId, 'Second call for the same contact should update, not duplicate, the User');
@@ -229,7 +232,10 @@ public class Test_Svc_DealerUserSetup {
         User enabled  = Svc_DealerUserSetup.enableDealerUser(con.Id);
         User disabled = Svc_DealerUserSetup.disableDealerUser(con.Id);
         User again    = Svc_DealerUserSetup.enableDealerUser(con.Id);
+        Integer inviteMails = Limits.getEmailInvocations();
         Test.stopTest();
+
+        System.assertEquals(2, inviteMails, 'Invite mail on create and on reactivation');
 
         System.assertEquals(enabled.Id, disabled.Id, 'Disable should hit the enabled user');
         System.assertEquals(enabled.Id, again.Id, 'Re-enable should re-activate the same user');

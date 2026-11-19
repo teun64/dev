@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Dealer Portal invite email sent by Svc_DealerUserSetup when a dealer user is enabled: says a separate Salesforce mail with the login link follows. Language = recipient's language; texts in DealerPortal_EmailInvite* labels.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Dealer Portal - Invite</name>
+    <style>none</style>
+    <subject>Your Dealer Portal account is ready</subject>
+    <type>visualforce</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

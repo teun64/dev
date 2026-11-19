@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customLabels>
+        <label>Uw Dealer Portal-account staat klaar</label>
+        <name>DealerPortal_EmailInviteSubject</name>
+    </customLabels>
+    <customLabels>
+        <label>Uw account voor het Moving Intelligence Dealer Portal staat klaar. In het portal kunt u producten bestellen en uw bestellingen bekijken.</label>
+        <name>DealerPortal_EmailInviteIntro</name>
+    </customLabels>
+    <customLabels>
+        <label>Binnen enkele minuten ontvangt u een aparte e-mail van Moving Intelligence (verstuurd via Salesforce) met een knop om uw wachtwoord in te stellen.</label>
+        <name>DealerPortal_EmailInviteNext</name>
+    </customLabels>
+    <customLabels>
+        <label>Nog niets ontvangen na een kwartier? Kijk dan eerst in uw spamfolder.</label>
+        <name>DealerPortal_EmailInviteSpam</name>
+    </customLabels>
+    <customLabels>
         <label>Gelieve het factuurbedrag voor {0, date,d-M-yyyy} te voldoen via de betaallink in de factuurmail.</label>
         <name>paymentRemarkPI</name>
     </customLabels>

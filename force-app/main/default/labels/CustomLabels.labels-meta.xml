@@ -3247,4 +3247,36 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Sales call-back: fallback manager email (not-reached mail)</shortDescription>
         <value>nboersma@movingintelligence.com</value>
     </labels>
+    <labels>
+        <fullName>DealerPortal_EmailInviteSubject</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal invite email: subject</shortDescription>
+        <value>Your Dealer Portal account is ready</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailInviteIntro</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal invite email: intro</shortDescription>
+        <value>Your account for the Moving Intelligence Dealer Portal is ready. In the portal you can order products and view your orders.</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailInviteNext</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal invite email: separate Salesforce mail follows</shortDescription>
+        <value>Within a few minutes you will receive a separate email from Moving Intelligence (sent via Salesforce) with a button to set your password.</value>
+    </labels>
+    <labels>
+        <fullName>DealerPortal_EmailInviteSpam</fullName>
+        <categories>DealerPortal</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Dealer Portal invite email: spam hint</shortDescription>
+        <value>Nothing after 15 minutes? Check your spam folder first.</value>
+    </labels>
 </CustomLabels>
