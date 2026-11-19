@@ -4,6 +4,10 @@ import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 import getHomeText from '@salesforce/apex/Ctrl_DealerPortal.getHomeText';
 import submitSignupRequest from '@salesforce/apex/Ctrl_DealerPortal.submitSignupRequest';
 import isEmailRegistered from '@salesforce/apex/Ctrl_DealerPortal.isEmailRegistered';
+import basePath from '@salesforce/community/basePath';
+
+// '/dealers' on the Salesforce domain, '' on the custom dealer domains (the site sits at their root).
+const BASE = (basePath || '').replace(/\/$/, '');
 
 const HERO_IMAGE_PATH = 'Branding/2024/img/home-hero.png';
 const EMPTY_FORM = {
@@ -46,6 +50,9 @@ function resolveLanguageFromHostname() {
 }
 
 export default class DealerHome extends LightningElement {
+    get shopUrl() { return `${BASE}/shop`; }
+    get loginUrl() { return `${BASE}/login`; }
+
     @track config = { isAuthenticated: false };
     @track homeText = HOME_DEFAULT_LABELS;
     @track form = { ...EMPTY_FORM };

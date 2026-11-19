@@ -1,6 +1,6 @@
 <template>
     <div class="order-detail">
-        <a href="/dealers/order-history" class="back-link">&lsaquo; {labels.DealerOrder_BackToHistory}</a>
+        <a href={historyUrl} class="back-link">&lsaquo; {labels.DealerOrder_BackToHistory}</a>
 
         <template if:true={isLoading}>
             <div class="spinner-container">

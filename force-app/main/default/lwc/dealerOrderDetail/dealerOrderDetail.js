@@ -3,8 +3,14 @@ import getOrderDetail from '@salesforce/apex/Ctrl_DealerShop.getOrderDetail';
 import getPortalLabels from '@salesforce/apex/Ctrl_DealerPortal.getPortalLabels';
 import { mergeItemsIntoCart, saveOrderOptions } from 'c/dealerCartStorage';
 import { resolveLanguageFromHostname, resolveNumberLocale, ORDER_DEFAULT_LABELS, orderStatusLabel } from 'c/dealerLanguage';
+import basePath from '@salesforce/community/basePath';
+
+// '/dealers' on the Salesforce domain, '' on the custom dealer domains (the site sits at their root).
+const BASE = (basePath || '').replace(/\/$/, '');
 
 export default class DealerOrderDetail extends LightningElement {
+    get historyUrl() { return `${BASE}/order-history`; }
+
     @track order = null;
     @track isLoading = true;
     @track errorMessage = null;
@@ -136,7 +142,7 @@ export default class DealerOrderDetail extends LightningElement {
 
     _goToShopCart() {
         if (typeof window !== 'undefined') {
-            window.location.href = '/dealers/shop?openCart=1';
+            window.location.href = `${BASE}/shop?openCart=1`;
         }
     }
 }

@@ -17,7 +17,7 @@
                     <div class="cta-card">
                         <h2 class="cta-heading">{homeText.DealerHome_ShopHeading}</h2>
                         <p class="cta-text">{homeText.DealerHome_ShopCta}</p>
-                        <a href="/dealers/shop" class="cta-btn" style={ctaBtnStyle}>
+                        <a href={shopUrl} class="cta-btn" style={ctaBtnStyle}>
                             {homeText.DealerHome_ShopButton} &#8250;
                         </a>
                     </div>
@@ -25,7 +25,7 @@
                 <template if:false={config.isAuthenticated}>
                     <div class="cta-card">
                         <h2 class="cta-heading">{homeText.DealerHome_LoginHeading}</h2>
-                        <a href="/dealers/login" class="cta-btn" style={ctaBtnStyle}>
+                        <a href={loginUrl} class="cta-btn" style={ctaBtnStyle}>
                             {homeText.DealerHome_LoginButton} &#8250;
                         </a>
                         <div class="become-dealer-prompt">

@@ -3,6 +3,10 @@ import BRANDING from '@salesforce/resourceUrl/Branding';
 import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 import getPortalLabels from '@salesforce/apex/Ctrl_DealerPortal.getPortalLabels';
 import { resolveLanguageFromHostname, ORDER_DEFAULT_LABELS } from 'c/dealerLanguage';
+import basePath from '@salesforce/community/basePath';
+
+// '/dealers' on the Salesforce domain, '' on the custom dealer domains (the site sits at their root).
+const BASE = (basePath || '').replace(/\/$/, '');
 
 const FAVICON_PATH = 'Branding/2024/img/favicon.png';
 
@@ -40,6 +44,12 @@ export default class DealerNav extends LightningElement {
         link.href = href;
     }
 
+    get homeUrl() { return BASE || '/'; }
+    get shopUrl() { return `${BASE}/shop`; }
+    get orderHistoryUrl() { return `${BASE}/order-history`; }
+    get loginUrl() { return `${BASE}/login`; }
+    get logoutUrl() { return `${BASE}/secur/logout.jsp`; }
+
     get userName() {
         return this.config.userName || '';
     }
@@ -65,22 +75,23 @@ export default class DealerNav extends LightningElement {
     }
 
     get homeClass() {
-        return this.currentPath === '/dealers' || this.currentPath === '/dealers/' ? 'nav-link active' : 'nav-link';
+        const p = this.currentPath.replace(/\/$/, '');
+        return p === BASE ? 'nav-link active' : 'nav-link';
     }
 
     get shopClass() {
-        return this.currentPath.includes('/dealers/shop') ? 'nav-link active' : 'nav-link';
+        return this.currentPath.includes(`${BASE}/shop`) ? 'nav-link active' : 'nav-link';
     }
 
     get orderHistoryClass() {
-        return this.currentPath.includes('/dealers/order-history') ? 'nav-link active' : 'nav-link';
+        return this.currentPath.includes(`${BASE}/order-history`) ? 'nav-link active' : 'nav-link';
     }
 
     handleShopClick(event) {
         if (this.config && this.config.isAuthenticated) return;
         event.preventDefault();
         if (typeof window !== 'undefined') {
-            window.location.href = '/dealers/login?startURL=/dealers/shop';
+            window.location.href = `${BASE}/login?startURL=${BASE}/shop`;
         }
     }
 
@@ -88,17 +99,17 @@ export default class DealerNav extends LightningElement {
         if (this.config && this.config.isAuthenticated) return;
         event.preventDefault();
         if (typeof window !== 'undefined') {
-            window.location.href = '/dealers/login?startURL=/dealers/order-history';
+            window.location.href = `${BASE}/login?startURL=${BASE}/order-history`;
         }
     }
 
-    // "/dealers/secur/logout.jsp" isn't a page this LWR site's client-side router knows about, so
+    // "<base>/secur/logout.jsp" isn't a page this LWR site's client-side router knows about, so
     // a plain <a> click gets intercepted as SPA navigation and shows "Invalid Page" instead of
     // reaching the server. Forcing a full browser navigation bypasses the router entirely.
     handleLogoutClick(event) {
         event.preventDefault();
         if (typeof window !== 'undefined') {
-            window.location.href = '/dealers/secur/logout.jsp?retUrl=/dealers';
+            window.location.href = `${BASE}/secur/logout.jsp?retUrl=${BASE || '/'}`;
         }
     }
 }

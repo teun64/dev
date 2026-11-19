@@ -73,6 +73,28 @@ const LABELS = {
 };
 const SUPPORTED_LANGS = Object.keys(LABELS);
 
+// '/dealers' on the Salesforce domain, '' on the custom dealer domains (the site sits at their root).
+const BASE = (basePath || '').replace(/\/$/, '');
+
+// Site.login builds its redirect from the site's own address: always with the '/dealers' prefix and
+// possibly on another of the site's domains. Keep the dealer on the domain they logged in on and
+// drop the prefix where the site sits at the root, otherwise the shop shows "Invalid Page".
+function localRedirect(url) {
+    try {
+        const u = new URL(url, window.location.origin);
+        u.protocol = window.location.protocol;
+        u.host = window.location.host;
+        if (!BASE) {
+            const strip = (v) => (v && /^\/dealers(\/|$)/.test(v) ? v.replace(/^\/dealers/, '') || '/' : v);
+            u.pathname = strip(u.pathname);
+            [...u.searchParams.keys()].forEach((k) => u.searchParams.set(k, strip(u.searchParams.get(k))));
+        }
+        return u.href;
+    } catch (e) {
+        return url;
+    }
+}
+
 export default class DealerLogin extends LightningElement {
     // 'login' on the Login page, 'forgot' on the Forgot Password page.
     @api mode = 'login';
@@ -155,7 +177,7 @@ export default class DealerLogin extends LightningElement {
         this.isBusy = true;
         try {
             const url = await login({ identifier: this.identifier, password: this.password, startUrl: this.startUrl });
-            window.location.href = url;
+            window.location.href = localRedirect(url);
         } catch (e) {
             // Every failure looks the same on purpose (no hint whether an account exists or is disabled).
             this.errorMessage = this.failedMessage;
