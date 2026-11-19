@@ -80,9 +80,14 @@ public without sharing class Svc_CampaignSource {
 		];
 	}
 
-	/** Batch start: accounts with at least one 2G unit in the selection. */
+	// the campaign is Dutch (mails, call-backs): only accounts of customer entity 1 (Account.Reseller_Name__c = NL - Moving
+	// Intelligence B.V.) are added; GR/DE/GB accounts are handled in their own children (user 2026-11-18)
+	public static final String SOURCE_ENTITY = '1';
+
+	/** Batch start: accounts of the source entity with at least one 2G unit in the selection. */
 	public static String accountQuery() {
 		return 'SELECT Id, BillingCountryCode, RecordType.DeveloperName FROM Account WHERE Relation_type__c = \'End User\''
+			+ ' AND Reseller_Name__c = \'' + SOURCE_ENTITY + '\''
 			+ ' AND Id IN (SELECT AccountId FROM Contract WHERE ' + CONTRACT_SCOPE + ' AND ' + MODEM_2G + ')';
 	}
 

@@ -200,5 +200,6 @@ private class Test_Svc_CampaignSource {
 		Test.stopTest();
 		System.assertEquals(0, members('Source').size(), 'no contracts in the selection');
 		System.assert(Svc_CampaignSource.accountQuery().contains('MigrationProduct__c'));
+		System.assert(Svc_CampaignSource.accountQuery().contains('Reseller_Name__c = \'1\''), 'only entity 1 (NL)');
 	}
 }
