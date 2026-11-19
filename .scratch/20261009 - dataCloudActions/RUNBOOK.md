@@ -28,7 +28,7 @@ The Data Cloud stream API (`/ssot/data-streams`) is switched off in acc (FUNCTIO
 1. [ ] **Product2 as a safe trial:** disable the 2 deleted fields via the API, run the stream, check SUCCESS. This proves the request format.
 2. [ ] **Asset:** disable the 7 deleted fields the same way, then run the stream. No purge needed.
 3. [ ] **Contact and Account:**
-   - [ ] Dependency check: segments, calculated insights, activations and DMO mappings that use Contact/Account fields which will disappear. Report before deleting.
+   - [x] Dependency check (2026-11-06, read-only): see "Dependency check 2026-11-06" below. **The Account keep-list must be extended before step 3.**
    - [ ] Delete Contact_Home and Account_Home **including their stored data** (this is the purge).
    - [ ] Recreate both with the keep-lists above.
    - [ ] Map them again to the data model: Individual and ContactPointEmail for Contact, Account for Account.
@@ -41,6 +41,24 @@ The Data Cloud stream API (`/ssot/data-streams`) is switched off in acc (FUNCTIO
 
 Note: until step 3 is finished, Contact/Account data is briefly missing in Data Cloud. All Growth segment-triggered flows are inactive, so nothing is mailed in the meantime.
 
+## Dependency check 2026-11-06 (prod, read-only)
+- 32 segments, 8 calculated insights (all standard Marketing/Prompt scores), 0 activations.
+- Segment use per DMO: Account 24, Contract 19, Product 16, Individual 5, CampaignMember 3, Asset 3.
+- **Account fields used by segments that are NOT in the agreed keep-list:** `Contact_Main__c` (20 segments: the join to the recipient), `Reseller_Name__c` (23), `Subscriptions_Activated__c` (4), `Market__c` (3), `Relation_Type__c` (2), `Sales_Channel__c` (2), `Active__c` (2), `ParentId` (1). `IsBusiness__c` (3) is already in the list. → Add these to the Account keep-list, or those segments break after the recreate.
+- Asset fields used: `Brand__c`, `Object_Type__c`, `Year_of_Manufacture_Object__c` (3 segments). Keep these in the Asset stream (step 2 only disables the deleted fields).
+- Product: `Base_Product_Reporting__c` (16 segments).
+- ⚠ Account_Home has not loaded since 2025-02-20, so the 24 Account-based segments (e.g. "Account - NL", "Contract - NL - miGreen + miRed", last published 2026-11-05) currently run on Account data from February 2025.
+- The CampaignMember stream (`CampaignMember_00D1Q000001eKrH`, from Growth) exists and loads daily, standard fields only. New 2G campaign member fields (MailStage__c, MailNumber__c, MailDueOn__c, Response__c, Priority__c, MailBatch__c…) must be added + connector FLS field by field (step 4 method).
+- Stream status unchanged since 2026-10-09: Contact 2026-08-28, Account 2025-02-20, Asset 2025-11-27.
+
 ## Related
 
 - MiWhite mailflow advice: https://claude.ai/artifact/9hs4zdZ4RdNFfprAxDLozT
+
+## Order for the 2G Migratie mails (2026-11-19)
+Growth sends the 2G mails (drafts in prod Growth, `Emails/M20261109 2G Migratie`); the buttons and footer need Data Cloud data. Each prod step needs an explicit go.
+1. [ ] **CampaignMember stream: add the 2G fields** (`ResponseUrl__c`, `ResponseToken__c`, `MailStage__c`, `MailNumber__c`, `MailDueOn__c`, `Response__c`, `Priority__c`, `MailBatch__c`, `Account__c`, `UnitCount__c`, role). Connector read access field by field (FieldPermissions inserts), never by deploying `sfdc_a360_sfcrm_data_extract`. Unblocks the real response buttons. Independent of the other steps.
+2. [ ] **Contact + Account recreate (action 3 above).** Unblocks the footer link `Contact.Preference_Center_Url__c` (43 contacts still without) and fixes the Account data (not loaded since 2025-02-20). Extend the Account keep-list first (see Dependency check). Briefly no Contact/Account data in Data Cloud; Growth flows are inactive meanwhile.
+3. [ ] **Growth segments per mail** (stage Due + mail number 1/2/3), connected with Rapid publish. Marketing swaps the `TOKEN` URLs for the merge fields and adds the hardware visibility rules.
+- The stream API is off in acc, so nothing can be tested there; start with the Product2 trial (action 1) to prove the PATCH format.
+- Not needed for the 2G mails: Product2, Asset, CommunicationPreference.
