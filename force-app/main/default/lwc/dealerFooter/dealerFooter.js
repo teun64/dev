@@ -3,6 +3,7 @@ import BRANDING from '@salesforce/resourceUrl/Branding';
 import LOCALE_LANG from '@salesforce/i18n/lang';
 import getBrandConfig from '@salesforce/apex/Ctrl_DealerPortal.getBrandConfig';
 import getFooterInfo from '@salesforce/apex/Ctrl_DealerPortal.getFooterInfo';
+import { resolveLanguageFromBrowser } from 'c/dealerLanguage';
 
 const DEFAULT_LANG = 'en';
 const CAR_IMAGE_PATH = 'Branding/2024/img/car-silhouette-dark.png';
@@ -94,8 +95,9 @@ export default class DealerFooter extends LightningElement {
 
     // The portal domain picks the Administration for visitors without a dealer account.
     hostname = window.location.hostname;
+    browserLanguage = resolveLanguageFromBrowser();
 
-    @wire(getFooterInfo, { hostname: '$hostname' })
+    @wire(getFooterInfo, { hostname: '$hostname', language: '$browserLanguage' })
     wiredFooter({ data }) {
         if (data) this.footer = data;
     }

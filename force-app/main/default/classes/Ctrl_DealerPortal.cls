@@ -104,10 +104,21 @@ public without sharing class Ctrl_DealerPortal {
         '.co.uk' => '6'
     };
 
+    // Language-neutral domains (.com): the reseller follows the visitor's browser language.
+    // TODO(French): 'fr' maps to reseller 4, but the dealer invite mail labels have no French translation yet
+    // (French dealers get English for now).
+    private static final Map<String, String> RESELLER_CODE_BY_LANGUAGE = new Map<String, String>{
+        'nl_NL' => '1',
+        'fr'    => '4',
+        'de'    => '5',
+        'en'    => '6'
+    };
+
     @AuraEnabled(cacheable=true)
-    public static FooterDTO getFooterInfo(String hostname) {
+    public static FooterDTO getFooterInfo(String hostname, String language) {
+        // Logged in: the reseller of the dealer's account. Guest: domain suffix, else browser language.
         String resellerCode = resolveResellerCode();
-        if (String.isBlank(resellerCode)) resellerCode = resellerCodeForHost(hostname);
+        if (String.isBlank(resellerCode)) resellerCode = resellerCodeForHost(hostname, language);
 
         List<Subscription25__Administration__c> admins = Util_Shop_System.getAdministrationsByReseller(
             resellerCode,
@@ -234,10 +245,13 @@ public without sharing class Ctrl_DealerPortal {
     }
 
     @TestVisible
-    private static String resellerCodeForHost(String hostname) {
+    private static String resellerCodeForHost(String hostname, String language) {
         String host = String.isBlank(hostname) ? '' : hostname.trim().toLowerCase();
         for (String suffix : RESELLER_CODE_BY_DOMAIN_SUFFIX.keySet()) {
             if (host.endsWith(suffix)) return RESELLER_CODE_BY_DOMAIN_SUFFIX.get(suffix);
+        }
+        if (host.endsWith('.com') && RESELLER_CODE_BY_LANGUAGE.containsKey(language)) {
+            return RESELLER_CODE_BY_LANGUAGE.get(language);
         }
         return DEFAULT_RESELLER_CODE;
     }

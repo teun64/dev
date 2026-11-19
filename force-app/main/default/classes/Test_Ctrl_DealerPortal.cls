@@ -74,7 +74,7 @@ private class Test_Ctrl_DealerPortal {
         Ctrl_DealerPortal.FooterDTO dto;
         Test.startTest();
         System.runAs(portalUser()) {
-            dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk');
+            dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk', null);
         }
         Test.stopTest();
 
@@ -94,7 +94,7 @@ private class Test_Ctrl_DealerPortal {
 
     @IsTest
     static void testGetFooterInfo_noDealer_usesAdministrationOfDomain() {
-        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.nl');
+        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.nl', null);
 
         System.assertEquals('Test Reseller B.V.', dto.companyName, 'Without a dealer account, .nl should resolve to the Administration of reseller 1');
         System.assertEquals('https://testreseller.example/privacy', dto.privacyPolicyUrl, 'privacyPolicyUrl should come from the domain Administration');
@@ -103,7 +103,7 @@ private class Test_Ctrl_DealerPortal {
 
     @IsTest
     static void testGetFooterInfo_noAdministrationForDomain_returnsFallback() {
-        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk');
+        Ctrl_DealerPortal.FooterDTO dto = Ctrl_DealerPortal.getFooterInfo('dealer.movingintelligence.co.uk', null);
 
         System.assertEquals('Moving Intelligence B.V.', dto.companyName, 'No Administration for reseller 6 in this fixture, so the default company info is returned');
         System.assertEquals(null, dto.privacyPolicyUrl, 'Fallback context has no Administration record to source a privacy URL from');
@@ -111,12 +111,17 @@ private class Test_Ctrl_DealerPortal {
 
     @IsTest
     static void testResellerCodeForHost() {
-        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.nl'), '.nl → Netherlands');
-        System.assertEquals('5', Ctrl_DealerPortal.resellerCodeForHost('Dealer.MovingIntelligence.DE'), '.de → Germany, case-insensitive');
-        System.assertEquals('6', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.co.uk'), '.co.uk → United Kingdom');
-        System.assertEquals('4', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.fr'), '.fr → France');
-        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('movingintelligence.my.site.com'), 'Other domains fall back to reseller 1');
-        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost(null), 'No hostname falls back to reseller 1');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.nl', null), '.nl → Netherlands');
+        System.assertEquals('5', Ctrl_DealerPortal.resellerCodeForHost('Dealer.MovingIntelligence.DE', null), '.de → Germany, case-insensitive');
+        System.assertEquals('6', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.co.uk', null), '.co.uk → United Kingdom');
+        System.assertEquals('4', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.fr', null), '.fr → France');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('movingintelligence.my.site.com', null), 'Other domains fall back to reseller 1');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost(null, null), 'No hostname falls back to reseller 1');
+        System.assertEquals('5', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.com', 'de'), '.com + German browser');
+        System.assertEquals('6', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.com', 'en'), '.com + English browser');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.com', 'nl_NL'), '.com + Dutch browser');
+        System.assertEquals('1', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.com', null), '.com without language');
+        System.assertEquals('5', Ctrl_DealerPortal.resellerCodeForHost('dealer.movingintelligence.de', 'en'), 'country domain wins over browser');
     }
 
     @IsTest

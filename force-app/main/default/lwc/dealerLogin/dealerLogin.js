@@ -5,6 +5,7 @@ import basePath from '@salesforce/community/basePath';
 import login from '@salesforce/apex/Ctrl_DealerPortalLogin.login';
 import forgotPassword from '@salesforce/apex/Ctrl_DealerPortalLogin.forgotPassword';
 import getFooterInfo from '@salesforce/apex/Ctrl_DealerPortal.getFooterInfo';
+import { resolveLanguageFromBrowser } from 'c/dealerLanguage';
 
 const DEFAULT_LANG = 'en';
 
@@ -115,8 +116,9 @@ export default class DealerLogin extends LightningElement {
 
     // The portal domain picks the Administration for visitors without a dealer account.
     hostname = window.location.hostname;
+    browserLanguage = resolveLanguageFromBrowser();
 
-    @wire(getFooterInfo, { hostname: '$hostname' })
+    @wire(getFooterInfo, { hostname: '$hostname', language: '$browserLanguage' })
     wiredFooter({ data }) {
         if (data) this.contactEmail = data.email || '';
     }
