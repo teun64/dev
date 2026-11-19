@@ -163,3 +163,10 @@ In scope and prod-only (not in the repo): the 3 SFX `Verzoek_tot_be_indiging_die
 
 ## Repo
 The repo `.email` files (DD, Invoicing, auto-responses) are dev's version. In dev, DD and Invoice hang on `lh_M_Preferences_*`, which already carries the banner, so header.py doesn't change them. prod's DD and Invoice templates are a different (older) version, so they're done through the API in step 4, not through a metadata deploy. Don't deploy the repo DD/Invoice files to prod as part of this runbook: that's the invoice-consolidation rollout.
+
+## Letterhead rule (2026-11-19)
+Rule: see memory `feedback_email_use_letterhead.md`. New or edited templates (Salesforce and Marketing Cloud) use a letterhead for the header/footer, not an inline header image. If a letterhead isn't possible, ask first.
+
+- **Dealer Portal VF mails** (`DealerPortal_Welcome`, `DealerPortal_PasswordReset`): checked 2026-11-19. Both start with `<c:emailLetterheadPreferences part="header">` and have no inline header `<img>`. VF templates can't link a Lightning letterhead, so the component is the equivalent. Compliant.
+- **Not yet checked** (the repo `.email-meta.xml` doesn't hold the letterhead link, `EnhancedLetterheadId` is a data field, so check per org with `SELECT DeveloperName, EnhancedLetterheadId FROM EmailTemplate`): `Opportunity_OrderConfirmation`, `email/Campaigns/campaignConfirm*`, the `email/DirectDebit/*` templates (dev hangs on `lh_M_Preferences_*`, prod is an older version), the auto-responses in `mi1/mi4/mi5`. Where a template has no letterhead and the repo body has `miemailheader` inline, it is a candidate to move. Ask the user before migrating.
+- Marketing Cloud: same rule for new templates; use a template/brand layer for the header, ask if the setup doesn't allow it.
