@@ -96,8 +96,10 @@ public class Trigger_Contact {
 
 		for(Contact conNew : candidates){
 			if(conNew.Id != null && excludedContactIds.contains(conNew.Id)){
-				conNew.Preference_Token_Key__c  = null;
-				conNew.Preference_Center_Url__c = null;
+				conNew.Preference_Token_Key__c      = null;
+				conNew.Preference_Token_Previous__c = null;
+				conNew.Preference_Token_Date__c     = null;
+				conNew.Preference_Center_Url__c     = null;
 				continue;
 			}
 
@@ -109,7 +111,10 @@ public class Trigger_Contact {
 				// DML org-wide. Guest preference-center links simply won't resolve until it is.
 				keyHash = null;
 			}
-			conNew.Preference_Token_Key__c = keyHash;
+			conNew.Preference_Token_Key__c      = keyHash;
+			// A changed email makes every older link invalid: no previous token, and a fresh rotation clock.
+			conNew.Preference_Token_Previous__c = null;
+			conNew.Preference_Token_Date__c     = keyHash == null ? null : Date.today();
 
 			try {
 				conNew.Preference_Center_Url__c = Util_CommunicationPreferenceToken.buildPreferenceCenterUrl(keyHash);

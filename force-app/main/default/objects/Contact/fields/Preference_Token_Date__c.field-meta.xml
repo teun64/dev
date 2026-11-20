@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Preference_Token_Date__c</fullName>
+    <description>Date the current Preference_Token_Key__c was created. Rotation picks Contacts whose date is empty or older than 90 days.</description>
+    <externalId>false</externalId>
+    <label>Preference Token Date</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

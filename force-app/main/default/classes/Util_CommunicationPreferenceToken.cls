@@ -36,14 +36,25 @@ public with sharing class Util_CommunicationPreferenceToken {
     // =========================
     // Email -> key hash (used by Trigger_Contact to stamp Contact.Preference_Token_Key__c)
     // =========================
+    // The key now changes every rotation period: HMAC(email | yyyymm). The period is INSIDE the MAC,
+    // so a leaked old link cannot be turned into the current one by editing a suffix.
     public static String hashEmail(String email) {
+        return hashEmail(email, currentPeriod());
+    }
+
+    public static String hashEmail(String email, String period) {
         if (String.isBlank(email)) return null;
         Blob mac = Crypto.generateMac(
             'HmacSHA256',
-            Blob.valueOf(email.trim().toLowerCase()),
+            Blob.valueOf(email.trim().toLowerCase() + '|' + period),
             Blob.valueOf(getSecret())
         );
         return EncodingUtil.convertToHex(mac);
+    }
+
+    /** yyyymm of today, e.g. 202611. */
+    public static String currentPeriod() {
+        return Datetime.now().formatGmt('yyyyMM');
     }
 
     /**

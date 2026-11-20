@@ -24,8 +24,7 @@
 </p>
 
 <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 8px 0;">
-    Met vriendelijke groet,<br/><br/>
-    <img alt="mi-signature-red-arrow" src="https://movingintelligence.file.force.com/file-asset-public/misignatureredarrow?oid=00D1t000000uTfK" title="mi-signature-red-arrow" />
+    Met vriendelijke groet,
 </p>
 
 <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
@@ -37,8 +36,11 @@
 
 
 <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:12px; line-height:1.6; color:#5B625B;">
-    Hulp nodig? Bekijk onze <a href="https://movingintelligence.nl/support" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">veelgestelde vragen</a>.<br/>
-    U ontvangt deze e-mail omdat u (of namens u) een verzoek bij Moving Intelligence heeft ingediend.
+    {{{Subscription25__Invoice__c.Legal_FAQ_Line_NL__c}}}<br/>
+    U ontvangt dit bericht omdat u klant bent van Moving Intelligence en het betrekking heeft op uw dienstverlening.<br/>
+    U bepaalt zelf welke andere e-mails u van ons ontvangt: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">beheer uw e-mailvoorkeuren</a>.<br/>
+    Deze e-mail bevat persoonlijke links. Stuur hem daarom niet door.<br/><br/>
+    {{{Subscription25__Invoice__c.Legal_Company_Block__c}}}
 </div>
 
 </div>

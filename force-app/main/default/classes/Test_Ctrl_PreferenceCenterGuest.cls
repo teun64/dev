@@ -45,7 +45,9 @@ private class Test_Ctrl_PreferenceCenterGuest {
             Ctrl_PreferenceCenterGuest.getPreferences(token);
         Test.stopTest();
 
-        System.assertEquals('Jane GuestTester', page.contactName, 'Should resolve to the seeded contact');
+        System.assertEquals('Jane', page.contactName, 'Guest sees the first name only');
+        System.assertEquals('j***@example.com', page.contactEmail, 'Guest sees a masked email');
+        System.assertEquals(null, page.contactPhone, 'Guest sees no phone');
     }
 
     @IsTest
@@ -64,7 +66,7 @@ private class Test_Ctrl_PreferenceCenterGuest {
             Ctrl_PreferenceCenterGuest.getPreferences('no-such-hash');
             System.assert(false, 'Expected AuraHandledException for unmatched hash');
         } catch (AuraHandledException e) {
-            System.assert(e.getMessage().contains('No contact found'));
+            System.assertEquals(Ctrl_PreferenceCenterGuest.EXPIRED_MESSAGE, e.getMessage());
         }
     }
 

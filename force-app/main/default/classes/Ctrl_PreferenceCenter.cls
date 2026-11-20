@@ -587,6 +587,7 @@ public without sharing class Ctrl_PreferenceCenter {
         @AuraEnabled public Map<String, String>              categoryLabels;
         @AuraEnabled public Map<String, String>              typeLabels;
         @AuraEnabled public Map<String, String>              channelLabels;
+        @AuraEnabled public Boolean                          staleToken; // guest opened an older (rotated) link
     }
 
     public class DisplayLabels {

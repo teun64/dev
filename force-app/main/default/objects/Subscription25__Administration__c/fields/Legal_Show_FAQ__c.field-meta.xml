@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Legal_Show_FAQ__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Show the FAQ line in the footer of service emails of this Administration.</description>
+    <externalId>false</externalId>
+    <label>Show FAQ in Service Email Footer</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
