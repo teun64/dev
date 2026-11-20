@@ -5,20 +5,23 @@
  * (Accounts, AccountContactRelations, logs, rate limits). Per account, per part:
  *  - account     : POST (new) / PUT (changed); duplicate-prevention match GET only for unchecked accounts,
  *                  never links an Exact account that another Salesforce account already uses
+ *  - account     : POST (new, with the establishment address once) / PUT (changed, never with an address); duplicate-
+ *                  prevention match GET only for unchecked accounts, never links an Exact account that another Salesforce
+ *                  account already uses
  *  - contacts    : main / invoice / shipping contact, one Exact contact per AccountContactRelation
- *                  (ACR.FinancialIdContact__c); Exact account MainContact = the main contact. Any other relation
- *                  with an Exact id that is flagged (changed contact) is maintained as well.
- *  - addresses   : establishment (Billing) is the Exact account's own address; invoice (type 3) = invoice
- *                  address when used (useInvoiceAddress__c), otherwise the establishment address, + invoice contact;
- *                  shipping (type 4) likewise (useShippingAddress__c). Only needed when address or contact differs
- *                  from the establishment + main contact: Exact then defaults to the visit address + main contact.
- *                  A needed address is created / kept up to date; one that is no longer needed (use flag off, or
- *                  the invoice / shipping role moved to the main contact) is deleted in Exact - when Exact refuses,
- *                  it is set to the establishment address + main contact instead. Both are the Main address of
- *                  their type: the first sync takes over (overwrites) the existing Main address of that type.
- *  - names       : an invoice contact with the same name as the main contact but another email address gets
- *                  " (i)" after its last name in Exact, a shipping contact likewise " (s)" (same name as the main
- *                  or invoice contact); the main contact is never renamed. Removed again when the clash is gone.
+ *                  (ACR.FinancialIdContact__c); Exact account MainContact = the INVOICE contact (fallback: Main-role
+ *                  contact), set after the contacts and again after every account PUT. Any other relation with an Exact
+ *                  id that is flagged (changed contact) is maintained as well.
+ *  - addresses   : each the Main address of its type, linked to the contact of its role. Visit (type 1, always, the
+ *                  establishment address, id in FinancialIdVisitingAddress__c) + main contact; invoice (type 3) = invoice
+ *                  address when used (useInvoiceAddress__c), otherwise the establishment address, + main contact; delivery
+ *                  (type 4) likewise (useShippingAddress__c) + shipping contact. Invoice / delivery are created only when
+ *                  the address or contact differs from the establishment address + main contact. An Exact address that
+ *                  exists is never deleted: when not needed it is kept up to date as the establishment address + its role
+ *                  contact. A stale id (403 / 404) is dropped and the Main address of the type looked up again.
+ *  - names       : the Main-role contact with the same name as the Exact main (invoice) contact but another email address
+ *                  gets " (m)" after its last name in Exact, a shipping contact " (s)" (same name as the main or the
+ *                  Main-role contact); the Exact main contact is never renamed. Removed again when the clash is gone.
  *  - bank/mandate: an Exact bank account number cannot be changed, so a changed IBAN means GET (exists?) or POST;
  *                  an existing, not cancelled mandate of the bank account is reused before a new one is created
  *                  (first sync); after a real change of IBAN / holder name the old mandate is deleted (else
@@ -50,6 +53,7 @@ public without sharing class Util_FinancialSystemAccount {
 	private static final String CONTACT_ENDPOINT = 'api/v1/{0}/crm/Contacts';
 	private static final String MANDATE_ENDPOINT = 'api/v1/{0}/cashflow/DirectDebitMandates';
 
+	public static final Integer ADDRESS_TYPE_VISIT = 1;
 	public static final Integer ADDRESS_TYPE_INVOICE = 3;
 	public static final Integer ADDRESS_TYPE_DELIVERY = 4;
 
@@ -58,6 +62,8 @@ public without sharing class Util_FinancialSystemAccount {
 
 	@TestVisible
 	private static final String STATE_ACCOUNT = 'account';
+	@TestVisible
+	private static final String STATE_VISIT = 'visit';
 	@TestVisible
 	private static final String STATE_INVOICE = 'invoice';
 	@TestVisible
@@ -74,6 +80,8 @@ public without sharing class Util_FinancialSystemAccount {
 	private static final String SUFFIX_INVOICE = ' (i)';
 	@TestVisible
 	private static final String SUFFIX_SHIPPING = ' (s)';
+	@TestVisible
+	private static final String SUFFIX_MAIN = ' (m)';
 	// Exact silently cuts contact names off at these lengths (measured in the acc test division 2026-10-16; Salesforce:
 	// FirstName 40, MiddleName 40, LastName 80); the last name is shortened before a suffix so the suffix stays visible
 	@TestVisible
@@ -82,9 +90,6 @@ public without sharing class Util_FinancialSystemAccount {
 	private static final Integer EXACT_MIDDLENAME_MAX = 30;
 	@TestVisible
 	private static final Integer EXACT_LASTNAME_MAX = 50;
-	// state of an address that is not needed any more but that Exact refused to delete (kept as establishment address)
-	@TestVisible
-	private static final String STATE_KEPT = 'kept:';
 
 	public class Result {
 		public Id accountId;
@@ -366,7 +371,7 @@ public without sharing class Util_FinancialSystemAccount {
 				Bank_Account_Number__c, Bank_Account__c,
 				FinancialDebtorCheck__c, FinancialNumberOfDebtors__c, FinancialReplaceDebtorNumber__c,
 				FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c, FinancialIdAccount__c,
-				FinancialIdInvoiceAddress__c, FinancialIdShippingAddress__c, FinancialIdBankAccount__c, FinancialIdBankMandate__c,
+				FinancialIdVisitingAddress__c, FinancialIdInvoiceAddress__c, FinancialIdShippingAddress__c, FinancialIdBankAccount__c, FinancialIdBankMandate__c,
 				FinancialAccountClassification1__c, FinancialAccountClassification2__c, FinancialAccountClassification3__c,
 				SyncToFinancialSystem__c, FinancialSyncState__c, FinancialSyncAttempts__c, FinancialSyncNextAttempt__c, FinancialSyncLastError__c,
 				FinancialContactsToRetire__c,
@@ -474,6 +479,7 @@ public without sharing class Util_FinancialSystemAccount {
 		}
 		calls += Svc_FinancialSystemContactRemoval.readEntries(acct.FinancialContactsToRetire__c).size();
 		calls++; // main contact on the account
+		calls += String.isBlank(acct.FinancialIdVisitingAddress__c) ? 2 : 1; // visit address: (GET Main) + PUT
 		if (Util_FinancialSystemAccount.invoiceAddressDiffers(acct) || String.isNotBlank(acct.FinancialIdInvoiceAddress__c)) {
 			calls += String.isBlank(acct.FinancialIdInvoiceAddress__c) && !isNew ? 2 : 1; // (GET Main) + POST/PUT
 		}
@@ -488,6 +494,28 @@ public without sharing class Util_FinancialSystemAccount {
 
 	private static Boolean needsMatch(Account acct) {
 		return !acct.FinancialDebtorCheck__c && !acct.FinancialReplaceDebtorNumber__c;
+	}
+
+	/**
+	 * Role contacts. ONE place that knows where the roles come from, because the Account lookups Contact_person__c /
+	 * Contact_Billing__c / Contact_Shipping__c are to be removed later (roles then come from the AccountContactRelation only).
+	 * The Exact account's main contact is the invoice contact (fallback when there is none: the Main-role contact).
+	 */
+	@TestVisible
+	private static Id exactMainId(Account acct) {
+		return acct.Contact_Billing__c != null ? acct.Contact_Billing__c : acct.Contact_person__c;
+	}
+
+	/** The Main-role contact (no longer the Exact main contact; gets " (m)" when it clashes with it). */
+	@TestVisible
+	private static Id mainRoleId(Account acct) {
+		return acct.Contact_person__c;
+	}
+
+	/** The Delivery address' contact: the shipping contact, otherwise the Exact main contact. */
+	@TestVisible
+	private static Id shippingContactId(Account acct) {
+		return acct.Contact_Shipping__c != null ? acct.Contact_Shipping__c : Util_FinancialSystemAccount.exactMainId(acct);
 	}
 
 	private static List<Id> contactIds(Account acct) {
@@ -543,8 +571,8 @@ public without sharing class Util_FinancialSystemAccount {
 		Boolean addressDiffers = Util_FinancialSystemAccount.hasInvoiceAddress(acct) && (acct.InvoiceAddress__Street__s != acct.BillingStreet
 			|| acct.InvoiceAddress__PostalCode__s != acct.BillingPostalCode || acct.InvoiceAddress__City__s != acct.BillingCity
 			|| acct.InvoiceAddress__CountryCode__s != acct.BillingCountryCode);
-		Boolean contactDiffers = acct.Contact_Billing__c != null && acct.Contact_Billing__c != acct.Contact_person__c;
-		return addressDiffers || contactDiffers;
+		// the invoice contact is the Exact main contact, so only the address can differ
+		return addressDiffers;
 	}
 
 	/** Same as invoiceAddressDiffers, for the shipping address and contact. */
@@ -553,7 +581,7 @@ public without sharing class Util_FinancialSystemAccount {
 		Boolean addressDiffers = Util_FinancialSystemAccount.hasShippingAddress(acct) && (acct.ShippingStreet != acct.BillingStreet
 			|| acct.ShippingPostalCode != acct.BillingPostalCode || acct.ShippingCity != acct.BillingCity
 			|| acct.ShippingCountryCode != acct.BillingCountryCode);
-		Boolean contactDiffers = acct.Contact_Shipping__c != null && acct.Contact_Shipping__c != acct.Contact_person__c;
+		Boolean contactDiffers = acct.Contact_Shipping__c != null && acct.Contact_Shipping__c != Util_FinancialSystemAccount.exactMainId(acct);
 		return addressDiffers || contactDiffers;
 	}
 
@@ -585,7 +613,7 @@ public without sharing class Util_FinancialSystemAccount {
 		Util_FinancialSystemAccount.retireRemovedContacts(ctx, division, guid);
 
 		// 4. main contact on the Exact account
-		String mainExactId = Util_FinancialSystemAccount.exactContactId(ctx, acct.Contact_person__c);
+		String mainExactId = Util_FinancialSystemAccount.exactContactId(ctx, Util_FinancialSystemAccount.exactMainId(acct));
 		if (String.isNotBlank(mainExactId) && mainExactId != ctx.exactMainContact) {
 			try {
 				Map<String, Object> body = new Map<String, Object>{ 'MainContact' => mainExactId };
@@ -600,11 +628,11 @@ public without sharing class Util_FinancialSystemAccount {
 		ctx.newState.put(STATE_ACCOUNT, Util_FinancialSystemAccount.hash(new Util_FinancialSystemAccount.ExactAccount(acct, ctx.exactMainContact)));
 
 		// 5. invoice and shipping address (created / updated when needed, deleted when no longer needed)
-		for (Integer addressType : new List<Integer>{ ADDRESS_TYPE_INVOICE, ADDRESS_TYPE_DELIVERY }) {
+		for (Integer addressType : new List<Integer>{ ADDRESS_TYPE_VISIT, ADDRESS_TYPE_INVOICE, ADDRESS_TYPE_DELIVERY }) {
 			try {
 				Util_FinancialSystemAccount.syncAddress(ctx, addressType, division, guid);
 			} catch (Util_System.FinancialSyncException e) {
-				ctx.warn((addressType == ADDRESS_TYPE_INVOICE ? 'Invoice' : 'Shipping') + ' address: ' + e.getMessage(), e);
+				ctx.warn((addressType == ADDRESS_TYPE_VISIT ? 'Visit' : addressType == ADDRESS_TYPE_INVOICE ? 'Invoice' : 'Shipping') + ' address: ' + e.getMessage(), e);
 			}
 		}
 
@@ -623,7 +651,8 @@ public without sharing class Util_FinancialSystemAccount {
 
 	private static void matchAccount(Util_FinancialSystemAccount.Ctx ctx, String division, String guid) {
 		Account acct = ctx.acct;
-		Util_FinancialSystemAccount.ExactAccount exactAcct = new Util_FinancialSystemAccount.ExactAccount(acct, null);
+		// with the establishment address: the match looks for an Exact account with that name + address
+		Util_FinancialSystemAccount.ExactAccount exactAcct = new Util_FinancialSystemAccount.ExactAccount(acct, null, true);
 		List<String> filters = new List<String>();
 		if (String.isNotBlank(acct.FinancialIdAccount__c)) {
 			filters.add('(ID eq guid\'' + acct.FinancialIdAccount__c + '\')');
@@ -696,6 +725,7 @@ public without sharing class Util_FinancialSystemAccount {
 	/** The Exact account changed: all ids and fingerprints of its children are void. */
 	private static void resetChildIds(Util_FinancialSystemAccount.Ctx ctx) {
 		Account acct = ctx.acct;
+		acct.FinancialIdVisitingAddress__c = null;
 		acct.FinancialIdInvoiceAddress__c = null;
 		acct.FinancialIdShippingAddress__c = null;
 		acct.FinancialIdBankAccount__c = null;
@@ -714,7 +744,8 @@ public without sharing class Util_FinancialSystemAccount {
 		Account acct = ctx.acct;
 		String endpoint = String.format(ACCOUNT_ENDPOINT, new List<String>{ division });
 		if (String.isBlank(acct.FinancialIdAccount__c)) {
-			Util_FinancialSystemAccount.ExactAccount body = new Util_FinancialSystemAccount.ExactAccount(acct, null);
+			// a new Exact account gets the establishment address once (its visit address); later the address step maintains it
+			Util_FinancialSystemAccount.ExactAccount body = new Util_FinancialSystemAccount.ExactAccount(acct, null, true);
 			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', Util_FinancialSystemAccount.accountPayload(body, false), guid);
 			ctx.result.calls++;
 			Util_FinancialSystemAccount.ExactGetAccount created = (Util_FinancialSystemAccount.ExactGetAccount) JSON.deserialize(response, Util_FinancialSystemAccount.ExactGetAccount.class);
@@ -732,7 +763,7 @@ public without sharing class Util_FinancialSystemAccount {
 			ctx.exactMainContact = created.MainContact;
 			return;
 		}
-		Util_FinancialSystemAccount.ExactAccount body = new Util_FinancialSystemAccount.ExactAccount(acct, ctx.exactMainContact != null ? ctx.exactMainContact : Util_FinancialSystemAccount.exactContactId(ctx, acct.Contact_person__c));
+		Util_FinancialSystemAccount.ExactAccount body = new Util_FinancialSystemAccount.ExactAccount(acct, ctx.exactMainContact != null ? ctx.exactMainContact : Util_FinancialSystemAccount.exactContactId(ctx, Util_FinancialSystemAccount.exactMainId(acct)));
 		if (!ctx.matched && String.isBlank(body.AccountManager) && Util_FinancialSystemAccount.hash(body) == ctx.state.get(STATE_ACCOUNT)) {
 			// (with a default account manager the account is sent every time, so Exact gets it again)
 			// unchanged since the last sync
@@ -744,9 +775,9 @@ public without sharing class Util_FinancialSystemAccount {
 		Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + acct.FinancialIdAccount__c + '\')', null, 'PUT', Util_FinancialSystemAccount.accountPayload(body, true), guid);
 		ctx.result.calls++;
 		// main contact in Exact: known from the match, or the one this sync set before (its contact fingerprint exists);
-		// otherwise unknown, so step 4 sets it
+		// otherwise unknown, so step 4 sets it: after an account PUT the main contact is always set again (corrects drift in Exact)
 		if (!ctx.matched) {
-			ctx.exactMainContact = ctx.state.containsKey(STATE_CONTACT + acct.Contact_person__c) ? body.MainContact : null;
+			ctx.exactMainContact = null;
 		}
 	}
 
@@ -900,7 +931,7 @@ public without sharing class Util_FinancialSystemAccount {
 	@TestVisible
 	private static String nameKey(String firstName, String lastName) {
 		String last = lastName == null ? '' : lastName;
-		for (String suffix : new List<String>{ DO_NOT_USE, SUFFIX_INVOICE, SUFFIX_SHIPPING }) {
+		for (String suffix : new List<String>{ DO_NOT_USE, SUFFIX_MAIN, SUFFIX_INVOICE, SUFFIX_SHIPPING }) {
 			last = last.removeEndIgnoreCase(suffix);
 		}
 		String key = ((firstName == null ? '' : firstName) + ' ' + last).normalizeSpace().toLowerCase();
@@ -919,20 +950,21 @@ public without sharing class Util_FinancialSystemAccount {
 		for (AccountContactRelation acr : ctx.acrByContact.values()) {
 			contacts.put(acr.ContactId, acr.Contact);
 		}
-		return Util_FinancialSystemAccount.nameSuffix(contactId, acct.Contact_person__c, acct.Contact_Billing__c, acct.Contact_Shipping__c, contacts);
+		return Util_FinancialSystemAccount.nameSuffix(contactId, Util_FinancialSystemAccount.exactMainId(acct), Util_FinancialSystemAccount.mainRoleId(acct), acct.Contact_Shipping__c, contacts);
 	}
 
+	/** exactMainId = the invoice contact (Exact main, never renamed); mainRoleId = the Main-role contact (" (m)"). */
 	@TestVisible
-	private static String nameSuffix(Id contactId, Id mainId, Id invoiceId, Id shippingId, Map<Id, Contact> contacts) {
-		if (contactId == null || contactId == mainId) {
+	private static String nameSuffix(Id contactId, Id exactMainId, Id mainRoleId, Id shippingId, Map<Id, Contact> contacts) {
+		if (contactId == null || contactId == exactMainId) {
 			return '';
 		}
-		if (contactId == invoiceId) {
-			return Util_FinancialSystemAccount.sameNameOtherEmail(contacts.get(contactId), contacts.get(mainId)) ? SUFFIX_INVOICE : '';
+		if (contactId == mainRoleId) {
+			return Util_FinancialSystemAccount.sameNameOtherEmail(contacts.get(contactId), contacts.get(exactMainId)) ? SUFFIX_MAIN : '';
 		}
 		if (contactId == shippingId) {
-			Boolean clash = Util_FinancialSystemAccount.sameNameOtherEmail(contacts.get(contactId), contacts.get(mainId))
-				|| (invoiceId != mainId && Util_FinancialSystemAccount.sameNameOtherEmail(contacts.get(contactId), contacts.get(invoiceId)));
+			Boolean clash = Util_FinancialSystemAccount.sameNameOtherEmail(contacts.get(contactId), contacts.get(exactMainId))
+				|| (mainRoleId != exactMainId && Util_FinancialSystemAccount.sameNameOtherEmail(contacts.get(contactId), contacts.get(mainRoleId)));
 			return clash ? SUFFIX_SHIPPING : '';
 		}
 		return '';
@@ -1026,97 +1058,105 @@ public without sharing class Util_FinancialSystemAccount {
 		}
 	}
 
+	private static String addressId(Account acct, Integer addressType) {
+		return addressType == ADDRESS_TYPE_VISIT ? acct.FinancialIdVisitingAddress__c
+			: addressType == ADDRESS_TYPE_INVOICE ? acct.FinancialIdInvoiceAddress__c : acct.FinancialIdShippingAddress__c;
+	}
+
+	private static void setAddressId(Account acct, Integer addressType, String id) {
+		if (addressType == ADDRESS_TYPE_VISIT) {
+			acct.FinancialIdVisitingAddress__c = id;
+		} else if (addressType == ADDRESS_TYPE_INVOICE) {
+			acct.FinancialIdInvoiceAddress__c = id;
+		} else {
+			acct.FinancialIdShippingAddress__c = id;
+		}
+	}
+
+	/**
+	 * Visit / invoice / delivery address, each the Main address of its type, linked to the contact of its role (visit and
+	 * invoice: the Exact main contact; delivery: the shipping contact). The visit address always exists (the establishment
+	 * address). Invoice / delivery are created only when needed (a Salesforce address that differs from the establishment
+	 * address, or another delivery contact); an Exact address that exists but is not needed is NOT deleted (Exact refuses
+	 * when it is in use) but kept up to date as the establishment address + its role contact. A stored id that Exact does
+	 * not know any more (403 / 404) is dropped and the Main address of the type is looked up again.
+	 */
 	private static void syncAddress(Util_FinancialSystemAccount.Ctx ctx, Integer addressType, String division, String guid) {
 		Account acct = ctx.acct;
+		Boolean isVisit = addressType == ADDRESS_TYPE_VISIT;
 		Boolean isInvoice = addressType == ADDRESS_TYPE_INVOICE;
-		String existingId = isInvoice ? acct.FinancialIdInvoiceAddress__c : acct.FinancialIdShippingAddress__c;
-		Boolean needed = isInvoice ? Util_FinancialSystemAccount.invoiceAddressDiffers(acct) : Util_FinancialSystemAccount.shippingAddressDiffers(acct);
-		String stateKey = isInvoice ? STATE_INVOICE : STATE_SHIPPING;
+		String existingId = Util_FinancialSystemAccount.addressId(acct, addressType);
+		Boolean needed = isVisit || (isInvoice ? Util_FinancialSystemAccount.invoiceAddressDiffers(acct) : Util_FinancialSystemAccount.shippingAddressDiffers(acct));
+		String stateKey = isVisit ? STATE_VISIT : isInvoice ? STATE_INVOICE : STATE_SHIPPING;
 		if (!needed && String.isBlank(existingId)) {
 			// Exact uses the visit address + main contact
 			ctx.newState.remove(stateKey);
 			return;
 		}
-		Id contactId = isInvoice ? acct.Contact_Billing__c : acct.Contact_Shipping__c;
-		String exactContact = Util_FinancialSystemAccount.exactContactId(ctx, contactId != null ? contactId : acct.Contact_person__c);
+		Id contactId = addressType == ADDRESS_TYPE_DELIVERY ? Util_FinancialSystemAccount.shippingContactId(acct) : Util_FinancialSystemAccount.exactMainId(acct);
+		String exactContact = Util_FinancialSystemAccount.exactContactId(ctx, contactId);
 		if (String.isBlank(exactContact)) {
-			exactContact = Util_FinancialSystemAccount.exactContactId(ctx, acct.Contact_person__c);
+			exactContact = Util_FinancialSystemAccount.exactContactId(ctx, Util_FinancialSystemAccount.exactMainId(acct));
 		}
 		Util_FinancialSystemAccount.ExactAddress body = new Util_FinancialSystemAccount.ExactAddress(acct, addressType, exactContact);
 		String fingerprint = Util_FinancialSystemAccount.hash(body);
 		String endpoint = String.format(ADDRESS_ENDPOINT, new List<String>{ division });
-		if (!needed) {
-			// use flag off / role back to the main contact: body = establishment address + main contact
-			Util_FinancialSystemAccount.removeAddress(ctx, addressType, existingId, endpoint, body, guid);
+		Boolean searched = false;
+		Boolean takenOver = false;
+
+		if (String.isNotBlank(existingId) && fingerprint != ctx.state.get(stateKey)) {
+			try {
+				Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + existingId + '\')', null, 'PUT', JSON.serialize(body), guid);
+				ctx.result.calls++;
+				ctx.newState.put(stateKey, fingerprint);
+				return;
+			} catch (Util_System.FinancialSyncException e) {
+				ctx.result.calls++;
+				Integer status = Util_FinancialSystem.lastErrorStatus;
+				if (status != 403 && status != 404) {
+					throw e;
+				}
+				// 403 / 404: the stored id is stale, unless the Main address of this type is this very id (a real permission problem)
+				String found = Util_FinancialSystemAccount.findMainAddress(ctx, endpoint, addressType, guid);
+				searched = true;
+				if (found == existingId) {
+					throw e;
+				}
+				existingId = found;
+				takenOver = String.isNotBlank(found);
+				Util_FinancialSystemAccount.setAddressId(acct, addressType, found);
+				ctx.accountDirty = true;
+				ctx.newState.remove(stateKey);
+			}
+		} else if (String.isNotBlank(existingId)) {
+			ctx.newState.put(stateKey, fingerprint);
 			return;
 		}
-		Boolean takenOver = false;
-		if (String.isBlank(existingId) && !ctx.isNewExactAccount) {
-			// take over the existing Main address of this type (e.g. made by the legacy sync) instead of adding one
+
+		if (String.isBlank(existingId) && !searched && (isVisit || !ctx.isNewExactAccount)) {
+			// take over the existing Main address of this type (made by Exact itself or the legacy sync) instead of adding one
 			existingId = Util_FinancialSystemAccount.findMainAddress(ctx, endpoint, addressType, guid);
 			if (String.isNotBlank(existingId)) {
 				takenOver = true;
-				if (isInvoice) {
-					acct.FinancialIdInvoiceAddress__c = existingId;
-				} else {
-					acct.FinancialIdShippingAddress__c = existingId;
-				}
+				Util_FinancialSystemAccount.setAddressId(acct, addressType, existingId);
 				ctx.accountDirty = true;
 			}
 		}
 		if (String.isBlank(existingId)) {
+			if (!needed) {
+				ctx.newState.remove(stateKey);
+				return;
+			}
 			String response = Util_FinancialSystem.doRequest(ctx.admin, endpoint, null, 'POST', JSON.serialize(body), guid);
 			ctx.result.calls++;
 			Util_FinancialSystemAccount.ExactAddress created = (Util_FinancialSystemAccount.ExactAddress) JSON.deserialize(response, Util_FinancialSystemAccount.ExactAddress.class);
-			if (isInvoice) {
-				acct.FinancialIdInvoiceAddress__c = created.ID;
-			} else {
-				acct.FinancialIdShippingAddress__c = created.ID;
-			}
+			Util_FinancialSystemAccount.setAddressId(acct, addressType, created.ID);
 			ctx.accountDirty = true;
 		} else if (takenOver || fingerprint != ctx.state.get(stateKey)) {
 			Util_FinancialSystem.doRequest(ctx.admin, endpoint + '(guid\'' + existingId + '\')', null, 'PUT', JSON.serialize(body), guid);
 			ctx.result.calls++;
 		}
 		ctx.newState.put(stateKey, fingerprint);
-	}
-
-	/**
-	 * An Exact invoice / shipping address that is no longer needed is deleted, so Exact falls back to the visit address
-	 * + main contact. When Exact refuses (e.g. in use), it is set to the establishment address + main contact (body)
-	 * and kept; its state "kept:" + fingerprint prevents a new delete attempt until that address or contact changes.
-	 */
-	private static void removeAddress(Util_FinancialSystemAccount.Ctx ctx, Integer addressType, String existingId, String endpoint,
-			Util_FinancialSystemAccount.ExactAddress body, String guid) {
-		Boolean isInvoice = addressType == ADDRESS_TYPE_INVOICE;
-		String stateKey = isInvoice ? STATE_INVOICE : STATE_SHIPPING;
-		String kept = STATE_KEPT + Util_FinancialSystemAccount.hash(body);
-		if (ctx.state.get(stateKey) == kept) {
-			return;
-		}
-		String url = endpoint + '(guid\'' + existingId + '\')';
-		try {
-			Util_FinancialSystem.doRequest(ctx.admin, url, null, 'DELETE', null, guid);
-			ctx.result.calls++;
-		} catch (Util_System.FinancialSyncException e) {
-			ctx.result.calls++;
-			// 404: already gone in Exact
-			if (Util_FinancialSystem.lastErrorStatus != 404) {
-				Util_FinancialSystem.doRequest(ctx.admin, url, null, 'PUT', JSON.serialize(body), guid);
-				ctx.result.calls++;
-				ctx.newState.put(stateKey, kept);
-				ctx.log.Message__c += (isInvoice ? 'Invoice' : 'Shipping') + ' address ' + existingId + ' not needed any more, but Exact refused to delete it ('
-					+ e.getMessage() + '); set to the establishment address + main contact.\n';
-				return;
-			}
-		}
-		if (isInvoice) {
-			ctx.acct.FinancialIdInvoiceAddress__c = null;
-		} else {
-			ctx.acct.FinancialIdShippingAddress__c = null;
-		}
-		ctx.accountDirty = true;
-		ctx.newState.remove(stateKey);
 	}
 
 	/** Id of the Exact account's Main address of this type, or null. */
@@ -1324,6 +1364,7 @@ public without sharing class Util_FinancialSystemAccount {
 			// ids / debtor number / matching bookkeeping found during the callouts
 			upd.FinancialIdAccount__c = acct.FinancialIdAccount__c;
 			upd.FinancialDebtorNumber__c = acct.FinancialDebtorNumber__c;
+			upd.FinancialIdVisitingAddress__c = acct.FinancialIdVisitingAddress__c;
 			upd.FinancialIdInvoiceAddress__c = acct.FinancialIdInvoiceAddress__c;
 			upd.FinancialIdShippingAddress__c = acct.FinancialIdShippingAddress__c;
 			upd.FinancialIdBankAccount__c = acct.FinancialIdBankAccount__c;
@@ -1467,6 +1508,11 @@ public without sharing class Util_FinancialSystemAccount {
 		if (withoutMainContact) {
 			payload.remove('MainContact');
 		}
+		for (String key : new List<String>{ 'AddressLine1', 'Postcode', 'City', 'Country' }) {
+			if (payload.get(key) == null) {
+				payload.remove(key); // never send (= clear) an address the body does not carry
+			}
+		}
 		return JSON.serialize(payload);
 	}
 
@@ -1499,12 +1545,19 @@ public without sharing class Util_FinancialSystemAccount {
 		String AccountManager; // default account manager of the Business Entity; null (sent as null) when none
 
 		ExactAccount(Account acct, String mainContact) {
+			this(acct, mainContact, false);
+		}
+
+		/** withAddress: only on the POST of a new Exact account; a PUT never sends the address (the address step does). */
+		ExactAccount(Account acct, String mainContact, Boolean withAddress) {
 			this.Code = String.isBlank(acct.FinancialDebtorNumber__c) ? null : acct.FinancialDebtorNumber__c;
 			this.Name = acct.Exact_Account_Name__c;
-			this.AddressLine1 = acct.BillingStreet; // establishment / billing address = main address
-			this.Postcode = acct.BillingPostalCode;
-			this.City = acct.BillingCity;
-			this.Country = acct.BillingCountryCode;
+			if (withAddress) {
+				this.AddressLine1 = acct.BillingStreet; // establishment / billing address = main (visit) address
+				this.Postcode = acct.BillingPostalCode;
+				this.City = acct.BillingCity;
+				this.Country = acct.BillingCountryCode;
+			}
 			this.Phone = acct.Billing_Phone__c;
 			this.Email = acct.Billing_Email__c;
 			this.ChamberOfCommerce = (acct.CoC_Number__c != '-') ? acct.CoC_Number__c : '';
@@ -1556,7 +1609,7 @@ public without sharing class Util_FinancialSystemAccount {
 		ExactAddress(Account acct, Integer addressType, String exactContact) {
 			Boolean isInvoice = addressType == ADDRESS_TYPE_INVOICE;
 			// invoice / shipping address when supplied, otherwise the establishment address
-			Boolean own = isInvoice ? Util_FinancialSystemAccount.hasInvoiceAddress(acct) : Util_FinancialSystemAccount.hasShippingAddress(acct);
+			Boolean own = addressType == ADDRESS_TYPE_VISIT ? false : isInvoice ? Util_FinancialSystemAccount.hasInvoiceAddress(acct) : Util_FinancialSystemAccount.hasShippingAddress(acct);
 			this.Account = acct.FinancialIdAccount__c;
 			if (!own) {
 				this.AddressLine1 = acct.BillingStreet;

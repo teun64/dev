@@ -105,7 +105,7 @@ public class Test_Util_FinancialSystemAccount {
 
 	public static Account account() {
 		return [
-			SELECT Id, Name, FinancialIdAccount__c, FinancialDebtorNumber__c, FinancialIdInvoiceAddress__c, FinancialIdShippingAddress__c,
+			SELECT Id, Name, FinancialIdAccount__c, FinancialDebtorNumber__c, FinancialIdVisitingAddress__c, FinancialIdInvoiceAddress__c, FinancialIdShippingAddress__c,
 				FinancialIdBankAccount__c, FinancialIdBankMandate__c, SyncToFinancialSystem__c, FinancialSyncState__c,
 				FinancialSyncAttempts__c, FinancialSyncNextAttempt__c, FinancialSyncLastError__c, FinancialDebtorCheck__c,
 				Contact_person__c, Reseller_Name__c, BillingStreet, BillingPostalCode, BillingCity, BillingCountryCode,
@@ -196,7 +196,7 @@ public class Test_Util_FinancialSystemAccount {
 		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
 		Test.stopTest();
 		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + second.calls);
-		System.assertEquals(1, second.count('PUT Account'), second.calls);
+		System.assertEquals(2, second.count('PUT Account'), 'The account + its main contact again: ' + second.calls);
 		System.assert(second.body('PUT Account').contains('"AccountManager":"11111111-2222-3333-4444-555555555555"'), second.bodies);
 	}
 
@@ -224,7 +224,8 @@ public class Test_Util_FinancialSystemAccount {
 		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
 		Test.stopTest();
 
-		System.assertEquals(new List<String>{ 'PUT Account' }, second.calls, 'Only the changed part');
+		// the account, and its main contact again (after an account PUT the real main contact in Exact is not assumed)
+		System.assertEquals(new List<String>{ 'PUT Account', 'PUT Account' }, second.calls, 'Only the changed part');
 	}
 
 	@IsTest
@@ -733,8 +734,9 @@ public class Test_Util_FinancialSystemAccount {
 		System.assertEquals(false, relation(second.Id).Sync_To_Financial_System__c);
 	}
 
+	/** The invoice contact is the Exact main contact: no separate invoice address, the visit address carries that contact. */
 	@IsTest
-	static void invoiceAddress_notSupplied_otherInvoiceContact_usesEstablishmentAddress() {
+	static void invoiceAddress_notSupplied_otherInvoiceContact_visitAddressGetsThatContact() {
 		Account acc = account();
 		Contact billing = Test_Data.createContact(acc.Id, 'Billing', null, 'billing@sync.test', true);
 		Database.update(new Account(Id = acc.Id, Contact_Billing__c = billing.Id,
@@ -748,13 +750,43 @@ public class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 
 		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
-		String body = sim.body('POST Address');
-		System.assertNotEquals(null, body, 'Invoice address created for the other invoice contact: ' + sim.calls);
-		System.assert(body.contains('"Type":3') && body.contains('"Main":true'), body);
-		if (String.isBlank(acc.InvoiceAddress__Street__s)) {
-			System.assert(body.contains(acc.BillingStreet.escapeJava()) || body.contains(acc.BillingStreet), 'Establishment address used: ' + body);
+		Integer visit = 0;
+		Integer invoice = 0;
+		for (String b : sim.bodies) {
+			if (b.startsWith('POST Address ')) {
+				visit += b.contains('"Type":1') ? 1 : 0;
+				invoice += b.contains('"Type":3') ? 1 : 0;
+			}
 		}
-		System.assertNotEquals(null, account().FinancialIdInvoiceAddress__c);
+		System.assertEquals(1, visit, 'Visit address created: ' + sim.bodies);
+		System.assertEquals(0, invoice, 'No invoice address (the invoice contact is the main contact): ' + sim.bodies);
+		System.assertNotEquals(null, account().FinancialIdVisitingAddress__c);
+		System.assertEquals(null, account().FinancialIdInvoiceAddress__c);
+	}
+
+	/** Another shipping contact: a delivery address with the establishment address + that contact. */
+	@IsTest
+	static void shippingAddress_notSupplied_otherShippingContact_deliveryAddressWithEstablishmentAddress() {
+		Account acc = account();
+		Contact shipping = Test_Data.createContact(acc.Id, 'Shipping', null, 'shipping@sync.test', true);
+		Database.update(new Account(Id = acc.Id, Contact_Shipping__c = shipping.Id, useShippingAddress__c = false), AccessLevel.SYSTEM_MODE);
+
+		ExactSim sim = new ExactSim();
+		Test.setMock(HttpCalloutMock.class, sim);
+		Test.startTest();
+		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
+		Test.stopTest();
+
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		String body = null;
+		for (String b : sim.bodies) {
+			if (b.startsWith('POST Address ') && b.contains('"Type":4')) {
+				body = b;
+			}
+		}
+		System.assertNotEquals(null, body, 'Delivery address created: ' + sim.bodies);
+		System.assert(body.contains(acc.BillingStreet), 'Establishment address used: ' + body);
+		System.assertNotEquals(null, account().FinancialIdShippingAddress__c);
 	}
 
 	/** In Exact with an invoice address created earlier; now address and contact equal the establishment again. */
@@ -768,7 +800,7 @@ public class Test_Util_FinancialSystemAccount {
 	}
 
 	@IsTest
-	static void invoiceAddress_existing_notNeededAnyMore_isDeleted() {
+	static void invoiceAddress_existing_notNeededAnyMore_isKeptUpToDate() {
 		Account acc = accountWithUnneededInvoiceAddress();
 
 		ExactSim sim = new ExactSim();
@@ -777,14 +809,13 @@ public class Test_Util_FinancialSystemAccount {
 		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
 		Test.stopTest();
 		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
-		System.assertEquals(1, sim.count('DELETE Address'), 'Exact falls back to the visit address + main contact: ' + sim.calls);
-		System.assertEquals(0, sim.count('PUT Address') + sim.count('POST Address'), sim.calls);
-		System.assertEquals(null, account().FinancialIdInvoiceAddress__c);
-		System.assert(!account().FinancialSyncState__c.contains('"invoice"'), 'Address state removed');
+		System.assertEquals(0, sim.count('DELETE Address'), 'An Exact address is never deleted: ' + sim.calls);
+		System.assertNotEquals(null, account().FinancialIdInvoiceAddress__c, 'Id kept');
+		System.assert(account().FinancialSyncState__c.contains('"invoice"'), 'Kept up to date (establishment address + main contact)');
 	}
 
 	@IsTest
-	static void invoiceAddress_useFlagOff_invoiceRoleToMainContact_isDeleted() {
+	static void invoiceAddress_useFlagOff_invoiceRoleToMainContact_isKept() {
 		// different invoice address switched off (rbb_Account copies the establishment address) and the invoice role
 		// moved to the main contact: nothing left that Exact's default does not cover
 		Account acc = account();
@@ -797,29 +828,26 @@ public class Test_Util_FinancialSystemAccount {
 		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
 		Test.stopTest();
 		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
-		System.assertEquals(1, sim.count('DELETE Address'), sim.calls);
-		System.assertEquals(null, account().FinancialIdInvoiceAddress__c);
+		System.assertEquals(0, sim.count('DELETE Address'), sim.calls);
+		System.assertEquals('address-guid-old', account().FinancialIdInvoiceAddress__c);
 	}
 
 	@IsTest
-	static void invoiceAddress_notNeeded_deleteRefused_keptAsEstablishmentAddress() {
+	static void invoiceAddress_notNeeded_isNeverDeleted_keptAsEstablishmentAddress() {
 		Account acc = accountWithUnneededInvoiceAddress();
 
 		ExactSim sim = new ExactSim();
-		sim.addressDeleteRefused = true;
 		Test.setMock(HttpCalloutMock.class, sim);
 		Test.startTest();
 		Util_FinancialSystemAccount.Result r = Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false).get(acc.Id);
-		System.assert(r.success, 'A refused delete is no warning (no endless retry): ' + String.join(r.messages, ' | ') + ' ' + sim.calls);
-		System.assertEquals(1, sim.count('DELETE Address'), sim.calls);
-		System.assertEquals(1, sim.count('PUT Address'), 'Set to the establishment address + main contact: ' + sim.calls);
-		System.assert(sim.body('PUT Address').contains(acc.BillingStreet), sim.body('PUT Address'));
+		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
+		System.assertEquals(0, sim.count('DELETE Address'), sim.calls);
+		System.assert(sim.body('PUT Address').contains(acc.BillingStreet), 'Set to the establishment address + main contact: ' + sim.body('PUT Address'));
 		System.assertEquals('address-guid-old', account().FinancialIdInvoiceAddress__c, 'Kept');
 
-		// next sync: no new delete attempt while address and contact stay the same
+		// next sync: nothing sent while address and contact stay the same
 		Database.update(new Account(Id = acc.Id, Name = 'Sync Account renamed'), AccessLevel.SYSTEM_MODE);
 		ExactSim second = new ExactSim();
-		second.addressDeleteRefused = true;
 		Test.setMock(HttpCalloutMock.class, second);
 		Util_FinancialSystemAccount.syncAccounts(new Set<Id>{ acc.Id }, false);
 		Test.stopTest();
@@ -840,27 +868,32 @@ public class Test_Util_FinancialSystemAccount {
 
 	@IsTest
 	static void nameSuffix_sameNameOtherEmail() {
-		Id mainId = '003000000000001AAA';
-		Id invoiceId = '003000000000002AAA';
+		// the invoice contact is the Exact main contact (never renamed); the Main-role contact gets " (m)"
+		Id exactMainId = '003000000000002AAA';
+		Id mainRoleId = '003000000000001AAA';
 		Id shippingId = '003000000000003AAA';
 		Map<Id, Contact> contacts = new Map<Id, Contact>{
-			mainId => new Contact(FirstName = 'Jan', LastName = 'Jansen', Email = 'jan@a.test'),
-			invoiceId => new Contact(FirstName = 'jan', LastName = 'Jansen ', Email = 'factuur@a.test'),
+			mainRoleId => new Contact(FirstName = 'Jan', LastName = 'Jansen', Email = 'jan@a.test'),
+			exactMainId => new Contact(FirstName = 'jan', LastName = 'Jansen ', Email = 'factuur@a.test'),
 			shippingId => new Contact(FirstName = 'Jan', LastName = 'Jansen', Email = 'magazijn@a.test')
 		};
-		System.assertEquals('', Util_FinancialSystemAccount.nameSuffix(mainId, mainId, invoiceId, shippingId, contacts), 'Main never renamed');
-		System.assertEquals(' (i)', Util_FinancialSystemAccount.nameSuffix(invoiceId, mainId, invoiceId, shippingId, contacts));
-		System.assertEquals(' (s)', Util_FinancialSystemAccount.nameSuffix(shippingId, mainId, invoiceId, shippingId, contacts));
-		System.assertEquals(' (i)', Util_FinancialSystemAccount.nameSuffix(invoiceId, mainId, invoiceId, invoiceId, contacts), 'Invoice + shipping contact');
-		// shipping only clashes with the invoice contact
-		contacts.get(mainId).LastName = 'Pietersen';
-		System.assertEquals('', Util_FinancialSystemAccount.nameSuffix(invoiceId, mainId, invoiceId, shippingId, contacts));
-		System.assertEquals(' (s)', Util_FinancialSystemAccount.nameSuffix(shippingId, mainId, invoiceId, shippingId, contacts));
+		System.assertEquals('', Util_FinancialSystemAccount.nameSuffix(exactMainId, exactMainId, mainRoleId, shippingId, contacts), 'Exact main never renamed');
+		System.assertEquals(' (m)', Util_FinancialSystemAccount.nameSuffix(mainRoleId, exactMainId, mainRoleId, shippingId, contacts));
+		System.assertEquals(' (s)', Util_FinancialSystemAccount.nameSuffix(shippingId, exactMainId, mainRoleId, shippingId, contacts));
+		System.assertEquals(' (m)', Util_FinancialSystemAccount.nameSuffix(mainRoleId, exactMainId, mainRoleId, mainRoleId, contacts), 'Main + shipping contact');
+		// the Main-role contact is the Exact main contact (no invoice contact): nobody is renamed but the shipping contact
+		System.assertEquals('', Util_FinancialSystemAccount.nameSuffix(mainRoleId, mainRoleId, mainRoleId, shippingId, contacts));
+		System.assertEquals(' (s)', Util_FinancialSystemAccount.nameSuffix(shippingId, mainRoleId, mainRoleId, shippingId, contacts));
+		// shipping only clashes with the Main-role contact
+		contacts.get(exactMainId).LastName = 'Pietersen';
+		System.assertEquals('', Util_FinancialSystemAccount.nameSuffix(mainRoleId, exactMainId, mainRoleId, shippingId, contacts));
+		System.assertEquals(' (s)', Util_FinancialSystemAccount.nameSuffix(shippingId, exactMainId, mainRoleId, shippingId, contacts));
 		// same name and same email: no suffix
-		contacts.get(mainId).LastName = 'Jansen';
-		contacts.get(invoiceId).Email = 'JAN@a.test';
-		System.assertEquals('', Util_FinancialSystemAccount.nameSuffix(invoiceId, mainId, invoiceId, shippingId, contacts));
+		contacts.get(exactMainId).LastName = 'Jansen';
+		contacts.get(mainRoleId).Email = 'FACTUUR@a.test';
+		System.assertEquals('', Util_FinancialSystemAccount.nameSuffix(mainRoleId, exactMainId, mainRoleId, shippingId, contacts));
 		System.assertEquals('jan jansen', Util_FinancialSystemAccount.nameKey('Jan', 'Jansen (i)'));
+		System.assertEquals('jan jansen', Util_FinancialSystemAccount.nameKey('Jan', 'Jansen (m)'));
 		System.assertEquals('jan jansen', Util_FinancialSystemAccount.nameKey('Jan', 'Jansen (DO NOT USE)'));
 	}
 
@@ -885,7 +918,7 @@ public class Test_Util_FinancialSystemAccount {
 	}
 
 	@IsTest
-	static void accountSync_invoiceContactWithMainName_getsSuffixInExact() {
+	static void accountSync_mainRoleContactWithInvoiceName_getsSuffixInExact() {
 		Account acc = account();
 		Contact billing = Test_Data.createContact(acc.Id, 'Main', null, 'invoice@sync.test', true);
 		Database.update(new Account(Id = acc.Id, Contact_Billing__c = billing.Id), AccessLevel.SYSTEM_MODE);
@@ -901,11 +934,11 @@ public class Test_Util_FinancialSystemAccount {
 		for (String b : sim.bodies) {
 			if (b.startsWith('POST Contact ')) {
 				plain += b.contains('"LastName":"Main"') ? 1 : 0;
-				suffixed += b.contains('"LastName":"Main (i)"') ? 1 : 0;
+				suffixed += b.contains('"LastName":"Main (m)"') ? 1 : 0;
 			}
 		}
-		System.assertEquals(1, plain, 'Main contact unchanged: ' + sim.bodies);
-		System.assertEquals(1, suffixed, 'Invoice contact gets (i): ' + sim.bodies);
+		System.assertEquals(1, plain, 'Invoice (= Exact main) contact unchanged: ' + sim.bodies);
+		System.assertEquals(1, suffixed, 'Main-role contact gets (m): ' + sim.bodies);
 	}
 
 	@IsTest
@@ -941,8 +974,13 @@ public class Test_Util_FinancialSystemAccount {
 		Test.stopTest();
 		System.assert(r.success, String.join(r.messages, ' | ') + ' ' + sim.calls);
 		System.assertEquals(0, sim.count('POST Address'), 'No second invoice address: ' + sim.calls);
-		System.assertEquals(1, sim.count('PUT Address'), 'Existing Main address overwritten: ' + sim.calls);
-		String body = sim.body('PUT Address');
+		String body = null;
+		for (String b : sim.bodies) {
+			if (b.startsWith('PUT Address ') && b.contains('"Type":3')) {
+				body = b;
+			}
+		}
+		System.assertNotEquals(null, body, 'Existing Main invoice address overwritten: ' + sim.bodies);
 		System.assert(body.contains('Postbus 226') && body.contains('"Main":true'), body);
 		System.assertEquals('address-guid-legacy', account().FinancialIdInvoiceAddress__c);
 	}
