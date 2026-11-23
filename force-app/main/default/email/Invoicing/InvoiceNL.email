@@ -35,7 +35,7 @@
 </div>
 
 
-<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:11px; line-height:18px; color:#8A8F8A;">
+<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; font-size:11px; line-height:18px; color:#8A8F8A;">
     <strong style="font-family:Arial,Helvetica,sans-serif; color:#8A8F8A;">{{{Subscription25__Invoice__c.Legal_Name__c}}}</strong><br/>
     {{{Subscription25__Invoice__c.Legal_Address__c}}}<br/>
     KvK {{{Subscription25__Invoice__c.Legal_CoC__c}}} · BTW {{{Subscription25__Invoice__c.Legal_VAT__c}}}<br/>
@@ -48,6 +48,7 @@
     <br/>
     Vragen over uw dienst? Bekijk onze <a href="{{{Subscription25__Invoice__c.Legal_Support_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">veelgestelde vragen</a>.<br/>
     <br/>
+    Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href="{{{Subscription25__Invoice__c.Legal_Terms_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">algemene voorwaarden</a> en <a href="{{{Subscription25__Invoice__c.Legal_Privacy_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">privacyverklaring</a>.<br/>
 </div>
 
 </div>
