@@ -44,9 +44,11 @@
     Geschäftsführer: {{{Subscription25__Invoice__c.Legal_Managing_Directors__c}}}<br/>
     <br/>
     Sie erhalten diese Nachricht, weil Sie Kunde von Moving Intelligence sind und sie Ihren Vertrag betrifft.<br/>
+    <br/>
+    Diese E-Mail enthält persönliche Links. Bitte leiten Sie sie nicht weiter.<br/>
+    <br/>
     Welche weiteren E-Mails Sie von uns erhalten, legen Sie selbst fest: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">E-Mail-Einstellungen verwalten</a>.<br/>
     <br/>
-    Diese E-Mail enthält persönliche Links. Bitte leiten Sie sie nicht weiter.
 </div>
 
 </div>

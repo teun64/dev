@@ -41,11 +41,13 @@
     KvK {{{Subscription25__Invoice__c.Legal_CoC__c}}} · BTW {{{Subscription25__Invoice__c.Legal_VAT__c}}}<br/>
     <br/>
     U ontvangt dit bericht omdat u klant bent van Moving Intelligence en het betrekking heeft op uw dienstverlening.<br/>
+    <br/>
+    Deze e-mail bevat persoonlijke links. Stuur hem daarom niet door.<br/>
+    <br/>
     U bepaalt zelf welke andere e-mails u van ons ontvangt: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">beheer uw e-mailvoorkeuren</a>.<br/>
     <br/>
     Vragen over uw dienst? Bekijk onze <a href="{{{Subscription25__Invoice__c.Legal_Support_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">veelgestelde vragen</a>.<br/>
     <br/>
-    Deze e-mail bevat persoonlijke links. Stuur hem daarom niet door.
 </div>
 
 </div>
