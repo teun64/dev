@@ -45,7 +45,7 @@ private class Test_Ctrl_PreferenceCenterGuest {
             Ctrl_PreferenceCenterGuest.getPreferences(token);
         Test.stopTest();
 
-        System.assertEquals('Jane', page.contactName, 'Guest sees the first name only');
+        System.assertEquals('Jane G***', page.contactName, 'Guest sees first name and masked last name');
         System.assertEquals('j***@example.com', page.contactEmail, 'Guest sees a masked email');
         System.assertEquals(null, page.contactPhone, 'Guest sees no phone');
     }
@@ -120,5 +120,11 @@ private class Test_Ctrl_PreferenceCenterGuest {
             c.Id, saved.Contact__c,
             'Preference must be saved under the token-resolved contact, never a client-supplied one'
         );
+    }
+
+    @IsTest
+    static void maskNameIncludesMiddleName() {
+        System.assertEquals('Jan van D***', Ctrl_PreferenceCenterGuest.maskName(new Contact(FirstName='Jan', MiddleName='van', LastName='Dijk')));
+        System.assertEquals('D***', Ctrl_PreferenceCenterGuest.maskName(new Contact(LastName='Dijk')));
     }
 }

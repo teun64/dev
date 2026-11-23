@@ -16,12 +16,22 @@ public without sharing class Ctrl_PreferenceCenterGuest {
         Resolved r = resolve(token);
         Ctrl_PreferenceCenter.PreferencePageData data = Ctrl_PreferenceCenter.getPreferences(r.contactId);
         data.staleToken = r.stale;
-        // Data minimisation: a link in an email is not a login. Show the first name and a masked address only.
-        List<Contact> names = [SELECT FirstName FROM Contact WHERE Id = :r.contactId WITH SYSTEM_MODE LIMIT 1];
-        data.contactName  = names.isEmpty() ? '' : (names[0].FirstName == null ? '' : names[0].FirstName);
+        // Data minimisation: a link in an email is not a login. Show first + middle name, a masked last name and a masked address only.
+        List<Contact> names = [SELECT FirstName, MiddleName, LastName FROM Contact WHERE Id = :r.contactId WITH SYSTEM_MODE LIMIT 1];
+        data.contactName  = names.isEmpty() ? '' : maskName(names[0]);
         data.contactEmail = maskEmail(data.contactEmail);
         data.contactPhone = null;
         return data;
+    }
+
+    /** Jane Marie Doe -> Jane Marie D*** */
+    @TestVisible
+    private static String maskName(Contact c) {
+        List<String> parts = new List<String>();
+        if (!String.isBlank(c.FirstName))  parts.add(c.FirstName);
+        if (!String.isBlank(c.MiddleName)) parts.add(c.MiddleName);
+        if (!String.isBlank(c.LastName))   parts.add(c.LastName.left(1) + '***');
+        return String.join(parts, ' ');
     }
 
     /** jane.doe@example.com -> j***@example.com */
