@@ -29,6 +29,10 @@ const I18N = {
         showAudit:  'Auditlog tonen',
         hideAudit:  'Auditlog verbergen',
         optedIn:    'aangemeld',
+        selectAllSection:   'Alles selecteren in deze sectie',
+        deselectAllSection: 'Alles deselecteren in deze sectie',
+        pageTitle:          'Voorkeuren',
+        tagLine:            (brand) => `Beheer hoe ${brand} contact met u opneemt`,
         privacyNote: 'Voor meer informatie over hoe wij persoonsgegevens verwerken, raadpleeg de Privacyverklaring onderaan deze pagina.',
         categories: {
             MARKETING: { label: 'Marketingcommunicatie',    description: 'Blijf op de hoogte van nieuws, aanbiedingen en productaankondigingen.' },
@@ -44,6 +48,10 @@ const I18N = {
         showAudit:  'Protokoll anzeigen',
         hideAudit:  'Protokoll verbergen',
         optedIn:    'eingewilligt',
+        selectAllSection:   'Alle in diesem Abschnitt auswählen',
+        deselectAllSection: 'Alle in diesem Abschnitt abwählen',
+        pageTitle:          'Einstellungen',
+        tagLine:            (brand) => `Verwalten Sie, wie ${brand} Sie kontaktiert`,
         privacyNote: 'Informationen zur Verarbeitung personenbezogener Daten finden Sie in der Datenschutzerklärung weiter unten auf dieser Seite.',
         categories: {
             MARKETING: { label: 'Marketingkommunikation',   description: 'Bleiben Sie über Neuigkeiten, Aktionen und Produktankündigungen informiert.' },
@@ -59,6 +67,10 @@ const I18N = {
         showAudit:  'Afficher l\'historique',
         hideAudit:  'Masquer l\'historique',
         optedIn:    'abonné(s)',
+        selectAllSection:   'Tout sélectionner dans cette section',
+        deselectAllSection: 'Tout désélectionner dans cette section',
+        pageTitle:          'Préférences',
+        tagLine:            (brand) => `Gérez la façon dont ${brand} vous contacte`,
         privacyNote: 'Pour plus d\'informations sur le traitement de vos données personnelles, veuillez consulter la Déclaration de confidentialité en bas de cette page.',
         categories: {
             MARKETING: { label: 'Communications marketing',   description: 'Restez informé des actualités, promotions et annonces de produits.' },
@@ -74,6 +86,10 @@ const I18N = {
         showAudit:  'Show audit trail',
         hideAudit:  'Hide audit trail',
         optedIn:    'opted in',
+        selectAllSection:   'Select all in section',
+        deselectAllSection: 'Deselect all in section',
+        pageTitle:          'Preferences',
+        tagLine:            (brand) => `Manage how ${brand} contacts you`,
         privacyNote: 'For information about how we process personal data, please see the Privacy Statement in the footer below.',
         categories: {
             MARKETING: { label: 'Marketing Communications',        description: 'Stay informed about news, promotions and product announcements.' },
@@ -227,13 +243,17 @@ export default class PreferenceCenter extends LightningElement {
             }
         };
         LANG_EVENTS.forEach(k => window.addEventListener(k, this._langHandler));
-        // Sync with any language already set by the hub header on the same page
+        // Sync with any language already set by the hub header on the same page. Only matches
+        // the company's own regional domains — every Salesforce sandbox/scratch site domain
+        // (*.my.site.com, *.force.com) also ends in ".com", so a bare ".com"/".co.uk" suffix
+        // check previously forced English on every sandbox regardless of the visitor's actual
+        // language, silently defeating translation there (found 2026-08-25).
         try {
             const h = window.location.hostname;
             if (h.endsWith('.de')) this._lang = 'de';
             else if (h.endsWith('.fr')) this._lang = 'fr';
             else if (h.endsWith('.nl')) this._lang = 'nl';
-            else if (h.endsWith('.co.uk') || h.endsWith('.com')) this._lang = 'en';
+            else if (h.endsWith('.co.uk') || h.endsWith('movingintelligence.com')) this._lang = 'en';
         } catch (_) {}
     }
 
@@ -384,26 +404,33 @@ export default class PreferenceCenter extends LightningElement {
         // Contact.Language__c (resolved server-side) is authoritative once known — it works
         // regardless of which domain the link was opened from, unlike hostname sniffing.
         if (data.language) this._lang = data.language;
+        // Guest opened a link from before the last token rotation: it still works, but point to the newest one.
+        if (data.staleToken) {
+            this.dispatchEvent(new ShowToastEvent({
+                title:   'Older link',
+                message: 'You opened an older link. For your security we renew these links regularly: please use the link in your most recent email next time.',
+                variant: 'warning',
+                mode:    'sticky'
+            }));
+        }
         this._categoryLabels = data.categoryLabels || {};
         this._typeLabels     = data.typeLabels     || {};
         this._channelLabels  = data.channelLabels  || {};
         // Existing saved settings are already merged by Apex into the catalog
         this._buildPrefsMap(data.preferences);
         this._buildSections();
-        // Default active tab: URL param → Account PrimaryBrand → first brand in catalog
+        // Default active tab: URL param → first brand in catalog
         // Skip when an explicit brand is already fixed (prop or URL)
         if (!this._activeBrand && !this.brand && !this._urlBrand) {
-            this._activeBrand = data.primaryBrand
-                || (this.sections.length > 0 ? this.sections[0].brand : '')
-                || 'M';
+            this._activeBrand = (this.sections.length > 0 ? this.sections[0].brand : '') || 'M';
         }
         this._setLastAuditLabel(data.lastAudit);
         this.isLoading = false;
         this.hasError  = false;
         // Load brand theme once the effective brand is known (covers internal console
-        // where brand is resolved from Account, not from a URL param or @api prop).
+        // where brand is resolved from a URL param or @api prop).
         if (!this._brandTheme) {
-            const resolved = this.brand || this._urlBrand || data.primaryBrand
+            const resolved = this.brand || this._urlBrand
                 || (this.sections.length > 0 ? this.sections[0].brand : null)
                 || 'M';
             this._fetchBrandTheme(resolved);
@@ -494,9 +521,14 @@ export default class PreferenceCenter extends LightningElement {
         return null;
     }
 
-    /** Brand tagline shown below the logo on Experience Cloud. */
+    /**
+     * Brand tagline shown below the logo on Experience Cloud. Deliberately ignores
+     * BrandThemeConfig__mdt.TagLine__c — that field has no per-language variant, so it can
+     * only ever show one language regardless of the visitor. Built from the I18N dictionary
+     * instead, parameterized by brand name, so it translates like every other static label.
+     */
     get brandTagLine() {
-        return this._brandTheme?.tagLine || `Choose how ${this.activeBrandLabel} may contact you.`;
+        return this._t.tagLine(this.activeBrandLabel);
     }
 
     /**
@@ -532,6 +564,9 @@ export default class PreferenceCenter extends LightningElement {
     get saveLabel()    { return this.isSaving ? this._t.saving : this._t.save; }
     get auditToggleLabel() { return this.showAudit ? this._t.hideAudit : this._t.showAudit; }
     get privacyNote()      { return this._t.privacyNote; }
+    get selectAllSectionLabel()   { return this._t.selectAllSection; }
+    get deselectAllSectionLabel() { return this._t.deselectAllSection; }
+    get pageTitleLabel()          { return this._t.pageTitle; }
 
     get optInLabel() {
         return `${this.selectedCount} / ${this.totalCount} ${this._t.optedIn}`;
