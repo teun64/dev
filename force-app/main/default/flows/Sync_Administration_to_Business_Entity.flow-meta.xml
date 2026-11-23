@@ -49,13 +49,6 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>rBusinessEntity.CustomerHub_Site_URL__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record.CustomerHub_Site_URL__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
             <assignToReference>rBusinessEntity.CustomerHub_URL__c</assignToReference>
             <operator>Assign</operator>
             <value>

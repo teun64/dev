@@ -58,11 +58,6 @@
         <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Business_Entities__c.CustomerHub_Site_URL__c</field>
-        <readable>true</readable>
-        <editable>false</editable>
-    </fieldPermissions>
-    <fieldPermissions>
         <field>Business_Entities__c.CustomerHub_URL__c</field>
         <readable>true</readable>
         <editable>false</editable>

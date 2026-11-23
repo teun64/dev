@@ -371,7 +371,7 @@ private class Test_Ctrl_Payment {
         Ctrl_Payment.sendSetupEmail('TOKEN-SETUP');
         Test.stopTest();
 
-        System.assert(true, 'sendSetupEmail with CustomerHub_Site_URL__c set should not throw');
+        System.assert(true, 'sendSetupEmail with CustomerHub_URL__c set should not throw');
     }
 
     @IsTest
