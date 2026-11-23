@@ -3279,12 +3279,4 @@ Access to the webshop requires an account. In your personal account you can view
         <shortDescription>Dealer Portal invite email: spam hint</shortDescription>
         <value>Nothing after 15 minutes? Check your spam folder first.</value>
     </labels>
-    <labels>
-        <fullName>Legal_FAQ_Url</fullName>
-        <categories>Legal,Email</categories>
-        <language>en_US</language>
-        <protected>false</protected>
-        <shortDescription>Legal FAQ Url</shortDescription>
-        <value>https://movingintelligence.nl/support</value>
-    </labels>
 </CustomLabels>

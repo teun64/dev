@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Legal_Support_Url__c</fullName>
+    <description>Mirror of the Business Entity value for Lightning email templates (single-hop merge fields). Sentence text is written in each template, per language.</description>
+    <externalId>false</externalId>
+    <formula>Subscription25__Administration__r.Business_Entity__r.Support_URL__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Legal Support Url</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

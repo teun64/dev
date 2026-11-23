@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Legal_FAQ_Line_FR__c</fullName>
-    <description>Mirror of the Administration FAQ line for email templates.</description>
+    <fullName>Legal_CoC__c</fullName>
+    <description>Mirror of the Administration value for Lightning email templates (single-hop merge fields). Label text is written in each template, per language.</description>
     <externalId>false</externalId>
-    <formula>Subscription25__Administration__r.Legal_FAQ_Line_FR__c</formula>
+    <formula>Subscription25__Administration__r.Subscription25__Chamber_Of_Commerce_Number__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Legal FAQ Line FR</label>
+    <label>Legal CoC</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
