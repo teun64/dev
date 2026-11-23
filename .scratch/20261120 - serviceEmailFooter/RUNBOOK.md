@@ -4,7 +4,7 @@ Source: Claude Docs "Service Email Footer – Legal Requirements & Implementatio
 
 ## Status (2026-11-23)
 - dev + acc: DONE and committed (db270d2): fields, invoice templates NL/DE/UK, rotation batch, guest masking, NL letterhead footer emptied. Previews sent from acc 2026-11-23.
-- prod: not deployed (legal review, `Support_URL__c` fill, letterhead step below).
+- prod: NL LIVE since 2026-11-23 (fields + FLS deploys 0AfTx0000016Cp7KAE, InvoiceNL 0AfTx0000016CsLKAU; `Support_URL__c` on BE Netherlands a3ETx000000cPztMAE = https://movingintelligence.nl/support; prod letterhead lh_M_Preferences_NL 0RnTx00000003ltKAA footer emptied right after the template deploy; prod preview sent and checked). DE/UK templates + letterheads and the rotation/token parts NOT in prod yet. Tip: do the letterhead step immediately after the template deploy (gap = a manual NL invoice mail would show the terms line twice; automatic sending runs after 23:00).
 
 ## What is in it
 1. Fields (replaces the earlier block/FAQ-line design; `Legal_Company_Block__c` is now unused, `Legal_FAQ_Line_*`, `Legal_Show_FAQ__c` and label `Legal_FAQ_Url` are deleted): Administration `Legal_Address__c`; Invoice mirrors `Legal_Name/Address/CoC/VAT/Managing_Directors__c` (from Administration) and `Legal_Support/Terms/Privacy_Url__c` (from `Business_Entity__r`); Business Entity `Support_URL__c` (plain URL, not synced; fill per entity).
@@ -30,7 +30,7 @@ sf data update record -o <org> -s EnhancedLetterhead -i <Id> -v "LetterheadFoote
 ```
 Original NL footer (restore text) is the "Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href=https://movingintelligence.nl/algemene-voorwaarden>algemene voorwaarden</a> en <a href=https://movingintelligence.nl/privacy>privacyverklaring</a>." div, 11px #8A8F8A, padding 0 10px 10px. Do this in the same window as the InvoiceNL template deploy. dev + acc done 2026-11-23 (ids dev 0Rnbd0000000DdBCAU, acc 0RnG50000000o4rKAA); prod: look up the Id. The letterhead may also be used by mails not in the repo: check before emptying in prod.
 
-## Prod checklist, NL only (first go-live of the footer)
+## Prod checklist, NL only (DONE 2026-11-23; reuse for DE/UK with their own support URL, template and letterhead)
 Nothing of the footer is in prod yet (the field `Business_Entities__c.Support_URL__c` does not exist there), so these come in this order, each only on explicit command:
 1. Deploy fields: Administration `Legal_Address__c`; Invoice `Legal_Name/Address/CoC/VAT/Managing_Directors/Support_Url/Terms_Url/Privacy_Url__c`; Business Entity `Support_URL__c`. FLS (Admin profile partial; `ps_miSubscription25_User` read, `ps_BusinessEntitiesAdmin` edit, `ps_BusinessEntitiesReadOnly` read), each permission set from prod's own copy.
 2. Fill `Support_URL__c` on the prod Business Entity "Netherlands" (acc value: https://movingintelligence.nl/support; check the page first). Terms/privacy URLs on the prod entity are already filled.
