@@ -30,6 +30,14 @@ sf data update record -o <org> -s EnhancedLetterhead -i <Id> -v "LetterheadFoote
 ```
 Original NL footer (restore text) is the "Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href=https://movingintelligence.nl/algemene-voorwaarden>algemene voorwaarden</a> en <a href=https://movingintelligence.nl/privacy>privacyverklaring</a>." div, 11px #8A8F8A, padding 0 10px 10px. Do this in the same window as the InvoiceNL template deploy. dev + acc done 2026-11-23 (ids dev 0Rnbd0000000DdBCAU, acc 0RnG50000000o4rKAA); prod: look up the Id. The letterhead may also be used by mails not in the repo: check before emptying in prod.
 
+## Prod checklist, NL only (first go-live of the footer)
+Nothing of the footer is in prod yet (the field `Business_Entities__c.Support_URL__c` does not exist there), so these come in this order, each only on explicit command:
+1. Deploy fields: Administration `Legal_Address__c`; Invoice `Legal_Name/Address/CoC/VAT/Managing_Directors/Support_Url/Terms_Url/Privacy_Url__c`; Business Entity `Support_URL__c`. FLS (Admin profile partial; `ps_miSubscription25_User` read, `ps_BusinessEntitiesAdmin` edit, `ps_BusinessEntitiesReadOnly` read), each permission set from prod's own copy.
+2. Fill `Support_URL__c` on the prod Business Entity "Netherlands" (acc value: https://movingintelligence.nl/support; check the page first). Terms/privacy URLs on the prod entity are already filled.
+3. Deploy `InvoiceNL` template and, in the same window, the letterhead step for `lh_M_Preferences_NL` (look up the prod Id, save the old footer, empty it). DE/UK templates and letterheads: later.
+4. Send a prod preview to yourself, check the footer, link targets and that the terms line shows once.
+Also open: legal review, confirm German managing director in prod (acc has Mathieu Chènebit).
+
 ## Deploy order (each org)
 fields (Admin, Invoice, Contact) -> FLS (Admin profile partial, ps_miSubscription25_User read: deploy from the org's own copy) -> Business Entity `Support_URL__c` + FLS (ps_BusinessEntitiesAdmin/ReadOnly, Admin profile) -> Apex (Util_CommunicationPreferenceToken, Trigger_Contact, Ctrl_PreferenceCenterGuest, Ctrl_PreferenceCenter, Batch_RotatePreferenceTokens + tests, run Test_Trigger_Contact too for coverage) -> preferenceCenter LWC -> templates. Then fill `Support_URL__c` per Business Entity and do the letterhead step. Schedule the rotation batch only after a dry look (first cycle over ~213k legacy tokens).
 
