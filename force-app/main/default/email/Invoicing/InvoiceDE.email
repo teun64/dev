@@ -44,8 +44,6 @@
     <br/>
     Diese E-Mail enthält persönliche Links. Bitte leiten Sie sie nicht weiter.<br/>
     <br/>
-    Welche weiteren E-Mails Sie von uns erhalten, legen Sie selbst fest: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">E-Mail-Einstellungen verwalten</a>.<br/>
-    <br/>
     Für alle unsere Leistungen gelten unsere Allgemeinen Geschäftsbedingungen. Lesen Sie unsere <a href="{{{Subscription25__Invoice__c.Legal_Terms_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">AGB</a> und unsere <a href="{{{Subscription25__Invoice__c.Legal_Privacy_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">Datenschutzerklärung</a>.<br/>
 </div>
 

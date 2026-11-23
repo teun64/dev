@@ -43,8 +43,6 @@
     <br/>
     This email contains personal links. Please do not forward it.<br/>
     <br/>
-    You decide which other emails you receive from us: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">manage your email preferences</a>.<br/>
-    <br/>
     Our general terms and conditions apply to all our services. Read our <a href="{{{Subscription25__Invoice__c.Legal_Terms_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">terms and conditions</a> and <a href="{{{Subscription25__Invoice__c.Legal_Privacy_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">privacy statement</a>.<br/>
 </div>
 
