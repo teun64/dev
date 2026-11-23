@@ -1,6 +1,6 @@
 # Exact account sync redesign: prod go-live (commit 5b9b540)
 
-Status 2026-11-23: dev + acc deployed and tested; acc end-to-end Exact check PASSED 2026-11-23 on test division 10006632 (first sync: MainContact = Invoice-role contact, Visit address on that contact, delivery address on the Main-role contact; after role swap + second sync: MainContact moved, Visit address same id re-linked, old contact '(DO NOT USE)', address and Country kept). Acc helper class ZZMk deleted; acc test account 001G500001WuD1UIAV cannot be deleted (association error), harmless. Prod NOT deployed. Deploy only on explicit command.
+Status 2026-11-23: dev + acc deployed and tested; acc end-to-end Exact check PASSED 2026-11-23 on test division 10006632 (first sync: MainContact = Invoice-role contact, Visit address on that contact, delivery address on the Main-role contact; after role swap + second sync: MainContact moved, Visit address same id re-linked, old contact '(DO NOT USE)', address and Country kept). Acc helper class ZZMk deleted; acc test account 001G500001WuD1UIAV cannot be deleted (association error), harmless. Acc Jos-like case (two same-name contacts, roles moved) also PASSED (ZZ Claude Jos Case 001G500001XEGLJIA5, helper class ZZJos still in acc: delete after prod). Prod NOT deployed. Deploy only on explicit command.
 
 ## What goes live
 - `Util_FinancialSystemAccount` + `Test_Util_FinancialSystemAccount` only (package/). No schema, flow or permission changes: `FinancialIdVisitingAddress__c` and `FinSysAccountManagerDefault__c` + `Util_FinancialSystem` already exist in prod.
@@ -11,7 +11,7 @@ Status 2026-11-23: dev + acc deployed and tested; acc end-to-end Exact check PAS
 
 ## Before deploy
 1. (Done) Acc end-to-end Exact check.
-2. User confirms: fallback order, Visit address contact = invoice (main) contact, Main-role contact still synced as normal contact.
+2. (Done 2026-11-23) User confirmed: fallback order kept as is (Contact_Billing__c, then Contact_person__c = Main contact; NO data fix, because adding Invoice roles changes Billing_Attendant_To and triggers platform syncs, see memory); Visit address contact = invoice (main) contact; Main-role contact still synced as a normal contact.
 3. Explicit user command to deploy prod.
 
 ## Deploy
