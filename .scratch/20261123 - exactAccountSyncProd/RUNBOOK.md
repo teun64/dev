@@ -1,6 +1,6 @@
 # Exact account sync redesign: prod go-live (commit 5b9b540)
 
-Status 2026-11-23: dev + acc deployed and tested; acc end-to-end Exact check BLOCKED until `nc_FinSysTM_NL` is authenticated in acc. Prod NOT deployed. Deploy only on explicit command.
+Status 2026-11-23: dev + acc deployed and tested; acc end-to-end Exact check PASSED 2026-11-23 on test division 10006632 (first sync: MainContact = Invoice-role contact, Visit address on that contact, delivery address on the Main-role contact; after role swap + second sync: MainContact moved, Visit address same id re-linked, old contact '(DO NOT USE)', address and Country kept). Acc helper class ZZMk deleted; acc test account 001G500001WuD1UIAV cannot be deleted (association error), harmless. Prod NOT deployed. Deploy only on explicit command.
 
 ## What goes live
 - `Util_FinancialSystemAccount` + `Test_Util_FinancialSystemAccount` only (package/). No schema, flow or permission changes: `FinancialIdVisitingAddress__c` and `FinSysAccountManagerDefault__c` + `Util_FinancialSystem` already exist in prod.
@@ -10,7 +10,7 @@ Status 2026-11-23: dev + acc deployed and tested; acc end-to-end Exact check BLO
 78 accounts change Exact MainContact; 7,695 Invoice-role contact differs from Main-role; 1,530 have no Invoice role (fallback); 7,177 shipping contact differs from main (get a delivery address on next sync); every account does one Visit GET+PUT on its next sync (gradual).
 
 ## Before deploy
-1. Acc end-to-end Exact check passed (rerun `ZZMk.sync` + swap on acc ZZ account 001G500001WuD1UIAV); then delete that account and class `ZZMk` from acc.
+1. (Done) Acc end-to-end Exact check.
 2. User confirms: fallback order, Visit address contact = invoice (main) contact, Main-role contact still synced as normal contact.
 3. Explicit user command to deploy prod.
 
