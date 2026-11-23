@@ -9,13 +9,17 @@ export default class PreferenceSection extends LightningElement {
     @api isEssential = false;
     @api items = [];
     @api hideChannelBadge = false;
+    // Translated by the parent (preferenceCenter's I18N dictionary, keyed off the visitor's
+    // resolved language) — English fallbacks here only cover a standalone/unwired usage.
+    @api selectAllLabel   = 'Select all in section';
+    @api deselectAllLabel = 'Deselect all in section';
 
     get allChecked() {
         const optIn = this.items.filter(i => !i.isEssential);
         return optIn.length > 0 && optIn.every(i => i.checked);
     }
     get toggleIcon()  { return this.allChecked ? 'utility:close' : 'utility:check'; }
-    get toggleTitle() { return this.allChecked ? 'Deselect all in section' : 'Select all in section'; }
+    get toggleTitle() { return this.allChecked ? this.deselectAllLabel : this.selectAllLabel; }
 
     handleCheckboxChange(event) {
         const compositeKey = event.target.dataset.key;
