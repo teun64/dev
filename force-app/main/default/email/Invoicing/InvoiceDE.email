@@ -20,14 +20,11 @@
 
 <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
     Wenn Sie Fragen zu dieser Rechnung haben, kontaktieren Sie uns bitte per
-    <a href="mailto:buchhaltung@movingintelligence.de" style="font-family:Arial,Helvetica,sans-serif; color:#0E0F0E;font-weight:bold;">E-Mail</a>.
+    <a href="mailto:buchhaltung@movingintelligence.de" style="font-family:Arial,Helvetica,sans-serif; color:#0E0F0E;font-weight:bold;">E-Mail</a> oder telefonisch unter +49 (0)30 762 39 00 00 (Mo. &ndash; Fr. 9:00 &ndash; 17:00).
 </p>
 
 <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 8px 0;">
-    Mit freundlichen Grüßen,<br/><br/>
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Moving Intelligence GmbH</strong><br/>
-    T. +49 (0)30 762 39 00 00 (Mo. &ndash; Fr. 9:00 &ndash; 17:00)<br/>
-    E. <a href="mailto:buchhaltung@movingintelligence.de" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">buchhaltung@movingintelligence.de</a>
+    Mit freundlichen Grüßen,
 </p>
 
 <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
@@ -49,6 +46,7 @@
     <br/>
     Welche weiteren E-Mails Sie von uns erhalten, legen Sie selbst fest: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">E-Mail-Einstellungen verwalten</a>.<br/>
     <br/>
+    Für alle unsere Leistungen gelten unsere Allgemeinen Geschäftsbedingungen. Lesen Sie unsere <a href="{{{Subscription25__Invoice__c.Legal_Terms_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">AGB</a> und unsere <a href="{{{Subscription25__Invoice__c.Legal_Privacy_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">Datenschutzerklärung</a>.<br/>
 </div>
 
 </div>

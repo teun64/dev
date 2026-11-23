@@ -20,14 +20,11 @@
 
 <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 24px 0;">
     If you have any questions about this invoice, please contact us by
-    <a href="mailto:accounts@movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#0E0F0E;font-weight:bold;">e-mail</a>.
+    <a href="mailto:accounts@movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#0E0F0E;font-weight:bold;">e-mail</a> or by phone on +44 (0)161 739 04 27 (Mon. &ndash; Fri. 8:30 &ndash; 17:30).
 </p>
 
 <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 8px 0;">
-    Kind regards,<br/><br/>
-    <strong style="font-family:Arial,Helvetica,sans-serif;">Moving Intelligence Ltd</strong><br/>
-    T. +44 (0)161 739 04 27 (Mon. &ndash; Fri. 8:30 &ndash; 17:30)<br/>
-    E. <a href="mailto:info@movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">info@movingintelligence.co.uk</a>
+    Kind regards,
 </p>
 
 <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
@@ -48,6 +45,7 @@
     <br/>
     You decide which other emails you receive from us: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">manage your email preferences</a>.<br/>
     <br/>
+    Our general terms and conditions apply to all our services. Read our <a href="{{{Subscription25__Invoice__c.Legal_Terms_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">terms and conditions</a> and <a href="{{{Subscription25__Invoice__c.Legal_Privacy_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">privacy statement</a>.<br/>
 </div>
 
 </div>
