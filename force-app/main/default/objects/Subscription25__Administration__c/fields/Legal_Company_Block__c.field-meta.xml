@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Legal_Company_Block__c</fullName>
-    <description>Legal company line for service emails, language neutral: name, address, registration, VAT, managing directors (DE). Built from this Administration; never hardcode.</description>
+    <description>Legal company line for service emails, language neutral HTML, one line each: name, address, registration, VAT, managing directors (DE). Built from this Administration; never hardcode.</description>
     <externalId>false</externalId>
-    <formula>Subscription25__Billing_Name__c &amp; ' · ' &amp; Subscription25__Billing_Street__c &amp; ', ' &amp; Subscription25__Billing_Postal_Code__c &amp; ' ' &amp; Subscription25__Billing_City__c &amp; ', ' &amp; Subscription25__Billing_Country__c &amp; IF(ISBLANK(Subscription25__Chamber_Of_Commerce_Number__c), '', ' · Reg. no. ' &amp; Subscription25__Chamber_Of_Commerce_Number__c) &amp; IF(ISBLANK(Subscription25__VAT_Number__c), '', ' · VAT ' &amp; Subscription25__VAT_Number__c) &amp; IF(ISBLANK(Managing_directors__c), '', ' · Managing director(s): ' &amp; Managing_directors__c)</formula>
+    <formula>'&lt;strong&gt;' &amp; Subscription25__Billing_Name__c &amp; '&lt;/strong&gt;&lt;br/&gt;' &amp; Subscription25__Billing_Street__c &amp; ', ' &amp; Subscription25__Billing_Postal_Code__c &amp; ' ' &amp; Subscription25__Billing_City__c &amp; ', ' &amp; Subscription25__Billing_Country__c &amp; IF(AND(ISBLANK(Subscription25__Chamber_Of_Commerce_Number__c), ISBLANK(Subscription25__VAT_Number__c)), '', '&lt;br/&gt;' &amp; IF(ISBLANK(Subscription25__Chamber_Of_Commerce_Number__c), '', 'Reg. no. ' &amp; Subscription25__Chamber_Of_Commerce_Number__c) &amp; IF(OR(ISBLANK(Subscription25__Chamber_Of_Commerce_Number__c), ISBLANK(Subscription25__VAT_Number__c)), '', ' · ') &amp; IF(ISBLANK(Subscription25__VAT_Number__c), '', 'VAT ' &amp; Subscription25__VAT_Number__c)) &amp; IF(ISBLANK(Managing_directors__c), '', '&lt;br/&gt;Managing director(s): ' &amp; Managing_directors__c)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Legal Company Block</label>
     <required>false</required>
