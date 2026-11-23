@@ -37,14 +37,15 @@
 <a href="https://movingintelligence.co.uk" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.co.uk</a></div>
 </div>
 
-<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:12px; line-height:1.6; color:#5B625B;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Subscription25__Invoice__c.Legal_Name__c}}}</strong><br/>
+<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:11px; line-height:18px; color:#8A8F8A;">
+    <strong style="font-family:Arial,Helvetica,sans-serif; color:#8A8F8A;">{{{Subscription25__Invoice__c.Legal_Name__c}}}</strong><br/>
     {{{Subscription25__Invoice__c.Legal_Address__c}}}<br/>
     Company no. {{{Subscription25__Invoice__c.Legal_CoC__c}}} · VAT {{{Subscription25__Invoice__c.Legal_VAT__c}}}<br/>
     <br/>
     You are receiving this message because you are a customer of Moving Intelligence and it relates to your service.<br/>
-    You decide which other emails you receive from us: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">manage your email preferences</a>.<br/>
-    This email contains personal links. Please do not forward it.<br/>
+    You decide which other emails you receive from us: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">manage your email preferences</a>.<br/>
+    <br/>
+    This email contains personal links. Please do not forward it.
 </div>
 
 </div>

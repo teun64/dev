@@ -37,15 +37,16 @@
 <a href="https://movingintelligence.de" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.de</a></div>
 </div>
 
-<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:12px; line-height:1.6; color:#5B625B;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Subscription25__Invoice__c.Legal_Name__c}}}</strong><br/>
+<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:11px; line-height:18px; color:#8A8F8A;">
+    <strong style="font-family:Arial,Helvetica,sans-serif; color:#8A8F8A;">{{{Subscription25__Invoice__c.Legal_Name__c}}}</strong><br/>
     {{{Subscription25__Invoice__c.Legal_Address__c}}}<br/>
     Handelsregister {{{Subscription25__Invoice__c.Legal_CoC__c}}} · USt-IdNr. {{{Subscription25__Invoice__c.Legal_VAT__c}}}<br/>
     Geschäftsführer: {{{Subscription25__Invoice__c.Legal_Managing_Directors__c}}}<br/>
     <br/>
     Sie erhalten diese Nachricht, weil Sie Kunde von Moving Intelligence sind und sie Ihren Vertrag betrifft.<br/>
-    Welche weiteren E-Mails Sie von uns erhalten, legen Sie selbst fest: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">E-Mail-Einstellungen verwalten</a>.<br/>
-    Diese E-Mail enthält persönliche Links. Bitte leiten Sie sie nicht weiter.<br/>
+    Welche weiteren E-Mails Sie von uns erhalten, legen Sie selbst fest: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">E-Mail-Einstellungen verwalten</a>.<br/>
+    <br/>
+    Diese E-Mail enthält persönliche Links. Bitte leiten Sie sie nicht weiter.
 </div>
 
 </div>

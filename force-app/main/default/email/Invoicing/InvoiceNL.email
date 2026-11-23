@@ -35,17 +35,17 @@
 </div>
 
 
-<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:12px; line-height:1.6; color:#5B625B;">
-    <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Subscription25__Invoice__c.Legal_Name__c}}}</strong><br/>
+<div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; padding-top:12px; border-top:1px solid #E0E0E0; font-size:11px; line-height:18px; color:#8A8F8A;">
+    <strong style="font-family:Arial,Helvetica,sans-serif; color:#8A8F8A;">{{{Subscription25__Invoice__c.Legal_Name__c}}}</strong><br/>
     {{{Subscription25__Invoice__c.Legal_Address__c}}}<br/>
     KvK {{{Subscription25__Invoice__c.Legal_CoC__c}}} · BTW {{{Subscription25__Invoice__c.Legal_VAT__c}}}<br/>
     <br/>
     U ontvangt dit bericht omdat u klant bent van Moving Intelligence en het betrekking heeft op uw dienstverlening.<br/>
-    U bepaalt zelf welke andere e-mails u van ons ontvangt: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">beheer uw e-mailvoorkeuren</a>.<br/>
-    Deze e-mail bevat persoonlijke links. Stuur hem daarom niet door.<br/>
+    U bepaalt zelf welke andere e-mails u van ons ontvangt: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">beheer uw e-mailvoorkeuren</a>.<br/>
     <br/>
-    Vragen over uw dienst? Bekijk onze <a href="{{{Subscription25__Invoice__c.Legal_Support_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">veelgestelde vragen</a>.<br/>
-    Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href="{{{Subscription25__Invoice__c.Legal_Terms_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">algemene voorwaarden</a> en <a href="{{{Subscription25__Invoice__c.Legal_Privacy_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;font-weight:bold;">privacyverklaring</a>.<br/>
+    Vragen over uw dienst? Bekijk onze <a href="{{{Subscription25__Invoice__c.Legal_Support_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">veelgestelde vragen</a>.<br/>
+    <br/>
+    Deze e-mail bevat persoonlijke links. Stuur hem daarom niet door.
 </div>
 
 </div>
