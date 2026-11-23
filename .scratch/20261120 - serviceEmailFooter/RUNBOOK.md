@@ -47,3 +47,6 @@ fields (Admin, Invoice, Contact) -> FLS (Admin profile partial, ps_miSubscriptio
 
 ## To do (other touchpoints)
 DirectDebit templates (12), Opportunity_OrderConfirmation, DealerPortal mails (B2B, VF), campaign/2G mails, hub headers/footers, payment success screen, NPS thank-you, Mustang/PDF (reuse the Invoice fields). Prod: managing director for Germany differs between dev (Patrick Horst) and prod (Mathieu Chènebit): confirm. Letterhead footer terms wording vs approved text. Preference page guest messages are English only.
+
+## TO DO (parked, decision 2026-11-23): Business Entity as source of truth
+Footer data (name, address, CoC, VAT, managing directors, website) still comes from the Subscription25 Administration; Support/Terms/Privacy URLs come from the Business Entity. Planned later: Business Entity becomes the source of our own/legal data, Administration package-only, flow direction reversed, readers (footers, Customer Hub, Dealer Portal, Exact/warehouse/Stripe settings) re-pointed. Not started on purpose. See memory `business-entity-source-of-truth`.
