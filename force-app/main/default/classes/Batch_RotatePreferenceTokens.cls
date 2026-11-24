@@ -2,7 +2,7 @@
 // i.e. stamped before rotation existed) get a new key, the old key moves to Preference_Token_Previous__c, and
 // Preference_Center_Url__c follows. The guest Preference Center accepts the current key and the previous one
 // (with an old-link notice); anything older is shown the expired-link message.
-// Oldest tokens first, capped per run so the first cycle over ~213k legacy contacts is spread out and so the
+// Oldest tokens first, capped per run (2,500 per day: ~214k legacy contacts rotate over ~86 days, so later cycles stay spread evenly over the 90 days) and so the
 // Contact / Data Cloud / Marketing Cloud syncs are not flooded.
 // Runs daily as a step of the Day job dispatcher (JobDispatcherStep Day_RotatePreferenceTokens).
 // Needs a Subscription25__Schedulable_Class__c record (Name + Unique_Name__c = class name).
@@ -12,7 +12,7 @@
 global class Batch_RotatePreferenceTokens extends Subscription25.Job_AbstractBatch2 implements Database.Stateful, Util_JobDispatcher.Step {
 
 	public static final Integer ROTATE_AFTER_DAYS = 90;
-	public static final Integer DEFAULT_DAILY_CAP = 5000;
+	public static final Integer DEFAULT_DAILY_CAP = 2500;
 
 	private static final AccessLevel RUNNING_MODE = AccessLevel.SYSTEM_MODE;
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Show_In_Dealer_Shop__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Show this product in the Experience Cloud dealer web shop. Combined with an active pricebook entry (IsActive_r__c) to determine visibility.</description>
+    <label>Show in Dealer Shop</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

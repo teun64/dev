@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Show_In_Customer_Shop__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Show this product in the Experience Cloud customer web shop (future use).</description>
+    <label>Show in Customer Shop</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>
