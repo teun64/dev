@@ -32,7 +32,7 @@ public class Trigger_ContentDocumentLink {
         }
 
         Map<Id, Subscription25__Invoice__c> invoicesById = new Map<Id, Subscription25__Invoice__c>([
-            SELECT Id, Subscription25__PDF_Attachment_Name__c
+            SELECT Id, Subscription25__PDF_Attachment_Name__c, Subscription25__Invoice_Number__c
             FROM Subscription25__Invoice__c
             WHERE Id IN :contentDocumentIdByInvoiceId.keySet()
               AND Subscription25__Administration__r.Include_CII_Hybrid_PDF__c = true
@@ -55,13 +55,19 @@ public class Trigger_ContentDocumentLink {
             Id contentDocumentId = contentDocumentIdByInvoiceId.get(invoiceId);
             ContentDocument doc = documentsById.get(contentDocumentId);
 
-            if (doc == null || String.isBlank(invoice.Subscription25__PDF_Attachment_Name__c)) {
+            // On the very first PDF the package links the file BEFORE it fills PDF_Attachment_Name__c, so
+            // fall back to the name it will set: Invoice_<number>.pdf.
+            String expectedName = invoice.Subscription25__PDF_Attachment_Name__c;
+            if (String.isBlank(expectedName) && !String.isBlank(invoice.Subscription25__Invoice_Number__c)) {
+                expectedName = 'Invoice_' + invoice.Subscription25__Invoice_Number__c + '.pdf';
+            }
+            if (doc == null || String.isBlank(expectedName)) {
                 continue;
             }
 
             // Only react to the invoice's own PDF - other files (manual attachments, unrelated
             // automation) can get linked to an invoice record too, and shouldn't trigger a merge.
-            if (doc.Title != invoice.Subscription25__PDF_Attachment_Name__c) {
+            if (doc.Title != expectedName) {
                 continue;
             }
 

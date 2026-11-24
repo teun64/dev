@@ -38,7 +38,10 @@ private class Test_Trigger_ContentDocumentLink {
 
         Subscription25__Invoice__c inv = Test_Data.createInvoice(adm.Id, acc.Id, 'DRAFT', false);
         inv.Subscription25__VAT_Number__c = 'NL987654321B01';
-        inv.Subscription25__PDF_Attachment_Name__c = 'invoice-abc.pdf';
+        inv.Subscription25__PDF_Attachment_Name__c = blankNameFixture ? null : 'invoice-abc.pdf';
+        if (blankNameFixture) {
+            inv.Subscription25__Invoice_Number__c = 'NL26000001';
+        }
         Database.insert(inv, AccessLevel.SYSTEM_MODE);
 
         Order ord = Test_Data.createOrder(acc.Id, adm.Id, Date.today().addDays(-14), false);
@@ -52,6 +55,8 @@ private class Test_Trigger_ContentDocumentLink {
 
         return inv;
     }
+
+    private static Boolean blankNameFixture = false;
 
     private static void linkPdf(Id linkedEntityId, String fileName){
         ContentVersion cv = new ContentVersion();
@@ -92,6 +97,20 @@ private class Test_Trigger_ContentDocumentLink {
 
         Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
         System.assertEquals(null, result.CII_Merge_Status__c, 'Should not merge when Include_CII_Hybrid_PDF__c is false');
+    }
+
+    @IsTest
+    private static void test_triggersOnFirstPdfBeforeNameIsSet(){
+        blankNameFixture = true;
+        Subscription25__Invoice__c inv = createFixture(true);
+        Test.setMock(HttpCalloutMock.class, new MergeServiceMock());
+
+        Test.startTest();
+        linkPdf(inv.Id, 'Invoice_NL26000001.pdf');
+        Test.stopTest();
+
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
+        System.assertEquals('SUCCESS', result.CII_Merge_Status__c, 'First PDF (name still blank) must merge via Invoice_<number>.pdf');
     }
 
     @IsTest
