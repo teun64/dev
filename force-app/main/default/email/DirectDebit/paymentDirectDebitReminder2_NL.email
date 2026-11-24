@@ -4,7 +4,7 @@
  </head>
  <body style="font-family:Arial,Helvetica,sans-serif; height: auto; min-height: auto;">
   <div style="font-family:Arial,Helvetica,sans-serif; max-width:600px; margin:0 0 16px 0;">
-   <img alt="mi-email-header" src="{[devName:miemailheader]}" style="max-width:600px; width:100%; height:auto; display:block; border:0;" title="mi-email-header" width="600" />
+   <img alt="mi-email-header" src="https://movingintelligence.file.force.com/file-asset-public/miemailheader?oid=00D1t000000uTfK" style="max-width:600px; width:100%; height:auto; display:block; border:0;" title="mi-email-header" width="600" />
   </div>
   <div style="font-family:Arial,Helvetica,sans-serif; padding: 10px; font-size:14px; color:#1A1A1A;">
    <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px;line-height:1.6;margin:0 0 16px 0;">Beste {{{Recipient.FirstName}}},</p>
@@ -29,7 +29,7 @@
     <strong style="font-family:Arial,Helvetica,sans-serif;">{{{Payment__c.Sender_Name__c}}}</strong></p>
    <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 0 0;">
     <div style="font-family:Arial,Helvetica,sans-serif; margin-bottom:10px;">
-     <img alt="mi-logo-black" src="{[devName:milogoblack]}" style="width: 180px" title="mi-logo-black" />
+     <img alt="mi-logo-black" src="https://movingintelligence.file.force.com/file-asset-public/milogoblack?oid=00D1t000000uTfK" style="width: 180px" title="mi-logo-black" />
     </div>
     <div style="font-family:Arial,Helvetica,sans-serif; width:20px; border-top:2px solid #FF0000; font-size:0; line-height:0; margin-bottom:10px;">&#xa0;</div>
     <div style="font-family:Arial,Helvetica,sans-serif; font-weight:400; font-size:14px; line-height:20px; color:#5B625B;">
@@ -38,15 +38,21 @@
      <a href="https://movingintelligence.nl" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.nl</a>
     </div>
    </div>
-   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Deel deze e-mail niet</strong>
-    <br />
-    Deze e-mail bevat een persoonlijke, beveiligde link en is specifiek aan u geadresseerd. Deel deze e-mail en de link niet met anderen.</p>
-   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;"><strong style="font-family:Arial,Helvetica,sans-serif;">Vragen over dit document?</strong>
-    <br />
-    Indien u vragen heeft over het detail of de inhoud van het document, neem dan rechtstreeks contact op via e-mail: {{{Payment__c.Sender_Email__c}}}</p>
-   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Dit bericht is verstuurd door {{{Payment__c.Sender_Name__c}}}. Wij vinden het belangrijk om zorgvuldig en respectvol met onze klanten te communiceren, en willen u niet onnodig met informatie belasten. <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">U kunt hier uw voorkeuren beheren</a>.</p>
-   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Heeft u dit bericht niet zelf aangevraagd? Neem dan gerust rechtstreeks contact op met de verzender van dit verzoek, dan lossen we dit graag voor u op.</p>
+   <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; font-size:11px; line-height:18px; color:#8A8F8A;">
+    <strong style="font-family:Arial,Helvetica,sans-serif; color:#8A8F8A;">{{{Payment__c.Legal_Name__c}}}</strong><br/>
+    {{{Payment__c.Address__c}}}<br/>
+    KvK {{{Payment__c.CoC_Number__c}}} &middot; BTW {{{Payment__c.VAT_Number__c}}}<br/>
+    <br/>
+    U ontvangt dit bericht omdat u klant bent van Moving Intelligence en het betrekking heeft op uw dienstverlening.<br/>
+    <br/>
+    Deze e-mail bevat persoonlijke links. Stuur hem daarom niet door.<br/>
+    <br/>
+    U bepaalt zelf welke andere e-mails u van ons ontvangt: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">beheer uw e-mailvoorkeuren</a>.<br/>
+    <br/>
+    Vragen over uw dienst? Bekijk onze <a href="{{{Payment__c.Support_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">veelgestelde vragen</a>.<br/>
+    <br/>
+    Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href="{{{Payment__c.Terms_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">algemene voorwaarden</a> en <a href="{{{Payment__c.Privacy_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">privacyverklaring</a>.<br/>
+   </div>
   </div>
  </body>
 </html>
