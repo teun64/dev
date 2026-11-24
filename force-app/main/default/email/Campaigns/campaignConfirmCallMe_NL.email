@@ -25,9 +25,23 @@
      <a href="https://movingintelligence.nl" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B">movingintelligence.nl</a>
     </div>
    </div>
-   <hr style="border:none;border-top:1px solid #E0E0E0;margin:24px 0;" />
-   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">U ontvangt deze e-mail als bevestiging van de keuze die u heeft doorgegeven. Wij vinden het belangrijk om zorgvuldig en respectvol met onze klanten te communiceren. <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#777777;">U kunt hier uw voorkeuren beheren</a>.</p>
-   <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px;line-height:1.6;color:#777777;margin:0 0 8px 0;">Heeft u deze keuze niet zelf doorgegeven? Beantwoord dan deze e-mail, dan lossen we dit graag voor u op.</p>
+   <div style="font-family:Arial,Helvetica,sans-serif; margin:24px 0 8px 0; font-size:11px; line-height:18px; color:#8A8F8A;">
+    <strong style="font-family:Arial,Helvetica,sans-serif; color:#8A8F8A;">Moving Intelligence B.V.</strong><br/>
+    Hogeweg 33, 5301 LB Zaltbommel<br/>
+    KvK 22038837 &middot; BTW NL802100156B01<br/>
+    <br/>
+    U ontvangt deze e-mail als bevestiging van de keuze die u heeft doorgegeven. Wij vinden het belangrijk om zorgvuldig en respectvol met onze klanten te communiceren.<br/>
+    <br/>
+    Heeft u deze keuze niet zelf doorgegeven? Beantwoord dan deze e-mail, dan lossen we dit graag voor u op.<br/>
+    <br/>
+    Deze e-mail bevat persoonlijke links. Stuur hem daarom niet door.<br/>
+    <br/>
+    U bepaalt zelf welke andere e-mails u van ons ontvangt: <a href="{{{Recipient.Preference_Center_Url__c}}}" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">beheer uw e-mailvoorkeuren</a>.<br/>
+    <br/>
+    Vragen over uw dienst? Bekijk onze <a href="https://movingintelligence.nl/support" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">veelgestelde vragen</a>.<br/>
+    <br/>
+    Op al onze diensten zijn onze algemene voorwaarden van toepassing. Lees onze <a href="https://movingintelligence.nl/algemene-voorwaarden" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">algemene voorwaarden</a> en <a href="https://movingintelligence.nl/privacy" style="font-family:Arial,Helvetica,sans-serif; color:#5B625B;">privacyverklaring</a>.<br/>
+   </div>
   </div>
  </body>
 </html>
