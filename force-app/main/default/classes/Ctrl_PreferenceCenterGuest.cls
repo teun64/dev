@@ -125,7 +125,7 @@ public without sharing class Ctrl_PreferenceCenterGuest {
 
     @TestVisible
     private static final String EXPIRED_MESSAGE =
-        'This link has expired or is no longer valid. To protect your data and your privacy, links are only valid for a limited time. '
+        '[LINK_EXPIRED] This link has expired or is no longer valid. To protect your data and your privacy, links are only valid for a limited time. '
         + 'Please use the link in a more recent email from us. We value your security.';
 
     /**

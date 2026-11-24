@@ -22,6 +22,45 @@ import getGuestDisplayLabels from '@salesforce/apex/Ctrl_PreferenceCenterGuest.g
 
 const LANG_EVENTS = ['mi:languagechange', 'echoes:languagechange', 'tds:languagechange'];
 
+// Guest messages are shown before (or without) a known Contact, so they follow the browser language, not Contact.Language__c.
+// The expired-link text comes from Ctrl_PreferenceCenterGuest tagged with EXPIRED_TAG; the English text there is the fallback.
+const EXPIRED_TAG = '[LINK_EXPIRED]';
+const GUEST_MESSAGES = {
+    en: {
+        noToken:  'No contact token found. Please use the link from your email.',
+        expired:  'This link has expired or is no longer valid. To protect your data and your privacy, links are only valid for a limited time. Please use the link in a more recent email from us. We value your security.',
+        oldTitle: 'Older link',
+        oldText:  'You opened an older link. For your security we renew these links regularly: please use the link in your most recent email next time.',
+        unavailable: 'The selected option is not available.',
+        generic:  'An unexpected error occurred.'
+    },
+    nl: {
+        noToken:  'Geen contacttoken gevonden. Gebruik de link uit uw e-mail.',
+        expired:  'Deze link is verlopen of niet meer geldig. Om uw gegevens en uw privacy te beschermen zijn links beperkt geldig. Gebruik de link in een recentere e-mail van ons. Uw veiligheid is voor ons belangrijk.',
+        oldTitle: 'Oudere link',
+        oldText:  'U heeft een oudere link geopend. Voor uw veiligheid vernieuwen wij deze links regelmatig: gebruik de volgende keer de link in uw meest recente e-mail.',
+        unavailable: 'De geselecteerde optie is niet beschikbaar.',
+        generic:  'Er is een onverwachte fout opgetreden.'
+    },
+    de: {
+        noToken:  'Kein Kontakt-Token gefunden. Bitte verwenden Sie den Link aus Ihrer E-Mail.',
+        expired:  'Dieser Link ist abgelaufen oder nicht mehr gültig. Zum Schutz Ihrer Daten und Ihrer Privatsphäre sind Links nur begrenzt gültig. Bitte verwenden Sie den Link in einer aktuelleren E-Mail von uns. Ihre Sicherheit ist uns wichtig.',
+        oldTitle: 'Älterer Link',
+        oldText:  'Sie haben einen älteren Link geöffnet. Zu Ihrer Sicherheit erneuern wir diese Links regelmäßig: Bitte verwenden Sie beim nächsten Mal den Link in Ihrer neuesten E-Mail.',
+        unavailable: 'Die ausgewählte Option ist nicht verfügbar.',
+        generic:  'Es ist ein unerwarteter Fehler aufgetreten.'
+    },
+    fr: {
+        noToken:  'Aucun jeton de contact trouvé. Veuillez utiliser le lien figurant dans votre e-mail.',
+        expired:  'Ce lien a expiré ou n\'est plus valide. Pour protéger vos données et votre vie privée, les liens ne sont valables que pour une durée limitée. Veuillez utiliser le lien d\'un e-mail plus récent de notre part. Votre sécurité est importante pour nous.',
+        oldTitle: 'Ancien lien',
+        oldText:  'Vous avez ouvert un ancien lien. Pour votre sécurité, nous renouvelons régulièrement ces liens : veuillez utiliser la prochaine fois le lien de votre e-mail le plus récent.',
+        unavailable: 'L\'option sélectionnée n\'est pas disponible.',
+        generic:  'Une erreur inattendue s\'est produite.'
+    }
+};
+
+
 const I18N = {
     nl: {
         save:       'Voorkeuren opslaan',
@@ -308,7 +347,7 @@ export default class PreferenceCenter extends LightningElement {
             } else {
                 this.isLoading    = false;
                 this.hasError     = true;
-                this.errorMessage = 'No contact token found. Please use the link from your email.';
+                this.errorMessage = this._guestMsg.noToken;
             }
         } else if (!this._recordId) {
             // Experience Cloud landing page (logged-in customer): always resolve from the
@@ -407,8 +446,8 @@ export default class PreferenceCenter extends LightningElement {
         // Guest opened a link from before the last token rotation: it still works, but point to the newest one.
         if (data.staleToken) {
             this.dispatchEvent(new ShowToastEvent({
-                title:   'Older link',
-                message: 'You opened an older link. For your security we renew these links regularly: please use the link in your most recent email next time.',
+                title:   this._guestMsg.oldTitle,
+                message: this._guestMsg.oldText,
                 variant: 'warning',
                 mode:    'sticky'
             }));
@@ -552,6 +591,19 @@ export default class PreferenceCenter extends LightningElement {
     }
 
     get _t() { return I18N[this._lang] || I18N.nl; }
+
+    /** Guest message set for the visitor's browser language (nl/de/fr/en, default en). */
+    get _guestMsg() {
+        let tag = 'en';
+        try {
+            const list = (typeof navigator !== 'undefined' && (navigator.languages || [navigator.language])) || [];
+            for (const l of list) {
+                const code = String(l || '').toLowerCase().split('-')[0];
+                if (GUEST_MESSAGES[code]) { tag = code; break; }
+            }
+        } catch (_) { /* default en */ }
+        return GUEST_MESSAGES[tag];
+    }
 
     get contactDisplayLine() {
         if (this._channel === 'email' || (!this._channel && this.contactEmail)) {
@@ -797,7 +849,8 @@ export default class PreferenceCenter extends LightningElement {
     _setError(error) {
         this.isLoading    = false;
         this.hasError     = true;
-        this.errorMessage = error?.body?.message || error?.message || 'An unexpected error occurred.';
+        const raw = error?.body?.message || error?.message || '';
+        this.errorMessage = raw.includes(EXPIRED_TAG) ? this._guestMsg.expired : (raw || this._guestMsg.generic);
     }
 
     /** Only M, E, T are real catalog brands — anything else (typo'd or stale ?brand= link) is invalid. */
@@ -809,7 +862,7 @@ export default class PreferenceCenter extends LightningElement {
         this._hasInvalidBrand = true;
         this.isLoading        = false;
         this.hasError         = true;
-        this.errorMessage     = 'The selected option is not available.';
+        this.errorMessage     = this._guestMsg.unavailable;
     }
 
     _uuid() {
