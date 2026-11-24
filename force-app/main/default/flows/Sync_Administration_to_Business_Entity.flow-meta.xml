@@ -230,6 +230,55 @@
                 <elementReference>fx_Bank_6_Sort_Code</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rBusinessEntity.Business_Name__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Billing_Name__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rBusinessEntity.CoC_Number__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Chamber_Of_Commerce_Number__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rBusinessEntity.VAT_Number__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__VAT_Number__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rBusinessEntity.Address__Street__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Billing_Street__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rBusinessEntity.Address__PostalCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Billing_Postal_Code__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rBusinessEntity.Address__City__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Subscription25__Billing_City__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rBusinessEntity.Address__CountryCode__s</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fx_Address_CountryCode</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>dgr_Find_Business_Entity</targetReference>
         </connector>
@@ -275,8 +324,13 @@
             <label>Not Found - Create</label>
         </rules>
     </decisions>
-    <description>Keeps Business_Entities__c in sync with the non-package custom fields on Subscription25__Administration__c, matched by the shared Reseller__c picklist value. One-way sync (Administration -&gt; Business Entity) only - does not write back to Administration. Apex/Flow logic that currently reads these fields from Administration is NOT migrated by this flow; that cutover happens deliberately, field by field, not automatically.</description>
+    <description>Keeps Business_Entities__c in sync with the non-package custom fields on Subscription25__Administration__c, matched by the shared Reseller__c picklist value. Also copies the legal fields (business name, address, CoC, VAT) from the Administration billing fields while the Administration is still their master. One-way sync (Administration -&gt; Business Entity) only - does not write back to Administration. Apex/Flow logic that currently reads these fields from Administration is NOT migrated by this flow; that cutover happens deliberately, field by field, not automatically.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>fx_Address_CountryCode</name>
+        <dataType>String</dataType>
+        <expression>CASE({!$Record.Subscription25__Billing_Country__c}, &quot;Netherlands&quot;, &quot;NL&quot;, &quot;Germany&quot;, &quot;DE&quot;, &quot;United Kingdom&quot;, &quot;GB&quot;, &quot;Belgium&quot;, &quot;BE&quot;, &quot;France&quot;, &quot;FR&quot;, &quot;Greece&quot;, &quot;GR&quot;, &quot;&quot;)</expression>
+    </formulas>
     <formulas>
         <name>fx_Bank_6_Account_Number</name>
         <dataType>String</dataType>
