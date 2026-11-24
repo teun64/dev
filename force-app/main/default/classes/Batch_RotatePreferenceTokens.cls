@@ -4,10 +4,12 @@
 // (with an old-link notice); anything older is shown the expired-link message.
 // Oldest tokens first, capped per run so the first cycle over ~213k legacy contacts is spread out and so the
 // Contact / Data Cloud / Marketing Cloud syncs are not flooded.
-// Run:  Database.executeBatch(new Batch_RotatePreferenceTokens(), 100);
+// Runs daily as a step of the Day job dispatcher (JobDispatcherStep Day_RotatePreferenceTokens).
+// Needs a Subscription25__Schedulable_Class__c record (Name + Unique_Name__c = class name).
+// Manual run:  Database.executeBatch(new Batch_RotatePreferenceTokens(), 100);
 // Keep the batch size at or below 100: the "rab - Contact" flow faults on a multi-row update of Contacts that
 // still have a blank Email_Encrypted__c / Unique_Key__c, so those are updated one at a time (like the backfill).
-public class Batch_RotatePreferenceTokens implements Database.Batchable<SObject>, Database.Stateful {
+global class Batch_RotatePreferenceTokens extends Subscription25.Job_AbstractBatch2 implements Database.Stateful, Util_JobDispatcher.Step {
 
 	public static final Integer ROTATE_AFTER_DAYS = 90;
 	public static final Integer DEFAULT_DAILY_CAP = 5000;
@@ -19,15 +21,27 @@ public class Batch_RotatePreferenceTokens implements Database.Batchable<SObject>
 	private Integer failed = 0;
 	private List<String> errors = new List<String>();
 
-	public Batch_RotatePreferenceTokens() {
+	// set when started by Batch_JobDispatcher: finishBatch then starts the dispatcher's next step
+	private String dispatcher;
+
+	public void setDispatcher(String dispatcher) {
+		this.dispatcher = dispatcher;
+	}
+
+	global Batch_RotatePreferenceTokens() {
 		this(DEFAULT_DAILY_CAP);
 	}
 
-	public Batch_RotatePreferenceTokens(Integer dailyCap) {
+	global Batch_RotatePreferenceTokens(Integer dailyCap) {
+		super('Batch_RotatePreferenceTokens');
 		this.dailyCap = dailyCap;
 	}
 
-	public Database.QueryLocator start(Database.BatchableContext bc){
+	public override Integer getBatchSize() {
+		return 100;
+	}
+
+	public override Database.QueryLocator startBatch(Database.BatchableContext bc){
 		Date cutoff = Date.today().addDays(-ROTATE_AFTER_DAYS);
 		return Database.getQueryLocator(
 			'SELECT Id, Email, Email_Encrypted__c, Unique_Key__c, Preference_Token_Key__c FROM Contact ' +
@@ -38,7 +52,7 @@ public class Batch_RotatePreferenceTokens implements Database.Batchable<SObject>
 		);
 	}
 
-	public void execute(Database.BatchableContext bc, List<SObject> scope){
+	public override void executeBatch(Database.BatchableContext bc, List<SObject> scope){
 		List<Contact> toUpdate = new List<Contact>();
 		List<Contact> toUpdateSingly = new List<Contact>();
 		for(Contact con : (List<Contact>) scope){
@@ -78,7 +92,8 @@ public class Batch_RotatePreferenceTokens implements Database.Batchable<SObject>
 		}
 	}
 
-	public void finish(Database.BatchableContext bc){
+	public override void finishBatch(Database.BatchableContext bc){
 		System.debug(LoggingLevel.INFO, 'Batch_RotatePreferenceTokens: rotated ' + rotated + ', failed ' + failed + ' ' + errors);
+		Util_JobDispatcher.startNext(this.dispatcher, 'Batch_RotatePreferenceTokens');
 	}
 }

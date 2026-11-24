@@ -8,6 +8,7 @@ private class Test_Batch_RotatePreferenceTokens {
 			Secret__c    = 'unit-test-secret',
 			Base_Url__c  = 'https://example.my.site.com/customerhub'
 		);
+		insert new Subscription25__Schedulable_Class__c(Name = 'Batch_RotatePreferenceTokens', Subscription25__Unique_Name__c = 'Batch_RotatePreferenceTokens');
 	}
 
 	private static Contact makeContact(String email) {
