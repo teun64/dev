@@ -4,6 +4,20 @@ Source: Claude Docs "Service Email Footer – Legal Requirements & Implementatio
 
 ## Status 2026-11-24: step 6 (payment mails, order confirmation, Dealer Portal) LIVE in prod, see .scratch/20261124 - step6FooterProd/RUNBOOK.md
 
+## OPEN TOPICS (2026-11-24, end of day)
+Done in dev + acc, committed (a1d9247), NOT in prod:
+- Campaign confirmations (CallMe/NotNow/Offer, NL): standard footer block with static NL legal data (Contact has no link to Business Entity, so no merge field; edit the 3 templates if the NL company data changes). No FAQ line of its own, preference link kept.
+- Service auto-responses (7: mi1 NL+EN, mi4 EN+FR, mi5 DE+EN, mi6 UK): legal block (static per entity, text per language), sign-off block (logo, red line, tagline, URL) moved from the letterhead footer into the body ABOVE the legal block. No preference link (a Lightning template cannot show it conditionally for cases without a contact/token), no FAQ in the block, no personal-links remark.
+- Letterheads (data records, not deployable, set per org with a REST update of EmailTemplate.EnhancedLetterheadId): the 5 M-brand service templates use lh_M_Payment (same header, empty footer); the 2 echoes templates use the new lh_E_Plain (echoes header, empty footer, created by REST insert, json in scratchpad lhEPlain.json). lh_M_Service and lh_E_Service are unchanged because miButler_signerMailOtp_nl still uses lh_M_Service (not touched).
+- Prod steps (on explicit go only): 1) create lh_E_Plain, 2) deploy email/Campaigns, mi1, mi4, mi5, mi6, 3) set EnhancedLetterheadId on the 7 service templates (look up ids in prod), 4) check with a dev preview first (never send mail from acc).
+Other open items:
+- DE and UK payment mails have no preference-center remark (checked 2026-11-24, all 20 templates); EN is assumed to be UK only. Confirm if NL customers also receive the EN templates.
+- Not started: footer on the direct debit invoice-block fragment (not needed, part of the invoice mail), mi* auto-responses of other brands, hub headers/footers, payment success screen, NPS thank-you, Mustang/PDF invoices.
+- B2C opt-in plan steps 2-4 (letterhead footer link, hub links, payment success/NPS call to action) parked; remind the user when open items come up (memory project_preference_touchpoints_plan).
+- Prod: preference center guest messages by browser language, inline older-link notice, translated save message, French Dealer Portal invite labels and the translated copyright line in the dealer footer (uncommitted dealerFooter.js/.html) still need a prod deploy and a Customer Hub republish, on explicit go.
+- Token rotation is a Subscription25 batch and Day step (order 100), cap 2500/day, already deployed to prod by another session; schedule/verification is that session's.
+- Letterhead footer terms wording vs approved text still to confirm. Business Entity as source of truth stays parked.
+
 ## Status (2026-11-23)
 - dev + acc: DONE and committed (db270d2): fields, invoice templates NL/DE/UK, rotation batch, guest masking, NL letterhead footer emptied. Previews sent from acc 2026-11-23.
 - prod: NL LIVE since 2026-11-23 (fields + FLS deploys 0AfTx0000016Cp7KAE, InvoiceNL 0AfTx0000016CsLKAU; `Support_URL__c` on BE Netherlands a3ETx000000cPztMAE = https://movingintelligence.nl/support; prod letterhead lh_M_Preferences_NL 0RnTx00000003ltKAA footer emptied right after the template deploy; prod preview sent and checked). DE/UK templates + letterheads and the rotation/token parts NOT in prod yet. Tip: do the letterhead step immediately after the template deploy (gap = a manual NL invoice mail would show the terms line twice; automatic sending runs after 23:00).
@@ -48,7 +62,7 @@ TO DO (not confirmed yet): (1) the preference line ("E-Mail-Einstellungen verwal
 fields (Admin, Invoice, Contact) -> FLS (Admin profile partial, ps_miSubscription25_User read: deploy from the org's own copy) -> Business Entity `Support_URL__c` + FLS (ps_BusinessEntitiesAdmin/ReadOnly, Admin profile) -> Apex (Util_CommunicationPreferenceToken, Trigger_Contact, Ctrl_PreferenceCenterGuest, Ctrl_PreferenceCenter, Batch_RotatePreferenceTokens + tests, run Test_Trigger_Contact too for coverage) -> preferenceCenter LWC -> templates. Then fill `Support_URL__c` per Business Entity and do the letterhead step. Schedule the rotation batch only after a dry look (first cycle over ~213k legacy tokens).
 
 ## To do (other touchpoints)
-DirectDebit templates (12), Opportunity_OrderConfirmation, DealerPortal mails (B2B, VF), campaign/2G mails, hub headers/footers, payment success screen, NPS thank-you, Mustang/PDF (reuse the Invoice fields). Prod: managing director for Germany differs between dev (Patrick Horst) and prod (Mathieu Chènebit): confirm. Letterhead footer terms wording vs approved text. Preference page guest messages are English only.
+DirectDebit templates (12), Opportunity_OrderConfirmation, DealerPortal mails (B2B, VF), campaign/2G mails, hub headers/footers, payment success screen, NPS thank-you, Mustang/PDF (reuse the Invoice fields). Prod: managing director for Germany differs between dev (Patrick Horst) and prod (Mathieu Chènebit): confirm. Letterhead footer terms wording vs approved text. Preference page guest messages are English only (fixed in dev/acc 2026-11-24, see open topics).
 
 ## TO DO (parked, decision 2026-11-23): Business Entity as source of truth
 Footer data (name, address, CoC, VAT, managing directors, website) still comes from the Subscription25 Administration; Support/Terms/Privacy URLs come from the Business Entity. Planned later: Business Entity becomes the source of our own/legal data, Administration package-only, flow direction reversed, readers (footers, Customer Hub, Dealer Portal, Exact/warehouse/Stripe settings) re-pointed. Not started on purpose. See memory `business-entity-source-of-truth`.
