@@ -86,6 +86,9 @@ public without sharing class Svc_CIIHybridPdfMerge implements Queueable, Databas
         req.setEndpoint('callout:nc_CIIMergeService/merge');
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
+        // Headers defined on the credentials are not sent for this Custom-protocol credential; the merge field
+        // must be set here (needs allowMergeFieldsInHeader on nc_CIIMergeService).
+        req.setHeader('x-merge-secret', '{!$Credential.ec_CIIMergeService.MergeSecret}');
         req.setBody(JSON.serialize(payload));
         req.setTimeout(120000);
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Principal access to ec_CIIMergeService (EN16931 / ZUGFeRD hybrid PDF merge Lambda). Needed by every user whose PDF generation enqueues Svc_CIIHybridPdfMerge.</description>
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal>ec_CIIMergeService-DefaultGroup</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>miCIIMergeService (ps)</label>
+</PermissionSet>
