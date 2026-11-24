@@ -2,6 +2,8 @@
 
 Source: Claude Docs "Service Email Footer – Legal Requirements & Implementation" (https://claude.ai/artifact/KvTN8iNDDTCidqHVbWoKdR). Not legal advice: counsel review before prod.
 
+## Status 2026-11-24: step 6 (payment mails, order confirmation, Dealer Portal) LIVE in prod, see .scratch/20261124 - step6FooterProd/RUNBOOK.md
+
 ## Status (2026-11-23)
 - dev + acc: DONE and committed (db270d2): fields, invoice templates NL/DE/UK, rotation batch, guest masking, NL letterhead footer emptied. Previews sent from acc 2026-11-23.
 - prod: NL LIVE since 2026-11-23 (fields + FLS deploys 0AfTx0000016Cp7KAE, InvoiceNL 0AfTx0000016CsLKAU; `Support_URL__c` on BE Netherlands a3ETx000000cPztMAE = https://movingintelligence.nl/support; prod letterhead lh_M_Preferences_NL 0RnTx00000003ltKAA footer emptied right after the template deploy; prod preview sent and checked). DE/UK templates + letterheads and the rotation/token parts NOT in prod yet. Tip: do the letterhead step immediately after the template deploy (gap = a manual NL invoice mail would show the terms line twice; automatic sending runs after 23:00).

@@ -1,6 +1,6 @@
 # Step 6: standard service-mail footer on payment mails, order confirmation, Dealer Portal mails (prod steps)
 
-Status 2026-11-24: built and committed (8619a30, 5960263, 843e65a), live in dev and acc. PROD NOT DONE. Run only on explicit command.
+Status 2026-11-24: LIVE IN PROD (steps 1-6 done 2026-11-24). Deploys: fields 0AfTx0000016G9ZKAU, FLS 0AfTx0000016GCnKAM, code/templates 0AfTx0000016GEPKA2, flow 0AfTx0000016GJFKA2 (version 3 active, v2 obsolete). 6 Business Entities seeded; 6 previews sent and resent to the user. Open: flow sync confirmation on next Administration save; managing directors empty on 5 of 6 entities (DE should have Mathieu Chènebit).
 
 Order matters (fields -> FLS -> data -> code/templates -> flow). Packages in this folder; deploy with `sf project deploy start -o prod --manifest <pkg> --test-level RunSpecifiedTests -t Test_Ctrl_EmailLetterheadFooter` (NoTestRun is rejected in prod; field-only and flow-only packages need a test level too, use the same test).
 
