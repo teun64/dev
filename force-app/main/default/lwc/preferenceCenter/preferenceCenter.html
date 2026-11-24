@@ -68,11 +68,25 @@
                         <lightning-icon icon-name="utility:success" variant="inverse"
                             size="small" class="slds-var-m-right_small"></lightning-icon>
                         <div class="slds-notify__content pc-toast__content slds-grow-none slds-text-align_center">
-                            <p>Your preferences have been saved.</p>
+                            <p>{savedText}</p>
                         </div>
                         <button class="slds-button slds-button_icon slds-button_icon-inverse slds-notify__close"
                             onclick={dismissToast} title="Close">
                             <lightning-icon icon-name="utility:close" variant="inverse" size="x-small"></lightning-icon>
+                        </button>
+                    </div>
+                </template>
+
+                <!-- Older-link notice (guest opened a link from before the last token rotation) -->
+                <template if:true={showStaleNotice}>
+                    <div class="slds-notify slds-notify_toast slds-theme_warning slds-var-m-top_small pc-toast slds-grid_align-center" role="alert">
+                        <div class="slds-notify__content pc-toast__content slds-grow-none">
+                            <p><strong>{staleTitle}</strong></p>
+                            <p>{staleText}</p>
+                        </div>
+                        <button class="slds-button slds-button_icon slds-notify__close"
+                            onclick={dismissStaleNotice} title="Close">
+                            <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
                         </button>
                     </div>
                 </template>

@@ -27,6 +27,7 @@ const LANG_EVENTS = ['mi:languagechange', 'echoes:languagechange', 'tds:language
 const EXPIRED_TAG = '[LINK_EXPIRED]';
 const GUEST_MESSAGES = {
     en: {
+        saved:    'Your preferences have been saved.',
         noToken:  'No contact token found. Please use the link from your email.',
         expired:  'This link has expired or is no longer valid. To protect your data and your privacy, links are only valid for a limited time. Please use the link in a more recent email from us. We value your security.',
         oldTitle: 'Older link',
@@ -35,6 +36,7 @@ const GUEST_MESSAGES = {
         generic:  'An unexpected error occurred.'
     },
     nl: {
+        saved:    'Uw voorkeuren zijn opgeslagen.',
         noToken:  'Geen contacttoken gevonden. Gebruik de link uit uw e-mail.',
         expired:  'Deze link is verlopen of niet meer geldig. Om uw gegevens en uw privacy te beschermen zijn links beperkt geldig. Gebruik de link in een recentere e-mail van ons. Uw veiligheid is voor ons belangrijk.',
         oldTitle: 'Oudere link',
@@ -43,6 +45,7 @@ const GUEST_MESSAGES = {
         generic:  'Er is een onverwachte fout opgetreden.'
     },
     de: {
+        saved:    'Ihre Einstellungen wurden gespeichert.',
         noToken:  'Kein Kontakt-Token gefunden. Bitte verwenden Sie den Link aus Ihrer E-Mail.',
         expired:  'Dieser Link ist abgelaufen oder nicht mehr gültig. Zum Schutz Ihrer Daten und Ihrer Privatsphäre sind Links nur begrenzt gültig. Bitte verwenden Sie den Link in einer aktuelleren E-Mail von uns. Ihre Sicherheit ist uns wichtig.',
         oldTitle: 'Älterer Link',
@@ -51,6 +54,7 @@ const GUEST_MESSAGES = {
         generic:  'Es ist ein unerwarteter Fehler aufgetreten.'
     },
     fr: {
+        saved:    'Vos préférences ont été enregistrées.',
         noToken:  'Aucun jeton de contact trouvé. Veuillez utiliser le lien figurant dans votre e-mail.',
         expired:  'Ce lien a expiré ou n\'est plus valide. Pour protéger vos données et votre vie privée, les liens ne sont valables que pour une durée limitée. Veuillez utiliser le lien d\'un e-mail plus récent de notre part. Votre sécurité est importante pour nous.',
         oldTitle: 'Ancien lien',
@@ -232,6 +236,7 @@ export default class PreferenceCenter extends LightningElement {
     @track hasError     = false;
     @track errorMessage = '';
     @track showToast    = false;
+    @track showStaleNotice = false;
     @track showAudit    = false;
     @track contactName  = '';
     @track contactEmail = '';
@@ -444,14 +449,7 @@ export default class PreferenceCenter extends LightningElement {
         // regardless of which domain the link was opened from, unlike hostname sniffing.
         if (data.language) this._lang = data.language;
         // Guest opened a link from before the last token rotation: it still works, but point to the newest one.
-        if (data.staleToken) {
-            this.dispatchEvent(new ShowToastEvent({
-                title:   this._guestMsg.oldTitle,
-                message: this._guestMsg.oldText,
-                variant: 'warning',
-                mode:    'sticky'
-            }));
-        }
+        if (data.staleToken) this.showStaleNotice = true;
         this._categoryLabels = data.categoryLabels || {};
         this._typeLabels     = data.typeLabels     || {};
         this._channelLabels  = data.channelLabels  || {};
@@ -709,6 +707,10 @@ export default class PreferenceCenter extends LightningElement {
     }
 
     dismissToast() { this.showToast = false; }
+    dismissStaleNotice() { this.showStaleNotice = false; }
+    get staleTitle() { return this._guestMsg.oldTitle; }
+    get staleText()  { return this._guestMsg.oldText; }
+    get savedText()  { return this._guestMsg.saved; }
 
     async toggleAuditTrail() {
         this.showAudit = !this.showAudit;
