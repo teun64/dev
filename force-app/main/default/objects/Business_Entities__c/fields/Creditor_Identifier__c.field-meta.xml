@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Creditor_Identifier__c</fullName>
+    <description>SEPA creditor identifier (Glaeubiger-ID) of the legal entity, sent as BT-90 on direct debit e-invoices.</description>
+    <externalId>false</externalId>
+    <label>Creditor Identifier (SEPA)</label>
+    <length>35</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

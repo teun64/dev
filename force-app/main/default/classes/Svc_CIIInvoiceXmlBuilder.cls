@@ -63,7 +63,10 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         }
 
         buildHeaderTradeAgreement(tradeTransaction, data);
-        ram(tradeTransaction, 'ApplicableHeaderTradeDelivery'); // structurally required, no content needed here
+        // structurally required and must not be empty (PEPPOL-EN16931-R008): deliver-to name (BT-70). The service period
+        // (BG-14) goes in the settlement block; no delivery date is claimed since subscriptions bill in advance.
+        Dom.XmlNode delivery = ram(tradeTransaction, 'ApplicableHeaderTradeDelivery');
+        ramText(ram(delivery, 'ShipToTradeParty'), 'Name', data.buyerName);
         buildHeaderTradeSettlement(tradeTransaction, data);
     }
 
@@ -109,6 +112,17 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
             Dom.XmlNode legalOrg = ram(seller, 'SpecifiedLegalOrganization');
             ramText(legalOrg, 'ID', data.sellerCoCNumber);
         }
+        if (String.isNotBlank(data.sellerPhone) || String.isNotBlank(data.sellerEmail)) {
+            Dom.XmlNode contact = ram(seller, 'DefinedTradeContact');
+            // BR-DE-2 asks for a contact name; the department is the seller's name until a real contact exists
+            ramText(contact, 'PersonName', data.sellerName);
+            if (String.isNotBlank(data.sellerPhone)) {
+                ramText(ram(contact, 'TelephoneUniversalCommunication'), 'CompleteNumber', data.sellerPhone);
+            }
+            if (String.isNotBlank(data.sellerEmail)) {
+                ramText(ram(contact, 'EmailURIUniversalCommunication'), 'URIID', data.sellerEmail);
+            }
+        }
         Dom.XmlNode sellerAddress = ram(seller, 'PostalTradeAddress');
         ramText(sellerAddress, 'PostcodeCode', data.sellerPostalCode);
         ramText(sellerAddress, 'LineOne', data.sellerStreet);
@@ -141,11 +155,26 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
 
     private static void buildHeaderTradeSettlement(Dom.XmlNode tradeTransaction, InvoiceData data) {
         Dom.XmlNode settlement = ram(tradeTransaction, 'ApplicableHeaderTradeSettlement');
+        // BT-90 creditor identifier (SEPA direct debit)
+        if (String.isNotBlank(data.sellerCreditorId) && data.unclPaymentMeansCode == '59') {
+            ramText(settlement, 'CreditorReferenceID', data.sellerCreditorId);
+        }
         ramText(settlement, 'InvoiceCurrencyCode', data.currencyCode);
 
         if (String.isNotBlank(data.unclPaymentMeansCode)) {
             Dom.XmlNode paymentMeans = ram(settlement, 'SpecifiedTradeSettlementPaymentMeans');
             ramText(paymentMeans, 'TypeCode', data.unclPaymentMeansCode);
+            // payee account for credit transfers; direct debits (49, 59) carry the buyer's account and mandate instead
+            Boolean directDebit = data.unclPaymentMeansCode == '49' || data.unclPaymentMeansCode == '59';
+            if (directDebit && String.isNotBlank(data.buyerIban)) {
+                ramText(ram(paymentMeans, 'PayerPartyDebtorFinancialAccount'), 'IBANID', data.buyerIban);
+            }
+            if (!directDebit && String.isNotBlank(data.sellerIban)) {
+                ramText(ram(paymentMeans, 'PayeePartyCreditorFinancialAccount'), 'IBANID', data.sellerIban.deleteWhitespace());
+                if (String.isNotBlank(data.sellerBic)) {
+                    ramText(ram(paymentMeans, 'PayeeSpecifiedCreditorFinancialInstitution'), 'BICID', data.sellerBic.deleteWhitespace());
+                }
+            }
         }
 
         for (Util_InvoiceLineAggregator.VatBreakdown vat : data.vatBreakdown) {
@@ -159,10 +188,21 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
             ramText(tax, 'RateApplicablePercent', formatAmount(denormalizePercentage(vat.percentage)));
         }
 
-        if (data.dueDate != null) {
+        if (data.periodStart != null && data.periodEnd != null) {
+            Dom.XmlNode period = ram(settlement, 'BillingSpecifiedPeriod');
+            udtDateTime(ram(period, 'StartDateTime'), data.periodStart);
+            udtDateTime(ram(period, 'EndDateTime'), data.periodEnd);
+        }
+
+        Boolean debit = data.unclPaymentMeansCode == '59' || data.unclPaymentMeansCode == '49';
+        if (data.dueDate != null || (debit && String.isNotBlank(data.mandateReference))) {
             Dom.XmlNode paymentTerms = ram(settlement, 'SpecifiedTradePaymentTerms');
-            Dom.XmlNode dueDateTime = ram(paymentTerms, 'DueDateDateTime');
-            udtDateTime(dueDateTime, data.dueDate);
+            if (data.dueDate != null) {
+                udtDateTime(ram(paymentTerms, 'DueDateDateTime'), data.dueDate);
+            }
+            if (debit && String.isNotBlank(data.mandateReference)) {
+                ramText(paymentTerms, 'DirectDebitMandateID', data.mandateReference);
+            }
         }
 
         Dom.XmlNode summation = ram(settlement, 'SpecifiedTradeSettlementHeaderMonetarySummation');
@@ -233,6 +273,9 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
                 Subscription25__Account__r.Name, Subscription25__Account__r.BillingCountryCode,
                 Subscription25__Account__r.Invoice_Grouping__c, Subscription25__Account__r.Invoice_Grouping_Option__c,
                 Subscription25__Account__r.Invoice_VAT_Calculation__c,
+                Subscription25__Account__r.Bank_Account_Number__c, Subscription25__Account__r.PayProv_MandateId__c,
+                Subscription25__Account__r.FinancialIdBankMandate__c, Subscription25__Account__r.Cost_Center_invoicing__c,
+                Subscription25__Account__r.Invoice_Payment_Remark__c,
                 Subscription25__Billing_Street__c, Subscription25__Billing_City__c, Subscription25__Billing_Postal_Code__c,
                 Subscription25__Administration__r.Subscription25__Billing_Name__c,
                 Subscription25__Administration__r.Subscription25__Billing_Street__c,
@@ -241,18 +284,34 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
                 Subscription25__Administration__r.Country_Code__c,
                 Subscription25__Administration__r.CurrencyIsoCode,
                 Subscription25__Administration__r.Subscription25__VAT_Number__c,
-                Subscription25__Administration__r.Subscription25__Chamber_Of_Commerce_Number__c
+                Subscription25__Administration__r.Subscription25__Chamber_Of_Commerce_Number__c,
+                Subscription25__Administration__r.Subscription25__IBAN__c,
+                Subscription25__Administration__r.Subscription25__BIC__c,
+                Subscription25__Administration__r.Subscription25__Phone__c,
+                Subscription25__Administration__r.Subscription25__Billing_Email_Address__c
             FROM Subscription25__Invoice__c
             WHERE Id = :invoiceId
             WITH SYSTEM_MODE
             LIMIT 1
         ];
 
+        // Seller data comes from the Business Entity of the invoice's reseller; the administration only fills gaps
+        List<Business_Entities__c> entities = String.isBlank(invoice.Reseller__c) ? new List<Business_Entities__c>() : [
+            SELECT Business_Name__c, Address__Street__s, Address__City__s, Address__PostalCode__s, Address__CountryCode__s,
+                   VAT_Number__c, CoC_Number__c, Creditor_Identifier__c, IBAN__c, BIC__c, Phone__c,
+                   Email_Finance__c, Email_Sales__c
+            FROM Business_Entities__c
+            WHERE Reseller__c = :invoice.Reseller__c
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        Business_Entities__c entity = entities.isEmpty() ? new Business_Entities__c() : entities[0];
+
         List<OrderItem> orderItems = [
             SELECT
                 Invoice_Grouping__c, Product_Code__c, Product_Name__c, Invoice_Description__c, Quantity, UnitPrice,
                 Amount_Net__c, Amount_VAT__c, Amount_Gross__c, Subscription25__VAT_Percentage__c,
-                Subscription25__VAT_Code__c, Product2.QuantityUnitOfMeasure
+                Subscription25__VAT_Code__c, Product2.QuantityUnitOfMeasure, InvoiceStartDate__c, InvoiceEndDate__c
             FROM OrderItem
             WHERE Order.Subscription25__Invoice__c = :invoiceId
             WITH SYSTEM_MODE
@@ -315,16 +374,24 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         data.invoiceDate = invoice.Subscription25__Invoice_Date__c;
         data.dueDate = invoice.Subscription25__Due_Date__c;
         data.invoiceTypeCode = (invoice.Subscription25__Total_Amount__c < 0) ? '381' : '380';
-        data.buyerReference = invoice.Cost_Center_invoicing__c;
+        // BT-10: cost center first, then the account's invoice payment remark; empty when neither is filled
+        data.buyerReference = firstNonBlank(invoice.Cost_Center_invoicing__c, invoice.Subscription25__Account__r.Cost_Center_invoicing__c,
+            invoice.Subscription25__Account__r.Invoice_Payment_Remark__c);
         data.purchaseOrderNumber = invoice.Subscription25__Purchase_Order_Number__c;
 
-        data.sellerName = invoice.Subscription25__Administration__r.Subscription25__Billing_Name__c;
-        data.sellerStreet = invoice.Subscription25__Administration__r.Subscription25__Billing_Street__c;
-        data.sellerCity = invoice.Subscription25__Administration__r.Subscription25__Billing_City__c;
-        data.sellerPostalCode = invoice.Subscription25__Administration__r.Subscription25__Billing_Postal_Code__c;
-        data.sellerCountryCode = invoice.Subscription25__Administration__r.Country_Code__c;
-        data.sellerVatNumber = invoice.Subscription25__Administration__r.Subscription25__VAT_Number__c;
-        data.sellerCoCNumber = invoice.Subscription25__Administration__r.Subscription25__Chamber_Of_Commerce_Number__c;
+        Subscription25__Administration__c adm = invoice.Subscription25__Administration__r;
+        data.sellerName = firstNonBlank(entity.Business_Name__c, adm.Subscription25__Billing_Name__c);
+        data.sellerStreet = firstNonBlank(entity.Address__Street__s, adm.Subscription25__Billing_Street__c);
+        data.sellerCity = firstNonBlank(entity.Address__City__s, adm.Subscription25__Billing_City__c);
+        data.sellerPostalCode = firstNonBlank(entity.Address__PostalCode__s, adm.Subscription25__Billing_Postal_Code__c);
+        data.sellerCountryCode = firstNonBlank(entity.Address__CountryCode__s, adm.Country_Code__c);
+        data.sellerVatNumber = firstNonBlank(entity.VAT_Number__c, adm.Subscription25__VAT_Number__c);
+        data.sellerCoCNumber = firstNonBlank(entity.CoC_Number__c, adm.Subscription25__Chamber_Of_Commerce_Number__c);
+        data.sellerCreditorId = entity.Creditor_Identifier__c;
+        data.sellerPhone = firstNonBlank(entity.Phone__c, adm.Subscription25__Phone__c);
+        data.sellerEmail = firstNonBlank(entity.Email_Finance__c, adm.Subscription25__Billing_Email_Address__c, entity.Email_Sales__c);
+        data.sellerIban = firstNonBlank(entity.IBAN__c, adm.Subscription25__IBAN__c);
+        data.sellerBic = firstNonBlank(entity.BIC__c, adm.Subscription25__BIC__c);
         data.currencyCode = invoice.Subscription25__Administration__r.CurrencyIsoCode;
 
         data.buyerName = invoice.Subscription25__Account__r.Name;
@@ -333,11 +400,34 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         data.buyerPostalCode = invoice.Subscription25__Billing_Postal_Code__c;
         data.buyerCountryCode = invoice.Subscription25__Account__r.BillingCountryCode;
         data.buyerVatNumber = invoice.Subscription25__VAT_Number__c;
+        String buyerIban = invoice.Subscription25__Account__r.Bank_Account_Number__c;
+        data.buyerIban = String.isBlank(buyerIban) ? null : buyerIban.deleteWhitespace();
+        // BT-89: payment provider mandate first, else the Exact mandate id (hyphens dropped, SEPA max 35 characters)
+        String exactMandate = invoice.Subscription25__Account__r.FinancialIdBankMandate__c;
+        data.mandateReference = firstNonBlank(invoice.Subscription25__Account__r.PayProv_MandateId__c,
+            String.isBlank(exactMandate) ? null : exactMandate.remove('-'));
+        if (data.mandateReference != null) {
+            data.mandateReference = data.mandateReference.left(35);
+        }
 
         String paymentCode = invoice.Payment_Method_Result__c;
         String paymentMethodType = Svc_CIIInvoiceXmlBuilder.paymentMethodType(invoice.Subscription25__Account__c, invoice.Reseller__c);
         data.unclPaymentMeansCode = paymentMeansByInternalCode.containsKey(paymentCode + '|' + paymentMethodType)
             ? paymentMeansByInternalCode.get(paymentCode + '|' + paymentMethodType) : paymentMeansByInternalCode.get(paymentCode);
+        // a direct debit needs the buyer's IBAN and a mandate reference (BR-DE-20/25); without both, say "instrument not defined"
+        if ((data.unclPaymentMeansCode == '59' || data.unclPaymentMeansCode == '49')
+            && (String.isBlank(data.buyerIban) || String.isBlank(data.mandateReference))) {
+            data.unclPaymentMeansCode = '1';
+        }
+
+        for (OrderItem item : orderItems) {
+            if (item.InvoiceStartDate__c != null && (data.periodStart == null || item.InvoiceStartDate__c < data.periodStart)) {
+                data.periodStart = item.InvoiceStartDate__c;
+            }
+            if (item.InvoiceEndDate__c != null && (data.periodEnd == null || item.InvoiceEndDate__c > data.periodEnd)) {
+                data.periodEnd = item.InvoiceEndDate__c;
+            }
+        }
 
         data.lines = new List<LineData>();
         for (Util_InvoiceLineAggregator.AggregatedLine aggLine : aggregation.lines) {
@@ -378,6 +468,14 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         return entities.isEmpty() ? null : entities[0].PayProv_DirectDebit_PaymentMethod__c;
     }
 
+    private static String firstNonBlank(String a, String b) {
+        return String.isNotBlank(a) ? a.trim() : (String.isNotBlank(b) ? b.trim() : null);
+    }
+
+    private static String firstNonBlank(String a, String b, String c) {
+        return firstNonBlank(firstNonBlank(a, b), c);
+    }
+
     private class InvoiceData {
         String invoiceNumber;
         Date invoiceDate;
@@ -395,6 +493,11 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         String sellerCountryCode;
         String sellerVatNumber;
         String sellerCoCNumber;
+        String sellerCreditorId;
+        String sellerPhone;
+        String sellerEmail;
+        String sellerIban;
+        String sellerBic;
 
         String buyerName;
         String buyerStreet;
@@ -402,6 +505,10 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         String buyerPostalCode;
         String buyerCountryCode;
         String buyerVatNumber;
+        String buyerIban;
+        String mandateReference;
+        Date periodStart;
+        Date periodEnd;
 
         Decimal netAmount;
         Decimal vatAmount;

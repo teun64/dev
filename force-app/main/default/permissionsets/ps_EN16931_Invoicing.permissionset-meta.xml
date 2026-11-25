@@ -8,6 +8,31 @@
         <enabled>true</enabled>
     </classAccesses>
     <fieldPermissions>
+        <field>Business_Entities__c.Creditor_Identifier__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.IBAN__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.BIC__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.Phone__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Business_Entities__c.Email_Finance__c</field>
+        <readable>true</readable>
+        <editable>true</editable>
+    </fieldPermissions>
+    <fieldPermissions>
         <field>Subscription25__VAT_Code__c.UNCL5305_Category__c</field>
         <readable>true</readable>
         <editable>true</editable>

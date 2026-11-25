@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Phone__c</fullName>
+    <description>Seller contact phone on e-invoices (EN 16931 BT-42).</description>
+    <externalId>false</externalId>
+    <label>Phone (Finance)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Phone</type>
+</CustomField>
