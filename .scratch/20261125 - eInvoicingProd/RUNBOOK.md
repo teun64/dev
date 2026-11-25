@@ -18,10 +18,10 @@ Switch per administration: `Subscription25__Administration__c.Include_CII_Hybrid
 
 ## Decisions / information needed BEFORE prod
 1. **Finance confirms the VAT mapping** (`Subscription25__VAT_Code__c.UNCL5305_Category__c`): draft values in dev/acc (codes 4, 5, S at 0% were set to S, which breaks rule BR-S). Prod needs the confirmed category per package VAT code.
-2. **Creditor id (Glaeubiger-ID)**: Germany = `DE89ZZZ00000557087` (given 2026-11-25). **Germany (echoes)** (reseller 7, Echoes GmbH) is a separate legal entity: needs its own id or stays empty.
+2. **Creditor id (Glaeubiger-ID)**: Germany = `DE89ZZZ00000557087` (given 2026-11-25). Prod has NO "Germany (echoes)" administration or Business Entity (checked 2026-11-25; that one only exists in dev/acc), so only one id is needed.
 3. **Managing director of Germany** differs between dev and prod (see service email footer runbook): irrelevant for the XML, but do not mix the two topics up.
-4. **Do prod German accounts hold an IBAN in `Bank_Account_Number__c`?** acc has 0 of 207 (probably sandbox masking). Count in prod first. Without IBAN + mandate the invoice says "instrument not defined" (code 1), which is valid but not a usable direct-debit invoice.
-5. **Mandate reference source**: `PayProv_MandateId__c`, else `FinancialIdBankMandate__c` (Exact mandate id, hyphens removed, max 35). Confirm with finance that the Exact id is what the customer's mandate shows. A flow on Account clears `PayProv_MandateId__c` when it is set by hand, so test with a real provider mandate.
+4. **Prod IBAN availability (checked 2026-11-25):** Germany (reseller 5) has 3,802 accounts, 1,697 with `Bank_Account_Number__c`, 1,530 with IBAN + mandate. So direct debit works for most; the rest fall back to code 1 ("instrument not defined"), valid but not a usable direct-debit invoice. acc has 0 IBANs (sandbox masking).
+5. **Mandate reference source**: in prod Germany 0 accounts have `PayProv_MandateId__c`, so ALL mandates come from `FinancialIdBankMandate__c`. Logic is `PayProv_MandateId__c`, else `FinancialIdBankMandate__c` (Exact mandate id, hyphens removed, max 35). Confirm with finance that the Exact id is what the customer's mandate shows. A flow on Account clears `PayProv_MandateId__c` when it is set by hand, so test with a real provider mandate.
 6. **Legal timing** (from the 2026-10-16 manual): DE issue obligation from 2027 if prior-year turnover > EUR 800k, everyone from 2028. This is a pilot, not a deadline.
 
 ## Part A - AWS (needs AWS access, not possible from the Claude session: no credentials)
@@ -49,9 +49,9 @@ Components (all in `force-app/main/default`):
 1. Store the prod secret on the principal (not in git):
    `sf api request rest /services/data/v68.0/named-credentials/credential --method POST --body @cred.json --target-org prod`
    body `{"externalCredential":"ec_CIIMergeService","principalName":"DefaultGroup","principalType":"NamedPrincipal","credentials":{"MergeSecret":{"value":"<secret>","encrypted":true}}}`. Use PUT if it already exists.
-2. Assign `ps_miCIIMergeService` and `ps_EN16931_Invoicing` to the users that trigger PDF generation. **Find out which user runs the automatic PDF creation (batch / integration user)**: the callout runs as that user. If the permission set is missing there, the merge fails with an ERROR status on every invoice.
-3. `Country_Code__c` on every Administration (prod values: NL, GB, DE: check each row, acc/dev had Greece/Belgium/France = NL, Germany (echoes) = DE).
-4. `UNCL5305_Category__c` on every package VAT code of prod (finance-confirmed mapping, see decision 1).
+2. Assign `ps_miCIIMergeService` and `ps_EN16931_Invoicing` to the users that trigger PDF generation. Prod check 2026-11-25: all 17,884 `Invoice_%` files of the last 30 days were created by one named user (Teun Rietman), so a user triggers it, no integration user. Assign to that user; if a batch ever runs it, that user needs it too. The callout runs as that user. If the permission set is missing there, the merge fails with an ERROR status on every invoice.
+3. `Country_Code__c` on every Administration (prod administrations: Netherlands, Greece (G4S), Belgium, France (echoes), Germany, United Kingdom; reseller codes in prod: 1 NL, 2 Greece, 3 Belgium, 4 France, 5 Germany, 6 UK. Verify the dev/acc mapping before copying anything).
+4. `UNCL5305_Category__c` on every package VAT code of prod (finance-confirmed mapping, see decision 1). Germany has only 4 codes: `2` DE VAT high rate (likely S), `0` No VAT (likely Z), `6` sell outside EU (likely G), `7` sell within EU (likely K). Other administrations only if they get the feature.
 5. Business Entity: fill `IBAN__c`, `BIC__c`, `Phone__c`, `Email_Finance__c` from the Administration (same Apex fill as in dev/acc; anonymous Apex cannot use SYSTEM_MODE) and `Creditor_Identifier__c` (Germany). Check the result per reseller.
 6. Do **not** switch `Include_CII_Hybrid_PDF__c` on yet.
 
