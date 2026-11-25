@@ -25,9 +25,9 @@ Switch per administration: `Subscription25__Administration__c.Include_CII_Hybrid
 6. **Legal timing** (from the 2026-10-16 manual): DE issue obligation from 2027 if prior-year turnover > EUR 800k, everyone from 2028. This is a pilot, not a deadline.
 
 ## Part A - AWS (needs AWS access, not possible from the Claude session: no credentials)
-Repo `~/mi-aws-infrastructure` (`lambda/invoice-merge/`, `account-ids.local.md` is gitignored). Dev has the Lambda; **acc has none (acc currently calls the dev Lambda, temporary)** and prod has none.
+Repo `~/mi-aws-infrastructure` (`lambda/invoice-merge/`, `account-ids.local.md` is gitignored). Dev and acc each have their own Lambda (acc stack `mi-invoice-merge` deployed 2026-11-25 with profile `mi-acc-admin`, own URL and secret, in `account-ids.local.md`; acc Named Credential repointed). Prod has none. The three AWS accounts are separate (profiles `mi-dev-admin`, `mi-acc-admin`, `mi-prod-admin`), template `infrastructure/invoice-merge/template.yaml`, prebuilt jar + `ghostscript-layer.zip`, no Docker needed. Dev was not created from this template (no stack there), acc was: acc is the proof that the template works.
 1. Deploy a **separate prod Lambda** (own Function URL, own `MERGE_SHARED_SECRET`, Ghostscript layer 10.08.0, Java 21, Mustang 2.26.0), following the dev -> acc -> prod model of `project_aws_connect_multi_region_restructure`. Do acc first so acc stops using the dev URL.
-2. Keep the EventBridge warmer + provisioned concurrency as in dev (about EUR 11/month).
+2. The EventBridge warmer (rate 5 min) is in the template; dev has no provisioned concurrency, so do not add it.
 3. Store the secret in `account-ids.local.md` (never in git). Function URL auth stays "none" + the `x-merge-secret` header check.
 4. Smoke test with curl and the secret: expect `500 {"error":"Request body must contain pdfBase64 and ciiXml..."}` (secret accepted), and `401` without the secret.
 
@@ -65,6 +65,7 @@ Components (all in `force-app/main/default`):
 6. Monitor for a week: `SELECT Name, CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE CII_Merge_Status__c = 'ERROR'`.
 
 ## Open verification items (not yet checked anywhere)
+- **Never re-run the merge on an already merged file:** re-merging a hybrid PDF embeds a second XML and fails PDF/A validation (acc test 2026-11-25: file version 3 invalid, MIME type of the embedded files). Normal flow (Generate PDF creates a plain file) is fine; a guard in `Svc_CIIHybridPdfMerge` (skip when the PDF already has the XML) is a possible hardening.
 - **Race with the invoice email:** the merge is asynchronous (Queueable + callout). Check whether the invoice email attaches the file before or after the merge, and whether it takes the latest version. If it can send the plain version, the hybrid PDF never reaches the customer.
 - Which PDF the customer portal / `Rest_Invoices` / public ContentDistribution links serve after the merge (latest version of the same document, so expected fine).
 - Prod IBAN availability (decision 4) and the real mandate reference source (decision 5).
