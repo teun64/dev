@@ -1,0 +1,82 @@
+# EN 16931 e-invoicing (ZUGFeRD / Factur-X hybrid PDF, DE) - production runbook
+
+Written 2026-11-25. Status: **dev + acc done and verified, prod NOT started.** Nothing here runs against prod without an explicit command
+(see memory `feedback_prod_deploy_requires_explicit_command`). Context and history: memory `project_en16931_einvoicing_rollout`.
+
+Commits (main, not pushed): `f8c8870` header fix, `f6a5509` first-PDF fix, `02a050a` XML content (Business Entity seller, direct debit, buyer reference, delivery period).
+
+## What it does
+A German invoice PDF (Subscription25 "Generate PDF") is linked as a File to the invoice. `Trigger_ContentDocumentLink` sees it, enqueues
+`Svc_CIIHybridPdfMerge`, which builds the CII XML (`Svc_CIIInvoiceXmlBuilder`), sends PDF + XML to an AWS Lambda (Mustang 2.26.0 + Ghostscript 10.08.0)
+and stores the returned PDF/A-3u as a **new version of the same File**. Status goes to `Invoice.CII_Merge_Status__c` (SUCCESS / ERROR + `CII_Merge_Error__c`).
+Switch per administration: `Subscription25__Administration__c.Include_CII_Hybrid_PDF__c`. A merge failure never removes the plain PDF.
+
+## Verified in dev/acc (2026-11-24/25)
+- acc, German invoices I-2611-00569367 and I-2611-00569927: one Generate PDF click -> SUCCESS, PDF/A-3u compliant (veraPDF inside Mustang, 3,000+ checks), XML EN 16931 valid.
+- Remaining validator notices are XRechnung/Peppol-only (R001, R010, R020, BR-DE-21) and BR-DE-15 (no buyer reference on that account): not needed for ZUGFeRD B2B.
+- Direct-debit data (code 59 + buyer IBAN + mandate + creditor id) only proven in a rolled-back dev simulation, not on a real account (acc DE accounts have no IBAN).
+
+## Decisions / information needed BEFORE prod
+1. **Finance confirms the VAT mapping** (`Subscription25__VAT_Code__c.UNCL5305_Category__c`): draft values in dev/acc (codes 4, 5, S at 0% were set to S, which breaks rule BR-S). Prod needs the confirmed category per package VAT code.
+2. **Creditor id (Glaeubiger-ID)**: Germany = `DE89ZZZ00000557087` (given 2026-11-25). **Germany (echoes)** (reseller 7, Echoes GmbH) is a separate legal entity: needs its own id or stays empty.
+3. **Managing director of Germany** differs between dev and prod (see service email footer runbook): irrelevant for the XML, but do not mix the two topics up.
+4. **Do prod German accounts hold an IBAN in `Bank_Account_Number__c`?** acc has 0 of 207 (probably sandbox masking). Count in prod first. Without IBAN + mandate the invoice says "instrument not defined" (code 1), which is valid but not a usable direct-debit invoice.
+5. **Mandate reference source**: `PayProv_MandateId__c`, else `FinancialIdBankMandate__c` (Exact mandate id, hyphens removed, max 35). Confirm with finance that the Exact id is what the customer's mandate shows. A flow on Account clears `PayProv_MandateId__c` when it is set by hand, so test with a real provider mandate.
+6. **Legal timing** (from the 2026-10-16 manual): DE issue obligation from 2027 if prior-year turnover > EUR 800k, everyone from 2028. This is a pilot, not a deadline.
+
+## Part A - AWS (needs AWS access, not possible from the Claude session: no credentials)
+Repo `~/mi-aws-infrastructure` (`lambda/invoice-merge/`, `account-ids.local.md` is gitignored). Dev has the Lambda; **acc has none (acc currently calls the dev Lambda, temporary)** and prod has none.
+1. Deploy a **separate prod Lambda** (own Function URL, own `MERGE_SHARED_SECRET`, Ghostscript layer 10.08.0, Java 21, Mustang 2.26.0), following the dev -> acc -> prod model of `project_aws_connect_multi_region_restructure`. Do acc first so acc stops using the dev URL.
+2. Keep the EventBridge warmer + provisioned concurrency as in dev (about EUR 11/month).
+3. Store the secret in `account-ids.local.md` (never in git). Function URL auth stays "none" + the `x-merge-secret` header check.
+4. Smoke test with curl and the secret: expect `500 {"error":"Request body must contain pdfBase64 and ciiXml..."}` (secret accepted), and `401` without the secret.
+
+## Part B - Salesforce metadata to prod (deploy only on explicit command)
+Prod rules: `--test-level RunSpecifiedTests` (no NoTestRun), per-class coverage >= 75% for every deployed class, flows land as **Draft** and must be activated, retrieve first and diff when a component already exists in prod (`feedback_sf_retrieve_overwrites_uncommitted`).
+
+Components (all in `force-app/main/default`):
+- Apex: `Svc_CIIHybridPdfMerge`, `Svc_CIIInvoiceXmlBuilder`, `Util_InvoiceLineAggregator`, `Ctrl_Invoice` (refactor to the aggregator), `Trigger_ContentDocumentLink`, trigger `ContentDocumentLink`, tests `Test_Svc_CIIHybridPdfMerge`, `Test_Svc_CIIInvoiceXmlBuilder`, `Test_Util_InvoiceLineAggregator`, `Test_Trigger_ContentDocumentLink`, `Test_Invoice`.
+- **Leave out `Inv_TriggerCIIHybridPdfMerge`** (deprecated, 0% coverage, nothing calls it) and the old flow `rau_Subscription25_Invoice_c_Trigger_CII_Merge`.
+- Fields: Administration `Country_Code__c`, `Include_CII_Hybrid_PDF__c`; Invoice `CII_Merge_Status__c`, `CII_Merge_Error__c`; `Subscription25__VAT_Code__c.UNCL5305_Category__c`; `OrderItem.VAT_Code__c`; Business Entity `IBAN__c`, `BIC__c`, `Phone__c`, `Email_Finance__c`, `Creditor_Identifier__c`.
+- Global value sets `UNCL5305_VAT_Category`, `UNCL4461_PaymentMeans`; custom metadata types `Payment_Method_UNCL4461_Mapping__mdt` and `Unit_Of_Measure_UNECE_Mapping__mdt` with their records (18 + 3).
+- Flow `rbb_OrderItem` (VAT code lookup): check the prod version first; flow lands as Draft, activate afterwards (`reference_prod_flow_deploy_draft`).
+- Permission sets `ps_EN16931_Invoicing` (FLS on the fields above) and `ps_miCIIMergeService` (principal access). Permission set deploys REPLACE the whole set (`reference_permissionset_platform_gotchas`): retrieve prod's version first.
+- Named / External credential: `ec_CIIMergeService` and `nc_CIIMergeService`. **The repo NC points at the DEV Lambda URL. Do not deploy it to prod as is.** Set the prod Function URL in the NC before deploying, `allowMergeFieldsInHeader` must be `true`.
+- Coverage warning seen in acc: `Ctrl_Invoice` had 73% with only the CII tests. In prod add the other Ctrl_Invoice tests (`Test_Invoice`, `Test_Invoices`, `Test_Ctrl_Invoice*`) to the run, or the deploy is rejected.
+- Dry-run first (`--dry-run`), then the real deploy, then `graphify update .` and commit.
+
+## Part C - Prod configuration after the deploy
+1. Store the prod secret on the principal (not in git):
+   `sf api request rest /services/data/v68.0/named-credentials/credential --method POST --body @cred.json --target-org prod`
+   body `{"externalCredential":"ec_CIIMergeService","principalName":"DefaultGroup","principalType":"NamedPrincipal","credentials":{"MergeSecret":{"value":"<secret>","encrypted":true}}}`. Use PUT if it already exists.
+2. Assign `ps_miCIIMergeService` and `ps_EN16931_Invoicing` to the users that trigger PDF generation. **Find out which user runs the automatic PDF creation (batch / integration user)**: the callout runs as that user. If the permission set is missing there, the merge fails with an ERROR status on every invoice.
+3. `Country_Code__c` on every Administration (prod values: NL, GB, DE: check each row, acc/dev had Greece/Belgium/France = NL, Germany (echoes) = DE).
+4. `UNCL5305_Category__c` on every package VAT code of prod (finance-confirmed mapping, see decision 1).
+5. Business Entity: fill `IBAN__c`, `BIC__c`, `Phone__c`, `Email_Finance__c` from the Administration (same Apex fill as in dev/acc; anonymous Apex cannot use SYSTEM_MODE) and `Creditor_Identifier__c` (Germany). Check the result per reseller.
+6. Do **not** switch `Include_CII_Hybrid_PDF__c` on yet.
+
+## Part D - Pilot (Germany only)
+1. Pick a few **real** German invoices, no test data in prod (`feedback_no_test_data_in_prod`). Regenerating a real invoice's PDF creates a second File with the same name: agree beforehand which one the customer receives.
+2. Switch `Include_CII_Hybrid_PDF__c` on for `Germany` only. Generate PDF on one invoice.
+3. Check: `CII_Merge_Status__c = SUCCESS`, file version 2 exists, size matches Salesforce (`ContentSize`).
+4. Download the file with `sf api request rest "/services/data/v68.0/sobjects/ContentVersion/<id>/VersionData" --stream-to-file out.pdf` (**without `--stream-to-file` the CLI corrupts binary files**) and validate:
+   `java -jar Mustang-CLI-2.26.0.jar --action validate --source out.pdf` (Maven Central, `org.mustangproject:Mustang-CLI`). Expect PDF/A-3u compliant and XML valid.
+5. Open one file in a real German accounting tool (DATEV / Lexware / sevDesk or the customer's) and check that the XML is read.
+6. Monitor for a week: `SELECT Name, CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE CII_Merge_Status__c = 'ERROR'`.
+
+## Open verification items (not yet checked anywhere)
+- **Race with the invoice email:** the merge is asynchronous (Queueable + callout). Check whether the invoice email attaches the file before or after the merge, and whether it takes the latest version. If it can send the plain version, the hybrid PDF never reaches the customer.
+- Which PDF the customer portal / `Rest_Invoices` / public ContentDistribution links serve after the merge (latest version of the same document, so expected fine).
+- Prod IBAN availability (decision 4) and the real mandate reference source (decision 5).
+- First-PDF behaviour in prod: depends on file title `Invoice_<number>.pdf`; confirm prod invoices use the same naming (UK numbers on create, NL/DE on print).
+
+## Rollback
+- Immediate: `Include_CII_Hybrid_PDF__c = false` on the administration. New PDFs are no longer merged; existing merged files stay (they remain valid PDFs).
+- Lambda down or secret wrong: invoices get `ERROR`, the plain PDF stays untouched; nothing blocks invoicing.
+- Metadata: the new fields and classes are additive; no destructive change is needed to roll back.
+
+## Later (not part of this rollout)
+- UK / NL: native UBL via the Subscription25 package setting `Include_UBL_In_Email__c` on B2B accounts (separate path, see memory).
+- Peppol / XRechnung only if a customer asks (electronic address BT-34/BT-49, Leitweg-ID as buyer reference).
+- Account field for a Leitweg-ID (today BT-10 = Cost Center, else Invoice Payment Remark).
+- Separate acc Lambda (Part A step 1) before acc is used for anything else.
