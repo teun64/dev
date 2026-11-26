@@ -114,6 +114,29 @@ private class Test_Trigger_ContentDocumentLink {
     }
 
     @IsTest
+    private static void test_triggersWhenPdfAndUblXmlAreLinkedTogether(){
+        Subscription25__Invoice__c inv = createFixture(true);
+        Test.setMock(HttpCalloutMock.class, new MergeServiceMock());
+
+        Test.startTest();
+        List<ContentVersion> versions = new List<ContentVersion>();
+        for (String fileName : new List<String>{'invoice-abc.pdf', 'invoice-abc.xml'}) {
+            versions.add(new ContentVersion(Title = fileName, PathOnClient = fileName, VersionData = Blob.valueOf('fake-' + fileName)));
+        }
+        Database.insert(versions, AccessLevel.SYSTEM_MODE);
+        List<ContentDocumentLink> links = new List<ContentDocumentLink>();
+        for (ContentVersion cv : [SELECT ContentDocumentId FROM ContentVersion WHERE Id IN :versions]) {
+            links.add(new ContentDocumentLink(ContentDocumentId = cv.ContentDocumentId, LinkedEntityId = inv.Id, ShareType = 'V'));
+        }
+        // the XML is linked last, as the package does for UBL accounts
+        Database.insert(links, AccessLevel.SYSTEM_MODE);
+        Test.stopTest();
+
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
+        System.assertEquals('SUCCESS', result.CII_Merge_Status__c, 'The PDF must still merge when the UBL XML is linked in the same transaction');
+    }
+
+    @IsTest
     private static void test_doesNotTriggerOnFilenameMismatch(){
         Subscription25__Invoice__c inv = createFixture(true);
 
