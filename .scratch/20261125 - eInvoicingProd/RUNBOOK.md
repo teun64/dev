@@ -73,9 +73,16 @@ Components (all in `force-app/main/default`):
 5. Open one file in a real German accounting tool (DATEV / Lexware / sevDesk or the customer's) and check that the XML is read.
 6. Monitor for a week: `SELECT Name, CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE CII_Merge_Status__c = 'ERROR'`.
 
+## Findings after go-live (2026-11-26)
+- **Trigger bug (fixed, prod deploy `0AfTx0000016a3RKAQ`, commit `71a7933`):** accounts with Automatic UBL Emails get the PDF AND the package UBL XML linked in one transaction; `Trigger_ContentDocumentLink` kept only the last file per invoice (the XML), so the PDF never merged (I-2611-00791826 showed no status, no job). Now it keeps all linked files and picks the one titled like the invoice PDF. New test `test_triggersWhenPdfAndUblXmlAreLinkedTogether`. The package UBL itself is expected (Dutch-market feature) and is not touched. After the fix, regenerating the invoice merged automatically (job at 19:00:52).
+- **Direct debit verified on a real prod invoice:** I-2611-00791826 (payment I8): means 59, buyer IBAN, mandate = Exact id without hyphens, creditor id DE89ZZZ00000557087, PDF/A-3u + XML valid, ungrouped account (`Invoice_Grouping__c` false), 1 line = PDF = package UBL.
+- **1-cent rounding (Mustang warning 10, not an error):** 7.50 x 19% = 1.425. PDF and our XML say VAT 1.42 / gross 8.92 (the package computes the line VAT as 1.42); the package UBL and Mustang say 1.43 / 8.93. Decision: leave it, the hybrid must equal the printed PDF. Some accounting tools may flag the cent.
+- Package UBL known quirks (not ours): country as text ("Germany"), IBAN with spaces, empty bank/order ids, leading space in IssueDate, payment means 30 even for direct debit, no CustomizationID/ProfileID.
+- Deleting the UBL file on an invoice does not affect our merge (needs only the PDF); effect on the pending UBL email not checked.
+
 ## Open after go-live (2026-11-26)
 - **Flag is ON for Germany**: the evening run (about 18:20, invoices created + FINALIZED + emailed) now merges every German invoice. Switch off with `Include_CII_Hybrid_PDF__c = false` if needed.
-- **Direct debit path (code 59, buyer IBAN, mandate, creditor id) not yet seen on a real prod invoice**: the pilot invoice used code 30 (credit transfer, seller IBAN as payee). Find an invoice whose payment method maps to 59 with IBAN + mandate and validate it.
+- Direct debit path verified (see findings). Still open: a grouped account with direct debit, and PayProv-mandate accounts (none in Germany).
 - **Only single-rate (19%) grouped invoices checked** against the PDF: check a mixed-rate, an ungrouped account and a credit note.
 - **Finance:** confirm VAT categories (2 S, 6 G, 0 O, 7 K) and the Exact mandate id as mandate reference (no German account has `PayProv_MandateId__c`).
 - **Buyer reference BT-10** is empty unless the account has a cost center or payment remark.
