@@ -1,7 +1,6 @@
 # EN 16931 e-invoicing (ZUGFeRD / Factur-X hybrid PDF, DE) - production runbook
 
-Written 2026-11-25. Status: **dev + acc done and verified, prod NOT started.** Nothing here runs against prod without an explicit command
-(see memory `feedback_prod_deploy_requires_explicit_command`). Context and history: memory `project_en16931_einvoicing_rollout`.
+Written 2026-11-25. Status: **dev, acc and PROD live for Germany (2026-11-26).** Prod: Lambda, metadata, secret, permission sets, Business Entity fill done, flag `Include_CII_Hybrid_PDF__c` ON for Germany only, 4 real invoices merged and validated. Remaining items are in 'Open after go-live' below. Prod changes still need an explicit command (see memory `feedback_prod_deploy_requires_explicit_command`). Context and history: memory `project_en16931_einvoicing_rollout`.
 
 Commits (main, not pushed): `f8c8870` header fix, `f6a5509` first-PDF fix, `02a050a` XML content (Business Entity seller, direct debit, buyer reference, delivery period).
 
@@ -16,7 +15,17 @@ Switch per administration: `Subscription25__Administration__c.Include_CII_Hybrid
 - Remaining validator notices are XRechnung/Peppol-only (R001, R010, R020, BR-DE-21) and BR-DE-15 (no buyer reference on that account): not needed for ZUGFeRD B2B.
 - Direct-debit data (code 59 + buyer IBAN + mandate + creditor id) only proven in a rolled-back dev simulation, not on a real account (acc DE accounts have no IBAN).
 
-## Decisions / information needed BEFORE prod
+## Prod state (done 2026-11-25/26)
+- **Prod Lambda:** account 972907416352, stack `mi-invoice-merge` (profile `mi-prod-admin`), bucket `mi-prod-deployment-artifacts-972907416352`, URL `https://5bu2ciugwes4ejct6xo4wuem2a0eqvnr.lambda-url.eu-central-1.on.aws/`, own secret (in `account-ids.local.md`). Acc has its own Lambda too; dev, acc and prod secrets all differ.
+- **Prod already had an older version of the pipeline** (classes from 2026-10-21/22, Administration/Invoice fields, global value sets, CMDT, UNCL5305 categories on the German VAT codes). The deploy `0AfTx0000016RcrKAE` (RunSpecifiedTests, 15/15) updated `Svc_CIIHybridPdfMerge`, `Svc_CIIInvoiceXmlBuilder`, `Trigger_ContentDocumentLink` + 3 tests, created the 5 Business Entity fields, `ec_/nc_CIIMergeService` (NC = prod URL, `allowMergeFieldsInHeader` true), `ps_miCIIMergeService`, and replaced `ps_EN16931_Invoicing` (prod's 6 grants kept + 5 new).
+- **Deliberately NOT deployed:** `Ctrl_Invoice` refactor (changes PDF rendering for all invoices, NL/UK too; prod PDF still uses its own inline grouping, XML uses `Util_InvoiceLineAggregator`; checked equal on 4 real invoices), flow `rbb_OrderItem` (diff is reordering + one `getFirstRecordOnly` difference, unexplained), `Inv_TriggerCIIHybridPdfMerge` (deprecated).
+- **Config:** secret stored on the `DefaultGroup` principal; `ps_miCIIMergeService` + `ps_EN16931_Invoicing` assigned to trietman@movingintelligence.nl (the dealer-portal user with the same name got nothing); Country_Code was already set on all 6 administrations; Business Entity Germany (reseller 5) filled with IBAN/BIC/phone/finance email from the Administration and `Creditor_Identifier__c = DE89ZZZ00000557087`; flag ON for Germany only.
+- **Prod reseller codes:** 1 NL, 2 Greece (G4S), 3 Belgium, 4 France (echoes), 5 Germany, 6 UK. Prod has no "Germany (echoes)".
+- **Prod VAT categories (Germany, already set):** `2` S, `6` G, `0` O, `7` K. Finance still has to confirm.
+- **Pilot result:** I-2611-00775617 (and 00775685/86/87): `CII_Merge_Status__c = SUCCESS`, file version 2, Mustang 2.26.0: PDF/A-3u compliant, XML EN16931 valid, only XRechnung/Peppol notices + BR-DE-15. XML lines and totals equal the PDF (3/2/1/2 lines, net/VAT/gross identical), all 19%, grouping on.
+- Note: SOQL as the normal user could not see the new fields before the permission set was assigned (FLS), "No such column" does not mean the field is missing.
+
+## Decisions / information needed BEFORE prod (history, prod is live now: items 1, 4, 5 are still open)
 1. **Finance confirms the VAT mapping** (`Subscription25__VAT_Code__c.UNCL5305_Category__c`): draft values in dev/acc (codes 4, 5, S at 0% were set to S, which breaks rule BR-S). Prod needs the confirmed category per package VAT code.
 2. **Creditor id (Glaeubiger-ID)**: Germany = `DE89ZZZ00000557087` (given 2026-11-25). Prod has NO "Germany (echoes)" administration or Business Entity (checked 2026-11-25; that one only exists in dev/acc), so only one id is needed.
 3. **Managing director of Germany** differs between dev and prod (see service email footer runbook): irrelevant for the XML, but do not mix the two topics up.
@@ -63,6 +72,14 @@ Components (all in `force-app/main/default`):
    `java -jar Mustang-CLI-2.26.0.jar --action validate --source out.pdf` (Maven Central, `org.mustangproject:Mustang-CLI`). Expect PDF/A-3u compliant and XML valid.
 5. Open one file in a real German accounting tool (DATEV / Lexware / sevDesk or the customer's) and check that the XML is read.
 6. Monitor for a week: `SELECT Name, CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE CII_Merge_Status__c = 'ERROR'`.
+
+## Open after go-live (2026-11-26)
+- **Flag is ON for Germany**: the evening run (about 18:20, invoices created + FINALIZED + emailed) now merges every German invoice. Switch off with `Include_CII_Hybrid_PDF__c = false` if needed.
+- **Direct debit path (code 59, buyer IBAN, mandate, creditor id) not yet seen on a real prod invoice**: the pilot invoice used code 30 (credit transfer, seller IBAN as payee). Find an invoice whose payment method maps to 59 with IBAN + mandate and validate it.
+- **Only single-rate (19%) grouped invoices checked** against the PDF: check a mixed-rate, an ungrouped account and a credit note.
+- **Finance:** confirm VAT categories (2 S, 6 G, 0 O, 7 K) and the Exact mandate id as mandate reference (no German account has `PayProv_MandateId__c`).
+- **Buyer reference BT-10** is empty unless the account has a cost center or payment remark.
+- Later: deploy the `Ctrl_Invoice` refactor (add `Test_Invoice`, `Test_Invoices` etc. to the run for 75% coverage) so PDF and XML share one grouping; no other administrations yet.
 
 ## Open verification items (not yet checked anywhere)
 - **Never re-run the merge on an already merged file:** re-merging a hybrid PDF embeds a second XML and fails PDF/A validation (acc test 2026-11-25: file version 3 invalid, MIME type of the embedded files). Normal flow (Generate PDF creates a plain file) is fine; a guard in `Svc_CIIHybridPdfMerge` (skip when the PDF already has the XML) is a possible hardening.
