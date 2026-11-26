@@ -80,6 +80,32 @@ Components (all in `force-app/main/default`):
 - Package UBL known quirks (not ours): country as text ("Germany"), IBAN with spaces, empty bank/order ids, leading space in IssueDate, payment means 30 even for direct debit, no CustomizationID/ProfileID.
 - Deleting the UBL file on an invoice does not affect our merge (needs only the PDF); effect on the pending UBL email not checked.
 
+## German accounts with Automatic UBL Emails (`Subscription25__Include_UBL_In_Email__c` = true), prod, 2026-11-26
+Selected with `Reseller_Name__c = '5'` on the Account (Germany). 18 accounts, listed for later use: for these accounts Generate PDF links the PDF AND the package UBL XML in one transaction (the case fixed by commit `71a7933`), so check their first merged invoices. 17 of 18 have `Invoice_Grouping__c` = true.
+
+| Account Id | Name | Grouping |
+|---|---|---|
+| 001AO0000040aBJYAY | BS Haustechnik GmbH | true |
+| 001AO000002zAd9YAE | CLIMATECH Montage GmbH | true |
+| 001bR000003QsawQAC | eConcept+ Swen Korz | true |
+| 0013W00000OXACBQA5 | Ernst Kähler GmbH | true |
+| 0013W00000OXA6IQAX | F&F Fisch und Feinkost Handelsgesellschaft mbH | true |
+| 0013W00000OXAC8QAP | Filter-Müller GmbH | true |
+| 001bR00000MSCuQQAX | KÖTTER SE & Co. KG Security | true |
+| 001bR00000A0u4XQAR | Kötter SE & Co. KG Security München | true |
+| 001AO000003qpywYAA | Kötter SE & Co. KG Security München | true |
+| 001bR00000A0vyGQAR | Kötter SE & Co. KG Security München | true |
+| 001bR00000A109wQAB | Kötter SE & Co. KG Security München | true |
+| 001bR00000BJw3ZQAT | Kötter SE & Co. KG Security München | true |
+| 001bR00000bU2NGQA0 | Kötter SE & Co. KG Security München | true |
+| 001bR000009KMSEQA4 | KÖTTER SE & Co. KG Security München | true |
+| 001bR00000A16yTQAR | Kötter SE & Co. KG Security München, NL Fürth | true |
+| 001bR00000yqgwhQAA | KÖTTER SE & Co. KG Security, Düsseldorf | true |
+| 0013W00000OXAH5QAP | Mawo Elektro e.K. | true |
+| 001bR00000GpvW5QAJ | Trucktat GmbH | false |
+
+Also noted: `001AO000002plpXYAQ` Automobile Obermeier (reseller 5, ungrouped, direct debit I8): UBL option is **off** (switched off by the user on 2026-11-26; its invoice I-2611-00791826 was the first real direct-debit hybrid check). Query to refresh the list: `SELECT Id, Name, Invoice_Grouping__c FROM Account WHERE Subscription25__Include_UBL_In_Email__c = true AND Reseller_Name__c = '5' ORDER BY Name`.
+
 ## Open after go-live (2026-11-26)
 - **Flag is ON for Germany**: the evening run (about 18:20, invoices created + FINALIZED + emailed) now merges every German invoice. Switch off with `Include_CII_Hybrid_PDF__c = false` if needed.
 - Direct debit path verified (see findings). Still open: a grouped account with direct debit, and PayProv-mandate accounts (none in Germany).
