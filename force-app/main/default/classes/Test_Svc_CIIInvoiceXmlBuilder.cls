@@ -128,6 +128,29 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
         System.assertEquals('59', codeByMethod.get('E8'), 'E8 = SEPA direct debit, like I8');
     }
 
+    // credit note (381) names the invoice it credits (BG-3): our ParentId__c, or the package link; an ordinary invoice never does
+    @IsTest
+    private static void test_creditNoteReferencesOriginalInvoice(){
+        Id creditId = createInvoiceFixture(null, null, null, null);
+        Subscription25__Invoice__c credit = [SELECT Subscription25__Administration__c, Subscription25__Account__c FROM Subscription25__Invoice__c WHERE Id = :creditId];
+        Subscription25__Invoice__c original = Test_Data.createInvoice(credit.Subscription25__Administration__c, credit.Subscription25__Account__c, 'DRAFT', false);
+        original.Subscription25__Invoice_Number__c = 'NL26000777';
+        Database.insert(original, AccessLevel.SYSTEM_MODE);
+
+        Database.update(new Subscription25__Invoice__c(Id = creditId, Subscription25__Total_Amount__c = -100, ParentId__c = original.Id), AccessLevel.SYSTEM_MODE);
+
+        Test.startTest();
+        String creditXml = Svc_CIIInvoiceXmlBuilder.buildXml(creditId);
+        Database.update(new Subscription25__Invoice__c(Id = creditId, Subscription25__Total_Amount__c = 100, ParentId__c = original.Id), AccessLevel.SYSTEM_MODE);
+        String plainXml = Svc_CIIInvoiceXmlBuilder.buildXml(creditId); // positive total: not a credit note, so no reference even with a parent
+        Test.stopTest();
+
+        System.assert(creditXml.contains('<ram:TypeCode>381</ram:TypeCode>'), 'credit note type code');
+        System.assert(creditXml.contains('InvoiceReferencedDocument') && creditXml.contains('NL26000777'), 'preceding invoice number written');
+        System.assert(creditXml.indexOf('SpecifiedTradeSettlementHeaderMonetarySummation') < creditXml.indexOf('InvoiceReferencedDocument'), 'reference comes after the monetary summation (CII sequence)');
+        System.assert(!plainXml.contains('InvoiceReferencedDocument'), 'ordinary invoice has no reference');
+    }
+
     @IsTest
     private static void test_sellerComesFromBusinessEntity(){
         Id invId = createInvoiceFixture(null, null, null, null);

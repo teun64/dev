@@ -211,6 +211,11 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         ramAmount(summation, 'TaxTotalAmount', data.vatAmount, data.currencyCode);
         ramAmount(summation, 'GrandTotalAmount', data.grossAmount, null);
         ramAmount(summation, 'DuePayableAmount', data.grossAmount, null);
+
+        // BG-3 (after the monetary summation in the CII sequence); only credit notes, only when the original is known
+        if (data.invoiceTypeCode == '381' && String.isNotBlank(data.precedingInvoiceNumber)) {
+            ramText(ram(settlement, 'InvoiceReferencedDocument'), 'IssuerAssignedID', data.precedingInvoiceNumber);
+        }
     }
 
     // ---- XML helpers -----------------------------------------------------------------------
@@ -270,6 +275,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
                 Subscription25__Purchase_Order_Number__c, Cost_Center_invoicing__c, Payment_Method_Result__c,
                 Subscription25__Account__c, Subscription25__Administration__c, Reseller__c,
                 Subscription25__VAT_Number__c,
+                Subscription25__Original_Invoice__r.Subscription25__Invoice_Number__c, ParentId__r.Subscription25__Invoice_Number__c,
                 Subscription25__Account__r.Name, Subscription25__Account__r.BillingCountryCode,
                 Subscription25__Account__r.Invoice_Grouping__c, Subscription25__Account__r.Invoice_Grouping_Option__c,
                 Subscription25__Account__r.Invoice_VAT_Calculation__c,
@@ -374,6 +380,8 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         data.invoiceDate = invoice.Subscription25__Invoice_Date__c;
         data.dueDate = invoice.Subscription25__Due_Date__c;
         data.invoiceTypeCode = (invoice.Subscription25__Total_Amount__c < 0) ? '381' : '380';
+        // BT-25 preceding invoice of a credit note: the package link (2.76+) first, then our ParentId__c (UK credits fill that one)
+        data.precedingInvoiceNumber = firstNonBlank(invoice.Subscription25__Original_Invoice__r.Subscription25__Invoice_Number__c, invoice.ParentId__r.Subscription25__Invoice_Number__c, null);
         // BT-10: cost center first, then the account's invoice payment remark; empty when neither is filled
         data.buyerReference = firstNonBlank(invoice.Cost_Center_invoicing__c, invoice.Subscription25__Account__r.Cost_Center_invoicing__c,
             invoice.Subscription25__Account__r.Invoice_Payment_Remark__c);
@@ -481,6 +489,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
         Date invoiceDate;
         Date dueDate;
         String invoiceTypeCode;
+        String precedingInvoiceNumber;
         String buyerReference;
         String purchaseOrderNumber;
         String currencyCode;
