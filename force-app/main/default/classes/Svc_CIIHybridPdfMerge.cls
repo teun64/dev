@@ -33,23 +33,32 @@ public without sharing class Svc_CIIHybridPdfMerge implements Queueable, Databas
     }
 
     public void execute(QueueableContext context) {
-        List<Subscription25__Invoice__c> invoicesToUpdate = new List<Subscription25__Invoice__c>();
-
-        for (MergeRequest request : this.requests) {
-            Subscription25__Invoice__c invoice = new Subscription25__Invoice__c(Id = request.invoiceId);
-            try {
-                mergeOne(request.invoiceId, request.contentDocumentId);
-                invoice.CII_Merge_Status__c = 'SUCCESS';
-                invoice.CII_Merge_Error__c = null;
-            } catch (Exception e) {
-                invoice.CII_Merge_Status__c = 'ERROR';
-                invoice.CII_Merge_Error__c = (e.getMessage() + '\n' + e.getStackTraceString()).left(32768);
-            }
-            invoicesToUpdate.add(invoice);
+        if (this.requests == null || this.requests.isEmpty()) {
+            return;
         }
 
-        if (!invoicesToUpdate.isEmpty()) {
-            Database.update(invoicesToUpdate, false, AccessLevel.SYSTEM_MODE);
+        // One invoice per job: mergeOne() inserts the new file version (DML) after its callout, and Salesforce
+        // forbids a callout once DML is pending in the same transaction. A job with several invoices therefore
+        // merged only the first one and failed the rest ("You have uncommitted work pending"). The remaining
+        // invoices go into a chained job of their own.
+        MergeRequest request = this.requests[0];
+        Subscription25__Invoice__c invoice = new Subscription25__Invoice__c(Id = request.invoiceId);
+        try {
+            mergeOne(request.invoiceId, request.contentDocumentId);
+            invoice.CII_Merge_Status__c = 'SUCCESS';
+            invoice.CII_Merge_Error__c = null;
+        } catch (Exception e) {
+            invoice.CII_Merge_Status__c = 'ERROR';
+            invoice.CII_Merge_Error__c = (e.getMessage() + '\n' + e.getStackTraceString()).left(32768);
+        }
+        Database.update(new List<Subscription25__Invoice__c>{ invoice }, false, AccessLevel.SYSTEM_MODE);
+
+        if (this.requests.size() > 1 && !Test.isRunningTest()) {
+            List<MergeRequest> remaining = new List<MergeRequest>();
+            for (Integer i = 1; i < this.requests.size(); i++) {
+                remaining.add(this.requests[i]);
+            }
+            System.enqueueJob(new Svc_CIIHybridPdfMerge(remaining));
         }
     }
 

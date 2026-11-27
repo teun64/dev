@@ -107,6 +107,27 @@ private class Test_Svc_CIIHybridPdfMerge {
     }
 
     @IsTest
+    private static void test_severalRequestsInOneJob_doNotFailOnPendingDml(){
+        // Regression: a job with several invoices merged the first one (DML: new file version) and then failed
+        // every following callout with "You have uncommitted work pending". Now one invoice is handled per job.
+        Subscription25__Invoice__c inv = createFixture();
+        Id firstDocumentId = createPdfContentDocument(inv.Id, 'invoice-123.pdf');
+        Id secondDocumentId = createPdfContentDocument(inv.Id, 'invoice-123.pdf');
+        Test.setMock(HttpCalloutMock.class, new MergeServiceMock());
+
+        Test.startTest();
+        System.enqueueJob(new Svc_CIIHybridPdfMerge(new List<Svc_CIIHybridPdfMerge.MergeRequest>{
+            new Svc_CIIHybridPdfMerge.MergeRequest(inv.Id, firstDocumentId),
+            new Svc_CIIHybridPdfMerge.MergeRequest(inv.Id, secondDocumentId)
+        }));
+        Test.stopTest();
+
+        Subscription25__Invoice__c result = [SELECT CII_Merge_Status__c, CII_Merge_Error__c FROM Subscription25__Invoice__c WHERE Id = :inv.Id WITH SYSTEM_MODE];
+        System.assertEquals('SUCCESS', result.CII_Merge_Status__c, 'Error: ' + result.CII_Merge_Error__c);
+        System.assertEquals(2, [SELECT COUNT() FROM ContentVersion WHERE ContentDocumentId = :firstDocumentId], 'First file must be merged');
+    }
+
+    @IsTest
     private static void test_mergeFailure_setsErrorStatus(){
         Subscription25__Invoice__c inv = createFixture();
         Id contentDocumentId = createPdfContentDocument(inv.Id, 'invoice-123.pdf');
