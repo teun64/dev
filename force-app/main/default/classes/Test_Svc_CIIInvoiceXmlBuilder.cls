@@ -104,6 +104,18 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
     }
 
     @IsTest
+    private static void test_unitCodeFallsBackOnCostType(){
+        Map<String, String> m = new Map<String, String>{ 'Month(s)' => 'MON', 'Piece(s)' => 'C62', 'Hour(s)' => 'HUR' };
+        System.assertEquals('HUR', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode('Hour(s)', 'RECURRING', m), 'an explicit unit wins');
+        System.assertEquals('MON', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode('Month(s)', 'NON_RECURRING', m), 'explicit Month(s) on a prepaid product stays');
+        System.assertEquals('C62', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode(null, 'NON_RECURRING', m), 'activation fee without unit = piece');
+        System.assertEquals('C62', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode(null, null, m), 'nothing known = piece');
+        System.assertEquals('MON', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode(null, 'RECURRING', m), 'recurring without unit = month');
+        System.assertEquals('MON', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode('12', 'RECURRING', m), 'junk unit value falls back on the cost type');
+        System.assertEquals('DAY', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode('', 'RECURRING_DAILY', m), 'daily price = day');
+    }
+
+    @IsTest
     private static void test_sellerComesFromBusinessEntity(){
         Id invId = createInvoiceFixture(null, null, null, null);
         String reseller = [SELECT Reseller__c FROM Subscription25__Invoice__c WHERE Id = :invId].Reseller__c;

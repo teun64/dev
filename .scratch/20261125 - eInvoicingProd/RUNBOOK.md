@@ -140,3 +140,7 @@ Also noted: `001AO000002plpXYAQ` Automobile Obermeier (reseller 5, ungrouped, di
 - Peppol / XRechnung only if a customer asks (electronic address BT-34/BT-49, Leitweg-ID as buyer reference).
 - Account field for a Leitweg-ID (today BT-10 = Cost Center, else Invoice Payment Remark).
 - Separate acc Lambda (Part A step 1) before acc is used for anything else.
+
+
+## Open: unit of measure data fix (decided 2026-11-27)
+The XML builder now falls back on Cost Type when Product2.QuantityUnitOfMeasure is empty/junk (BR-23 needs a unit on every line). Decision: go to Quantity Unit Of Measure ALONE. Prepare a data fix first (prod: 369 NON_RECURRING products without unit -> Piece(s); 39 'Month', 9 '12', 2 '24' on RECURRING -> Month(s); review 28 NON_RECURRING with Month(s), e.g. prepaid bundles), then remove the fallback in `Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode`.

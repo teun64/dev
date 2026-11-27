@@ -311,7 +311,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
             SELECT
                 Invoice_Grouping__c, Product_Code__c, Product_Name__c, Invoice_Description__c, Quantity, UnitPrice,
                 Amount_Net__c, Amount_VAT__c, Amount_Gross__c, Subscription25__VAT_Percentage__c,
-                Subscription25__VAT_Code__c, Product2.QuantityUnitOfMeasure, InvoiceStartDate__c, InvoiceEndDate__c
+                Subscription25__VAT_Code__c, Product2.QuantityUnitOfMeasure, Product2.Subscription25__Cost_Type__c, InvoiceStartDate__c, InvoiceEndDate__c
             FROM OrderItem
             WHERE Order.Subscription25__Invoice__c = :invoiceId
             WITH SYSTEM_MODE
@@ -439,7 +439,7 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
             lineData.netAmount = aggLine.netAmount;
             lineData.vatPercent = aggLine.vatPercentage;
             lineData.vatCategoryCode = aggLine.vatCode;
-            lineData.uneceUnitCode = uneceCodeByInternalUnit.get(anchor.Product2.QuantityUnitOfMeasure);
+            lineData.uneceUnitCode = resolveUneceUnitCode(anchor.Product2.QuantityUnitOfMeasure, anchor.Product2.Subscription25__Cost_Type__c, uneceCodeByInternalUnit);
             data.lines.add(lineData);
         }
 
@@ -516,6 +516,25 @@ public with sharing class Svc_CIIInvoiceXmlBuilder {
 
         List<LineData> lines;
         List<Util_InvoiceLineAggregator.VatBreakdown> vatBreakdown;
+    }
+
+    // BT-130 is mandatory (BR-23). An explicit unit of measure on the product wins; when it is empty or not a picklist
+    // value (prod has 369 non-recurring products without unit, and a few recurring ones with 'Month', '12', '24') the
+    // cost type decides: recurring = per month, recurring (daily price) = per day, anything else = piece.
+    // TODO (decision 2026-11-27): the goal is to use Quantity Unit Of Measure ALONE. Needs a data fix first (set the unit on the
+    // ~369 empty non-recurring products, correct 'Month'/'12'/'24' to 'Month(s)'); then drop the cost type fallback.
+    @TestVisible
+    private static String resolveUneceUnitCode(String unit, String costType, Map<String, String> uneceCodeByInternalUnit) {
+        if (String.isNotBlank(unit) && uneceCodeByInternalUnit.containsKey(unit)) {
+            return uneceCodeByInternalUnit.get(unit);
+        }
+        if (costType == 'RECURRING') {
+            return uneceCodeByInternalUnit.containsKey('Month(s)') ? uneceCodeByInternalUnit.get('Month(s)') : 'MON';
+        }
+        if (costType == 'RECURRING_DAILY') {
+            return 'DAY';
+        }
+        return uneceCodeByInternalUnit.containsKey('Piece(s)') ? uneceCodeByInternalUnit.get('Piece(s)') : 'C62';
     }
 
     private class LineData {
