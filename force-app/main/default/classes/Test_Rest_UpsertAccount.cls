@@ -655,6 +655,36 @@ private class Test_Rest_UpsertAccount {
         System.assertEquals('pr', acc.Payment_Method_Contracts__c, 'UK with bank account defaults to pr, no longer I0');
     }
 
+    // UK I0 stays I0 while the bank account is unchanged, moves to pr when it changes
+    @IsTest
+    static void testUkI0StaysWithoutBankChange() {
+        Database.insert(new Business_Entities__c(Name = 'UK Stripe', Reseller__c = '6', PayProv_Use__c = true), AccessLevel.SYSTEM_MODE);
+        firstUkAccountOnI0();
+        post(ukBody('GB33BUKB20201555555555'));
+        Account acc = [SELECT Payment_Method_Contracts__c FROM Account WHERE extID_1__c = 't70' LIMIT 1];
+        System.assertEquals('I0', acc.Payment_Method_Contracts__c, 'I0 kept, bank unchanged');
+    }
+
+    @IsTest
+    static void testUkI0MovesToPrOnBankChange() {
+        Database.insert(new Business_Entities__c(Name = 'UK Stripe', Reseller__c = '6', PayProv_Use__c = true), AccessLevel.SYSTEM_MODE);
+        firstUkAccountOnI0();
+        post(ukBody('GB29NWBK60161331926819'));
+        Account acc = [SELECT Payment_Method_Contracts__c FROM Account WHERE extID_1__c = 't70' LIMIT 1];
+        System.assertEquals('pr', acc.Payment_Method_Contracts__c, 'bank changed: new mandate needed');
+    }
+
+    private static String ukBody(String bank) {
+        return '{"id":"t70","salesforceId":null,"debtorNumber":null,"name":"Business b.v.","isBusiness":true,"isDealer":false,"vatNumber":"NL123456789B01","cocNumber":"12345678","paymentMethodExactCode":null,"bankAccountHolder":"Business b.v.","bankAccountNumber":"%BANK%","bankAccountBic":"BICCODE1","contactDTOs":[{"id":"t7001","salesforceId":null,"accountId":"t70","firstName":"Paul","insertion":"het","surName":"Contact","email":"paul.het.Contact@gmail.com","function":null,"phoneNumber":"+31655667788","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true},{"id":"t7002","salesforceId":null,"accountId":"t70","firstName":"Jan","insertion":"het","surName":"Contact","email":"jan.het.Contact@gmail.com","function":null,"phoneNumber":"+31666778899","language":"nl","street":"Straatnaam ","houseNumber":"1","postalCode":"1111 AA","city":"Plaatsnaam ","country":"NL","isActive":true,"hasDealerTaskAccess":false,"isAdministrator":true}],"visitAddress":{"id":"t70v","accountId":"t70","firstName":"Paul","insertion":"de","surName":"Particulier","email":"paul.de.particulier@gmail.com","phoneNumber":"+31655667788","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"billingAddress":{"id":"t70b","accountId":"t70","firstName":"Jan","insertion":"de","surName":"Billert","email":"billing@gmail.com","phoneNumber":"+31644556677","street":"Straatnaam","houseNumber":"12","postalCode":"1111 AA","city":"Plaatsnaam","country":"NL","language":null},"isBlocked":false,"isBankrupt":false,"resellerId":6,"primarySbiCode":null,"secondarySbiCode1":null,"secondarySbiCode2":null,"platformId":1}'.replace('%BANK%', bank);
+    }
+
+    private static Account firstUkAccountOnI0() {
+        post(ukBody('GB33BUKB20201555555555'));
+        Account acc = [SELECT Id FROM Account WHERE extID_1__c = 't70' LIMIT 1];
+        Database.update(new Account(Id = acc.Id, Payment_Method_Contracts__c = 'I0'), AccessLevel.SYSTEM_MODE);
+        return acc;
+    }
+
     @IsTest
     static void testCNotOverwrittenByPlatform() {
         Database.insert(new Business_Entities__c(Name = 'UK Stripe', Reseller__c = '6', PayProv_Use__c = true), AccessLevel.SYSTEM_MODE);

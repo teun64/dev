@@ -132,7 +132,7 @@ global without sharing class Rest_UpsertAccount {
 			' ShippingStreet, ShippingPostalCode, ShippingCity, ShippingStateCode, ShippingCountryCode, ' +
 			' Status__c, isPrivacyMode__c, VAT_Number__c, CoC_Number__c,' +
 			' Payment_Method_Contracts__c, Payment_Method_Opportunities__c, FinancialDebtorNumber__c, FinancialDebtorNumberPrevious__c,' +
-			' Bank_Account__c, Bank_Account_Number__c, Bank_BIC__c,' +
+			' Bank_Account__c, Bank_Account_Number__c, Bank_BIC__c, PayProv_MandateId__c,' +
 			' SBI_Primary_Code__c, SBI_Secondary_Code_1__c, SBI_Secondary_Code_2__c, HasDealerTasks__c, ContractTerm__c,' +
 			' NoticeTerm__c, RenewalTerm__c, OrderOffsetTerm__c, Invoice_Period__c, Subscription_Type__c,' +
 			' Contact_Person__c, Contact_Person__r.AccountId, Contact_Person__r.Is_Active__c, Contact_Person__r.' +
@@ -194,6 +194,7 @@ global without sharing class Rest_UpsertAccount {
 
 		// 20221101 - TRi - force all UK - Direct Debits to I0; 20261028 TRi UK direct debit default is now pr (Stripe recurring)
 		acc.Bank_Account__c = (String.isNotBlank(miAcc.bankAccountHolder)) ? miAcc.bankAccountHolder : ((String.isNotBlank(acc.Bank_Account__c)) ? acc.Bank_Account__c : acc.Name);
+		String previousBankNumber = acc.Bank_Account_Number__c;
 		if (String.isNotBlank(miAcc.bankAccountNumber)) {
 			acc.Bank_Account_Number__c = miAcc.bankAccountNumber;
 		}
@@ -209,6 +210,14 @@ global without sharing class Rest_UpsertAccount {
 		// 20261028 TRi once on pr (Stripe recurring) never back to an Exact direct debit I-code, same as vr_PaymentMethodContractsProviderLock
 		if (previousContractsMethod == 'pr' && acc.Payment_Method_Contracts__c?.left(1) == 'I') {
 			acc.Payment_Method_Contracts__c = 'pr';
+		}
+		// 20261125 TRi UK I-code (Exact direct debit) only moves to pr when the bank account changed (the Exact mandate is then invalid) or a Stripe mandate exists; otherwise a pr payment waits for a mandate nobody asked for
+		if (miAcc.resellerId == 6 && previousContractsMethod?.left(1) == 'I' && acc.Payment_Method_Contracts__c == 'pr' && String.isBlank(acc.PayProv_MandateId__c)) {
+			String oldBank = (previousBankNumber == null) ? '' : previousBankNumber.deleteWhitespace().toUpperCase();
+			String newBank = (miAcc.bankAccountNumber == null) ? '' : miAcc.bankAccountNumber.deleteWhitespace().toUpperCase();
+			if (oldBank == newBank || newBank == '') {
+				acc.Payment_Method_Contracts__c = previousContractsMethod;
+			}
 		}
 		// 20261030 TRi once on C (set by Finance, e.g. own MI accounts) the platform never changes it
 		if (previousContractsMethod == 'C') {
