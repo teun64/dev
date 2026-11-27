@@ -144,3 +144,10 @@ Also noted: `001AO000002plpXYAQ` Automobile Obermeier (reseller 5, ungrouped, di
 
 ## Open: unit of measure data fix (decided 2026-11-27)
 The XML builder now falls back on Cost Type when Product2.QuantityUnitOfMeasure is empty/junk (BR-23 needs a unit on every line). Decision: go to Quantity Unit Of Measure ALONE. Prepare a data fix first (prod: 369 NON_RECURRING products without unit -> Piece(s); 39 'Month', 9 '12', 2 '24' on RECURRING -> Month(s); review 28 NON_RECURRING with Month(s), e.g. prepaid bundles), then remove the fallback in `Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode`.
+
+
+## 2026-11-27 prod: Sub25 2.77 + unit fix
+- Package GoMeddo Subscription Management 2.77.0.1 installed in prod by the user (16:28). Checked after: all 6 package crons WAITING (same crons), AUTO_CREATE_UBL true, admin flags unchanged, no failed jobs. dev/acc already on 2.77: invoice/finalize/CII Apex tests 71/71 (dev) and 69/69 (acc) pass.
+- Unit fix (BR-23, cost-type fallback) deployed to prod: deploy 0AfTx0000016ea6KAA, 18 tests pass; live body has resolveUneceUnitCode.
+- Not verified on 2.77: Exact finalize/number path (numbers were set by hand in dev/acc). Watch the first nightly batch (19:16 / 22:16 / 23:16 org time).
+- Test set (dev+acc): .scratch/20261127 - testSet/ (README). Unit data fix still to prepare (see section above).
