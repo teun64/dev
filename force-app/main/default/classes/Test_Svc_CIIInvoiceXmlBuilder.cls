@@ -115,6 +115,19 @@ private class Test_Svc_CIIInvoiceXmlBuilder {
         System.assertEquals('DAY', Svc_CIIInvoiceXmlBuilder.resolveUneceUnitCode('', 'RECURRING_DAILY', m), 'daily price = day');
     }
 
+    // every payment method that is live on invoices must map to a UNCL4461 code (E8 = direct debit 8 days, NL, was missing)
+    @IsTest
+    private static void test_livePaymentMethodsAreMapped(){
+        Map<String, String> codeByMethod = new Map<String, String>();
+        for (Payment_Method_UNCL4461_Mapping__mdt m : [SELECT Internal_Payment_Code__c, UNCL4461_Code__c FROM Payment_Method_UNCL4461_Mapping__mdt WHERE Payment_Method_Type__c = null]) {
+            codeByMethod.put(m.Internal_Payment_Code__c, m.UNCL4461_Code__c);
+        }
+        for (String method : new List<String>{ '08', '14', '30', '60', 'I3', 'I4', 'I8', 'E8' }) {
+            System.assert(codeByMethod.containsKey(method), 'No UNCL4461 mapping for payment method ' + method);
+        }
+        System.assertEquals('59', codeByMethod.get('E8'), 'E8 = SEPA direct debit, like I8');
+    }
+
     @IsTest
     private static void test_sellerComesFromBusinessEntity(){
         Id invId = createInvoiceFixture(null, null, null, null);
