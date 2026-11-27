@@ -106,13 +106,22 @@ Selected with `Reseller_Name__c = '5'` on the Account (Germany). 18 accounts, li
 
 Also noted: `001AO000002plpXYAQ` Automobile Obermeier (reseller 5, ungrouped, direct debit I8): UBL option is **off** (switched off by the user on 2026-11-26; its invoice I-2611-00791826 was the first real direct-debit hybrid check). Query to refresh the list: `SELECT Id, Name, Invoice_Grouping__c FROM Account WHERE Subscription25__Include_UBL_In_Email__c = true AND Reseller_Name__c = '5' ORDER BY Name`.
 
+## Findings 2026-11-27
+- **Batch bug (fixed, prod deploy `0AfTx0000016axtKAA`, commit `e91bc64`):** the nightly PDF batch (21:16 UTC) created 10 German invoices; 5 merged, 5 got ERROR "You have uncommitted work pending": one queued job handled several invoices, the first merge inserted the new file version (DML) and every following callout was refused. `Svc_CIIHybridPdfMerge` now handles ONE invoice per job and chains the rest (chain skipped in tests: `Test.isRunningTest()`); new regression test. The 5 failed invoices (DE26712939/41/42/43/47) had gone out as plain PDF; re-merged by hand in one job (5 chained jobs, all SUCCESS, Mustang valid, totals and lines = PDF).
+- **Email vs merge:** package jobs (org time): `Job_InvoiceCreation` 19:16, `Job_InvoicePDFCreation` 22:16, `Job_EmailInvoice` 23:16 (= 21:16 / 22:16 UTC). The merge takes seconds, so it is done about an hour before the email. Proof: I-2611-00791826 merged 19:00 UTC, EmailMessage 22:18 UTC links the same ContentDocument whose latest version is the merged file (85,327 bytes). Only the manual email button within ~5 s of Generate PDF could still send the plain file.
+- **Payment method vs PDF:** XML code follows the PDF text (I8 -> 59 "abgebucht", 14 -> 30 "bitte ueberweisen"). The package UBL ALWAYS writes PaymentMeansCode 30, whatever the method (checked on 7 method/reseller combinations in prod, 3 files each: I8, 08, E8, 14, 30). So the package UBL says credit transfer for direct-debit invoices; accepted, UBL is the separate Dutch-market file. Our CMDT mapping has no entry for method `E8` (6 NL invoices in 60 days): no PaymentMeans written for those; irrelevant for Germany (only I8 and 30 occur), add `E8` before NL/UK use the hybrid.
+- **Mixed VAT rates:** none in the last 30 days (0 of 4,430 invoices); not a case to cover.
+- **`Ctrl_Invoice` refactor now in prod** (deploy `0AfTx0000016bIrKAI`, 15/15 tests, class coverage 81%, run with `Test_Invoice`, `Test_Invoices`, `Test_Ctrl_InvoiceRemarks`, `Test_Ctrl_InvoiceEstablishmentAddress`, `Test_Util_InvoiceLineAggregator`). Prod now equals dev/acc/repo. Before/after check on 20 real invoices (NL, DE, UK; grouped and ungrouped; credit notes; TOTAL VAT method), rendering `/apex/Invoice?h=1` via anonymous Apex: rendered text identical (hash and length) before and after. Rollback copy of the old class: scratchpad `ctrl_prod.cls` (not durable); the old version is in git history (before e3affcb).
+- Technique worth reusing: `new PageReference('/apex/Invoice')` with `Id` and `h=1`, `getContent()` in anonymous Apex, strip scripts and tags, hash (the log escapes `|` as `&#124;`).
+- Accepted: 1-cent rounding comes from the package; buyer reference (BT-10) not required yet.
+
 ## Open after go-live (2026-11-26)
 - **Flag is ON for Germany**: the evening run (about 18:20, invoices created + FINALIZED + emailed) now merges every German invoice. Switch off with `Include_CII_Hybrid_PDF__c = false` if needed.
 - Direct debit path verified (see findings). Still open: a grouped account with direct debit, and PayProv-mandate accounts (none in Germany).
 - **Only single-rate (19%) grouped invoices checked** against the PDF: check a mixed-rate, an ungrouped account and a credit note.
 - **Finance:** confirm VAT categories (2 S, 6 G, 0 O, 7 K) and the Exact mandate id as mandate reference (no German account has `PayProv_MandateId__c`).
 - **Buyer reference BT-10** is empty unless the account has a cost center or payment remark.
-- Later: deploy the `Ctrl_Invoice` refactor (add `Test_Invoice`, `Test_Invoices` etc. to the run for 75% coverage) so PDF and XML share one grouping; no other administrations yet.
+- No other administrations yet (UK/NL).
 
 ## Open verification items (not yet checked anywhere)
 - **Never re-run the merge on an already merged file:** re-merging a hybrid PDF embeds a second XML and fails PDF/A validation (acc test 2026-11-25: file version 3 invalid, MIME type of the embedded files). Normal flow (Generate PDF creates a plain file) is fine; a guard in `Svc_CIIHybridPdfMerge` (skip when the PDF already has the XML) is a possible hardening.
