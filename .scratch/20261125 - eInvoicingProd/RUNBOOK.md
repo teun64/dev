@@ -151,3 +151,10 @@ The XML builder now falls back on Cost Type when Product2.QuantityUnitOfMeasure 
 - Unit fix (BR-23, cost-type fallback) deployed to prod: deploy 0AfTx0000016ea6KAA, 18 tests pass; live body has resolveUneceUnitCode.
 - Not verified on 2.77: Exact finalize/number path (numbers were set by hand in dev/acc). Watch the first nightly batch (19:16 / 22:16 / 23:16 org time).
 - Test set (dev+acc): .scratch/20261127 - testSet/ (README). Unit data fix still to prepare (see section above).
+
+## Open: questions for finance (item 6, 2026-11-27)
+1. VAT categories for Germany in prod (package VAT code -> UNCL5305): `2` = S (standard), `6` = G (export outside EU), `0` = O (outside scope), `7` = K (intra-EU). Already set; please confirm they match what finance books, and say if other codes occur.
+2. SEPA mandate reference (BT-89): we send the Exact mandate id without hyphens (works on the direct-debit test invoice). Confirm this is the reference the customer's mandate carries, and the creditor id on the German entity.
+3. Credit notes: the package Original Invoice link is empty on NL credits and our ParentId__c only filled for UK; should the credited invoice be linked for NL/DE credits too (needed for BT-25)?
+4. Unit data fix in prod (419 products, see `.scratch/20261127 - unitDataFix`): OK to change Product2.QuantityUnitOfMeasure on 369 non-recurring products to Piece(s)? And decide the 28 prepaid bundles (Month(s) or Piece(s)).
+5. Buyer reference (BT-10) is empty unless Cost Center or Invoice Payment Remark is filled; needed later for XRechnung (public sector).
